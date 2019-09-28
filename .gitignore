@@ -226,3 +226,5 @@ test/fixtures/**/.fbkpm
 .pnp
 /packages/lockfile/index.js
 .vscode/
+
+./limbus/app/static/node_modules
