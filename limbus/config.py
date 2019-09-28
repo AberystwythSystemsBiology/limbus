@@ -1,5 +1,6 @@
 class Config:
-    pass
+    SUPPORTED_LANGUAGES = {"en": "English", "cy": "Cymraeg"}
+    BABEL_DEFAULT_LOCALE = "en"
 
 class DevelopmentConfig(Config):
     DEBUG = True
