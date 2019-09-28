@@ -16,9 +16,37 @@
     </head>
 
     <body>
-        <div class="container">
-            {% block body %}
-            {% endblock %}
-        </div>
+            <nav class="site-header sticky-top py-1">
+                    <div class="container d-flex flex-column flex-md-row justify-content-between">
+                      <a class="py-2" href="#">
+                        LImBuS
+                      </a>
+                      <a class="py-2 d-none d-md-inline-block" href="#">Home</a>
+                    </div>
+                  </nav>
+        {% block body %}
+        {% endblock %}
+ 
+              <footer class="container py-5">
+                    <div class="row">
+                      <div class="col-12 col-md">
+                        <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019</small>
+                      </div>
+                      <div class="col-6 col-md">
+                        <h5>Resources</h5>
+                        <ul class="list-unstyled text-small">
+                          <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/">Project GitHub</a></li>
+                          <li><a class="text-muted" href="https://www.abersystemsbiology.co.uk/">AberystwythSystemsBiology</a></li>
+                        </ul>
+                      </div>
+                      <div class="col-6 col-md">
+                        <h5>About</h5>
+                        <ul class="list-unstyled text-small">
+                          <li><a class="text-muted" href="#">Team</a></li>
+                          <li><a class="text-muted" href="#">License</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </footer>
     </body>
 </html>
