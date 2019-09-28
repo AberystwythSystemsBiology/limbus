@@ -16,7 +16,6 @@ Somethin something ```.env``` file, something something in parent directory.
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
 POSTGRES_DB=limbus
-
 ```
 
 Something something install Docker, something something use docker-compose.
