@@ -4,7 +4,10 @@ FROM ubuntu:18.04
 MAINTAINER "Keiron O'Shea <keo7@aber.ac.uk>"
 
 RUN apt-get update && apt-get install \
-  -y --no-install-recommends python3 python3-virtualenv git
+  -y --no-install-recommends curl python3 python3-virtualenv
+
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
+    && apt-get install -y nodejs npm
 
 ADD ./ /limbus
 
@@ -18,5 +21,8 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 WORKDIR /limbus
+
 RUN pip install -r /limbus/requirements.txt
+RUN npm install yarn -g
+RUN yarn install
 CMD ["python", "/limbus/limbus/run.py"]
