@@ -32,4 +32,4 @@ We welcome all sorts of contribution, so please be as candid as you want(!)
 
 # License
 
-This project is proudly released under the [GNU General Public License v3.0](https://raw.githubusercontent.com/AberystwythSystemsBiology/limbus/dev/LICENSE).
+This project is proudly licensed under the [GNU General Public License v3.0](https://raw.githubusercontent.com/AberystwythSystemsBiology/limbus/dev/LICENSE).
