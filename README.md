@@ -10,6 +10,15 @@ Something something git.
 git clone https://github.com/AberystwythSystemsBiology/LImBuS/
 ```
 
+Somethin something ```.env``` file, something something in parent directory.
+
+```
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+POSTGRES_DB=limbus
+
+```
+
 Something something install Docker, something something use docker-compose.
 
 To build the LImBuS container, run the following:

@@ -18,5 +18,5 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 WORKDIR /limbus
-RUN pip install -r /parf/requirements.txt
-CMD ["python", "/parf/parf/run.py"]
+RUN pip install -r /limbus/requirements.txt
+CMD ["python", "/limbus/limbus/run.py"]
