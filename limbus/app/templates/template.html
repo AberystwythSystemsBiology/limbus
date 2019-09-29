@@ -1,50 +1,48 @@
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=0.8">
-        <meta name="author" content="Keiron O'Shea">
-        <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
-        <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}"
-              rel="stylesheet">
-        {% block head %}
-        {% endblock %}
-        <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
-        <link rel="icon" type="image/png" href="{{ url_for('static', filename='imgs/favicon.png') }}"/>
-    </head>
 
-    <body>
-            <nav class="site-header sticky-top py-1">
-                    <div class="container d-flex flex-column flex-md-row justify-content-between">
-                      <a class="py-2" href="{{ url_for('misc.index') }}">
-                        LImBuS
-                      </a>
-                      <a class="py-2 d-none d-sm-inline-block" href="{{ url_for('auth.login') }}">Log In</a>
-                      
-                    </div>
-                  </nav>
-        {% block body %}
-        {% endblock %}
- 
-              <footer class="container py-5">
-                    <div class="row">
-                      <div class="col-12 col-md">
-                        <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019</small>
-                      </div>
-                      <div class="col-6 col-md">
-                        <h5>Resources</h5>
-                        <ul class="list-unstyled text-small">
-                          <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/">Source Code</a></li>
-                        </ul>
-                      </div>
-                      <div class="col-6 col-md">
-                        <h5>About</h5>
-                        <ul class="list-unstyled text-small">
-                          <li><a class="text-muted" href="#">Team</a></li>
-                          <li><a class="text-muted" href="{{ url_for('misc.license')}}">License</a></li>
-                        </ul>
-                      </div>
-                    </div>
-                  </footer>
-    </body>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=0.8">
+  <meta name="author" content="Keiron O'Shea">
+  <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
+  <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+  {% block head %}
+  {% endblock %}
+  <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='imgs/favicon.png') }}" />
+</head>
+
+<body>
+  <nav class="site-header sticky-top py-1">
+    <div class="container d-flex flex-column flex-md-row justify-content-between">
+      LImBuS
+    </div>
+  </nav>
+  {% block body %}
+  {% endblock %}
+
+  <footer class="container py-5">
+    <div class="row">
+      <div class="col-12 col-md">
+        <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019</small>
+      </div>
+      <div class="col-6 col-md">
+        <h5>Resources</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki">Documentation</a></li>
+          <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/">Source Code</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md">
+        <h5>About</h5>
+        <ul class="list-unstyled text-small">
+          <li><a class="text-muted" href="{{ url_for('misc.team') }}">Team</a></li>
+          <li><a class="text-muted" href="{{ url_for('misc.license')}}">License</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</body>
+
 </html>

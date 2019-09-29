@@ -9,3 +9,7 @@ def index():
 @misc.route("/license")
 def license():
     return render_template("misc/license.html")
+
+@misc.route("/team")
+def team():
+    return render_template("misc/team.html")

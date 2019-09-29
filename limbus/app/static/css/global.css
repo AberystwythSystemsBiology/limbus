@@ -1,0 +1,12 @@
+#team-pictures {
+    text-align:center;
+}
+
+#team-pictures img {
+    margin: 1em;
+    max-width: 150px;
+}
+
+#team-pictures p {
+    font-size: 0.8em;
+}
