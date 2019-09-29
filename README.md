@@ -1,6 +1,6 @@
 # LImBuS: The LIbre Biobank System
 
-The goal of this project is to develop a Biobank Information Management System (BIMS) for the management of biospecimens and associated data that are accepted, processed, distributed, and tracked by the biorepository at Hywel Dda’s Clinical Research Centre (CRC).
+The goal of this project is to develop a Biobank Information Management System (BIMS) for the management of biospecimens and associated data that are accepted, processed, distributed, and tracked by the biorepository at Hywel Dda University Health Board's Clinical Research Centre (CRC).
 
 # Setup
 
@@ -10,17 +10,19 @@ Something something git.
 git clone https://github.com/AberystwythSystemsBiology/LImBuS/
 ```
 
-Somethin something ```.env``` file, something something in parent directory.
+Something something ```.env``` file, something something in parent directory.
 
 ```
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
 POSTGRES_DB=limbus
+SECRET_KEY=securitykey
+WTF_CSRF_SECRET_KEY=wtfcsrfsecretkey
 ```
 
 Something something install Docker, something something use docker-compose.
 
-To build the LImBuS container, run the following:
+To build the LImBuS container as a daemon, run the following:
 
 ```bash
 docker-compose up --build -d

@@ -4,7 +4,7 @@ from ..auth.models import User
 
 from . import setup
 from .. import db
-from .forms import LoginForm
+from ..auth.forms import RegistrationForm
 
 @setup.route("/")
 def index():
