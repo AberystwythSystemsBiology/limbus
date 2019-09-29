@@ -1,14 +1,23 @@
 version: "3.3"
+
 services:
   web:
     build: .
+    volumes:
+      - ./:/limbus
     expose:
       - "5000"
     ports:
       - "5000:5000"
     depends_on:
-      - db
-  db:
+      - potgres
+    environment:
+      FLASK_CONFIG: dev
+      FLASK_APP: run.py
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      VIRTUAL_ENV: /opt/venv
+  potgres:
     image: postgres:10
     env_file: .env
     expose:
