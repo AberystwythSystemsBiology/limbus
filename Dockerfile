@@ -16,5 +16,4 @@ RUN npm install yarn -g
 
 WORKDIR /limbus
 
-CMD sh -c "pip install -r requirements.txt"
-CMD sh -c "yarn install"
+CMD sh -c "pip install -r requirements.txt && yarn install"
