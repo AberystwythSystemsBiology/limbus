@@ -9,19 +9,12 @@ RUN apt-get update && apt-get install \
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install -y nodejs npm
 
-#ADD ./ /limbus
-
-ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m virtualenv --python=/usr/bin/python3 $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-#WORKDIR /limbus
-
-RUN ["echo", "$LANG"]
-
-RUN ["ls", "/"]
-
-RUN pip install -r /limbus/requirements.txt
 RUN npm install yarn -g
-RUN yarn install
-CMD ["python", "/limbus/limbus/run.py"]
+
+WORKDIR /limbus
+
+CMD sh -c "pip install -r requirements.txt"
+CMD sh -c "yarn install"

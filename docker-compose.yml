@@ -1,24 +1,32 @@
 version: "3.3"
 
+
 services:
   web:
     build: .
     volumes:
-      - ./:/limbus
+    - ./:/limbus
+    - node_modules:/limbus/node_modules
+    - virtualenv:/opt/venv
     expose:
       - "5000"
     ports:
       - "5000:5000"
     depends_on:
-      - potgres
+      - postgres
     environment:
       FLASK_CONFIG: dev
       FLASK_APP: run.py
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       VIRTUAL_ENV: /opt/venv
-  potgres:
+  
+  postgres:
     image: postgres:10
     env_file: .env
     expose:
       - 5432
+
+volumes:
+  node_modules:
+  virtualenv:

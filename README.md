@@ -25,13 +25,13 @@ Something something install Docker, something something use docker-compose.
 To build the LImBuS container as a daemon, run the following:
 
 ```bash
-docker-compose up --build -d
+docker-compose build
 ```
 
 And to run:
 
 ```bash
-docker-compose up
+docker-compose run web sh -c "python limbus/run.py"
 ```
 
 # Bug reporting and feature suggestions
