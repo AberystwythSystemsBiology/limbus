@@ -32,7 +32,7 @@ def create_app(flask_config):
     from app.auth import models as auth_models
     
     app.register_blueprint(misc_blueprint)
-    app.register_blueprint(setup_blueprint)
+    app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
 
     return app

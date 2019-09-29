@@ -8,12 +8,20 @@
               rel="stylesheet">
         {% block head %}
         {% endblock %}
-        <link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/auth/login.css') }}" rel="stylesheet">
 
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='imgs/favicon.png') }}"/>
     </head>
 
-    <body>
-        <h1>Please sign in</h1>
+    <body class="text-center">
+
+            <form class="form-login">
+                    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+                    <label for="inputEmail" class="sr-only">Email address</label>
+                    <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                    <label for="inputPassword" class="sr-only">Password</label>
+                    <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
     </body>
 </html>
