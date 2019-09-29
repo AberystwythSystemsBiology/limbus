@@ -13,6 +13,8 @@ login_manager = LoginManager()
 
 # blueprint imports
 from .misc import misc as misc_blueprint
+from .setup import setup as setup_blueprint
+from .auth import auth as auth_blueprint
 
 def create_app(flask_config):
     app = Flask(__name__, instance_relative_config=True)
@@ -24,12 +26,13 @@ def create_app(flask_config):
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
 
-
     migrate = Migrate(app, db)
 
     # Load in models here
     from app.auth import models as auth_models
-
+    
     app.register_blueprint(misc_blueprint)
+    app.register_blueprint(setup_blueprint)
+    app.register_blueprint(auth_blueprint)
 
     return app
