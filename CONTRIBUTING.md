@@ -8,7 +8,8 @@
 ### Python
 
 - Where appropriate, please make use of typehinting.
-- Tabos or spaces, I don't care.
+- I don't care about tabs or spaces, I personally use four spaces - but do whatever feels right to you.
+- I try to keep to a limit of 80 characters, but don't care that much.
 
 ### HTML
 
