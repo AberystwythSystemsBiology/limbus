@@ -7,6 +7,9 @@
 
 ### Python
 
+- Where appropriate, please make use of typehinting.
+- Tabos or spaces, I don't care.
+
 ### HTML
 
 - Please, for the love of god, include ```alt``` attribute for all images.
