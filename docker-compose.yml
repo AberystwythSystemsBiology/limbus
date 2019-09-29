@@ -6,7 +6,6 @@ services:
     build: .
     volumes:
     - ./:/limbus
-    - node_modules:/limbus/node_modules
     - virtualenv:/opt/venv
     expose:
       - "5000"
@@ -19,8 +18,8 @@ services:
       FLASK_APP: run.py
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      VIRTUAL_ENV: /opt/venv
-  
+      
+
   postgres:
     image: postgres:10
     env_file: .env
@@ -28,5 +27,4 @@ services:
       - 5432
 
 volumes:
-  node_modules:
   virtualenv:
