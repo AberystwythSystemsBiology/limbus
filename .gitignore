@@ -231,3 +231,5 @@ test/fixtures/**/.fbkpm
 ./limbus/app/static/node_modules
 
 yarn.lock
+
+**/node_modules
