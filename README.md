@@ -10,7 +10,7 @@ The goal of this project is to develop a Biobank Information Management System (
 
 > **Note:** LImBuS is, still very much, in the early stage of development. 
 
-## 📦 Setup
+## 🛠 Setup
 
 Something something git.
 
