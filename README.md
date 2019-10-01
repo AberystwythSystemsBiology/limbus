@@ -28,17 +28,23 @@ WTF_CSRF_SECRET_KEY=wtfcsrfsecretkey
 
 Something something install Docker, something something use docker-compose.
 
-To build the LImBuS container as a daemon, run the following:
+We have provided a simple ```helpers.sh``` script to help get you up and running. To enable this, just source it:
 
 ```bash
-docker-compose build
+source helpers.sh
 ```
 
-And to run:
+If this is your first time running LImBuS, run the following commands in your terminal:
 
 ```bash
-docker-compose run web sh -c "python limbus/run.py"
+limbus-bwd
+limbus-s
 ```
+
+The first line will build LImBuS with its dependencies, and the second line will run it once that process is complete.
+
+If you are contributing to the project, you may be interested in using the ```limbus-b``` function which will just build the project. Moreover ```limbus-d``` just gets the dependencies.
+
 
 # Bug reporting and feature suggestions
 
