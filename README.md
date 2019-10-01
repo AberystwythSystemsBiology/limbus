@@ -45,6 +45,12 @@ limbus-s
 
 The first line will build LImBuS with its dependencies, and the second line will run it once that process is complete.
 
+You're going to now have to set up the database, to do this simply run:
+
+```
+limbus-db-create
+``
+
 If you are contributing to the project, you may be interested in using the ```limbus-b``` function which will just build the project. Moreover ```limbus-d``` just gets the dependencies.
 
 
