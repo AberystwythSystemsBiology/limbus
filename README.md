@@ -49,7 +49,7 @@ You're going to now have to set up the database, to do this simply run:
 
 ```
 limbus-db-create
-``
+```
 
 If you are contributing to the project, you may be interested in using the ```limbus-b``` function which will just build the project. Moreover ```limbus-d``` just gets the dependencies.
 
