@@ -233,3 +233,4 @@ test/fixtures/**/.fbkpm
 yarn.lock
 
 **/node_modules
+*migrations

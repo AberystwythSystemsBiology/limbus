@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, g
 
 from config import app_config
@@ -16,9 +18,9 @@ from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 
-def create_app(flask_config):
+def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object(app_config[flask_config])
+    app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
     app.config.from_pyfile("config.py")
     
     db.init_app(app)
@@ -30,7 +32,7 @@ def create_app(flask_config):
 
     # Load in models here
     from app.auth import models as auth_models
-    
+
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)

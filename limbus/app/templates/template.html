@@ -10,15 +10,18 @@
   {% block head %}
   {% endblock %}
   <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='imgs/favicon.png') }}" />
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" />
 </head>
 
 <body>
-  <nav class="site-header sticky-top py-1">
-    <div class="container d-flex flex-column flex-md-row justify-content-between">
-      LImBuS
-    </div>
-  </nav>
+  <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+    <img class="navbar-brand" src="{{ url_for('static', filename='images/logos/limbus_logo_50px.png')}}" alt="logo">
+    <h5 class="my-0 mr-md-auto font-weight-normal">LImBuS</h5>
+    <nav class="my-2 my-md-0 mr-md-3">
+
+    </nav>
+    <a class="btn btn-outline-primary" href="{{ url_for('auth.login') }}">Sign in</a>
+  </div>
   {% block body %}
   {% endblock %}
 

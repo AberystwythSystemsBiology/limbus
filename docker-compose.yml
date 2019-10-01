@@ -12,13 +12,7 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - postgres
-    environment:
-      FLASK_CONFIG: dev
-      FLASK_APP: run.py
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
-      
+      - postgres      
 
   postgres:
     image: postgres:10

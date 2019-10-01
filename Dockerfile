@@ -13,6 +13,11 @@ RUN npm install yarn -g
 ENV VIRTUAL_ENV="/opt/venv"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+ENV FLASK_CONFIG="dev"
+ENV FLASK_APP="/limbus/limbus/app"
+ENV LANG="C.UTF-8"
+ENV LC_ALL="C.UTF-8"
+
 WORKDIR /limbus
 
 CMD sh -c "python3 -m virtualenv $VIRTUAL_ENV && pip install -r requirements.txt && yarn install"
