@@ -8,4 +8,6 @@ from ..auth.forms import RegistrationForm
 
 @setup.route("/")
 def index():
+
+    print(User.query.get_first())
     return render_template("setup/index.html")

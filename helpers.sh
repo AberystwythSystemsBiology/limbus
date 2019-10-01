@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function limbus-c() {
+    docker-compose run web sh -c "find limbus -type f -name '*.pyc' -exec rm {} +"
+}
+
 function limbus-bwd() {
     limbus-b
     limbus-d
@@ -14,6 +18,6 @@ function limbus-b() {
 }
 
 function limbus-s() {
-    docker-compose run web sh -c "python limbus/run.py"
-    docker-compose run web sh -c "find limbus -type f -name '*.pyc' -exec rm {} +"
+    docker-compose run --service-ports web sh -c "python limbus/run.py"
+    limbus-c
 }
