@@ -36,6 +36,8 @@ We have provided a simple ```helpers.sh``` script to help get you up and running
 source helpers.sh
 ```
 
+> **Note:** For all you young people, I've also provided a ```.fish``` version of the script under ```helpers.fish```. 
+
 If this is your first time running LImBuS, run the following commands in your terminal:
 
 ```bash
@@ -47,7 +49,7 @@ The first line will build LImBuS with its dependencies, and the second line will
 
 You're going to now have to set up the database, to do this simply run:
 
-```
+```bash
 limbus-db-create
 ```
 
