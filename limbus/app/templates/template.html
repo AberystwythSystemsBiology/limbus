@@ -6,7 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.8">
   <meta name="author" content="Keiron O'Shea">
   <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
+
   <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='node_modules/bootstrap-vue/dist/bootstrap-vue.css') }}" rel="stylesheet">
+
+  <script type="text/javascript" src="{{ url_for('static', filename='node_modules/vue/dist/vue.js')}}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='node_modules/bootstrap-vue/dist/bootstrap-vue.js')}}"></script>
+
+
+
   {% block head %}
   {% endblock %}
   <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
@@ -14,6 +22,8 @@
 </head>
 
 <body>
+  <div id="app">
+
   <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
     <img class="navbar-brand" src="{{ url_for('static', filename='images/logos/limbus_logo_50px.png')}}" alt="logo">
     <h5 class="my-0 mr-md-auto font-weight-normal">LImBuS</h5>
@@ -46,6 +56,14 @@
       </div>
     </div>
   </footer>
+</div>
+
+<script>
+    window.app = new Vue({
+      el: '#app'
+    })
+</script>
+
 </body>
 
 </html>

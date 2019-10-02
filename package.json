@@ -1,14 +1,16 @@
 {
-    "name" : "limbus",
-    "version" : "0.0.1",
+    "name": "limbus",
+    "version": "0.0.1",
     "author": {
         "name": "Keiron O'Shea",
         "email": "keo7@aber.ac.uk"
     },
     "repository": "https://github.com/AberystwythSystemsBiology/LImBuS",
     "scripts": {},
-
     "dependencies": {
-        "bootstrap" : "4.3.1"
+        "bootstrap": "4.3.1",
+        "bootstrap-vue": "^2.0.2",
+        "portal-vue": "^2.1.6",
+        "vue": "^2.6.10"
     }
 }

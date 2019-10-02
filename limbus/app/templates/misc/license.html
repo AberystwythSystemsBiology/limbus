@@ -4,62 +4,59 @@
 
 
 {% block body %}
-<div class="container">
-
+<b-container>
     <h1>License</h1>
 
-    <div class="alert alert-warning" role="alert">
+    <b-alert variant="warning" show>
         This is not legal advice. If you have any questions...
-    </div>
+    </b-alert>
 
     <p>This project is proudly licensed under the following terms:</p>
 
-    <div class="card">
-        <div class="card-header">
-            GNU General Public License v3.0
-        </div>
-        <div class="card-body">
-            <p>Permissions of this strong copyleft license are conditioned on making available complete source code of
-                licensed works and modifications, which include larger works using a licensed work, under the same
-                license. Copyright and license notices must be preserved. Contributors provide an express grant of
-                patent rights.</p>
 
-            <div class="row">
-                <div class="col-sm">
-                    <h6>Permissions</h6>
+    <b-card header="GNU General Public License v3.0">
+        <b-card-text>
+            Permissions of this strong copyleft license are conditioned on making available complete source code of
+            licensed works and modifications, which include larger works using a licensed work, under the same license.
+            Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
+        </b-card-text>
+
+        <b-row>
+            <b-col>
+                <h6>Permissions</h6>
+                <ul class="list-unstyled small">
+                    <li>✅ Commercial use</li>
+                    <li>✅ Modification</li>
+                    <li>✅ Distribution</li>
+                    <li>✅ Patent use</li>
+                    <li>✅ Private use</li>
+                </ul>
+            </b-col>
+            <b-col>
+                <h6>Limitations</h5>
                     <ul class="list-unstyled small">
-                        <li>Commercial use</li>
-                        <li>Modification</li>
-                        <li>Distribution</li>
-                        <li>Patent use</li>
-                        <li>Private use</li>
+                        <li>❌ Liability</li>
+                        <li>❌ Warranty</li>
                     </ul>
-                </div>
-                <div class="col-sm">
-                    <h6>Limitations</h5>
-                        <ul class="list-unstyled small">
-                            <li>Liability</li>
-                            <li>Warranty</li>
-                        </ul>
-                </div>
-                <div class="col-sm">
-                    <h6>Conditions</h5>
-                        <ul class="list-unstyled small">
-                            <li>License and copyright notice</li>
-                            <li>State changes</li>
-                            <li>Disclose source</li>
-                            <li>Same license</li>
-                        </ul>
-                </div>
-            </div>
+            </b-col>
 
-            <p>The copyright notice and full terms of the software license can be found <a
-                    href="https://raw.githubusercontent.com/AberystwythSystemsBiology/LImBuS/master/LICENSE">here</a>.
-            </p>
-        </div>
-    </div>
 
-</div>
+            <b-col>
+                <h6>Conditions</h5>
+                    <ul class="list-unstyled small">
+                        <li>❓ License and copyright notice</li>
+                        <li>❓ State changes</li>
+                        <li>❓ Disclose source</li>
+                        <li>❓ Same license</li>
+                    </ul>
+            </b-col>
+        </b-row>
 
+        <b-card-text>
+            The copyright notice and full terms of the software license can be found <a
+                href="https://raw.githubusercontent.com/AberystwythSystemsBiology/LImBuS/master/LICENSE">here</a>.
+        </b-card-text>
+    </b-card>
+</b-container>
 
 {% endblock %}

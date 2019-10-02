@@ -15,14 +15,6 @@ class Biobank(db.Model):
     name = db.Column(db.String(128), required=True)
     url = db.Column(db.String(256), required=True)
 
-    # juristic_person = db.Column(db.String(256))
-
     country = db.Column(db.String(2), required=True)
 
     description = db.Column(db.String(256), required=True)
-
-class JuristicPerson(db.Model):
-    __table__ = "juristicpersons"
-
-    id = db.Column(db.Integer, primary_key=True)
-    
