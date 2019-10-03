@@ -14,7 +14,7 @@ from flask_admin import Admin
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-app_admin = Admin(name='My admin name', template_mode='bootstrap3')
+app_admin = Admin(name="Administrator Panel", template_mode="bootstrap3")
 
 
 # blueprint imports

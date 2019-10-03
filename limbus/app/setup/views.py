@@ -5,6 +5,7 @@ from flask import redirect, abort, render_template, url_for
 from ..auth.models import User
 
 from . import setup
+from .models import Biobank
 from .. import db
 from ..auth.forms import RegistrationForm
 
@@ -13,6 +14,14 @@ def check_if_user(f):
     def decorated_function(*args, **kwargs):
         if User.query.first():
             return abort(401)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def check_if_biobank(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if Biobank.query.first():
+            return "We have a biobank?"
         return f(*args, **kwargs)
     return decorated_function
 
@@ -42,5 +51,12 @@ def admin_registration():
 
         db.session.commit()
 
+        return redirect()
+
         
     return render_template("setup/admin_registration.html", form=form)
+
+@setup.route("/biobank_registration", methods=["GET", "POST"])
+@check_if_biobank
+def biobank_registration():
+    return render_template("setup/biobank_registration.html")

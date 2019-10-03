@@ -12,9 +12,9 @@ class Biobank(db.Model):
 
     acronym = db.Column(db.String(10))
 
-    name = db.Column(db.String(128), required=True)
-    url = db.Column(db.String(256), required=True)
+    name = db.Column(db.String(128), nullable=False)
+    url = db.Column(db.String(256))
 
-    country = db.Column(db.String(2), required=True)
+    country = db.Column(db.String(2), nullable=False)
 
-    description = db.Column(db.String(256), required=True)
+    description = db.Column(db.String(256), nullable=False)
