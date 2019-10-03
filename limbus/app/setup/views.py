@@ -28,16 +28,19 @@ def check_if_biobank(f):
 @setup.route("/")
 @check_if_user
 def index():
+    # Step One: Provide the user with instructions.
     return render_template("setup/index.html")
 
 @setup.route("/eula")
 @check_if_user
 def eula():
+    # Step Two: Present the EULA.
     return render_template("setup/eula.html")
 
 @setup.route("/admin_registration", methods=["GET", "POST"])
 @check_if_user
 def admin_registration():
+    # Step Three: Ask the user to register themselves as administrator.
     form=RegistrationForm()
     if form.validate_on_submit():
         admin = User(
@@ -51,7 +54,7 @@ def admin_registration():
 
         db.session.commit()
 
-        return redirect()
+        return redirect(url_for("setup.biobank_registration"))
 
         
     return render_template("setup/admin_registration.html", form=form)
@@ -59,4 +62,5 @@ def admin_registration():
 @setup.route("/biobank_registration", methods=["GET", "POST"])
 @check_if_biobank
 def biobank_registration():
+    # Step Four: Ask the user to register the biobank's information
     return render_template("setup/biobank_registration.html")
