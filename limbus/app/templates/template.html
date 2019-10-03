@@ -41,7 +41,7 @@
               {{ current_user.first_name }}
             </template>
             {% if current_user.is_admin %}
-            <b-dropdown-item href="{{ url_for('auth.logout') }}">Administration Panel</b-dropdown-item>
+            <b-dropdown-item href="{{ url_for('admin.index') }}">Administration Panel</b-dropdown-item>
             {% endif %}
             <b-dropdown-item href="{{ url_for('auth.logout') }}">Sign Out</b-dropdown-item>
           </b-nav-item-dropdown>

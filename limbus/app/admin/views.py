@@ -1,21 +1,11 @@
 from functools import wraps
 
 from flask import redirect, render_template, url_for, flash, abort
-from flask_login import login_required, login_user, logout_user, current_user
+from flask_admin.contrib.sqla import ModelView
 
-from . import admin
 from .. import db
+from ..auth.models import User
 
-def check_if_admin(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_admin:
-            return abort(401)
-        return f(*args, **kwargs)
-    return decorated_function
-
-@admin.route("/")
-@login_required # Not sure if redundant due to @check_if_admin
-@check_if_admin
-def admin_panel():
-    return "Hello World"
+def add_admin_views():
+    from .. import app_admin
+    app_admin.add_view(ModelView(User, db.session))

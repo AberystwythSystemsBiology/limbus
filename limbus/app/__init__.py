@@ -10,14 +10,19 @@ from flask_login import LoginManager
 
 from flask_migrate import Migrate
 
+from flask_admin import Admin
+
 db = SQLAlchemy()
 login_manager = LoginManager()
+app_admin = Admin(name='My admin name', template_mode='bootstrap3')
+
 
 # blueprint imports
 from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
-from .admin import admin as admin_blueprint
+
+
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -31,12 +36,16 @@ def create_app():
 
     migrate = Migrate(app, db)
 
+    app_admin.init_app(app)
+
     # Load in models here
     from app.auth import models as auth_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
-    app.register_blueprint(admin_blueprint, url_prefix="/admin")
+
+    from app.admin import add_admin_views
+    add_admin_views()
 
     return app
