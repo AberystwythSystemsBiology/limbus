@@ -8,18 +8,24 @@
 
     <p>Something about the administrator account...</p>
 
-    <form method="POST" action="/">
+    <form method="POST" action="{{ url_for('setup.admin_registration' ) }}">
         {{ form.csrf_token }}
 
         {{ form_field(form.email) }}
 
+        {{ form.email.error }}
+
         {{ form_field(form.first_name)}}
+        {{ form.first_name.error }}
 
         {{ form_field(form.last_name) }}
+        {{ form.last_name.error }}
 
         {{ form_field(form.password)}}
+        {{ form.password.error }}
 
         {{ form_field(form.confirm_password)}}
+        {{ form.confirm_password.error }}
 
         {{ form_field(form.submit )}}
 

@@ -26,10 +26,11 @@ def index():
 def eula():
     return render_template("setup/eula.html")
 
-@setup.route("/admin_registration")
+@setup.route("/admin_registration", methods=["GET", "POST"])
 @check_if_user
 def admin_registration():
     form=RegistrationForm()
-
-
+    if form.validate_on_submit():
+        # Add the User account here.
+        pass
     return render_template("setup/admin_registration.html", form=form)
