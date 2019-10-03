@@ -4,7 +4,7 @@
 
 
     {% if with_label %}
-        <b-form-group label="{{field.label.text}}:">
+        <b-form-group label="{{field.label.text}}:" {% if field.description %}description="{{field.description}}"{%endif%}>
     {% else %}
         <b-form-group>
     {% endif %}
@@ -23,9 +23,5 @@
         <b-button type="submit" variant="primary" type="submit" id="{{ field.id}}" {% if field.flags.required %}required{%endif%}>{{ field.label.text }}</b-button>
     {% endif %}
 
-
-
-
-
-</b-form-group>
+    </b-form-group>
 {%- endmacro %}

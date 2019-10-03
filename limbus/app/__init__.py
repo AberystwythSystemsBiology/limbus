@@ -17,6 +17,7 @@ login_manager = LoginManager()
 from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
+from .admin import admin as admin_blueprint
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -36,5 +37,6 @@ def create_app():
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(admin_blueprint, url_prefix="/admin")
 
     return app

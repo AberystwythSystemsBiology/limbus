@@ -31,6 +31,16 @@ def eula():
 def admin_registration():
     form=RegistrationForm()
     if form.validate_on_submit():
-        # Add the User account here.
-        pass
+        admin = User(
+            email = form.email.data,
+            first_name = form.first_name.data,
+            last_name = form.last_name.data,
+            password = form.password.data,
+            is_admin=True
+        )
+        db.session.add(admin)
+
+        db.session.commit()
+
+        
     return render_template("setup/admin_registration.html", form=form)

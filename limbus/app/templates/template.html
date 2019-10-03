@@ -35,7 +35,19 @@
           LImBuS: The LIbre Biobank System
         </b-navbar-brand>
         <b-navbar-nav class="ml-auto">
-          <b-btn variant="primary float-right" href="#">Log In</b-btn>
+          {% if current_user.is_authenticated %}
+          <b-nav-item-dropdown right>
+            <template v-slot:button-content>
+              {{ current_user.first_name }}
+            </template>
+            {% if current_user.is_admin %}
+            <b-dropdown-item href="{{ url_for('auth.logout') }}">Administration Panel</b-dropdown-item>
+            {% endif %}
+            <b-dropdown-item href="{{ url_for('auth.logout') }}">Sign Out</b-dropdown-item>
+          </b-nav-item-dropdown>
+          {% else %}
+          <b-btn variant="primary float-right" href="{{ url_for('auth.login') }}">Log In</b-btn>
+          {% endif %}
         </b-navbar-nav>
       </b-container>
     </b-navbar>
@@ -52,9 +64,11 @@
         <div class="col-6 col-md">
           <h5>Resources</h5>
           <ul class="list-unstyled text-small">
-            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki" target="_blank">Documentation</a>
+            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki"
+                target="_blank">Documentation</a>
             </li>
-            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source Code</a></li>
+            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source
+                Code</a></li>
           </ul>
         </div>
         <div class="col-6 col-md">
