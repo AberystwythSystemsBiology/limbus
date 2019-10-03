@@ -29,4 +29,7 @@ def eula():
 @setup.route("/admin_registration")
 @check_if_user
 def admin_registration():
-    return render_template("setup/admin_registration.html")
+    form=RegistrationForm()
+
+
+    return render_template("setup/admin_registration.html", form=form)
