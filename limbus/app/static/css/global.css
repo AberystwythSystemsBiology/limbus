@@ -1,12 +1,7 @@
-#team-pictures {
-    text-align:center;
+nav img {
+    height:30px;
 }
 
-#team-pictures img {
-    margin: 1em;
-    max-width: 150px;
-}
-
-#team-pictures p {
-    font-size: 0.8em;
+nav {
+    margin-bottom: 2em;
 }

@@ -1,39 +1,31 @@
 {% macro form_field(field) -%}
+
     {% set with_label = kwargs.pop('with_label', True) %}
-    {% set placeholder = '' %}
-    {% if not with_label %}
-        {% set placeholder = field.label.text %}
+
+
+    {% if with_label %}
+        <b-form-group label="{{field.label.text}}:">
+    {% else %}
+        <b-form-group>
     {% endif %}
-    <div class="control-group {% if field.errors %}{% endif %}">
-        {% if with_label %}
-            <label for="{{ field.id }}" class="control-label">
-                {{ field.label.text }}{% if field.flags.required %} *{% endif %}:
-            </label>
-        {% endif %}
-        <div class="controls">
-            {% set class_ = kwargs.pop('class_', '') %}
-            {% if field.flags.required %}
-                {% set class_ = class_ + ' required' %}
-            {% endif %}
-            {% if field.type == 'BooleanField' %}
-                <label class="checkbox">
-                    {{ field(class_=class_, **kwargs) }}
-                    {{ field.label.text|safe }}
-                </label>
-            {% else %}
-                {% if field.type in ('TextField', 'TextAreaField', 'PasswordField') %}
-                    {% set class_ = class_ + ' input-xlarge' %}
-                {% elif field.type == 'FileField' %}
-                    {% set class_ = class_ + ' input-file' %}
-                {% endif %}
-                {{ field(class_=class_, placeholder=placeholder, **kwargs) }}
-            {% endif %}
-            {% if field.errors %}
-                <span class="error help-inline">{{ field.errors|join(', ') }}</span>
-            {% endif %}
-            {% if field.description %}
-                <p class="help-block">{{ field.description|safe }}</p>
-            {% endif %}
-        </div>
-    </div>
+
+    {% if field.errors %}
+        <b-alert variant="danger" show><b>Error:</b> {{ field.errors|join(', ') }}</b-alert>
+    {% endif %}
+
+    {% if field.type == 'BooleanField' %}
+        Boolean Field
+    {% elif field.type == 'StringField' %}
+        <b-form-input id="{{ field.id }}" name="{{field.name}}" {% if field.flags.required %}required{%endif%}></b-form-input>
+    {% elif field.type  == 'PasswordField' %}
+        <b-form-input id="{{ field.id }}" name="{{ field.name }}" type="password" {% if field.flags.required %}required{%endif%}></b-form-input>
+    {% elif field.type == 'SubmitField' %}
+        <b-button type="submit" variant="primary" type="submit" id="{{ field.id}}" {% if field.flags.required %}required{%endif%}>{{ field.label.text }}</b-button>
+    {% endif %}
+
+
+
+
+
+</b-form-group>
 {%- endmacro %}

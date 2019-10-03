@@ -27,14 +27,20 @@
 <body>
   <div id="app">
 
-    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-      <img class="navbar-brand" src="{{ url_for('static', filename='images/logos/limbus_logo_50px.png')}}" alt="logo">
-      <h5 class="my-0 mr-md-auto font-weight-normal">LImBuS</h5>
-      <nav class="my-2 my-md-0 mr-md-3">
+    <b-navbar type="dark" variant="dark">
+      <b-container>
+        <b-navbar-brand href="{{ url_for('misc.index') }}">
+          <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" class="d-inline-block align-top"
+            alt="LImBuS logo">
+          LImBuS: The LIbre Biobank System
+        </b-navbar-brand>
+        <b-navbar-nav class="ml-auto">
+          <b-btn variant="primary float-right" href="#">Log In</b-btn>
+        </b-navbar-nav>
+      </b-container>
+    </b-navbar>
 
-      </nav>
-      <a class="btn btn-outline-primary" href="{{ url_for('auth.login') }}">Sign in</a>
-    </div>
+
     {% block body %}
     {% endblock %}
 
@@ -46,16 +52,16 @@
         <div class="col-6 col-md">
           <h5>Resources</h5>
           <ul class="list-unstyled text-small">
-            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki">Documentation</a>
+            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki" target="_blank">Documentation</a>
             </li>
-            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/">Source Code</a></li>
+            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source Code</a></li>
           </ul>
         </div>
         <div class="col-6 col-md">
           <h5>About</h5>
           <ul class="list-unstyled text-small">
-            <li><a class="text-muted" href="{{ url_for('misc.team') }}">Team</a></li>
-            <li><a class="text-muted" href="{{ url_for('misc.license')}}">License</a></li>
+            <li><a class="text-muted" href="{{ url_for('misc.team') }}" target="_blank">Team</a></li>
+            <li><a class="text-muted" href="{{ url_for('misc.license')}}" target="_blank">License</a></li>
           </ul>
         </div>
       </div>
