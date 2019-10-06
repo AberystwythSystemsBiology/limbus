@@ -8,12 +8,13 @@
 
     <p>Something about the administrator account...</p>
 
-    <form method="POST" action="{{ url_for('setup.admin_registration' ) }}">
+    <form method="POST" action="{{ url_for('setup.admin_registration' ) }}" id="registration">
         {{ form.csrf_token }}
         
 
         {{ form_field(form.email) }}
 
+        {{ form_field(form.title) }}
 
         {{ form_field(form.first_name)}}
 
@@ -29,13 +30,11 @@
 
 {% endblock %}
 
-{% block javascript %}
-import Password from 'vue-password-strength-meter'
-export default {
-  components: { Password },
-  data: () => ({
-    password: null
-  })
-}
-{% endblock %}
 
+
+{% block javascript %}
+
+    <script>
+    </script>
+
+{% endblock %}

@@ -34,7 +34,7 @@ def create_app():
     app_admin.init_app(app)
 
     # Load in models here
-    # from app.auth import models as auth_models
+    from app.auth import models as auth_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")

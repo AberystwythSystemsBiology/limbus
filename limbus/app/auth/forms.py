@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, SubmitField, ValidationError
+from wtforms import PasswordField, StringField, SubmitField, ValidationError, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo
 
-from .models import User
+from .models import User, TitleType
 
 class LoginForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired(), Email()])
@@ -11,6 +11,8 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     email = StringField("Email Address", description="We'll never share your email with anyone else.", validators=[DataRequired(), Email()])
+
+    title = SelectField("Title", validators=[DataRequired()], choices=[(x.name, x.value) for x in TitleType])
 
     first_name = StringField("First Name", validators=[DataRequired()])
     last_name = StringField("Last Name", validators=[DataRequired()])

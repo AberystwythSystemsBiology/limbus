@@ -7,6 +7,7 @@ from ..auth.models import User
 from . import setup
 from .models import Biobank
 from .. import db
+from .forms import BiobankRegistrationForm
 from ..auth.forms import RegistrationForm
 
 def check_if_user(f):
@@ -63,4 +64,5 @@ def admin_registration():
 @check_if_biobank
 def biobank_registration():
     # Step Four: Ask the user to register the biobank's information
-    return render_template("setup/biobank_registration.html")
+    form = BiobankRegistrationForm()
+    return render_template("setup/biobank_registration.html", form=form)

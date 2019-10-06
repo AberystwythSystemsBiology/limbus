@@ -16,18 +16,21 @@
         Boolean Field
     {% elif field.type == 'StringField' %}
         <b-form-input id="{{ field.id }}" name="{{field.name}}" {% if field.flags.required %}required{%endif%}></b-form-input>
+    {% elif field.type == 'SelectField' %}
+        <b-form-select class="mb-3" name="{{ field.name }}">
+        {% for key, value, bo in field.iter_choices()  %}
+            <option value="{{key }}">{{ value }}</option>
+        {%  endfor %}
+    </b-form-select>
     {% elif field.type  == 'PasswordField' %}
         <b-form-input 
         id="{{ field.id }}" 
         name="{{ field.name }}" 
-        type="password" 
+        type="password"
         {% if field.flags.required %}required{%endif%}
-
         >
     </b-form-input>
 
-    <password v-model="password"/>
-    
     {% elif field.type == 'SubmitField' %}
         <b-button type="submit" variant="primary" type="submit" id="{{ field.id}}" {% if field.flags.required %}required{%endif%}>{{ field.label.text }}</b-button>
     {% endif %}
