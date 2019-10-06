@@ -6,20 +6,19 @@ function limbus-c() {
 
 function limbus-bwd() {
     limbus-b
-    limbus-d
+    limbus-deps
 }
 
-function limbus-d() {
-    docker-compose run web sh -c "pip install -r requirements.txt && yarn install"
+function limbus-deps() {
+    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt && yarn install"
 }
 
 function limbus-b() {
     docker-compose build
-
 }
 
 function limbus-s() {
-    docker-compose run --service-ports web sh -c "python limbus/run.py"
+    docker-compose run --service-ports web sh -c "venv/bin/python limbus/run.py"
     limbus-c
 }
 
@@ -30,14 +29,14 @@ function limbus-db-create() {
 }
 
 function limbus-db-init() {
-    docker-compose run web sh -c "flask db init"
+    docker-compose run web sh -c "venv/bin/flask db init"
 
 }
 
 function limbus-db-migrate() {
-    docker-compose run web sh -c "flask db migrate"
+    docker-compose run web sh -c "venv/bin/flask db migrate"
 }
 
 function limbus-db-upgrade() {
-    docker-compose run web sh -c "flask db upgrade"
+    docker-compose run web sh -c "venv/bin/flask db upgrade"
 }

@@ -1,15 +1,10 @@
 import os
 
 from flask import Flask, g
-
 from config import app_config
-
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_login import LoginManager
-
 from flask_migrate import Migrate
-
 from flask_admin import Admin
 
 db = SQLAlchemy()
@@ -39,7 +34,7 @@ def create_app():
     app_admin.init_app(app)
 
     # Load in models here
-    from app.auth import models as auth_models
+    # from app.auth import models as auth_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
