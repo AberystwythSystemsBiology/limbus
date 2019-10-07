@@ -18,7 +18,6 @@ from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 
 
-
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
@@ -31,10 +30,12 @@ def create_app():
 
     migrate = Migrate(app, db)
 
+
     app_admin.init_app(app)
 
     # Load in models here
     from app.auth import models as auth_models
+    from app.misc import models as misc_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")

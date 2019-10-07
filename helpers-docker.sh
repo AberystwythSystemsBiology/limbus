@@ -24,6 +24,8 @@ function limbus-s() {
 
 function limbus-db-rebuild() {
       docker-compose run --service-ports web sh -c "rm -rf migrations"
+      docker-compose run --service-ports web sh -c "venv/bin/flask db downgrade base"
+
       limbus-db-create
 }
 

@@ -3,6 +3,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import db, login_manager
+from ..misc.models import ContactInformation
 
 
 class User(UserMixin, db.Model):
@@ -13,6 +14,9 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
     is_locked = db.Column(db.Boolean, default=False)
+
+    # TODO: Should all accounts require a contact?
+    #contact_id = db.Column(db.Integer, db.ForeignKey(ContactInformation.id))
 
     @property
     def password(self) -> AttributeError:

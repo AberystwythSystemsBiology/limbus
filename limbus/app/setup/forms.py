@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, ValidationError, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo, URL
 
-from .models import Biobank
+from ..biobank.models import Biobank
 
 class BiobankRegistrationForm(FlaskForm):
     name = StringField("Biobank Name", validators=[DataRequired()], description="Textual string of letters denoting the name of the biobank in English")
