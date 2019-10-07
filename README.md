@@ -10,52 +10,6 @@ The goal of this project is to develop a Biobank Information Management System (
 
 > **Note:** LImBuS is, still very much, in the early stage of development. 
 
-## 🛠 Setup
-
-Something something git.
-
-```bash
-git clone https://github.com/AberystwythSystemsBiology/LImBuS/
-```
-
-Something something ```.env``` file, something something in parent directory.
-
-```
-POSTGRES_USER=user
-POSTGRES_PASSWORD=password
-POSTGRES_DB=limbus
-SECRET_KEY=securitykey
-WTF_CSRF_SECRET_KEY=wtfcsrfsecretkey
-```
-
-Something something install Docker, something something use docker-compose.
-
-We have provided a simple ```helpers.sh``` script to help get you up and running. To enable this, just source it:
-
-```bash
-source helpers.sh
-```
-
-> **Note:** For all you young people, I've also provided a ```.fish``` version of the script under ```helpers.fish```. 
-
-If this is your first time running LImBuS, run the following commands in your terminal:
-
-```bash
-limbus-bwd
-limbus-s
-```
-
-The first line will build LImBuS with its dependencies, and the second line will run it once that process is complete.
-
-You're going to now have to set up the database, to do this simply run:
-
-```bash
-limbus-db-create
-```
-
-If you are contributing to the project, you may be interested in using the ```limbus-b``` function which will just build the project. Moreover ```limbus-d``` just gets the dependencies.
-
-
 ## 🤔 Bug reporting and feature suggestions
 
 Please report all bugs or feature suggestions to the [issues tracker](https://www.github.com/AberystwythSystemsBiology/limbus/issues). Please do not email me directly as I'm struggling to keep track of what needs to be fixed.
