@@ -22,11 +22,18 @@ function limbus-s() {
     limbus-c
 }
 
+function limbus-db-rebuild() {
+      docker-compose run --service-ports web sh -c "rm -rf migrations"
+      limbus-db-create
+}
+
+
 function limbus-db-create() {
     limbus-db-init
     limbus-db-migrate
     limbus-db-upgrade
 }
+
 
 function limbus-db-init() {
     docker-compose run web sh -c "venv/bin/flask db init"

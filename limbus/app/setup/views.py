@@ -10,6 +10,8 @@ from .. import db
 from .forms import BiobankRegistrationForm
 from ..auth.forms import RegistrationForm
 
+from random import shuffle
+
 def check_if_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -63,6 +65,29 @@ def admin_registration():
 @setup.route("/biobank_registration", methods=["GET", "POST"])
 @check_if_biobank
 def biobank_registration():
+
+    def _generate_acronym(cc: str, bn: str) -> str:
+        bn = [x for x in list(bn) if x != " "]
+        shuffle(bn)
+        return "%s_%s" % (cc, "".join(bn[0:7]))
+
     # Step Four: Ask the user to register the biobank's information
+
     form = BiobankRegistrationForm()
+
+    if form.validate_on_submit():
+        _generate_acronym(form.country.data, form.name.data)
+        biobank = Biobank(
+            acronym = _generate_acronym(form.country.data, form.name.data),
+            name = form.name.data,
+            description = form.description.data,
+            url = form.url.data,
+            country = form.country.data
+        )
+
+        db.session.add(biobank)
+        db.session.commit()
+
+        return redirect("misc.index")
+
     return render_template("setup/biobank_registration.html", form=form)

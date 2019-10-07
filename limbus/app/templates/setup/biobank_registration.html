@@ -8,9 +8,17 @@
 
     <p>Something about the administrator account...</p>
 
-    <form method="POST" action="{{ url_for('setup.admin_registration' ) }}">
+    <form method="POST" action="{{ url_for('setup.biobank_registration' ) }}">
         {{ form.csrf_token }}
 
+
+        {{ form_field(form.name) }}
+        {{ form_field(form.url) }}
+        {{ form_field(form.description) }}
+
+        {{ form_field(form.country) }}
+
+        {{ form_field(form.submit, with_label=False)}}
 
     </form>
 
