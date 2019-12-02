@@ -30,7 +30,6 @@ def create_app():
 
     migrate = Migrate(app, db)
 
-
     app_admin.init_app(app)
 
     # Load in models here
