@@ -9,23 +9,19 @@
   <meta name="author" content="Keiron O'Shea">
   <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
 
-  <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='node_modules/bootstrap-vue/dist/bootstrap-vue.css') }}" rel="stylesheet">
-
-  <script type="text/javascript" src="{{ url_for('static', filename='node_modules/vue/dist/vue.js')}}"></script>
-  <script type="text/javascript"
-    src="{{ url_for('static', filename='node_modules/bootstrap-vue/dist/bootstrap-vue.js')}}"></script>
-
-
-
   {% block head %}
   {% endblock %}
   <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
+
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" />
 </head>
 
 <body>
-  <div id="app">
+
+    <div class="container">
+
+
+    </div>
 
     <b-navbar type="dark" variant="dark">
       <b-container>
@@ -80,13 +76,7 @@
         </div>
       </div>
     </footer>
-  </div>
 
-  <script>
-    window.app = new Vue({
-      el: '#app'
-    })
-  </script>
 
   {% block javascript %}
 

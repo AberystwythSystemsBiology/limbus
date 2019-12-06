@@ -68,7 +68,6 @@ def biobank_registration():
     if form.validate_on_submit():
         _generate_acronym(form.country.data, form.name.data)
 
-
         #return redirect("misc.index")
 
     return render_template("setup/biobank_registration.html", form=form)
