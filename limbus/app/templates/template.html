@@ -3,84 +3,103 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=0.8">
-  <meta name="author" content="Keiron O'Shea">
-  <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <meta name="author" content="Keiron O'Shea">
+    <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
 
-  {% block head %}
-  {% endblock %}
-  <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
 
-  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" />
+    {% block head %}
+    {% endblock %}
+    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" />
 </head>
 
 <body>
 
-    <div class="container">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{{ url_for('misc.index') }}">
+      <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" class="d-inline-block align-top" alt="LImBuS logo">
+            LImBuS: The LIbre Biobank System
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+        {% if current_user.is_authenticated %}
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+      </li>
+        {% endif %}
+
+    </ul>
+    {% if current_user.is_authenticated %}
+        {{ current_user.first_name }}
+    {% else %}
+        <button class="btn btn-primary float-right" href="{{ url_for('auth.login') }}">Log In</button>
+    {% endif %}
+  </div>
+</nav>
 
 
-    </div>
-
-    <b-navbar type="dark" variant="dark">
-      <b-container>
-        <b-navbar-brand href="{{ url_for('misc.index') }}">
-          <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" class="d-inline-block align-top"
-            alt="LImBuS logo">
-          LImBuS: The LIbre Biobank System
-        </b-navbar-brand>
-        <b-navbar-nav class="ml-auto">
-          {% if current_user.is_authenticated %}
-          <b-nav-item-dropdown right>
-            <template v-slot:button-content>
-              {{ current_user.first_name }}
-            </template>
-            {% if current_user.is_admin %}
-            <b-dropdown-item href="{{ url_for('admin.index') }}">Administration Panel</b-dropdown-item>
-            {% endif %}
-            <b-dropdown-item href="{{ url_for('auth.logout') }}">Sign Out</b-dropdown-item>
-          </b-nav-item-dropdown>
-          {% else %}
-          <b-btn variant="primary float-right" href="{{ url_for('auth.login') }}">Log In</b-btn>
-          {% endif %}
-        </b-navbar-nav>
-      </b-container>
-    </b-navbar>
+{% block body %}
+{% endblock %}
 
 
-    {% block body %}
-    {% endblock %}
 
-    <footer class="container py-5">
-      <div class="row">
+
+
+<footer class="container py-5">
+    <div class="row">
         <div class="col-12 col-md">
-          <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019</small>
+            <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019</small>
         </div>
         <div class="col-6 col-md">
-          <h5>Resources</h5>
-          <ul class="list-unstyled text-small">
-            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki"
-                target="_blank">Documentation</a>
-            </li>
-            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source
-                Code</a></li>
-          </ul>
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki"
+                       target="_blank">Documentation</a>
+                </li>
+                <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source
+                    Code</a></li>
+            </ul>
         </div>
         <div class="col-6 col-md">
-          <h5>About</h5>
-          <ul class="list-unstyled text-small">
-            <li><a class="text-muted" href="{{ url_for('misc.team') }}" target="_blank">Team</a></li>
-            <li><a class="text-muted" href="{{ url_for('misc.license')}}" target="_blank">License</a></li>
-          </ul>
+            <h5>About</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="text-muted" href="{{ url_for('misc.team') }}" target="_blank">Team</a></li>
+                <li><a class="text-muted" href="{{ url_for('misc.license')}}" target="_blank">License</a></li>
+            </ul>
         </div>
-      </div>
-    </footer>
+    </div>
+</footer>
 
 
-  {% block javascript %}
+{% block javascript %}
 
-  {% endblock %}
+{% endblock %}
 
 </body>
 

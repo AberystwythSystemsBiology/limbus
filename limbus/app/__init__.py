@@ -11,7 +11,6 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 app_admin = Admin(name="Administrator Panel", template_mode="bootstrap3")
 
-
 # blueprint imports
 from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
