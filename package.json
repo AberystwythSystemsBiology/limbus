@@ -8,6 +8,8 @@
     "repository": "https://github.com/AberystwythSystemsBiology/LImBuS",
     "scripts": {},
     "dependencies": {
-        "bootstrap": "4.3.1"
+        "bootstrap": "4.3.1",
+        "jquery": "1.9.1",
+        "popper.js": "1.14.7"
     }
 }
