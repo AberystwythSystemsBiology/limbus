@@ -15,7 +15,7 @@
             {% endif %}
 
             {% if field.errors %}
-                <div class="alert alert-danger">
+                <div class="alert alert-warning" role="alert">
                     <b>Error:</b> {{ field.errors|join(', ') }}
                 </div>
             {% endif %}

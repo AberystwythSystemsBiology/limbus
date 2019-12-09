@@ -8,5 +8,9 @@
 
     <a href="{{ url_for('document.upload') }}">Document Upload</a>
 
+    {% for doc in documents %}
+        {{ doc}}
+    {% endfor %}
+
 </div>
 {% endblock %}

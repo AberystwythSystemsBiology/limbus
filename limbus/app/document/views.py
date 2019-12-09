@@ -1,7 +1,9 @@
-from flask import redirect, render_template, url_for, flash, g
+from flask import redirect, render_template, url_for, flash, g, current_app
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.utils import secure_filename
 
+import random
+import string
 
 from . import document
 from .models import Document, DocumentFile
@@ -13,10 +15,9 @@ from .. import db
 @document.route("/")
 def index():
     if current_user.is_admin:
-        documents = db.session.query(Document ,DocumentFile).filter(Document.file_id == DocumentFile.id).all()
+        documents = Document.query.join(DocumentFile, Document.id == DocumentFile.document_id)
     else:
         documents = Document.query.filter(Document.uploader == current_user.id).all()
-
     return render_template("document/index.html", documents=documents)
 
 @document.route("/upload", methods=["GET", "POST"])
@@ -24,6 +25,11 @@ def upload():
     form = DocumentUploadForm()
     if form.validate_on_submit():
         f = form.file.data
+
+        folder_name = ''.join(random.choice(string.ascii_lowercase) for i in range(20))
+
+        current_app.config["DOCUMENT_DIRECTORY"]
+
 
         document_file = DocumentFile(
             filename = secure_filename(f)
@@ -35,9 +41,9 @@ def upload():
         document = Document(
             name = form.name.data,
             description = form.description.data,
-            type = form.description.data,
-            uploader = current_user.id.data,
-            file_id = document_file.id.data
+            type = form.type.data,
+            uploader = current_user.id,
+            file_id = document_file.id
         )
 
         db.session.add(document)

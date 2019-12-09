@@ -10,9 +10,9 @@
     {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
-        <b-alert variant="warning" show>
-            <b>Error:</b> {{ message }}
-        </b-alert>
+        <div class="alert alert-warning">
+            {{ message }}
+        </div>
         {% endfor %}
            
         {% endif %}
