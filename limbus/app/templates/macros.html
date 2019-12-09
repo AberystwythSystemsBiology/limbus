@@ -7,7 +7,7 @@
         <div class="form-group">
 
             {% if with_label %}
-                <label for="{{ field.id }}">{{ field.label.text }}:</label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} (*){% endif %}:</label>
             {% endif %}
 
             {% if field.description %}
@@ -26,17 +26,16 @@
                 <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
                        {% if field.flags.required %}required{% endif %}>
             {% elif field.type == 'SelectField' %}
-                <b-form-select class="mb-3" name="{{ field.name }}">
+                    <select class="form-control" id="{{ field.id}}" name="{{ field.name }}">
                     {% for key, value, bo in field.iter_choices() %}
                         <option value="{{ key }}">{{ value }}</option>
                     {% endfor %}
-                </b-form-select>
+                    </select>
             {% elif field.type  == 'PasswordField' %}
                 <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
             {% elif field.type == 'FileField' %}
                 <input type="file" class="form-control-file" id="{{ field.id}}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
             {% endif %}
-
         </div>
 
     {% else %}

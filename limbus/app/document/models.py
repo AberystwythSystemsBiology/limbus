@@ -1,4 +1,8 @@
 from app import db
+from enum import Enum
+
+class DocumentType(Enum):
+    OTHER = "Other"
 
 class Document(db.Model):
     __tablename__ = "documents"
@@ -7,10 +11,11 @@ class Document(db.Model):
 
     name = db.Column(db.String)
 
+    type = db.Column(db.Enum(DocumentType))
+
+    other_type = db.Column(db.String(128))
+
     description = db.Column(db.String)
-
-    # type ENUM
-
 
     creation_date = db.Column(db.DateTime)
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
@@ -25,6 +30,7 @@ class DocumentFile(db.Model):
     __tablename__ = "document_files"
     id = db.Column(db.Integer, primary_key=True)
     file = db.Column(db.LargeBinary)
+    filename = db.Column(db.String)
 
 
 

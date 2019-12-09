@@ -6,11 +6,13 @@
 <div class="container">
     <h1>Document Upload</h1>
 
-<form method="POST" action="{{ url_for('setup.biobank_registration' ) }}">
+<form method="POST" action="{{ url_for('document.upload' ) }}">
         {{ form.csrf_token }}
 
         {{ form_field(form.name) }}
         {{ form_field(form.description) }}
+
+        {{ form_field(form.type) }}
 
         {{ form_field(form.file) }}
 
