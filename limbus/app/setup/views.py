@@ -60,7 +60,6 @@ def biobank_registration():
         shuffle(bn)
         return "%s_%s" % (cc, "".join(bn[0:7]))
 
-    # Step Four: Ask the user to register the biobank's information
 
     form = BiobankRegistrationForm()
 
