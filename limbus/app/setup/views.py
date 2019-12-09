@@ -3,6 +3,7 @@ from functools import wraps
 from flask import redirect, abort, render_template, url_for
 
 from ..auth.models import User
+from ..misc.models import BiobankInformation
 
 from . import setup
 from .. import db
@@ -64,8 +65,16 @@ def biobank_registration():
     form = BiobankRegistrationForm()
 
     if form.validate_on_submit():
-        _generate_acronym(form.country.data, form.name.data)
 
-        #return redirect("misc.index")
+        biobank = BiobankInformation(
+            name = form.name.data,
+            url = form.url.data,
+            description = form.description.data
+        )
+        db.session.add(biobank)
+
+        db.session.commit()
+
+        return redirect(url_for("misc.index"))
 
     return render_template("setup/biobank_registration.html", form=form)
