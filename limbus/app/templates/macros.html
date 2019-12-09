@@ -2,38 +2,43 @@
 
     {% set with_label = kwargs.pop('with_label', True) %}
 
-    {% if with_label %}
-        <b-form-group label="{{field.label.text}}:" {% if field.description %}description="{{field.description}}"{%endif%}>
+    {% if field.type != 'SubmitField' %}
+
+        <div class="form-group">
+
+            {% if with_label %}
+                <label for="{{ field.id }}">{{ field.label.text }}:</label>
+            {% endif %}
+
+            {% if field.description %}
+                <small class="form-text text-muted">{{ field.description }}</small>
+            {% endif %}
+
+            {% if field.errors %}
+                <div class="alert alert-danger" role="alert">
+                    <b>Error:</b> {{ field.errors|join(', ') }}
+                </div>
+            {% endif %}
+
+            {% if field.type == 'BooleanField' %}
+                Boolean Field
+            {% elif field.type == 'StringField' %}
+                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
+                       {% if field.flags.required %}required{% endif %}>
+            {% elif field.type == 'SelectField' %}
+                <b-form-select class="mb-3" name="{{ field.name }}">
+                    {% for key, value, bo in field.iter_choices() %}
+                        <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                </b-form-select>
+            {% elif field.type  == 'PasswordField' %}
+                <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
+
+            {% endif %}
+
+        </div>
+
     {% else %}
-        <b-form-group>
+        <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
     {% endif %}
-
-    {% if field.errors %}
-        <b-alert variant="danger" show><b>Error:</b> {{ field.errors|join(', ') }}</b-alert>
-    {% endif %}
-
-    {% if field.type == 'BooleanField' %}
-        Boolean Field
-    {% elif field.type == 'StringField' %}
-        <b-form-input id="{{ field.id }}" name="{{field.name}}" {% if field.flags.required %}required{%endif%}></b-form-input>
-    {% elif field.type == 'SelectField' %}
-        <b-form-select class="mb-3" name="{{ field.name }}">
-        {% for key, value, bo in field.iter_choices()  %}
-            <option value="{{key }}">{{ value }}</option>
-        {%  endfor %}
-    </b-form-select>
-    {% elif field.type  == 'PasswordField' %}
-        <b-form-input 
-        id="{{ field.id }}" 
-        name="{{ field.name }}" 
-        type="password"
-        {% if field.flags.required %}required{%endif%}
-        >
-    </b-form-input>
-
-    {% elif field.type == 'SubmitField' %}
-        <b-button type="submit" variant="primary" type="submit" id="{{ field.id}}" {% if field.flags.required %}required{%endif%}>{{ field.label.text }}</b-button>
-    {% endif %}
-
-    </b-form-group>
 {%- endmacro %}
