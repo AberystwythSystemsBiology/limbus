@@ -1,0 +1,12 @@
+{% extends "template.html" %}
+
+{% block title %}Document Portal{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Document Portal</h1>
+
+    <a href="{{ url_for('document.upload') }}">Document Upload</a>
+
+</div>
+{% endblock %}

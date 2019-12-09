@@ -33,7 +33,8 @@
                 </b-form-select>
             {% elif field.type  == 'PasswordField' %}
                 <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
-
+            {% elif field.type == 'FileField' %}
+                <input type="file" class="form-control-file" id="{{ field.id}}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
             {% endif %}
 
         </div>
