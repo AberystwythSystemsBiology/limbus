@@ -96,11 +96,13 @@
     </div>
 </footer>
 
+</body>
 
 {% block javascript %}
 
 {% endblock %}
 
-</body>
+<script src="{{ url_for('static', filename='node_modules/jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
 
 </html>

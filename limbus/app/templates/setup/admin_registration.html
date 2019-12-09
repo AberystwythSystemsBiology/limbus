@@ -3,7 +3,7 @@
 {% block title %}Administrator Registration{% endblock %}
 
 {% block body %}
-<b-container>
+<div class="container">
     <h1>Administrator Registration</h1>
 
     <p>Something about the administrator account...</p>
@@ -11,7 +11,6 @@
     <form method="POST" action="{{ url_for('setup.admin_registration' ) }}" id="registration">
         {{ form.csrf_token }}
 
-        <h2>Account Information</h2>
 
         {{ form_field(form.email) }}
 
@@ -19,40 +18,16 @@
 
         {{ form_field(form.confirm_password)}}
 
-
-        <h2>Personal Information</h2>
-
-        {{ form_field(form.title) }}
-
-        {{ form_field(form.first_name)}}
-
-        {{ form_field(form.last_name) }}
-
-        {{ form_field(form.phone_number) }}
-
-        {{ form_field(form.street_address_one) }}
-
-        {{ form_field(form.street_address_two) }}
-
-        {{ form_field(form.city) }}
-
-        {{ form_field(form.county) }}
-
-        {{ form_field(form.country) }}
-
-        {{ form_field(form.submit, with_label=False)}}
-
-
+        {{ form_field(form.submit) }}
 
     </form>
 
+</div>
 {% endblock %}
 
 
 
 {% block javascript %}
 
-    <script>
-    </script>
 
 {% endblock %}

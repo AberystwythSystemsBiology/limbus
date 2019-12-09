@@ -11,12 +11,11 @@ class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+    email = db.Column(db.String(128), nullable=False, unique=True)
+
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
     is_locked = db.Column(db.Boolean, default=False)
-
-    # TODO: Should all accounts require a contact?
-    #contact_id = db.Column(db.Integer, db.ForeignKey(ContactInformation.id))
 
     @property
     def password(self) -> AttributeError:

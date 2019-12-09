@@ -39,8 +39,6 @@ def admin_registration():
     if form.validate_on_submit():
         admin = User(
             email = form.email.data,
-            first_name = form.first_name.data,
-            last_name = form.last_name.data,
             password = form.password.data,
             is_admin=True
         )
