@@ -1,4 +1,4 @@
-from flask import redirect, render_template, url_for, flash, g, current_app, send_file
+from flask import redirect, render_template, url_for, abort, current_app, send_file
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
@@ -60,7 +60,6 @@ def upload():
 
         db.session.flush()
 
-
         document_file = DocumentFile(
             filename = sfn,
             filepath = filepath,
@@ -78,25 +77,27 @@ def upload():
 
 @document.route("/view/DOC<doc_id>")
 def view(doc_id):
+
     upload_user, document = db.session.query(
-        User,
-        Document
-    ).filter(Document.id == doc_id).filter(
-        DocumentFile.uploader == User.id
-    ).first()
+        User, Document
+    ).filter(Document.id == doc_id).filter(DocumentFile.uploader == User.id).first()
 
-    files = db.session.query(
-        User,
-        DocumentFile
-    ).filter(
-        DocumentFile.uploader == User.id
-    ).filter(DocumentFile.document_id == doc_id).all()
+    if current_user.is_admin or upload_user.id == current_user.id:
 
+        files = db.session.query(
+            User,
+            DocumentFile
+        ).filter(DocumentFile.uploader == User.id).filter(DocumentFile.document_id == doc_id).all()
 
-    return render_template("document/view.html", document=document, upload_user=upload_user, files=files)
+        return render_template("document/view.html", document=document, upload_user=upload_user, files=files)
+
+    else:
+        return abort(401)
 
 @document.route("/download/D<doc_id>F<file_id>")
 def get_file(doc_id, file_id):
     file = DocumentFile.query.filter(DocumentFile.id == file_id).first()
-    print(file.filepath)
-    return send_file(file.filepath)
+    if current_user.is_admin or file.uploader == current_user.id:
+        return send_file(file.filepath)
+    else:
+        return abort(401)
