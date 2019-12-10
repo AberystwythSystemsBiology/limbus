@@ -12,3 +12,5 @@ SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://{user}:{passwd}@postgres:5432/{
 )
 SECRET_KEY = _env["SECRET_KEY"]
 WTF_CSRF_SECRET_KEY = _env["WTF_CSRF_SECRET_KEY"]
+
+DOCUMENT_DIRECTORY = _env["DOCUMENT_DIRECTORY"]
