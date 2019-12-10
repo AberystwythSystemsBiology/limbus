@@ -10,13 +10,22 @@ from . import document
 from .models import Document, DocumentFile
 from .forms import DocumentUploadForm
 
+from ..auth.models import User
+
 from .. import db
 
 @login_required
 @document.route("/")
 def index():
     if current_user.is_admin:
-        documents = Document.query.join(DocumentFile, DocumentFile.document_id == Document.id).all()
+
+        documents = db.session.query(
+            User,
+            Document
+        ).filter(
+            Document.uploader == User.id
+        ).all()
+
     else:
         documents = Document.query.filter(Document.uploader == current_user.id).all()
 
@@ -69,13 +78,25 @@ def upload():
 
 @document.route("/view/DOC<doc_id>")
 def view(doc_id):
-    document = Document.query.filter(Document.id == doc_id).first()
+    upload_user, document = db.session.query(
+        User,
+        Document
+    ).filter(Document.id == doc_id).filter(
+        DocumentFile.uploader == User.id
+    ).first()
 
-    files = DocumentFile.query.filter(DocumentFile.document_id == doc_id).all()
+    files = db.session.query(
+        User,
+        DocumentFile
+    ).filter(
+        DocumentFile.uploader == User.id
+    ).filter(DocumentFile.document_id == doc_id).all()
 
-    return render_template("document/view.html", document=document, files=files)
 
-@document.route("/download/FILE<file_id>")
-def get_file(file_id):
+    return render_template("document/view.html", document=document, upload_user=upload_user, files=files)
+
+@document.route("/download/D<doc_id>F<file_id>")
+def get_file(doc_id, file_id):
     file = DocumentFile.query.filter(DocumentFile.id == file_id).first()
+    print(file.filepath)
     return send_file(file.filepath)
