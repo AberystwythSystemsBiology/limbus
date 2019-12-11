@@ -20,6 +20,12 @@ def index():
 def add_sample():
     return "Hello World"
 
+@sample.route("attribute/")
+def attribute_portal():
+    sample_attributes = db.session.query(SampleAttribute).all()
+
+    return render_template("sample/attribute/index.html", sample_attributes=sample_attributes)
+
 @sample.route("attribute/add", methods=["GET", "POST"])
 def add_attribute():
     form = SampleAttributeCreationForm()
