@@ -20,7 +20,8 @@
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#">LImBuS</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,14 +31,14 @@
         {% if current_user.is_authenticated %}
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('sample.index') }}">Sample Acquisiton Portal</a>
+                    <a class="nav-link" href="{{ url_for('sample.index') }}">SAQ Portal</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('document.index' ) }}">Document Portal</a>
                 </li>
                 {% if current_user.is_admin %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin.index') }}">Administrator Panel</a>
+                        <a class="nav-link" href="{{ url_for('admin.index') }}">Admin Panel</a>
                     </li>
                 {% endif %}
             </ul>
@@ -58,11 +59,13 @@
     </div>
 </nav>
 
+
 {% block body %}
 {% endblock %}
 
 
 
+</body>
 
 
 <footer class="container py-5">
@@ -90,7 +93,6 @@
     </div>
 </footer>
 
-</body>
 
 {% block javascript %}
 

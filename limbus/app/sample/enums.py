@@ -28,3 +28,8 @@ class SampleStatus(Enum):
     DES = "Destroyed"
     TRA = "Transferred"
     MIS = "Missing"
+
+class SampleAttributeTypes(Enum):
+    OPTION = "Option"
+    TEXT = "Text"
+    NUMERIC = "Numeric"
