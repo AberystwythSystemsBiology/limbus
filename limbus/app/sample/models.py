@@ -1,34 +1,5 @@
 from app import db
-from enum import Enum
-
-class SampleType(Enum):
-    FLU = "Fluid"
-    TIS = "Tissue"
-
-class FluidSampleType(Enum):
-    ASC = "Ascites fluid"
-    AMN = "Amniotic fluid"
-    BAL = "Bronchoalveolar lavage"
-    BLD = "Blood (whole)"
-    BMA = "Bone marrow aspirate"
-    BMK = "Breast milk"
-    BUC = "Buccal cells"
-    BUF = "Unficolled buffy coat, viable"
-    BFF = "Unficolled buffy coat, non-viable"
-    CEL = "Ficoll mononuclear cells, viable"
-    CEN = "Fresh cells from non-blood specimen type"
-
-class DisposalInstruction(Enum):
-    DES = "Destroy"
-    TRA = "Transfer"
-    REV = "Note for Review"
-    PRE = "Preserve"
-
-class SampleStatus(Enum):
-    AVA = "Available"
-    DES = "Destroyed"
-    TRA = "Transferred"
-    MIS = "Missing"
+from .enums import SampleType, DisposalInstruction
 
 class Sample(db.Model):
     __tablename__ = "samples"
@@ -39,6 +10,7 @@ class Sample(db.Model):
     datamatrix_barcode = db.Column(db.String)
     batch_number = db.Column(db.Integer)
     collection_date = db.Column(db.DateTime)
+    disposal_instruction = db.Column(db.Enum(DisposalInstruction))
 
     donor_id = db.Column(db.Integer, db.ForeignKey("donors.id"))
 

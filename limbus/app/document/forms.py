@@ -10,7 +10,5 @@ class DocumentUploadForm(FlaskForm):
     description = StringField("Document Description")
     file = FileField()
 
-
-
     submit = SubmitField("Upload")
 
