@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField
+from wtforms import SelectField, StringField, SubmitField, DateField
 from wtforms.validators import DataRequired
 
 from .enums import SampleAttributeTypes, DisposalInstruction, SampleType
@@ -9,6 +9,7 @@ class SampleCreationForm(FlaskForm):
                               choices=[(x.name, x.value) for x in SampleType])
     disposal_instruction = SelectField("Disposal Instructions", validators=[DataRequired()],
                                        choices=[(x.name, x.value) for x in DisposalInstruction])
+    collection_date = DateField()
     submit = SubmitField("Submit")
 
 

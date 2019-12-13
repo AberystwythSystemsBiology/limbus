@@ -1,3 +1,5 @@
+
+
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}
@@ -35,6 +37,9 @@
                 <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
             {% elif field.type == 'FileField' %}
                 <input type="file" class="form-control-file" id="{{ field.id}}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
+            {% elif field.type == 'DateField' %}
+                <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
+                    max="3000-12-31" class="form-control">
             {% endif %}
         </div>
 
@@ -42,3 +47,4 @@
         <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
     {% endif %}
 {%- endmacro %}
+
