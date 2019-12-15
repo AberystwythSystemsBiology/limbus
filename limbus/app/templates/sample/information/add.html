@@ -6,7 +6,7 @@
     <div class="container">
         <h1>Add Sample</h1>
 
-        <form method="POST" action="{{ url_for('sample.add_sample' ) }}">
+        <form method="POST" action="{{ url_for('sample.add_sample_information' ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.sample_type) }}
             {{ form_field(form.collection_date) }}

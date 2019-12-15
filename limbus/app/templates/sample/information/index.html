@@ -1,0 +1,18 @@
+{% extends "template.html" %}
+
+{% block title %}View Samples :: Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Sample Information</h1>
+
+        <a href="{{ url_for('sample.add_sample_information') }}">
+        <div class="btn btn-primary">
+            Add Sample Information
+        </div></a>
+
+        <p></p>
+        {{ samples }}
+
+    </div>
+{% endblock %}

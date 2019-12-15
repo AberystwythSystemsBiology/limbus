@@ -35,8 +35,14 @@ def get_sample_attributes():
     return jsonify(attributes)
 
 
-@sample.route("sample/add", methods=["GET", "POST"])
-def add_sample():
+@sample.route("information/view")
+def sample_information():
+    samples = db.session.query(Sample).all()
+    return render_template("sample/information/index.html", samples=samples)
+
+
+@sample.route("information/add", methods=["GET", "POST"])
+def add_sample_information():
     form = SampleCreationForm()
     if form.validate_on_submit():
         sample = Sample(
@@ -49,11 +55,8 @@ def add_sample():
         db.session.commit()
 
         return redirect(url_for("sample.index"))
-    return render_template("sample/add.html", form=form)
+    return render_template("sample/information/add.html", form=form)
 
-@sample.route("sample/view")
-def view_samples():
-    return render_template("sample/view.html")
 
 # Attribute Stuff
 
