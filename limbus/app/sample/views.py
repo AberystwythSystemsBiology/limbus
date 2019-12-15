@@ -46,9 +46,9 @@ def add_sample_information():
     form = SampleCreationForm()
     if form.validate_on_submit():
         sample = Sample(
-            sample_type = form.sample_type,
-            collection_date = form.collection_date,
-            disposal_instruction = form.disposal_instruction
+            sample_type = form.sample_type.data,
+            collection_date = form.collection_date.data,
+            disposal_instruction = form.disposal_instruction.data
         )
 
         db.session.add(sample)

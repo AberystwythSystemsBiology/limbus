@@ -1,6 +1,7 @@
 from enum import Enum
+from ..FormEnum import FormEnum
 
-class SampleType(Enum):
+class SampleType(FormEnum):
     FLU = "Fluid"
     TIS = "Tissue"
 
@@ -17,10 +18,10 @@ class FluidSampleType(Enum):
     CEL = "Ficoll mononuclear cells, viable"
     CEN = "Fresh cells from non-blood specimen type"
 
-class DisposalInstruction(Enum):
+class DisposalInstruction(FormEnum):
     DES = "Destroy"
     TRA = "Transfer"
-    REV = "Note for Review"
+    REV= "Review"
     PRE = "Preserve"
 
 class SampleStatus(Enum):

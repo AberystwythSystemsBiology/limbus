@@ -6,9 +6,9 @@ from .enums import SampleAttributeTypes, DisposalInstruction, SampleType
 
 class SampleCreationForm(FlaskForm):
     sample_type = SelectField("Sample Type", validators=[DataRequired()],
-                              choices=[(x.name, x.value) for x in SampleType])
+                              choices=SampleType.choices())
     disposal_instruction = SelectField("Disposal Instructions", validators=[DataRequired()],
-                                       choices=[(x.name, x.value) for x in DisposalInstruction])
+                                       choices=DisposalInstruction.choices())
     collection_date = DateField()
     submit = SubmitField("Submit")
 
