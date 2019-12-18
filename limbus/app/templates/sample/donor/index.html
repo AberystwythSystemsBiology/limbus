@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+
+{% block title %}Donor Information{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Sample Information</h1>
+
+        <a href="{{ url_for('sample.add_sample_information') }}">
+        <div class="btn btn-primary">
+            Add Sample Information
+        </div></a>
+
+         <table id="samples" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Sample Type</th>
+                <th>Sample Creator</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for sample in samples %}
+            <tr>
+            <td>{{ sample.id }}</td>
+            <td>{{ sample.sample_type.value }}</td>
+            <td>{{ sample.donor_id }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+         </table>
+
+    </div>
+{% endblock %}

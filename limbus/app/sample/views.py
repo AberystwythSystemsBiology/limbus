@@ -12,8 +12,6 @@ from . import sample
 
 from .. import db
 
-import app
-
 @sample.route("/")
 def index():
     return render_template("sample/index.html")
@@ -37,9 +35,16 @@ def get_sample_attributes():
 
 @sample.route("information/view")
 def sample_information():
-    samples = db.session.query(Sample).all()
+    samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
     return render_template("sample/information/index.html", samples=samples)
 
+@sample.route("test")
+def test():
+    sample_attributes = db.session.query(SampleAttribute).all()
+
+    
+
+    return "Hello World"
 
 @sample.route("information/add", methods=["GET", "POST"])
 def add_sample_information():
@@ -48,13 +53,14 @@ def add_sample_information():
         sample = Sample(
             sample_type = form.sample_type.data,
             collection_date = form.collection_date.data,
-            disposal_instruction = form.disposal_instruction.data
+            disposal_instruction = form.disposal_instruction.data,
+            author_id = current_user.id
         )
 
         db.session.add(sample)
         db.session.commit()
 
-        return redirect(url_for("sample.index"))
+        return redirect(url_for("sample.sample_information"))
     return render_template("sample/information/add.html", form=form)
 
 

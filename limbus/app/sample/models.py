@@ -9,8 +9,12 @@ class Sample(db.Model):
     sample_type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)
     disposal_instruction = db.Column(db.Enum(DisposalInstruction))
+    #disposal_date = db.Column(db.DateTime, nullable=False)
+
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
     donor_id = db.Column(db.Integer, db.ForeignKey("donors.id"))
 
 class SampleAttribute(db.Model):

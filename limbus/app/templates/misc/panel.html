@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+
+{% block title %}LImBuS Panel{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>LImBuS Panel</h1>
+
+        <div class="row">
+            <div class="col-sm panel-row">
+                <h3>{{ document_count }}</h3>
+                <h5>Documents</h5>
+                <p>{{ document_file_count}} Document Files</p>
+            </div>
+            <div class="col-sm">
+                <h3>{{ sample_count }}</h3>
+                <h5>Samples</h5>
+                <p>{{ sample_attribute_count}} Sample Attributes.</p>
+            </div>
+            <div class="col-sm">
+                <h3>{{ document_count }}</h3>
+                <h5>Documents</h5>
+                <p>Something here.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
