@@ -1,0 +1,13 @@
+{% extends "template.html" %}
+
+{% block title %}Select Sample Attributes : Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Select Sample Attribute : Sample Acquisition Portal</h1>
+
+        <form method="POST" action="{{ url_for('sample.add_attribute' ) }}">
+            {{ form.csrf_token }}
+        </form>
+    </div>
+{% endblock %}

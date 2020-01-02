@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, jsonify
 
 from .models import Sample, Donor, SampleAttribute
 
-from .forms import SampleAttributeCreationForm, SampleCreationForm
+from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm
 
 from ..auth.models import User
 
@@ -11,6 +11,9 @@ from flask_login import login_required, current_user
 from . import sample
 
 from .. import db
+
+from wtforms import SelectField
+
 
 @sample.route("/")
 def index():
@@ -41,9 +44,6 @@ def sample_information():
 @sample.route("test")
 def test():
     sample_attributes = db.session.query(SampleAttribute).all()
-
-    
-
     return "Hello World"
 
 @sample.route("information/add", methods=["GET", "POST"])
@@ -63,6 +63,24 @@ def add_sample_information():
         return redirect(url_for("sample.sample_information"))
     return render_template("sample/information/add.html", form=form)
 
+
+@sample.route("information/attribute_select/", methods=["GET", "POST"])
+def add_sample_information_step_zero():
+    # This needs replacing with a dynamic form.
+
+    query = db.session.query(SampleAttribute).all()
+
+    form = DynamicAttributeSelectForm()
+
+    for attribute in query:
+        print(dir(attribute))
+        setattr(form, attribute.term, SelectField)
+
+    # TODO: Create generic DynamicAttributeForm method to populate attributes from query(?)
+    if form.validate_on_submit():
+        pass
+
+    return render_template("sample/information/select_attributes.html", form=form)
 
 # Attribute Stuff
 

@@ -17,3 +17,6 @@ class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
     term_type = SelectField("Attribute Type", validators=[DataRequired()], choices=[(x.name, x.value) for x in SampleAttributeTypes])
     submit = SubmitField("Submit")
+
+class DynamicAttributeSelectForm(FlaskForm):
+        submit = SubmitField("Submit")    
