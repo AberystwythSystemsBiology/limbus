@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+
+{% macro show_value(attribute, label, type) -%}
+
+
+    <div class="form-group row">
+        <label for="staticEmail" class="col-sm-4 col-form-label">{{ label }}:</label>
+        <div class="col-sm-8">
+            {% if type == "text" %}
+                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% endif %}
+        </div>
+    </div>
+
+{%- endmacro %}
+
+{% block title %}View Sample Attribute : Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>View Attribute</h1>
+
+        {{ show_value(attribute.term, "Attribute Term", "text") }}
+        {{ show_value(attribute.accession, "Attribute Accession", "text") }}
+        {{ show_value(attribute.accession, "Attribute Accession", "text") }}
+        {{ show_value(attribute.ref, "Attribute REF", "text") }}
+        {{ show_value(attribute_user.email, "Creator Email", "text") }}
+
+        <h2>Associated Samples</h2>
+
+    </div>
+{% endblock %}

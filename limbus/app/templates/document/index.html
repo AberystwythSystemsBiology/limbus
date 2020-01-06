@@ -1,0 +1,50 @@
+{% extends "template.html" %}
+
+{% block title %}Document Portal{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Document Portal</h1>
+
+    <a href="{{ url_for('document.upload') }}">
+        <div class="btn btn-primary pull-right">Document Upload</div>
+    </a>
+
+    <p>This is the Document Portal. This is where your documents can be found. </p>
+
+    <table id="documents" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Upload Date</th>
+                <th>Uploader</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user, document  in documents %}
+            <tr>
+                <td>
+                    DOC{{ document.id }}
+                </td>
+                <td>{{ document.name }}</td>
+                <td>{{ document.type.value }}</td>
+                <td>{{ document.upload_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    <a href="{{ url_for('document.view', doc_id=document.id) }}">
+                        <btn class="btn btn-sm btn-primary">
+                            View
+                        </btn>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+{% endblock %}

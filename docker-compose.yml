@@ -1,0 +1,25 @@
+version: "3.4"
+services:
+  web:
+    depends_on:
+      - postgres
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+    - ./:/limbus
+    environment:
+      - FLASK_CONFIG=dev
+      - FLASK_APP=/limbus/limbus/app
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+
+  postgres:
+    image: postgres:10
+    env_file: .env
+    expose:
+      - 5432

@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+
+{% block title %}Biobank Registration{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Biobank Administration</h1>
+
+    <p>Something about the administrator account...</p>
+
+    <form method="POST" action="{{ url_for('setup.biobank_registration' ) }}">
+        {{ form.csrf_token }}
+
+        {{ form_field(form.name) }}
+        {{ form_field(form.url) }}
+        {{ form_field(form.description) }}
+
+        {{ form_field(form.submit, with_label=False)}}
+
+    </form>
+
+</div>
+{% endblock %}
+

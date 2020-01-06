@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+
+{% block title %}Select Sample Attributes : Sample Acquisition Portal{% endblock %}
+
+{% macro generate_attribute_select_form(form) -%}
+   {% for field in form %}
+        <b>Fuck</b>
+       {{ field.one() }}
+   {% endfor %}
+{%- endmacro %}
+
+
+{% block body %}
+    <div class="container">
+        <h1>Select Sample Attribute : Sample Acquisition Portal</h1>
+
+        <form action="/some_url" method="POST">
+            {{ form.csrf_token }}
+
+            {{ form.one.label }}
+        </form>
+    </div>
+{% endblock %}

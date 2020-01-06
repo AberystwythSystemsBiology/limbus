@@ -1,0 +1,38 @@
+{% extends "template.html" %}
+
+{% block title %}Log In{% endblock %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/auth/login.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <div class="container login">
+    <h1>Log In</h1>
+
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning">
+            {{ message }}
+        </div>
+        {% endfor %}
+           
+        {% endif %}
+{% endwith %}
+
+
+    <form method="POST" action="{{ url_for('auth.login' ) }}">
+        {{ form.csrf_token }}
+
+        {{ form_field(form.email) }}
+
+        {{ form_field(form.password)}}
+
+        {{ form_field(form.submit, with_label=False)}}
+
+    </form>
+
+    </div>
+{% endblock %}

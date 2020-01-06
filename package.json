@@ -1,0 +1,15 @@
+{
+    "name": "limbus",
+    "version": "0.0.1",
+    "author": {
+        "name": "Keiron O'Shea",
+        "email": "keo7@aber.ac.uk"
+    },
+    "repository": "https://github.com/AberystwythSystemsBiology/LImBuS",
+    "scripts": {},
+    "dependencies": {
+        "bootstrap": "4.3.1",
+        "jquery": "1.9.1",
+        "popper.js": "1.14.7"
+    }
+}

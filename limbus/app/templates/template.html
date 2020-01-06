@@ -1,0 +1,108 @@
+{% from "macros.html" import form_field %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <meta name="author" content="Keiron O'Shea">
+    <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
+
+    <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
+
+    {% block head %}
+    {% endblock %}
+    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"/>
+</head>
+
+<body>
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('misc.index') }}">LImBuS</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+        {% if current_user.is_authenticated %}
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('sample.index') }}">SAQ Portal</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('document.index' ) }}">Doc Portal</a>
+                </li>
+                {% if current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.index') }}">Admin Portal</a>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+        <div class="clearfix"></div>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.login') }}">
+        <span class="navbar-text">
+            Log In
+        </span>
+            </a>
+        {% else %}
+            <a href="{{ url_for('auth.logout') }}">
+        <span class="navbar-text">
+            Log Out
+        </span>
+            </a>
+        {% endif %}
+    </div>
+</nav>
+
+
+{% block body %}
+{% endblock %}
+
+
+
+</body>
+
+
+<footer class="container py-5">
+    <div class="alert alert-danger text-center">
+        <b>Notice:</b> This is a development version of LImBuS and is not suitable for real world use.
+    </div>
+    <div class="row">
+        <div class="col-12 col-md">
+            <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019</small>
+        </div>
+        <div class="col-6 col-md">
+            <h5>Resources</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki"
+                       target="_blank">Documentation</a>
+                </li>
+                <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source
+                    Code</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md">
+            <h5>About</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="text-muted" href="{{ url_for('misc.team') }}" target="_blank">Team</a></li>
+                <li><a class="text-muted" href="{{ url_for('misc.license') }}" target="_blank">License</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+
+{% block javascript %}
+
+{% endblock %}
+
+<script src="{{ url_for('static', filename='node_modules/jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+
+</html>

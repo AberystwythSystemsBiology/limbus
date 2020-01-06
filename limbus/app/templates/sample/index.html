@@ -1,0 +1,49 @@
+{% extends "template.html" %}
+
+{% block title %}Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1>Sample Acquisition Portal</h1>
+
+        <p>Something something something something.</p>
+
+        <div class="card-deck mb-3 text-center">
+            <div class="card mb-4 box-shadow">
+                <div class="card-body">
+                    <h2 class="card-title pricing-card-title">Sample Information</h2>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>Something here</li>
+                    </ul>
+                    <a href="{{ url_for('sample.sample_information') }}">
+                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go</button>
+                    </a>
+                </div>
+            </div>
+            <div class="card mb-4 box-shadow">
+                <div class="card-body">
+                    <h2 class="card-title pricing-card-title">Sample Attribute</h2>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>Something here</li>
+                    </ul>
+                    <a href="{{ url_for('sample.attribute_portal') }}">
+                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go</button>
+                    </a>
+                </div>
+            </div>
+             <div class="card mb-4 box-shadow">
+                <div class="card-body">
+                    <h2 class="card-title pricing-card-title">Donor Information</h2>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>Something here</li>
+                    </ul>
+                    <a href="{{ url_for('sample.attribute_portal') }}">
+                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

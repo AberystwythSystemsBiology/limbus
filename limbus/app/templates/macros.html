@@ -1,0 +1,49 @@
+
+{% macro form_field(field) -%}
+
+    {% set with_label = kwargs.pop('with_label', True) %}
+
+    {% if field.type != 'SubmitField' %}
+
+        <div class="form-group">
+
+            {% if with_label %}
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:</label>
+            {% endif %}
+
+            {% if field.description %}
+                <small class="form-text text-muted">{{ field.description }}</small>
+            {% endif %}
+
+            {% if field.errors %}
+                <div class="alert alert-warning" role="alert">
+                    <b>Error:</b> {{ field.errors|join(', ') }}
+                </div>
+            {% endif %}
+
+            {% if field.type == 'BooleanField' %}
+                Boolean Field
+            {% elif field.type == 'StringField' %}
+                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
+                       {% if field.flags.required %}required{% endif %}>
+            {% elif field.type == 'SelectField' %}
+                    <select class="form-control" id="{{ field.id}}" name="{{ field.name }}">
+                    {% for key, value, bo in field.iter_choices() %}
+                        <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                    </select>
+            {% elif field.type  == 'PasswordField' %}
+                <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
+            {% elif field.type == 'FileField' %}
+                <input type="file" class="form-control-file" id="{{ field.id}}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
+            {% elif field.type == 'DateField' %}
+                <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
+                    max="3000-12-31" class="form-control">
+            {% endif %}
+        </div>
+
+    {% else %}
+        <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
+    {% endif %}
+{%- endmacro %}
+

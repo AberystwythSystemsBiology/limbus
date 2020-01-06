@@ -1,0 +1,34 @@
+{% extends "template.html" %}
+
+{% block title %}Sample Attributes{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Sample Attributes</h1>
+        
+        <a href="{{ url_for('sample.add_attribute') }}"><div class="btn btn-primary">Add</div></a>
+
+        <table class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                    <th>Identifier</th>
+                    <th>Term</th>
+                    <th>Creation Date</th>
+                    <th>Uploader</th>
+                    <th>Actions</th>
+                    </thead>
+            <tbody>
+            {% for attribute, user in sample_attributes %}
+            <tr>
+                <td>{{ attribute.id }}</td>
+                <td>{{ attribute.term }}</td>
+                <td>{{ attribute.creation_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ user.email }}</td>
+                <td><a href="{{ url_for('sample.view_attribute', attribute_id=attribute.id) }}">View</a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+{% endblock %}
