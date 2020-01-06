@@ -2,6 +2,7 @@
 
 {% block title %}Select Sample Attributes : Sample Acquisition Portal{% endblock %}
 
+
 {% macro generate_attribute_select_form(form) -%}
     <table class="table table-striped table-bordered" style="width:100%">
         <thead>
@@ -21,13 +22,9 @@
 
         {% endfor %}
         </tbody>
-
-
     </table>
-
     {{ form.submit() }}
 {%- endmacro %}
-
 
 {% block body %}
     <div class="container">

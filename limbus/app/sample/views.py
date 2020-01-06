@@ -2,7 +2,10 @@ from flask import render_template, redirect, url_for, jsonify
 
 from .models import Sample, Donor, SampleAttribute
 
-from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p
+from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributeTypes
+
+# TODO: Breakout
+from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField, TextAreaField, TextField
 
 from ..auth.models import User
 
@@ -64,7 +67,7 @@ def add_sample_information():
     return render_template("sample/information/add.html", form=form)
 
 
-@sample.route("information/add/attribute_select/", methods=["GET", "POST"])
+@sample.route("add", methods=["GET", "POST"])
 def add_sample():
     # This needs replacing with a dynamic form.
     query = db.session.query(SampleAttribute).all()
@@ -83,7 +86,16 @@ def add_sample():
                 pass
         # TODO: </endhack>
 
-        return "Hello"
+        form = SampleCreationForm()
+
+        query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(attribute_ids)).all()
+
+
+        for attr in query:
+            if attr.type == SampleAttributeTypes.TEXT:
+                setattr(form, attr.term, BooleanField(attr.term))
+
+        return render_template("sample/information/add.html", form=form)
 
     return render_template("sample/information/select_attributes.html", form=attr_selection)
 

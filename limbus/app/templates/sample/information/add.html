@@ -8,10 +8,11 @@
 
         <form method="POST" action="{{ url_for('sample.add_sample_information' ) }}">
             {{ form.csrf_token }}
-            {{ form_field(form.sample_type) }}
-            {{ form_field(form.collection_date) }}
-            {{ form_field(form.disposal_instruction) }}
-            {{ form_field(form.submit, with_label=False)}}
+            {% for attribute in form %}
+                {% if attribute != "CSRF Token" %}
+                {{ form_field(attribute) }}
+                {% endif %}
+            {% endfor %}
         </form>
 
     </div>
