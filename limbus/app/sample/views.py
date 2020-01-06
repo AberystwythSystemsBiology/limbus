@@ -64,19 +64,17 @@ def add_sample_information():
     return render_template("sample/information/add.html", form=form)
 
 
-@sample.route("information/attribute_select/", methods=["GET", "POST"])
+@sample.route("information/add/attribute_select/", methods=["GET", "POST"])
 def add_sample_information_step_zero():
     # This needs replacing with a dynamic form.
-
     query = db.session.query(SampleAttribute).all()
+    form = DynamicAttributeSelectForm(query)
 
-    form = DynamicAttributeSelectForm()
+    t_form = SampleAttributeCreationForm()
 
-    for attribute in query:
-        print(dir(attribute))
-        setattr(form, attribute.term, SelectField)
+    print(form.__dict__)
+    print(t_form.__dict__)
 
-    # TODO: Create generic DynamicAttributeForm method to populate attributes from query(?)
     if form.validate_on_submit():
         pass
 
