@@ -26,8 +26,10 @@ def DynamicAttributeSelectForm(query):
     class StaticForm(FlaskForm):
         pass
 
+
     for attribute in query:
         setattr(StaticForm, p.number_to_words(attribute.id), BooleanField(attribute.term))
 
     setattr(StaticForm, "submit", SubmitField())
     return StaticForm()
+

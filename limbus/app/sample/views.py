@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, jsonify
 
 from .models import Sample, Donor, SampleAttribute
 
-from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm
+from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p
 
 from ..auth.models import User
 
@@ -65,20 +65,27 @@ def add_sample_information():
 
 
 @sample.route("information/add/attribute_select/", methods=["GET", "POST"])
-def add_sample_information_step_zero():
+def add_sample():
     # This needs replacing with a dynamic form.
     query = db.session.query(SampleAttribute).all()
-    form = DynamicAttributeSelectForm(query)
 
-    t_form = SampleAttributeCreationForm()
+    conv = {p.number_to_words(x.id) : x.id for x in query}
 
-    print(form.__dict__)
-    print(t_form.__dict__)
+    attr_selection = DynamicAttributeSelectForm(query)
 
-    if form.validate_on_submit():
-        pass
+    if attr_selection.validate_on_submit():
+        # TODO: Is this a hack?
+        attribute_ids = []
+        for attr in dir(attr_selection):
+            try:
+                attribute_ids.append(conv[attr])
+            except KeyError:
+                pass
+        # TODO: </endhack>
 
-    return render_template("sample/information/select_attributes.html", form=form)
+        return "Hello"
+
+    return render_template("sample/information/select_attributes.html", form=attr_selection)
 
 # Attribute Stuff
 
