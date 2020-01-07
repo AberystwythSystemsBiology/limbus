@@ -10,9 +10,11 @@
     <title>{% block title %}{% endblock %} : LImBuS - The LIbre Biobank System</title>
 
     <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='node_modules/@fortawesome/fontawesome-free/css/all.css') }}" rel="stylesheet">
 
     {% block head %}
     {% endblock %}
+
     <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
 
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"/>

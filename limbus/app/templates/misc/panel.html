@@ -2,25 +2,40 @@
 
 {% block title %}LImBuS Panel{% endblock %}
 
+{% block head %}
+<style>
+    .panel-index {
+        padding: 1em;
+        text-align: center;
+        background-color: #007bff;
+        color: #fff;
+        border-radius: 1em;
+        margin:0.2em;
+    }
+
+    .panel-index btn {
+        width: 100%;
+    }
+</style>
+
+{% endblock %}
 {% block body %}
     <div class="container">
         <h1>LImBuS Panel</h1>
 
         <div class="row">
-            <div class="col-sm panel-row">
-                <h3>{{ document_count }}</h3>
-                <h5>Documents</h5>
-                <p>{{ document_file_count}} Document Files</p>
-            </div>
-            <div class="col-sm">
-                <h3>{{ sample_count }}</h3>
-                <h5>Samples</h5>
+            <div class="col-sm panel panel-index">
+                    <h5><i class="fas fa-file"></i> {{ document_count }} Documents</h5>
+                    <p>{{ document_file_count}} Document Uploads</p>
+                    <div class="btn btn-light">Something</div>
+                </div>
+            <div class="col-sm panel panel-index">
+                <h5>{{ sample_count }} Samples</h5>
                 <p>{{ sample_attribute_count}} Sample Attributes.</p>
+                <div class="btn btn-light">Something</div>
             </div>
-            <div class="col-sm">
-                <h3>{{ document_count }}</h3>
-                <h5>Documents</h5>
-                <p>Something here.</p>
+            <div class="col-sm panel panel-index">
+
             </div>
         </div>
     </div>
