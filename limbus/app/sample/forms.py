@@ -14,7 +14,7 @@ class SampleCreationForm(FlaskForm):
     disposal_instruction = SelectField("Disposal Instructions", validators=[DataRequired()],
                                        choices=DisposalInstruction.choices())
     collection_date = DateField()
-    submit = SubmitField("Submit")
+
 
 
 class SampleAttributeCreationForm(FlaskForm):
@@ -25,7 +25,6 @@ class SampleAttributeCreationForm(FlaskForm):
 def DynamicAttributeSelectForm(query):
     class StaticForm(FlaskForm):
         pass
-
 
     for attribute in query:
         setattr(StaticForm, p.number_to_words(attribute.id), BooleanField(attribute.term))

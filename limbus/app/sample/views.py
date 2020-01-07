@@ -79,21 +79,20 @@ def add_sample():
     if attr_selection.validate_on_submit():
         # TODO: Is this a hack?
         attribute_ids = []
-        for attr in dir(attr_selection):
-            try:
-                attribute_ids.append(conv[attr])
-            except KeyError:
-                pass
+        for attr in attr_selection:
+            if attr.id in conv and attr.data == True:
+                attribute_ids.append(conv[attr.id])
         # TODO: </endhack>
-
-        form = SampleCreationForm()
 
         query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(attribute_ids)).all()
 
-
         for attr in query:
             if attr.type == SampleAttributeTypes.TEXT:
-                setattr(form, attr.term, BooleanField(attr.term))
+                setattr(SampleCreationForm, p.number_to_words(attr.id), TextAreaField(attr.term))
+
+        setattr(SampleCreationForm, "submit", SubmitField("Submit"))
+
+        form = SampleCreationForm()
 
         return render_template("sample/information/add.html", form=form)
 
