@@ -1,4 +1,6 @@
-{% from "macros.html" import form_field %}
+{% from "macros.html" import form_field, show_value %}
+
+
 
 <html lang="en">
 
@@ -33,7 +35,7 @@
         {% if current_user.is_authenticated %}
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('sample.index') }}">SAQ Portal</a>
+                    <a class="nav-link" href="{{ url_for('sample.portal') }}">SAQ Portal</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('document.index' ) }}">Doc Portal</a>

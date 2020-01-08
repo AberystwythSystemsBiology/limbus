@@ -9,16 +9,28 @@ from .. import db
 
 
 @sample.route("/")
-def index():
+def portal():
     return render_template("sample/index.html")
 
-@sample.route("information/view")
-def sample_information():
+@sample.route("samples/")
+def index():
     samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
     return render_template("sample/information/index.html", samples=samples)
 
+@sample.route("view/<sample_id>", methods=["GET"])
+def view(sample_id):
+    sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
+    text_attr = db.session.query(
+        SampleAttribute,
+        SampleAttributeTextualValue
+    ).filter(
+        SampleAttributeTextualValue.sample_id == sample_id
+    ).filter(
+        SampleAttributeTextualValue.sample_attribute_id == SampleAttribute.id
+    ).all()
+    return render_template("sample/information/view.html", sample=sample, text_attr=text_attr)
 
-@sample.route("add", methods=["GET", "POST"])
+@sample.route("add/", methods=["GET", "POST"])
 def add_sample():
     query = db.session.query(SampleAttribute).all()
     conv = {p.number_to_words(x.id) : x.id for x in query}

@@ -43,9 +43,22 @@
                     max="3000-12-31" class="form-control">
             {% endif %}
         </div>
-
     {% else %}
         <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
     {% endif %}
 {%- endmacro %}
 
+
+{% macro show_value(attribute, label, type) -%}
+
+
+    <div class="form-group row">
+        <label for="staticEmail" class="col-sm-4 col-form-label">{{ label }}:</label>
+        <div class="col-sm-8">
+            {% if type == "text" %}
+                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% endif %}
+        </div>
+    </div>
+
+{%- endmacro %}

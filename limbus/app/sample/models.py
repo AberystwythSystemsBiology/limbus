@@ -15,8 +15,6 @@ class Sample(db.Model):
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-    donor_id = db.Column(db.Integer, db.ForeignKey("donors.id"))
-
 class SampleAttribute(db.Model):
     __tablename__ = "sample_attributes"
 

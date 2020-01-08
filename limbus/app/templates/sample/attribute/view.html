@@ -1,18 +1,5 @@
 {% extends "template.html" %}
 
-{% macro show_value(attribute, label, type) -%}
-
-
-    <div class="form-group row">
-        <label for="staticEmail" class="col-sm-4 col-form-label">{{ label }}:</label>
-        <div class="col-sm-8">
-            {% if type == "text" %}
-                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
-            {% endif %}
-        </div>
-    </div>
-
-{%- endmacro %}
 
 {% block title %}View Sample Attribute : Sample Acquisition Portal{% endblock %}
 

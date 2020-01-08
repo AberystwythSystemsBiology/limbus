@@ -1,0 +1,19 @@
+{% extends "template.html" %}
+
+{% block title %}View Sample{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>View Sample</h1>
+
+        {{ show_value(sample.id, "Sample ID", "text") }}
+        {{ show_value(sample.type, "Sample Type", "text") }}
+        {{ show_value(sample.disposal_instruction, "Disposal Instructions", "text") }}
+        {{ show_value(sample.creation_date, "Creation Date", "text") }}
+
+        {% for term, attr in text_attr %}
+            {{ show_value(attr.value, term.term, "text")  }}
+        {% endfor %}
+
+    </div>
+{% endblock %}
