@@ -5,9 +5,10 @@
 {% block body %}
     <div class="container">
 
-        <h1>Sample Acquisition Portal</h1>
-
-        <p>Something something something something.</p>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-vial"></i> Sample Acquisition Portal</h1>
+          </div>
+        <p>Welcome to the Sample Acquisition Portal. Here you can find information concerning samples, including:</p>
 
         <div class="card-deck mb-3 text-center">
             <div class="card mb-4 box-shadow">
@@ -17,7 +18,9 @@
                         <li>Something here</li>
                     </ul>
                     <a href="{{ url_for('sample.index') }}">
-                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go</button>
+                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">
+                            View Samples
+                        </button>
                     </a>
                 </div>
             </div>
@@ -28,7 +31,9 @@
                         <li>Something here</li>
                     </ul>
                     <a href="{{ url_for('sample.attribute_portal') }}">
-                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go</button>
+                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">
+                            View Sample Attributes
+                        </button>
                     </a>
                 </div>
             </div>
@@ -39,7 +44,9 @@
                         <li>Something here</li>
                     </ul>
                     <a href="{{ url_for('sample.attribute_portal') }}">
-                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">Go</button>
+                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">
+                            View Donor Information
+                        </button>
                     </a>
                 </div>
             </div>

@@ -1,7 +1,5 @@
 {% from "macros.html" import form_field, show_value %}
 
-
-
 <html lang="en">
 
 <head>
@@ -26,7 +24,9 @@
 
 
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ url_for('misc.index') }}">LImBuS</a>
+    <a class="navbar-brand" href="{{ url_for('misc.index') }}">
+        <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"> LImBuS
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
             aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -35,14 +35,14 @@
         {% if current_user.is_authenticated %}
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('sample.portal') }}">SAQ Portal</a>
+                    <a class="nav-link" href="{{ url_for('sample.portal') }}"><i class="fas fa-vial"></i> SAQ Portal</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('document.index' ) }}">Doc Portal</a>
+                    <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Doc Portal</a>
                 </li>
                 {% if current_user.is_admin %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin.index') }}">Admin Portal</a>
+                        <a class="nav-link" href="{{ url_for('admin.index') }}"><i class="fas fa-user-shield"></i> Admin Portal</a>
                     </li>
                 {% endif %}
             </ul>
@@ -51,13 +51,13 @@
         {% if not current_user.is_authenticated %}
             <a href="{{ url_for('auth.login') }}">
         <span class="navbar-text">
-            Log In
+            <i class="fas fa-sign-in-alt"></i> Log In
         </span>
             </a>
         {% else %}
             <a href="{{ url_for('auth.logout') }}">
         <span class="navbar-text">
-            Log Out
+            <i class="fas fa-sign-out-alt"></i> Log Out
         </span>
             </a>
         {% endif %}
