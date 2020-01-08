@@ -15,8 +15,6 @@ class SampleCreationForm(FlaskForm):
                                        choices=DisposalInstruction.choices())
     collection_date = DateField()
 
-
-
 class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
     term_type = SelectField("Attribute Type", validators=[DataRequired()], choices=[(x.name, x.value) for x in SampleAttributeTypes])

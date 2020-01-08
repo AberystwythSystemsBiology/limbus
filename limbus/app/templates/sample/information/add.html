@@ -6,11 +6,13 @@
     <div class="container">
         <h1>Add Sample</h1>
 
-        <form method="POST" action="{{ url_for('sample.add_sample_information' ) }}">
+        <form method="POST" action="{{ url_for('sample.add_sample_stwo' ) }}">
             {{ form.csrf_token }}
             {% for attribute in form %}
-                {% if attribute != "CSRF Token" %}
-                {{ form_field(attribute) }}
+                {% if attribute.id != "csrf_token" %}
+                    {{ form_field(attribute) }}
+                {% else %}
+                    {{ attribute }}
                 {% endif %}
             {% endfor %}
         </form>

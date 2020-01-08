@@ -1,6 +1,6 @@
-from flask import render_template, redirect, url_for, jsonify
+from flask import render_template, redirect, url_for, jsonify, request, session
 
-from .models import Sample, Donor, SampleAttribute
+from .models import Sample, Donor, SampleAttribute, SampleAttributeTextualValue
 
 from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributeTypes
 
@@ -84,19 +84,57 @@ def add_sample():
                 attribute_ids.append(conv[attr.id])
         # TODO: </endhack>
 
-        query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(attribute_ids)).all()
+        session["attribute_ids"] = attribute_ids
+        session["conv"] = conv
 
-        for attr in query:
-            if attr.type == SampleAttributeTypes.TEXT:
-                setattr(SampleCreationForm, p.number_to_words(attr.id), TextAreaField(attr.term))
+        return redirect(url_for('sample.add_sample_stwo'))
 
-        setattr(SampleCreationForm, "submit", SubmitField("Submit"))
-
-        form = SampleCreationForm()
-
-        return render_template("sample/information/add.html", form=form)
 
     return render_template("sample/information/select_attributes.html", form=attr_selection)
+
+@sample.route("add/sample_info", methods=["GET", "POST"])
+def add_sample_stwo():
+    # Need to get attribute_ids from POST
+
+    query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["attribute_ids"])).all()
+
+    for attr in query:
+        if attr.type == SampleAttributeTypes.TEXT:
+            setattr(SampleCreationForm, p.number_to_words(attr.id), TextAreaField(attr.term))
+
+    # Add a submit button.
+    setattr(SampleCreationForm, "submit", SubmitField("Submit"))
+    form = SampleCreationForm()
+
+    if form.validate_on_submit():
+        sample = Sample(
+            sample_type=form.sample_type.data,
+            collection_date=form.collection_date.data,
+            disposal_instruction=form.disposal_instruction.data,
+            author_id=current_user.id
+        )
+
+
+        db.session.add(sample)
+        db.session.flush()
+
+        for attr in form:
+            if attr.id not in ["csrf_token", "submit", "sample_type", "collection_date", "disposal_instruction"]:
+                if attr.type in ["TextAreaField", "StringField"]:
+                    attr_value = SampleAttributeTextualValue(
+                        value = attr.data,
+                        sample_attribute_id = session["conv"][attr.id],
+                        sample_id = sample.id,
+                        author_id = current_user.id
+
+                    )
+
+                    db.session.add(attr_value)
+
+
+        db.session.commit()
+
+    return render_template("sample/information/add.html", form=form)
 
 # Attribute Stuff
 
