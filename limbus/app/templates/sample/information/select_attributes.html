@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Select Sample Attributes : Sample Acquisition Portal{% endblock %}
+{% block title %}Step One: Select Sample Attributes{% endblock %}
 
 
 {% macro generate_attribute_select_form(form) -%}
@@ -28,8 +28,9 @@
 
 {% block body %}
     <div class="container">
-        <h1>Select Sample Attribute : Sample Acquisition Portal</h1>
-
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-vial"></i> Step One: Select Sample Attributes</h1>
+          </div>
         <form action="{{ url_for('sample.add_sample') }}" method="POST">
             {{ form.csrf_token }}
 

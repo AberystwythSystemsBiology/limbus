@@ -32,6 +32,8 @@ def view(sample_id):
 
 @sample.route("add/", methods=["GET", "POST"])
 def add_sample():
+    session["attribute_ids"] = []
+
     query = db.session.query(SampleAttribute).all()
     conv = {p.number_to_words(x.id) : x.id for x in query}
     attr_selection = DynamicAttributeSelectForm(query)
