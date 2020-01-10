@@ -37,7 +37,9 @@
                     <td>{{ user.email }}</td>
                     <td>
                         <a href="{{ url_for('sample.view', sample_id=s.id) }}">
-                            View
+                            <div class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> View
+                                </div>
                         </a>
                     </td>
                 </tr>
