@@ -35,7 +35,7 @@
                 </label>
 
             {% elif field.type == 'StringField' %}
-                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
+                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" value="{{ field.default }}"
                        {% if field.flags.required %}required{% endif %}>
             {% elif field.type == 'TextAreaField' %}
                 <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
