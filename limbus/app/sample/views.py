@@ -1,11 +1,12 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
-from .models import Sample, Donor, SampleAttribute, SampleAttributeTextualValue
-from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributeTypes
-from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField, TextAreaField, TextField
+from .models import Sample, Donor, SampleAttribute, SampleAttributeTextValue
+from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p
 from ..auth.models import User
 from flask_login import login_required, current_user
 from . import sample
 from .. import db
+
+from ..dynform import DynamicAttributeFormGenerator
 
 
 @sample.route("/")
@@ -22,11 +23,11 @@ def view(sample_id):
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
     text_attr = db.session.query(
         SampleAttribute,
-        SampleAttributeTextualValue
+        SampleAttributeTextValue
     ).filter(
-        SampleAttributeTextualValue.sample_id == sample_id
+        SampleAttributeTextValue.sample_id == sample_id
     ).filter(
-        SampleAttributeTextualValue.sample_attribute_id == SampleAttribute.id
+        SampleAttributeTextValue.sample_attribute_id == SampleAttribute.id
     ).all()
     return render_template("sample/information/view.html", sample=sample, text_attr=text_attr)
 
@@ -56,12 +57,7 @@ def add_sample():
 def add_sample_stwo():
     query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["attribute_ids"])).all()
 
-    for attr in query:
-        if attr.type == SampleAttributeTypes.TEXT:
-            setattr(SampleCreationForm, p.number_to_words(attr.id), TextAreaField(attr.term))
-
-    setattr(SampleCreationForm, "submit", SubmitField("Submit"))
-    form = SampleCreationForm()
+    form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
 
     if form.validate_on_submit():
         sample = Sample(
@@ -77,7 +73,7 @@ def add_sample_stwo():
         for attr in form:
             if attr.id not in ["csrf_token", "submit", "sample_type", "collection_date", "disposal_instruction"]:
                 if attr.type in ["TextAreaField", "StringField"]:
-                    attr_value = SampleAttributeTextualValue(
+                    attr_value = SampleAttributeTextValue(
                         value = attr.data,
                         sample_attribute_id = session["conv"][attr.id],
                         sample_id = sample.id,

@@ -47,3 +47,10 @@ function limbus-db-migrate() {
 function limbus-db-upgrade() {
     docker-compose run web sh -c "venv/bin/flask db upgrade"
 }
+
+function limbus-db-nuke() {
+  docker-compose run web sh -c 'find . -path "*/migrations/*.py" -not -name "__init__.py" -delete'
+  docker-compose run web sh -c 'find . -path "*/migrations/*.pyc"  -delete'
+  limbus-db-create
+
+}

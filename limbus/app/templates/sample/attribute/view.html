@@ -1,11 +1,15 @@
 {% extends "template.html" %}
 
 
-{% block title %}View Sample Attribute : Sample Acquisition Portal{% endblock %}
+{% block title %}LIMBSATTR-{{ attribute.id }} : Sample Acquisition Portal{% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>View Attribute</h1>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2">
+                <i class="far fa-clone"></i> View Custom Attribute : LIMBSATTR-{{ attribute.id }}
+            </h1>
+        </div>
 
         {{ show_value(attribute.term, "Attribute Term", "text") }}
         {{ show_value(attribute.accession, "Attribute Accession", "text") }}

@@ -31,7 +31,7 @@
             <tbody>
             {% for s, user in samples %}
                 <tr>
-                    <td>{{ s.id }}</td>
+                    <td>LIMBSMP-{{ s.id }}</td>
                     <td>{{ s.sample_type.value }}</td>
                     <td>{{ s.collection_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ user.email }}</td>

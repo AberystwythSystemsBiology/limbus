@@ -30,7 +30,7 @@
             <tbody>
             {% for attribute, user in sample_attributes %}
                 <tr>
-                    <td>{{ attribute.id }}</td>
+                    <td>LIMBSATTR-{{ attribute.id }}</td>
                     <td>{{ attribute.term }}</td>
                     <td>{{ attribute.creation_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ user.email }}</td>

@@ -12,6 +12,9 @@ from .. import db
 def index():
     if current_user.is_authenticated:
 
+        # Just because migrate isn't working
+        # db.drop_all()
+
         document_count = db.session.query(Document).count()
         document_file_count = db.session.query(DocumentFile).count()
 

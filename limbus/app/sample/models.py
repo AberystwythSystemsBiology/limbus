@@ -9,7 +9,7 @@ class Sample(db.Model):
     sample_type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)
     disposal_instruction = db.Column(db.Enum(DisposalInstruction))
-    #disposal_date = db.Column(db.DateTime, nullable=False)
+    disposal_date = db.Column(db.DateTime, nullable=False)
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
@@ -23,6 +23,8 @@ class SampleAttribute(db.Model):
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
     type = db.Column(db.Enum(SampleAttributeTypes))
+
+    max_length = db.Column(db.Integer)
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
@@ -44,8 +46,8 @@ class SampleAttributeOption(db.Model):
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
     sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
 
-class SampleAttributeTextualValue(db.Model):
-    __tablename__ = "sample_attribute_textual_values"
+class SampleAttributeTextValue(db.Model):
+    __tablename__ = "sample_attribute_text_values"
 
     id = db.Column(db.Integer, primary_key=True)
 
