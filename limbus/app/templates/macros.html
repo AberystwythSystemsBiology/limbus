@@ -35,8 +35,7 @@
                 </label>
 
             {% elif field.type == 'StringField' %}
-                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" value="{{ field.default }}"
-                       {% if field.flags.required %}required{% endif %}>
+                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
             {% elif field.type == 'TextAreaField' %}
                 <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
             {% elif field.type == 'SelectField' %}
@@ -73,3 +72,10 @@
 
 {%- endmacro %}
 
+{% macro new_render_form(form) -%}
+    {% for element in form %}
+        {% if (element.type != "CSRFTokenField") %}
+            {{  form_field(element) }}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}

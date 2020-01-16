@@ -13,6 +13,8 @@
 
         <form method="POST" action="{{ url_for('sample.add_attribute' ) }}">
             {{ form.csrf_token }}
+
+            {{ new_render_form(form) }}
         </form>
     </div>
 {% endblock %}
