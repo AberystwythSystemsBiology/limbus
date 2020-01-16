@@ -19,7 +19,10 @@ class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
     term_type = SelectField("Attribute Type", validators=[DataRequired()], choices=[(x.name, x.value) for x in SampleAttributeTypes])
     required = BooleanField("Required")
-    max_length = StringField("Maximum Length", default=128)
+    submit = SubmitField("Submit")
+
+class SampleAttributionCreationFormText(FlaskForm):
+    max_length = StringField("Maximum Length", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 def DynamicAttributeSelectForm(query):

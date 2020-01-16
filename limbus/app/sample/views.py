@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
 from .models import Sample, Donor, SampleAttribute, SampleAttributeTextValue
-from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p
+from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText
 from ..auth.models import User
 from flask_login import login_required, current_user
 from . import sample
@@ -90,21 +90,47 @@ def attribute_portal():
     sample_attributes = db.session.query(SampleAttribute, User).filter(SampleAttribute.author_id == User.id).all()
     return render_template("sample/attribute/index.html", sample_attributes=sample_attributes)
 
-@sample.route("attribute/add", methods=["GET", "POST"])
+@sample.route("attribute/add/step_one", methods=["GET", "POST"])
 def add_attribute():
-    form = SampleAttributeCreationForm()
-    if form.validate_on_submit():
+
+    session["attribute_details"] = None
+
+    db.session.flush()
+    step_one_form = SampleAttributeCreationForm()
+
+    if step_one_form.validate_on_submit():
+
         sample_attribute = SampleAttribute(
-            term = form.term.data,
-            type = form.term_type.data,
+            term = step_one_form.term.data,
+            type = step_one_form.term_type.data,
             author_id = current_user.id
         )
 
         db.session.add(sample_attribute)
-        db.session.commit()
 
-        return redirect(url_for("sample.index"))
-    return render_template("sample/attribute/add.html", form=form)
+        db.session.flush()
+
+        if step_one_form.term_type.data == "TEXTUAL":
+            step_two_form = SampleAttributionCreationFormText()
+        else:
+            step_two_form = SampleAttributionCreationFormText()
+
+
+        return render_template("sample/attribute/add/two.html", form=step_two_form)
+
+
+    return render_template("sample/attribute/add/one.html", form=step_one_form)
+
+@sample.route("attribute/add/step_two", methods=["GET", "POST"])
+def add_attribute_step_two():
+    # Need to flush form
+
+    attribute_details = session["attribute_details"]
+
+    print(attribute_details["id"])
+
+    return attribute_details["type"]
+
 
 @sample.route("attribute/view/<attribute_id>")
 def view_attribute(attribute_id):

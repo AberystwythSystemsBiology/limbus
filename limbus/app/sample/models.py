@@ -24,13 +24,31 @@ class SampleAttribute(db.Model):
     ref = db.Column(db.String(64))
     type = db.Column(db.Enum(SampleAttributeTypes))
 
-    max_length = db.Column(db.Integer)
-
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
     required = db.Column(db.Boolean(), default=False)
 
+
+class SampleAttributeTextSetting(db.Model):
+    __tablename__ = "sample_attribute_text_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    max_length = db.Column(db.Integer, nullable=False)
+
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+
+class SampleAttributeNumericSetting(db.Model):
+    __tablename__ = "sample_attribute_numeric_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
 
 class SampleAttributeOption(db.Model):
     __tablename__ = "sample_attribute_options"

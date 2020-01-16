@@ -7,7 +7,7 @@
 
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">
-                <i class="far fa-clone"></i> Add Sample Attribute
+                <i class="far fa-clone"></i> Step One: Add Sample Attribute
             </h1>
         </div>
 
@@ -15,13 +15,8 @@
             {{ form.csrf_token }}
             {{ form_field(form.term) }}
             {{ form_field(form.term_type) }}
-            {{ form_field(form.max_length) }}
             {{ form_field(form.required) }}
             {{ form_field(form.submit, with_label=False)}}
         </form>
     </div>
-{% endblock %}
-
-{% block javascript %}
-    <script src="{{ url_for('static', filename='js/sample/attribute/add.js') }}"></script>
 {% endblock %}
