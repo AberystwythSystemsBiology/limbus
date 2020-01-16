@@ -37,3 +37,4 @@ def license():
 @misc.route("/team")
 def team():
     return render_template("misc/team.html")
+
