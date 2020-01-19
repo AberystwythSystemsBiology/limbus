@@ -124,11 +124,8 @@ def add_attribute():
 @sample.route("attribute/add/step_two", methods=["GET", "POST"])
 def add_attribute_step_two():
     # Need to flush form
-
     attribute_details = session["attribute_details"]
-
     print(attribute_details["id"])
-
     return attribute_details["type"]
 
 
@@ -137,4 +134,9 @@ def view_attribute(attribute_id):
     attribute, attribute_user = db.session.query(SampleAttribute, User).filter(
         SampleAttribute.id == attribute_id
     ).filter(SampleAttribute.author_id == User.id).first()
-    return render_template("sample/attribute/view.html", attribute=attribute, attribute_user=attribute_user)
+
+    return render_template(
+        "sample/attribute/view.html",
+        attribute=attribute,
+        attribute_user=attribute_user
+    )
