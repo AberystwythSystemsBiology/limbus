@@ -23,7 +23,23 @@ $(document).ready(function () {
 
     $("#submitButton").click(function submit_options(e) {
         if (options.length > 0 ) {
-            // Do submit
+
+            var data = {
+                "options[]": options
+            };
+
+            $.ajax({
+              type: "POST",
+              url: $(location).attr('href'),
+              data: data,
+              dataType: "json",
+
+                success: function(data) {
+    alert(data);
+  }
+            });
+
+
         }
 
         else {

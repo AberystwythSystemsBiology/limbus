@@ -149,11 +149,25 @@ def add_attribute_step_two():
 
     return render_template("sample/attribute/add/two.html", form=form)
 
-@sample.route("attribute/add/step_two_option")
+@sample.route("attribute/add/step_two_option", methods=["GET", "POST"])
 def add_attribute_step_two_option():
     attribute_details = session["attribute_details"]
+    if request.method == "POST":
+        options = request.form.getlist("options[]")
 
-    return render_template("sample/attribute/add/two_option.html")
+        sample_attribute = SampleAttribute(
+            term = attribute_details["term"],
+            type = attribute_details["type"],
+            author_id = current_user.id
+        )
+
+        #db.session.add(sample_attribute)
+        #db.session.flush()
+
+
+        return redirect(url_for("sample.attribute_portal"), code=307)
+    else:
+        return render_template("sample/attribute/add/two_option.html")
 
 @sample.route("attribute/view/LIMBSATTR-<attribute_id>")
 def view_attribute(attribute_id):
