@@ -153,7 +153,7 @@ def view_attribute(attribute_id):
 
     if attribute.type.value == "Text":
         settings = db.session.query(SampleAttributeTextSetting).filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id).first()
-        samples = db.session.query(SampleAttribute, Sample).filter(SampleAttributeTextValue.sample_id == Sample.id).all()
+        samples = db.session.query(SampleAttribute, Sample, User).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(Sample.author_id == User.id).all()
 
     return render_template(
         "sample/attribute/view.html",
