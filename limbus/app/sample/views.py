@@ -64,6 +64,7 @@ def add_sample_stwo():
             sample_type=form.sample_type.data,
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
+            disposal_date = form.disposal_date.data,
             author_id=current_user.id
         )
 
@@ -152,10 +153,12 @@ def view_attribute(attribute_id):
 
     if attribute.type.value == "Text":
         settings = db.session.query(SampleAttributeTextSetting).filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id).first()
+        samples = db.session.query(SampleAttribute, Sample).filter(SampleAttributeTextValue.sample_id == Sample.id).all()
 
     return render_template(
         "sample/attribute/view.html",
         attribute=attribute,
         attribute_user=attribute_user,
-        settings=settings
+        settings=settings,
+        samples = samples
     )

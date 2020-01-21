@@ -43,6 +43,26 @@
             <h2 class="h2">
                 <i class="fa fa-vial"></i> Associated Samples
             </h2>
-        </div>
     </div>
+
+    <table class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <th>Identifier</th>
+            <th>Collection Date</th>
+            <th>Uploader</th>
+            <th>Actions</th>
+            </thead>
+            <tbody>
+            {% for sampleattribute, sample in samples %}
+                <tr>
+                    <td>LIMBSMP-{{ sample.id }}</td>
+                    <td>{{ sample.collection_date }}</td>
+                    <td></td>
+                <td>View</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
 {% endblock %}

@@ -11,9 +11,11 @@ p = inflect.engine()
 class SampleCreationForm(FlaskForm):
     sample_type = SelectField("Sample Type", validators=[DataRequired()],
                               choices=SampleType.choices())
+
+    collection_date = DateField(validators=[DataRequired()])
     disposal_instruction = SelectField("Disposal Instructions", validators=[DataRequired()],
                                        choices=DisposalInstruction.choices())
-    collection_date = DateField()
+    disposal_date = DateField(validators=[DataRequired()])
 
 class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])

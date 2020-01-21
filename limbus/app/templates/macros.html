@@ -66,7 +66,11 @@
         <div class="col-sm-8">
             {% if type == "text" %}
                 <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% elif type == "enum" %}
+                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+
             {% endif %}
+
         </div>
     </div>
 

@@ -40,6 +40,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Doc Portal</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-boxes"></i> Storage Portal</a>
+                </li>
                 {% if current_user.is_admin %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('admin.index') }}"><i class="fas fa-user-shield"></i> Admin Portal</a>
