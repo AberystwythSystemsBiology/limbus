@@ -144,14 +144,18 @@ def add_attribute_step_two():
     return render_template("sample/attribute/add/two.html", form=form)
 
 
-@sample.route("attribute/view/<attribute_id>")
+@sample.route("attribute/view/LIMBSATTR-<attribute_id>")
 def view_attribute(attribute_id):
     attribute, attribute_user = db.session.query(SampleAttribute, User).filter(
         SampleAttribute.id == attribute_id
     ).filter(SampleAttribute.author_id == User.id).first()
 
+    if attribute.type.value == "Text":
+        settings = db.session.query(SampleAttributeTextSetting).filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id).first()
+
     return render_template(
         "sample/attribute/view.html",
         attribute=attribute,
-        attribute_user=attribute_user
+        attribute_user=attribute_user,
+        settings=settings
     )

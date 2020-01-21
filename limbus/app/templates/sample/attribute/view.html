@@ -7,17 +7,42 @@
     <div class="container">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2">
-                <i class="far fa-clone"></i> View Custom Attribute : LIMBSATTR-{{ attribute.id }}
+                <i class="far fa-clone"></i> LIMBSATTR-{{ attribute.id }}
             </h1>
+
+            {% if (attribute.type.value == "Text") %}
+                <div class="btn btn-primary btn-sm">
+                    <i class="fas fa-font"></i> {{ attribute.type.value }}
+                </div>
+
+                {% else %}
+                {{ attribute.type.value }}
+            {% endif %}
         </div>
 
         {{ show_value(attribute.term, "Attribute Term", "text") }}
         {{ show_value(attribute.accession, "Attribute Accession", "text") }}
-        {{ show_value(attribute.accession, "Attribute Accession", "text") }}
         {{ show_value(attribute.ref, "Attribute REF", "text") }}
+        {{ show_value(attribute.creation_date, "Creation Date", "text") }}
+        {{ show_value(attribute.required, "Required", "boolean") }}
         {{ show_value(attribute_user.email, "Creator Email", "text") }}
 
-        <h2>Associated Samples</h2>
+    {% if attribute.type.value == "Text" %}
 
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2">
+                <i class="fas fa-font"></i> Text Settings
+            </h1>
+        </div>
+
+        {{ show_value(settings.max_length, "Max Length", "text") }}
+
+    {% endif %}
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2 class="h2">
+                <i class="fa fa-vial"></i> Associated Samples
+            </h2>
+        </div>
     </div>
 {% endblock %}

@@ -23,6 +23,7 @@
             <thead>
             <th>Identifier</th>
             <th>Term</th>
+            <th>Term Type</th>
             <th>Creation Date</th>
             <th>Uploader</th>
             <th>Actions</th>
@@ -32,6 +33,12 @@
                 <tr>
                     <td>LIMBSATTR-{{ attribute.id }}</td>
                     <td>{{ attribute.term }}</td>
+                    <td>
+
+                        {% if (attribute.type.value == "Text") %}
+                            <i class="fas fa-font"></i>
+                        {% endif %}
+                    </td>
                     <td>{{ attribute.creation_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ user.email }}</td>
                     <td>
