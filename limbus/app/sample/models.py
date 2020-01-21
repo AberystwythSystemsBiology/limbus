@@ -78,6 +78,17 @@ class SampleAttributeTextValue(db.Model):
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
 
+class SampleAttributeOptionValue(db.Model):
+    __tablename__ = "sample_attribute_option_value"
+    id = db.Column(db.Integer, primary_key=True)
+
+    sample_option_id = db.Column(db.Integer, db.ForeignKey("sample_attribute_options.id"))
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey('samples.id'))
+
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
 class Donor(db.Model):
     __tablename__ = "donors"
 

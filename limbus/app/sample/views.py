@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
-from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting
+from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting, SampleAttributeOptionValue
 from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText
 from ..auth.models import User
 from flask_login import login_required, current_user
@@ -29,7 +29,21 @@ def view(sample_id):
     ).filter(
         SampleAttributeTextValue.sample_attribute_id == SampleAttribute.id
     ).all()
-    return render_template("sample/information/view.html", sample=sample, text_attr=text_attr)
+
+    option_attr = db.session.query(
+        SampleAttribute,
+        SampleAttributeOptionValue,
+        SampleAttributeOption
+    ).filter(
+        SampleAttributeOptionValue.sample_id == sample_id
+    ).filter (
+        SampleAttributeOptionValue.sample_attribute_id == SampleAttribute.id
+    ).filter(
+        SampleAttributeOptionValue.sample_option_id == SampleAttributeOption.id
+    ).all()
+
+
+    return render_template("sample/information/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr)
 
 @sample.route("add/", methods=["GET", "POST"])
 def add_sample():
@@ -81,7 +95,20 @@ def add_sample_stwo():
                         author_id = current_user.id
                     )
                     db.session.add(attr_value)
+                elif attr.type in ["SelectField"]:
+                    option = db.session.query(SampleAttributeOption).filter(SampleAttributeOption.term == attr.data).first()
+
+                    option_value = SampleAttributeOptionValue(
+                        sample_attribute_id=session["conv"][attr.id],
+                        sample_id=sample.id,
+                        sample_option_id=option.id,
+                        author_id = current_user.id
+                    )
+
+                    db.session.add(option_value)
         db.session.commit()
+
+        return redirect(url_for("sample.index"))
 
     return render_template("sample/information/add.html", form=form)
 

@@ -49,7 +49,9 @@ function limbus-db-upgrade() {
 }
 
 function limbus-db-nuke() {
-  docker-compose run web sh -c 'find . -path "*/migrations/*.py" -not -name "__init__.py" -delete'
+  docker stop limbus_postgres_1
+  docker rm limbus_postgres_1
+  docker-compose run web sh -c 'rm -rf migrations'
   docker-compose run web sh -c 'find . -path "*/migrations/*.pyc"  -delete'
   limbus-db-create
 
