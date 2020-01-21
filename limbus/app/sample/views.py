@@ -18,7 +18,7 @@ def index():
     samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
     return render_template("sample/information/index.html", samples=samples)
 
-@sample.route("view/<sample_id>", methods=["GET"])
+@sample.route("view/LIMBSMP-<sample_id>", methods=["GET"])
 def view(sample_id):
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
     text_attr = db.session.query(

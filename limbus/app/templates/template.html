@@ -58,11 +58,27 @@
         </span>
             </a>
         {% else %}
-            <a href="{{ url_for('auth.logout') }}">
-        <span class="navbar-text">
-            <i class="fas fa-sign-out-alt"></i> Log Out
-        </span>
-            </a>
+
+                        <ul class="nav navbar-nav flex-row justify-content-between ml-auto">
+                    <li class="dropdown order-1">
+                    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-outline-secondary dropdown-toggle">Account <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right mt-2">
+                       <li class="px-3 py-2">
+                                <div class="form-group">
+                                    <img src="https://www.gravatar.com/avatar/{{ current_user.gravatar_hash }}" class="img-circle">
+                                </div>
+                                <div class="form-group">
+                                    Logged in as: {{ current_user.email }}
+                                </div>
+                                <div class="form-group">
+                                    <a href="{{ url_for('auth.logout') }}">
+                                    <div class="btn btn-danger btn-sm" style="width: 100%">
+                                        Log Out
+                                    </div></a>
+                                </div>
+
+                        </li>
+                        </ul>
         {% endif %}
     </div>
 </nav>

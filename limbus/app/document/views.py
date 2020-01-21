@@ -35,7 +35,7 @@ def index():
 def upload():
     form = DocumentUploadForm()
     if form.validate_on_submit():
-        f = form.file.data
+        f = form.file.data.filename
 
         folder_name = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
 
@@ -66,6 +66,8 @@ def upload():
             document_id=document.id
         )
 
+        form.file.data.save(filepath)
+
         db.session.add(document_file)
         db.session.commit()
 
@@ -74,7 +76,7 @@ def upload():
 
     return render_template("document/upload.html", form=form)
 
-@document.route("/view/DOC<doc_id>")
+@document.route("/view/LIMBDOC-<doc_id>")
 def view(doc_id):
 
     upload_user, document = db.session.query(
