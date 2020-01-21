@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
-from .models import Sample, Donor, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting
+from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting
 from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText
 from ..auth.models import User
 from flask_login import login_required, current_user
@@ -161,11 +161,23 @@ def add_attribute_step_two_option():
             author_id = current_user.id
         )
 
-        #db.session.add(sample_attribute)
-        #db.session.flush()
+        db.session.add(sample_attribute)
+        db.session.flush()
 
 
-        return redirect(url_for("sample.attribute_portal"), code=307)
+        for option in options:
+            sao = SampleAttributeOption(
+                term = option,
+                author_id = current_user.id,
+                sample_attribute_id = sample_attribute.id
+            )
+
+            db.session.add(sao)
+
+        db.session.commit()
+
+        # TODO: Need to get Ajax to support a return and redirect
+        return url_for("sample.attribute_portal")
     else:
         return render_template("sample/attribute/add/two_option.html")
 
@@ -177,6 +189,10 @@ def view_attribute(attribute_id):
 
     if attribute.type.value == "Text":
         settings = db.session.query(SampleAttributeTextSetting).filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id).first()
+        samples = db.session.query(SampleAttribute, Sample, User).filter(SampleAttributeTextValue.sample_attribute_id == attribute.id).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(Sample.author_id == User.id).all()
+
+    elif attribute.type.value == "Option":
+        settings = db.session.query(SampleAttributeOption).filter(SampleAttributeOption.sample_attribute_id == attribute.id).all()
         samples = db.session.query(SampleAttribute, Sample, User).filter(SampleAttributeTextValue.sample_attribute_id == attribute.id).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(Sample.author_id == User.id).all()
 
     return render_template(

@@ -14,7 +14,10 @@
                 <div class="btn btn-primary btn-sm">
                     <i class="fas fa-font"></i> {{ attribute.type.value }}
                 </div>
-
+                {% elif (attribute.type.value == "Option") %}
+                <div class="btn btn-danger btn-sm">
+                    <i class="far fa-clone"></i> Option
+                </div>
                 {% else %}
                 {{ attribute.type.value }}
             {% endif %}
@@ -37,6 +40,17 @@
 
         {{ show_value(settings.max_length, "Max Length", "text") }}
 
+        {% elif attribute.type.value == "Option" %}
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2">
+                <i class="far fa-clone"></i> Options
+            </h1>
+        </div>
+
+        {% for option in settings %}
+            <p>{{ option.term }}</p>
+        {% endfor %}
     {% endif %}
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">

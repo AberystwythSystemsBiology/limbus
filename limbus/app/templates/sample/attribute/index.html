@@ -39,6 +39,8 @@
 
                         {% if (attribute.type.value == "Text") %}
                             <i class="fas fa-font"></i>
+                            {% elif (attribute.type.value == "Option") %}
+                            <i class="far fa-clone"></i>
                         {% endif %}
                     </td>
                     <td>{{ attribute.creation_date.strftime('%Y-%m-%d') }}</td>

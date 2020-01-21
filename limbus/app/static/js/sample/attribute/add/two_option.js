@@ -21,6 +21,13 @@ $(document).ready(function () {
         }
     }
 
+
+    function test_async(v){
+        console.log(v);
+    }
+
+
+
     $("#submitButton").click(function submit_options(e) {
         if (options.length > 0 ) {
 
@@ -29,14 +36,13 @@ $(document).ready(function () {
             };
 
             $.ajax({
-              type: "POST",
-              url: $(location).attr('href'),
-              data: data,
-              dataType: "json",
-
-                success: function(data) {
-    alert(data);
-  }
+                type: "POST",
+                url: $(location).attr('href'),
+                data: data,
+                dataType: "json",
+                success: function(response){
+                        test_async(response);
+                    }
             });
 
 
