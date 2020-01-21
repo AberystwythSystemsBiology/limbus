@@ -4,11 +4,16 @@
 
 {% block body %}
 <div class="container">
-    <h1>Document Portal</h1>
-
-    <a href="{{ url_for('document.upload') }}">
-        <div class="btn btn-primary pull-right">Document Upload</div>
-    </a>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-file"></i> Document Portal</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <a href="{{ url_for('document.upload') }}">
+                    <div class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Document
+                    </div>
+                </a>
+            </div>
+        </div>
 
     <p>This is the Document Portal. This is where your documents can be found. </p>
 

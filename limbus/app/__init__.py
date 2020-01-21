@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, g
+from flask import Flask, g, render_template
 from config import app_config
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -46,5 +46,9 @@ def create_app():
 
     from app.admin import add_admin_views
     add_admin_views()
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template("misc/404.html"), 404
 
     return app

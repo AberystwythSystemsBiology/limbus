@@ -4,15 +4,19 @@
 
 {% block body %}
     <div class="container">
-        <h1>Add Sample</h1>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-vial"></i> Step Two: Enter Sample Attribute Information</h1>
+          </div>
 
-        <form method="POST" action="{{ url_for('sample.add_sample_information' ) }}">
+        <form method="POST" action="{{ url_for('sample.add_sample_stwo' ) }}">
             {{ form.csrf_token }}
-            {{ form_field(form.sample_type) }}
-            {{ form_field(form.collection_date) }}
-            {{ form_field(form.disposal_instruction) }}
-            {{ form_field(form.submit, with_label=False)}}
+            {% for attribute in form %}
+                {% if attribute.id != "csrf_token" %}
+                    {{ form_field(attribute) }}
+                {% else %}
+                    {{ attribute }}
+                {% endif %}
+            {% endfor %}
         </form>
-
     </div>
 {% endblock %}

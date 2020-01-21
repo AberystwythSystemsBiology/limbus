@@ -5,7 +5,9 @@
 
     {% if field.type != 'SubmitField' %}
 
-        <div class="form-group">
+        {% if field.type != 'BooleanField' %}
+
+            <div class="form-group">
 
             {% if with_label %}
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:</label>
@@ -15,17 +17,27 @@
                 <small class="form-text text-muted">{{ field.description }}</small>
             {% endif %}
 
+
+
             {% if field.errors %}
                 <div class="alert alert-warning" role="alert">
                     <b>Error:</b> {{ field.errors|join(', ') }}
                 </div>
             {% endif %}
 
+        {% endif %}
+
             {% if field.type == 'BooleanField' %}
-                Boolean Field
+                <div class="form-check" style="padding-bottom: 1em;">
+                <input class="form-check-input" type="checkbox" id="{{ field.id }}" name="{{ field.name }}">
+                <label class="form-check-label" for="defaultCheck1">
+                {{ field.label.text }}?
+                </label>
+
             {% elif field.type == 'StringField' %}
-                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
-                       {% if field.flags.required %}required{% endif %}>
+                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
+            {% elif field.type == 'TextAreaField' %}
+                <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
             {% elif field.type == 'SelectField' %}
                     <select class="form-control" id="{{ field.id}}" name="{{ field.name }}">
                     {% for key, value, bo in field.iter_choices() %}
@@ -41,9 +53,36 @@
                     max="3000-12-31" class="form-control">
             {% endif %}
         </div>
-
     {% else %}
         <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
     {% endif %}
 {%- endmacro %}
 
+
+{% macro show_value(attribute, label, type) -%}
+
+    <div class="form-group row">
+        <label for="staticEmail" class="col-sm-4 col-form-label">{{ label }}:</label>
+        <div class="col-sm-8">
+            {% if type == "text" %}
+                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% elif type == "enum" %}
+                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% elif type == "boolean" %}
+                <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% elif type == "datetime" %}
+                <input class="form-control" type="text" placeholder="{{ attribute.strftime('%Y-%m-%d')  }}" readonly>
+            {% endif %}
+
+        </div>
+    </div>
+
+{%- endmacro %}
+
+{% macro new_render_form(form) -%}
+    {% for element in form %}
+        {% if (element.type != "CSRFTokenField") %}
+            {{  form_field(element) }}
+        {% endif %}
+    {% endfor %}
+{%- endmacro %}

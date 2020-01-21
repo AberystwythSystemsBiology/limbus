@@ -1,0 +1,50 @@
+{% extends "template.html" %}
+
+{% block title %}View Sample{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+
+            </div>
+        </div>
+
+
+
+        {{ show_value(sample.sample_type, "Sample Type", "text") }}
+
+        {{ show_value(sample.disposal_date, "Disposal Instructions", "datetime") }}
+
+        {{ show_value(sample.disposal_instruction, "Disposal Instructions", "text") }}
+
+        {{ show_value(sample.creation_date, "Creation Date", "datetime") }}
+
+        {% for term, attr in text_attr %}
+            {{ show_value(attr.value, term.term, "text")  }}
+        {% endfor %}
+
+        {% for term, _, choice in option_attr %}
+            {{ show_value(choice.term, term.term,  "text")  }}
+    {% endfor %}
+
+              <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-boxes"></i> Storage Information</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+
+            </div>
+        </div>
+
+        <p>No storage information is currently available.</p>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-file"></i> Associated Documents</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

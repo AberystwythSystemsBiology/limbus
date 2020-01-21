@@ -11,15 +11,20 @@ p = inflect.engine()
 class SampleCreationForm(FlaskForm):
     sample_type = SelectField("Sample Type", validators=[DataRequired()],
                               choices=SampleType.choices())
+
+    collection_date = DateField(validators=[DataRequired()])
     disposal_instruction = SelectField("Disposal Instructions", validators=[DataRequired()],
                                        choices=DisposalInstruction.choices())
-    collection_date = DateField()
-    submit = SubmitField("Submit")
-
+    disposal_date = DateField(validators=[DataRequired()])
 
 class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
     term_type = SelectField("Attribute Type", validators=[DataRequired()], choices=[(x.name, x.value) for x in SampleAttributeTypes])
+    required = BooleanField("Required")
+    submit = SubmitField("Submit")
+
+class SampleAttributionCreationFormText(FlaskForm):
+    max_length = StringField("Maximum Length", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 def DynamicAttributeSelectForm(query):
@@ -29,4 +34,6 @@ def DynamicAttributeSelectForm(query):
     for attribute in query:
         setattr(StaticForm, p.number_to_words(attribute.id), BooleanField(attribute.term))
 
+    setattr(StaticForm, "submit", SubmitField())
     return StaticForm()
+

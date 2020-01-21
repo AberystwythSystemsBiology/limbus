@@ -2,7 +2,6 @@ from app import db
 
 class AddressInformation(db.Model):
     __tablename__ = "address_information"
-
     id = db.Column(db.Integer, primary_key=True)
 
     street_address_one = db.Column(db.String(256))
