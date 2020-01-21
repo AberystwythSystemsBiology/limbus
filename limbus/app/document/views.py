@@ -56,7 +56,6 @@ def upload():
         )
 
         db.session.add(document)
-        db.session.commit()
 
         db.session.flush()
 
