@@ -114,9 +114,14 @@ def add_attribute_step_two():
 
     attribute_details = session["attribute_details"]
 
+    if attribute_details["type"] == "OPTION":
+        return (redirect(url_for("sample.add_attribute_step_two_option")))
+
     if attribute_details["type"] == "TEXT":
         form = SampleAttributionCreationFormText()
-
+    else:
+        # TODO: Need to replace with Numeric
+        form = SampleAttributionCreationFormText()
     if form.validate_on_submit():
 
         sample_attribute = SampleAttribute(
@@ -144,6 +149,11 @@ def add_attribute_step_two():
 
     return render_template("sample/attribute/add/two.html", form=form)
 
+@sample.route("attribute/add/step_two_option")
+def add_attribute_step_two_option():
+    attribute_details = session["attribute_details"]
+
+    return render_template("sample/attribute/add/two_option.html")
 
 @sample.route("attribute/view/LIMBSATTR-<attribute_id>")
 def view_attribute(attribute_id):
@@ -153,7 +163,7 @@ def view_attribute(attribute_id):
 
     if attribute.type.value == "Text":
         settings = db.session.query(SampleAttributeTextSetting).filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id).first()
-        samples = db.session.query(SampleAttribute, Sample, User).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(Sample.author_id == User.id).all()
+        samples = db.session.query(SampleAttribute, Sample, User).filter(SampleAttributeTextValue.sample_attribute_id == attribute.id).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(Sample.author_id == User.id).all()
 
     return render_template(
         "sample/attribute/view.html",

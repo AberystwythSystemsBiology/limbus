@@ -25,6 +25,8 @@
             <th>Term</th>
             <th>Term Type</th>
             <th>Creation Date</th>
+            <th>Required</th>
+
             <th>Uploader</th>
             <th>Actions</th>
             </thead>
@@ -40,6 +42,7 @@
                         {% endif %}
                     </td>
                     <td>{{ attribute.creation_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ attribute.required }}</td>
                     <td>{{ user.email }}</td>
                     <td>
                         <a href="{{ url_for('sample.view_attribute', attribute_id=attribute.id) }}">
