@@ -10,6 +10,8 @@ from . import document
 from .models import Document, DocumentFile
 from .forms import DocumentUploadForm
 
+from ..sample.models import SampleDocumentAssociation
+
 from ..auth.models import User
 
 from .. import db
@@ -90,7 +92,10 @@ def view(doc_id):
             DocumentFile
         ).filter(DocumentFile.uploader == User.id).filter(DocumentFile.document_id == doc_id).all()
 
-        return render_template("document/view.html", document=document, upload_user=upload_user, files=files)
+        # TODO: Build an association view class
+        associated_document = db.session.query(SampleDocumentAssociation).filter(SampleDocumentAssociation.document_id == doc_id).all()
+
+        return render_template("document/view.html", document=document, upload_user=upload_user, files=files, associated_document=associated_document)
 
     else:
         return abort(401)
