@@ -2,20 +2,32 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField
 from wtforms.validators import DataRequired
 
-from .enums import SampleAttributeTypes, DisposalInstruction, SampleType
+from .enums import SampleAttributeTypes, DisposalInstruction, SampleType, SampleStatus
 
 import inflect
 
 p = inflect.engine()
 
 class SampleCreationForm(FlaskForm):
+
+    biobank_accession_number = StringField("Biobank Accession Number")
+
     sample_type = SelectField("Sample Type", validators=[DataRequired()],
                               choices=SampleType.choices())
 
     collection_date = DateField(validators=[DataRequired()])
+
+
+    sample_status = SelectField("Sample Status", validators=[DataRequired()],
+                                choices=SampleStatus.choices())
+
+
+    batch_number = StringField("Batch Number")
+
+
+    disposal_date = DateField(validators=[DataRequired()])
     disposal_instruction = SelectField("Disposal Instructions", validators=[DataRequired()],
                                        choices=DisposalInstruction.choices())
-    disposal_date = DateField(validators=[DataRequired()])
 
 class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])

@@ -24,7 +24,7 @@ class DisposalInstruction(FormEnum):
     REV= "Review"
     PRE = "Preserve"
 
-class SampleStatus(Enum):
+class SampleStatus(FormEnum):
     AVA = "Available"
     DES = "Destroyed"
     TRA = "Transferred"

@@ -8,10 +8,13 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2"><i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-
+                {{ sample.sample_status.value }}
             </div>
         </div>
 
+
+        {{ show_value(sample.biobank_accession_number, "Biobank Accession Number", "text") }}
+        {{ show_value(sample.batch_number, "Batch Number", "text") }}
 
 
         {{ show_value(sample.sample_type, "Sample Type", "text") }}

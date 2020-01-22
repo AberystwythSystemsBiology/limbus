@@ -1,5 +1,5 @@
 from app import db
-from .enums import SampleType, DisposalInstruction, SampleAttributeTypes
+from .enums import SampleType, DisposalInstruction, SampleAttributeTypes, SampleStatus
 
 class Sample(db.Model):
     __tablename__ = "samples"
@@ -9,6 +9,11 @@ class Sample(db.Model):
     sample_type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)
     disposal_instruction = db.Column(db.Enum(DisposalInstruction))
+    batch_number = db.Column(db.Integer)
+    biobank_accession_number = db.Column(db.String(128))
+
+    sample_status = db.Column(db.Enum(SampleStatus))
+
     disposal_date = db.Column(db.DateTime, nullable=False)
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

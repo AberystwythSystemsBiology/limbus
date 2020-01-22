@@ -115,14 +115,18 @@ def add_sample_stwo():
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
             disposal_date = form.disposal_date.data,
-            author_id=current_user.id
+            author_id=current_user.id,
+            biobank_accession_number = form.biobank_accession_number.data,
+            sample_status=form.sample_status.data,
+            batch_number = form.batch_number.data
         )
 
         db.session.add(sample)
         db.session.flush()
 
+        # TODO: Add attribute to form element to differientiate.
         for attr in form:
-            if attr.id not in ["csrf_token", "submit", "sample_type", "collection_date", "disposal_instruction"]:
+            if attr.id not in ["csrf_token", "biobank_accession_number", "sample_status", "batch_number", "submit", "sample_type", "collection_date", "disposal_instruction"]:
                 if attr.type in ["TextAreaField", "StringField"]:
                     attr_value = SampleAttributeTextValue(
                         value = attr.data,
