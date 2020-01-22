@@ -3,28 +3,6 @@
 {% block title %}Step One: Select Sample Attributes{% endblock %}
 
 
-{% macro generate_attribute_select_form(form) -%}
-    <table class="table table-striped table-bordered" style="width:100%">
-        <thead>
-        <tr>
-            <th>Attribute Term</th>
-            <th>Select</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for field in form %}
-            {% if field.type == "BooleanField" %}
-                <tr>
-                    <td>{{ field.label }}</td>
-                    <td>{{ field }}</td>
-                </tr>
-            {% endif %}
-
-        {% endfor %}
-        </tbody>
-    </table>
-    {{ form.submit() }}
-{%- endmacro %}
 
 {% block body %}
     <div class="container">

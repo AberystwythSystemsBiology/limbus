@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
-from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting, SampleAttributeOptionValue
+from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting, SampleAttributeOptionValue, SampleDocumentAssociation
+from ..document.models import Document
 from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText
 from ..auth.models import User
 from flask_login import login_required, current_user
@@ -43,7 +44,42 @@ def view(sample_id):
     ).all()
 
 
-    return render_template("sample/information/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr)
+    associated_document = db.session.query(
+        SampleDocumentAssociation, Document
+    ).filter(SampleDocumentAssociation.sample_id == sample_id).filter(SampleDocumentAssociation.document_id == Document.id).all()
+
+    return render_template("sample/information/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr, associated_document=associated_document)
+
+@sample.route("view/LIMBSMP-<sample_id>/associate_doc", methods=["GET", "POST"])
+def associate_document(sample_id):
+
+    sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
+
+    query = db.session.query(Document).all()
+
+    conv = {p.number_to_words(x.id) : x.id for x in query}
+
+    form = DynamicAttributeSelectForm(query, "name")
+
+    if form.validate_on_submit():
+
+
+        for attr in form:
+            if attr.id in conv and attr.data == True:
+
+                sda = SampleDocumentAssociation(
+                    sample_id = sample_id,
+                    document_id = conv[attr.id],
+                    author_id = current_user.id
+                )
+
+                db.session.add(sda)
+
+            db.session.commit()
+
+            return redirect(url_for("sample.view", sample_id=sample_id))
+
+    return render_template("sample/information/document/associate.html", sample=sample, form=form)
 
 @sample.route("add/", methods=["GET", "POST"])
 def add_sample():
@@ -51,7 +87,7 @@ def add_sample():
 
     query = db.session.query(SampleAttribute).all()
     conv = {p.number_to_words(x.id) : x.id for x in query}
-    attr_selection = DynamicAttributeSelectForm(query)
+    attr_selection = DynamicAttributeSelectForm(query, "term")
 
     if attr_selection.validate_on_submit():
         # TODO: <hack>

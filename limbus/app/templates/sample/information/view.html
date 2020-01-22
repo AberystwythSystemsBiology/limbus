@@ -41,8 +41,41 @@
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2"><i class="fas fa-file"></i> Associated Documents</h1>
-            <div class="btn btn-primary">Associate Document</div>
+            <a href="{{ url_for('sample.associate_document', sample_id=sample.id) }}">
+            <div class="btn btn-primary">Associate Document</div></a>
         </div>
+
+                <table id="samples" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Document Type</th>
+                <th>Upload Date</th>
+
+                <th>Upload Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for _, document in associated_document %}
+                <tr>
+                    <td>LIMBDOC-{{ document.id }}</td>
+                    <td>{{ document.name }}</td>
+                    <td>{{ document.type.value }}</td>
+                    <td>{{ document.upload_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <a href="{{ url_for('document.view', doc_id=document.id) }}">
+                            <div class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> View
+                                </div>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
 
     </div>
 {% endblock %}
