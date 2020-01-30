@@ -104,10 +104,3 @@ class SampleDocumentAssociation(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-
-class Donor(db.Model):
-    __tablename__ = "donors"
-
-    id = db.Column(db.Integer, primary_key=True)
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)

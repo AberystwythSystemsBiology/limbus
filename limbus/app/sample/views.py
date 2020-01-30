@@ -83,6 +83,10 @@ def associate_document(sample_id):
 
 @sample.route("add/", methods=["GET", "POST"])
 def add_sample():
+
+    # TODO: Questionnaire about Patient Consent Form and upload/selection
+    #  Adjust innerjoin to accept dynamic-donor inference
+
     session["attribute_ids"] = []
 
     query = db.session.query(SampleAttribute).all()
@@ -123,6 +127,8 @@ def add_sample_stwo():
 
         db.session.add(sample)
         db.session.flush()
+
+        # TODO: Generate assoc. number using BB-TIS-DBN
 
         # TODO: Add attribute to form element to differientiate.
         for attr in form:
