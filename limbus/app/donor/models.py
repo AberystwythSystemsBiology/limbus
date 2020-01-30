@@ -18,7 +18,6 @@ class Donor(db.Model):
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-
 class DonorDiagnosis(db.Model):
     __tablename__ = "donor_diagnoses"
 

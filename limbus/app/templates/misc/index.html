@@ -4,11 +4,15 @@
 
 {% block body %}
 
-    <div class="jumbotron">
+    <div id="homepage-jumbotron" class="jumbotron">
         <div class="container">
-            <h1>LImBuS</h1>
-
-            <h4>A standards compliant, open source Biobank Information Management System.</h4>
+            <div class="media p-3">
+            <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg')}}" class="align-self-center mr-3" style="max-width: 30%;">
+                <div class="media-body">
+                <h1>LImBuS</h1>
+                    <h4>A standards compliant, open source Biobank Information Management System.</h4>
+            </div>
+            </div>
         </div>
     </div>
 

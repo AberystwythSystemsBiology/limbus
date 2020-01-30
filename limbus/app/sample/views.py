@@ -9,6 +9,7 @@ from .. import db
 
 from ..dynform import DynamicAttributeFormGenerator
 
+from ..codegenerator import DataMatrixGenerator
 
 @sample.route("/")
 def portal():
@@ -43,7 +44,8 @@ def view(sample_id):
         SampleAttributeOptionValue.sample_option_id == SampleAttributeOption.id
     ).all()
 
-
+    ascii = DataMatrixGenerator().generate()
+    print(ascii)
     associated_document = db.session.query(
         SampleDocumentAssociation, Document
     ).filter(SampleDocumentAssociation.sample_id == sample_id).filter(SampleDocumentAssociation.document_id == Document.id).all()

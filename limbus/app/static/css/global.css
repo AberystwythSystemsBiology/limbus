@@ -10,3 +10,8 @@ nav img {
 .test {
     background-color: #000;
 }
+
+#homepage-jumbotron {
+    color: #fff;
+    background-image: url("../images/header.JPG") ;
+}
