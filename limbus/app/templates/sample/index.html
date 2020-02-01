@@ -15,9 +15,9 @@
         <div class="card-deck mb-3 text-center">
             <div class="card mb-4 box-shadow">
                 <div class="card-body">
-                    <h2 class="card-title pricing-card-title">Sample Information</h2>
+                    <h3 class="card-title pricing-card-title"><i class="fas fa-vial"></i>  Sample Information</h3>
                     <ul class="list-unstyled mt-3 mb-4">
-                        <li>Something here</li>
+                        <li>Samples Stored: {{info["sample_count"]}}</li>
                     </ul>
                     <a href="{{ url_for('sample.index') }}">
                         <button type="button" class="btn btn-lg btn-block btn-outline-primary">
@@ -28,9 +28,9 @@
             </div>
             <div class="card mb-4 box-shadow">
                 <div class="card-body">
-                    <h2 class="card-title pricing-card-title">Sample Attribute</h2>
+                    <h3 class="card-title pricing-card-title"><i class="far fa-clone"></i> Sample Attributes</h3>
                     <ul class="list-unstyled mt-3 mb-4">
-                        <li>Something here</li>
+                        <li>{{ info["sample_attr_count"] }} Sample Attributes</li>
                     </ul>
                     <a href="{{ url_for('sample.attribute_portal') }}">
                         <button type="button" class="btn btn-lg btn-block btn-outline-primary">
@@ -39,19 +39,7 @@
                     </a>
                 </div>
             </div>
-             <div class="card mb-4 box-shadow">
-                <div class="card-body">
-                    <h2 class="card-title pricing-card-title">Donor Information</h2>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li>Something here</li>
-                    </ul>
-                    <a href="{{ url_for('sample.attribute_portal') }}">
-                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">
-                            View
-                        </button>
-                    </a>
-                </div>
-            </div>
+
         </div>
 
     </div>

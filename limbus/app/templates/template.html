@@ -11,6 +11,8 @@
 
     <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/@fortawesome/fontawesome-free/css/all.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='node_modules/datatables.net-searchpanes-dt/css/searchPanes.dataTables.min.css') }}" rel="stylesheet">
 
     {% block head %}
     {% endblock %}
@@ -22,8 +24,8 @@
 
 <body>
 
-
 <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+    <div class="container">
     <a class="navbar-brand" href="{{ url_for('misc.index') }}">
         <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"> LImBuS
     </a>
@@ -37,6 +39,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('sample.portal') }}"><i class="fas fa-vial"></i> SAQ Portal</a>
                 </li>
+            <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('donor.index') }}"><i class="fas fa-male"></i> Donor Portal</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Doc Portal</a>
                 </li>
@@ -48,11 +53,35 @@
                         <a class="nav-link" href="{{ url_for('admin.index') }}"><i class="fas fa-user-shield"></i> Admin Portal</a>
                     </li>
                     {% endif %}
-                {% else %}
-                    <ul class="navbar-nav mr-auto">
-                    </ul>
             </ul>
+        </ul>
+
+        <ul class="navbar-nav ml-auto">
+            <li class="dropdown">
+            <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false"><i class="fas fa-user"></i> Account <b class="caret"></b>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right position-absolute" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item"></a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                    <div class="btn btn-danger full-width">
+                        Log Out
+                    </div>
+                </a>
+            </div>
+        </li>
+        </ul>
+
+        {% else  %}
+
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fa fa-sign-in-alt"></i> Log In</a>
+            </li>
+        </ul>
         {% endif %}
+    </div>
     </div>
 </nav>
 
@@ -100,6 +129,10 @@
 
 <script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net/js/jquery.dataTables.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-bs4/js/dataTables.bootstrap4.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-searchpanes/js/dataTables.searchPanes.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-select/js/dataTables.select.js') }}"></script>
 
 {% block javascript %}
 

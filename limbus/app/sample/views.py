@@ -13,7 +13,15 @@ from ..codegenerator import DataMatrixGenerator
 
 @sample.route("/")
 def portal():
-    return render_template("sample/index.html")
+
+    info = {
+        "sample_count" : db.session.query(Sample).count(),
+        "sample_attr_count" : db.session.query(SampleAttribute).count(),
+        "donor_count" : 0
+    }
+
+
+    return render_template("sample/index.html", info=info)
 
 @sample.route("samples/")
 def index():

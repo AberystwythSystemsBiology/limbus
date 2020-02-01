@@ -17,6 +17,7 @@ from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
+from .donor import donor as donor_blueprint
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -43,6 +44,8 @@ def create_app():
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(doc_blueprint, url_prefix="/documents")
     app.register_blueprint(sample_blueprint, url_prefix="/samples")
+    app.register_blueprint(donor_blueprint, url_prefix="/donors")
+
 
     from app.admin import add_admin_views
     add_admin_views()

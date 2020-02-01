@@ -6,7 +6,6 @@ body {
 nav img {
     height:30px;
 }
-
 .test {
     background-color: #000;
 }
@@ -14,4 +13,8 @@ nav img {
 #homepage-jumbotron {
     color: #fff;
     background-image: url("../images/header.JPG") ;
+}
+
+.full-width {
+    width:100%;
 }
