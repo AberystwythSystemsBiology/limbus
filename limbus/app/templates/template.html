@@ -60,11 +60,21 @@
             <li class="dropdown">
             <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false"><i class="fas fa-user"></i> Account <b class="caret"></b>
             </a>
-            <div class="dropdown-menu dropdown-menu-right position-absolute" aria-labelledby="navbarDropdown">
+            <div class="dropdown-menu dropdown-menu-right position-absolute" aria-labelledby="navbarDropdown" style="width:300px">
                 <a class="dropdown-item"></a>
-                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item">
+                    <div class="media">
+                        <div class="media-left" style="margin-right: 1em;">
+                            <img src="https://www.gravatar.com/avatar/{{ current_user.gravatar }}?s=200">
+                        </div>
+                        <div class="media-right">
+                            <p>{{ current_user.email }}</p>
+                            <p>Is Admin: {{ current_user.is_admin }}</p>
+                        </div>
+                    </div>
+                </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                <a class="dropdown-item" href="{{ url_for('auth.logout') }}" >
                     <div class="btn btn-danger full-width">
                         Log Out
                     </div>
@@ -88,7 +98,6 @@
 
 {% block body %}
 {% endblock %}
-
 
 
 </body>

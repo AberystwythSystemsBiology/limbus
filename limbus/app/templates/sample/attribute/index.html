@@ -10,13 +10,18 @@
                 <i class="far fa-clone"></i> Sample Attributes
             </h1>
             <div class="btn-toolbar mb-2 mb-md-0">
+
                 <a href="{{ url_for('sample.add_attribute') }}">
                     <div class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Attribute
                     </div>
-
                 </a>
             </div>
+        </div>
+
+
+        <div id="showFilter" class="btn btn-success">
+            Show Filters
         </div>
 
         <table id="attributeTable" class="table table-striped table-bordered" style="width:100%">

@@ -20,7 +20,7 @@ class User(UserMixin, db.Model):
         raise AttributeError("Password is not accessible.")
 
     @property
-    def gravatar_hash(self) -> str:
+    def gravatar(self) -> str:
         return hashlib.md5(self.email.encode()).hexdigest()
 
     @password.setter
