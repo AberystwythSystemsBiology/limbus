@@ -10,7 +10,6 @@ class Sample(db.Model):
     collection_date = db.Column(db.DateTime)
     disposal_instruction = db.Column(db.Enum(DisposalInstruction))
     batch_number = db.Column(db.Integer)
-    biobank_accession_number = db.Column(db.String(128))
 
     sample_status = db.Column(db.Enum(SampleStatus))
 

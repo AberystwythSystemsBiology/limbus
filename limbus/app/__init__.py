@@ -1,3 +1,4 @@
+
 import os
 
 from flask import Flask, g, render_template
@@ -18,6 +19,9 @@ from .auth import auth as auth_blueprint
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
+from .demo import demo as demo_blueprint
+
+DEMO = True
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -46,6 +50,9 @@ def create_app():
     app.register_blueprint(sample_blueprint, url_prefix="/samples")
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
 
+
+    if DEMO:
+        app.register_blueprint(demo_blueprint, url_prefix="/demo")
 
     from app.admin import add_admin_views
     add_admin_views()

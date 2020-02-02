@@ -9,9 +9,6 @@ import inflect
 p = inflect.engine()
 
 class SampleCreationForm(FlaskForm):
-
-    biobank_accession_number = StringField("Biobank Accession Number")
-
     sample_type = SelectField("Sample Type", validators=[DataRequired()],
                               choices=SampleType.choices())
 

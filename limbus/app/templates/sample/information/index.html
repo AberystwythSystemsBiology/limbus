@@ -15,13 +15,17 @@
                 </a>
             </div>
         </div>
+            <div id="showFilter" class="btn btn-success">
+            Show Filters
+        </div>
 
-
-        <table id="samples" class="table table-striped table-bordered" style="width:100%">
+        <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
             <tr>
                 <th>Identifier</th>
                 <th>Sample Type</th>
+                <th>Sample Status</th>
+
                 <th>Collection Date</th>
 
                 <th>Sample Creator</th>
@@ -33,6 +37,7 @@
                 <tr>
                     <td>LIMBSMP-{{ s.id }}</td>
                     <td>{{ s.sample_type.value }}</td>
+                    <td>{{ s.sample_status }}</td>
                     <td>{{ s.collection_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ user.email }}</td>
                     <td>
@@ -48,4 +53,8 @@
         </table>
 
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/information/index.js') }}"></script>
 {% endblock %}

@@ -130,7 +130,6 @@ def add_sample_stwo():
             disposal_instruction=form.disposal_instruction.data,
             disposal_date = form.disposal_date.data,
             author_id=current_user.id,
-            biobank_accession_number = form.biobank_accession_number.data,
             sample_status=form.sample_status.data,
             batch_number = form.batch_number.data
         )
