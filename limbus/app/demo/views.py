@@ -1,16 +1,22 @@
 from . import demo
 from .. import db
 
-from ..sample.models import Sample, SampleAttribute, SampleAttributeTextSetting, SampleAttributeOption
+from ..sample.models import Sample, SampleAttribute, SampleAttributeTextSetting,\
+    SampleAttributeOption, SampleAttributeOptionValue, SampleAttributeTextValue
+from ..sample.enums import SampleAttributeTypes
 from ..auth.models import User
 from random import randrange, choice
 import datetime
 import csv
 
 
-def _generate_time(when: str ="before") -> str:
+
+def _generate_time(before: bool = True) -> str:
     current = datetime.datetime.now()
-    randtime = current - datetime.timedelta(minutes=randrange(600))
+    if before:
+        randtime = current - datetime.timedelta(minutes=randrange(6000))
+    else:
+        randtime = current + datetime.timedelta(minutes=randrange(6000))
 
     return randtime.strftime("%d/%m/%y %H:%M")
 
@@ -37,10 +43,10 @@ def _generate_sample_data() -> None:
         sample = Sample(
             sample_type=row[0],
             sample_status=row[3],
-            collection_date=_generate_time("before"),
+            collection_date=_generate_time(True),
             disposal_instruction=row[1],
             batch_number=row[2],
-            disposal_date=_generate_time("after"),
+            disposal_date=_generate_time(False),
             author_id=choice(users).id
             )
 
@@ -82,11 +88,51 @@ def _generate_sample_attribute() -> None:
         db.session.commit()
 
 def _associate_sample_attributes() -> None:
-    pass
+    sample_attributes = db.session.query(SampleAttribute).all()
+
+    samples = db.session.query(Sample).all()
+
+    users = db.session.query(User).all()
+
+    for i in range(60):
+        sample_attr = choice(sample_attributes)
+        if sample_attr.type == SampleAttributeTypes.OPTION:
+            sample_attr_opts = db.session.query(SampleAttributeOption).filter(
+                SampleAttributeOption.sample_attribute_id == sample_attr.id
+            ).all()
+
+            sample_opt = choice(sample_attr_opts)
+
+            sample_choice = choice(samples)
+
+            sao = SampleAttributeOptionValue(
+                sample_option_id = sample_opt.id,
+                sample_attribute_id = sample_attr.id,
+                sample_id = sample_choice.id,
+                author_id = choice(users).id,
+            )
+
+            db.session.add(sao)
+            db.session.commit()
+
+        elif sample_attr.type == SampleAttributeTypes.TEXT:
+
+            sat = SampleAttributeTextValue(
+                value = "Random text",
+                sample_attribute_id = sample_attr.id,
+                sample_id = choice(samples).id,
+                author_id = choice(users).id
+            )
+
+            db.session.add(sat)
+            db.session.commit()
+
 
 @demo.route("/", methods=["GET", "POST"])
 def insert_data():
     #_generate_user_info()
     #_generate_sample_data()
     #_generate_sample_attribute()
+    #_associate_sample_attributes()
+
     return _generate_time()
