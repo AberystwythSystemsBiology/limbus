@@ -38,6 +38,7 @@ def admin_registration():
     # Step Three: Ask the user to register themselves as administrator.
     form=RegistrationForm()
     if form.validate_on_submit():
+        print(form.password.data)
         admin = User(
             email = form.email.data,
             password = form.password.data,

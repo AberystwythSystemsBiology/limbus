@@ -2,37 +2,58 @@ from . import demo
 from .. import db
 
 from ..sample.models import Sample
-from random import randrange
+from ..auth.models import User
+from random import randrange, choice
 import datetime
 import csv
 
-@demo.route("/", methods=["GET", "POST"])
-def insert_data():
+
+def _generate_time(when: str ="before") -> str:
+    current = datetime.datetime.now()
+    randtime = current - datetime.timedelta(minutes=randrange(600))
+
+    return randtime.strftime("%d/%m/%y %H:%M")
+
+def read_csv(fp) -> list:
+    with open(fp, "r") as infile:
+        return list(csv.reader(infile, delimiter=","))[1:]
+
+def _generate_user_info():
+    for row in read_csv("/limbus/demo-data/user.csv"):
+        user = User(
+            email = row[0],
+            password = "password",
+            is_admin = bool(row[1])
+        )
+
+        db.session.add(user)
+        db.session.commit()
 
 
-    def _generate_time():
-        current = datetime.datetime.now()
-        randtime = current + datetime.timedelta(minutes=randrange(60))
-        return randtime.strftime("%d/%m/%y %H:%M")
 
+def _generate_sample_data() -> None:
 
-    [_generate_time() for x in range(10)]
+    users = db.session.query(User).all()
+
     with open("/limbus/demo-data/sample.csv", "r") as infile:
         csv_reader = list(csv.reader(infile, delimiter=","))
 
         for row in csv_reader[1:]:
             sample = Sample(
-                id=row[0],
-                sample_type=row[1],
-                sample_status=row[5],
-                collection_date=_generate_time(),
-                disposal_instruction=row[3],
-                batch_number=row[4],
-                disposal_date=_generate_time(),
-                author_id=1
+                sample_type=row[0],
+                sample_status=row[3],
+                collection_date=_generate_time("before"),
+                disposal_instruction=row[1],
+                batch_number=row[2],
+                disposal_date=_generate_time("after"),
+                author_id=choice(users).id
             )
 
             db.session.add(sample)
             db.session.commit()
 
-    return "Data Entered"
+@demo.route("/", methods=["GET", "POST"])
+def insert_data():
+    #_generate_user_info()
+    _generate_sample_data()
+    return _generate_time()

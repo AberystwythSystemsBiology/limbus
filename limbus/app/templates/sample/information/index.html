@@ -25,9 +25,8 @@
                 <th>Identifier</th>
                 <th>Sample Type</th>
                 <th>Sample Status</th>
-
+                <th>Batch Number</th>
                 <th>Collection Date</th>
-
                 <th>Sample Creator</th>
                 <th>Actions</th>
             </tr>
@@ -38,6 +37,7 @@
                     <td>LIMBSMP-{{ s.id }}</td>
                     <td>{{ s.sample_type.value }}</td>
                     <td>{{ s.sample_status }}</td>
+                    <td>{{ s.batch_number }}</td>
                     <td>{{ s.collection_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ user.email }}</td>
                     <td>
