@@ -20,6 +20,7 @@ from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
 from .demo import demo as demo_blueprint
+from .api import api as api_blueprint
 
 DEMO = True
 
@@ -49,7 +50,7 @@ def create_app():
     app.register_blueprint(doc_blueprint, url_prefix="/documents")
     app.register_blueprint(sample_blueprint, url_prefix="/samples")
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
-
+    app.register_blueprint(api_blueprint, url_prefix="/api")
 
     if DEMO:
         app.register_blueprint(demo_blueprint, url_prefix="/demo")

@@ -45,4 +45,3 @@ def DynamicAttributeSelectForm(query, attr):
 
     setattr(StaticForm, "submit", SubmitField())
     return StaticForm()
-

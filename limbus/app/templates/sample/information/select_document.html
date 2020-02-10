@@ -1,0 +1,18 @@
+{% extends "template.html" %}
+
+{% block title %}Step Zero: Select Patient Consent Form{% endblock %}
+
+
+
+{% block body %}
+    <div class="container">
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="fas fa-vial"></i> Step Zero: Select Patient Consent Form</h1>
+          </div>
+        <form action="{{ url_for('sample.add_test') }}" method="POST">
+            {{ form.csrf_token }}
+
+
+        </form>
+    </div>
+{% endblock %}

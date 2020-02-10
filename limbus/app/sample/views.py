@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
 from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting, SampleAttributeOptionValue, SampleDocumentAssociation
-from ..document.models import Document
+from ..document.models import Document, DocumentType
 from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText
 from ..auth.models import User
 from flask_login import login_required, current_user
@@ -91,7 +91,16 @@ def associate_document(sample_id):
 
     return render_template("sample/information/document/associate.html", sample=sample, form=form)
 
-@sample.route("add/", methods=["GET", "POST"])
+@sample.route("add/one", methods=["GET", "POST"])
+def add_test():
+
+    patient_consent_forms = db.session.query(Document).filter(Document.type == DocumentType.PATIE).all()
+
+    document_selection = DynamicAttributeSelectForm(patient_consent_forms, "name")
+
+    return render_template("sample/information/select_document.html", form=document_selection)
+
+@sample.route("add/two", methods=["GET", "POST"])
 def add_sample():
 
     # TODO: Questionnaire about Patient Consent Form and upload/selection
@@ -117,7 +126,9 @@ def add_sample():
         return redirect(url_for('sample.add_sample_stwo'))
     return render_template("sample/information/select_attributes.html", form=attr_selection)
 
-@sample.route("add/sample_info", methods=["GET", "POST"])
+
+
+@sample.route("add/three", methods=["GET", "POST"])
 def add_sample_stwo():
     query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["attribute_ids"])).all()
 

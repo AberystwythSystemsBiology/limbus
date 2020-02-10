@@ -30,3 +30,10 @@ class DynamicAttributeFormGenerator():
         self._iterate_query()
         self._inject_submit()
         return self._form()
+
+class DynamicSelectFormGenerator():
+    def __init(self, query, form):
+        pass
+
+    def _inject_submit(self):
+        setattr(self._form, "submit", SubmitField())
