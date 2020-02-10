@@ -33,4 +33,32 @@ class DocumentFile(db.Model):
     uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
+class PatientConsentForm(db.Model):
+    __tablename__ = "patient_consent_forms"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    academic = db.Column(db.Boolean)
+    commercial = db.Column(db.Boolean)
+    animal = db.Column(db.Boolean)
+    genetic = db.Column(db.Boolean)
+
+    indefinite = db.Column(db.Boolean)
+
+    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
+
+    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+
+class PatientConsentWithdrawalDate(db.Model):
+    __tablename__ = "patitent_consent_withdrawal_date"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    withdrawal_date = db.Column(db.DateTime, nullable=False)
+
+    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    patient_consent_id = db.Column(db.Integer, db.ForeignKey("patient_consent_forms.id"))
+
 
