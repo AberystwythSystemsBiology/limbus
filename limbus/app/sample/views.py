@@ -111,34 +111,33 @@ def add_sample_attr(hash):
     # TODO: Questionnaire about Patient Consent Form and upload/selection
     #  Adjust innerjoin to accept dynamic-donor inference
 
-    print(session[hash])
-
-    session["attribute_ids"] = []
 
     query = db.session.query(SampleAttribute).all()
     conv = {p.number_to_words(x.id) : x.id for x in query}
     attr_selection = DynamicAttributeSelectForm(query, "term")
 
     if attr_selection.validate_on_submit():
-        # TODO: <hack>
         attribute_ids = []
+
         for attr in attr_selection:
             if attr.id in conv and attr.data == True:
                 attribute_ids.append(conv[attr.id])
         # TODO: </endhack>
 
-        session["attribute_ids"] = attribute_ids
-        session["conv"] = conv
+        session[hash] = {
+            "sample_attributes" : {
+                "attribute_ids": attribute_ids,
+                "converted_ids": conv
+            }
+        }
+        return redirect(url_for('sample.add_sample_form', hash=hash))
+    return render_template("sample/information/select_attributes.html", form=attr_selection, hash=hash)
 
-        return redirect(url_for('sample.add_sample_stwo'))
-    return render_template("sample/information/select_attributes.html", form=attr_selection)
 
 
-
-@sample.route("add/step_two", methods=["GET", "POST"])
-def add_sample_stwo():
-    query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["attribute_ids"])).all()
-
+@sample.route("add/step_two/<hash>", methods=["GET", "POST"])
+def add_sample_form(hash):
+    query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session[hash]["sample_attributes"]["attribute_ids"])).all()
     form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
 
     if form.validate_on_submit():
@@ -156,14 +155,13 @@ def add_sample_stwo():
         db.session.flush()
 
         # TODO: Generate assoc. number using BB-TIS-DBN
-
-        # TODO: Add attribute to form element to differientiate.
+        # TODO: Add attribute to form element to differ between classes.
         for attr in form:
             if attr.id not in ["csrf_token", "biobank_accession_number", "sample_status", "batch_number", "submit", "sample_type", "collection_date", "disposal_instruction"]:
                 if attr.type in ["TextAreaField", "StringField"]:
                     attr_value = SampleAttributeTextValue(
                         value = attr.data,
-                        sample_attribute_id = session["conv"][attr.id],
+                        sample_attribute_id = session[hash]["sample_attributes"]["converted_ids"][attr.id],
                         sample_id = sample.id,
                         author_id = current_user.id
                     )
@@ -181,9 +179,11 @@ def add_sample_stwo():
                     db.session.add(option_value)
         db.session.commit()
 
+        del session[hash]
+
         return redirect(url_for("sample.index"))
 
-    return render_template("sample/information/add.html", form=form)
+    return render_template("sample/information/add.html", form=form, hash=hash)
 
 # Attribute Stuff
 @sample.route("attribute/")
@@ -194,13 +194,16 @@ def attribute_portal():
 @sample.route("attribute/add/step_one", methods=["GET", "POST"])
 def add_attribute():
 
-    session["attribute_details"] = None
+    try:
+        del session[hash]["attribute_details"]
+    except KeyError:
+        pass
 
     db.session.flush()
     form = SampleAttributeCreationForm()
 
     if form.validate_on_submit():
-        session["attribute_details"] = {
+        session[hash]["attribute_details"] = {
             "term" : form.term.data,
             "type" : form.term_type.data,
             "required" : form.required.data
