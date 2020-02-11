@@ -69,7 +69,7 @@ def PatientConsentFormSelectForm():
 
         choice = "%s (Uploaded by %s on %s" % (cf.name, user.email, cf.upload_date.strftime('%Y-%m-%d'))
 
-        choices.append([choice, id])
+        choices.append([str(id), choice])
 
     setattr(StaticForm, "form_select", SelectField("Patient Consent Form", validators=[DataRequired()], choices=choices))
 
