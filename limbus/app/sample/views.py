@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, jsonify, request, session
 from .models import Sample, SampleAttributeOption, SampleAttribute, SampleAttributeTextValue, SampleAttributeTextSetting, SampleAttributeOptionValue, SampleDocumentAssociation
 from ..document.models import Document, DocumentType
-from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText
+from .forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText, PatientConsentFormSelectForm
 from ..auth.models import User
 from flask_login import login_required, current_user
 from . import sample
@@ -10,6 +10,8 @@ from .. import db
 from ..dynform import DynamicAttributeFormGenerator
 
 from ..codegenerator import DataMatrixGenerator
+
+from ..misc.generators import generate_random_hash
 
 @sample.route("/")
 def portal():
@@ -91,20 +93,25 @@ def associate_document(sample_id):
 
     return render_template("sample/information/document/associate.html", sample=sample, form=form)
 
-@sample.route("add/one", methods=["GET", "POST"])
-def add_test():
+@sample.route("add/step_zero", methods=["GET", "POST"])
+@login_required
+def add_sample_pcf():
+    document_selection = PatientConsentFormSelectForm()
 
-    patient_consent_forms = db.session.query(Document).filter(Document.type == DocumentType.PATIE).all()
-
-    document_selection = DynamicAttributeSelectForm(patient_consent_forms, "name")
-
+    if document_selection.validate_on_submit():
+        sample_add_hash = generate_random_hash()
+        # Clear the session hash.
+        session[sample_add_hash] = {}
+        return redirect(url_for('sample.add_sample_attr', hash=sample_add_hash))
     return render_template("sample/information/select_document.html", form=document_selection)
 
-@sample.route("add/two", methods=["GET", "POST"])
-def add_sample():
+@sample.route("add/step_one/<hash>", methods=["GET", "POST"])
+def add_sample_attr(hash):
 
     # TODO: Questionnaire about Patient Consent Form and upload/selection
     #  Adjust innerjoin to accept dynamic-donor inference
+
+    print(session[hash])
 
     session["attribute_ids"] = []
 
@@ -128,7 +135,7 @@ def add_sample():
 
 
 
-@sample.route("add/three", methods=["GET", "POST"])
+@sample.route("add/step_two", methods=["GET", "POST"])
 def add_sample_stwo():
     query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["attribute_ids"])).all()
 

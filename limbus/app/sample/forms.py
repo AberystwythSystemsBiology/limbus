@@ -3,6 +3,11 @@ from wtforms import SelectField, StringField, SubmitField, DateField, BooleanFie
 from wtforms.validators import DataRequired
 
 from .enums import SampleAttributeTypes, DisposalInstruction, SampleType, SampleStatus
+from ..document.models import Document, DocumentType
+from ..auth.models import User
+
+from .. import db
+
 
 import inflect
 
@@ -45,3 +50,30 @@ def DynamicAttributeSelectForm(query, attr):
 
     setattr(StaticForm, "submit", SubmitField())
     return StaticForm()
+
+
+def PatientConsentFormSelectForm():
+    class StaticForm(FlaskForm):
+        pass
+
+    patient_consent_forms = db.session.query(Document, User).filter(
+        Document.uploader == User.id
+    ).filter(
+        Document.type == DocumentType.PATIE
+    ).all()
+
+    choices = []
+
+    for cf, user in patient_consent_forms:
+        id = cf.id
+
+        choice = "%s (Uploaded by %s on %s" % (cf.name, user.email, cf.upload_date.strftime('%Y-%m-%d'))
+
+        choices.append([choice, id])
+
+    setattr(StaticForm, "form_select", SelectField("Patient Consent Form", validators=[DataRequired()], choices=choices))
+
+    setattr(StaticForm, "submit", SubmitField())
+
+    return  StaticForm()
+
