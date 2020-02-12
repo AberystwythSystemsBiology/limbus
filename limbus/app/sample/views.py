@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from . import sample
 from .. import db
 
-from ..dynform import DynamicAttributeFormGenerator
+from ..dynform import DynamicAttributeFormGenerator, clear_session
 
 from ..codegenerator import DataMatrixGenerator
 
@@ -85,6 +85,12 @@ def associate_document(sample_id):
 
     return render_template("sample/information/document/associate.html", sample=sample, form=form)
 
+'''
+    Add New Sample:
+    
+    The following code relates to the addition of new samples. 
+'''
+
 @sample.route("add/step_zero", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf():
@@ -100,21 +106,15 @@ def add_sample_pcf():
 @sample.route("add/step_one/<hash>", methods=["GET", "POST"])
 def add_sample_attr(hash):
 
-    # TODO: Questionnaire about Patient Consent Form and upload/selection
-    #  Adjust innerjoin to accept dynamic-donor inference
-
-
     query = db.session.query(SampleAttribute).all()
     conv = {p.number_to_words(x.id) : x.id for x in query}
     attr_selection = DynamicAttributeSelectForm(query, "term")
 
     if attr_selection.validate_on_submit():
         attribute_ids = []
-
         for attr in attr_selection:
             if attr.id in conv and attr.data == True:
                 attribute_ids.append(conv[attr.id])
-        # TODO: </endhack>
 
         session["%s sample_attributes" % (hash)] = attribute_ids
         session["%s converted_ids" % (hash)] = conv
@@ -126,7 +126,6 @@ def add_sample_attr(hash):
 
 @sample.route("add/step_two/<hash>", methods=["GET", "POST"])
 def add_sample_form(hash):
-
     query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["%s sample_attributes" % (hash)])).all()
     form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
 
@@ -144,8 +143,8 @@ def add_sample_form(hash):
         db.session.add(sample)
         db.session.flush()
 
-        # TODO: Generate assoc. number using BB-TIS-DBN
         # TODO: Add attribute to form element to differ between classes.
+
         for attr in form:
             if attr.id not in ["csrf_token", "biobank_accession_number", "sample_status", "batch_number", "submit", "sample_type", "collection_date", "disposal_instruction"]:
                 if attr.type in ["TextAreaField", "StringField"]:
@@ -176,12 +175,9 @@ def add_sample_form(hash):
         )
 
         db.session.add(sda)
-
         db.session.commit()
 
-        for k, v in list(session.items()):
-            if k.startswith(hash):
-                del session[k]
+        clear_session(hash)
 
         return redirect(url_for("sample.index"))
 

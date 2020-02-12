@@ -3,6 +3,7 @@
 from ..sample.enums import SampleAttributeTypes
 from ..sample.models import SampleAttributeOption
 from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField, TextAreaField, TextField
+from flask import session
 
 from .. import db
 
@@ -37,3 +38,9 @@ class DynamicSelectFormGenerator():
 
     def _inject_submit(self):
         setattr(self._form, "submit", SubmitField())
+
+def clear_session(hash: str) -> None:
+    # Clear cookie session.
+    for k, v in list(session.items()):
+        if k.startswith(hash):
+            del session[k]

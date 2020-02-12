@@ -1,14 +1,17 @@
-from flask import redirect, render_template, url_for, abort, current_app, send_file
+from flask import redirect, render_template, url_for, abort, current_app, send_file, session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
+
+from ..misc.generators import generate_random_hash
+
 
 import random
 import string
 import os
 
 from . import document
-from .models import Document, DocumentFile
-from .forms import DocumentUploadForm
+from .models import Document, DocumentFile, PatientConsentForm, DocumentType
+from .forms import DocumentUploadForm, PatientConsentFormInformationForm, DocumentUploadFileForm
 
 from ..sample.models import SampleDocumentAssociation
 
@@ -37,6 +40,18 @@ def index():
 def upload():
     form = DocumentUploadForm()
     if form.validate_on_submit():
+        document_upload_hash = generate_random_hash()
+
+        session["%s document_info" % (document_upload_hash)] = {
+            "name": form.name.data,
+            "description": form.description.data,
+            "type": form.type.data
+        }
+
+
+
+        '''
+        
         f = form.file.data.filename
 
         folder_name = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
@@ -72,11 +87,41 @@ def upload():
 
         db.session.add(document_file)
         db.session.commit()
+        '''
 
-        return redirect(url_for("document.index"))
+        if form.type.data == "PATIE":
+            return redirect(url_for("document.patient_consent_form_settings", hash=document_upload_hash))
+        return redirect(url_for("document.document_upload", hash=hash))
 
 
-    return render_template("document/upload.html", form=form)
+    return render_template("document/upload/index.html", form=form)
+
+@document.route("/upload/pcf/<hash>", methods=["GET", "POST"])
+def patient_consent_form_settings(hash):
+    form = PatientConsentFormInformationForm()
+
+    if form.validate_on_submit():
+        session["%s patient_consent_info" % (hash)] = {
+            "academic": form.academic.data,
+            "commercial": form.commercial.data,
+            "animal": form.animal.data,
+            "genetic": form.genetic.data
+        }
+
+        return redirect(url_for("document.document_upload", hash=hash))
+
+    return render_template("document/upload/patient_consent.html", form=form, hash=hash)
+
+@document.route("/upload/file/<hash>", methods=["GET", "POST"])
+def document_upload(hash):
+    form = DocumentUploadFileForm()
+
+    if form.validate_on_submit():
+
+        pass
+
+    return render_template("document/upload/upload.html", form=form, hash=hash)
+
 
 @document.route("/view/LIMBDOC-<doc_id>")
 def view(doc_id):
