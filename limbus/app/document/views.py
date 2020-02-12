@@ -47,48 +47,6 @@ def upload():
             "description": form.description.data,
             "type": form.type.data
         }
-
-
-
-        '''
-        
-        f = form.file.data.filename
-
-        folder_name = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
-
-        document_dir = current_app.config["DOCUMENT_DIRECTORY"]
-
-        rel_path = os.path.join(document_dir, folder_name)
-        os.makedirs(rel_path)
-
-        sfn = secure_filename(f)
-
-        filepath = os.path.join(rel_path, sfn)
-
-        document = Document(
-            name = form.name.data,
-            description = form.description.data,
-            type = form.type.data,
-            uploader = current_user.id,
-        )
-
-        db.session.add(document)
-
-        db.session.flush()
-
-        document_file = DocumentFile(
-            filename = sfn,
-            filepath = filepath,
-            uploader=current_user.id,
-            document_id=document.id
-        )
-
-        form.file.data.save(filepath)
-
-        db.session.add(document_file)
-        db.session.commit()
-        '''
-
         if form.type.data == "PATIE":
             return redirect(url_for("document.patient_consent_form_settings", hash=document_upload_hash))
         return redirect(url_for("document.document_upload", hash=hash))
@@ -118,7 +76,58 @@ def document_upload(hash):
 
     if form.validate_on_submit():
 
-        pass
+
+        # Generating fileplace.
+        filename = form.file.data.filename
+        folder_name = ''.join(random.choice(string.ascii_lowercase) for _ in range(20))
+        document_dir = current_app.config["DOCUMENT_DIRECTORY"]
+        rel_path = os.path.join(document_dir, folder_name)
+        os.makedirs(rel_path)
+        sfn = secure_filename(filename)
+        filepath = os.path.join(rel_path, sfn)
+
+        document_info = session["%s document_info" % (hash)]
+
+        document = Document(
+            name=document_info["name"],
+            description=document_info["description"],
+            type=document_info["type"],
+            uploader=current_user.id,
+        )
+
+        db.session.add(document)
+
+        db.session.flush()
+
+        document_file = DocumentFile(
+            filename=sfn,
+            filepath=filepath,
+            uploader=current_user.id,
+            document_id=document.id
+        )
+
+        form.file.data.save(filepath)
+        db.session.add(document_file)
+        db.session.flush()
+
+        if "%s patient_consent_info" % (hash) in session:
+            consent_info = session["%s patient_consent_info" % (hash)]
+
+            pcf = PatientConsentForm(
+                academic = consent_info["academic"],
+                commercial = consent_info["commercial"],
+                animal = consent_info["animal"],
+                genetic = consent_info["genetic"],
+                indefinite = True,
+                document_id = document.id
+            )
+
+            db.session.add(pcf)
+
+        db.session.commit()
+
+        return redirect(url_for("document.index"))
+
 
     return render_template("document/upload/upload.html", form=form, hash=hash)
 
