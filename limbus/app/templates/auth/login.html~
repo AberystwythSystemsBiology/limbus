@@ -8,11 +8,7 @@
 
 {% block body %}
     <div class="container login">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fas fa-key"></i> Log In</h1>
-
-        </div>
-
+    <h1>Log In</h1>
 
     
     {% with messages = get_flashed_messages() %}
