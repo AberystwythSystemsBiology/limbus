@@ -14,6 +14,7 @@ from ..codegenerator import DataMatrixGenerator
 from ..misc.generators import generate_random_hash
 
 @sample.route("/")
+@login_required
 def portal():
 
     info = {
@@ -26,11 +27,13 @@ def portal():
     return render_template("sample/index.html", info=info)
 
 @sample.route("samples/")
+@login_required
 def index():
     samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
     return render_template("sample/information/index.html", samples=samples)
 
-@sample.route("view/LIMBSMP-<sample_id>", methods=["GET"])
+@sample.route("view/LIMBSMP-<sample_id>")
+@login_required
 def view(sample_id):
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
     text_attr = db.session.query(
@@ -63,6 +66,7 @@ def view(sample_id):
     return render_template("sample/information/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr, associated_document=associated_document)
 
 @sample.route("view/LIMBSMP-<sample_id>/associate_doc", methods=["GET", "POST"])
+@login_required
 def associate_document(sample_id):
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
     query = db.session.query(Document).all()
@@ -104,6 +108,7 @@ def add_sample_pcf():
     return render_template("sample/information/select_document.html", form=document_selection)
 
 @sample.route("add/step_one/<hash>", methods=["GET", "POST"])
+@login_required
 def add_sample_attr(hash):
 
     query = db.session.query(SampleAttribute).all()
@@ -125,6 +130,7 @@ def add_sample_attr(hash):
 
 
 @sample.route("add/step_two/<hash>", methods=["GET", "POST"])
+@login_required
 def add_sample_form(hash):
     query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["%s sample_attributes" % (hash)])).all()
     form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
@@ -185,11 +191,13 @@ def add_sample_form(hash):
 
 # Attribute Stuff
 @sample.route("attribute/")
+@login_required
 def attribute_portal():
     sample_attributes = db.session.query(SampleAttribute, User).filter(SampleAttribute.author_id == User.id).all()
     return render_template("sample/attribute/index.html", sample_attributes=sample_attributes)
 
 @sample.route("attribute/add/step_one", methods=["GET", "POST"])
+@login_required
 def add_attribute():
 
     db.session.flush()
@@ -206,6 +214,7 @@ def add_attribute():
     return render_template("sample/attribute/add/one.html", form=form)
 
 @sample.route("attribute/add/step_two", methods=["GET", "POST"])
+@login_required
 def add_attribute_step_two():
 
     attribute_details = session["attribute_details"]
@@ -246,6 +255,7 @@ def add_attribute_step_two():
     return render_template("sample/attribute/add/two.html", form=form)
 
 @sample.route("attribute/add/step_two_option", methods=["GET", "POST"])
+@login_required
 def add_attribute_step_two_option():
     attribute_details = session["attribute_details"]
     if request.method == "POST":
@@ -278,6 +288,7 @@ def add_attribute_step_two_option():
         return render_template("sample/attribute/add/two_option.html")
 
 @sample.route("attribute/view/LIMBSATTR-<attribute_id>")
+@login_required
 def view_attribute(attribute_id):
     attribute, attribute_user = db.session.query(SampleAttribute, User).filter(
         SampleAttribute.id == attribute_id

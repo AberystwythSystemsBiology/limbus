@@ -37,6 +37,7 @@ def index():
     return render_template("document/index.html", documents=documents)
 
 @document.route("/upload", methods=["GET", "POST"])
+@login_required
 def upload():
     form = DocumentUploadForm()
     if form.validate_on_submit():
@@ -55,6 +56,7 @@ def upload():
     return render_template("document/upload/index.html", form=form)
 
 @document.route("/upload/pcf/<hash>", methods=["GET", "POST"])
+@login_required
 def patient_consent_form_settings(hash):
     form = PatientConsentFormInformationForm()
 
@@ -71,6 +73,7 @@ def patient_consent_form_settings(hash):
     return render_template("document/upload/patient_consent.html", form=form, hash=hash)
 
 @document.route("/upload/file/<hash>", methods=["GET", "POST"])
+@login_required
 def document_upload(hash):
     form = DocumentUploadFileForm()
 
@@ -133,6 +136,7 @@ def document_upload(hash):
 
 
 @document.route("/view/LIMBDOC-<doc_id>")
+@login_required
 def view(doc_id):
 
     upload_user, document = db.session.query(
@@ -155,6 +159,7 @@ def view(doc_id):
         return abort(401)
 
 @document.route("/download/D<doc_id>F<file_id>")
+@login_required
 def get_file(doc_id, file_id):
     file = DocumentFile.query.filter(DocumentFile.id == file_id).first()
     if current_user.is_admin or file.uploader == current_user.id:
