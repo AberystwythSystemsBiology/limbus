@@ -11,10 +11,6 @@ from .. import db
 @misc.route("/")
 def index():
     if current_user.is_authenticated:
-
-        # Just because migrate isn't working
-        # db.drop_all()
-
         return render_template("misc/panel.html")
     else:
         return render_template("misc/index.html")
