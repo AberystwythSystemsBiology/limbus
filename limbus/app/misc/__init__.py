@@ -15,18 +15,7 @@ def index():
         # Just because migrate isn't working
         # db.drop_all()
 
-        document_count = db.session.query(Document).count()
-        document_file_count = db.session.query(DocumentFile).count()
-
-        sample_count = db.session.query(Sample).count()
-        sample_attribute_count = db.session.query(SampleAttribute).count()
-
-        return render_template("misc/panel.html",
-                               document_count=document_count,
-                               document_file_count=document_file_count,
-                               sample_count=sample_count,
-                               sample_attribute_count=sample_attribute_count
-                               )
+        return render_template("misc/panel.html")
     else:
         return render_template("misc/index.html")
 

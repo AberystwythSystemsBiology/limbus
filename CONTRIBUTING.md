@@ -16,7 +16,7 @@ POSTGRES_PASSWORD=password
 POSTGRES_DB=limbus
 SECRET_KEY=securitykey
 WTF_CSRF_SECRET_KEY=wtfcsrfsecretkey
-DOCUMENT_STORAGE=/limbus/documents
+DOCUMENT_DIRECTORY=/limbus/documents
 ```
 
 Something something install Docker, something something use docker-compose.
