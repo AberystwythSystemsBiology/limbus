@@ -54,7 +54,11 @@
                     max="3000-12-31" class="form-control">
             {% endif %}
     {% else %}
-        <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
+            <div style="height: 20px;"></div>
+            <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
+                <i class="fa fa-check"></i> {{ field.label.text }}
+            </button>
+
     {% endif %}
 {%- endmacro %}
 
@@ -89,24 +93,23 @@
 
 
 {% macro generate_attribute_select_form(form) -%}
-    <table class="table table-striped table-bordered" style="width:100%">
-        <thead>
-        <tr>
-            <th>Attribute Term</th>
-            <th>Select</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for field in form %}
-            {% if field.type == "BooleanField" %}
-                <tr>
-                    <td>{{ field.label }}</td>
-                    <td>{{ field }}</td>
-                </tr>
-            {% endif %}
 
-        {% endfor %}
-        </tbody>
-    </table>
-    {{ form.submit() }}
+        <table class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Attribute Term</th>
+                <th>Select</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for field in form %}
+                {% if field.type == "BooleanField" %}
+                    <tr>
+                        <td>{{ field.label }}</td>
+                        <td>{{ field }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
 {%- endmacro %}

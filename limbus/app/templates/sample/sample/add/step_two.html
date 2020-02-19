@@ -1,19 +1,22 @@
 {% extends "template.html" %}
 
-{% block title %}Step One: Select Sample Attributes{% endblock %}
+{% block title %}New Sample: Step Two{% endblock %}
 
 
 
 {% block body %}
     <div class="container">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fas fa-vial"></i> Step One: Select Sample Attributes</h1>
-          </div>
-        
+            <h2><i class="fas fa-vial"></i> New Sample: Step Two</h2>
+        </div>
+
+        <p>Please select some Sample Attributes:</p>
 
         <form action="{{ url_for('sample.add_sample_attr', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
             {{ generate_attribute_select_form(form) }}
+            {{ form_field(form.submit) }}
+
         </form>
     </div>
 {% endblock %}

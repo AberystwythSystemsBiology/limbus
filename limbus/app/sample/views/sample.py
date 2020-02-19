@@ -1,4 +1,5 @@
 from flask import render_template, redirect, session, url_for
+from flask_login import current_user
 
 from .. import sample
 from flask_login import login_required
@@ -6,9 +7,11 @@ from ... import db
 
 from ..models import *
 
+from ...document.models import Document
+
 from ...auth.models import User
 
-from ..forms import SampleAttributeCreationForm, SampleCreationForm, DynamicAttributeSelectForm, p, SampleAttributionCreationFormText, PatientConsentFormSelectForm
+from ..forms import SampleCreationForm, DynamicAttributeSelectForm, p, PatientConsentFormSelectForm
 
 from ...dynform import DynamicAttributeFormGenerator, clear_session
 
@@ -44,7 +47,7 @@ def view(sample_id):
         SampleDocumentAssociation, Document
     ).filter(SampleDocumentAssociation.sample_id == sample_id).filter(SampleDocumentAssociation.document_id == Document.id).all()
 
-    return render_template("sample/information/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr, associated_document=associated_document)
+    return render_template("sample/sample/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr, associated_document=associated_document)
 
 '''
     Add New Sample:
@@ -52,7 +55,7 @@ def view(sample_id):
     The following code relates to the addition of new samples. 
 '''
 
-@sample.route("add/step_zero", methods=["GET", "POST"])
+@sample.route("add/one", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf():
     document_selection, pcf_documents = PatientConsentFormSelectForm()
@@ -62,9 +65,9 @@ def add_sample_pcf():
         session["%s consent_id" % (sample_add_hash)] = document_selection.form_select.data
 
         return redirect(url_for('sample.add_sample_attr', hash=sample_add_hash))
-    return render_template("sample/information/select_document.html", form=document_selection, pcf_documents=pcf_documents)
+    return render_template("sample/sample/add/step_one.html", form=document_selection, pcf_documents=pcf_documents)
 
-@sample.route("add/step_one/<hash>", methods=["GET", "POST"])
+@sample.route("add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_attr(hash):
 
@@ -82,11 +85,11 @@ def add_sample_attr(hash):
         session["%s converted_ids" % (hash)] = conv
 
         return redirect(url_for('sample.add_sample_form', hash=hash))
-    return render_template("sample/information/select_attributes.html", form=attr_selection, hash=hash)
+    return render_template("sample/sample/add/step_two.html", form=attr_selection, hash=hash)
 
 
 
-@sample.route("add/step_two/<hash>", methods=["GET", "POST"])
+@sample.route("add/three/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_form(hash):
     query = db.session.query(SampleAttribute).filter(SampleAttribute.id.in_(session["%s sample_attributes" % (hash)])).all()
@@ -144,4 +147,29 @@ def add_sample_form(hash):
 
         return redirect(url_for("sample.index"))
 
-    return render_template("sample/information/add.html", form=form, hash=hash)
+    return render_template("sample/sample/add/step_three.html", form=form, hash=hash)
+
+
+@sample.route("view/LIMBSMP-<sample_id>/associate_doc", methods=["GET", "POST"])
+@login_required
+def associate_document(sample_id):
+    sample = db.session.query(Sample).filter(Sample.id == sample_id).first()
+    query = db.session.query(Document).all()
+    conv = {p.number_to_words(x.id) : x.id for x in query}
+    form = DynamicAttributeSelectForm(query, "name")
+    if form.validate_on_submit():
+        for attr in form:
+            if attr.id in conv and attr.data == True:
+                sda = SampleDocumentAssociation(
+                    sample_id = sample_id,
+                    document_id = conv[attr.id],
+                    author_id = current_user.id
+                )
+
+                db.session.add(sda)
+
+            db.session.commit()
+
+            return redirect(url_for("sample.view", sample_id=sample_id))
+
+    return render_template("sample/information/document/associate.html", sample=sample, form=form)

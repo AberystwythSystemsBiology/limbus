@@ -6,6 +6,8 @@ from .enums import SampleAttributeTypes, DisposalInstruction, SampleType, Sample
 from ..document.models import Document, DocumentType
 from ..auth.models import User
 
+from .models import SampleDocumentAssociation
+
 from .. import db
 
 
@@ -64,6 +66,10 @@ def PatientConsentFormSelectForm():
         Document.type == DocumentType.PATIE
     ).all()
 
+
+
+
+
     choices = []
 
     for cf, user in patient_consent_forms:
@@ -71,7 +77,7 @@ def PatientConsentFormSelectForm():
         
         length += 1
 
-        choice = "%s (Uploaded by %s on %s" % (cf.name, user.email, cf.upload_date.strftime('%Y-%m-%d'))
+        choice = " LIMBDOC-%s: %s - Uploaded by %s on %s" % (cf.id, cf.name, user.email, cf.upload_date.strftime('%Y-%m-%d'))
 
         choices.append([str(id), choice])
 
