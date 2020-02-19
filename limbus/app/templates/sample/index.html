@@ -17,11 +17,10 @@
                 <div class="card-body">
                     <h3 class="card-title pricing-card-title"><i class="fas fa-vial"></i>  Sample Information</h3>
                     <ul class="list-unstyled mt-3 mb-4">
-                        <li>Samples Stored: {{info["sample_count"]}}</li>
+                        <p>Something here</p>
                     </ul>
-                    <a href="{{ url_for('sample.index') }}">
-                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">
-                            View
+                        <button class="btn btn-lg btn-block btn-outline-primary" onclick="location.href='{{ url_for('sample.index') }}'">
+                            Go
                         </button>
                     </a>
                 </div>
@@ -30,13 +29,11 @@
                 <div class="card-body">
                     <h3 class="card-title pricing-card-title"><i class="far fa-clone"></i> Sample Attributes</h3>
                     <ul class="list-unstyled mt-3 mb-4">
-                        <li>{{ info["sample_attr_count"] }} Sample Attributes</li>
+                        <p>Something here</p>
                     </ul>
-                    <a href="{{ url_for('sample.attribute_portal') }}">
-                        <button type="button" class="btn btn-lg btn-block btn-outline-primary">
-                            View
-                        </button>
-                    </a>
+                    <button class="btn btn-lg btn-block btn-outline-primary" onclick="location.href='{{ url_for('sample.attribute_portal') }}'">
+                        Go
+                    </button>
                 </div>
             </div>
 

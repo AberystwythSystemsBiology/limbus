@@ -17,8 +17,6 @@
                 <small class="form-text text-muted">{{ field.description }}</small>
             {% endif %}
 
-
-
             {% if field.errors %}
                 <div class="alert alert-warning" role="alert">
                     <b>Error:</b> {{ field.errors|join(', ') }}
@@ -28,11 +26,14 @@
         {% endif %}
 
             {% if field.type == 'BooleanField' %}
-                <div class="form-check" style="padding-bottom: 1em;">
-                <input class="form-check-input" type="checkbox" id="{{ field.id }}" name="{{ field.name }}">
-                <label class="form-check-label" for="defaultCheck1">
-                {{ field.label.text }}?
+                
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="{{field.id }}" name="{{ field.name }}">
+                <label class="form-check-label" for="{{field.id}}">
+                  {{ field.label.text }}
                 </label>
+              </div>
+
 
             {% elif field.type == 'StringField' %}
                 <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
@@ -52,7 +53,6 @@
                 <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
                     max="3000-12-31" class="form-control">
             {% endif %}
-        </div>
     {% else %}
         <button type="submit" class="btn btn-primary" id="{{ field.id }}">{{ field.label.text }}</button>
     {% endif %}

@@ -56,6 +56,8 @@ def PatientConsentFormSelectForm():
     class StaticForm(FlaskForm):
         pass
 
+    length = 0
+
     patient_consent_forms = db.session.query(Document, User).filter(
         Document.uploader == User.id
     ).filter(
@@ -66,6 +68,8 @@ def PatientConsentFormSelectForm():
 
     for cf, user in patient_consent_forms:
         id = cf.id
+        
+        length += 1
 
         choice = "%s (Uploaded by %s on %s" % (cf.name, user.email, cf.upload_date.strftime('%Y-%m-%d'))
 
@@ -75,5 +79,5 @@ def PatientConsentFormSelectForm():
 
     setattr(StaticForm, "submit", SubmitField())
 
-    return  StaticForm()
+    return StaticForm(), length
 

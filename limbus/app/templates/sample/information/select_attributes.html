@@ -9,6 +9,8 @@
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h1 class="h2"><i class="fas fa-vial"></i> Step One: Select Sample Attributes</h1>
           </div>
+        
+
         <form action="{{ url_for('sample.add_sample_attr', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
             {{ generate_attribute_select_form(form) }}
