@@ -2,13 +2,13 @@ from functools import wraps
 
 from flask import redirect, abort, render_template, url_for
 
-from ..auth.models import User
+from ..auth.models import User, Profile, ProfileToUser
 from ..misc.models import BiobankInformation
 
 from . import setup
 from .. import db
 from .forms import BiobankRegistrationForm
-from ..auth.forms import RegistrationForm
+from .forms import AdministratorRegistrationForm
 
 from random import shuffle
 
@@ -37,17 +37,36 @@ def eula():
     return render_template("setup/eula.html")
 
 
-@setup.route("/admin_registration", methods=["GET", "POST"])
+@setup.route("/register_admin", methods=["GET", "POST"])
 @check_if_user
 def admin_registration():
     # Step Three: Ask the user to register themselves as administrator.
-    form = RegistrationForm()
+    form = AdministratorRegistrationForm()
     if form.validate_on_submit():
-        print(form.password.data)
         admin = User(email=form.email.data,
                      password=form.password.data,
                      is_admin=True)
         db.session.add(admin)
+
+        db.session.flush()
+
+        profile = Profile(
+            title=form.title.data,
+            first_name=form.first_name.data,
+            middle_name=form.middle_name.data,
+            last_name=form.last_name.data
+        )
+
+        db.session.add(profile)
+
+        db.session.flush()
+
+        ptu = ProfileToUser(
+            profile_id = profile.id,
+            user_id = admin.id
+        )
+
+        db.session.add(ptu)
 
         db.session.commit()
 

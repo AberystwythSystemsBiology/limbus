@@ -4,7 +4,9 @@
 
 {% block body %}
 <div class="container">
-    <h1>Administrator Registration</h1>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-user"></i> Administrator Registration</h2>
+        </div>
 
     <p>Something about the administrator account...</p>
 
@@ -12,10 +14,14 @@
         {{ form.csrf_token }}
 
 
+
+        {{ form_field(form.title) }}
+        {{ form_field(form.first_name) }}
+        {{ form_field(form.middle_name) }}
+        {{ form_field(form.last_name) }}
+
         {{ form_field(form.email) }}
-
         {{ form_field(form.password)}}
-
         {{ form_field(form.confirm_password)}}
 
         {{ form_field(form.submit) }}

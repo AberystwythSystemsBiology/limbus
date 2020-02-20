@@ -4,7 +4,9 @@
 
 {% block body %}
 <div class="container">
-    <h1>End User License Agreement (EULA)</h1>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-file-alt"></i> End User License Agreement (EULA)</h2>
+        </div>
 
     <p>As this project is licensed under the GNU General Public License v3.0, you are not required to agree to an EULA.
     </p>
@@ -23,7 +25,7 @@
     <p>If you would like to know more about this, you can find more information at the footer of this webpage.</p>
 
     <a href="{{ url_for('setup.admin_registration') }}">
-        <div class="btn btn-primary float-right">Continue</div>
+        <div class="btn btn-success float-right">Continue</div>
     </a>
 </div>
 

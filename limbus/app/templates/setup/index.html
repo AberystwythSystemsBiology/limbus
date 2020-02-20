@@ -5,12 +5,11 @@
 {% block body %}
 <div class="container">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2">Welcome to LImBuS</h1>
-
+            <h2><i class="fa fa-smile"></i> Welcome to LImBuS</h2>
         </div>
 
-    <p>This is the first time setup page for LImBuS. Something something if you didn't expect something something tell
-        the administrator.</p>
+    <p>This is the first time setup page for LImBuS. Before we continue, read the following instructions carefully as to
+        ensure that this as painless as possible.</p>
 
     <div class="card">
         <div class="card-header">
@@ -19,32 +18,35 @@
         <div class="card-body">
 
             <div class="media">
-                <h3 class="mr-3">✅</h3>
+                <h3 class="mr-3"><i class="fa fa-file-alt"></i></h3>
                 <div class="media-body">
-                    <h5 class="mt-0">Ensure that you have all required information ready.</h5>
-                    <p>During the setup process, we will require you to enter in quite a lot of information concerning the biobank.</p>
+                    <h5 class="mt-0">Please ensure that you have all required information ready.</h5>
+                    <p>During the setup process, we will require you to enter the following information:</p>
+
+                    <p>Please ensure that you have all of this at hand before continuing.</p>
                 </div>
             </div>
 
             <div class="media">
-                <h3 class="mr-3">✅</h3>
+                <h3 class="mr-3"><i class="fa fa-battery-full"></i></h3>
                 <div class="media-body">
-                    <h5 class="mt-0">Have plenty of battery on the device you are using.</h5>
-                    <p>We will ask you information concerning...</p>
+                    <h5 class="mt-0">Check your battery.</h5>
+                    <p>The progress of the setup will not be held in the event of a system shutdown.</p>
+                    <p>To ensure that you don't lose all information, check that you have plenty of battery remaining before continuing.</p>
                 </div>
             </div>
 
             <div class="media">
-                <h3 class="mr-3">❌</h3>
+                <h3 class="mr-3"><i class="fa fa-times-circle"></i></h3>
                 <div class="media-body">
-                    <h5 class="mt-0">Do not close this window down, until confirmation.</h5>
-                    We will ask you information concerning...
+                    <h5 class="mt-0">Do not close this window down, until told otherwise.</h5>
+                    <p>For the reasons given above, do not close your browser window until you have been told otherwise.</p>
                 </div>
             </div>
         </div>
         <div class="card-footer">
             <a href="{{ url_for('setup.eula') }}">
-                <div class="btn btn-primary float-right">
+                <div class="btn btn-success float-right">
                     Continue
                 </div>
             </a>

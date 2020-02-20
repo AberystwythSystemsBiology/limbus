@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, ValidationError, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo, URL
-
+from ..auth.enums import Title
 
 class BiobankRegistrationForm(FlaskForm):
     name = StringField(
@@ -21,3 +21,14 @@ class BiobankRegistrationForm(FlaskForm):
         "Textual string of letters with a description about the biobank in English."
     )
     submit = SubmitField("Register Biobank")
+
+from ..auth.forms import RegistrationForm
+
+class AdministratorRegistrationForm(RegistrationForm):
+    title = SelectField("Title",
+                              validators=[DataRequired()],
+                              choices=Title.choices())
+
+    first_name = StringField("First Name", validators=[DataRequired()])
+    middle_name = StringField("Middle Name")
+    last_name = StringField("Last Name", validators=[DataRequired()])
