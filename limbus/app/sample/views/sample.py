@@ -7,7 +7,7 @@ from ... import db
 
 from ..models import *
 
-from ...document.models import Document
+from ...document.models import Document, PatientConsentForm
 
 from ...auth.models import User
 
@@ -47,7 +47,15 @@ def view(sample_id):
         SampleDocumentAssociation, Document
     ).filter(SampleDocumentAssociation.sample_id == sample_id).filter(SampleDocumentAssociation.document_id == Document.id).all()
 
-    return render_template("sample/sample/view.html", sample=sample, text_attr=text_attr, option_attr=option_attr, associated_document=associated_document)
+    consent_info = db.session.query(PatientConsentForm).filter(PatientConsentForm.document_id == 1).first()
+
+
+    return render_template("sample/sample/view.html", 
+                            sample=sample,
+                            text_attr=text_attr,
+                            option_attr=option_attr,
+                            consent_info=consent_info,
+                            associated_document=associated_document)
 
 '''
     Add New Sample:
