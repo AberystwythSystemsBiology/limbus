@@ -1,14 +1,10 @@
 from flask import render_template, redirect, session, url_for, request
-
 from .. import sample
 from flask_login import login_required, current_user
 from ... import db
-
 from ..models import Sample, SampleAttribute, SampleAttributeOption, SampleAttributeOptionValue, SampleAttributeTextValue
 from ...dynform import clear_session
-
 from ..forms import SampleAttributeCreationForm, SampleAttributionCreationFormText
-
 from ...auth.models import User
 from ...misc.generators import generate_random_hash
 
@@ -23,7 +19,7 @@ def attribute_portal():
                            sample_attributes=sample_attributes)
 
 
-@sample.route("attribute/add/step_one", methods=["GET", "POST"])
+@sample.route("attribute/add/one", methods=["GET", "POST"])
 @login_required
 def add_attribute():
     form = SampleAttributeCreationForm()
@@ -73,7 +69,7 @@ def add_attribute_step_two(hash):
     return render_template("sample/attribute/add/two.html", form=form)
 
 
-@sample.route("attribute/add/step_two_option/<hash>", methods=["GET", "POST"])
+@sample.route("attribute/add/two_option/<hash>", methods=["GET", "POST"])
 @login_required
 def add_attribute_step_two_option(hash):
     attribute_details = session["%s attribute_details" % (hash)]
