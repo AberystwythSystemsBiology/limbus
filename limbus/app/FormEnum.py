@@ -6,6 +6,7 @@
 
 from enum import Enum
 
+
 class FormEnum(Enum):
     @classmethod
     def choices(cls):

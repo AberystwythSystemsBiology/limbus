@@ -1,4 +1,3 @@
-
 import os
 
 from flask import Flask, g, render_template
@@ -24,11 +23,12 @@ from .api import api as api_blueprint
 
 DEMO = True
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
     app.config.from_pyfile("config.py")
-    
+
     db.init_app(app)
 
     login_manager.init_app(app)

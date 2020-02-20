@@ -1,5 +1,6 @@
 from app import db
 
+
 class AddressInformation(db.Model):
     __tablename__ = "address_information"
     id = db.Column(db.Integer, primary_key=True)
@@ -9,6 +10,7 @@ class AddressInformation(db.Model):
     city = db.Column(db.String(128))
     county = db.Column(db.String(128))
     country = db.Column(db.String(2), nullable=False)
+
 
 class BiobankInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -6,6 +6,7 @@ from . import auth
 from .forms import LoginForm
 from .models import User
 
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -18,6 +19,7 @@ def login():
         else:
             flash("Incorrect email or password.")
     return render_template("auth/login.html", form=form)
+
 
 @auth.route("/logout")
 @login_required

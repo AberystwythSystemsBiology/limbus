@@ -22,10 +22,11 @@ $(document).ready(function () {
     }
 
 
-    function test_async(v){
-        console.log(v);
-    }
-
+    var successFunction = function (data) {
+        // do something
+        console.log(data);
+        window.location = data;
+    };
 
 
     $("#submitButton").click(function submit_options(e) {
@@ -41,7 +42,7 @@ $(document).ready(function () {
                 data: data,
                 dataType: "json",
                 success: function(response){
-                        test_async(response);
+                    successFunction(response);
                     }
             });
 

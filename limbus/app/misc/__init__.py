@@ -8,6 +8,7 @@ from ..sample.models import Sample, SampleAttribute
 
 from .. import db
 
+
 @misc.route("/")
 def index():
     if current_user.is_authenticated:
@@ -15,11 +16,12 @@ def index():
     else:
         return render_template("misc/index.html")
 
+
 @misc.route("/license")
 def license():
     return render_template("misc/license.html")
 
+
 @misc.route("/team")
 def team():
     return render_template("misc/team.html")
-

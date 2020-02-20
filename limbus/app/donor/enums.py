@@ -1,5 +1,6 @@
 from ..FormEnum import FormEnum
 
+
 class DonorRace(FormEnum):
     AONE = "Welsh / English / Scottish / Northern Irish"
     ATWO = "Irish"
@@ -20,9 +21,11 @@ class DonorRace(FormEnum):
     EONE = "Arab"
     ETWO = "Any Other Ethnic Group"
 
+
 class DonorSex(FormEnum):
     M = "Male"
     F = "Female"
+
 
 class DonorDiagnosticProcedureType(FormEnum):
     SUR = "Surgery"

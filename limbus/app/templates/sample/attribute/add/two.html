@@ -6,14 +6,10 @@
     <div class="container">
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2">
-                <i class="far fa-clone"></i> Step Two: Add Sample Attribute
-            </h1>
-
-
+            <h2><i class="far fa-clone"></i>Step Two: Add Sample Attribute</h2>
         </div>
 
-        <form method="POST" action="{{ url_for('sample.add_attribute_step_two' ) }}">
+        <form method="POST" action="{{ url_for('sample.add_attribute_step_two', hash=hash ) }}">
             {{ form.csrf_token }}
             {{ new_render_form(form) }}
         </form>

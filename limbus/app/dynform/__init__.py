@@ -10,6 +10,7 @@ from .. import db
 import inflect
 p = inflect.engine()
 
+
 class DynamicAttributeFormGenerator():
     def __init__(self, query, form):
         self._query = query
@@ -18,11 +19,16 @@ class DynamicAttributeFormGenerator():
     def _iterate_query(self):
         for attr in self._query:
             if attr.type == SampleAttributeTypes.TEXT:
-                setattr(self._form, p.number_to_words(attr.id), TextAreaField(attr.term))
+                setattr(self._form, p.number_to_words(attr.id),
+                        TextAreaField(attr.term))
             elif attr.type == SampleAttributeTypes.OPTION:
-                options = db.session.query(SampleAttributeOption).filter(SampleAttributeOption.sample_attribute_id == attr.id).all()
-                setattr(self._form, p.number_to_words(attr.id), SelectField(attr.term, choices=[(x.term, x.id) for x in options]))
-
+                options = db.session.query(SampleAttributeOption).filter(
+                    SampleAttributeOption.sample_attribute_id ==
+                    attr.id).all()
+                setattr(
+                    self._form, p.number_to_words(attr.id),
+                    SelectField(attr.term,
+                                choices=[(x.term, x.id) for x in options]))
 
     def _inject_submit(self):
         setattr(self._form, "submit", SubmitField())
@@ -32,12 +38,14 @@ class DynamicAttributeFormGenerator():
         self._inject_submit()
         return self._form()
 
+
 class DynamicSelectFormGenerator():
     def __init(self, query, form):
         pass
 
     def _inject_submit(self):
         setattr(self._form, "submit", SubmitField())
+
 
 def clear_session(hash: str) -> None:
     # Clear cookie session.

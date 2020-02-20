@@ -6,10 +6,12 @@ from flask_login import login_required, current_user
 
 from .. import db
 
+
 @donor.route("/")
 def index():
     donors = db.session.query(Donor).all()
     return render_template("donor/index.html", donors=donors)
+
 
 @donor.route("/add", methods=["GET", "POST"])
 def add_donor():
@@ -17,9 +19,9 @@ def add_donor():
 
     if form.validate_on_submit():
         donor = Donor(
-            age = form.age.data,
-            height = form.height.data,
-            sex = form.sex.data,
+            age=form.age.data,
+            height=form.height.data,
+            sex=form.sex.data,
             author_id=current_user.id,
         )
 
