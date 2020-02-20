@@ -20,6 +20,9 @@ class BiobankRegistrationForm(FlaskForm):
         description=
         "Textual string of letters with a description about the biobank in English."
     )
+
+
+
     submit = SubmitField("Register Biobank")
 
 from ..auth.forms import RegistrationForm

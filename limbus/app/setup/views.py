@@ -7,8 +7,7 @@ from ..misc.models import BiobankInformation
 
 from . import setup
 from .. import db
-from .forms import BiobankRegistrationForm
-from .forms import AdministratorRegistrationForm
+from .forms import BiobankRegistrationForm, AdministratorRegistrationForm
 
 from random import shuffle
 
