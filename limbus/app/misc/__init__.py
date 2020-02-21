@@ -6,13 +6,16 @@ misc = Blueprint("misc", __name__)
 from ..document.models import Document, DocumentFile
 from ..sample.models import Sample, SampleAttribute
 
+from .models import BiobankInformation
+
 from .. import db
 
 
 @misc.route("/")
 def index():
     if current_user.is_authenticated:
-        return render_template("misc/panel.html")
+        biobank = db.session.query(BiobankInformation).first()
+        return render_template("misc/panel.html", biobank=biobank)
     else:
         return render_template("misc/index.html")
 

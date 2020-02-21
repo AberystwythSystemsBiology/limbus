@@ -21,6 +21,7 @@ class Address(db.Model):
                             nullable=False)
 
 class BiobankInformation(db.Model):
+    __tablename__ = "biobank_information"
     id = db.Column(db.Integer, primary_key=True)
 
     miabis_id = db.Column(db.String(128))
@@ -29,4 +30,15 @@ class BiobankInformation(db.Model):
 
     description = db.Column(db.String(128))
 
+    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"))
+
+
     url = db.Column(db.String(128))
+
+    creation_date = db.Column(db.DateTime,
+                              server_default=db.func.now(),
+                              nullable=False)
+    update_date = db.Column(db.DateTime,
+                            server_default=db.func.now(),
+                            server_onupdate=db.func.now(),
+                            nullable=False)

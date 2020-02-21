@@ -3,13 +3,12 @@ from functools import wraps
 from flask import redirect, abort, render_template, url_for
 
 from ..auth.models import User, Profile, ProfileToUser
-from ..misc.models import BiobankInformation
+from ..misc.models import BiobankInformation, Address
 
 from . import setup
 from .. import db
 from .forms import BiobankRegistrationForm, AdministratorRegistrationForm
 
-from random import shuffle
 
 
 def check_if_user(f):
@@ -76,19 +75,30 @@ def admin_registration():
 
 @setup.route("/biobank_registration", methods=["GET", "POST"])
 def biobank_registration():
-    def _generate_acronym(cc: str, bn: str) -> str:
-        bn = [x for x in list(bn) if x != " "]
-        shuffle(bn)
-        return "%s_%s" % (cc, "".join(bn[0:7]))
 
     form = BiobankRegistrationForm()
 
     if form.validate_on_submit():
 
+        address = Address(
+            street_address_one=form.address_line_one.data,
+            street_address_two=form.address_line_two.data,
+            city=form.city.data,
+            country="GB",
+            post_code=form.post_code.data,
+        )
+
+        db.session.add(address)
+
+        db.session.flush()
+
         biobank = BiobankInformation(name=form.name.data,
                                      url=form.url.data,
-                                     description=form.description.data)
+                                     description=form.description.data,
+                                     address_id = address.id)
         db.session.add(biobank)
+        db.session.flush()
+
 
         db.session.commit()
 

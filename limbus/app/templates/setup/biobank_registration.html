@@ -4,9 +4,11 @@
 
 {% block body %}
 <div class="container">
-    <h1>Biobank Administration</h1>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-building"></i> Biobank Registration</h2>
+        </div>
 
-    <p>Something about the administrator account...</p>
+    <p>Something about biobank registration...</p>
 
     <form method="POST" action="{{ url_for('setup.biobank_registration' ) }}">
         {{ form.csrf_token }}
@@ -14,6 +16,12 @@
         {{ form_field(form.name) }}
         {{ form_field(form.url) }}
         {{ form_field(form.description) }}
+
+        {{ form_field(form.address_line_one) }}
+        {{ form_field(form.address_line_two) }}
+        {{ form_field(form.city) }}
+        {{ form_field(form.county) }}
+        {{ form_field(form.post_code) }}
 
         {{ form_field(form.submit, with_label=False)}}
 
