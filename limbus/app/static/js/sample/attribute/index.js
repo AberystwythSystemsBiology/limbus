@@ -10,11 +10,11 @@ $(document).ready(function() {
     $("#showFilter").click(function(e) {
         if ($(".dtsp-panesContainer").is(":visible")) {
             $(".dtsp-panesContainer").hide();
-            $("#showFilter").text("Show Element")
+            $("#showFilterText").text("Show Filters")
         }
 
         else {
-            $("#showFilter").text("Hide Element")
+            $("#showFilterText").text("Hide Filters")
             $(".dtsp-panesContainer").show();
         }
 

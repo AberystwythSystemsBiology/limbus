@@ -45,7 +45,12 @@ class SampleAttributeCreationForm(FlaskForm):
 
 
 class SampleAttributionCreationFormText(FlaskForm):
-    max_length = StringField("Maximum Length", validators=[DataRequired()])
+    max_length = StringField(
+        "Maximum Length",
+        validators=[DataRequired()],
+        description="The maximum length of characters that a user can enter",
+        default="1024"
+    )
     submit = SubmitField("Submit")
 
 
