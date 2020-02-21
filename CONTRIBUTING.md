@@ -1,14 +1,20 @@
-# Contributing
+# Contributing Guidelines
+
+
 
 ## 🛠 Setting up your environment 
 
-Something something git.
+Setting up a LImBuS development environment couldn't be easier.
+
+**Step Zero:** Clone the LImBuS repository using the following command.
 
 ```bash
 git clone https://github.com/AberystwythSystemsBiology/LImBuS/
 ```
 
-Something something ```.env``` file, something something in parent directory.
+**Step One:** Set up the environment variables by creating an ```.env``` file in the root of the limbus directory and
+paste the following information. You can change any of these settings, but ensure that you do this before you set up the
+application.
 
 ```
 POSTGRES_USER=user
@@ -19,9 +25,10 @@ WTF_CSRF_SECRET_KEY=wtfcsrfsecretkey
 DOCUMENT_DIRECTORY=/limbus/documents
 ```
 
-Something something install Docker, something something use docker-compose.
 
-We have provided a simple ```helpers.sh``` script to help get you up and running. To enable this, just source it:
+**Step Two:** Whilst the Dockerfile has been written as to ensure the best possible adherence to OCI, the easiest
+way to get started is to install Docker and docker-compose. Once you have done this, in the root of the limbus directory
+there exists a ```docker-helpers.sh``` file that you can use to build and run LImBuS easily. To enable this, just source it:
 
 ```bash
 source helpers.sh
@@ -45,6 +52,7 @@ limbus-db-create
 
 If you are contributing to the project, you may be interested in using the ```limbus-b``` function which will just build the project. Moreover ```limbus-d``` just gets the dependencies.
 
+
 ## 📝 Code Style
 
 - Remove trailing whitespaces and add an empty line at the end of each file.
@@ -55,9 +63,10 @@ If you are contributing to the project, you may be interested in using the ```li
 - Where appropriate, please make use of typehinting.
 - I don't care about tabs or spaces, I personally use four spaces - but do whatever feels right to you.
 - I try to keep to a limit of 80 characters, but don't care that much.
+- If you can, run it through yapf before committing your code. I don't do this as much as I should.
 
 ### 🌐 HTML
-🧻
+
 - Please, for the love of god, include ```alt``` attribute for all images.
 - Page titles should be presented in the following manner.
 
@@ -67,9 +76,9 @@ If you are contributing to the project, you may be interested in using the ```li
 </div>
 ```
 
-- Page titles and ```<title>``` tags are consistent.
+- Please ensure that all page titles and ```<title>``` tags are consistent.
 
-### 📑🧻 🧻🧻CSS
+### 📑 CSS
 
 - Unless things are **really** unique, please only make use of classes instead of IDs.
 
