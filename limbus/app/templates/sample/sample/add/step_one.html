@@ -26,6 +26,12 @@
             <div class="alert alert-danger text-center">
                 <b>Error:</b> There are no suitable patient consent forms, please upload one before continuing.
             </div>
+
+                            <a href="{{ url_for('document.upload') }}">
+
+            <div class="btn btn-primary full-width">
+                Upload Document
+            </div>                </a>
         {% endif %}
     </div>
 {% endblock %}

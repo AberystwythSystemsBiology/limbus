@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from ... import db
 from ..models import Sample, SampleAttribute, SampleAttributeOption, SampleAttributeOptionValue, SampleAttributeTextValue, SampleAttributeTextSetting
 from ...dynform import clear_session
-from ..forms import SampleAttributeCreationForm, SampleAttributionCreationFormText
+from ..forms import SampleAttributeCreationForm, SampleAttributionCreationFormText, SampleAttributeCreationFormNumeric
 from ...auth.models import User
 from ...misc.generators import generate_random_hash
 
@@ -37,15 +37,17 @@ def add_attribute():
 @sample.route("attribute/add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def add_attribute_step_two(hash):
+
     attribute_details = session["%s attribute_details" % (hash)]
+
     if attribute_details["type"] == "OPTION":
         return redirect(
             url_for("sample.add_attribute_step_two_option", hash=hash))
     if attribute_details["type"] == "TEXT":
         form = SampleAttributionCreationFormText()
     else:
-        # TODO: Need to replace with Numeric
-        form = SampleAttributionCreationFormText()
+        form = SampleAttributeCreationFormNumeric()
+
     if form.validate_on_submit():
 
         sample_attribute = SampleAttribute(term=attribute_details["term"],
@@ -61,6 +63,9 @@ def add_attribute_step_two(hash):
                 sample_attribute_id=sample_attribute.id)
 
             db.session.add(sample_attribute_setting)
+        elif attribute_details["type"] == "NUMERIC":
+            # TODO:
+            pass
 
         db.session.commit()
         clear_session(hash)

@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired
 from .enums import SampleAttributeTypes, DisposalInstruction, SampleType, SampleStatus
 from ..document.models import Document, DocumentType
 from ..auth.models import User
-
+from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
 
 from .. import db
@@ -53,6 +53,12 @@ class SampleAttributionCreationFormText(FlaskForm):
     )
     submit = SubmitField("Submit")
 
+
+class SampleAttributeCreationFormNumeric(FlaskForm):
+    type = SelectField("Unit of Measurement",
+                       validators=[DataRequired()],
+                       choices=[(x.name, x.value) for x in UnitsOfMeasurement])
+    submit = SubmitField("Submit")
 
 def DynamicAttributeSelectForm(query, attr):
     class StaticForm(FlaskForm):

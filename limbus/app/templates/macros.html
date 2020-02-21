@@ -1,64 +1,50 @@
-
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}
 
     {% if field.type != 'SubmitField' %}
-
-        {% if field.type != 'BooleanField' %}
-
             <div class="form-group">
+                {% if with_label %}
+                    <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:</label>
+                {% endif %}
 
-            {% if with_label %}
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:</label>
-            {% endif %}
+                {% if field.description %}
+                    <small class="form-text text-muted">{{ field.description }}</small>
+                {% endif %}
 
-            {% if field.description %}
-                <small class="form-text text-muted">{{ field.description }}</small>
-            {% endif %}
+                {% if field.errors %}
+                    <div class="alert alert-warning" role="alert">
+                        <b>Error:</b> {{ field.errors|join(', ') }}
+                    </div>
+                {% endif %}
 
-            {% if field.errors %}
-                <div class="alert alert-warning" role="alert">
-                    <b>Error:</b> {{ field.errors|join(', ') }}
-                </div>
-            {% endif %}
-
-        {% endif %}
-
-            {% if field.type == 'BooleanField' %}
-                
-            <div class="form-check">
-                <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
-                <label class="form-check-label" for="{{field.id}}">
-                  {{ field.label.text }}
-                </label>
-              </div>
-
-
-            {% elif field.type == 'StringField' %}
-                <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
-            {% elif field.type == 'TextAreaField' %}
-                <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
-            {% elif field.type == 'SelectField' %}
-                    <select class="form-control" id="{{ field.id}}" name="{{ field.name }}">
-                    {% for key, value, bo in field.iter_choices() %}
-                        <option value="{{ key }}">{{ value }}</option>
-                    {% endfor %}
-                    </select>
-            {% elif field.type  == 'PasswordField' %}
-                <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
-            {% elif field.type == 'FileField' %}
-                <input type="file" class="form-control-file" id="{{ field.id}}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
-            {% elif field.type == 'DateField' %}
-                <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
-                    max="3000-12-31" class="form-control">
-            {% endif %}
+                {% if field.type == 'BooleanField' %}
+                    <div class="form-check">
+                        <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
+                    </div>
+                {% elif field.type == 'StringField' %}
+                    <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
+                {% elif field.type == 'TextAreaField' %}
+                    <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
+                {% elif field.type == 'SelectField' %}
+                        <select class="form-control" id="{{ field.id}}" name="{{ field.name }}">
+                        {% for key, value, bo in field.iter_choices() %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                        </select>
+                {% elif field.type  == 'PasswordField' %}
+                    <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
+                {% elif field.type == 'FileField' %}
+                    <input type="file" class="form-control-file" id="{{ field.id}}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
+                {% elif field.type == 'DateField' %}
+                    <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
+                        max="3000-12-31" class="form-control">
+                {% endif %}
     {% else %}
-            <div style="height: 20px;"></div>
-            <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
-                <i class="fa fa-check"></i> {{ field.label.text }}
-            </button>
-
+        <div style="height: 20px;"></div>
+        <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
+            <i class="fa fa-check"></i> {{ field.label.text }}
+        </button>
     {% endif %}
 {%- endmacro %}
 
@@ -94,7 +80,7 @@
 
 {% macro generate_attribute_select_form(form) -%}
 
-        <table class="table table-striped table-bordered" style="width:100%">
+        <table id="selectAttribute" class="table table-striped table-bordered" style="width:100%">
             <thead>
             <tr>
                 <th>Attribute Term</th>
