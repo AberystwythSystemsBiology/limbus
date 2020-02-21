@@ -2,7 +2,7 @@ from flask import render_template, redirect, session, url_for, request
 from .. import sample
 from flask_login import login_required, current_user
 from ... import db
-from ..models import Sample, SampleAttribute, SampleAttributeOption, SampleAttributeOptionValue, SampleAttributeTextValue
+from ..models import Sample, SampleAttribute, SampleAttributeOption, SampleAttributeOptionValue, SampleAttributeTextValue, SampleAttributeTextSetting
 from ...dynform import clear_session
 from ..forms import SampleAttributeCreationForm, SampleAttributionCreationFormText
 from ...auth.models import User

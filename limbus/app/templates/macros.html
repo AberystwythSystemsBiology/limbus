@@ -28,7 +28,7 @@
             {% if field.type == 'BooleanField' %}
                 
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="{{field.id }}" name="{{ field.name }}">
+                <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
                 <label class="form-check-label" for="{{field.id}}">
                   {{ field.label.text }}
                 </label>
