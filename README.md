@@ -10,6 +10,10 @@ The goal of this project is to develop a Biobank Information Management System (
 
 > **Note:** LImBuS is, still very much, in the early stage of development. 
 
+
+<img src="screenshot.png" align="center" width="200px">
+
+
 ## 🤔 Bug reporting and feature suggestions
 
 Please report all bugs or feature suggestions to the [issues tracker](https://www.github.com/AberystwythSystemsBiology/limbus/issues). Please do not email me directly as I'm struggling to keep track of what needs to be fixed.
