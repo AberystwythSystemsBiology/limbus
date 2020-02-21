@@ -1,10 +1,12 @@
 from flask import redirect, render_template, url_for, flash
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 
 from . import auth
 
 from .forms import LoginForm
-from .models import User
+from .models import User, Profile, ProfileToUser
+
+from .. import db
 
 
 @auth.route("/login", methods=["GET", "POST"])
@@ -12,7 +14,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = db.session.query(User).filter(User.email == form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
             return redirect(url_for("misc.index"))
@@ -27,3 +29,11 @@ def logout():
     logout_user()
     flash("You have successfully been logged out.")
     return redirect(url_for("auth.login"))
+
+@auth.route("/profile")
+def profile():
+    user = db.session.query(User).filter(User.id == current_user.id).first_or_404()
+    profile, _ = db.session.query(
+        Profile, ProfileToUser
+    ).filter(ProfileToUser.user_id == current_user.id).filter(ProfileToUser.profile_id == Profile.id).first_or_404()
+    return render_template("auth/profile.html", user=user, profile=profile)

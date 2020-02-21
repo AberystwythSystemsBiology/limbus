@@ -1,0 +1,31 @@
+{% extends "template.html" %}
+
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2>
+                <i class="fa fa-user"></i> My Profile
+            </h2>
+        </div>
+
+    <div class="row">
+        <div class="col col-sm-9">
+            {{ show_value(user.email, "Email Address", "text") }}
+            {{ show_value(profile.title.value, "Title", "text") }}
+            {{ show_value(profile.first_name, "First Name", "text") }}
+            {{ show_value(profile.middle_name, "Middle Name", "text") }}
+            {{ show_value(profile.last_name, "Last Name", "text") }}
+
+        </div>
+        <div class="col text-center">
+            <img src="https://www.gravatar.com/avatar/{{ user.gravatar }}?s=200" class="rounded-circle" style="padding-bottom: 10px;">
+            <p class="text-muted small">Can't see an image? See Gravatar for more information.</p>
+        </div>
+    </div>
+
+    </div>
+
+{% endblock %}

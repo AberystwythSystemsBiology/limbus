@@ -63,10 +63,10 @@
                 </span>
                 <div class="dropdown-divider"></div>
                 {% if current_user.is_admin %}
-                    <a class="dropdown-item" href="{{ url_for('admin.index') }}">Admin Panel</a>
+                    <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i class="fa fa-user-secret"></i> Admin Panel</a>
                 {% endif %}
-                <a class="dropdown-item">Settings</a>
-                <a class="dropdown-item">Profile</a>
+                <a class="dropdown-item" disabled><i class="fa fa-cog"></i> Settings</a>
+                <a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> My Profile</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="{{ url_for('auth.logout') }}" >
                     <div class="btn btn-danger full-width">
