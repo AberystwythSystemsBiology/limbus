@@ -3,6 +3,7 @@ import os
 from flask import Flask, g, render_template
 from config import app_config
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_continuum import make_versioned
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_admin import Admin
@@ -28,6 +29,8 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
     app.config.from_pyfile("config.py")
+
+    make_versioned(user_cls=None)
 
     db.init_app(app)
 

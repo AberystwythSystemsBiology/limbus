@@ -11,6 +11,19 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log In")
 
 
+class ChangePassword(FlaskForm):
+    password = PasswordField(
+        "Password",
+        description="Please ensure that you provide a secure password",
+        validators=[
+            DataRequired(),
+            EqualTo("confirm_password", message="Passwords must match")
+        ])
+    confirm_password = PasswordField("Confirm Password")
+
+    submit = SubmitField("Register")
+
+
 class RegistrationForm(FlaskForm):
 
     email = StringField(

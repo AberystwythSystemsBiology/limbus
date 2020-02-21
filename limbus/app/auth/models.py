@@ -7,6 +7,7 @@ from app import db, login_manager
 from .enums import Title
 
 class User(UserMixin, db.Model):
+    __versioned__ = {}
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -82,6 +83,7 @@ class ProfileToUser(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 class ProfileToAddress(db.Model):
+    __versioned__ = {}
     __tablename__ = "profiles_to_addresses"
     id = db.Column(db.Integer, primary_key=True)
 
@@ -97,6 +99,7 @@ class ProfileToAddress(db.Model):
                             nullable=False)
 
 class ProfileToBiobank(db.Model):
+    __versioned__ = {}
     __tablename__ = "profiles_to_biobanks"
 
     id = db.Column(db.Integer, primary_key=True)

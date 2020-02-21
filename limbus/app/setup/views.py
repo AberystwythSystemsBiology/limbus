@@ -102,6 +102,11 @@ def biobank_registration():
 
         db.session.commit()
 
-        return redirect(url_for("misc.index"))
+        return redirect(url_for("setup.complete"))
 
     return render_template("setup/biobank_registration.html", form=form)
+
+@setup.route("/complete")
+@check_if_user
+def complete():
+    return render_template("setup/complete.html")

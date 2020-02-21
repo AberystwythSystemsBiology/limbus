@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 
 from . import auth
 
-from .forms import LoginForm
+from .forms import LoginForm, ChangePassword
 from .models import User, Profile, ProfileToUser
 
 from .. import db
@@ -30,10 +30,13 @@ def logout():
     flash("You have successfully been logged out.")
     return redirect(url_for("auth.login"))
 
-@auth.route("/profile")
+@auth.route("/profile", methods=["GET", "POST"])
 def profile():
     user = db.session.query(User).filter(User.id == current_user.id).first_or_404()
     profile, _ = db.session.query(
         Profile, ProfileToUser
     ).filter(ProfileToUser.user_id == current_user.id).filter(ProfileToUser.profile_id == Profile.id).first_or_404()
-    return render_template("auth/profile.html", user=user, profile=profile)
+
+    password_change = ChangePassword()
+
+    return render_template("auth/profile.html", user=user, profile=profile, password_change=password_change)
