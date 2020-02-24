@@ -92,6 +92,8 @@
             <thead>
             <tr>
                 <th>Attribute Term</th>
+                <th>Type</th>
+                <th>Required</th>
                 <th>Select</th>
             </tr>
             </thead>
@@ -100,6 +102,8 @@
                 {% if field.type == "BooleanField" %}
                     <tr>
                         <td>{{ field.label }}</td>
+                        <td>{{ field.__dict__ }}</td>
+                        <td>{{ field.data }}</td>
                         <td>{{ field }}</td>
                     </tr>
                 {% endif %}

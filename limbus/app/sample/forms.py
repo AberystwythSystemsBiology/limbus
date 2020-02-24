@@ -65,8 +65,14 @@ def DynamicAttributeSelectForm(query, attr):
         pass
 
     for attribute in query:
+
+        bool = BooleanField(getattr(attribute, attr))
+
+        setattr(bool, "_required", attribute.required)
+
+        # Sett additional attrs.
         setattr(StaticForm, p.number_to_words(attribute.id),
-                BooleanField(getattr(attribute, attr)))
+                bool)
 
     setattr(StaticForm, "submit", SubmitField())
     return StaticForm()
