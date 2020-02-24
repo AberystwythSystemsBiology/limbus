@@ -7,6 +7,7 @@ from ..document.models import Document, DocumentType
 from ..auth.models import User
 from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
+from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
 from .. import db
 
@@ -84,24 +85,20 @@ def PatientConsentFormSelectForm():
     length = 0
 
     patient_consent_forms = db.session.query(
-        Document, User).filter(Document.uploader == User.id).filter(
-            Document.type == DocumentType.PATIE).all()
+        ConsentFormTemplate, User).filter(ConsentFormTemplate.uploader == User.id).all()
 
     choices = []
 
     for cf, user in patient_consent_forms:
         id = cf.id
-
         length += 1
-
-        choice = " LIMBDOC-%s: %s - Uploaded by %s on %s" % (
-            cf.id, cf.name, user.email, cf.upload_date.strftime('%Y-%m-%d'))
-
+        choice = " LIMBPCF-%s: %s" % (
+            cf.id, cf.name)
         choices.append([str(id), choice])
 
     setattr(
         StaticForm, "form_select",
-        SelectField("Patient Consent Form",
+        SelectField("Patient Consent Form Template",
                     validators=[DataRequired()],
                     choices=choices))
 

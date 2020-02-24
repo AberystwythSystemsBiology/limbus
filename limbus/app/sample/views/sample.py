@@ -70,7 +70,7 @@ def add_sample_pcf():
         session["%s consent_id" %
                 (sample_add_hash)] = document_selection.form_select.data
 
-        return redirect(url_for('sample.add_sample_attr',
+        return redirect(url_for('sample.add_sample_pcf_data',
                                 hash=sample_add_hash))
     return render_template("sample/sample/add/step_one.html",
                            form=document_selection,
@@ -78,6 +78,11 @@ def add_sample_pcf():
 
 
 @sample.route("add/two/<hash>", methods=["GET", "POST"])
+@login_required
+def add_sample_pcf_data(hash):
+    return render_template("sample/sample/add/step_two.html")
+
+@sample.route("add/two_old/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_attr(hash):
 
@@ -95,7 +100,7 @@ def add_sample_attr(hash):
         session["%s converted_ids" % (hash)] = conv
 
         return redirect(url_for('sample.add_sample_form', hash=hash))
-    return render_template("sample/sample/add/step_two.html",
+    return render_template("sample/sample/add/step_three.html",
                            form=attr_selection,
                            hash=hash)
 
@@ -162,7 +167,7 @@ def add_sample_form(hash):
 
         return redirect(url_for("sample.index"))
 
-    return render_template("sample/sample/add/step_three.html",
+    return render_template("sample/sample/add/step_four.html",
                            form=form,
                            hash=hash)
 
