@@ -1,9 +1,9 @@
 $(document).ready(function() {
-    $('#sampleTable').DataTable( {
+    $('#documents').DataTable( {
         dom: 'Pfrtip'
     });
 
-    $("#sampleTable_filter").hide();
+    $("#documents_filter").hide();
 
     $(".dtsp-panesContainer").hide();
 

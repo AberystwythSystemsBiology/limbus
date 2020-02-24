@@ -4,10 +4,8 @@
 
 {% block body %}
 <div class="container">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2">
-                <i class="fas fa-file"></i> Step One and a Bit: Patient Consent Information
-            </h1>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fas fa-file"></i> Step One and a Bit: Patient Consent Information</h2>
         </div>
 
         <p>Please ensure that the patient consent forms are appropriately signed.</p>
@@ -16,6 +14,7 @@
 
         <form method="POST" action="{{ url_for('document.patient_consent_form_settings', hash=hash ) }}">
         {{ form.csrf_token }}
+
         {{ form_field(form.academic) }}
         {{ form_field(form.commercial) }}
         {{ form_field(form.animal) }}

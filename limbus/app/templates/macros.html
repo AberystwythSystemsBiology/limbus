@@ -1,9 +1,18 @@
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}
+    {% if field.type == 'BooleanField' %}
+        <div class="form-check">
+            <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
+            <label class="form-check-label" for="{{field.id}}">
+                {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:
+            </label>
+        </div>
 
-    {% if field.type != 'SubmitField' %}
+    {% elif field.type != 'SubmitField' %}
             <div class="form-group">
+
+
                 {% if with_label %}
                     <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:</label>
                 {% endif %}
@@ -18,11 +27,8 @@
                     </div>
                 {% endif %}
 
-                {% if field.type == 'BooleanField' %}
-                    <div class="form-check">
-                        <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
-                    </div>
-                {% elif field.type == 'StringField' %}
+
+                {% if field.type == 'StringField' %}
                     <input class="form-control" id="{{ field.id }}" name="{{ field.name }}" {% if field.flags.required %}required{% endif %}>
                 {% elif field.type == 'TextAreaField' %}
                     <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
@@ -56,6 +62,8 @@
         <div class="col-sm-8">
             {% if type == "text" %}
                 <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
+            {% elif type == "textarea" %}
+                <textarea class="form-control" placeholder="{{ attribute }}" readonly></textarea>
             {% elif type == "enum" %}
                 <input class="form-control" type="text" placeholder="{{ attribute }}" readonly>
             {% elif type == "boolean" %}
