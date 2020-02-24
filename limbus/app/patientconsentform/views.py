@@ -8,19 +8,32 @@ from .forms import NewConsentFormTemplate
 from ..misc.generators import generate_random_hash
 from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
+
 @pcf.route("/")
 def index():
-    templates = db.session.query(ConsentFormTemplate, User).filter(ConsentFormTemplate.uploader == User.id).all()
+    templates = db.session.query(
+        ConsentFormTemplate,
+        User).filter(ConsentFormTemplate.uploader == User.id).all()
 
-    return render_template("patientconsentform/index.html", templates=templates)
+    return render_template("patientconsentform/index.html",
+                           templates=templates)
+
 
 @pcf.route("/view/<pcf_id>")
 def view(pcf_id):
-    template, uploader = db.session.query(ConsentFormTemplate, User).filter(ConsentFormTemplate.id == pcf_id).filter(ConsentFormTemplate.uploader == User.id).first_or_404()
+    template, uploader = db.session.query(
+        ConsentFormTemplate,
+        User).filter(ConsentFormTemplate.id == pcf_id).filter(
+            ConsentFormTemplate.uploader == User.id).first_or_404()
 
-    questions = db.session.query(ConsentFormTemplateQuestion).filter(ConsentFormTemplateQuestion.template_id == pcf_id).all()
+    questions = db.session.query(ConsentFormTemplateQuestion).filter(
+        ConsentFormTemplateQuestion.template_id == pcf_id).all()
 
-    return render_template("patientconsentform/view.html", template=template, questions=questions, uploader=uploader)
+    return render_template("patientconsentform/view.html",
+                           template=template,
+                           questions=questions,
+                           uploader=uploader)
+
 
 @pcf.route("/add", methods=["GET", "POST"])
 def new():
@@ -36,6 +49,7 @@ def new():
 
     return render_template("patientconsentform/add/one.html", form=form)
 
+
 @pcf.route("/add/two/<hash>", methods=["GET", "POST"])
 def new_two(hash):
     if request.method == "POST":
@@ -43,10 +57,8 @@ def new_two(hash):
 
         consent_form_info = session["%s consent_form_info" % (hash)]
 
-        cfi = ConsentFormTemplate(
-            name=consent_form_info["template_name"],
-            uploader=current_user.id
-        )
+        cfi = ConsentFormTemplate(name=consent_form_info["template_name"],
+                                  uploader=current_user.id)
 
         db.session.add(cfi)
         db.session.flush()
@@ -54,16 +66,15 @@ def new_two(hash):
         cfi_id = cfi.id
 
         for q in questions:
-            cf_question = ConsentFormTemplateQuestion(
-                question = q,
-                uploader = current_user.id,
-                template_id = cfi_id
-            )
+            cf_question = ConsentFormTemplateQuestion(question=q,
+                                                      uploader=current_user.id,
+                                                      template_id=cfi_id)
 
             db.session.add(cf_question)
 
         db.session.commit()
 
-        resp = jsonify({"redirect": url_for('pcf.view', pcf_id=cfi_id, _external=True)})
-        return resp, 200, {'ContentType':'application/json'}
+        resp = jsonify(
+            {"redirect": url_for('pcf.view', pcf_id=cfi_id, _external=True)})
+        return resp, 200, {'ContentType': 'application/json'}
     return render_template("patientconsentform/add/two.html")

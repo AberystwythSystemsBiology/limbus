@@ -27,6 +27,7 @@ class DisposalInstruction(FormEnum):
     REV = "Review"
     PRE = "Preserve"
 
+
 class SampleStatus(FormEnum):
     AVA = "Available"
     DES = "Destroyed"

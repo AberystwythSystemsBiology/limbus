@@ -54,6 +54,7 @@ def upload():
 
     return render_template("document/upload/index.html", form=form)
 
+
 @document.route("/upload/pcf/<hash>", methods=["GET", "POST"])
 @login_required
 def patient_consent_form_settings(hash):

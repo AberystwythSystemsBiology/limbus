@@ -49,8 +49,7 @@ class SampleAttributionCreationFormText(FlaskForm):
         "Maximum Length",
         validators=[DataRequired()],
         description="The maximum length of characters that a user can enter",
-        default="1024"
-    )
+        default="1024")
     submit = SubmitField("Submit")
 
 
@@ -59,6 +58,7 @@ class SampleAttributeCreationFormNumeric(FlaskForm):
                        validators=[DataRequired()],
                        choices=[(x.name, x.value) for x in UnitsOfMeasurement])
     submit = SubmitField("Submit")
+
 
 def DynamicAttributeSelectForm(query, attr):
     class StaticForm(FlaskForm):
@@ -71,8 +71,7 @@ def DynamicAttributeSelectForm(query, attr):
         setattr(bool, "_required", attribute.required)
 
         # Sett additional attrs.
-        setattr(StaticForm, p.number_to_words(attribute.id),
-                bool)
+        setattr(StaticForm, p.number_to_words(attribute.id), bool)
 
     setattr(StaticForm, "submit", SubmitField())
     return StaticForm()

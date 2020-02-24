@@ -6,6 +6,7 @@ from app import db, login_manager
 
 from .enums import Title
 
+
 class User(UserMixin, db.Model):
     __versioned__ = {}
     __tablename__ = "users"
@@ -39,8 +40,10 @@ class User(UserMixin, db.Model):
 
     @property
     def name(self) -> str:
-        ptu = db.session.query(ProfileToUser).filter(ProfileToUser.user_id == self.id).first_or_404()
-        profile = db.session.query(Profile).filter(Profile.id == ptu.id).first()
+        ptu = db.session.query(ProfileToUser).filter(
+            ProfileToUser.user_id == self.id).first_or_404()
+        profile = db.session.query(Profile).filter(
+            Profile.id == ptu.id).first()
         return "%s %s" % (profile.first_name, profile.last_name)
 
     @password.setter
@@ -54,6 +57,7 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id: int) -> User:
     return User.query.get(user_id)
+
 
 class Profile(db.Model):
 
@@ -74,6 +78,7 @@ class Profile(db.Model):
                             server_onupdate=db.func.now(),
                             nullable=False)
 
+
 class ProfileToUser(db.Model):
     __tablename__ = "profiles_to_users"
 
@@ -81,6 +86,7 @@ class ProfileToUser(db.Model):
 
     profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class ProfileToAddress(db.Model):
     __versioned__ = {}
@@ -98,6 +104,7 @@ class ProfileToAddress(db.Model):
                             server_onupdate=db.func.now(),
                             nullable=False)
 
+
 class ProfileToBiobank(db.Model):
     __versioned__ = {}
     __tablename__ = "profiles_to_biobanks"
@@ -111,6 +118,3 @@ class ProfileToBiobank(db.Model):
                             server_default=db.func.now(),
                             server_onupdate=db.func.now(),
                             nullable=False)
-
-
-

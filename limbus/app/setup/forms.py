@@ -3,6 +3,7 @@ from wtforms import PasswordField, StringField, SubmitField, ValidationError, Se
 from wtforms.validators import DataRequired, Email, EqualTo, URL
 from ..auth.enums import Title
 
+
 class BiobankRegistrationForm(FlaskForm):
     name = StringField(
         "Biobank Name",
@@ -22,7 +23,8 @@ class BiobankRegistrationForm(FlaskForm):
         "Textual string of letters with a description about the biobank in English."
     )
 
-    address_line_one = StringField("Address Line1", validators=[DataRequired()])
+    address_line_one = StringField("Address Line1",
+                                   validators=[DataRequired()])
     address_line_two = StringField("Address Line2")
     city = StringField("Town/City", validators=[DataRequired()])
     county = StringField("County", validators=[DataRequired()])
@@ -30,12 +32,14 @@ class BiobankRegistrationForm(FlaskForm):
 
     submit = SubmitField("Register Biobank")
 
+
 from ..auth.forms import RegistrationForm
+
 
 class AdministratorRegistrationForm(RegistrationForm):
     title = SelectField("Title",
-                              validators=[DataRequired()],
-                              choices=Title.choices())
+                        validators=[DataRequired()],
+                        choices=Title.choices())
 
     first_name = StringField("First Name", validators=[DataRequired()])
     middle_name = StringField("Middle Name")

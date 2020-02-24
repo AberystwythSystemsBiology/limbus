@@ -10,7 +10,6 @@ from .. import db
 from .forms import BiobankRegistrationForm, AdministratorRegistrationForm
 
 
-
 def check_if_user(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -48,21 +47,16 @@ def admin_registration():
 
         db.session.flush()
 
-        profile = Profile(
-            title=form.title.data,
-            first_name=form.first_name.data,
-            middle_name=form.middle_name.data,
-            last_name=form.last_name.data
-        )
+        profile = Profile(title=form.title.data,
+                          first_name=form.first_name.data,
+                          middle_name=form.middle_name.data,
+                          last_name=form.last_name.data)
 
         db.session.add(profile)
 
         db.session.flush()
 
-        ptu = ProfileToUser(
-            profile_id = profile.id,
-            user_id = admin.id
-        )
+        ptu = ProfileToUser(profile_id=profile.id, user_id=admin.id)
 
         db.session.add(ptu)
 
@@ -95,16 +89,16 @@ def biobank_registration():
         biobank = BiobankInformation(name=form.name.data,
                                      url=form.url.data,
                                      description=form.description.data,
-                                     address_id = address.id)
+                                     address_id=address.id)
         db.session.add(biobank)
         db.session.flush()
-
 
         db.session.commit()
 
         return redirect(url_for("setup.complete"))
 
     return render_template("setup/biobank_registration.html", form=form)
+
 
 @setup.route("/complete")
 def complete():

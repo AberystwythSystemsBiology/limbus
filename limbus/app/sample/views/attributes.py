@@ -33,9 +33,11 @@ def add_attribute():
         }
 
         if form.term_type.data == "OPTION":
-            return redirect(url_for("sample.add_attribute_step_two_option", hash=hash))
+            return redirect(
+                url_for("sample.add_attribute_step_two_option", hash=hash))
         else:
-            return redirect(url_for("sample.add_attribute_step_two", hash=hash))
+            return redirect(url_for("sample.add_attribute_step_two",
+                                    hash=hash))
     return render_template("sample/attribute/add/one.html", form=form)
 
 
@@ -54,9 +56,8 @@ def add_attribute_step_two(hash):
         sample_attribute = SampleAttribute(
             term=attribute_details["term"],
             type=attribute_details["type"],
-            required = attribute_details["required"],
-            author_id=current_user.id
-        )
+            required=attribute_details["required"],
+            author_id=current_user.id)
 
         db.session.add(sample_attribute)
         db.session.flush()
@@ -74,7 +75,9 @@ def add_attribute_step_two(hash):
             # TODO:
             pass
 
-    return render_template("sample/attribute/add/two.html", form=form, hash=hash)
+    return render_template("sample/attribute/add/two.html",
+                           form=form,
+                           hash=hash)
 
 
 @sample.route("attribute/add/two_option/<hash>", methods=["GET", "POST"])

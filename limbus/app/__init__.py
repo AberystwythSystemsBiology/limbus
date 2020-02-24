@@ -25,6 +25,7 @@ from .patientconsentform import pcf as pcf_blueprint
 
 DEMO = True
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])

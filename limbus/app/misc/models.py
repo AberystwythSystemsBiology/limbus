@@ -20,6 +20,7 @@ class Address(db.Model):
                             server_onupdate=db.func.now(),
                             nullable=False)
 
+
 class BiobankInformation(db.Model):
     __tablename__ = "biobank_information"
     id = db.Column(db.Integer, primary_key=True)
@@ -31,7 +32,6 @@ class BiobankInformation(db.Model):
     description = db.Column(db.String(128))
 
     address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"))
-
 
     url = db.Column(db.String(128))
 
