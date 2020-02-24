@@ -1,4 +1,4 @@
-from flask import render_template, redirect, session, url_for, request
+from flask import render_template, redirect, session, url_for, request, jsonify
 from .. import sample
 from flask_login import login_required, current_user
 from ... import db
@@ -105,7 +105,9 @@ def add_attribute_step_two_option(hash):
         db.session.commit()
 
         clear_session(hash)
-        return url_for("sample.attribute_portal")
+        resp = jsonify(
+            {"redirect": url_for('sample.view_attribute', attribute_id=sample_attribute, _external=True)})
+        return resp, 200, {'ContentType': 'application/json'}
     else:
         return render_template("sample/attribute/add/two_option.html",
                                hash=hash)
