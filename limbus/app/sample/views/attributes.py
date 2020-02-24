@@ -23,6 +23,7 @@ def attribute_portal():
 @login_required
 def add_attribute():
     form = SampleAttributeCreationForm()
+
     if form.validate_on_submit():
         hash = generate_random_hash()
         session["%s attribute_details" % (hash)] = {
@@ -30,19 +31,19 @@ def add_attribute():
             "type": form.term_type.data,
             "required": form.required.data
         }
-        return redirect(url_for("sample.add_attribute_step_two", hash=hash))
+
+        if form.term_type.data == "OPTION":
+            return redirect(url_for("sample.add_attribute_step_two_option", hash=hash))
+        else:
+            return redirect(url_for("sample.add_attribute_step_two", hash=hash))
     return render_template("sample/attribute/add/one.html", form=form)
 
 
 @sample.route("attribute/add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def add_attribute_step_two(hash):
-
     attribute_details = session["%s attribute_details" % (hash)]
 
-    if attribute_details["type"] == "OPTION":
-        return redirect(
-            url_for("sample.add_attribute_step_two_option", hash=hash))
     if attribute_details["type"] == "TEXT":
         form = SampleAttributionCreationFormText()
     else:
@@ -50,9 +51,12 @@ def add_attribute_step_two(hash):
 
     if form.validate_on_submit():
 
-        sample_attribute = SampleAttribute(term=attribute_details["term"],
-                                           type=attribute_details["type"],
-                                           author_id=current_user.id)
+        sample_attribute = SampleAttribute(
+            term=attribute_details["term"],
+            type=attribute_details["type"],
+            required = attribute_details["required"],
+            author_id=current_user.id
+        )
 
         db.session.add(sample_attribute)
         db.session.flush()
@@ -61,17 +65,16 @@ def add_attribute_step_two(hash):
             sample_attribute_setting = SampleAttributeTextSetting(
                 max_length=form.max_length.data,
                 sample_attribute_id=sample_attribute.id)
-
             db.session.add(sample_attribute_setting)
+            db.session.commit()
+            clear_session(hash)
+            return redirect(url_for("sample.attribute_portal"))
+
         elif attribute_details["type"] == "NUMERIC":
             # TODO:
             pass
 
-        db.session.commit()
-        clear_session(hash)
-        return redirect(url_for("sample.attribute_portal"))
-
-    return render_template("sample/attribute/add/two.html", form=form)
+    return render_template("sample/attribute/add/two.html", form=form, hash=hash)
 
 
 @sample.route("attribute/add/two_option/<hash>", methods=["GET", "POST"])
@@ -99,8 +102,6 @@ def add_attribute_step_two_option(hash):
         db.session.commit()
 
         clear_session(hash)
-
-        # TODO: Need to get Ajax to support a return and redirect
         return url_for("sample.attribute_portal")
     else:
         return render_template("sample/attribute/add/two_option.html",

@@ -107,6 +107,5 @@ def biobank_registration():
     return render_template("setup/biobank_registration.html", form=form)
 
 @setup.route("/complete")
-@check_if_user
 def complete():
     return render_template("setup/complete.html")
