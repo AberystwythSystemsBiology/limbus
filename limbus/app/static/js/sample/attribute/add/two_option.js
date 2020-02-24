@@ -17,7 +17,7 @@ $(document).ready(function () {
         for (i in options) {
             $("#optionsDisplay").append(
                 '<li class="list-group-item">' +
-                options[i] + '</li>');
+                options[i] + '</li>');s
         }
     }
 

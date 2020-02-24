@@ -4,7 +4,6 @@ from enum import Enum
 
 class DocumentType(Enum):
     PATHO = "Pathology Reports"
-    PATIE = "Patient Consent Forms"
     MANUE = "Device Manuals"
     MATER = "Material Transfer Agreements"
     OTHER = "Other"

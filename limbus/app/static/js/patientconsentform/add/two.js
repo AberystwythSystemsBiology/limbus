@@ -2,11 +2,17 @@ $(document).ready(function () {
     var options = [];
 
     function update_view() {
-        $("#whereItIs").empty();
+        $("#questionsToSubmit").empty();
 
         for (o in options) {
-            $("#whereItIs").append(
-                '<p>' + options[o] + '</p>'
+            $("#questionsToSubmit").append(
+                '<div class="list-group-item list-group-item-action">\n' +
+                '            <div class="d-flex w-100 justify-content-between">\n' +
+                '              <h5 class="mb-1">Question '+ parseInt(parseInt(o)+parseInt(1)) +'</h5>\n' +
+                '              <small>Remove</small>\n' +
+                '            </div>\n' +
+                '            <p class="mb-1">'+options[o]+'</p>\n' +
+                '          </div>'
             );
         }
     }
@@ -23,7 +29,7 @@ $(document).ready(function () {
     $("#submitButton").click(function (e) {
         if (options.length > 0) {
             var data = {
-            "options[]": options
+            "questions[]": options
         }
 
         $.ajax({
@@ -32,7 +38,7 @@ $(document).ready(function () {
             data: data,
             dataType: "json",
             success: function(response) {
-                console.log(response);
+                window.location = response["redirect"];
             }
         });
         }

@@ -1,0 +1,36 @@
+{% extends "template.html" %}
+
+{% block title %}LIMBPCF-{{ template.id }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2>
+                <i class="fa fa-question-circle"></i> LIMBPCF-{{ template.id }}
+            </h2>
+            <div class="btn-toolbar">
+
+            </div>
+        </div>
+
+    <h2>Questions</h2>
+
+        <div class="row row-cols-1 row-cols-md-3">
+
+        {% for q in questions %}
+            <div class="col mb-4">
+            <div class="card">
+
+              <div class="card-body">
+                <h5 class="card-title">Question</h5>
+                <p class="card-text">{{ q.question }}</p>
+              </div>
+            </div>
+  </div>
+
+        {% endfor %}
+        </div>
+    </div>
+            </div>
+
+{% endblock %}
