@@ -31,26 +31,8 @@
                             <td>D{{ document.id }}F{{ file.id }}</td>
                             <td>{{ file.upload_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ user.email }}</td>
-                            <td><a href="{{ url_for('document.get_file', doc_id=document.id, file_id=file.id) }}">Download</a></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-
-                <h2>Document Associations</h2>
-
-                <table id="document_files_table" class="table table-striped table-bordered" style="width:100%">
-                    <thead>
-                    <th>Assoc. Identifier</th>
-                    <th>Assoc. Type</th>
-                    <th>Assoc. Date</th>
-                    </thead>
-                    <tbody>
-                    {% for ass in associated_document %}
-                        <tr>
-                            <td>{{ ass.id }}</td>
-                            <td>Sample</td>
-                            <td>{{ ass.creation_date }}</td>
+                            <td><a href="{{ url_for('document.get_file', doc_id=document.id, file_id=file.id) }}">
+                                <div class="btn btn-primary"><i class="fa fa-download"></i></div></a></td>
                         </tr>
                     {% endfor %}
                     </tbody>

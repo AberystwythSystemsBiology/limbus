@@ -39,40 +39,17 @@ def index():
 def upload():
     form = DocumentUploadForm()
     if form.validate_on_submit():
-        document_upload_hash = generate_random_hash()
+        hash = generate_random_hash()
 
-        session["%s document_info" % (document_upload_hash)] = {
+        session["%s document_info" % (hash)] = {
             "name": form.name.data,
             "description": form.description.data,
             "type": form.type.data
         }
-        if form.type.data == "PATIE":
-            return redirect(
-                url_for("document.patient_consent_form_settings",
-                        hash=document_upload_hash))
+
         return redirect(url_for("document.document_upload", hash=hash))
 
     return render_template("document/upload/index.html", form=form)
-
-
-@document.route("/upload/pcf/<hash>", methods=["GET", "POST"])
-@login_required
-def patient_consent_form_settings(hash):
-    form = PatientConsentFormInformationForm()
-
-    if form.validate_on_submit():
-        session["%s patient_consent_info" % (hash)] = {
-            "academic": form.academic.data,
-            "commercial": form.commercial.data,
-            "animal": form.animal.data,
-            "genetic": form.genetic.data
-        }
-
-        return redirect(url_for("document.document_upload", hash=hash))
-
-    return render_template("document/upload/patient_consent.html",
-                           form=form,
-                           hash=hash)
 
 
 @document.route("/upload/file/<hash>", methods=["GET", "POST"])

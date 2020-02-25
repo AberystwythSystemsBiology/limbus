@@ -64,11 +64,45 @@ def pcf_view(sample_id):
         ConsentFormTemplate.id == SamplePatientConsentFormTemplateAssociation.template_id
     ).first_or_404()
 
+    '''
+        Need to return all possible questions, and then answers.
+    '''
+
+    answers = db.session.query(SamplePatientConsentFormAnswersAssociation,
+                               ).filter(
+        SamplePatientConsentFormAnswersAssociation.sample_pcf_association_id == association.id
+    ).all()
+
+
+    answers_id = [x.checked for x in answers]
+
+    questions = db.session.query(ConsentFormTemplateQuestion).filter(
+        ConsentFormTemplateQuestion.template_id == template.id
+    ).all()
+
+
 
     class PCFView:
-        pass
+        def __init__(self):
+            self.sample_info = {
+                "id": sample_id
+            }
 
-    return "Hello World"
+            self.template_info = {
+                "id": template.id,
+                "name": template.name,
+                "association_time" : association.creation_date
+            }
+
+            self.questionnaire = [
+                {
+                    "question": x.question,
+                    "answer": x.id in answers_id } for x in questions]
+
+
+
+
+    return render_template("sample/sample/pcf/view.html", pcf_view=PCFView())
 
 
 '''
@@ -103,7 +137,6 @@ def add_sample_pcf_data(hash):
 
     if questionnaire.validate_on_submit():
         ticked = []
-
         for q in questionnaire:
             if q.type == "BooleanField":
                 if q.data:
@@ -203,7 +236,7 @@ def add_sample_form(hash):
                 author_id = current_user.id
             )
 
-            db.session.add(spcfta)
+            db.session.add(spcfaa)
 
         db.session.commit()
         clear_session(hash)

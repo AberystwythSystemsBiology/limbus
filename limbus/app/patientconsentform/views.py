@@ -28,6 +28,9 @@ def view(pcf_id):
 
     questions = db.session.query(ConsentFormTemplateQuestion).filter(
         ConsentFormTemplateQuestion.template_id == pcf_id).all()
+    questions = [questions[i:(i+3)] for i in range(0, len(questions), 3)]
+
+    print(questions)
 
     return render_template("patientconsentform/view.html",
                            template=template,
