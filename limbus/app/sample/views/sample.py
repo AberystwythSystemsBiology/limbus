@@ -43,23 +43,37 @@ def view(sample_id):
             SampleDocumentAssociation.sample_id == sample_id).filter(
                 SampleDocumentAssociation.document_id == Document.id).all()
 
-    consent_info = db.session.query(PatientConsentForm).filter(
-        PatientConsentForm.document_id == 1).first()
+    _, consent_template = db.session.query(SamplePatientConsentFormTemplateAssociation, ConsentFormTemplate).filter(
+        SamplePatientConsentFormTemplateAssociation.sample_id == sample_id
+    ).filter(SamplePatientConsentFormTemplateAssociation.template_id == ConsentFormTemplate.id).first_or_404()
 
     return render_template("sample/sample/view.html",
                            sample=sample,
                            text_attr=text_attr,
                            option_attr=option_attr,
-                           consent_info=consent_info,
-                           associated_document=associated_document)
+                           associated_document=associated_document,
+                           consent_template=consent_template)
+
+
+@sample.route("view/LIMBSMP-<sample_id>/pcf")
+def pcf_view(sample_id):
+
+    association, template = db.session.query(
+        SamplePatientConsentFormTemplateAssociation, ConsentFormTemplate
+    ).filter(SamplePatientConsentFormTemplateAssociation.sample_id == sample_id).filter(
+        ConsentFormTemplate.id == SamplePatientConsentFormTemplateAssociation.template_id
+    ).first_or_404()
+
+
+    class PCFView:
+        pass
+
+    return "Hello World"
 
 
 '''
-    Add New Sample:
-    
-    The following code relates to the addition of new samples. 
+    Add New Sample: The following code relates to the addition of new samples. 
 '''
-
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required

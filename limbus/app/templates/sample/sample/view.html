@@ -6,7 +6,7 @@
     <div class="container">
 
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}</h1>
+            <h2><i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}</h2>
             <div class="btn-toolbar mb-2 mb-md-0">
                 {% if (sample.sample_status.value == "Available") %}
                     <div class="btn btn-success"><i class="fa fa-check"></i> {{ sample.sample_status.value }}</div>
@@ -36,7 +36,7 @@
     {% endfor %}
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fas fa-boxes"></i> Storage Information</h1>
+            <h3><i class="fas fa-boxes"></i> Storage Information</h3>
             <div class="btn-toolbar mb-2 mb-md-0">
 
             </div>
@@ -45,55 +45,18 @@
         <p>No storage information is currently available.</p>
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-thumbs-up"></i> Patient Consent Information</h2>
-        
-            <a href="{{ url_for('document.view', doc_id=consent_info.id) }}">
-                <div class="btn btn-success">
-                    <i class="fa fa-eye"></i> View Consent Form</div></a>
+            <h3><i class="fas fa-thumbs-up"></i> Patient Consent Information</h3>
+
+            <a href="{{ url_for('sample.pcf_view', sample_id=sample.id) }}">
+            <div class="btn btn-primary">
+                View Form</div></a>
         </div>
 
-        <div class="row" style="margin-bottom: 20px;">
-            <div class="col">
-                <div class="btn {% if consent_info.academic %}btn-success{%else%}btn-danger{%endif%} full-width">
-                    {% if consent_info.academic %}
-                        <i class="fa fa-check"></i>
-                    {%else%}
-                    <i class="fa fa-ban"></i>
-                    {%endif%} Academic
-                </div>
-            </div>
-            <div class="col">
-                <div class="btn {% if consent_info.commercial %}btn-success{%else%}btn-danger{%endif%} full-width">
-                    {% if consent_info.commercial %}
-                        <i class="fa fa-check"></i>
-                    {%else%}
-                    <i class="fa fa-ban"></i>
-                    {%endif%} Commercial
-                </div>
-            </div>
-            <div class="col">
-                <div class="btn {% if consent_info.animal %}btn-success{%else%}btn-danger{%endif%} full-width">
-                    {% if consent_info.animal %}
-                        <i class="fa fa-check"></i>
-                    {%else%}
-                    <i class="fa fa-ban"></i>
-                    {%endif%} Animal
-                </div>
-            </div>
-            <div class="col">
-                <div class="btn {% if consent_info.genetic %}btn-success{%else%}btn-danger{%endif%} full-width">
-                    {% if consent_info.genetic %}
-                        <i class="fa fa-check"></i>
-                    {%else%}
-                    <i class="fa fa-ban"></i>
-                    {%endif%} Genetic
-                </div>
-            </div>
-        </div>
+        {{ show_value(consent_template.name, "Template Name", "text")  }}
 
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fas fa-file"></i> Associated Documents</h1>
+            <h3><i class="fas fa-file"></i> Associated Documents</h3>
             <a href="{{ url_for('sample.associate_document', sample_id=sample.id) }}">
             <div class="btn btn-primary">
                 <i class="fa fa-link"></i> Associate Document</div></a>
