@@ -105,3 +105,15 @@ def PatientConsentFormSelectForm():
     setattr(StaticForm, "submit", SubmitField())
 
     return StaticForm(), length
+
+def PatientConsentQuestionnaire(questions) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        pass
+
+    for question in questions:
+        setattr(StaticForm, p.number_to_words(question.id), BooleanField(question.question))
+
+    # Inject submit
+
+    setattr(StaticForm, "submit", SubmitField("Submit"))
+    return StaticForm()

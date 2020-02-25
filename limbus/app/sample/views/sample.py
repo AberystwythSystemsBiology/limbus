@@ -11,12 +11,13 @@ from ...document.models import Document, PatientConsentForm
 
 from ...auth.models import User
 
-from ..forms import SampleCreationForm, DynamicAttributeSelectForm, p, PatientConsentFormSelectForm
+from ..forms import SampleCreationForm, DynamicAttributeSelectForm, p, PatientConsentFormSelectForm, PatientConsentQuestionnaire
 
 from ...dynform import DynamicAttributeFormGenerator, clear_session
 
 from ...misc.generators import generate_random_hash
 
+from ...patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
 @sample.route("view/LIMBSMP-<sample_id>")
 @login_required
@@ -80,7 +81,24 @@ def add_sample_pcf():
 @sample.route("add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf_data(hash):
-    return render_template("sample/sample/add/step_two.html")
+    t_id = session["%s consent_id" % (hash)]
+    pcf = db.session.query(ConsentFormTemplate).filter(ConsentFormTemplate.id == t_id).first_or_404()
+    pcf_questions = db.session.query(ConsentFormTemplateQuestion).filter(ConsentFormTemplateQuestion.template_id == t_id).all()
+    questionnaire = PatientConsentQuestionnaire(pcf_questions)
+    conv = {p.number_to_words(x.id): x.id for x in pcf_questions}
+
+    if questionnaire.validate_on_submit():
+        ticked = []
+
+        for q in questionnaire:
+            if q.type == "BooleanField":
+                if q.data:
+                    ticked.append(conv[q.name])
+
+        session["%s checked_consent" % (hash)] = ticked
+        return redirect(url_for('sample.add_sample_attr', hash=hash))
+
+    return render_template("sample/sample/add/step_two.html", hash=hash, pcf=pcf, questionnaire=questionnaire)
 
 @sample.route("add/two_old/<hash>", methods=["GET", "POST"])
 @login_required
@@ -155,14 +173,25 @@ def add_sample_form(hash):
 
                     db.session.add(option_value)
 
-        sda = SampleDocumentAssociation(sample_id=sample.id,
-                                        document_id=session["%s consent_id" %
-                                                            (hash)],
-                                        author_id=current_user.id)
+        spcfta = SamplePatientConsentFormTemplateAssociation(
+            sample_id=sample.id,
+            template_id = session["%s consent_id" % (hash)],
+            author_id = current_user.id
+        )
 
-        db.session.add(sda)
+        db.session.add(spcfta)
+        db.session.flush()
+
+        for answer in session["%s checked_consent" % (hash)]:
+            spcfaa = SamplePatientConsentFormAnswersAssociation(
+                sample_pcf_association_id = spcfta.id,
+                checked = answer,
+                author_id = current_user.id
+            )
+
+            db.session.add(spcfta)
+
         db.session.commit()
-
         clear_session(hash)
 
         return redirect(url_for("sample.index"))

@@ -9,7 +9,21 @@
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fas fa-vial"></i> New Sample: Step Two</h2>
         </div>
-        <p>Something here about filling out a custom PCF.</p>
+
+        <h3>{{ pcf.name }}</h3>
+
+    <p>Please...</p>
+
+    <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
+    {{ questionnaire.csrf_token() }}
+    {% for question in questionnaire %}
+        {%  if (question.type == "BooleanField") %}
+            {{ form_field( question )}}
+        {% endif %}
+    {% endfor %}
+        {{ form_field(questionnaire.submit) }}
+
+    </form>
     </div>
 {% endblock %}
 

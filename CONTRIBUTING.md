@@ -82,6 +82,12 @@ If you are contributing to the project, you may be interested in using the ```li
 
 - Unless things are **really** unique, please only make use of classes instead of IDs.
 
+
+### Design
+
+- Add ```Element``` should be defined as a button class of ```btn-primary```.
+- Submit should be right aligned and defined as a button class of ```btn-success```.
+
 ## ✔️ Proposing Changes
 
 **Step Zero:** Make a new branch and push it
