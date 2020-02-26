@@ -17,16 +17,9 @@ $(document).ready(function () {
         for (i in options) {
             $("#optionsDisplay").append(
                 '<li class="list-group-item">' +
-                options[i] + '</li>');s
+                options[i] + '</li>');
         }
     }
-
-
-    var successFunction = function (data) {
-        // do something
-        console.log(data);
-        window.location = data;
-    };
 
 
     $("#submitButton").click(function submit_options(e) {
@@ -37,14 +30,14 @@ $(document).ready(function () {
             };
 
             $.ajax({
-                type: "POST",
-                url: $(location).attr('href'),
-                data: data,
-                dataType: "json",
-                success: function(response){
-                    successFunction(response);
-                    }
-            });
+            type: "POST",
+            url: $(location).attr('href'),
+            data: data,
+            dataType: "json",
+            success: function(response) {
+                window.location = response["redirect"];
+            }
+        });
 
 
         }

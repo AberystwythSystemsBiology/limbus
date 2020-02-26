@@ -83,14 +83,15 @@ def add_attribute_step_two(hash):
 @sample.route("attribute/add/two_option/<hash>", methods=["GET", "POST"])
 @login_required
 def add_attribute_step_two_option(hash):
-    attribute_details = session["%s attribute_details" % (hash)]
+
     if request.method == "POST":
+        attribute_details = session["%s attribute_details" % (hash)]
+
         options = request.form.getlist("options[]")
 
         sample_attribute = SampleAttribute(term=attribute_details["term"],
                                            type=attribute_details["type"],
                                            author_id=current_user.id)
-
         db.session.add(sample_attribute)
         db.session.flush()
 
@@ -105,9 +106,11 @@ def add_attribute_step_two_option(hash):
         db.session.commit()
 
         clear_session(hash)
+
         resp = jsonify(
-            {"redirect": url_for('sample.view_attribute', attribute_id=sample_attribute, _external=True)})
-        return resp, 200, {'ContentType': 'application/json'}
+            {"redirect": url_for('sample.attribute_portal', _external=True)})
+
+        return resp, 201, {'ContentType': 'application/json'}
     else:
         return render_template("sample/attribute/add/two_option.html",
                                hash=hash)
