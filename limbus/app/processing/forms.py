@@ -15,5 +15,4 @@ class FluidCheckList(FlaskForm):
     ce = BooleanField("Centrifuge?")
     sc = BooleanField("Second Centrifuge?")
     pd = BooleanField("Post-Centrifuge Delay?")
-
     submit = SubmitField("Submit")
