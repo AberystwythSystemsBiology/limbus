@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-storage = Blueprint("storage", __name__)
+processing = Blueprint("processing", __name__)
 
 from . import views
