@@ -2,8 +2,9 @@ from flask import redirect, abort, render_template, url_for, session, request, j
 
 from flask_login import current_user
 
-from . import processing
+from .. import processing
 
 @processing.route("/")
 def index():
     return render_template("processing/index.html")
+
