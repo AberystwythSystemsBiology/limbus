@@ -1,0 +1,26 @@
+{% extends "template.html" %}
+
+{% block title %}Step Three: New Protocol{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-project-diagram"></i> New Protocol: Step Three</h2>
+            
+          </div>
+
+          <form method="POST" action="{{url_for('processing.new_protocol_three', hash=hash)}}">
+              {{ form.csrf_token() }}
+                
+                {{ form_field(form.container) }}
+                {{ form_field(form.pre_centr_temp )}}
+                {{ form_field(form.pre_centr_time )}}
+
+              {{ form_field(form.submit)}}
+          </form>
+        
+
+    </div>
+{% endblock %}

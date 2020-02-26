@@ -87,5 +87,3 @@ class FluidLongTermStorage(FormEnum):
     Y = "Original Container @ -85 to -18°C"
     X = "Unknown"
     Z = "Other"
-
-

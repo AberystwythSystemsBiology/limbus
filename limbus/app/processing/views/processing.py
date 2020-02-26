@@ -4,7 +4,7 @@ from flask_login import current_user
 
 from .. import processing
 
-from ..forms import NewProtocolForm, FluidCheckList
+from ..forms import NewProtocolForm, FluidCheckList, ProcessingInformation
 
 from ...misc.generators import generate_random_hash
 
@@ -56,4 +56,14 @@ def new_protocol_two(hash):
     
 @processing.route("/protocols/new/three/<hash>", methods=["GET", "POST"])
 def new_protocol_three(hash):
-    return str(hash)
+
+    type = session["%s protocol_information" % (hash)]["type"]
+    steps = session["%s steps" % (hash)]
+
+    form = ProcessingInformation(type, steps)
+
+
+    if form.validate_on_submit():
+        pass
+
+    return render_template("processing/protocols/new/three.html", hash=hash, form=form)
