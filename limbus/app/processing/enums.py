@@ -1,5 +1,6 @@
 from ..FormEnum import FormEnum
 
+
 class FluidContainer(FormEnum):
     ACD = "Acid citrate dextrose"
     ADD = "Additives"
@@ -29,6 +30,7 @@ class FluidContainer(FormEnum):
     XXX = "Unknown"
     ZZZ = "Other"
 
+
 # Replace this with something smarter.
 # Something like Room Temp - 2 to 10*C - 35 to 38 C etc...
 class ProcessingTemps(FormEnum):
@@ -37,6 +39,7 @@ class ProcessingTemps(FormEnum):
     C = "35 to 38°C"
     U = "Unknown"
     O = "Other"
+
 
 class ProcessingTimes(FormEnum):
     A = "< 2 hours"
@@ -48,11 +51,13 @@ class ProcessingTimes(FormEnum):
     U = "Unknown"
     O = "Other"
 
+
 class CentrifugationTime(FormEnum):
     A = "10 to 15 minutes"
     B = "30 minutes"
     U = "Unknown"
     O = "Other"
+
 
 class CentrifugationWeights(FormEnum):
     A = "< 3000g"
@@ -60,6 +65,7 @@ class CentrifugationWeights(FormEnum):
     C = "> 1000g"
     U = "Unknown"
     O = "Other"
+
 
 class FluidLongTermStorage(FormEnum):
     A = "PP tube 0.5-2mL @ -85 to -60°C"

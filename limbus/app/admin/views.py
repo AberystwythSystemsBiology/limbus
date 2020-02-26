@@ -13,4 +13,5 @@ class UserView(ModelView):
 
 def add_admin_views():
     from .. import app_admin
+
     app_admin.add_view(UserView(User, db.session))

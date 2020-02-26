@@ -12,13 +12,13 @@ class Address(db.Model):
     post_code = db.Column(db.String(20))
     country = db.Column(db.String(2), nullable=False)
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class BiobankInformation(db.Model):
@@ -35,10 +35,10 @@ class BiobankInformation(db.Model):
 
     url = db.Column(db.String(128))
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )

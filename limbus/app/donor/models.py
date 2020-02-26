@@ -15,13 +15,13 @@ class Donor(db.Model):
 
     sex = db.Column(db.Enum(DonorSex))
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
@@ -29,13 +29,13 @@ class DonorDiagnosis(db.Model):
     __tablename__ = "donor_diagnoses"
 
     id = db.Column(db.Integer, primary_key=True)
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
@@ -44,13 +44,13 @@ class DonorVisitNumber(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
@@ -58,11 +58,11 @@ class DonorDiagnosticProcedureInformation(db.Model):
     __tablename__ = "donor_diag_proc_info"
     id = db.Column(db.Integer, primary_key=True)
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))

@@ -16,13 +16,13 @@ class Sample(db.Model):
 
     disposal_date = db.Column(db.DateTime, nullable=False)
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
@@ -36,13 +36,13 @@ class SampleAttribute(db.Model):
     type = db.Column(db.Enum(SampleAttributeTypes))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
     required = db.Column(db.Boolean(), default=False)
 
 
@@ -52,16 +52,15 @@ class SampleAttributeTextSetting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     max_length = db.Column(db.Integer, nullable=False)
 
-    sample_attribute_id = db.Column(db.Integer,
-                                    db.ForeignKey("sample_attributes.id"))
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class SampleAttributeNumericSetting(db.Model):
@@ -69,15 +68,14 @@ class SampleAttributeNumericSetting(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    sample_attribute_id = db.Column(db.Integer,
-                                    db.ForeignKey("sample_attributes.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class SampleAttributeOption(db.Model):
@@ -90,15 +88,14 @@ class SampleAttributeOption(db.Model):
     ref = db.Column(db.String(64))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
-    sample_attribute_id = db.Column(db.Integer,
-                                    db.ForeignKey("sample_attributes.id"))
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
 
 
 class SampleAttributeTextValue(db.Model):
@@ -108,30 +105,26 @@ class SampleAttributeTextValue(db.Model):
 
     value = db.Column(db.String())
 
-    sample_attribute_id = db.Column(db.Integer,
-                                    db.ForeignKey("sample_attributes.id"))
-    sample_id = db.Column(db.Integer, db.ForeignKey('samples.id'))
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
 
 class SampleAttributeOptionValue(db.Model):
     __tablename__ = "sample_attribute_option_value"
     id = db.Column(db.Integer, primary_key=True)
 
-    sample_option_id = db.Column(db.Integer,
-                                 db.ForeignKey("sample_attribute_options.id"))
-    sample_attribute_id = db.Column(db.Integer,
-                                    db.ForeignKey("sample_attributes.id"))
-    sample_id = db.Column(db.Integer, db.ForeignKey('samples.id'))
+    sample_option_id = db.Column(
+        db.Integer, db.ForeignKey("sample_attribute_options.id")
+    )
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
 
 class SamplePatientConsentFormTemplateAssociation(db.Model):
     __tablename__ = "sample_pcf_associations"
@@ -142,9 +135,7 @@ class SamplePatientConsentFormTemplateAssociation(db.Model):
     template_id = db.Column(db.Integer, db.ForeignKey("consent_form_templates.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
 
 class SamplePatientConsentFormAnswersAssociation(db.Model):
@@ -152,13 +143,14 @@ class SamplePatientConsentFormAnswersAssociation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    sample_pcf_association_id = db.Column(db.Integer, db.ForeignKey("sample_pcf_associations.id"))
+    sample_pcf_association_id = db.Column(
+        db.Integer, db.ForeignKey("sample_pcf_associations.id")
+    )
     checked = db.Column(db.Integer, db.ForeignKey("consent_form_template_questions.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
 
 class SampleDocumentAssociation(db.Model):
     __tablename__ = "sample_document_associations"
@@ -169,6 +161,4 @@ class SampleDocumentAssociation(db.Model):
     document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

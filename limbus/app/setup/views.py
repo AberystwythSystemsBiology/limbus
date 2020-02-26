@@ -40,17 +40,17 @@ def admin_registration():
     # Step Three: Ask the user to register themselves as administrator.
     form = AdministratorRegistrationForm()
     if form.validate_on_submit():
-        admin = User(email=form.email.data,
-                     password=form.password.data,
-                     is_admin=True)
+        admin = User(email=form.email.data, password=form.password.data, is_admin=True)
         db.session.add(admin)
 
         db.session.flush()
 
-        profile = Profile(title=form.title.data,
-                          first_name=form.first_name.data,
-                          middle_name=form.middle_name.data,
-                          last_name=form.last_name.data)
+        profile = Profile(
+            title=form.title.data,
+            first_name=form.first_name.data,
+            middle_name=form.middle_name.data,
+            last_name=form.last_name.data,
+        )
 
         db.session.add(profile)
 
@@ -86,10 +86,12 @@ def biobank_registration():
 
         db.session.flush()
 
-        biobank = BiobankInformation(name=form.name.data,
-                                     url=form.url.data,
-                                     description=form.description.data,
-                                     address_id=address.id)
+        biobank = BiobankInformation(
+            name=form.name.data,
+            url=form.url.data,
+            description=form.description.data,
+            address_id=address.id,
+        )
         db.session.add(biobank)
         db.session.flush()
 

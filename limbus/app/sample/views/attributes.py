@@ -2,9 +2,20 @@ from flask import render_template, redirect, session, url_for, request, jsonify
 from .. import sample
 from flask_login import login_required, current_user
 from ... import db
-from ..models import Sample, SampleAttribute, SampleAttributeOption, SampleAttributeOptionValue, SampleAttributeTextValue, SampleAttributeTextSetting
+from ..models import (
+    Sample,
+    SampleAttribute,
+    SampleAttributeOption,
+    SampleAttributeOptionValue,
+    SampleAttributeTextValue,
+    SampleAttributeTextSetting,
+)
 from ...dynform import clear_session
-from ..forms import SampleAttributeCreationForm, SampleAttributionCreationFormText, SampleAttributeCreationFormNumeric
+from ..forms import (
+    SampleAttributeCreationForm,
+    SampleAttributionCreationFormText,
+    SampleAttributeCreationFormNumeric,
+)
 from ...auth.models import User
 from ...misc.generators import generate_random_hash
 
@@ -12,11 +23,14 @@ from ...misc.generators import generate_random_hash
 @sample.route("attribute/")
 @login_required
 def attribute_portal():
-    sample_attributes = db.session.query(
-        SampleAttribute,
-        User).filter(SampleAttribute.author_id == User.id).all()
-    return render_template("sample/attribute/index.html",
-                           sample_attributes=sample_attributes)
+    sample_attributes = (
+        db.session.query(SampleAttribute, User)
+        .filter(SampleAttribute.author_id == User.id)
+        .all()
+    )
+    return render_template(
+        "sample/attribute/index.html", sample_attributes=sample_attributes
+    )
 
 
 @sample.route("attribute/add/one", methods=["GET", "POST"])
@@ -29,15 +43,13 @@ def add_attribute():
         session["%s attribute_details" % (hash)] = {
             "term": form.term.data,
             "type": form.term_type.data,
-            "required": form.required.data
+            "required": form.required.data,
         }
 
         if form.term_type.data == "OPTION":
-            return redirect(
-                url_for("sample.add_attribute_step_two_option", hash=hash))
+            return redirect(url_for("sample.add_attribute_step_two_option", hash=hash))
         else:
-            return redirect(url_for("sample.add_attribute_step_two",
-                                    hash=hash))
+            return redirect(url_for("sample.add_attribute_step_two", hash=hash))
     return render_template("sample/attribute/add/one.html", form=form)
 
 
@@ -57,15 +69,16 @@ def add_attribute_step_two(hash):
             term=attribute_details["term"],
             type=attribute_details["type"],
             required=attribute_details["required"],
-            author_id=current_user.id)
+            author_id=current_user.id,
+        )
 
         db.session.add(sample_attribute)
         db.session.flush()
 
         if attribute_details["type"] == "TEXT":
             sample_attribute_setting = SampleAttributeTextSetting(
-                max_length=form.max_length.data,
-                sample_attribute_id=sample_attribute.id)
+                max_length=form.max_length.data, sample_attribute_id=sample_attribute.id
+            )
             db.session.add(sample_attribute_setting)
             db.session.commit()
             clear_session(hash)
@@ -75,9 +88,7 @@ def add_attribute_step_two(hash):
             # TODO:
             pass
 
-    return render_template("sample/attribute/add/two.html",
-                           form=form,
-                           hash=hash)
+    return render_template("sample/attribute/add/two.html", form=form, hash=hash)
 
 
 @sample.route("attribute/add/two_option/<hash>", methods=["GET", "POST"])
@@ -89,9 +100,11 @@ def add_attribute_step_two_option(hash):
 
         options = request.form.getlist("options[]")
 
-        sample_attribute = SampleAttribute(term=attribute_details["term"],
-                                           type=attribute_details["type"],
-                                           author_id=current_user.id)
+        sample_attribute = SampleAttribute(
+            term=attribute_details["term"],
+            type=attribute_details["type"],
+            author_id=current_user.id,
+        )
         db.session.add(sample_attribute)
         db.session.flush()
 
@@ -99,7 +112,8 @@ def add_attribute_step_two_option(hash):
             sao = SampleAttributeOption(
                 term=option,
                 author_id=current_user.id,
-                sample_attribute_id=sample_attribute.id)
+                sample_attribute_id=sample_attribute.id,
+            )
 
             db.session.add(sao)
 
@@ -107,42 +121,55 @@ def add_attribute_step_two_option(hash):
 
         clear_session(hash)
 
-        resp = jsonify(
-            {"redirect": url_for('sample.attribute_portal', _external=True)})
+        resp = jsonify({"redirect": url_for("sample.attribute_portal", _external=True)})
 
-        return resp, 201, {'ContentType': 'application/json'}
+        return resp, 201, {"ContentType": "application/json"}
     else:
-        return render_template("sample/attribute/add/two_option.html",
-                               hash=hash)
+        return render_template("sample/attribute/add/two_option.html", hash=hash)
 
 
 @sample.route("attribute/view/LIMBSATTR-<attribute_id>")
 @login_required
 def view_attribute(attribute_id):
-    attribute, attribute_user = db.session.query(
-        SampleAttribute,
-        User).filter(SampleAttribute.id == attribute_id).filter(
-            SampleAttribute.author_id == User.id).first()
+    attribute, attribute_user = (
+        db.session.query(SampleAttribute, User)
+        .filter(SampleAttribute.id == attribute_id)
+        .filter(SampleAttribute.author_id == User.id)
+        .first()
+    )
 
     if attribute.type.value == "Text":
-        settings = db.session.query(SampleAttributeTextSetting).filter(
-            SampleAttributeTextSetting.sample_attribute_id ==
-            attribute.id).first()
-        samples = db.session.query(SampleAttribute, Sample, User).filter(
-            SampleAttributeTextValue.sample_attribute_id == attribute.id
-        ).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(
-            Sample.author_id == User.id).all()
+        settings = (
+            db.session.query(SampleAttributeTextSetting)
+            .filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id)
+            .first()
+        )
+        samples = (
+            db.session.query(SampleAttribute, Sample, User)
+            .filter(SampleAttributeTextValue.sample_attribute_id == attribute.id)
+            .filter(SampleAttributeTextValue.sample_id == Sample.id)
+            .filter(Sample.author_id == User.id)
+            .all()
+        )
 
     elif attribute.type.value == "Option":
-        settings = db.session.query(SampleAttributeOption).filter(
-            SampleAttributeOption.sample_attribute_id == attribute.id).all()
-        samples = db.session.query(SampleAttribute, Sample, User).filter(
-            SampleAttributeTextValue.sample_attribute_id == attribute.id
-        ).filter(SampleAttributeTextValue.sample_id == Sample.id).filter(
-            Sample.author_id == User.id).all()
+        settings = (
+            db.session.query(SampleAttributeOption)
+            .filter(SampleAttributeOption.sample_attribute_id == attribute.id)
+            .all()
+        )
+        samples = (
+            db.session.query(SampleAttribute, Sample, User)
+            .filter(SampleAttributeTextValue.sample_attribute_id == attribute.id)
+            .filter(SampleAttributeTextValue.sample_id == Sample.id)
+            .filter(Sample.author_id == User.id)
+            .all()
+        )
 
-    return render_template("sample/attribute/view.html",
-                           attribute=attribute,
-                           attribute_user=attribute_user,
-                           settings=settings,
-                           samples=samples)
+    return render_template(
+        "sample/attribute/view.html",
+        attribute=attribute,
+        attribute_user=attribute_user,
+        settings=settings,
+        samples=samples,
+    )

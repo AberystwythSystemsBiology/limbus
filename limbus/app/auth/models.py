@@ -22,13 +22,13 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_locked = db.Column(db.Boolean, default=False)
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
     @property
     def password(self) -> AttributeError:
@@ -40,10 +40,12 @@ class User(UserMixin, db.Model):
 
     @property
     def name(self) -> str:
-        ptu = db.session.query(ProfileToUser).filter(
-            ProfileToUser.user_id == self.id).first_or_404()
-        profile = db.session.query(Profile).filter(
-            Profile.id == ptu.id).first()
+        ptu = (
+            db.session.query(ProfileToUser)
+            .filter(ProfileToUser.user_id == self.id)
+            .first_or_404()
+        )
+        profile = db.session.query(Profile).filter(Profile.id == ptu.id).first()
         return "%s %s" % (profile.first_name, profile.last_name)
 
     @password.setter
@@ -70,13 +72,13 @@ class Profile(db.Model):
     middle_name = db.Column(db.String(128))
     last_name = db.Column(db.String(128))
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class ProfileToUser(db.Model):
@@ -96,13 +98,13 @@ class ProfileToAddress(db.Model):
     profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
     address = db.Column(db.Integer, db.ForeignKey("addresses.id"))
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class ProfileToBiobank(db.Model):
@@ -111,10 +113,10 @@ class ProfileToBiobank(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    creation_date = db.Column(db.DateTime,
-                              server_default=db.func.now(),
-                              nullable=False)
-    update_date = db.Column(db.DateTime,
-                            server_default=db.func.now(),
-                            server_onupdate=db.func.now(),
-                            nullable=False)
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )

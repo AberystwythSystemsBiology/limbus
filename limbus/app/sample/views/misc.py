@@ -15,7 +15,7 @@ def sap_portal():
     info = {
         "sample_count": db.session.query(Sample).count(),
         "sample_attr_count": db.session.query(SampleAttribute).count(),
-        "donor_count": 0
+        "donor_count": 0,
     }
 
     return render_template("sample/index.html", info=info)
@@ -24,6 +24,5 @@ def sap_portal():
 @sample.route("table/")
 @login_required
 def index():
-    samples = db.session.query(Sample,
-                               User).filter(Sample.author_id == User.id).all()
+    samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
     return render_template("sample/information/index.html", samples=samples)

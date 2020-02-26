@@ -22,12 +22,13 @@ def new_protocol():
 
         session["%s protocol_information" % (protocol_hash)] = {
             "name": form.name.data,
-            "type": form.type.data
+            "type": form.type.data,
         }
 
-        return redirect(url_for('processing.new_protocol_two', hash=protocol_hash))
+        return redirect(url_for("processing.new_protocol_two", hash=protocol_hash))
 
     return render_template("processing/protocols/new/one.html", form=form)
+
 
 @processing.route("/protocols/new/two/<hash>", methods=["GET", "POST"])
 def new_protocol_two(hash):
@@ -40,30 +41,33 @@ def new_protocol_two(hash):
                 "pre_cent": form.pc.data,
                 "cent": form.ce.data,
                 "sec_cent": form.sc.data,
-                "post_cent": form.pd.data
+                "post_cent": form.pd.data,
             }
 
-            return redirect(url_for('processing.new_protocol_three', hash=hash))
-
-
+            return redirect(url_for("processing.new_protocol_three", hash=hash))
 
     else:
         return abort(501)
 
     return render_template("processing/protocols/new/two.html", hash=hash, form=form)
-    
 
-    
+
+def _submit_fluid_protocol() -> None:
+    pass
+
+
 @processing.route("/protocols/new/three/<hash>", methods=["GET", "POST"])
 def new_protocol_three(hash):
 
+    info = session["%s protocol_information" % (protocol_hash)]
     sample_type = session["%s protocol_information" % (hash)]["type"]
     steps = session["%s steps" % (hash)]
 
     form = ProcessingInformation(sample_type, steps)
 
-
     if form.validate_on_submit():
-        pass
-
-    return render_template("processing/protocols/new/three.html", hash=hash, form=form, steps=steps)
+        if sample_type == "FLU":
+            _submit_fluid_protocol(info, steps, form)
+    return render_template(
+        "processing/protocols/new/three.html", hash=hash, form=form, steps=steps
+    )

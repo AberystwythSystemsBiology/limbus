@@ -14,8 +14,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = db.session.query(User).filter(
-            User.email == form.email.data).first()
+        user = db.session.query(User).filter(User.email == form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
             return redirect(url_for("misc.index"))
@@ -34,16 +33,16 @@ def logout():
 
 @auth.route("/profile", methods=["GET", "POST"])
 def profile():
-    user = db.session.query(User).filter(
-        User.id == current_user.id).first_or_404()
-    profile, _ = db.session.query(
-        Profile,
-        ProfileToUser).filter(ProfileToUser.user_id == current_user.id).filter(
-            ProfileToUser.profile_id == Profile.id).first_or_404()
+    user = db.session.query(User).filter(User.id == current_user.id).first_or_404()
+    profile, _ = (
+        db.session.query(Profile, ProfileToUser)
+        .filter(ProfileToUser.user_id == current_user.id)
+        .filter(ProfileToUser.profile_id == Profile.id)
+        .first_or_404()
+    )
 
     password_change = ChangePassword()
 
-    return render_template("auth/profile.html",
-                           user=user,
-                           profile=profile,
-                           password_change=password_change)
+    return render_template(
+        "auth/profile.html", user=user, profile=profile, password_change=password_change
+    )

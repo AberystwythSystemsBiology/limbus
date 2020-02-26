@@ -17,30 +17,33 @@ p = inflect.engine()
 
 
 class SampleCreationForm(FlaskForm):
-    sample_type = SelectField("Sample Type",
-                              validators=[DataRequired()],
-                              choices=SampleType.choices())
+    sample_type = SelectField(
+        "Sample Type", validators=[DataRequired()], choices=SampleType.choices()
+    )
 
     collection_date = DateField(validators=[DataRequired()])
 
-    sample_status = SelectField("Sample Status",
-                                validators=[DataRequired()],
-                                choices=SampleStatus.choices())
+    sample_status = SelectField(
+        "Sample Status", validators=[DataRequired()], choices=SampleStatus.choices()
+    )
 
     batch_number = StringField("Batch Number")
 
     disposal_date = DateField(validators=[DataRequired()])
-    disposal_instruction = SelectField("Disposal Instructions",
-                                       validators=[DataRequired()],
-                                       choices=DisposalInstruction.choices())
+    disposal_instruction = SelectField(
+        "Disposal Instructions",
+        validators=[DataRequired()],
+        choices=DisposalInstruction.choices(),
+    )
 
 
 class SampleAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
-    term_type = SelectField("Attribute Type",
-                            validators=[DataRequired()],
-                            choices=[(x.name, x.value)
-                                     for x in SampleAttributeTypes])
+    term_type = SelectField(
+        "Attribute Type",
+        validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in SampleAttributeTypes],
+    )
     required = BooleanField("Required")
     submit = SubmitField("Submit")
 
@@ -50,14 +53,17 @@ class SampleAttributionCreationFormText(FlaskForm):
         "Maximum Length",
         validators=[DataRequired()],
         description="The maximum length of characters that a user can enter",
-        default="1024")
+        default="1024",
+    )
     submit = SubmitField("Submit")
 
 
 class SampleAttributeCreationFormNumeric(FlaskForm):
-    type = SelectField("Unit of Measurement",
-                       validators=[DataRequired()],
-                       choices=[(x.name, x.value) for x in UnitsOfMeasurement])
+    type = SelectField(
+        "Unit of Measurement",
+        validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in UnitsOfMeasurement],
+    )
     submit = SubmitField("Submit")
 
 
@@ -84,34 +90,43 @@ def PatientConsentFormSelectForm():
 
     length = 0
 
-    patient_consent_forms = db.session.query(
-        ConsentFormTemplate, User).filter(ConsentFormTemplate.uploader == User.id).all()
+    patient_consent_forms = (
+        db.session.query(ConsentFormTemplate, User)
+        .filter(ConsentFormTemplate.uploader == User.id)
+        .all()
+    )
 
     choices = []
 
     for cf, user in patient_consent_forms:
         id = cf.id
         length += 1
-        choice = " LIMBPCF-%s: %s" % (
-            cf.id, cf.name)
+        choice = " LIMBPCF-%s: %s" % (cf.id, cf.name)
         choices.append([str(id), choice])
 
     setattr(
-        StaticForm, "form_select",
-        SelectField("Patient Consent Form Template",
-                    validators=[DataRequired()],
-                    choices=choices))
+        StaticForm,
+        "form_select",
+        SelectField(
+            "Patient Consent Form Template",
+            validators=[DataRequired()],
+            choices=choices,
+        ),
+    )
 
     setattr(StaticForm, "submit", SubmitField())
 
     return StaticForm(), length
+
 
 def PatientConsentQuestionnaire(questions) -> FlaskForm:
     class StaticForm(FlaskForm):
         pass
 
     for question in questions:
-        setattr(StaticForm, p.number_to_words(question.id), BooleanField(question.question))
+        setattr(
+            StaticForm, p.number_to_words(question.id), BooleanField(question.question)
+        )
 
     # Inject submit
 

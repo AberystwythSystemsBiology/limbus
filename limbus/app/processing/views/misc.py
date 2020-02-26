@@ -4,7 +4,7 @@ from flask_login import current_user
 
 from .. import processing
 
+
 @processing.route("/")
 def index():
     return render_template("processing/index.html")
-

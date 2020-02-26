@@ -1,8 +1,8 @@
-'''
+"""
     This is a helper class for Enumerated Types and wtforms.
 
     This needs proper documentation, but is not a priority right now.
-'''
+"""
 
 from enum import Enum
 

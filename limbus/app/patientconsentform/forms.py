@@ -7,5 +7,6 @@ class NewConsentFormTemplate(FlaskForm):
     name = StringField(
         "Template Name",
         validators=[DataRequired()],
-        description="Descriptive name for the Consent Form Template")
+        description="Descriptive name for the Consent Form Template",
+    )
     submit = SubmitField("Submit")

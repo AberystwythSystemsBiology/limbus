@@ -26,6 +26,7 @@ from .processing import processing as processing_blueprint
 
 DEMO = True
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
@@ -64,6 +65,7 @@ def create_app():
         app.register_blueprint(demo_blueprint, url_prefix="/demo")
 
     from app.admin import add_admin_views
+
     add_admin_views()
 
     @app.errorhandler(404)
