@@ -52,22 +52,28 @@ def new_protocol_two(hash):
     return render_template("processing/protocols/new/two.html", hash=hash, form=form)
 
 
-def _submit_fluid_protocol() -> None:
-    pass
+def _submit_fluid_protocol(info, steps, form) -> None:
+    print(info)
+    print(steps)
+    print([x for x in form])
 
 
 @processing.route("/protocols/new/three/<hash>", methods=["GET", "POST"])
 def new_protocol_three(hash):
 
-    info = session["%s protocol_information" % (protocol_hash)]
+    info = session["%s protocol_information" % (hash)]
     sample_type = session["%s protocol_information" % (hash)]["type"]
     steps = session["%s steps" % (hash)]
 
     form = ProcessingInformation(sample_type, steps)
 
     if form.validate_on_submit():
+
+    
         if sample_type == "FLU":
             _submit_fluid_protocol(info, steps, form)
+
+
     return render_template(
         "processing/protocols/new/three.html", hash=hash, form=form, steps=steps
     )
