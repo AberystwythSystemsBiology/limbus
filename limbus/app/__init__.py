@@ -22,9 +22,9 @@ from .donor import donor as donor_blueprint
 from .demo import demo as demo_blueprint
 from .api import api as api_blueprint
 from .patientconsentform import pcf as pcf_blueprint
+from .processing import processing as processing_blueprint
 
 DEMO = True
-
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -48,10 +48,12 @@ def create_app():
     from app.document import models as doc_models
     from app.sample import models as sample_models
     from app.patientconsentform import models as pcf_models
+    from app.processing import models as processing_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(processing_blueprint, url_prefix="/processing")
     app.register_blueprint(doc_blueprint, url_prefix="/documents")
     app.register_blueprint(sample_blueprint, url_prefix="/samples")
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
