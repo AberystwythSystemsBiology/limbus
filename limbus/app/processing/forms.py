@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL
 
 from ..sample.enums import SampleType
 
-from .enums import FluidContainer, ProcessingTemps, ProcessingTimes
+from .enums import FluidContainer, ProcessingTemps, ProcessingTimes, CentrifugationTime, CentrifugationWeights
 
 class NewProtocolForm(FlaskForm):
     name = StringField("Protocol Name", validators=[DataRequired()])
@@ -32,20 +32,50 @@ def ProcessingInformation(type, steps):
         choices=[(x.name, x.value) for x in ProcessingTimes]))
 
     def _centrifuge():
-        pass
+        setattr(StaticForm, "centr_time", SelectField("Centriguation Time", validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in CentrifugationTime]))
+
+        setattr(StaticForm, "centr_temp", SelectField("Centrifuge Temp", validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in ProcessingTemps]))
+
+        setattr(StaticForm, "centr_weight", SelectField("Centrifuge Weight", validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in CentrifugationWeights]))
+
+        setattr(StaticForm, "centr_braking", BooleanField("Braking?", validators=[DataRequired()]))
+
+
 
     def _second_centrifuge():
-        pass
+        setattr(StaticForm, "sec_centr_time", SelectField("Second Centriguation Time", validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in CentrifugationTime]))
+
+        setattr(StaticForm, "sec_centr_temp", SelectField("Second Centrifuge Temp", validators=[DataRequired()], choices=[(x.name, x.value) for x in ProcessingTemps]))
+
+        setattr(StaticForm, "sec_centr_weight", SelectField("Second Centrifuge Weight", validators=[DataRequired()], choices=[(x.name, x.value) for x in CentrifugationWeights]))
+
+        setattr(StaticForm, "sec_centr_braking", BooleanField("Braking?", validators=[DataRequired()]))
+        
 
     def _post_centrifuge():
-        pass
+        
+        setattr(StaticForm, "post_centr_time", SelectField("Second Centriguation Time", validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in CentrifugationTime]))
+
+        setattr(StaticForm, "post_centr_temp", SelectField("Second Centrifuge Temp", validators=[DataRequired()], choices=[(x.name, x.value) for x in ProcessingTemps]))
     
     if type == "FLU":
         setattr(StaticForm,"container", SelectField("Fluid Container", validators=[DataRequired()],
                        choices=[(x.name, x.value) for x in FluidContainer]))
 
-        if steps["pre-cent"]:
+        if steps["pre_cent"]:
             _pre_centrifuge()
+        if steps["cent"]:
+            _centrifuge()
+        if steps["sec_cent"]:
+            _second_centrifuge()
+        if steps["post_cent"]:
+            _post_centrifuge()
+        
 
     setattr(StaticForm, "submit", SubmitField())
     return StaticForm()

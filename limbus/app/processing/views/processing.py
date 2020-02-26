@@ -37,10 +37,10 @@ def new_protocol_two(hash):
 
         if form.validate_on_submit():
             session["%s steps" % (hash)] = {
-                "pre-cent": form.pc.data,
+                "pre_cent": form.pc.data,
                 "cent": form.ce.data,
-                "sec-cent": form.sc.data,
-                "post-cent": form.pd.data
+                "sec_cent": form.sc.data,
+                "post_cent": form.pd.data
             }
 
             return redirect(url_for('processing.new_protocol_three', hash=hash))
@@ -66,4 +66,4 @@ def new_protocol_three(hash):
     if form.validate_on_submit():
         pass
 
-    return render_template("processing/protocols/new/three.html", hash=hash, form=form)
+    return render_template("processing/protocols/new/three.html", hash=hash, form=form, steps=steps)
