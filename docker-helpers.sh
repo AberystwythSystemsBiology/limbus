@@ -10,6 +10,7 @@ function limbus-bwd() {
 }
 
 function limbus-deps() {
+    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install wheel"
     docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt && yarn install"
 }
 
