@@ -11,7 +11,7 @@
 
         <ul class="list-group">
         {% for q in pcf_view.questionnaire %}
-            <li class="list-group-item d-flex justify-content-between align-items-center{% if (q.answer) %} active{% endif %}">
+            <li class="list-group-item d-flex justify-content-between align-items-center{% if (q.answer == False) %} active{% endif %}">
                 {{ q.question }}
                 {% if (q.answer == True) %}
                     <span class="badge-pill"><i class="fa fa-check-circle"></i></span>
