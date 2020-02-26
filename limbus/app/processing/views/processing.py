@@ -69,10 +69,8 @@ def new_protocol_three(hash):
 
     if form.validate_on_submit():
 
-    
         if sample_type == "FLU":
             _submit_fluid_protocol(info, steps, form)
-
 
     return render_template(
         "processing/protocols/new/three.html", hash=hash, form=form, steps=steps

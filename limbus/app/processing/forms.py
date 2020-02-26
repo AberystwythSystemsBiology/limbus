@@ -95,9 +95,7 @@ def ProcessingInformation(type, steps):
         )
 
         setattr(
-            StaticForm,
-            "centr_braking",
-            BooleanField("Braking?"),
+            StaticForm, "centr_braking", BooleanField("Braking?"),
         )
 
     def _second_centrifuge():
@@ -132,9 +130,7 @@ def ProcessingInformation(type, steps):
         )
 
         setattr(
-            StaticForm,
-            "sec_centr_braking",
-            BooleanField("Braking?"),
+            StaticForm, "sec_centr_braking", BooleanField("Braking?"),
         )
 
     def _post_centrifuge():
