@@ -57,10 +57,10 @@ def new_protocol_two(hash):
 @processing.route("/protocols/new/three/<hash>", methods=["GET", "POST"])
 def new_protocol_three(hash):
 
-    type = session["%s protocol_information" % (hash)]["type"]
+    sample_type = session["%s protocol_information" % (hash)]["type"]
     steps = session["%s steps" % (hash)]
 
-    form = ProcessingInformation(type, steps)
+    form = ProcessingInformation(sample_type, steps)
 
 
     if form.validate_on_submit():
