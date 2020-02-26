@@ -7,7 +7,7 @@ class SampleType(FormEnum):
     TIS = "Tissue"
 
 
-class FluidSampleType(Enum):
+class FluidSampleType(FormEnum):
     ASC = "Ascites fluid"
     AMN = "Amniotic fluid"
     BAL = "Bronchoalveolar lavage"
@@ -35,7 +35,7 @@ class SampleStatus(FormEnum):
     MIS = "Missing"
 
 
-class SampleAttributeTypes(Enum):
+class SampleAttributeTypes(FormEnum):
     OPTION = "Option"
     TEXT = "Text"
     NUMERIC = "Numeric"
