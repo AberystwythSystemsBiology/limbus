@@ -11,7 +11,7 @@
             
           </div>
 
-          <form method="POST" action="{{url_for('processing.new_protocol')}}">
+          <form method="POST" action="{{url_for('processing.new_protocol_two', hash=hash)}}">
               {{ form.csrf_token() }}
                 {% for element in form %}
                     {% if (element.type == "BooleanField") %}

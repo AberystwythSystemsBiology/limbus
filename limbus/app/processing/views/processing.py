@@ -29,21 +29,31 @@ def new_protocol():
 
     return render_template("processing/protocols/new/one.html", form=form)
 
-@processing.route("/protocols/new/two/<hash>")
+@processing.route("/protocols/new/two/<hash>", methods=["GET", "POST"])
 def new_protocol_two(hash):
 
     if session["%s protocol_information" % (hash)]["type"] == "FLU":
         form = FluidCheckList()
 
         if form.validate_on_submit():
-            session["%s fluid_steps"] = {
-                "pre-cent": form.
+            session["%s steps" % (hash)] = {
+                "pre-cent": form.pc.data,
+                "cent": form.ce.data,
+                "sec-cent": form.sc.data,
+                "post-cent": form.pd.data
             }
+
+            return redirect(url_for('processing.new_protocol_three', hash=hash))
+
+
 
     else:
         return abort(501)
 
-    return render_template("processing/protocols/new/two.html", form=form)
+    return render_template("processing/protocols/new/two.html", hash=hash, form=form)
     
 
     
+@processing.route("/protocols/new/three/<hash>", methods=["GET", "POST"])
+def new_protocol_three(hash):
+    return str(hash)
