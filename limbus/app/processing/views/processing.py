@@ -8,12 +8,18 @@ from ..forms import NewProtocolForm, FluidCheckList, ProcessingInformation
 
 from ...misc.generators import generate_random_hash
 
+from ... import db
+from ...auth.models import User
 
 from ..models import *
 
 @processing.route("/protocols")
 def protocol_index():
-    return render_template("processing/protocols/index.html")
+    protocols = db.session.query(ProcessingTemplate, User).filter(
+        ProcessingTemplate.author_id == User.id
+    ).all()
+
+    return render_template("processing/protocols/index.html", protocols=protocols)
 
 
 @processing.route("/protocols/new", methods=["GET", "POST"])
@@ -54,82 +60,73 @@ def new_protocol_two(hash):
     return render_template("processing/protocols/new/two.html", hash=hash, form=form)
 
 
-def _submit_fluid_protocol(info, steps, form) -> None:
-    
-    
-    u_id = current_user.id
-    
 
-    pi = ProcessingTemplate(
-        name = info["name"],
-        sample_type = info["type"],
-        author_id = u_id
-    )
+@processing.route("/protocols/view/LIMBPRO-<protocol_id>")
+def view_protocol(protocol_id):
+    _protocol = db.session.query(ProcessingTemplate).filter(ProcessingTemplate.id == protocol_id).first()
 
-    db.session.add(pi)
-    db.session.flush()
+    if _protocol.sample_type == SampleType.FLU:
+        _container = db.session.query(ProcessingTemplateFluidContainer).filter(ProcessingTemplateFluidContainer.template_id == _protocol.id).first_or_404()
+        _pre_centr = db.session.query(PreCentrifugeInformation).filter(PreCentrifugeInformation.template_id == _protocol.id).first()
+        _cent = db.session.query(CentrifugeInformation).filter(CentrifugeInformation.template_id == _protocol.id).all()
+        _post = db.session.query(PostCentrifugeInformation).filter(PostCentrifugeInformation.template_id == _protocol.id).first_or_404()
 
-    ptfc = ProcessingTemplateFluidContainer(
-        container = form.container.data,
-        template_id = pi.id,
-        author_id = u_id
-    )
+        class Protocol:
+            def __init__(self):
+                self._prepare_template()
+                self._prepare_container()
+                self._prepare_pre_centr()
+                self._prepare_centr()
+                self._prepare_post_centre()
 
-    db.session.add(ptfc)
-    db.session.flush()
+            def _prepare_template(self):
+                self.id = _protocol.id
+                self.template_info = {
+                    "template_name": _protocol.name,
+                    "sample_type": _protocol.sample_type
+                }
 
-    if steps["pre_cent"]:
-        pci = PreCentrifugeInformation(
-            temp = form.pre_centr_temp,
-            time = form.pre_centr_time,
-            template_id = pi.id,
-            uploader = u_id
-        )
+            def _prepare_container(self):
+                self.container_info = {
+                    "type": _container.container
+                }
 
-        db.session.add(pci)
+            def _prepare_pre_centr(self):
+                if _pre_centr != None:
+                    self.pre_centr_info = {
+                        "temp": _pre_centr.temp,
+                        "time": _pre_centr.time
+                    }
+                else:
+                    self.pre_centr_info = False
 
-    if steps["cent"]:
-        ci = CentrifugeInformation(
-            temp = form.centr_temp.data,
-            time = form.centr_time.data,
-            weight = form.centr_weight.data,
-            braking = form.centr_braking.data,
-            template_id = pi.id,
-            second = False,
-            uploader = u_id
-        )
+            def _prepare_centr(self):
+                self.centr = False
+                self.sec_centr = False
+                for centr in _cent:
+                    centr_info = {
+                        "temp": centr.temp,
+                        "time": centr.time,
+                        "weight": centr.weight,
+                        "braking": centr.weight,
+                        "second": centr.second
+                    }
+                    if not centr.second:
+                        self.centr = centr_info
+                    else:
+                        self.sec_centr = centr_info
 
-        db.session.add(ci)
-        db.session.flush()
+            def _prepare_post_centre(self):
+                self.post_centr = False
+                if _post != None:
+                    self.post_centr = {
+                        "temp": _post.temp,
+                        "time": _post.time
+                    }
 
 
-        if steps["sec_cent"]:
-            sci = CentrifugeInformation(
-                temp = form.sec_centr_temp.data,
-                time = form.sec_centr_time.data,
-                weight = form.sec_centr_weight.data,
-                braking = form.sec_centr_braking.data,
-                template_id = pi.id,
-                second = True,
-                uploader = u_id
-            )
 
-            db.session.add(sci)
-            db.session.flush()
-
-        
-
-    if steps["post_cent"]:
-        pci = PostCentrifugeInformation(
-            temp = form.post_centr_temp,
-            time = form.post_centr_time,
-            template_id = pi.id,
-            uploader = u_id
-        )
-
-        db.session.add(pci)
-
-    db.session.commit()
+    return render_template("processing/protocols/view.html", protocol=Protocol())
 
 
 @processing.route("/protocols/new/three/<hash>", methods=["GET", "POST"])
@@ -144,9 +141,75 @@ def new_protocol_three(hash):
     if form.validate_on_submit():
 
         if sample_type == "FLU":
-            _submit_fluid_protocol(info, steps, form)
+            pi = ProcessingTemplate(
+                name=info["name"],
+                sample_type=info["type"],
+                author_id=1
+            )
 
-        return redirect(url_for('processing.protocols_index'))
+            db.session.add(pi)
+            db.session.flush()
+
+            ptfc = ProcessingTemplateFluidContainer(
+                container=form.container.data,
+                template_id=pi.id,
+                author_id=current_user.id
+            )
+
+            db.session.add(ptfc)
+            db.session.flush()
+
+            if steps["pre_cent"]:
+                pci = PreCentrifugeInformation(
+                    temp=form.pre_centr_temp.data,
+                    time=form.pre_centr_time.data,
+                    template_id=pi.id,
+                    author_id=current_user.id
+                )
+
+                db.session.add(pci)
+
+            if steps["cent"]:
+                ci = CentrifugeInformation(
+                    temp=form.centr_temp.data,
+                    time=form.centr_time.data,
+                    weight=form.centr_weight.data,
+                    braking=form.centr_braking.data,
+                    template_id=pi.id,
+                    second=False,
+                    author_id=current_user.id
+                )
+
+                db.session.add(ci)
+                db.session.flush()
+
+                if steps["sec_cent"]:
+                    sci = CentrifugeInformation(
+                        temp=form.sec_centr_temp.data,
+                        time=form.sec_centr_time.data,
+                        weight=form.sec_centr_weight.data,
+                        braking=form.sec_centr_braking.data,
+                        template_id=pi.id,
+                        second=True,
+                        author_id=current_user.id
+                    )
+
+                    db.session.add(sci)
+                    db.session.flush()
+
+            if steps["post_cent"]:
+                pci = PostCentrifugeInformation(
+                    temp=form.post_centr_temp.data,
+                    time=form.post_centr_time.data,
+                    template_id=pi.id,
+                    author_id=current_user.id
+                )
+
+                db.session.add(pci)
+
+            db.session.commit()
+
+        return redirect(url_for('processing.protocol_index'))
 
     return render_template(
         "processing/protocols/new/three.html", hash=hash, form=form, steps=steps

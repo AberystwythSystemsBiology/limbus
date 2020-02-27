@@ -1,5 +1,6 @@
 from app import db
 from ..sample.enums import SampleType
+
 from .enums import (
     FluidContainer,
     ProcessingTemps,
@@ -13,8 +14,11 @@ class ProcessingTemplate(db.Model):
     __tablename__ = "processing_templates"
 
     id = db.Column(db.Integer, primary_key=True)
+
     name = db.Column(db.String(128))
     sample_type = db.Column(db.Enum(SampleType))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     update_date = db.Column(
@@ -24,16 +28,17 @@ class ProcessingTemplate(db.Model):
         nullable=False,
     )
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
-class ProcessingTemplateFluidContainer:
+class ProcessingTemplateFluidContainer(db.Model):
     __tablename__ = "processing_template_fluid_containers"
     id = db.Column(db.Integer, primary_key=True)
 
     container = db.Column(db.Enum(FluidContainer))
     template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.id"))
 
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     update_date = db.Column(
@@ -42,8 +47,6 @@ class ProcessingTemplateFluidContainer:
         server_onupdate=db.func.now(),
         nullable=False,
     )
-    # Relationship to User
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class PreCentrifugeInformation(db.Model):
@@ -55,6 +58,7 @@ class PreCentrifugeInformation(db.Model):
     time = db.Column(db.Enum(ProcessingTimes))
 
     template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
@@ -64,8 +68,6 @@ class PreCentrifugeInformation(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-    # Relationship to User
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class CentrifugeInformation(db.Model):
@@ -81,6 +83,7 @@ class CentrifugeInformation(db.Model):
     second = db.Column(db.Boolean)
 
     template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
@@ -90,9 +93,6 @@ class CentrifugeInformation(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-    # Relationship to User
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
 
 class PostCentrifugeInformation(db.Model):
     __tablename__ = "post_centrifuge_information"
@@ -103,6 +103,7 @@ class PostCentrifugeInformation(db.Model):
     time = db.Column(db.Enum(ProcessingTimes))
 
     template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
@@ -112,5 +113,3 @@ class PostCentrifugeInformation(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-    # Relationship to User
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
