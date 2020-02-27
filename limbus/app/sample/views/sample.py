@@ -89,7 +89,7 @@ def view(sample_id):
         option_attr=option_attr,
         associated_document=associated_document,
         consent_template=consent_template,
-        protocol=template
+        protocol=template,
     )
 
 
