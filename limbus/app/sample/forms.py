@@ -27,8 +27,6 @@ class SampleCreationForm(FlaskForm):
         "Sample Status", validators=[DataRequired()], choices=SampleStatus.choices()
     )
 
-    batch_number = StringField("Batch Number")
-
     disposal_date = DateField(validators=[DataRequired()])
     disposal_instruction = SelectField(
         "Disposal Instructions",

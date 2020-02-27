@@ -10,7 +10,6 @@ class Sample(db.Model):
     sample_type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)
     disposal_instruction = db.Column(db.Enum(DisposalInstruction))
-    batch_number = db.Column(db.Integer)
 
     sample_status = db.Column(db.Enum(SampleStatus))
 
