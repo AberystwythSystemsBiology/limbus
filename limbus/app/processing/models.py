@@ -13,8 +13,8 @@ class ProcessingTemplate(db.Model):
     __tablename__ = "processing_templates"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    type = db.Column(db.Enum(SampleType))
+    name = db.Column(db.String(128))
+    sample_type = db.Column(db.Enum(SampleType))
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     update_date = db.Column(
@@ -23,8 +23,8 @@ class ProcessingTemplate(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-    # Relationship to User
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class ProcessingTemplateFluidContainer:
@@ -43,7 +43,7 @@ class ProcessingTemplateFluidContainer:
         nullable=False,
     )
     # Relationship to User
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class PreCentrifugeInformation(db.Model):
@@ -65,7 +65,7 @@ class PreCentrifugeInformation(db.Model):
         nullable=False,
     )
     # Relationship to User
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class CentrifugeInformation(db.Model):
@@ -91,7 +91,7 @@ class CentrifugeInformation(db.Model):
         nullable=False,
     )
     # Relationship to User
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class PostCentrifugeInformation(db.Model):
@@ -113,4 +113,4 @@ class PostCentrifugeInformation(db.Model):
         nullable=False,
     )
     # Relationship to User
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
