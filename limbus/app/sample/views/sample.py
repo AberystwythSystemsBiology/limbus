@@ -11,12 +11,16 @@ from ...document.models import Document, PatientConsentForm
 
 from ...auth.models import User
 
+from ...processing.models import ProcessingTemplate
+
 from ..forms import (
     SampleCreationForm,
     DynamicAttributeSelectForm,
     p,
     PatientConsentFormSelectForm,
     PatientConsentQuestionnaire,
+    SampleTypeSelectForm,
+    ProtocolTemplateSelectForm,
 )
 
 from ...dynform import DynamicAttributeFormGenerator, clear_session
@@ -69,6 +73,15 @@ def view(sample_id):
         .first_or_404()
     )
 
+    _, template = (
+        db.session.query(SampleProcessingTemplateAssociation, ProcessingTemplate)
+        .filter(SampleProcessingTemplateAssociation.sample_id == sample_id)
+        .filter(
+            ProcessingTemplate.id == SampleProcessingTemplateAssociation.template_id
+        )
+        .first_or_404()
+    )
+
     return render_template(
         "sample/sample/view.html",
         sample=sample,
@@ -76,6 +89,7 @@ def view(sample_id):
         option_attr=option_attr,
         associated_document=associated_document,
         consent_template=consent_template,
+        protocol=template
     )
 
 
@@ -182,7 +196,7 @@ def add_sample_pcf_data(hash):
                     ticked.append(conv[q.name])
 
         session["%s checked_consent" % (hash)] = ticked
-        return redirect(url_for("sample.add_sample_attr", hash=hash))
+        return redirect(url_for("sample.select_sample_type", hash=hash))
 
     return render_template(
         "sample/sample/add/step_two.html",
@@ -192,7 +206,41 @@ def add_sample_pcf_data(hash):
     )
 
 
-@sample.route("add/two_old/<hash>", methods=["GET", "POST"])
+@sample.route("add/three/<hash>", methods=["GET", "POST"])
+@login_required
+def select_sample_type(hash):
+    form = SampleTypeSelectForm()
+
+    if form.validate_on_submit():
+        session["%s sample_type" % (hash)] = form.sample_type.data
+
+        return redirect(url_for("sample.select_processing_protocol", hash=hash))
+
+    return render_template("sample/sample/add/step_three.html", form=form, hash=hash)
+
+
+@sample.route("add/four/<hash>", methods=["GET", "POST"])
+def select_processing_protocol(hash):
+    templates = (
+        db.session.query(ProcessingTemplate)
+        .filter(ProcessingTemplate.sample_type == session["%s sample_type" % (hash)])
+        .all()
+    )
+    form, _ = ProtocolTemplateSelectForm(templates)
+
+    if form.validate_on_submit():
+        session["%s processing_protocol" % (hash)] = form.form_select.data
+        return redirect(url_for("sample.add_sample_attr", hash=hash))
+
+    return render_template(
+        "sample/sample/add/step_four.html",
+        templates=len(templates),
+        form=form,
+        hash=hash,
+    )
+
+
+@sample.route("add/five/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_attr(hash):
 
@@ -211,11 +259,11 @@ def add_sample_attr(hash):
 
         return redirect(url_for("sample.add_sample_form", hash=hash))
     return render_template(
-        "sample/sample/add/step_three.html", form=attr_selection, hash=hash
+        "sample/sample/add/step_five.html", form=attr_selection, hash=hash
     )
 
 
-@sample.route("add/three/<hash>", methods=["GET", "POST"])
+@sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_form(hash):
     query = (
@@ -227,13 +275,12 @@ def add_sample_form(hash):
 
     if form.validate_on_submit():
         sample = Sample(
-            sample_type=form.sample_type.data,
+            sample_type=session["%s sample_type" % (hash)],
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
             disposal_date=form.disposal_date.data,
             author_id=current_user.id,
             sample_status=form.sample_status.data,
-            batch_number=form.batch_number.data,
         )
 
         db.session.add(sample)
@@ -290,6 +337,15 @@ def add_sample_form(hash):
         db.session.add(spcfta)
         db.session.flush()
 
+        spta = SampleProcessingTemplateAssociation(
+            sample_id=sample.id,
+            template_id=session["%s processing_protocol" % (hash)],
+            author_id=current_user.id,
+        )
+
+        db.session.add(spta)
+        db.session.flush()
+
         for answer in session["%s checked_consent" % (hash)]:
             spcfaa = SamplePatientConsentFormAnswersAssociation(
                 sample_pcf_association_id=spcfta.id,
@@ -300,11 +356,12 @@ def add_sample_form(hash):
             db.session.add(spcfaa)
 
         db.session.commit()
+
         clear_session(hash)
 
         return redirect(url_for("sample.index"))
 
-    return render_template("sample/sample/add/step_four.html", form=form, hash=hash)
+    return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
 
 
 @sample.route("view/LIMBSMP-<sample_id>/associate_doc", methods=["GET", "POST"])
@@ -314,6 +371,7 @@ def associate_document(sample_id):
     query = db.session.query(Document).all()
     conv = {p.number_to_words(x.id): x.id for x in query}
     form = DynamicAttributeSelectForm(query, "name")
+
     if form.validate_on_submit():
         for attr in form:
             if attr.id in conv and attr.data == True:

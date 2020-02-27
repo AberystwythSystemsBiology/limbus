@@ -17,9 +17,6 @@ p = inflect.engine()
 
 
 class SampleCreationForm(FlaskForm):
-    sample_type = SelectField(
-        "Sample Type", validators=[DataRequired()], choices=SampleType.choices()
-    )
 
     collection_date = DateField(validators=[DataRequired()])
 
@@ -117,6 +114,36 @@ def PatientConsentFormSelectForm():
     return StaticForm(), length
 
 
+# TODO: Duplicate Code
+def ProtocolTemplateSelectForm(templates):
+    class StaticForm(FlaskForm):
+        pass
+
+    length = 0
+
+    choices = []
+
+    for t in templates:
+        id = t.id
+        length += 1
+        choice = " LIMBPRO-%s: %s" % (id, t.name)
+        choices.append([str(id), choice])
+
+    setattr(
+        StaticForm,
+        "form_select",
+        SelectField(
+            "Processing Protocol Template",
+            validators=[DataRequired()],
+            choices=choices,
+        ),
+    )
+
+    setattr(StaticForm, "submit", SubmitField())
+
+    return StaticForm(), length
+
+
 def PatientConsentQuestionnaire(questions) -> FlaskForm:
     class StaticForm(FlaskForm):
         pass
@@ -130,3 +157,10 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
     setattr(StaticForm, "submit", SubmitField("Submit"))
     return StaticForm()
+
+
+class SampleTypeSelectForm(FlaskForm):
+    sample_type = SelectField(
+        "Sample Type", validators=[DataRequired()], choices=SampleType.choices()
+    )
+    submit = SubmitField("Submit")

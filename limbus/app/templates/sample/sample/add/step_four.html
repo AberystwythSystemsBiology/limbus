@@ -1,22 +1,35 @@
 {% extends "template.html" %}
 
-{% block title %}Add Sample{% endblock %}
+{% block title %}New Sample: Step Four{% endblock %}
+
+
 
 {% block body %}
     <div class="container">
+        
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> Step Four: Enter Sample Attribute Information</h2>
-          </div>
+            <h2><i class="fas fa-vial"></i> New Sample: Step Four</h2>
+        </div>
+        
+        <p>Before we continue, you must first link the sample to processing protocol template.</p>
 
-        <form method="POST" action="{{ url_for('sample.add_sample_form', hash=hash) }}">
-            {{ form.csrf_token }}
-            {% for attribute in form %}
-                {% if attribute.id != "csrf_token" %}
-                    {{ form_field(attribute) }}
-                {% else %}
-                    {{ attribute }}
-                {% endif %}
-            {% endfor %}
-        </form>
+
+        {% if templates > 0 %}
+            <form action="{{ url_for('sample.select_processing_protocol', hash=hash) }}" method="POST">
+                {{ form.csrf_token }}
+                {{ form_field(form.form_select) }}
+                {{ form_field(form.submit) }}
+            </form>
+        {% else %}
+            <div class="alert alert-danger text-center">
+                <b>Error:</b> There are no suitable processing protocol templates, please create one before continuing.
+            </div>
+
+            <a href="{{ url_for('processing.new_protocol') }}">
+                <div class="btn btn-primary full-width">
+                    New Patient Consent Form Template
+                </div>
+            </a>
+        {% endif %}
     </div>
 {% endblock %}
