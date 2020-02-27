@@ -13,11 +13,14 @@ from ...auth.models import User
 
 from ..models import *
 
+
 @processing.route("/protocols")
 def protocol_index():
-    protocols = db.session.query(ProcessingTemplate, User).filter(
-        ProcessingTemplate.author_id == User.id
-    ).all()
+    protocols = (
+        db.session.query(ProcessingTemplate, User)
+        .filter(ProcessingTemplate.author_id == User.id)
+        .all()
+    )
 
     return render_template("processing/protocols/index.html", protocols=protocols)
 
@@ -60,16 +63,35 @@ def new_protocol_two(hash):
     return render_template("processing/protocols/new/two.html", hash=hash, form=form)
 
 
-
 @processing.route("/protocols/view/LIMBPRO-<protocol_id>")
 def view_protocol(protocol_id):
-    _protocol = db.session.query(ProcessingTemplate).filter(ProcessingTemplate.id == protocol_id).first()
+    _protocol = (
+        db.session.query(ProcessingTemplate)
+        .filter(ProcessingTemplate.id == protocol_id)
+        .first()
+    )
 
     if _protocol.sample_type == SampleType.FLU:
-        _container = db.session.query(ProcessingTemplateFluidContainer).filter(ProcessingTemplateFluidContainer.template_id == _protocol.id).first_or_404()
-        _pre_centr = db.session.query(PreCentrifugeInformation).filter(PreCentrifugeInformation.template_id == _protocol.id).first()
-        _cent = db.session.query(CentrifugeInformation).filter(CentrifugeInformation.template_id == _protocol.id).all()
-        _post = db.session.query(PostCentrifugeInformation).filter(PostCentrifugeInformation.template_id == _protocol.id).first_or_404()
+        _container = (
+            db.session.query(ProcessingTemplateFluidContainer)
+            .filter(ProcessingTemplateFluidContainer.template_id == _protocol.id)
+            .first_or_404()
+        )
+        _pre_centr = (
+            db.session.query(PreCentrifugeInformation)
+            .filter(PreCentrifugeInformation.template_id == _protocol.id)
+            .first()
+        )
+        _cent = (
+            db.session.query(CentrifugeInformation)
+            .filter(CentrifugeInformation.template_id == _protocol.id)
+            .all()
+        )
+        _post = (
+            db.session.query(PostCentrifugeInformation)
+            .filter(PostCentrifugeInformation.template_id == _protocol.id)
+            .first_or_404()
+        )
 
         class Protocol:
             def __init__(self):
@@ -83,19 +105,17 @@ def view_protocol(protocol_id):
                 self.id = _protocol.id
                 self.template_info = {
                     "template_name": _protocol.name,
-                    "sample_type": _protocol.sample_type
+                    "sample_type": _protocol.sample_type,
                 }
 
             def _prepare_container(self):
-                self.container_info = {
-                    "type": _container.container
-                }
+                self.container_info = {"type": _container.container}
 
             def _prepare_pre_centr(self):
                 if _pre_centr != None:
                     self.pre_centr_info = {
                         "temp": _pre_centr.temp,
-                        "time": _pre_centr.time
+                        "time": _pre_centr.time,
                     }
                 else:
                     self.pre_centr_info = False
@@ -109,7 +129,7 @@ def view_protocol(protocol_id):
                         "time": centr.time,
                         "weight": centr.weight,
                         "braking": centr.weight,
-                        "second": centr.second
+                        "second": centr.second,
                     }
                     if not centr.second:
                         self.centr = centr_info
@@ -119,12 +139,7 @@ def view_protocol(protocol_id):
             def _prepare_post_centre(self):
                 self.post_centr = False
                 if _post != None:
-                    self.post_centr = {
-                        "temp": _post.temp,
-                        "time": _post.time
-                    }
-
-
+                    self.post_centr = {"temp": _post.temp, "time": _post.time}
 
     return render_template("processing/protocols/view.html", protocol=Protocol())
 
@@ -142,9 +157,7 @@ def new_protocol_three(hash):
 
         if sample_type == "FLU":
             pi = ProcessingTemplate(
-                name=info["name"],
-                sample_type=info["type"],
-                author_id=1
+                name=info["name"], sample_type=info["type"], author_id=1
             )
 
             db.session.add(pi)
@@ -153,7 +166,7 @@ def new_protocol_three(hash):
             ptfc = ProcessingTemplateFluidContainer(
                 container=form.container.data,
                 template_id=pi.id,
-                author_id=current_user.id
+                author_id=current_user.id,
             )
 
             db.session.add(ptfc)
@@ -164,7 +177,7 @@ def new_protocol_three(hash):
                     temp=form.pre_centr_temp.data,
                     time=form.pre_centr_time.data,
                     template_id=pi.id,
-                    author_id=current_user.id
+                    author_id=current_user.id,
                 )
 
                 db.session.add(pci)
@@ -177,7 +190,7 @@ def new_protocol_three(hash):
                     braking=form.centr_braking.data,
                     template_id=pi.id,
                     second=False,
-                    author_id=current_user.id
+                    author_id=current_user.id,
                 )
 
                 db.session.add(ci)
@@ -191,7 +204,7 @@ def new_protocol_three(hash):
                         braking=form.sec_centr_braking.data,
                         template_id=pi.id,
                         second=True,
-                        author_id=current_user.id
+                        author_id=current_user.id,
                     )
 
                     db.session.add(sci)
@@ -202,14 +215,14 @@ def new_protocol_three(hash):
                     temp=form.post_centr_temp.data,
                     time=form.post_centr_time.data,
                     template_id=pi.id,
-                    author_id=current_user.id
+                    author_id=current_user.id,
                 )
 
                 db.session.add(pci)
 
             db.session.commit()
 
-        return redirect(url_for('processing.protocol_index'))
+        return redirect(url_for("processing.protocol_index"))
 
     return render_template(
         "processing/protocols/new/three.html", hash=hash, form=form, steps=steps

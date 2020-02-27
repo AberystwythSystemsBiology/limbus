@@ -1,6 +1,7 @@
 from app import db
 from .enums import SampleType, DisposalInstruction, SampleAttributeTypes, SampleStatus
 
+
 class Sample(db.Model):
     __tablename__ = "samples"
 

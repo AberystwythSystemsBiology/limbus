@@ -29,7 +29,6 @@ class ProcessingTemplate(db.Model):
     )
 
 
-
 class ProcessingTemplateFluidContainer(db.Model):
     __tablename__ = "processing_template_fluid_containers"
     id = db.Column(db.Integer, primary_key=True)
@@ -93,6 +92,7 @@ class CentrifugeInformation(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
+
 
 class PostCentrifugeInformation(db.Model):
     __tablename__ = "post_centrifuge_information"
