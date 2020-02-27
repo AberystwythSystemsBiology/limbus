@@ -8,56 +8,56 @@
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fa fa-project-diagram"></i> New Protocol: Step Three</h2>
-            
-          </div>
-            
-          <form method="POST" action="{{url_for('processing.new_protocol_three', hash=hash)}}">
-              {{ form.csrf_token() }}
-                
-                {{ form_field(form.container) }}
-                
-                {% if steps["pre_cent"] %}
+
+        </div>
+
+        <form method="POST" action="{{ url_for('processing.new_protocol_three', hash=hash) }}">
+            {{ form.csrf_token() }}
+
+            {{ form_field(form.container) }}
+
+            {% if steps["pre_cent"] %}
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                    <h2>Pre-Centrifuge Information</h5>     
-                  </div>
-                {{ form_field(form.pre_centr_temp )}}
-                {{ form_field(form.pre_centr_time )}}
-                {%endif%}
-                {% if steps["cent"] %}
+                    <h2>Pre-Centrifuge Information</h5>
+                </div>
+                {{ form_field(form.pre_centr_temp ) }}
+                {{ form_field(form.pre_centr_time ) }}
+            {% endif %}
+            {% if steps["cent"] %}
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                    <h2>Centrifuge Information</h5>     
-                  </div>
-                
-                  {{ form_field(form.centr_time)}}
-                  {{ form_field(form.centr_temp)}}
-                  {{ form_field(form.centr_weight)}}
-                  {{ form_field(form.centr_braking)}}
+                    <h2>Centrifuge Information</h5>
+                </div>
 
-                {% endif %}
+                {{ form_field(form.centr_time) }}
+                {{ form_field(form.centr_temp) }}
+                {{ form_field(form.centr_weight) }}
+                {{ form_field(form.centr_braking) }}
 
-                {% if steps["sec_cent"] %}
+            {% endif %}
+
+            {% if steps["sec_cent"] %}
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                    <h2>Second Centrifuge Information</h5>     
-                  </div>
-                  {{form_field(form.sec_centr_time)}}
-                  {{form_field(form.sec_centr_temp)}}
+                    <h2>Second Centrifuge Information</h5>
+                </div>
+                {{ form_field(form.sec_centr_time) }}
+                {{ form_field(form.sec_centr_temp) }}
 
-                  {{form_field(form.sec_centr_weight)}}
-                  {{form_field(form.sec_centr_braking)}}
-                {%endif%}
+                {{ form_field(form.sec_centr_weight) }}
+                {{ form_field(form.sec_centr_braking) }}
+            {% endif %}
 
-                {% if steps["post_cent"] %}
+            {% if steps["post_cent"] %}
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                    <h2>Post Centrifuge Information</h5>     
-                  </div>     
-                  {{form_field(form.post_centr_temp)}}
-                  {{form_field(form.post_centr_time)}}
+                    <h2>Post Centrifuge Information</h5>
+                </div>
+                {{ form_field(form.post_centr_temp) }}
+                {{ form_field(form.post_centr_time) }}
 
 
-                {%endif %}
-              {{ form_field(form.submit)}}
-          </form>
-        
+            {% endif %}
+            {{ form_field(form.submit) }}
+        </form>
+
 
     </div>
 {% endblock %}

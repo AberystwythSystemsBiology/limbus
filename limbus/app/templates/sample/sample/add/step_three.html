@@ -6,17 +6,17 @@
 
 {% block body %}
     <div class="container">
-        
+
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fas fa-vial"></i> New Sample: Step Three</h2>
         </div>
-        
 
-            <form action="{{ url_for('sample.select_sample_type', hash=hash) }}" method="POST">
-                {{ form.csrf_token }}
-                {{ form_field(form.sample_type) }}
-                {{ form_field(form.submit) }}
-            </form>
+
+        <form action="{{ url_for('sample.select_sample_type', hash=hash) }}" method="POST">
+            {{ form.csrf_token }}
+            {{ form_field(form.sample_type) }}
+            {{ form_field(form.submit) }}
+        </form>
 
     </div>
 {% endblock %}

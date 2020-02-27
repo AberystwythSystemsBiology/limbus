@@ -12,18 +12,18 @@
 
         <h3>{{ pcf.name }}</h3>
 
-    <p>Please...</p>
+        <p>Please...</p>
 
-    <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
-    {{ questionnaire.csrf_token() }}
-    {% for question in questionnaire %}
-        {%  if (question.type == "BooleanField") %}
-            {{ form_field( question )}}
-        {% endif %}
-    {% endfor %}
-        {{ form_field(questionnaire.submit) }}
+        <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
+            {{ questionnaire.csrf_token() }}
+            {% for question in questionnaire %}
+                {% if (question.type == "BooleanField") %}
+                    {{ form_field( question ) }}
+                {% endif %}
+            {% endfor %}
+            {{ form_field(questionnaire.submit) }}
 
-    </form>
+        </form>
     </div>
 {% endblock %}
 

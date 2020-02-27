@@ -9,9 +9,9 @@
 {% block body %}
     <div class="container">
 
-         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fa fa-solar-panel"></i> {{ biobank.name }}: Overview Panel</h2>
-          </div>
+        </div>
 
         <div class="row">
             <div class="col col-sm">
@@ -20,16 +20,16 @@
             </div>
             <div class="col col-sm">
                 <div class="card">
-                  <div class="card-header">
-                    Samples Requiring Review
-                  </div>
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item">LIMBSMP-33</li>
-                    <li class="list-group-item">LIMBSMP-35</li>
-                    <li class="list-group-item">LIMBSMP-42</li>
-                      <li class="list-group-item">LIMBSMP-50</li>
-                      <li class="list-group-item">View more...</li>
-                  </ul>
+                    <div class="card-header">
+                        Samples Requiring Review
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">LIMBSMP-33</li>
+                        <li class="list-group-item">LIMBSMP-35</li>
+                        <li class="list-group-item">LIMBSMP-42</li>
+                        <li class="list-group-item">LIMBSMP-50</li>
+                        <li class="list-group-item">View more...</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -42,71 +42,71 @@
     <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
 
     <script>
-$(function(){
+        $(function () {
 
-  //get the line chart canvas
-  var ctx = $("#line-chartcanvas");
+            //get the line chart canvas
+            var ctx = $("#line-chartcanvas");
 
-  //line chart data
-  var data = {
-    labels: ["August 2019", "September 2019", "October 2019", "November 2019", "December 2019"],
-    datasets: [
-      {
-        label: "Samples",
-        data: [0, 7, 11, 34, 47],
-        backgroundColor: "blue",
-        borderColor: "lightblue",
-        fill: false,
-        lineTension: 0,
-        radius: 5
-      },
-      {
-        label: "Documents",
-        data: [1, 12, 19, 23, 40],
-        backgroundColor: "green",
-        borderColor: "lightgreen",
-        fill: false,
-        lineTension: 0,
-        radius: 5
-      },
-        {
-            label: "Sample Attributes",
-            data: [13, 24, 39, 48, 50],
-            backgroundColor: "orange",
-            borderColor: "lightorange",
-            fill: false,
-            lineTension: 0,
-            radius:5
-        }
-    ]
-  };
+            //line chart data
+            var data = {
+                labels: ["August 2019", "September 2019", "October 2019", "November 2019", "December 2019"],
+                datasets: [
+                    {
+                        label: "Samples",
+                        data: [0, 7, 11, 34, 47],
+                        backgroundColor: "blue",
+                        borderColor: "lightblue",
+                        fill: false,
+                        lineTension: 0,
+                        radius: 5
+                    },
+                    {
+                        label: "Documents",
+                        data: [1, 12, 19, 23, 40],
+                        backgroundColor: "green",
+                        borderColor: "lightgreen",
+                        fill: false,
+                        lineTension: 0,
+                        radius: 5
+                    },
+                    {
+                        label: "Sample Attributes",
+                        data: [13, 24, 39, 48, 50],
+                        backgroundColor: "orange",
+                        borderColor: "lightorange",
+                        fill: false,
+                        lineTension: 0,
+                        radius: 5
+                    }
+                ]
+            };
 
-  //options
-  var options = {
-    responsive: true,
-    title: {
-      display: true,
-      position: "top",
-      text: "Example Panel Chart",
-      fontSize: 18,
-      fontColor: "#111"
-    },
-    legend: {
-      display: true,
-      position: "bottom",
-      labels: {
-        fontColor: "#333",
-        fontSize: 16
-      }
-    }
-  };
+            //options
+            var options = {
+                responsive: true,
+                title: {
+                    display: true,
+                    position: "top",
+                    text: "Example Panel Chart",
+                    fontSize: 18,
+                    fontColor: "#111"
+                },
+                legend: {
+                    display: true,
+                    position: "bottom",
+                    labels: {
+                        fontColor: "#333",
+                        fontSize: 16
+                    }
+                }
+            };
 
-  //create Chart class object
-  var chart = new Chart(ctx, {
-    type: "line",
-    data: data,
-    options: options
-  });
-});
+            //create Chart class object
+            var chart = new Chart(ctx, {
+                type: "line",
+                data: data,
+                options: options
+            });
+        });
     </script>
 {% endblock %}

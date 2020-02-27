@@ -32,7 +32,8 @@
                             <td>{{ file.upload_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ user.email }}</td>
                             <td><a href="{{ url_for('document.get_file', doc_id=document.id, file_id=file.id) }}">
-                                <div class="btn btn-primary"><i class="fa fa-download"></i></div></a></td>
+                                <div class="btn btn-primary"><i class="fa fa-download"></i></div>
+                            </a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -60,7 +61,7 @@
                         <div class="card-footer">
                             <a href="{{ url_for('document.get_file', doc_id=document.id, file_id=files[0][1].id) }}">
                                 <div class="btn btn-primary">Download</div>
-                                </a>
+                            </a>
                         </div>
                     </div>
 

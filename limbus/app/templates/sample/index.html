@@ -7,22 +7,22 @@
     <div class="container">
 
 
-
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fas fa-vial"></i> Sample Acquisition Portal</h2>
-          </div>
+        </div>
         <p>Welcome to the Sample Acquisition Portal. Here you can find information concerning samples, including:</p>
 
         <div class="card-deck mb-3 text-center">
             <div class="card mb-4 box-shadow">
                 <div class="card-body">
-                    <h3 class="card-title pricing-card-title"><i class="fas fa-vial"></i>  Samples</h3>
+                    <h3 class="card-title pricing-card-title"><i class="fas fa-vial"></i> Samples</h3>
                     <ul class="list-unstyled mt-3 mb-4">
                         <p>This is where Sample information can be found.</p>
                     </ul>
-                        <button class="btn btn-lg btn-block btn-outline-primary" onclick="location.href='{{ url_for('sample.index') }}'">
-                            Go
-                        </button>
+                    <button class="btn btn-lg btn-block btn-outline-primary"
+                            onclick="location.href='{{ url_for('sample.index') }}'">
+                        Go
+                    </button>
                     </a>
                 </div>
             </div>
@@ -32,7 +32,8 @@
                     <ul class="list-unstyled mt-3 mb-4">
                         <p>This is where Sample Attribute information can be found.</p>
                     </ul>
-                    <button class="btn btn-lg btn-block btn-outline-primary" onclick="location.href='{{ url_for('sample.attribute_portal') }}'">
+                    <button class="btn btn-lg btn-block btn-outline-primary"
+                            onclick="location.href='{{ url_for('sample.attribute_portal') }}'">
                         Go
                     </button>
                 </div>
