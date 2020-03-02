@@ -34,19 +34,19 @@ class FluidContainer(FormEnum):
 # Replace this with something smarter.
 # Something like Room Temp - 2 to 10*C - 35 to 38 C etc...
 class ProcessingTemps(FormEnum):
-    A = "Room Temp"
+    A = "Room Temperature"
     B = "2 to 10°C"
-    C = "35 to 38°C"
+    C = "-35 to -38°C"
     U = "Unknown"
     O = "Other"
 
 
 class ProcessingTimes(FormEnum):
     A = "< 2 hours"
-    B = "2-4 hours"
-    C = "8-12 hours"
-    D = "12-24 hours"
-    E = "24-48 hours"
+    B = "2 to 4 hours"
+    C = "8 to 12 hours"
+    D = "12 to 24 hours"
+    E = "24 to 48 hours"
     F = "> 48 hours"
     U = "Unknown"
     O = "Other"
