@@ -32,3 +32,8 @@ h2 {
 
 .bottom5 { margin-bottom:5px; }
 . { margin-bottom:7px; }
+
+.equal {
+    display: -webkit-flex;
+    display: flex;
+}

@@ -14,6 +14,7 @@
         <form method="POST" action="{{ url_for('pcf.new' ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.name) }}
+            {{ form_field(form.version) }}
             {{ form_field(form.submit, with_label=False) }}
         </form>
     </div>

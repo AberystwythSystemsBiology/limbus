@@ -7,6 +7,8 @@ class ConsentFormTemplate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
 
+    version = db.Column(db.String(64))
+
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(
         db.DateTime,

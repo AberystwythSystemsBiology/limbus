@@ -23,13 +23,12 @@
                 {{ form_field(form.submit) }}
             </form>
         {% else %}
-            <div class="alert alert-danger text-center">
-                <b>Error:</b> There are no suitable patient consent form templates, please create one before continuing.
-            </div>
 
-            <a href="{{ url_for('processing.new_protocol') }}">
-                <div class="btn btn-primary full-width">
-                    New Patient Consent Form Template
+            <p>There are no patient consent form templates, please create one before continuing.</p>
+
+            <a href="{{ url_for('pcf.new') }}">
+                <div class="btn btn-primary">
+                    <i class="fa fa-plus"></i> Add Patient Consent Form Template
                 </div>
             </a>
         {% endif %}

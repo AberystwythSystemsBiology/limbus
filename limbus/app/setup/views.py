@@ -78,7 +78,7 @@ def biobank_registration():
             street_address_one=form.address_line_one.data,
             street_address_two=form.address_line_two.data,
             city=form.city.data,
-            country="GB",
+            country=form.country.data,
             post_code=form.post_code.data,
         )
 
