@@ -1,0 +1,26 @@
+{% extends "template.html" %}
+
+{% block title %}New Site{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-building"></i> New Site</h2>
+        </div>
+
+        <form action="{{ url_for('storage.add_site') }}">
+            {{ form_field(form.name) }}
+            {{ form_field(form.address_line_one) }}
+            {{ form_field(form.address_line_two) }}
+            {{ form_field(form.city) }}
+            {{ form_field(form.country) }}
+            {{ form_field(form.post_code) }}
+            {{ form_field(form.submit) }}
+
+        </form>
+
+
+    </div>
+{% endblock %}

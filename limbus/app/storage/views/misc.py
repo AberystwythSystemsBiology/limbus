@@ -1,9 +1,10 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
-
 from flask_login import current_user
-from .. import db
-from . import storage
+
+from ... import db
+from .. import storage
+
 
 @storage.route("/")
 def index():
-    return "Hello World"
+    return render_template("storage/index.html")

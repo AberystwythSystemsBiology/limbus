@@ -15,6 +15,19 @@ from datetime import datetime
 
 from ..document.models import Document
 
+@api.route("get_greeting")
+def get_greeting():
+    greetings = [
+        ["Helo", "Welsh"],
+        ["Hello", "English"],
+        ["Ni Hao", "Mandarin"],
+        ["Neih Ho", "Cantonese"],
+        ["Szia", "Hungarian"],
+        ["Moyo", "Tshiluba"],
+        ["Zdravo", "Serbian"]
+    ]
+
+    return jsonify({"greeting"})
 
 @api.route("document/<id>")
 @login_required
