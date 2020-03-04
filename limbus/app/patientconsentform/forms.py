@@ -10,10 +10,8 @@ class NewConsentFormTemplate(FlaskForm):
         description="Descriptive name for the Consent Form Template",
     )
 
-
-
-    version = StringField("Template Version", description="Version of the Protocol (if required)")
-
-
+    version = StringField(
+        "Template Version", description="Version of the Protocol (if required)"
+    )
 
     submit = SubmitField("Submit")

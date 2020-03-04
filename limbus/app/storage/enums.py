@@ -1,5 +1,6 @@
 from ..FormEnum import FormEnum
 
+
 class FixedColdStorageType(FormEnum):
     FRI = "Fridge"
     FRE = "Freezer"

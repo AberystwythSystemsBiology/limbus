@@ -11,10 +11,10 @@ from ukpostcodeutils import validation
 from ..auth.enums import Title
 import pycountry
 
+
 def post_code_validator(form, field):
     if not validation.is_valid_postcode(field.data):
-        raise ValidationError('Invalid UK Post Code')
-
+        raise ValidationError("Invalid UK Post Code")
 
 
 class BiobankRegistrationForm(FlaskForm):
@@ -37,12 +37,16 @@ class BiobankRegistrationForm(FlaskForm):
     address_line_two = StringField("Address Line2")
     city = StringField("Town/City", validators=[DataRequired()])
     county = StringField("County", validators=[DataRequired()])
-    country = SelectField("Country", validators=[DataRequired()], choices=[(country.alpha_2, country.name) for country in pycountry.countries])
-    post_code = StringField("Post Code", validators=[DataRequired(), post_code_validator],)
+    country = SelectField(
+        "Country",
+        validators=[DataRequired()],
+        choices=[(country.alpha_2, country.name) for country in pycountry.countries],
+    )
+    post_code = StringField(
+        "Post Code", validators=[DataRequired(), post_code_validator],
+    )
 
     submit = SubmitField("Register Biobank")
-
-
 
 
 from ..auth.forms import RegistrationForm

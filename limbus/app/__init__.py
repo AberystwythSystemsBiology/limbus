@@ -24,6 +24,7 @@ from .patientconsentform import pcf as pcf_blueprint
 from .processing import processing as processing_blueprint
 from .storage import storage as storage_blueprint
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
@@ -50,7 +51,6 @@ def create_app():
     from app.processing import models as processing_models
     from app.storage import models as storage_models
 
-
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
@@ -61,7 +61,6 @@ def create_app():
     app.register_blueprint(api_blueprint, url_prefix="/api")
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
-
 
     from app.admin import add_admin_views
 

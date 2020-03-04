@@ -1,6 +1,7 @@
 from app import db
 from .enums import *
 
+
 class Site(db.Model):
     __tablename__ = "sites"
     id = db.Column(db.Integer, primary_key=True)
@@ -18,6 +19,7 @@ class Site(db.Model):
     )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class Room(db.Model):
     __tablename__ = "rooms"
@@ -38,6 +40,7 @@ class Room(db.Model):
     )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class FixedColdStorage(db.Model):
     __tablename__ = "fixed_cold_storage"
@@ -64,6 +67,7 @@ class FixedColdStorage(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
+
 class DeviceManualToFixedColdStorage(db.Model):
     __tablename__ = "device_manual_to_fixed_cold_storage"
     id = db.Column(db.Integer, primary_key=True)
@@ -82,7 +86,8 @@ class DeviceManualToFixedColdStorage(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
-class SampleToFixedColdStorage():
+
+class SampleToFixedColdStorage:
     __tablename__ = "sample_to_fixed_cold_storage"
     id = db.Column(db.Integer, primary_key=True)
 
@@ -99,6 +104,7 @@ class SampleToFixedColdStorage():
     )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class CryovialBox(db.Model):
     __tablename__ = "cryovial_boxes"

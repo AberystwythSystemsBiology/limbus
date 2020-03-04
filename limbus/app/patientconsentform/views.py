@@ -36,7 +36,6 @@ def view(pcf_id):
     )
     questions = [questions[i : (i + 3)] for i in range(0, len(questions), 3)]
 
-
     return render_template(
         "patientconsentform/view.html",
         template=template,
@@ -53,7 +52,7 @@ def new():
         hash = generate_random_hash()
         session["%s consent_form_info" % (hash)] = {
             "template_name": form.name.data,
-            "template_version": form.version.data
+            "template_version": form.version.data,
         }
 
         return redirect(url_for("pcf.new_two", hash=hash))
@@ -69,8 +68,9 @@ def new_two(hash):
         consent_form_info = session["%s consent_form_info" % (hash)]
 
         cfi = ConsentFormTemplate(
-            name=consent_form_info["template_name"], uploader=current_user.id,
-            version=consent_form_info["template_version"]
+            name=consent_form_info["template_name"],
+            uploader=current_user.id,
+            version=consent_form_info["template_version"],
         )
 
         db.session.add(cfi)
