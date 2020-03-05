@@ -57,11 +57,14 @@ def view_site(id):
     )
     rooms = db.session.query(Room).filter(Room.site_id == id).all()
 
-    return render_template("storage/site/view.html",
-                           site=site,
-                           address=address,
-                           rooms=rooms,
-                           uploader=uploader)
+    return render_template(
+        "storage/site/view.html",
+        site=site,
+        address=address,
+        rooms=rooms,
+        uploader=uploader,
+    )
+
 
 @storage.route("/sites/room/new/LIMBSIT-<s_id>", methods=["GET", "POST"])
 def new_room(s_id):
@@ -71,10 +74,10 @@ def new_room(s_id):
 
     if form.validate_on_submit():
         room = Room(
-            room_number = form.room.data,
-            building = form.building.data,
-            site_id = s_id,
-            author_id = current_user.id
+            room_number=form.room.data,
+            building=form.building.data,
+            site_id=s_id,
+            author_id=current_user.id,
         )
 
         db.session.add(room)

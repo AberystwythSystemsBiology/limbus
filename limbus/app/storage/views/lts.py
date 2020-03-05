@@ -5,15 +5,22 @@ from ... import db
 from .. import storage
 
 from ..models import Room, Site, FixedColdStorage
+from ...auth.models import User
 
 from ..forms import LongTermColdStorageForm
 
+
 @storage.route("lts/")
 def lts_index():
-
-    lts = db.session.query(FixedColdStorage).all()
+    lts = (
+        db.session.query(FixedColdStorage, User, Site)
+        .filter(User.id == FixedColdStorage.author_id)
+        .filter(FixedColdStorage.site_id == Site.id)
+        .all()
+    )
 
     return render_template("storage/lts/index.html", lts=lts)
+
 
 @storage.route("lts/add", methods=["GET", "POST"])
 def add_lts():
@@ -25,18 +32,17 @@ def add_lts():
         print(int(form.location.data))
         print(rs_query[int(form.location.data)])
         fcs = FixedColdStorage(
-            serial_number = form.serial_number.data,
-            manufacturer = form.manufacturer.data,
-            temperature = form.temperature.data,
-            type = form.type.data,
-            num_shelves = form.num_shelves.data,
-            site_id = rs_query[int(form.location.data)][1].id,
-            author_id = current_user.id
+            serial_number=form.serial_number.data,
+            manufacturer=form.manufacturer.data,
+            temperature=form.temperature.data,
+            type=form.type.data,
+            num_shelves=form.num_shelves.data,
+            site_id=rs_query[int(form.location.data)][1].id,
+            author_id=current_user.id,
         )
 
         db.session.add(fcs)
         db.session.commit()
         return redirect(url_for("storage.lts_index"))
-
 
     return render_template("storage/lts/new.html", form=form)

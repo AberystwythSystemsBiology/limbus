@@ -5,13 +5,14 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
-    IntegerField
+    IntegerField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationError
 import pycountry
 from ..setup.forms import post_code_validator
 
 from .models import FixedColdStorageTemps, FixedColdStorageType
+
 
 class RoomRegistrationForm(FlaskForm):
     room = StringField("Room Number", validators=[DataRequired()])
@@ -41,15 +42,28 @@ def LongTermColdStorageForm(rs_query):
     class StaticForm(FlaskForm):
         serial_number = StringField("Serial Number")
         manufacturer = StringField("Manufacturer", validators=[DataRequired()])
-        temperature = SelectField("Temperature", choices=FixedColdStorageTemps.choices(), validators=[DataRequired()])
-        type = SelectField("Storage Type", choices=FixedColdStorageType.choices(), validators=[DataRequired()])
+        temperature = SelectField(
+            "Temperature",
+            choices=FixedColdStorageTemps.choices(),
+            validators=[DataRequired()],
+        )
+        type = SelectField(
+            "Storage Type",
+            choices=FixedColdStorageType.choices(),
+            validators=[DataRequired()],
+        )
         num_shelves = IntegerField("Number of Shelves", validators=[DataRequired()])
+
     site_choices = []
 
     for index, (room, site) in enumerate(rs_query):
-        site_choices.append([str(index), "Room %s in %s" % (room.room_number, site.name)])
+        site_choices.append(
+            [str(index), "Room %s in %s" % (room.room_number, site.name)]
+        )
 
-    location = SelectField("Location", choices=site_choices, validators=[DataRequired()])
+    location = SelectField(
+        "Location", choices=site_choices, validators=[DataRequired()]
+    )
 
     setattr(StaticForm, "location", location)
     setattr(StaticForm, "submit", SubmitField("Register Long Term Cold Storage"))
