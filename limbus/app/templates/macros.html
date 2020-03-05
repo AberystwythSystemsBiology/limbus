@@ -32,6 +32,9 @@
         {% if field.type == 'StringField' %}
             <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
                    {% if field.flags.required %}required{% endif %}>
+        {% elif field.type == 'IntegerField' %}
+            <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
+                   {% if field.flags.required %}required{% endif %}>
         {% elif field.type == 'TextAreaField' %}
             <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
         {% elif field.type == 'SelectField' %}
