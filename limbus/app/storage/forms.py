@@ -52,7 +52,6 @@ def LongTermColdStorageForm(rs_query):
             choices=FixedColdStorageType.choices(),
             validators=[DataRequired()],
         )
-        num_shelves = IntegerField("Number of Shelves", validators=[DataRequired()])
 
     site_choices = []
 

@@ -7,20 +7,15 @@ on:
     branches: [ nightly ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Get testing envfile.
+    - name: Download testing environment file.
       run: wget http://users.aber.ac.uk/keo7/.env
-    - name: Build the stack.
-      run: docker-compose build
-    - name: Install wheel.
-      run: docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install wheel"
-    - name: Install all other deps.
-      run: docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt && yarn install"
-    - name: Test to see if built
-      run: docker-compose run --service-ports web sh -c "venv/bin/python limbus/run.py"
+    - name: Get scripts in PATH.
+      run: source docker_helpers.sh
+    - name: Build the LImBuS stack.
+      run: limbus-bwd
+    - name: Test to see if built correctly and without error.
+      run: limbus-s

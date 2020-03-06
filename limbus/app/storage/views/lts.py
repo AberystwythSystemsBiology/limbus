@@ -36,7 +36,6 @@ def add_lts():
             manufacturer=form.manufacturer.data,
             temperature=form.temperature.data,
             type=form.type.data,
-            num_shelves=form.num_shelves.data,
             site_id=rs_query[int(form.location.data)][1].id,
             author_id=current_user.id,
         )
