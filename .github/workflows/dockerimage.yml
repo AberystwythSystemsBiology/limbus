@@ -14,5 +14,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build the entirety of the stack.
+      run: docker-compose build
+    - name: Install wheel.
+      run: docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install wheel"
+    - name: Install all other deps.
+      run: docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt && yarn install"
+    - name: Test to see if built
+      run: docker-compose run --service-ports web sh -c "venv/bin/python limbus/run.py"
