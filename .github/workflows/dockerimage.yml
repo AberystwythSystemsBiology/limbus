@@ -14,10 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Check where we are.
-      run: ls /
-    - name: Again...
-      run: pwd
+    - name: Get testing envfile.
+      run: wget http://users.aber.ac.uk/keo7/.env
     - name: Build the stack.
       run: docker-compose build
     - name: Install wheel.
