@@ -10,7 +10,7 @@
             <h2><i class="fa fa-building"></i> New Site</h2>
         </div>
 
-        <form action="{{ url_for('storage.add_site') }}">
+        <form action="{{ url_for('storage.add_site') }}" method="post">
             {{ form_field(form.name) }}
             {{ form_field(form.address_line_one) }}
             {{ form_field(form.address_line_two) }}

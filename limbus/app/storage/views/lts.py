@@ -4,10 +4,10 @@ from flask_login import current_user
 from ... import db
 from .. import storage
 
-from ..models import Room, Site, FixedColdStorage
+from ..models import Room, Site, FixedColdStorage, FixedColdStorageShelf
 from ...auth.models import User
 
-from ..forms import LongTermColdStorageForm
+from ..forms import LongTermColdStorageForm, NewShelfForm
 
 
 @storage.route("lts/")
@@ -45,3 +45,30 @@ def add_lts():
         return redirect(url_for("storage.lts_index"))
 
     return render_template("storage/lts/new.html", form=form)
+
+
+@storage.route("/lts/view/LIMBLTS-<lts_id>", methods=["GET", "POST"])
+def view_lts(lts_id):
+    lts = (
+        db.session.query(FixedColdStorage)
+        .filter(FixedColdStorage.id == lts_id)
+        .first_or_404()
+    )
+
+    shelves = db.session.query(FixedColdStorageShelf, User).filter(FixedColdStorageShelf.storage_id == lts_id).filter(User.id == FixedColdStorageShelf.author_id).all()
+
+    form = NewShelfForm()
+
+    if form.validate_on_submit():
+        shelf = FixedColdStorageShelf(
+            name = form.name.data,
+            storage_id = lts_id,
+            author_id = current_user.id
+        )
+
+        db.session.add(shelf)
+        db.session.commit()
+
+        return redirect(url_for("storage.view_lts", lts_id))
+
+    return render_template("/storage/lts/view.html", lts=lts, form=form, shelves=shelves)
