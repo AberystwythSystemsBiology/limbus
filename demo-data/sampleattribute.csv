@@ -1,7 +1,0 @@
-term,type,custom
-Project Code,TEXT,128
-Random Text,TEXT,128
-More Random Text,TEXT,128
-Hospital,OPTION,PPH;BRON;ABER
-Project,OPTION,Novel Tech;Cancer Study;Another Project
-Example Text,TEXT,128

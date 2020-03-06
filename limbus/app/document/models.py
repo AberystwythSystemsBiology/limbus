@@ -3,9 +3,10 @@ from enum import Enum
 
 
 class DocumentType(Enum):
-    PATHO = "Pathology Reports"
-    MANUE = "Device Manuals"
-    MATER = "Material Transfer Agreements"
+    PATHO = "Pathology Report"
+    MANUE = "Device Manual"
+    MATER = "Material Transfer Agreement"
+    PROTO = "Processing Protocol"
     OTHER = "Other"
 
 

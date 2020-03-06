@@ -19,16 +19,15 @@ from .auth import auth as auth_blueprint
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
-from .demo import demo as demo_blueprint
 from .api import api as api_blueprint
 from .patientconsentform import pcf as pcf_blueprint
 from .processing import processing as processing_blueprint
-
-DEMO = True
+from .storage import storage as storage_blueprint
 
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
     app.config.from_pyfile("config.py")
 
@@ -50,6 +49,7 @@ def create_app():
     from app.sample import models as sample_models
     from app.patientconsentform import models as pcf_models
     from app.processing import models as processing_models
+    from app.storage import models as storage_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
@@ -60,9 +60,7 @@ def create_app():
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
     app.register_blueprint(api_blueprint, url_prefix="/api")
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
-
-    if DEMO:
-        app.register_blueprint(demo_blueprint, url_prefix="/demo")
+    app.register_blueprint(storage_blueprint, url_prefix="/storage")
 
     from app.admin import add_admin_views
 

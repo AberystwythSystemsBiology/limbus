@@ -9,6 +9,8 @@ from . import setup
 from .. import db
 from .forms import BiobankRegistrationForm, AdministratorRegistrationForm
 
+from ..storage.models import Site
+
 
 def check_if_user(f):
     @wraps(f)
@@ -78,12 +80,16 @@ def biobank_registration():
             street_address_one=form.address_line_one.data,
             street_address_two=form.address_line_two.data,
             city=form.city.data,
-            country="GB",
+            country=form.country.data,
             post_code=form.post_code.data,
         )
 
         db.session.add(address)
+        db.session.flush()
 
+        site = Site(name=form.name.data, address_id=address.id, author_id=1)
+
+        db.session.add(site)
         db.session.flush()
 
         biobank = BiobankInformation(

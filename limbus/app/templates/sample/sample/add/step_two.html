@@ -2,6 +2,7 @@
 
 {% block title %}New Sample: Step Two{% endblock %}
 
+{% set count = 0 %}
 
 
 {% block body %}
@@ -12,15 +13,19 @@
 
         <h3>{{ pcf.name }}</h3>
 
-        <p>Please...</p>
+        <p>Please replicate what the donor has checked on the physical consent sheet in order to continue.</p>
 
         <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
             {{ questionnaire.csrf_token() }}
-            {% for question in questionnaire %}
-                {% if (question.type == "BooleanField") %}
-                    {{ form_field( question ) }}
-                {% endif %}
-            {% endfor %}
+            <div class="list-group">
+                {% for question in questionnaire %}
+                    {% if (question.type == "BooleanField") %}
+                        {% set count = count + 1 %}
+                        {{ render_question( question, count) }}
+
+                    {% endif %}
+                {% endfor %}
+            </div>
             {{ form_field(questionnaire.submit) }}
 
         </form>
