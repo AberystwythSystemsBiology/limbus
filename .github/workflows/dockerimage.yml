@@ -14,7 +14,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the entirety of the stack.
+    - name: Check where we are.
+      run: ls /
+    - name: Again...
+      run: pwd
+    - name: Build the stack.
       run: docker-compose build
     - name: Install wheel.
       run: docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install wheel"
