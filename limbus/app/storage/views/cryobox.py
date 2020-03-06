@@ -7,11 +7,13 @@ from .. import storage
 from ..models import CryovialBox
 from ..forms import NewCryovialBoxForm
 
+
 @storage.route("/cryobox")
 def cryobox_index():
     boxes = db.session.query(CryovialBox).all()
 
     return render_template("storage/cryobox/index.html", boxes=boxes)
+
 
 @storage.route("/cryobox/new", methods=["GET", "POST"])
 def add_cryobox():
@@ -20,11 +22,11 @@ def add_cryobox():
     if form.validate_on_submit():
 
         cb = CryovialBox(
-            serial = form.serial.data,
-            num_rows = form.num_rows.data,
-            num_cols = form.num_cols.data,
-            data = {},
-            author_id = current_user.id
+            serial=form.serial.data,
+            num_rows=form.num_rows.data,
+            num_cols=form.num_cols.data,
+            data={},
+            author_id=current_user.id,
         )
 
         db.session.add(cb)

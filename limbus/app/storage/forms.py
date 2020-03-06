@@ -21,7 +21,11 @@ class RoomRegistrationForm(FlaskForm):
 
 
 class NewShelfForm(FlaskForm):
-    name = StringField("Shelf Name", validators=[DataRequired()], description="A descriptive name for the shelf, something like top shelf.")
+    name = StringField(
+        "Shelf Name",
+        validators=[DataRequired()],
+        description="A descriptive name for the shelf, something like top shelf.",
+    )
     submit = SubmitField("Register Shelf")
 
 
@@ -30,6 +34,7 @@ class NewCryovialBoxForm(FlaskForm):
     num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
     num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
     submit = SubmitField("Register Cryovial Box")
+
 
 class SiteRegistrationForm(FlaskForm):
     name = StringField("Site Name", validators=[DataRequired()])

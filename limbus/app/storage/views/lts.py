@@ -55,15 +55,18 @@ def view_lts(lts_id):
         .first_or_404()
     )
 
-    shelves = db.session.query(FixedColdStorageShelf, User).filter(FixedColdStorageShelf.storage_id == lts_id).filter(User.id == FixedColdStorageShelf.author_id).all()
+    shelves = (
+        db.session.query(FixedColdStorageShelf, User)
+        .filter(FixedColdStorageShelf.storage_id == lts_id)
+        .filter(User.id == FixedColdStorageShelf.author_id)
+        .all()
+    )
 
     form = NewShelfForm()
 
     if form.validate_on_submit():
         shelf = FixedColdStorageShelf(
-            name = form.name.data,
-            storage_id = lts_id,
-            author_id = current_user.id
+            name=form.name.data, storage_id=lts_id, author_id=current_user.id
         )
 
         db.session.add(shelf)
@@ -71,4 +74,6 @@ def view_lts(lts_id):
 
         return redirect(url_for("storage.view_lts", lts_id))
 
-    return render_template("/storage/lts/view.html", lts=lts, form=form, shelves=shelves)
+    return render_template(
+        "/storage/lts/view.html", lts=lts, form=form, shelves=shelves
+    )

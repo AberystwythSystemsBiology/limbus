@@ -103,6 +103,7 @@ class FixedColdStorageShelf(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
+
 class SampleToFixedColdStorageShelf(db.Model):
     __tablename__ = "sample_to_fixed_cold_storage_shelf"
     id = db.Column(db.Integer, primary_key=True)
@@ -139,6 +140,7 @@ class CryovialBoxToFixedColdStorageShelf(db.Model):
     )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class CryovialBox(db.Model):
     __tablename__ = "cryovial_boxes"
