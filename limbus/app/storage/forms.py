@@ -25,6 +25,12 @@ class NewShelfForm(FlaskForm):
     submit = SubmitField("Register Shelf")
 
 
+class NewCryovialBoxForm(FlaskForm):
+    serial = StringField("Serial Number", validators=[DataRequired()])
+    num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
+    num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
+    submit = SubmitField("Register Cryovial Box")
+
 class SiteRegistrationForm(FlaskForm):
     name = StringField("Site Name", validators=[DataRequired()])
     address_line_one = StringField("Address Line1", validators=[DataRequired()])
