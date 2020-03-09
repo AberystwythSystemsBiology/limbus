@@ -73,7 +73,7 @@ def LongTermColdStorageForm(rs_query):
 
     for index, (room, site) in enumerate(rs_query):
         site_choices.append(
-            [str(index), "Room %s in %s" % (room.room_number, site.name)]
+            [str(room.id), "Room %s in %s" % (room.room_number, site.name)]
         )
 
     location = SelectField(
@@ -82,5 +82,22 @@ def LongTermColdStorageForm(rs_query):
 
     setattr(StaticForm, "location", location)
     setattr(StaticForm, "submit", SubmitField("Register Long Term Cold Storage"))
+
+    return StaticForm()
+
+def SampleToBoxForm(samples: list) -> FlaskForm:
+
+    class StaticForm(FlaskForm):
+        pass
+
+    samples_choices = []
+
+    for sample in samples:
+        samples_choices.append([str(sample.id), "LIMBSMP-%s (%s)" % (sample.id, sample.sample_type)])
+
+    setattr(StaticForm, "samples", SelectField("Sample", choices=samples_choices, validators=[DataRequired()]))
+
+    setattr(StaticForm, "submit", SubmitField("Submit Sample"))
+
 
     return StaticForm()

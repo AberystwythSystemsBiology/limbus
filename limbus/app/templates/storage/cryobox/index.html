@@ -20,8 +20,36 @@
             </div>
         </div>
 
-        {{ boxes }}
-
+        <table id="sites" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Upload Date</th>
+                <th>Uploader</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for box, uploader in boxes %}
+                <tr>
+                    <td>LIMBCRB-{{ box.id }}</td>
+                    <td>{{ box.creation_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <img class="rounded-circle float-right"
+                             src="https://www.gravatar.com/avatar/{{ uploader.gravatar }}?s=20">
+                        {{ uploader.name }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('storage.view_cryobox', cryo_id=box.id) }}">
+                            <btn class="btn btn-sm btn-primary">
+                                <i class="fa fa-eye"></i> View
+                            </btn>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
     </div>
 {% endblock %}

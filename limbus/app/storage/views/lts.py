@@ -28,15 +28,14 @@ def add_lts():
 
     form = LongTermColdStorageForm(rs_query)
 
+
     if form.validate_on_submit():
-        print(int(form.location.data))
-        print(rs_query[int(form.location.data)])
         fcs = FixedColdStorage(
             serial_number=form.serial_number.data,
             manufacturer=form.manufacturer.data,
             temperature=form.temperature.data,
             type=form.type.data,
-            site_id=rs_query[int(form.location.data)][1].id,
+            site_id=0+1,
             author_id=current_user.id,
         )
 

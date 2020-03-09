@@ -13,8 +13,10 @@
             {% for r in range(cryo.num_rows) %}
                 <div class="row">
                 {% for c in range(cryo.num_cols) %}
-                    <div id="{{ r }};{{ c }}" class="col" >
-                        a
+                    <div id="_{{ r }}_{{ c }}" class="col text-center" >
+                        <a href="{{ url_for('storage.add_cryobox_sample', cryo_id=cryo.id, row=r, col=c) }}"><div class="btn btn-primary">
+                            Add Sample [{{ r }}, {{ c }}]
+                        </div></a>
                     </div>
                 {% endfor %}
                 </div>

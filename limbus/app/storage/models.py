@@ -123,6 +123,28 @@ class SampleToFixedColdStorageShelf(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
+class SampleToCryovialBox(db.Model):
+    __tablename__ = "sample_to_cryovial_boxes"
+    id = db.Column(db.Integer, primary_key=True)
+
+    box_id = db.Column(db.Integer, db.ForeignKey("cryovial_boxes.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
+
+    col = db.Column(db.Integer)
+    row = db.Column(db.Integer)
+
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
+
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+
 class CryovialBoxToFixedColdStorageShelf(db.Model):
     __tablename__ = "cryovial_boxes_to_fixed_cold_storage_shelf"
     id = db.Column(db.Integer, primary_key=True)
@@ -152,8 +174,6 @@ class CryovialBox(db.Model):
 
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
-
-    data = db.Column(db.JSON)
 
     update_date = db.Column(
         db.DateTime,
