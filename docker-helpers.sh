@@ -24,7 +24,7 @@ function limbus-s() {
 }
 
 function limbus-test() {
-    docker-compose run --service-ports web sh -c "venv/bin/python limbus/app/tests/test_basic.py"
+    docker-compose run --service-ports web sh -c "venv/bin/python limbus/test_basic.py"
     limbus-c
 }
 
