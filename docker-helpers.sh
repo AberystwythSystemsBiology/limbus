@@ -23,6 +23,11 @@ function limbus-s() {
     limbus-c
 }
 
+function limbus-test() {
+    docker-compose run --service-ports web sh -c "venv/bin/python limbus/app/tests/test_basic.py"
+    limbus-c
+}
+
 function limbus-db-rebuild() {
       docker-compose run --service-ports web sh -c "venv/bin/flask db downgrade base"
       limbus-db-create
