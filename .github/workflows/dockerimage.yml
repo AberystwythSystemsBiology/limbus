@@ -12,6 +12,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Get scripts in PATH and download testing environment file.
-      run: source docker_helpers.sh && wget http://users.aber.ac.uk/keo7/.env && limbus-bwd
-    - name: Test to see if built correctly and without error.
-      run: limbus-test
+      run: source docker_helpers.sh && wget http://users.aber.ac.uk/keo7/.env && limbus-bwd && limbus-test
