@@ -13,8 +13,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Download testing environment file.
       run: wget http://users.aber.ac.uk/keo7/.env
-    - name: Check to see if works.
-      run: ls
     - name: Get scripts in PATH.
       run: source docker_helpers.sh
     - name: Build the LImBuS stack.
