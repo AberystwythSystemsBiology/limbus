@@ -19,12 +19,10 @@ def cryobox_index():
 def add_cryobox():
 
     def __generate_data(n_cols, n_rows):
-        columns = {"column %i" % (c): None for c in range(n_cols)}
-
+        columns = {"%i" % (c): None for c in range(n_cols)}
         data = {
-            "row %i" % (r): columns for r in range(n_rows)
+            "%i" % (r): columns for r in range(n_rows)
         }
-
         return data
 
     form = NewCryovialBoxForm()
@@ -46,12 +44,12 @@ def add_cryobox():
 
     return render_template("storage/cryobox/new.html", form=form)
 
-@storage.route("/cryobox/view/LIMBCR-<cryo_id>")
+@storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
 def view_cryobox(cryo_id):
     cryo = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
-    return "Hello World"
+    return render_template("storage/cryobox/view.html", cryo=cryo)
 
-@storage.route("/cryobox/view/LIMBCR-<cryo_id>/data")
+@storage.route("/cryobox/view/LIMBCRB-<cryo_id>/data")
 def view_cryobox_api(cryo_id):
     cryo = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
     return jsonify(cryo.data), 201, {"Content-Type": "application/json"}
