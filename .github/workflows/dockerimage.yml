@@ -18,4 +18,4 @@ jobs:
     - name: Build the LImBuS stack.
       run: limbus-bwd
     - name: Test to see if built correctly and without error.
-      run: limbus-s
+      run: limbus-test
