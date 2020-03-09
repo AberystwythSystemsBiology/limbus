@@ -60,5 +60,4 @@ function limbus-db-nuke() {
   docker-compose run web sh -c 'rm -rf migrations'
   docker-compose run web sh -c 'find . -path "*/migrations/*.pyc"  -delete'
   limbus-db-create
-
 }

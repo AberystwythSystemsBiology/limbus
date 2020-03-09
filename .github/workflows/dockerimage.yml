@@ -11,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Download testing environment file.
-      run: wget http://users.aber.ac.uk/keo7/.env
-    - name: Get scripts in PATH.
-      run: source docker_helpers.sh
+    - name: Get scripts in PATH and download testing environment file.
+      run: source docker_helpers.sh && wget http://users.aber.ac.uk/keo7/.env
     - name: Build the LImBuS stack.
       run: limbus-bwd
     - name: Test to see if built correctly and without error.
