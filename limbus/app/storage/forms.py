@@ -38,7 +38,13 @@ def NewCryovialBoxForm(results):
     choices = []
 
     for fcss, fcs, room, site in results:
-        choices.append([str(fcss.id), "%s in %s in %s in %s" % (fcss.name, fcs.manufacturer, room.room_number, site.name)])
+        choices.append(
+            [
+                str(fcss.id),
+                "%s in %s in %s in %s"
+                % (fcss.name, fcs.manufacturer, room.room_number, site.name),
+            ]
+        )
 
     setattr(
         StaticForm,

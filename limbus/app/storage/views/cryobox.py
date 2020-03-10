@@ -53,11 +53,8 @@ def add_cryobox():
         db.session.add(cb)
         db.session.flush()
 
-
         cbfcs = CryovialBoxToFixedColdStorageShelf(
-            box_id = cb.id,
-            shelf_id = int(form.lts.data),
-            author_id = current_user.id
+            box_id=cb.id, shelf_id=int(form.lts.data), author_id=current_user.id
         )
 
         db.session.add(cbfcs)
@@ -95,7 +92,7 @@ def view_cryobox_api(cryo_id):
     for position, sample, user in samples:
         data["%i_%i" % (position.row, position.col)] = {
             "id": sample.id,
-            "url": url_for('sample.view', sample_id=sample.id, _external=True)
+            "url": url_for("sample.view", sample_id=sample.id, _external=True),
         }
 
     return jsonify(data), 201, {"Content-Type": "application/json"}

@@ -34,9 +34,11 @@ class User(UserMixin, db.Model):
     def password(self) -> AttributeError:
         raise AttributeError("Password is not accessible.")
 
-
-    def gravatar(self, size:int =200) -> str:
-        return "https://www.gravatar.com/avatar/%s?s=%i" % (hashlib.md5(self.email.encode()).hexdigest(), size)
+    def gravatar(self, size: int = 200) -> str:
+        return "https://www.gravatar.com/avatar/%s?s=%i" % (
+            hashlib.md5(self.email.encode()).hexdigest(),
+            size,
+        )
 
     @property
     def name(self) -> str:
