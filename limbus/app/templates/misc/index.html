@@ -23,21 +23,25 @@
             <div class="col-lg-4">
                 <h1 class="fa fa-handshake"></h1>
                 <h2>Furthering collaboration</h2>
-                <p>Put something here about extending collaboration.</p>
-                <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+                <p>We believe in the unique combination of academic collaboration and the power of Free and Open Source Software</p>
+                <p><a class="btn btn-primary" href="{{ url_for('misc.team') }}" role="button">Meet the Team</a></p>
             </div><!-- /.col-lg-4 -->
             <div class="col-lg-4">
                 <h1 class="fa fa-box-open"></h1>
                 <h2>Free and Open Source</h2>
-                <p>Put something here about the license.</p>
-                <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+                <p>This project is proudly licensed under the terms of the GPLv3+.</p>
+                <p>This means that it will be free, forever.</p>
+                <p><a class="btn btn-primary" href="{{ url_for('misc.license') }}" role="button">View License</a></p>
             </div><!-- /.col-lg-4 -->
             <div class="col-lg-4">
-                <h1 class="fa fa-thumbs-up"></h1>
-                <h2>Standards compliant</h2>
-                <p>Put something here about standards.</p>
-                <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+                <a class="twitter-timeline" data-lang="en" data-dnt="true" href="https://twitter.com/limbus_bims?ref_src=twsrc%5Etfw">
+                    Tweets by limbus_bims</a>
             </div><!-- /.col-lg-4 -->
         </div><!-- /.row -->
     </div>
+{% endblock %}
+
+
+{% block javascript %}
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endblock %}
