@@ -76,7 +76,7 @@ def new_room(s_id):
         room = Room(
             room_number=form.room.data,
             building=form.building.data,
-            site_id=s_id,
+            site_id=site.id,
             author_id=current_user.id,
         )
 

@@ -4,8 +4,15 @@ from flask_login import current_user
 from ... import db
 from .. import storage
 
-from ..models import Room, Site, FixedColdStorage, FixedColdStorageShelf
+from ..models import (
+    Room,
+    Site,
+    FixedColdStorage,
+    FixedColdStorageShelf,
+    SampleToFixedColdStorageShelf,
+)
 from ...auth.models import User
+from ...sample.models import Sample
 
 from ..forms import LongTermColdStorageForm, NewShelfForm
 
@@ -13,9 +20,10 @@ from ..forms import LongTermColdStorageForm, NewShelfForm
 @storage.route("lts/")
 def lts_index():
     lts = (
-        db.session.query(FixedColdStorage, User, Site)
+        db.session.query(FixedColdStorage, User, Site, Room)
         .filter(User.id == FixedColdStorage.author_id)
-        .filter(FixedColdStorage.site_id == Site.id)
+        .filter(FixedColdStorage.room_id == Room.id)
+        .filter(Room.site_id == Site.id)
         .all()
     )
 
@@ -28,14 +36,13 @@ def add_lts():
 
     form = LongTermColdStorageForm(rs_query)
 
-
     if form.validate_on_submit():
         fcs = FixedColdStorage(
             serial_number=form.serial_number.data,
             manufacturer=form.manufacturer.data,
             temperature=form.temperature.data,
             type=form.type.data,
-            site_id=0+1,
+            room_id=form.room.data,
             author_id=current_user.id,
         )
 
@@ -61,6 +68,18 @@ def view_lts(lts_id):
         .all()
     )
 
+    _shelves = {}
+
+    for shelf, user_info in shelves:
+        samples = (
+            db.session.query(SampleToFixedColdStorageShelf, Sample)
+            .filter(SampleToFixedColdStorageShelf.shelf_id == shelf.id)
+            .filter(Sample.id == SampleToFixedColdStorageShelf.sample_id)
+            .all()
+        )
+
+        _shelves[shelf.id] = {"shelf_information": shelf, "samples": samples}
+
     form = NewShelfForm()
 
     if form.validate_on_submit():
@@ -74,5 +93,5 @@ def view_lts(lts_id):
         return redirect(url_for("storage.view_lts", lts_id))
 
     return render_template(
-        "/storage/lts/view.html", lts=lts, form=form, shelves=shelves
+        "/storage/lts/view.html", lts=lts, form=form, shelves=_shelves
     )

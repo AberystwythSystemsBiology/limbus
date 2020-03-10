@@ -4,11 +4,20 @@ from flask_login import current_user
 from ... import db
 from .. import storage
 
-from ..models import CryovialBox, SampleToCryovialBox
+from ..models import (
+    CryovialBox,
+    SampleToCryovialBox,
+    FixedColdStorage,
+    Room,
+    Site,
+    FixedColdStorageShelf,
+    CryovialBoxToFixedColdStorageShelf,
+)
 from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
 from ...auth.models import User
 from ...sample.models import Sample
+
 
 @storage.route("/cryobox")
 def cryobox_index():
@@ -22,7 +31,15 @@ def cryobox_index():
 
 @storage.route("/cryobox/new", methods=["GET", "POST"])
 def add_cryobox():
-    form = NewCryovialBoxForm()
+    storage_options = (
+        db.session.query(FixedColdStorageShelf, FixedColdStorage, Room, Site)
+        .filter(FixedColdStorageShelf.storage_id == FixedColdStorage.id)
+        .filter(Room.id == FixedColdStorage.room_id)
+        .filter(Site.id == Room.id)
+        .all()
+    )
+
+    form = NewCryovialBoxForm(storage_options)
 
     if form.validate_on_submit():
 
@@ -34,6 +51,17 @@ def add_cryobox():
         )
 
         db.session.add(cb)
+        db.session.flush()
+
+
+        cbfcs = CryovialBoxToFixedColdStorageShelf(
+            box_id = cb.id,
+            shelf_id = int(form.lts.data),
+            author_id = current_user.id
+        )
+
+        db.session.add(cbfcs)
+
         db.session.commit()
 
         return redirect(url_for("storage.cryobox_index"))
@@ -68,9 +96,14 @@ def view_cryobox_api(cryo_id):
 
     return jsonify(data), 201, {"Content-Type": "application/json"}
 
-@storage.route("/cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"])
+
+@storage.route(
+    "/cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"]
+)
 def add_cryobox_sample(cryo_id, row, col):
-    cryo = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
+    cryo = (
+        db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
+    )
 
     samples = db.session.query(Sample).all()
 
@@ -78,11 +111,11 @@ def add_cryobox_sample(cryo_id, row, col):
 
     if form.validate_on_submit():
         scb = SampleToCryovialBox(
-            sample_id = form.samples.data,
-            box_id = cryo_id,
-            col = col,
-            row = row,
-            author_id = current_user.id
+            sample_id=form.samples.data,
+            box_id=cryo_id,
+            col=col,
+            row=row,
+            author_id=current_user.id,
         )
 
         db.session.add(scb)
@@ -90,4 +123,6 @@ def add_cryobox_sample(cryo_id, row, col):
 
         return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
 
-    return render_template("storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col)
+    return render_template(
+        "storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col
+    )

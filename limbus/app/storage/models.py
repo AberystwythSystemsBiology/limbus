@@ -55,7 +55,7 @@ class FixedColdStorage(db.Model):
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
-    site_id = db.Column(db.Integer, db.ForeignKey("sites.id"))
+    room_id = db.Column(db.Integer, db.ForeignKey("rooms.id"))
 
     update_date = db.Column(
         db.DateTime,

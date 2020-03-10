@@ -29,11 +29,26 @@ class NewShelfForm(FlaskForm):
     submit = SubmitField("Register Shelf")
 
 
-class NewCryovialBoxForm(FlaskForm):
-    serial = StringField("Serial Number", validators=[DataRequired()])
-    num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
-    num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
-    submit = SubmitField("Register Cryovial Box")
+def NewCryovialBoxForm(results):
+    class StaticForm(FlaskForm):
+        serial = StringField("Serial Number", validators=[DataRequired()])
+        num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
+        num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
+
+    choices = []
+
+    for fcss, fcs, room, site in results:
+        choices.append([str(fcss.id), "%s in %s in %s in %s" % (fcss.name, fcs.manufacturer, room.room_number, site.name)])
+
+    setattr(
+        StaticForm,
+        "lts",
+        SelectField("Long Term Storage", choices=choices, validators=[DataRequired()]),
+    )
+
+    setattr(StaticForm, "submit", SubmitField("Register Cryovial Box"))
+
+    return StaticForm()
 
 
 class SiteRegistrationForm(FlaskForm):
@@ -76,28 +91,31 @@ def LongTermColdStorageForm(rs_query):
             [str(room.id), "Room %s in %s" % (room.room_number, site.name)]
         )
 
-    location = SelectField(
-        "Location", choices=site_choices, validators=[DataRequired()]
-    )
+    room = SelectField("Room", choices=site_choices, validators=[DataRequired()])
 
-    setattr(StaticForm, "location", location)
+    setattr(StaticForm, "room", room)
     setattr(StaticForm, "submit", SubmitField("Register Long Term Cold Storage"))
 
     return StaticForm()
 
-def SampleToBoxForm(samples: list) -> FlaskForm:
 
+def SampleToBoxForm(samples: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         pass
 
     samples_choices = []
 
     for sample in samples:
-        samples_choices.append([str(sample.id), "LIMBSMP-%s (%s)" % (sample.id, sample.sample_type)])
+        samples_choices.append(
+            [str(sample.id), "LIMBSMP-%s (%s)" % (sample.id, sample.sample_type)]
+        )
 
-    setattr(StaticForm, "samples", SelectField("Sample", choices=samples_choices, validators=[DataRequired()]))
+    setattr(
+        StaticForm,
+        "samples",
+        SelectField("Sample", choices=samples_choices, validators=[DataRequired()]),
+    )
 
     setattr(StaticForm, "submit", SubmitField("Submit Sample"))
-
 
     return StaticForm()
