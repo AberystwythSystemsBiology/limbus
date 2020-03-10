@@ -84,15 +84,19 @@ def view_cryobox_api(cryo_id):
     )
 
     samples = (
-        db.session.query(SampleToCryovialBox, Sample)
+        db.session.query(SampleToCryovialBox, Sample, User)
         .filter(SampleToCryovialBox.box_id == cryo_id)
         .filter(Sample.id == SampleToCryovialBox.sample_id)
+        .filter(Sample.author_id == User.id)
         .all()
     )
 
     data = {}
-    for position, sample in samples:
-        data["%i_%i" % (position.row, position.col)] = {"sample_id": sample.id}
+    for position, sample, user in samples:
+        data["%i_%i" % (position.row, position.col)] = {
+            "id": sample.id,
+            "url": url_for('sample.view', sample_id=sample.id, _external=True)
+        }
 
     return jsonify(data), 201, {"Content-Type": "application/json"}
 
