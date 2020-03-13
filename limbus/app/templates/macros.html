@@ -91,6 +91,23 @@
     {% endfor %}
 {%- endmacro %}
 
+{% macro render_warning(title, description, button_url, button_text, add) -%}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container text-center">
+    <h4><i class="fa fa-exclamation-triangle"></i> {{ title }}</h4>
+      {% for line in description %}
+          <p>{{ line }}</p>
+      {% endfor %}
+
+        <a href="{{ url_for( button_url )}}">
+            <div class="btn btn-primary">
+                {% if add %}<i class="fa fa-plus"></i>{% endif %} {{ button_text }}
+            </div>
+        </a>
+  </div>
+</div>
+{%- endmacro %}
+
 {% macro render_question(field, count) -%}
     <div class="list-group-item flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">

@@ -13,10 +13,13 @@
 
         <p>Before we continue, you must first link the sample to a patient consent form.</p>
 
-        <p>If you are unable to find the patient consent form template....</p>
 
 
         {% if pcf_documents > 0 %}
+
+            <p>If you are unable to find the patient consent form template please take a look at the
+            </p>
+
             <form action="{{ url_for('sample.add_sample_pcf') }}" method="POST">
                 {{ form.csrf_token }}
                 {{ form_field(form.form_select) }}
@@ -24,13 +27,15 @@
             </form>
         {% else %}
 
-            <p>There are no patient consent form templates, please create one before continuing.</p>
+            {{ render_warning(
+                    "No Suitable Patient Consent Form Found",
+                    [
+                        "There are no suitable patient consent form templates found.",
+                        "Please add one before adding a sample."
+                     ], 'pcf.new', "New Patient Consent Form Template", True
+                ) }}
 
-            <a href="{{ url_for('pcf.new') }}">
-                <div class="btn btn-primary">
-                    <i class="fa fa-plus"></i> Add Patient Consent Form Template
-                </div>
-            </a>
+
         {% endif %}
     </div>
 {% endblock %}

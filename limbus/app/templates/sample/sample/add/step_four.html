@@ -21,15 +21,15 @@
                 {{ form_field(form.submit) }}
             </form>
         {% else %}
-            <div class="alert alert-danger text-center">
-                <b>Error:</b> There are no suitable processing protocol templates, please create one before continuing.
-            </div>
 
-            <a href="{{ url_for('processing.new_protocol') }}">
-                <div class="btn btn-primary full-width">
-                    New Patient Consent Form Template
-                </div>
-            </a>
+            {{ render_warning(
+                    "No Suitable Sample Processing Protocol Found",
+                    [
+                        "There are no suitable sample processing protocols found.",
+                        "Please add one before adding a sample."
+                     ], 'processing.new_protocol', "New Sample Processing Protocol", True
+                ) }}
+
         {% endif %}
     </div>
 {% endblock %}
