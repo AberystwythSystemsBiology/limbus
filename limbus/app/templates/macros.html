@@ -110,6 +110,14 @@
 </div>
 {%- endmacro %}
 
+{% macro render_progress(now, max) -%}
+
+<div class="progress">
+  <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}" aria-valuemin="0" aria-valuemax="{{ max }}"></div>
+</div>
+
+{%- endmacro %}
+
 {% macro render_success(title, description) -%}
     <div class="jumbotron jumbotron-fluid" style="background-color: #28a745; color: #fff;">
     <div class="container text-center">
