@@ -10,13 +10,25 @@
             <h2><i class="fas fa-vial"></i> New Sample: Step Three</h2>
         </div>
 
-        <p>Please select some Sample Attributes:</p>
+        {% if num_attr > 0 %}
 
-        <form action="{{ url_for('sample.add_sample_attr', hash=hash) }}" method="POST">
+
+        {% else %}
+            {{ render_warning(
+                    "No Sample Attributes Found",
+                    [
+                        "There are no suitable patient consent form templates found.",
+                        "Please add one before adding a sample.",
+                     ], 'sample.add_attribute', "New Attribute", True, True
+                ) }}
+        {% endif %}
+               <form action="{{ url_for('sample.add_sample_attr', hash=hash) }}" method="POST">
+
             {{ form.csrf_token }}
+
+
             {{ generate_attribute_select_form(form) }}
             {{ form_field(form.submit) }}
-
         </form>
     </div>
 {% endblock %}

@@ -22,13 +22,7 @@
             </form>
         {% else %}
 
-            {{ render_warning(
-                    "No Suitable Sample Processing Protocol Found",
-                    [
-                        "There are no suitable sample processing protocols found.",
-                        "Please add one before adding a sample."
-                     ], 'processing.new_protocol', "New Sample Processing Protocol", True
-                ) }}
+
 
         {% endif %}
     </div>

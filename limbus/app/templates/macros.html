@@ -91,19 +91,32 @@
     {% endfor %}
 {%- endmacro %}
 
-{% macro render_warning(title, description, button_url, button_text, add) -%}
+{% macro render_warning(title, description, button_url, button_text, add, refresh) -%}
 <div class="jumbotron jumbotron-fluid">
   <div class="container text-center">
     <h4><i class="fa fa-exclamation-triangle"></i> {{ title }}</h4>
       {% for line in description %}
           <p>{{ line }}</p>
       {% endfor %}
-
-        <a href="{{ url_for( button_url )}}">
+        <a href="{{ url_for( button_url )}}" {% if refresh %}target="_blank"{% endif %}>
             <div class="btn btn-primary">
                 {% if add %}<i class="fa fa-plus"></i>{% endif %} {{ button_text }}
             </div>
         </a>
+        {% if refresh %}
+            <p><i class="fa fa-sync top10"></i> Please refresh this page when completed</p>
+        {% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro render_success(title, description) -%}
+    <div class="jumbotron jumbotron-fluid" style="background-color: #28a745; color: #fff;">
+    <div class="container text-center">
+        <h4><i class="fa fa-check-circle"></i></h4>
+        <h4>{{ title }}</h4>
+          <p>{{ description }}</p>
+
   </div>
 </div>
 {%- endmacro %}

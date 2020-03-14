@@ -157,6 +157,8 @@ def pcf_view(sample_id):
 def add_sample_pcf():
     document_selection, pcf_documents = PatientConsentFormSelectForm()
 
+    template_count = db.session.query(ProcessingTemplate).count()
+
     if document_selection.validate_on_submit():
         sample_add_hash = generate_random_hash()
         session[
@@ -167,6 +169,7 @@ def add_sample_pcf():
     return render_template(
         "sample/sample/add/step_one.html",
         form=document_selection,
+        template_count=template_count,
         pcf_documents=pcf_documents,
     )
 
@@ -257,9 +260,9 @@ def add_sample_attr(hash):
         session["%s sample_attributes" % (hash)] = attribute_ids
         session["%s converted_ids" % (hash)] = conv
 
-        return redirect(url_for("sample.add_sample_form", hash=hash))
+        return redirect(url_for("sample.add_sample_form", hash=hash ))
     return render_template(
-        "sample/sample/add/step_five.html", form=attr_selection, hash=hash
+        "sample/sample/add/step_five.html", form=attr_selection, hash=hash, num_attr=len(query)
     )
 
 

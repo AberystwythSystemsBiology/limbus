@@ -11,11 +11,13 @@
             <h2><i class="fas fa-vial"></i> New Sample: Step One</h2>
         </div>
 
-        <p>Before we continue, you must first link the sample to a patient consent form.</p>
 
 
 
-        {% if pcf_documents > 0 %}
+        {% if pcf_documents > 0 and template_count > 0 %}
+
+            <p>Before we continue, you must first link the sample to a patient consent form.</p>
+
 
             <p>If you are unable to find the patient consent form template please take a look at the
             </p>
@@ -26,14 +28,40 @@
                 {{ form_field(form.submit) }}
             </form>
         {% else %}
-
-            {{ render_warning(
+            <div class="row">
+                <div class="col">
+                    {% if pcf_documents == 0 %}
+                    {{ render_warning(
                     "No Suitable Patient Consent Form Found",
                     [
                         "There are no suitable patient consent form templates found.",
                         "Please add one before adding a sample."
-                     ], 'pcf.new', "New Patient Consent Form Template", True
+                     ], 'pcf.new', "New Patient Consent Form Template", True, True
                 ) }}
+                        {% else %}
+                        {{ render_success(
+                        "Patient Consent Forms"
+                        ) }}
+                        {% endif %}
+
+                </div>
+                <div class="col">
+                    {% if template_count == 0 %}
+                    {{ render_warning(
+                    "No Suitable Processing Protocol Found",
+                    [
+                        "There are no suitable sample processing protocols found.",
+                        "Please add one before adding a sample."
+                     ], 'processing.new_protocol', "New Sample Processing Protocol", True, True
+                ) }}
+                        {% else %}
+                        {{ render_success(
+                        "Processing Protocols"
+                        ) }}
+                        {% endif %}
+
+                </div>
+            </div>
 
 
         {% endif %}
