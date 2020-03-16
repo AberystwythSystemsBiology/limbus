@@ -68,11 +68,59 @@ def view_site(id):
 
 @storage.route("/sites/view/LIMBSIT-<id>/get")
 def get_data(id):
-    db.session.query(Site).filter(Site.id == id).first_or_404()
-    rooms = db.session.query(Room).filter(Room.site_id == id).all()
+    site = db.session.query(Site).filter(Site.id == id).first_or_404()
+    rooms = db.session.query(Room).filter(Room.site_id == Site.id).all()
+
+    output = {}
+
+    for room in rooms:
+        output[room.id] = {
+            "name": room.room_number,
+            "building": room.building,
+            "storage": {}
+        }
+        fixed_storage = db.session.query(FixedColdStorage).filter(
+            FixedColdStorage.room_id == room.id).all()
+        for storage in fixed_storage:
+
+            output[room.id]["storage"][storage.id] = {
+                "serial_number": storage.serial_number,
+                "manufacturer": storage.manufacturer,
+                "temperature": storage.temperature.value,
+                "type": storage.type.value,
+                "shelves": {}
+            }
+
+            shelves = db.session.query(FixedColdStorageShelf).filter(
+                FixedColdStorageShelf.storage_id == storage.id).all()
 
 
-    return {}
+            for shelf in shelves:
+                output[room.id]["storage"][storage.id]["shelves"][shelf.id] = {
+                    "name": shelf.name,
+                    "samples" : {},
+                    "cryo": {}
+                }
+
+                samples_to_shelf = db.session.query(SampleToFixedColdStorageShelf).filter(
+                    SampleToFixedColdStorageShelf.shelf_id == shelf.id).all()
+
+                for sample in samples_to_shelf:
+                    output[room.id]["storage"][storage.id]["shelves"][shelf.id]["samples"][sample.id] = {
+                        "type": sample.sample_type
+                    }
+
+                cryo_to_shelf = db.session.query(CryovialBoxToFixedColdStorageShelf).filter(
+                    CryovialBoxToFixedColdStorageShelf.shelf_id == shelf.id).all()
+
+                for cryo in cryo_to_shelf:
+
+                    output[room.id]["storage"][storage.id]["shelves"][shelf.id]["cryo"][cryo.id] = {
+                        "test": "data"
+                    }
+
+    print(output)
+    return output
 
 @storage.route("/sites/room/new/LIMBSIT-<s_id>", methods=["GET", "POST"])
 def new_room(s_id):
