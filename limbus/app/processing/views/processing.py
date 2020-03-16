@@ -34,6 +34,7 @@ def new_protocol():
         session["%s protocol_information" % (protocol_hash)] = {
             "name": form.name.data,
             "type": form.type.data,
+            "protocol_type": form.protocol_type.data,
         }
 
         return redirect(url_for("processing.new_protocol_two", hash=protocol_hash))

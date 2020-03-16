@@ -129,6 +129,7 @@ def pcf_view(sample_id):
         .all()
     )
 
+
     class PCFView:
         def __init__(self):
             self.sample_info = {"id": sample_id}

@@ -32,6 +32,12 @@
         {% if field.type == 'StringField' %}
             <input class="form-control" id="{{ field.id }}" name="{{ field.name }}"
                    {% if field.flags.required %}required{% endif %}>
+        {% elif field.type == 'RadioField' %}
+            <br>
+            {% for key, value, bo in field.iter_choices() %}
+                 <label class="radio-inline"><input type="radio" name="{{field.id}}" value="{{ key }}" checked></label>
+                {{ value }}
+            {% endfor %}
         {% elif field.type == 'IntegerField' %}
             <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
                    {% if field.flags.required %}required{% endif %}>
@@ -113,7 +119,7 @@
 {% macro render_progress(now, max) -%}
 
 <div class="progress">
-  <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}" aria-valuemin="0" aria-valuemax="{{ max }}"></div>
+        <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}" aria-valuemin="0" aria-valuemax="{{ max }}"></div>
 </div>
 
 {%- endmacro %}
@@ -132,7 +138,7 @@
 {% macro render_question(field, count) -%}
     <div class="list-group-item flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Question {{ count }}</h5>
+            <h5 class="mb-1">Question {{ count+1 }}</h5>
             <small>
                 <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             </small>

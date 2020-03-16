@@ -1,14 +1,13 @@
+{% set title = "New Sample: Select Sample Processing Protocol" %}
+
+
 {% extends "template.html" %}
-
-{% block title %}New Sample: Step Four{% endblock %}
-
-
 
 {% block body %}
     <div class="container">
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> New Sample: Step Four</h2>
+            <h2><i class="fas fa-vial"></i> {{ title }}</h2>
         </div>
 
             {{ render_progress(4, 6) }}

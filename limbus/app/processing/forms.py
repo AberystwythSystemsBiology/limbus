@@ -6,6 +6,7 @@ from wtforms import (
     ValidationError,
     SelectField,
     BooleanField,
+    RadioField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo, URL
 
@@ -17,6 +18,7 @@ from .enums import (
     ProcessingTimes,
     CentrifugationTime,
     CentrifugationWeights,
+    ProtocolTypes,
 )
 
 
@@ -27,6 +29,13 @@ class NewProtocolForm(FlaskForm):
         validators=[DataRequired()],
         choices=[(x.name, x.value) for x in SampleType],
     )
+
+    protocol_type = RadioField(
+        "Protocol Type",
+        choices=[(x.name, x.value) for x in ProtocolTypes],
+        validators=[DataRequired()]
+    )
+
     submit = SubmitField("Submit")
 
 

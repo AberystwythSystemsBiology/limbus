@@ -37,3 +37,7 @@ h2 {
     display: -webkit-flex;
     display: flex;
 }
+
+.progress {
+    margin: 20px;
+}

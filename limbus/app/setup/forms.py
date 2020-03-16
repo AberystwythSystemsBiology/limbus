@@ -40,7 +40,7 @@ class BiobankRegistrationForm(FlaskForm):
     country = SelectField(
         "Country",
         validators=[DataRequired()],
-        choices=[(country.alpha_2, country.name) for country in pycountry.countries],
+        choices=sorted([(country.alpha_2, country.name) for country in pycountry.countries], key=lambda x: x[1]),
     )
     post_code = StringField(
         "Post Code", description="Please enter the Post Code without spaces.", validators=[DataRequired(), post_code_validator],

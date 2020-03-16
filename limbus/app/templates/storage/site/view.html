@@ -1,6 +1,8 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBSIT-{{ site.id }}{% endblock %}
+{% set title = "LIMBSIT-" %}
+
+{% block title %}{% endblock %}
 
 {% block body %}
 
@@ -19,11 +21,24 @@
             </div>
         </div>
 
-        <div class="row">
 
-        </div>
 
-        {%  for room in rooms %}
+        {%  for room_tuples in rooms %}
+            <div class="row">
+                {% for col in room_tuples %}
+                    <div class="card col col-sm-4 text-center">
+                        <div class="card-body">
+                            <h3><i class="fa fa-warehouse"></i></h3>
+                            <h4>{{ col.room_number }}</h4>
+                            <p class="muted">{{ col.building }}</p>
+                            <a href="{{ url_for('storage.view_room', site_id=site.id, room_id=col.id) }}">
+                            <div class="btn btn-primary">
+                                <i class="fa fa-eye"></i> View Room
+                            </div></a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
             {{ room }}
         {% endfor %}
 

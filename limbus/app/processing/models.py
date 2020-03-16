@@ -19,6 +19,9 @@ class ProcessingTemplate(db.Model):
     sample_type = db.Column(db.Enum(SampleType))
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
+    has_template = db.Column(db.Boolean)
+    has_document = db.Column(db.Boolean)
+
     upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     update_date = db.Column(
