@@ -1,4 +1,4 @@
-name: Docker Image CI (testing)
+name: limbus nightly build
 
 on:
   push:
