@@ -83,15 +83,6 @@ class Profile(db.Model):
     )
 
 
-class ProfileToUser(db.Model):
-    __tablename__ = "profiles_to_users"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-
 class ProfileToAddress(db.Model):
     __versioned__ = {}
     __tablename__ = "profiles_to_addresses"

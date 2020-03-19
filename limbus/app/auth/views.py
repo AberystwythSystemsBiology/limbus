@@ -4,7 +4,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from . import auth
 
 from .forms import LoginForm, ChangePassword
-from .models import User, Profile, ProfileToUser
+from .models import User, Profile
 
 from .. import db
 
@@ -33,11 +33,10 @@ def logout():
 
 @auth.route("/profile", methods=["GET", "POST"])
 def profile():
-    user = db.session.query(User).filter(User.id == current_user.id).first_or_404()
-    profile, _ = (
-        db.session.query(Profile, ProfileToUser)
-        .filter(ProfileToUser.user_id == current_user.id)
-        .filter(ProfileToUser.profile_id == Profile.id)
+    user, profile = (
+        db.session.query(User, Profile)
+        .filter(User.id == current_user.id)
+        .filter(User.profile_id == Profile.id)
         .first_or_404()
     )
 

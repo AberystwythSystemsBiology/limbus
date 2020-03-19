@@ -42,22 +42,13 @@ h2 {
     margin: 20px;
 }
 
-.node {
-		cursor: pointer;
-	}
 
-	.node circle {
-	  fill: #fff;
-	  stroke: steelblue;
-	  stroke-width: 3px;
-	}
+.segment {
+	display: block;
+	margin:1em;
+	min-width: 30px;
+}
 
-	.node text {
-	  font: 12px sans-serif;
-	}
-
-	.link {
-	  fill: none;
-	  stroke: #ccc;
-	  stroke-width: 2px;
-	}
+.no {
+	background-color: red;
+}
