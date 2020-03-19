@@ -10,7 +10,7 @@
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fa fa-building"></i> LIMBSIT-{{ site.id }}: {{ site.name }}</h2>
-                <div class="btn-toolbar">
+            <div class="btn-toolbar">
                 <div class="btn-group mr-2">
                     <a href="{{ url_for('storage.new_room', s_id=site.id) }}">
                         <div class="btn btn-primary"><i class="fa fa-plus"></i>
@@ -23,24 +23,9 @@
 
 
 
-        {%  for room_tuples in rooms %}
-            <div class="row">
-                {% for col in room_tuples %}
-                    <div class="card col col-sm-4 text-center">
-                        <div class="card-body">
-                            <h3><i class="fa fa-warehouse"></i></h3>
-                            <h4>{{ col.room_number }}</h4>
-                            <p class="muted">{{ col.building }}</p>
-                            <a href="{{ url_for('storage.view_room', site_id=site.id, room_id=col.id) }}">
-                            <div class="btn btn-primary">
-                                <i class="fa fa-eye"></i> View Room
-                            </div></a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            {{ room }}
-        {% endfor %}
+        </div>
+{% endblock %}
 
-    </div>
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/site/view.js') }}"></script>
 {% endblock %}

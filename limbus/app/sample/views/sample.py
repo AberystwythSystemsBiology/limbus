@@ -233,7 +233,11 @@ def select_processing_protocol(hash):
     form, _ = ProtocolTemplateSelectForm(templates)
 
     if form.validate_on_submit():
-        session["%s processing_protocol" % (hash)] = form.form_select.data
+        session["%s processing_protocol" % (hash)] = {
+            "protocol_id": form.form_select.data,
+            "processing_date": form.processing_date.data,
+            "processing_time": form.processing_time.data.strftime("%H:%M:%S")
+        }
         return redirect(url_for("sample.add_sample_attr", hash=hash))
 
     return render_template(

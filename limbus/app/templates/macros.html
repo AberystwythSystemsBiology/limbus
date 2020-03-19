@@ -49,6 +49,8 @@
                     <option value="{{ key }}">{{ value }}</option>
                 {% endfor %}
             </select>
+        {% elif field.type == 'TimeField' %}
+            <input type="time" class="form-control"  id="{{ field.id }}" name="{{field.name}}" value="13:30" {% if field.flags.required %}required{% endif %}>
         {% elif field.type  == 'PasswordField' %}
             <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
         {% elif field.type == 'FileField' %}

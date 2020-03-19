@@ -119,8 +119,7 @@ def get_data(id):
                         "test": "data"
                     }
 
-    print(output)
-    return output
+    return jsonify(output), 201, {"Content-Type": "application/json"}
 
 @storage.route("/sites/room/new/LIMBSIT-<s_id>", methods=["GET", "POST"])
 def new_room(s_id):

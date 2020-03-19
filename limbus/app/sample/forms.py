@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField
+from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField, TimeField
 from wtforms.validators import DataRequired
 
 from .enums import SampleAttributeTypes, DisposalInstruction, SampleType, SampleStatus
@@ -137,6 +137,24 @@ def ProtocolTemplateSelectForm(templates):
             validators=[DataRequired()],
             choices=choices,
         ),
+    )
+
+    setattr(
+        StaticForm,
+        "processing_date",
+        DateField(
+            "Processing Date",
+            validators=[DataRequired()]
+        )
+    )
+
+    setattr(
+        StaticForm,
+        "processing_time",
+        TimeField(
+            "Processing Time",
+            validators=[DataRequired()]
+        )
     )
 
     setattr(StaticForm, "submit", SubmitField())
