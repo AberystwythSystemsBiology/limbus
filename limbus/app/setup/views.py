@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import redirect, abort, render_template, url_for
 
-from ..auth.models import User, Profile, ProfileToUser
+from ..auth.models import User, Profile
 from ..misc.models import BiobankInformation, Address
 
 from . import setup
@@ -58,9 +58,7 @@ def admin_registration():
 
         db.session.flush()
 
-        ptu = ProfileToUser(profile_id=profile.id, user_id=admin.id)
-
-        db.session.add(ptu)
+        admin.profile_id = profile.id
 
         db.session.commit()
 

@@ -33,7 +33,7 @@ def logout():
 
 @auth.route("/profile", methods=["GET", "POST"])
 def profile():
-    user, profile = (
+    user, user_profile = (
         db.session.query(User, Profile)
         .filter(User.id == current_user.id)
         .filter(User.profile_id == Profile.id)
@@ -43,5 +43,5 @@ def profile():
     password_change = ChangePassword()
 
     return render_template(
-        "auth/profile.html", user=user, profile=profile, password_change=password_change
+        "auth/profile.html", user=user, profile=user_profile, password_change=password_change
     )
