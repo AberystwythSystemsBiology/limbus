@@ -344,10 +344,12 @@ def add_sample_form(hash):
 
         db.session.add(spcfta)
         db.session.flush()
-
+        prot = session["%s processing_protocol" % (hash)]
         spta = SampleProcessingTemplateAssociation(
             sample_id=sample.id,
-            template_id=session["%s processing_protocol" % (hash)],
+            template_id=prot["protocol_id"],
+            processing_time=prot["processing_time"],
+            processing_date=prot["processing_date"],
             author_id=current_user.id,
         )
 
