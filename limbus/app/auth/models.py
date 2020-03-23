@@ -42,12 +42,7 @@ class User(UserMixin, db.Model):
 
     @property
     def name(self) -> str:
-        ptu = (
-            db.session.query(ProfileToUser)
-            .filter(ProfileToUser.user_id == self.id)
-            .first_or_404()
-        )
-        profile = db.session.query(Profile).filter(Profile.id == ptu.id).first()
+        profile = db.session.query(Profile).filter(Profile.id == self.profile_id).first_or_404()
         return "%s %s" % (profile.first_name, profile.last_name)
 
     @password.setter
