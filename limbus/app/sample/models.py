@@ -107,6 +107,8 @@ class SampleAttributeOption(db.Model):
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
 
+    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(
@@ -115,7 +117,6 @@ class SampleAttributeOption(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-    sample_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
 
 
 class SampleAttributeTextValue(db.Model):

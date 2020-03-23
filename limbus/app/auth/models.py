@@ -89,7 +89,7 @@ class ProfileToAddress(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
-    address = db.Column(db.Integer, db.ForeignKey("addresses.id"))
+    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"))
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(
