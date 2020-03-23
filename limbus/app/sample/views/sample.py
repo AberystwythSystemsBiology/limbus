@@ -129,7 +129,6 @@ def pcf_view(sample_id):
         .all()
     )
 
-
     class PCFView:
         def __init__(self):
             self.sample_info = {"id": sample_id}
@@ -236,7 +235,7 @@ def select_processing_protocol(hash):
         session["%s processing_protocol" % (hash)] = {
             "protocol_id": form.form_select.data,
             "processing_date": form.processing_date.data,
-            "processing_time": form.processing_time.data.strftime("%H:%M:%S")
+            "processing_time": form.processing_time.data.strftime("%H:%M:%S"),
         }
         return redirect(url_for("sample.add_sample_attr", hash=hash))
 
@@ -265,9 +264,12 @@ def add_sample_attr(hash):
         session["%s sample_attributes" % (hash)] = attribute_ids
         session["%s converted_ids" % (hash)] = conv
 
-        return redirect(url_for("sample.add_sample_form", hash=hash ))
+        return redirect(url_for("sample.add_sample_form", hash=hash))
     return render_template(
-        "sample/sample/add/step_five.html", form=attr_selection, hash=hash, num_attr=len(query)
+        "sample/sample/add/step_five.html",
+        form=attr_selection,
+        hash=hash,
+        num_attr=len(query),
     )
 
 

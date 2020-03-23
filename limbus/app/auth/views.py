@@ -43,5 +43,8 @@ def profile():
     password_change = ChangePassword()
 
     return render_template(
-        "auth/profile.html", user=user, profile=user_profile, password_change=password_change
+        "auth/profile.html",
+        user=user,
+        profile=user_profile,
+        password_change=password_change,
     )

@@ -1,9 +1,11 @@
 from ..FormEnum import FormEnum
 
+
 class ProtocolTypes(FormEnum):
     DOC = "Document"
     DIG = "Digital"
     DIC = "Digital and Document"
+
 
 class FluidContainer(FormEnum):
     ACD = "Acid citrate dextrose"

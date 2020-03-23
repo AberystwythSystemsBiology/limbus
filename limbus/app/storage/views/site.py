@@ -6,7 +6,14 @@ from .. import storage
 
 from ..forms import SiteRegistrationForm, RoomRegistrationForm
 
-from ..models import Site, Room, FixedColdStorage, FixedColdStorageShelf, SampleToFixedColdStorageShelf, CryovialBoxToFixedColdStorageShelf
+from ..models import (
+    Site,
+    Room,
+    FixedColdStorage,
+    FixedColdStorageShelf,
+    SampleToFixedColdStorageShelf,
+    CryovialBoxToFixedColdStorageShelf,
+)
 
 from ...misc.models import Address
 from ...auth.models import User
@@ -56,7 +63,7 @@ def view_site(id):
         .first_or_404()
     )
     rooms = db.session.query(Room).filter(Room.site_id == id).all()
-    rooms = [rooms[i:i + 3] for i in range(0, len(rooms), 3)]
+    rooms = [rooms[i : i + 3] for i in range(0, len(rooms), 3)]
 
     return render_template(
         "storage/site/view.html",
@@ -65,6 +72,7 @@ def view_site(id):
         rooms=rooms,
         uploader=uploader,
     )
+
 
 @storage.route("/sites/view/LIMBSIT-<id>/get")
 def get_data(id):
@@ -77,10 +85,13 @@ def get_data(id):
         output[room.id] = {
             "name": room.room_number,
             "building": room.building,
-            "storage": {}
+            "storage": {},
         }
-        fixed_storage = db.session.query(FixedColdStorage).filter(
-            FixedColdStorage.room_id == room.id).all()
+        fixed_storage = (
+            db.session.query(FixedColdStorage)
+            .filter(FixedColdStorage.room_id == room.id)
+            .all()
+        )
         for storage in fixed_storage:
 
             output[room.id]["storage"][storage.id] = {
@@ -88,38 +99,47 @@ def get_data(id):
                 "manufacturer": storage.manufacturer,
                 "temperature": storage.temperature.value,
                 "type": storage.type.value,
-                "shelves": {}
+                "shelves": {},
             }
 
-            shelves = db.session.query(FixedColdStorageShelf).filter(
-                FixedColdStorageShelf.storage_id == storage.id).all()
-
+            shelves = (
+                db.session.query(FixedColdStorageShelf)
+                .filter(FixedColdStorageShelf.storage_id == storage.id)
+                .all()
+            )
 
             for shelf in shelves:
                 output[room.id]["storage"][storage.id]["shelves"][shelf.id] = {
                     "name": shelf.name,
-                    "samples" : {},
-                    "cryo": {}
+                    "samples": {},
+                    "cryo": {},
                 }
 
-                samples_to_shelf = db.session.query(SampleToFixedColdStorageShelf).filter(
-                    SampleToFixedColdStorageShelf.shelf_id == shelf.id).all()
+                samples_to_shelf = (
+                    db.session.query(SampleToFixedColdStorageShelf)
+                    .filter(SampleToFixedColdStorageShelf.shelf_id == shelf.id)
+                    .all()
+                )
 
                 for sample in samples_to_shelf:
-                    output[room.id]["storage"][storage.id]["shelves"][shelf.id]["samples"][sample.id] = {
-                        "type": sample.sample_type
-                    }
+                    output[room.id]["storage"][storage.id]["shelves"][shelf.id][
+                        "samples"
+                    ][sample.id] = {"type": sample.sample_type}
 
-                cryo_to_shelf = db.session.query(CryovialBoxToFixedColdStorageShelf).filter(
-                    CryovialBoxToFixedColdStorageShelf.shelf_id == shelf.id).all()
+                cryo_to_shelf = (
+                    db.session.query(CryovialBoxToFixedColdStorageShelf)
+                    .filter(CryovialBoxToFixedColdStorageShelf.shelf_id == shelf.id)
+                    .all()
+                )
 
                 for cryo in cryo_to_shelf:
 
-                    output[room.id]["storage"][storage.id]["shelves"][shelf.id]["cryo"][cryo.id] = {
-                        "test": "data"
-                    }
+                    output[room.id]["storage"][storage.id]["shelves"][shelf.id]["cryo"][
+                        cryo.id
+                    ] = {"test": "data"}
 
     return jsonify(output), 201, {"Content-Type": "application/json"}
+
 
 @storage.route("/sites/room/new/LIMBSIT-<s_id>", methods=["GET", "POST"])
 def new_room(s_id):
@@ -140,6 +160,7 @@ def new_room(s_id):
 
         return redirect(url_for("storage.view_site", id=site.id))
     return render_template("storage/room/new.html", form=form, site=site)
+
 
 @storage.route("/sites/LIBSIT-<site_id>/room/<room_id>,")
 def view_room(site_id, room_id):

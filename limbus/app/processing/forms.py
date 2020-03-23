@@ -33,7 +33,7 @@ class NewProtocolForm(FlaskForm):
     protocol_type = RadioField(
         "Protocol Type",
         choices=[(x.name, x.value) for x in ProtocolTypes],
-        validators=[DataRequired()]
+        validators=[DataRequired()],
     )
 
     submit = SubmitField("Submit")
