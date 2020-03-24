@@ -8,13 +8,13 @@ from .. import db
 
 
 @donor.route("/")
-def index():
+def index() -> str:
     donors = db.session.query(Donor).all()
     return render_template("donor/index.html", donors=donors)
 
 
 @donor.route("/add", methods=["GET", "POST"])
-def add_donor():
+def add_donor() -> str:
     form = DonorCreationForm()
 
     if form.validate_on_submit():

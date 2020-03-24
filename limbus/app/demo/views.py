@@ -1,3 +1,5 @@
+from flask import render_template
+
 import os
 from . import demo
 from .. import db
@@ -13,23 +15,12 @@ from ..storage.models import *
 import pandas as pd
 import numpy as np
 import random
-from datetime import datetime, timedelta
-
-
-def gen_datetime(min_year=2018, max_year=2050):
-    # generate a datetime in format yyyy-mm-dd hh:mm:ss.000000
-    start = datetime(min_year, 1, 1, 00, 00, 00)
-    years = max_year - min_year + 1
-    end = start + timedelta(days=365 * years)
-    return start + (end - start) * random.random()
-
 
 def clear_data() -> None:
     meta = db.metadata
     for table in reversed(meta.sorted_tables):
         db.session.execute(table.delete())
     db.session.commit()
-
 
 def from_test_data(p) -> None:
     test_df = {n: d for n, d in pd.read_excel(p, engine="odf", sheet_name=None).items()}
@@ -41,18 +32,17 @@ def from_test_data(p) -> None:
             for attr in row.index:
                 value = row[attr]
                 if type(value) == np.int64:
-
                     value = int(value)
+
                 setattr(inst, attr, value)
 
             db.session.add(inst)
             db.session.commit()
 
-
 def from_priya_data(p):
     test_df = pd.read_excel(p, sheet_name="SAMPLE ENTRY", index_col=0)
 
-    custom_attr = {
+    conversion_dict = {
         "Age at time of collection": 1,
         "REC NUMBER": 4,
         "Collection Group": 5,
@@ -72,37 +62,45 @@ def from_priya_data(p):
             disposal_instruction=random.choice(DisposalInstruction.choices())[0],
             disposal_date=db.func.now(),
             author_id=random.choice(users).id,
+            sample_status=random.choice(SampleStatus.choices())[0],
         )
-        db.session.add(sample)
 
+        db.session.add(sample)
         db.session.flush()
 
-        for key in custom_attr.keys():
-            attr_value = (
-                db.session.query(SampleAttribute)
-                .filter(SampleAttribute.id == custom_attr[key])
-                .first()
-            )
+        for col_name, database_key in conversion_dict.items():
 
-            if attr_value.type == SampleAttributeTypes.TEXT:
+            attr = db.session.query(SampleAttribute).filter(SampleAttribute.id == database_key).first()
+
+            row_value = row[col_name]
+
+            if attr.type == SampleAttributeTypes.TEXT:
+                if row_value == pd.np.nan:
+                    row_value = "Temporary None"
+
                 sv = SampleAttributeTextValue(
-                    sample_id=sample.id,
-                    sample_attribute_id=attr_value.id,
-                    value=row[key],
+                    value = row_value,
+                    sample_attribute_id = attr.id,
+                    sample_id = sample.id,
+                    author_id=random.choice(users).id,
                 )
 
-            elif attr_value.type == SampleAttributeTypes.OPTION:
-                _l = (
-                    db.session.query(SampleAttributeOption)
-                    .filter(SampleAttributeOption.term == row[key])
-                    .first()
+                db.session.add(sv)
+
+
+            elif attr.type == SampleAttributeTypes.OPTION:
+
+                sao = random.choice(db.session.query(SampleAttributeOption).all())
+
+                saov = SampleAttributeOptionValue(
+                    sample_option_id = sao.id,
+                    sample_id = sample.id,
+                    author_id=random.choice(users).id
                 )
 
-                print(_l)
+                db.session.add(saov)
+                db.session.flush()
 
-            db.session.add(sv)
-
-            print(key, row[key], attr_value)
 
     db.session.commit()
 
@@ -121,4 +119,4 @@ def apply_demo_data():
         )
     )
 
-    return "<h1>DATA APPLIED, GO AWAY</h1>"
+    return render_template("misc/demo.html")
