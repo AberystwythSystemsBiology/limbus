@@ -7,6 +7,13 @@ from ..auth.models import User
 from .forms import NewConsentFormTemplate
 from ..misc.generators import generate_random_hash
 from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
+from ..sample.models import (
+    SamplePatientConsentFormTemplateAssociation,
+    Sample,
+    SamplePatientConsentFormAnswersAssociation,
+)
+
+from .api import *
 
 
 @pcf.route("/")
@@ -20,7 +27,7 @@ def index():
     return render_template("patientconsentform/index.html", templates=templates)
 
 
-@pcf.route("/view/<pcf_id>")
+@pcf.route("/view/LIMBPCF-<pcf_id>")
 def view(pcf_id):
     template, uploader = (
         db.session.query(ConsentFormTemplate, User)
@@ -36,11 +43,19 @@ def view(pcf_id):
     )
     questions = [questions[i : (i + 3)] for i in range(0, len(questions), 3)]
 
+    assoc_samples = (
+        db.session.query(SamplePatientConsentFormTemplateAssociation, Sample)
+        .filter(SamplePatientConsentFormTemplateAssociation.template_id == pcf_id)
+        .filter(SamplePatientConsentFormTemplateAssociation.sample_id == Sample.id)
+        .all()
+    )
+
     return render_template(
         "patientconsentform/view.html",
         template=template,
         questions=questions,
         uploader=uploader,
+        assoc_samples=[x[1] for x in assoc_samples],
     )
 
 
