@@ -110,6 +110,7 @@ class SampleAttributeOption(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
     update_date = db.Column(
         db.DateTime,
         server_default=db.func.now(),

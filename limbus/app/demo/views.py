@@ -146,6 +146,14 @@ def randomise_consent_forms():
         db.session.commit()
 
 
+def randomise_processing_template():
+
+    samples = db.session.query(Sample).all()
+    users = db.session.query(User).all()
+
+    for sample in samples:
+        pass
+
 @demo.route("/", methods=["GET", "POST"])
 def apply_demo_data():
     demo_data_dir = "/limbus/documents/"
@@ -161,5 +169,6 @@ def apply_demo_data():
     )
 
     randomise_consent_forms()
+    randomise_processing_template()
 
     return render_template("misc/demo.html")

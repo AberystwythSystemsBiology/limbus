@@ -15,7 +15,6 @@ from ..sample.models import (
 
 from .api import *
 
-
 @pcf.route("/")
 def index():
     templates = (
