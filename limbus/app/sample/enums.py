@@ -4,8 +4,8 @@ from ..FormEnum import FormEnum
 
 class SampleType(FormEnum):
     FLU = "Fluid"
-    TIS = "Tissue"
-
+    CEL = "Cell"
+    MOL = "Molecular"
 
 class FluidSampleType(FormEnum):
     # If Fluid the Quantity == ml

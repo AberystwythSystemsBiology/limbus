@@ -9,7 +9,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired
 
-from .enums import SampleAttributeTypes, DisposalInstruction, SampleType, SampleStatus
+from .enums import *
 from ..document.models import Document, DocumentType
 from ..auth.models import User
 from ..misc.enums import UnitsOfMeasurement
@@ -181,5 +181,17 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField(
         "Sample Type", validators=[DataRequired()], choices=SampleType.choices()
+    )
+
+    fluid_sample_type = SelectField(
+        "Fluid Sample Type", validators=[DataRequired()], choices=FluidSampleType.choices()
+    )
+
+    molecular_sample_type = SelectField(
+        "Molecular Sample Type", validators=[DataRequired()], choices=MolecularSampleType.choices()
+    )
+
+    cell_sample_type = SelectField(
+        "Cell Sample Type", validators=[DataRequired()], choices=CellSampleType.choices()
     )
     submit = SubmitField("Submit")
