@@ -215,7 +215,17 @@ def select_sample_type(hash):
     form = SampleTypeSelectForm()
 
     if form.validate_on_submit():
-        session["%s sample_type" % (hash)] = form.sample_type.data
+        data = {"sample_type" : form.sample_type.data, "quantity": form.quantity.data}
+
+        if data["sample_type"] == "CEL":
+            type = form.cell_sample_type.data
+        elif data["sample_type"] == "FLU":
+            type = form.fluid_sample_type.data
+        elif data["sample_type"] == "MOL":
+            type = form.molecular_sample_type.data
+
+        data["type"] = type
+        session["%s sample_type_info" % (hash)] = data
 
         return redirect(url_for("sample.select_processing_protocol", hash=hash))
 
@@ -226,7 +236,7 @@ def select_sample_type(hash):
 def select_processing_protocol(hash):
     templates = (
         db.session.query(ProcessingTemplate)
-        .filter(ProcessingTemplate.sample_type == session["%s sample_type" % (hash)])
+        .filter(ProcessingTemplate.sample_type == session["%s sample_type_info" % (hash)]["sample_type"])
         .all()
     )
     form, _ = ProtocolTemplateSelectForm(templates)
@@ -284,8 +294,10 @@ def add_sample_form(hash):
     form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
 
     if form.validate_on_submit():
+        sample_type_info = ["%s sample_type_info" % (hash)]
         sample = Sample(
-            sample_type=session["%s sample_type" % (hash)],
+            sample_type=sample_type_info["sample_type"],
+            quantity=sample_type_info["quantity"],
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
             disposal_date=form.disposal_date.data,
@@ -295,8 +307,6 @@ def add_sample_form(hash):
 
         db.session.add(sample)
         db.session.flush()
-
-        # TODO: Add attribute to form element to differ between classes.
 
         for attr in form:
             if attr.id not in [

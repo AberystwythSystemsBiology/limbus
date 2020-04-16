@@ -180,18 +180,23 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField(
-        "Sample Type", validators=[DataRequired()], choices=SampleType.choices()
+        "Sample Type", choices=SampleType.choices()
     )
 
     fluid_sample_type = SelectField(
-        "Fluid Sample Type", validators=[DataRequired()], choices=FluidSampleType.choices()
+        "Fluid Sample Type", choices=FluidSampleType.choices()
     )
-
     molecular_sample_type = SelectField(
-        "Molecular Sample Type", validators=[DataRequired()], choices=MolecularSampleType.choices()
+        "Molecular Sample Type", choices=MolecularSampleType.choices()
+    )
+    cell_sample_type = SelectField(
+        "Cell Sample Type", choices=CellSampleType.choices()
     )
 
-    cell_sample_type = SelectField(
-        "Cell Sample Type", validators=[DataRequired()], choices=CellSampleType.choices()
+    # This needs to have some jQuery fiddling to make it work as intented
+    quantity = StringField(
+        "Quantity"
     )
+
+
     submit = SubmitField("Submit")

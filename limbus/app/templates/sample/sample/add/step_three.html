@@ -14,8 +14,16 @@
         <form action="{{ url_for('sample.select_sample_type', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
             {{ form_field(form.sample_type) }}
+            {{ form_field(form.fluid_sample_type) }}
+            {{ form_field(form.molecular_sample_type) }}
+            {{ form_field(form.cell_sample_type) }}
+            {{ form_field(form.quantity, q=True) }}
             {{ form_field(form.submit) }}
         </form>
 
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/information/add/step_three.js') }}"></script>
 {% endblock %}
