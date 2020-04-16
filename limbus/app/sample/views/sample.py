@@ -294,9 +294,10 @@ def add_sample_form(hash):
     form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
 
     if form.validate_on_submit():
-        sample_type_info = ["%s sample_type_info" % (hash)]
+        sample_type_info = session["%s sample_type_info" % (hash)]
+        sample_type = sample_type_info["sample_type"]
         sample = Sample(
-            sample_type=sample_type_info["sample_type"],
+            sample_type=sample_type,
             quantity=sample_type_info["quantity"],
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
@@ -305,8 +306,34 @@ def add_sample_form(hash):
             sample_status=form.sample_status.data,
         )
 
+
         db.session.add(sample)
         db.session.flush()
+
+        if sample_type == "FLU":
+            stot = SampleToFluidSampleType(
+                sample_id = sample.id,
+                sample_type = sample_type_info["type"],
+                author_id = current_user.id
+            )
+
+        elif sample_type == "MOL":
+            stot = SampleToMolecularSampleType(
+                sample_id = sample.id,
+                sample_type = sample_type_info["type"],
+                author_id = current_user.id
+            )
+
+        elif sample_type == "CEL":
+            stot = SampleToCellSampleType(
+                sample_id = sample.id,
+                sample_type = sample_type_info["type"],
+                author_id = current_user.id
+            )
+
+        db.session.add(stot)
+        db.session.flush()
+
 
         for attr in form:
             if attr.id not in [
