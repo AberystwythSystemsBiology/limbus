@@ -10,6 +10,7 @@ itsdangerous==1.1.0
 Jinja2==2.10.1
 Mako==1.1.0
 MarkupSafe==1.1.1
+pandas==1.0.3
 pyStrich==0.8
 psycopg2-binary==2.8.3
 pycountry==19.8.18
