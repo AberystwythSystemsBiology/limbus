@@ -12,7 +12,7 @@
             <div class="col-6">
                 <div class="row">
                     <span class="col-sm-3">Sample:</span>
-                    <span class="col-sm-9">Sample ID here.</span>
+                    <span class="col-sm-9">LIMBSMP-{{ sample.id }}</span>
                 </div>
             </div>
             <div class="col-6">
@@ -23,7 +23,9 @@
             </div>
         </div>
 
-
+        <form>
+            {{ form.submit() }}
+        </form>
 
     </div>
 

@@ -6,6 +6,7 @@ from wtforms import (
     DateField,
     BooleanField,
     TimeField,
+    IntegerField,
 )
 from wtforms.validators import DataRequired
 
@@ -200,3 +201,26 @@ class SampleTypeSelectForm(FlaskForm):
 
 
     submit = SubmitField("Submit")
+
+
+def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
+    if sample_type == "FLU":
+        enums = FluidSampleType
+    elif sample_type == "CEL":
+        enums = CellSampleType
+    else:
+        enums = MolecularSampleType
+
+    class StaticForm(FlaskForm):
+        count = IntegerField("Aliquot Count")
+        size = StringField("Sample per Aliquot")
+        aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
+        aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
+        cell_viability = IntegerField("Cell Viability %")
+        lock_parent = BooleanField("Lock Parent?")
+
+        submit = SubmitField("Submit")
+
+    setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=SampleType.choices()))
+
+    return StaticForm()
