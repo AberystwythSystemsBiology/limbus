@@ -15,9 +15,9 @@ def aliquot(sample_id):
             .first_or_404()
     )
 
-    if sample.sample_type == "Molecular":
+    if sample.sample_type == SampleType.MOL:
         sample_type = SampleToMolecularSampleType
-    elif sample.sample_type == "Fluid":
+    elif sample.sample_type == SampleType.FLU:
         sample_type = SampleToFluidSampleType
     else:
         sample_type = SampleToCellSampleType
@@ -25,6 +25,7 @@ def aliquot(sample_id):
     sample_type = (
         db.session.query(sample_type).filter(sample_type.sample_id == sample_id).first_or_404()
     )
+
     form = SampleAliquotingForm(sample.sample_type, sample_type.sample_type)
 
     return render_template("sample/sample/aliquot/create.html", sample=sample, form=form)

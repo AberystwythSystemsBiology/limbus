@@ -221,6 +221,6 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
         submit = SubmitField("Submit")
 
-    setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=SampleType.choices()))
+    setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=enums.choices()))
 
     return StaticForm()

@@ -44,6 +44,8 @@ def view(sample_id):
         .all()
     )
 
+    sample_type = db.session.query(SampleToFluidSampleType).filter(SampleToFluidSampleType.sample_id == sample_id).first_or_404()
+
     option_attr = (
         db.session.query(
             SampleAttribute, SampleAttributeOptionValue, SampleAttributeOption
@@ -87,6 +89,7 @@ def view(sample_id):
         sample=sample,
         text_attr=text_attr,
         option_attr=option_attr,
+        sample_type = sample_type,
         associated_document=associated_document,
         consent_template=consent_template,
         protocol=template,

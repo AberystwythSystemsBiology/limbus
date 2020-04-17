@@ -36,12 +36,15 @@
         <div class="row">
             <div class="col">
                 {{ show_value(sample.sample_type, "Sample Type", "text") }}
+                {{ show_value(sample_type.sample_type, "Source Type", "text") }}
                 {{ show_value(sample.disposal_date, "Disposal Instructions", "datetime") }}
                 {{ show_value(sample.disposal_instruction, "Disposal Instructions", "text") }}
                 {{ show_value(protocol.name, "Protocol Name", "text")  }}
 
             </div>
             <div class="col">
+                {{ show_value(sample.quantity, "Quantity Available", "text") }}
+
                 {% for term, attr in text_attr %}
                     {{ show_value(attr.value, term.term, "text")  }}
                 {% endfor %}

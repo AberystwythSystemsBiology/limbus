@@ -24,7 +24,21 @@
         </div>
 
         <form>
-            {{ form.submit() }}
+            {{ form_field(form.count) }}
+            {{ form_field(form.size) }}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.aliquot_date) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.aliquot_time) }}
+                </div>
+            </div>
+
+
+            {{ form_field(form.cell_viability) }}
+            {{ form_field(form.lock_parent) }}
+            {{ form_field(form.submit) }}
         </form>
 
     </div>
