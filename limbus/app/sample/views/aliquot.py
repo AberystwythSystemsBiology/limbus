@@ -25,9 +25,6 @@ def aliquot(sample_id):
     sample_type = (
         db.session.query(sample_type).filter(sample_type.sample_id == sample_id).first_or_404()
     )
-
-    print(sample_type)
-
     form = SampleAliquotingForm(sample.sample_type, sample_type.sample_type)
 
     return render_template("sample/sample/aliquot/create.html", sample=sample, form=form)
