@@ -13,6 +13,7 @@ class Sample(db.Model):
     sample_status = db.Column(db.Enum(SampleStatus))
 
     quantity = db.Column(db.Float)
+    current_quantity = db.Column(db.Float)
 
     disposal_date = db.Column(db.DateTime, nullable=False)
 

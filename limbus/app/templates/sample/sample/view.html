@@ -16,45 +16,47 @@
             </div>
         </div>
 
-        {{ show_value(sample.sample_type, "Sample Type", "text") }}
-        {{ show_value(sample.disposal_date, "Disposal Instructions", "datetime") }}
-        {{ show_value(sample.disposal_instruction, "Disposal Instructions", "text") }}
-        {{ show_value(sample.creation_date, "Creation Date", "datetime") }}
-
-        {% for term, attr in text_attr %}
-            {{ show_value(attr.value, term.term, "text")  }}
-        {% endfor %}
-
-        {% for term, _, choice in option_attr %}
-            {{ show_value(choice.term, term.term,  "text")  }}
-    {% endfor %}
-
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h3><i class="fa fa-project-diagram"></i>  Processing Protocol Information</h3>
-<a href="{{ url_for('processing.view_protocol', protocol_id=protocol.id) }}">
-            <div class="btn btn-primary">
-                <i class="fa fa-eye"></i> View Protocol</div></a>
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+          <div class="btn-group mr-2" role="group" aria-label="First group">
+            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
+          </div>
+          <div class="btn-group mr-2" role="group" aria-label="Second group">
+            <button type="button" class="btn btn-outline-dark"><i class="fa fa-code-branch"></i> Derive</button>
+          </div>
+          <div class="btn-group mr-2" role="group" aria-label="Third group">
+              <a href="{{ url_for("sample.aliquot", sample_id=sample.id) }}">
+                <button type="button" class="btn btn-outline-dark"><i class="fa fa-code-branch"></i> Aliquot</button>
+              </a>
+          </div>
+            <div class="btn-group" role="group" aria-label="Third group">
+            <button type="button" class="btn btn-outline-dark"><i class="fa fa-print"></i> Print</button>
+          </div>
         </div>
 
-            {{ show_value(protocol.name, "Protocol Name", "text")  }}
+        <div class="row">
+            <div class="col">
+                {{ show_value(sample.sample_type, "Sample Type", "text") }}
+                {{ show_value(sample.disposal_date, "Disposal Instructions", "datetime") }}
+                {{ show_value(sample.disposal_instruction, "Disposal Instructions", "text") }}
+                {{ show_value(protocol.name, "Protocol Name", "text")  }}
 
+            </div>
+            <div class="col">
+                {% for term, attr in text_attr %}
+                    {{ show_value(attr.value, term.term, "text")  }}
+                {% endfor %}
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h3><i class="fas fa-boxes"></i> Storage Information</h3>
+                {% for term, _, choice in option_attr %}
+                    {{ show_value(choice.term, term.term,  "text")  }}
+                {% endfor %}
 
+                {{ show_value("Not Stored", "Storage", "text")  }}
+
+                {{ show_value(consent_template.name, "Consent Template", "text")  }}
+                {{ show_value(sample.creation_date, "Creation Date", "datetime") }}
+
+            </div>
         </div>
-
-        <p>No storage information is currently available.</p>
-
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h3><i class="fas fa-thumbs-up"></i> Patient Consent Information</h3>
-
-            <a href="{{ url_for('sample.pcf_view', sample_id=sample.id) }}">
-            <div class="btn btn-primary">
-                <i class="fa fa-eye"></i> View Form</div></a>
-        </div>
-
-        {{ show_value(consent_template.name, "Template Name", "text")  }}
 
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">

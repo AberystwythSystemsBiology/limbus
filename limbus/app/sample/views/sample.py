@@ -299,6 +299,7 @@ def add_sample_form(hash):
         sample = Sample(
             sample_type=sample_type,
             quantity=sample_type_info["quantity"],
+            current_quantity=sample_type_info["quantity"],
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
             disposal_date=form.disposal_date.data,
