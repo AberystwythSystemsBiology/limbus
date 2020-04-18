@@ -204,16 +204,17 @@ class SampleTypeSelectForm(FlaskForm):
 
 
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
-    if sample_type == "FLU":
+    if sample_type == SampleType.FLU:
         enums = FluidSampleType
-    elif sample_type == "CEL":
+    elif sample_type == SampleType.CEL:
         enums = CellSampleType
     else:
         enums = MolecularSampleType
 
     class StaticForm(FlaskForm):
-        count = IntegerField("Aliquot Count")
+        count = IntegerField("Aliquot Count", validators=[DataRequired()])
         size = StringField("Sample per Aliquot")
+        use_entire = BooleanField("Use Entire Source?")
         aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
         aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
         cell_viability = IntegerField("Cell Viability %")
@@ -221,6 +222,15 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
         submit = SubmitField("Submit")
 
-    setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=enums.choices()))
+    _ec = enums.choices()
+
+    _i = [i for i, x in enumerate(_ec) if x[1] == default_type][0]
+    _ec.insert(0, _ec.pop(_i))
+
+    setattr(
+        StaticForm,
+        "sample_type",
+        SelectField("Sample Type", choices=_ec)
+    )
 
     return StaticForm()

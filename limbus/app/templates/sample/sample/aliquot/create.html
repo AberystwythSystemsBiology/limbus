@@ -25,7 +25,10 @@
 
         <form>
             {{ form_field(form.count) }}
+            {{ form_field(form.use_entire) }}
             {{ form_field(form.size) }}
+            {{ form_field(form.sample_type) }}
+
             <div class="row">
                 <div class="col-6">
                     {{ form_field(form.aliquot_date) }}
@@ -34,7 +37,6 @@
                     {{ form_field(form.aliquot_time) }}
                 </div>
             </div>
-
 
             {{ form_field(form.cell_viability) }}
             {{ form_field(form.lock_parent) }}

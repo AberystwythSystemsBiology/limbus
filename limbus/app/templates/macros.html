@@ -3,86 +3,78 @@
     {% set with_label = kwargs.pop('with_label', True) %}
     {% set with_quantity = kwargs.pop('q', False) %}
 
-    <div id="{{ field.id }}_div">
+    {% if field.errors %}
+        <div class="alert alert-warning" role="alert">
+            <b>Error:</b> {{ field.errors|join(', ') }}
+        </div>
+    {% endif %}
 
-    {% if field.type == 'BooleanField' %}
-        <div class="form-check">
+    {% if field.type == "BooleanField" %}
+        <div class="form-group form-check" id="{{ field.id }}_div">
             <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             <label class="form-check-label" for="{{ field.id }}">
-                {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:
+                {{ field.label.text }}
             </label>
         </div>
-
-    {% elif field.type != 'SubmitField' %}
-        <div class="form-group">
-
-
-        {% if with_label %}
-            <label for="{{ field.id }}">
-                {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:</label>
-        {% endif %}
-
-        {% if field.description %}
-            <small class="form-text text-muted">{{ field.description }}</small>
-        {% endif %}
-
-        {% if field.errors %}
-            <div class="alert alert-warning" role="alert">
-                <b>Error:</b> {{ field.errors|join(', ') }}
+        {% elif field.type == "StringField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                {% if with_quantity %}
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text quantity-text"></div>
+                        </div>
+                        <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"{% if field.flags.required %}required{% endif %}>
+                    </div>
+                {% else %}
+                    <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"{% if field.flags.required %}required{% endif %}>
+                {% endif %}
             </div>
-        {% endif %}
-
-
-
-        {% if field.type == 'StringField' %}
-            {% if with_quantity %}
-            <div class="input-group mb-2">
-                <div class="input-group-prepend">
-                    <div class="input-group-text quantity-text"></div>
-                </div>
-            {% endif %}
-                <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
-                   {% if field.flags.required %}required{% endif %}>
-        {% if with_quantity %}
+        {% elif field.type == "SelectField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}: </label>
+                <select class="form-control" id="{{ field.id }}" name="{{ field.name }}">
+                    {% for value, key, bo in field.iter_choices() %}
+                        <option value="{{ value }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
             </div>
-            {% endif %}
-
-        {% elif field.type == 'RadioField' %}
-            <br>
-            {% for key, value, bo in field.iter_choices() %}
-                 <label class="radio-inline"><input type="radio" name="{{field.id}}" value="{{ key }}" checked></label>
-                {{ value }}
-            {% endfor %}
-        {% elif field.type == 'IntegerField' %}
-            <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
-                   {% if field.flags.required %}required{% endif %}>
-        {% elif field.type == 'TextAreaField' %}
-            <textarea class="form-control" id="{{ field.id }}" name="{{ field.name }}" rows="3"></textarea>
-        {% elif field.type == 'SelectField' %}
-            <select class="form-control" id="{{ field.id }}" name="{{ field.name }}">
-                {% for key, value, bo in field.iter_choices() %}
-                    <option value="{{ key }}">{{ value }}</option>
-                {% endfor %}
-            </select>
-        {% elif field.type == 'TimeField' %}
-            <input type="time" class="form-control"  id="{{ field.id }}" name="{{field.name}}" value="13:30" {% if field.flags.required %}required{% endif %}>
-        {% elif field.type  == 'PasswordField' %}
-            <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
-        {% elif field.type == 'FileField' %}
-            <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
-                   {% if field.flags.required %}required{% endif %}>
-        {% elif field.type == 'DateField' %}
-            <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
+        {% elif field.type == "DateField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
                    max="3000-12-31" class="form-control">
+            </div>
+        {% elif field.type == "TimeField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <input type="time" class="form-control"  id="{{ field.id }}" name="{{field.name}}" value="13:30" {% if field.flags.required %}required{% endif %} />
+            </div>
+        {% elif field.type == "PasswordField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
+            </div>
+        {% elif field.type == "FileField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
+                   {% if field.flags.required %}required{% endif %}>
+            </div>
+        {% elif field.type == "IntegerField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
+                   {% if field.flags.required %}required{% endif %}>
+            </div>
+        {% elif field.type == "SubmitField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
+                    <i class="fa fa-check"></i> {{ field.label.text }}
+                </button>
+            </div>
         {% endif %}
-    {% else %}
-        <div style="height: 20px;"></div>
-        <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
-            <i class="fa fa-check"></i> {{ field.label.text }}
-        </button>
-    {% endif %}
-    </div>
-    </div>
+
 {%- endmacro %}
 
 
