@@ -18,7 +18,9 @@ function automatic_sample_per_aliquot() {
     $("#proposed_quantity").text("0.0");
 }
 
+function update_proposed() {
 
+}
 
 $(document).ready(function() {
     $("#use_entire").change(function() {
@@ -32,5 +34,9 @@ $(document).ready(function() {
 
     $("#count").change(function () {
         automatic_sample_per_aliquot();
+    })
+
+    $("#size").change(function () {
+        alert("Size Changed")
     })
 });
