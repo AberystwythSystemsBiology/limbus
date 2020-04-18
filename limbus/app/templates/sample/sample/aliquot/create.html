@@ -11,14 +11,22 @@
         <div class="row">
             <div class="col-6">
                 <div class="row">
-                    <span class="col-sm-3">Sample:</span>
+                    <span class="col-sm-3">Parent Sample:</span>
                     <span class="col-sm-9">LIMBSMP-{{ sample.id }}</span>
                 </div>
             </div>
             <div class="col-6">
-                <div class="row">
-                    <span class="col-sm-3">Quantity Available:</span>
-                    <span class="col-sm-9">100mL.</span>
+                <div class="form-group row">
+                    <span class="col-sm-3">Original Quantity:</span>
+                    <span class="col-sm-9">{{ sample.quantity }}</span>
+                </div>
+                <div class="form-group row">
+                    <span class="col-sm-3">Available Quantity:</span>
+                    <span class="col-sm-9" id="available_quantity">{{ sample.current_quantity }}</span>
+                </div>
+                <div class="form-group row">
+                    <span class="col-sm-3">Proposed Quantity:</span>
+                    <span class="col-sm-9" id="proposed_quantity">{{ sample.current_quantity }}</span>
                 </div>
             </div>
         </div>
@@ -37,12 +45,18 @@
                     {{ form_field(form.aliquot_time) }}
                 </div>
             </div>
-
-            {{ form_field(form.cell_viability) }}
+            {% if sample.sample_type == "Cellular" %}
+                {{ form_field(form.cell_viability) }}
+            {% endif %}
             {{ form_field(form.lock_parent) }}
             {{ form_field(form.submit) }}
         </form>
 
     </div>
 
+{% endblock %}
+
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/aliquot/create.js') }}"></script>
 {% endblock %}

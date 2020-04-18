@@ -16,6 +16,8 @@ class Sample(db.Model):
 
     disposal_date = db.Column(db.DateTime, nullable=False)
 
+    is_closed = db.Column(db.Boolean)
+
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(
         db.DateTime,

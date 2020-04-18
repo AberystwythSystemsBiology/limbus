@@ -213,8 +213,8 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
     class StaticForm(FlaskForm):
         count = IntegerField("Aliquot Count", validators=[DataRequired()])
-        size = StringField("Sample per Aliquot")
-        use_entire = BooleanField("Use Entire Source?")
+        size = StringField("Sample Quantity per Aliquot", validators=[DataRequired()])
+        use_entire = BooleanField("Use all of Parent Sample?")
         aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
         aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
         cell_viability = IntegerField("Cell Viability %")

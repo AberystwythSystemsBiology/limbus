@@ -64,8 +64,8 @@
         {% elif field.type == "IntegerField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
-                <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
-                   {% if field.flags.required %}required{% endif %}>
+                <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}" min="1"
+                   {% if field.flags.required %}value="1" required{% endif %}>
             </div>
         {% elif field.type == "SubmitField" %}
             <div class="form-group" id="{{ field.id }}_div">
