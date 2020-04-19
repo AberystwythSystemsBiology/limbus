@@ -50,6 +50,18 @@
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
                 <input type="time" class="form-control"  id="{{ field.id }}" name="{{field.name}}" value="13:30" {% if field.flags.required %}required{% endif %} />
             </div>
+        {% elif field.type == "RadioField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <div class="col-form-label">
+                    {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}:
+                </div>
+            {% for key, value, bo in field.iter_choices() %}
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="{{ field.id }}" id="{{ field.id }}" value="{{ value }}" {% if loop.index == 1 %}checked{% endif %}>
+                    <label class="form-check-label" for="{{ field.id }}">{{ value }}</label>
+                </div>
+            {% endfor %}
+            </div>
         {% elif field.type == "PasswordField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
