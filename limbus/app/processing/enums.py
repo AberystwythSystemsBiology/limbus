@@ -1,11 +1,58 @@
 from ..FormEnum import FormEnum
 
+class ProtocolSampleType(FormEnum):
+    # Ideally I'd like to extend sample.enums.SampleType directly
+    # to add the all, but it turns out that you can't
+    # subclass an enumeration if an enumeration defines
+    # any members. I love you Python, but sometimes I want
+    # to strangle you.
+    ALL = "All"
+    FLU = "Fluid"
+    CEL = "Cell"
+    MOL = "Molecular"
+
 
 class ProtocolTypes(FormEnum):
-    DOC = "Document"
-    DIG = "Digital"
-    DIC = "Digital and Document"
+    # TODO: Extend this.
+    ACQ = "Sample Acquisition"
+    ALD = "Sample Aliquoting / Derivation"
+    STR = "Sample Transfer"
+    SDE = "Sample Destruction"
 
+class ProtocolUploadTypes(FormEnum):
+    # TODO: Extend this.
+    #DOC = "Document"
+    DIG = "Digital"
+    #DIC = "Digital and Document"
+
+
+class CellContainer(FormEnum):
+    CEN = "Fresh cells from non-blood specimen type"
+    CLN = "Cells from non-blood specimen type, viable"
+    FNA = "Cells from fine needle aspirate"
+    HAR = "Hair"
+    LCM = "Cells from laser capture microdissected tissue"
+    PEN = "Cells from non-blood specimen type (e.g. dissociated tissue), non viable"
+    PLC = "Placenta"
+    TIS = "Solid tissue"
+    TCM = "Disrupted tissue, non-viable"
+    ZZZ = "Other"
+
+class FixationType(FormEnum):
+    ACA = "Non-aldehyde with acetic acid"
+    ALD = "Aldehyde-based"
+    ALL = "Allprotect tissue reagent"
+    ETH = "Alcohol-based"
+    FOR = "Non-buffered formalin"
+    HST = "Heat stabilisation"
+    SNP = "Snap freezing"
+    NAA = "Non-aldehyde based without acetic acid"
+    NBF = "Neutral buffered formalin"
+    OCT = "Optimum cutting temperature medium"
+    PXT = "PAXgene Tissue"
+    RNL = "RNA Later"
+    XXX = "Unknown"
+    ZZZ = "Other"
 
 class FluidContainer(FormEnum):
     ACD = "Acid citrate dextrose"

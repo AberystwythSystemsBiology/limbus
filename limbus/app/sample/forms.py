@@ -8,7 +8,7 @@ from wtforms import (
     TimeField,
     IntegerField,
 )
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 from .enums import *
 from ..document.models import Document, DocumentType
@@ -213,7 +213,7 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
     class StaticForm(FlaskForm):
         count = IntegerField("Aliquot Count", validators=[DataRequired()])
-        size = StringField("Sample Quantity per Aliquot", validators=[DataRequired()])
+        size = StringField("Sample Quantity per Aliquot", validators=[DataRequired(), Length(min=1)])
         use_entire = BooleanField("Use all of Parent Sample?")
         aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
         aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])

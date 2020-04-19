@@ -13,28 +13,32 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL
 from ..sample.enums import SampleType
 
 from .enums import (
+    ProtocolSampleType,
     FluidContainer,
+    FluidLongTermStorage,
     ProcessingTemps,
     ProcessingTimes,
     CentrifugationTime,
     CentrifugationWeights,
-    ProtocolTypes,
+    ProtocolTypes
+
 )
 
 
 class NewProtocolForm(FlaskForm):
     name = StringField("Protocol Name", validators=[DataRequired()])
-    type = SelectField(
-        "Sample Type",
-        validators=[DataRequired()],
-        choices=[(x.name, x.value) for x in SampleType],
+
+    protocol_type = SelectField(
+        "Protocol Type",
+        choices=ProtocolTypes.choices(),
     )
 
-    protocol_type = RadioField(
-        "Protocol Type",
-        choices=[(x.name, x.value) for x in ProtocolTypes],
-        validators=[DataRequired()],
+    sample_type = SelectField(
+        "Sample Type",
+        choices=ProtocolSampleType.choices(),
     )
+
+    document_upload = FileField()
 
     submit = SubmitField("Submit")
 
