@@ -28,4 +28,27 @@ def aliquot(sample_id):
 
     form = SampleAliquotingForm(sample.sample_type, sample_type.sample_type)
 
-    return render_template("sample/sample/aliquot/create.html", sample=sample, form=form)
+    if form.validate_on_submit():
+
+        counts = form.count.data
+        size = form.size.data
+        aliquot_date = form.aliquot_date.data
+        aliquot_time = form.aliquot_time.data
+
+        lock_parent = form.lock_parent.data
+
+        for i in range(counts):
+            # Create Sample
+            a_s = Sample()
+
+            # Sample Type
+
+            # Add SubSample
+            s_ss = SubSampleToSample()
+
+            # Update Sample to reflect quantity change.
+            #sample
+
+
+
+    return render_template("sample/sample/aliquot/create.html", sample=sample, sample_type=sample_type, form=form)

@@ -1,6 +1,9 @@
 from enum import Enum
 from ..FormEnum import FormEnum
 
+class SubSampleType(FormEnum):
+    ALI = "Aliquot"
+    DER = "Derivative"
 
 class SampleType(FormEnum):
     FLU = "Fluid"
