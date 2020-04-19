@@ -64,45 +64,49 @@ def upload():
     return render_template("document/upload/index.html", form=form)
 
 
+def save_document(file, name, description, type, uploader):
+    filename = file.data.filename
+    folder_name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
+    document_dir = current_app.config["DOCUMENT_DIRECTORY"]
+    rel_path = os.path.join(document_dir, folder_name)
+    os.makedirs(rel_path)
+    sfn = secure_filename(filename)
+    filepath = os.path.join(rel_path, sfn)
+
+    document_info = session["%s document_info" % (hash)]
+
+    document = Document(
+        name=name,
+        description=description,
+        type=type,
+        uploader=uploader,
+    )
+
+    db.session.add(document)
+    db.session.flush()
+
+    document_file = DocumentFile(
+        filename=sfn,
+        filepath=filepath,
+        uploader=current_user.id,
+        document_id=document.id,
+    )
+
+    file.data.save(filepath)
+    db.session.add(document_file)
+    db.session.flush()
+
+    return document.id
+
+
 @document.route("/upload/file/<hash>", methods=["GET", "POST"])
 @login_required
 def document_upload(hash):
     form = DocumentUploadFileForm()
 
     if form.validate_on_submit():
-
-        # Generating fileplace.
-        filename = form.file.data.filename
-        folder_name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
-        document_dir = current_app.config["DOCUMENT_DIRECTORY"]
-        rel_path = os.path.join(document_dir, folder_name)
-        os.makedirs(rel_path)
-        sfn = secure_filename(filename)
-        filepath = os.path.join(rel_path, sfn)
-
         document_info = session["%s document_info" % (hash)]
-
-        document = Document(
-            name=document_info["name"],
-            description=document_info["description"],
-            type=document_info["type"],
-            uploader=current_user.id,
-        )
-
-        db.session.add(document)
-
-        db.session.flush()
-
-        document_file = DocumentFile(
-            filename=sfn,
-            filepath=filepath,
-            uploader=current_user.id,
-            document_id=document.id,
-        )
-
-        form.file.data.save(filepath)
-        db.session.add(document_file)
-        db.session.flush()
+        document_id = save_document(form.file, document_info["name"], document_info["description"], document_info["type"], current_user.id)
 
         if "%s patient_consent_info" % (hash) in session:
             consent_info = session["%s patient_consent_info" % (hash)]
@@ -113,7 +117,7 @@ def document_upload(hash):
                 animal=consent_info["animal"],
                 genetic=consent_info["genetic"],
                 indefinite=True,
-                document_id=document.id,
+                document_id=document_id
             )
 
             db.session.add(pcf)

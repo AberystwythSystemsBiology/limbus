@@ -29,7 +29,7 @@ class ProcessingTemplate(db.Model):
     )
 
 class ProcessingTemplateToDocument(db.Model):
-    __tablename__ = "processing_templates_to_doucuments"
+    __tablename__ = "processing_templates_to_documents"
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -37,8 +37,8 @@ class ProcessingTemplateToDocument(db.Model):
     document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
+    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(
         db.DateTime,
         server_default=db.func.now(),
