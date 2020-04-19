@@ -33,7 +33,7 @@ class ProcessingTemplateToDocument(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.ids"))
+    template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.id"))
     document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))

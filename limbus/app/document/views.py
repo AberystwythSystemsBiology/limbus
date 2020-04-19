@@ -64,7 +64,7 @@ def upload():
     return render_template("document/upload/index.html", form=form)
 
 
-def save_document(file, name, description, type, uploader):
+def save_document(file, name, description, type, uploader, commit=False) -> int:
     filename = file.data.filename
     folder_name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
     document_dir = current_app.config["DOCUMENT_DIRECTORY"]
@@ -72,8 +72,6 @@ def save_document(file, name, description, type, uploader):
     os.makedirs(rel_path)
     sfn = secure_filename(filename)
     filepath = os.path.join(rel_path, sfn)
-
-    document_info = session["%s document_info" % (hash)]
 
     document = Document(
         name=name,
@@ -94,7 +92,9 @@ def save_document(file, name, description, type, uploader):
 
     file.data.save(filepath)
     db.session.add(document_file)
-    db.session.flush()
+
+    if commit:
+        db.session.commit()
 
     return document.id
 

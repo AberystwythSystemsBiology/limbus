@@ -9,7 +9,7 @@
 
         </div>
 
-        <form method="POST" action="{{ url_for('processing.new_protocol') }}">
+        <form method="POST" action="{{ url_for('processing.new_protocol') }}" enctype="multipart/form-data">
             {{ form.csrf_token() }}
             {{ form_field(form.name) }}
             {{ form_field(form.protocol_type) }}

@@ -13,7 +13,6 @@ class ProtocolSampleType(FormEnum):
 
 
 class ProtocolTypes(FormEnum):
-    # TODO: Extend this.
     ACQ = "Sample Acquisition"
     ALD = "Sample Aliquoting / Derivation"
     STR = "Sample Transfer"
