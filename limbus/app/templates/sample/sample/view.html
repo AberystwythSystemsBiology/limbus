@@ -16,7 +16,7 @@
             </div>
         </div>
 
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
           <div class="btn-group mr-2" role="group" aria-label="First group">
             <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
           </div>
@@ -34,7 +34,7 @@
         </div>
 
         <div class="row">
-            <div class="col">
+            <div class="col form">
                 {{ show_value(sample.sample_type, "Sample Type", "text") }}
                 {{ show_value(sample_type.sample_type, "Source Type", "text") }}
                 {{ show_value(sample.disposal_date, "Disposal Instructions", "datetime") }}
