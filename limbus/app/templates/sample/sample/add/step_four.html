@@ -20,15 +20,14 @@
             <form action="{{ url_for('sample.select_processing_protocol', hash=hash) }}" method="POST">
                 {{ form.csrf_token }}
                 {{ form_field(form.form_select) }}
+                {{ form_field(form.sample_status) }}
+
                 <div class="row">
-                    <div class="col">
+                    <div class="col-6">
                         {{ form_field(form.processing_date) }}
                     </div>
-
-                    </div>
-                    <div class="col">
+                    <div class="col-6">
                         {{ form_field(form.processing_time) }}
-                    </div>
                     </div>
                 </div>
                 {{ form_field(form.submit) }}
@@ -39,4 +38,8 @@
 
         {% endif %}
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/information/add/step_four.js') }}"></script>
 {% endblock %}

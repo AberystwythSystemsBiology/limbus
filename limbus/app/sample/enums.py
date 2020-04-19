@@ -86,7 +86,7 @@ class SampleStatus(FormEnum):
     DES = "Destroyed"
     TRA = "Transferred"
     MIS = "Missing"
-
+    NPR = "Not Processed"
 
 class SampleAttributeTypes(FormEnum):
     OPTION = "Option"

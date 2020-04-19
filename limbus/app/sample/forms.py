@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import (
     SelectField,
@@ -17,6 +18,8 @@ from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
 from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
+from ..storage.enums import CellContainer, FluidContainer, FixationType
+
 from .. import db
 
 import inflect
@@ -24,20 +27,28 @@ import inflect
 p = inflect.engine()
 
 
-class SampleCreationForm(FlaskForm):
+class SampleTypeSelectForm(FlaskForm):
+    sample_type = SelectField("Sample Type", choices=SampleType.choices())
 
+    fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
+    molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
+    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+    quantity = StringField("Quantity")
+
+    cell_container = SelectField("Cell Container", choices=CellContainer.choices())
+    fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
+
+    fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
+
+    submit = SubmitField("Submit")
+
+class SampleCreationForm(FlaskForm):
     collection_date = DateField(validators=[DataRequired()])
 
-    sample_status = SelectField(
-        "Sample Status", validators=[DataRequired()], choices=SampleStatus.choices()
-    )
 
-    disposal_date = DateField(validators=[DataRequired()])
-    disposal_instruction = SelectField(
-        "Disposal Instructions",
-        validators=[DataRequired()],
-        choices=DisposalInstruction.choices(),
-    )
+    requires_disposal = BooleanField("Sample Requires Disposal?")
+    disposal_date = DateField("Disposal Date")
+    disposal_instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
 
 
 class SampleAttributeCreationForm(FlaskForm):
@@ -125,17 +136,17 @@ def PatientConsentFormSelectForm():
 # TODO: Duplicate Code
 def ProtocolTemplateSelectForm(templates):
     class StaticForm(FlaskForm):
-        pass
+        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
+        processing_time = TimeField("Processing Time", default=datetime.today)
+        processing_date = DateField("Processing Date")
+        submit = SubmitField("Submit")
 
-    length = 0
-
+    length = len(templates)
     choices = []
 
     for t in templates:
-        id = t.id
-        length += 1
-        choice = " LIMBPRO-%s: %s" % (id, t.name)
-        choices.append([str(id), choice])
+        choice = " LIMBPRO-%s: %s" % (t.id, t.name)
+        choices.append([str(t.id), choice])
 
     setattr(
         StaticForm,
@@ -146,20 +157,6 @@ def ProtocolTemplateSelectForm(templates):
             choices=choices,
         ),
     )
-
-    setattr(
-        StaticForm,
-        "processing_date",
-        DateField("Processing Date", validators=[DataRequired()]),
-    )
-
-    setattr(
-        StaticForm,
-        "processing_time",
-        TimeField("Processing Time", validators=[DataRequired()]),
-    )
-
-    setattr(StaticForm, "submit", SubmitField())
 
     return StaticForm(), length
 
@@ -179,28 +176,7 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
     return StaticForm()
 
 
-class SampleTypeSelectForm(FlaskForm):
-    sample_type = SelectField(
-        "Sample Type", choices=SampleType.choices()
-    )
 
-    fluid_sample_type = SelectField(
-        "Fluid Sample Type", choices=FluidSampleType.choices()
-    )
-    molecular_sample_type = SelectField(
-        "Molecular Sample Type", choices=MolecularSampleType.choices()
-    )
-    cell_sample_type = SelectField(
-        "Cell Sample Type", choices=CellSampleType.choices()
-    )
-
-    # This needs to have some jQuery fiddling to make it work as intented
-    quantity = StringField(
-        "Quantity"
-    )
-
-
-    submit = SubmitField("Submit")
 
 
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:

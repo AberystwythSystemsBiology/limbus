@@ -1,4 +1,4 @@
-{% set title = "New Sample: Select Sample Type" %}
+{% set title = "New Sample: Sample Type and Storage Medium" %}
 
 {% extends "template.html" %}
 
@@ -18,6 +18,9 @@
             {{ form_field(form.molecular_sample_type) }}
             {{ form_field(form.cell_sample_type) }}
             {{ form_field(form.quantity, q=True) }}
+            {{ form_field(form.cell_container) }}
+            {{ form_field(form.fluid_container) }}
+            {{ form_field(form.fixation_type) }}
             {{ form_field(form.submit) }}
         </form>
 

@@ -1,22 +1,15 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBPRO-{{ protocol.id }}{% endblock %}
-
-{% set count = 0 %}
-
 {% block body %}
 
     <div class="container">
-
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fa fa-project-diagram"></i>
                 LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h2>
-
         </div>
 
         {{ show_value(protocol.sample_type, "Sample Type", "enum") }}
 
-        </div>
-
     </div>
+
 {% endblock %}
