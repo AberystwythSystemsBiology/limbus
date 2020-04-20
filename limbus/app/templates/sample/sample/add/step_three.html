@@ -13,6 +13,8 @@
 
         <form action="{{ url_for('sample.select_sample_type', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
+            {{ form_field(form.barcode) }}
+
             {{ form_field(form.sample_type) }}
             {{ form_field(form.fluid_sample_type) }}
             {{ form_field(form.molecular_sample_type) }}

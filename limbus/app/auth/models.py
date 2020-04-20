@@ -97,18 +97,3 @@ class ProfileToAddress(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-
-
-class ProfileToBiobank(db.Model):
-    __versioned__ = {}
-    __tablename__ = "profiles_to_biobanks"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )

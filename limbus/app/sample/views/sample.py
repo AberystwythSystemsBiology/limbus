@@ -165,8 +165,12 @@ def add_sample_pcf():
     if document_selection.validate_on_submit():
         sample_add_hash = generate_random_hash()
         session[
-            "%s consent_id" % (sample_add_hash)
-        ] = document_selection.form_select.data
+            "%s consent_info" % (sample_add_hash)
+        ] = {
+            "consent_form_id": document_selection.form_select.data,
+            "consent_id": document_selection.consent_id.data
+        }
+
 
         return redirect(url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
     return render_template(
@@ -180,7 +184,8 @@ def add_sample_pcf():
 @sample.route("add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf_data(hash):
-    t_id = session["%s consent_id" % (hash)]
+    t_id = session["%s consent_info" % (hash)]["consent_form_id"]
+
     pcf = (
         db.session.query(ConsentFormTemplate)
         .filter(ConsentFormTemplate.id == t_id)

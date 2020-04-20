@@ -29,6 +29,7 @@ p = inflect.engine()
 
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
+    barcode = StringField("Biobank Barcode")
 
     fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
     molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
@@ -100,7 +101,7 @@ def DynamicAttributeSelectForm(query, attr):
 
 def PatientConsentFormSelectForm():
     class StaticForm(FlaskForm):
-        pass
+        consent_id = StringField("Patient Consent Identifier")
 
     length = 0
 
