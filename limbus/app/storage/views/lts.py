@@ -90,7 +90,7 @@ def view_lts(lts_id):
         db.session.add(shelf)
         db.session.commit()
 
-        return redirect(url_for("storage.view_lts", lts_id))
+        return redirect(url_for("storage.view_lts", lts_id=lts_id))
 
     return render_template(
         "/storage/lts/view.html", lts=lts, form=form, shelves=_shelves

@@ -50,18 +50,16 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
                     <form action="{{ url_for('storage.view_lts', lts_id=lts.id) }}" method="post">
+                    <div class="modal-body">
                         {{ form.csrf_token() }}
                         {{ form_field(form.name) }}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                {{ form_field(form.submit) }}
-                </form>
+                    </div>
+                    <div class="modal-footer">
+                        {{ form_field(form.submit) }}
+                    </div>
+                    </form>
 
-            </div>
         </div>
     </div>
     </div>

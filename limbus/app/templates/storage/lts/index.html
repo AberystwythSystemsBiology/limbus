@@ -32,7 +32,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for _, fcs, user, site in lts %}
+            {% for fcs, user, site, room in lts %}
                 <tr>
                     <td>LIMBLTS-{{ fcs.id }}: {{ fcs.manufacturer }} (# {{ fcs.serial_number }})</td>
                     <td>{{ site.name }}</td>

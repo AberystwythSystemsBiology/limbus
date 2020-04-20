@@ -21,11 +21,13 @@ class RoomRegistrationForm(FlaskForm):
 
 
 class NewShelfForm(FlaskForm):
+
     name = StringField(
         "Shelf Name",
         validators=[DataRequired()],
         description="A descriptive name for the shelf, something like top shelf.",
     )
+
     submit = SubmitField("Register Shelf")
 
 
