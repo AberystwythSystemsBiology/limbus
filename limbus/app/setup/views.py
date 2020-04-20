@@ -68,7 +68,6 @@ def admin_registration():
 
 
 @setup.route("/biobank_registration", methods=["GET", "POST"])
-@check_if_user
 def biobank_registration():
 
     form = BiobankRegistrationForm()
@@ -108,6 +107,5 @@ def biobank_registration():
 
 
 @setup.route("/complete")
-@check_if_user
 def complete():
     return render_template("setup/complete.html")

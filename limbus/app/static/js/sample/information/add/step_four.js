@@ -38,5 +38,5 @@ $(document).ready(function() {
     logic();
     $("#sample_status").change(function () {
         logic();
-    })
+    });
 });

@@ -315,16 +315,44 @@ def add_sample_form(hash):
 
     if form.validate_on_submit():
         sample_type_info = session["%s sample_type_info" % (hash)]
+        processing_protocol = session["%s processing_protocol" % (hash)]
+
+        # There's an issue with Date/Time input on Firefox wherein
+        # a date has to be provided upon submission. Right now I have
+        # hacked a couple things in jQuery to input the current date
+        # into the form where a setting has been applied that doesn't
+        # require disposal/collection information - so you have the below
+        # code to deal with it. I am probably going to break this out a bit
+        # but that's very much a want as opposed to a need right now so
+        # this will do.
+        #
+        # TODO: Fix.
+
+        if processing_protocol["sample_status"] != SampleStatus.NPR:
+            processing_date = processing_protocol["processing_date"]
+            processing_time = processing_protocol["processing_time"]
+        else:
+            processing_date = None
+            processing_time = None
+
+        disposal_instruction = form.disposal_instruction.data
+
+        if disposal_instruction != DisposalInstruction.NAP:
+            disposal_date = form.disposal_date.data
+        else:
+            disposal_date = None
+
         sample_type = sample_type_info["sample_type"]
+
         sample = Sample(
             sample_type=sample_type,
             quantity=sample_type_info["quantity"],
             current_quantity=sample_type_info["quantity"],
             collection_date=form.collection_date.data,
             disposal_instruction=form.disposal_instruction.data,
-            disposal_date=form.disposal_date.data,
+            disposal_date=disposal_date,
             author_id=current_user.id,
-            sample_status=form.sample_status.data,
+            sample_status=processing_protocol["sample_status"],
         )
 
 
@@ -397,20 +425,22 @@ def add_sample_form(hash):
 
                     db.session.add(option_value)
 
+        consent_info = session["%s consent_info" % (hash)]
+
         spcfta = SamplePatientConsentFormTemplateAssociation(
             sample_id=sample.id,
-            template_id=session["%s consent_id" % (hash)],
+            template_id=consent_info["consent_form_id"],
+            consent_id = consent_info["consent_id"],
             author_id=current_user.id,
         )
 
         db.session.add(spcfta)
         db.session.flush()
-        prot = session["%s processing_protocol" % (hash)]
         spta = SampleProcessingTemplateAssociation(
             sample_id=sample.id,
-            template_id=prot["protocol_id"],
-            processing_time=prot["processing_time"],
-            processing_date=prot["processing_date"],
+            template_id=processing_protocol["protocol_id"],
+            processing_time=processing_time,
+            processing_date=processing_date,
             author_id=current_user.id,
         )
 
@@ -429,8 +459,8 @@ def add_sample_form(hash):
         db.session.commit()
 
         clear_session(hash)
-
         return redirect(url_for("sample.index"))
+
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
 

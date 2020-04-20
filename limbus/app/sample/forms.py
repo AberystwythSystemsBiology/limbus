@@ -44,12 +44,9 @@ class SampleTypeSelectForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class SampleCreationForm(FlaskForm):
-    collection_date = DateField(validators=[DataRequired()])
-
-
-    requires_disposal = BooleanField("Sample Requires Disposal?")
-    disposal_date = DateField("Disposal Date")
+    collection_date = DateField("Sample Collection Date", validators=[DataRequired()])
     disposal_instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
+    disposal_date = DateField("Disposal Date")
 
 
 class SampleAttributeCreationForm(FlaskForm):
