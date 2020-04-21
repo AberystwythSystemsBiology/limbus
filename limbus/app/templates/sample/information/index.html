@@ -9,11 +9,10 @@
 
             <div class="btn-toolbar">
                 <div class="btn-group mr-2">
-                    <a href="{{ url_for('sample.add_sample_pcf') }}">
                         <div class="btn btn-primary">
                             <i class="fas fa-plus"></i> Add Sample
                         </div>
-                    </a>
+                    <!-- </a>> -->
                 </div>
                 <div class="btn-group mr-2">
                     <div id="showFilter" class="btn btn-success"><i class="fa fa-filter"></i>
@@ -36,19 +35,17 @@
             </tr>
             </thead>
             <tbody>
-            {% for s, user in samples %}
+            {% for sample_id, sample in samples.items() %}
                 <tr>
-                    <td>LIMBSMP-{{ s.id }}</td>
-                    <td>{{ s.sample_type.value }}</td>
-                    <td>{{ s.sample_status }}</td>
-                    <td>{{ s.collection_date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ user.email }}</td>
+                    <td>LIMBSMP-{{ sample_id }}</td>
+                    <td>{{ sample["sample_type"] }}</td>
+                    <td>{{ sample["sample_status"] }}</td>
+                    <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
                     <td>
-                        <a href="{{ url_for('sample.view', sample_id=s.id) }}">
-                            <div class="btn btn-primary btn-sm">
-                                <i class="fas fa-eye"></i> View
-                            </div>
-                        </a>
+                        {{ sample["user_information"]["name"] }}
+                    </td>
+                    <td>
+
                     </td>
                 </tr>
             {% endfor %}

@@ -19,10 +19,3 @@ def sap_portal():
     }
 
     return render_template("sample/index.html", info=info)
-
-
-@sample.route("table/")
-@login_required
-def index():
-    samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
-    return render_template("sample/information/index.html", samples=samples)
