@@ -78,12 +78,14 @@ def aliquot(sample_id):
             db.session.add(s_ss)
             db.session.commit()
 
-        sample._sample.current_quantity = size * counts
+        sample.db_sessions["sample"].current_quantity = size * counts
 
         if lock_parent:
-            sample._sample.is_closed = True
+            sample.db_sessions["sample"].is_closed = True
 
-        db.session.add(sample._sample)
+        db.session.add(sample.db_sessions)
         db.session.commit()
+
+        return redirect(url_for("sample.view", sample_id=sample_id))
 
     return render_template("sample/sample/aliquot/create.html", sample=sample, sample_type=sample_type, form=form)

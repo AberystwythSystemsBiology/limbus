@@ -11,6 +11,9 @@ from ...processing.models import ProcessingTemplate
 class SampleView(ViewClass):
     def __init__(self, sample_id):
         self.sample_id = sample_id
+        self.db_sessions = {
+
+        }
 
     def _get_custom_attrs(self):
         # TODO: Fix this.
@@ -72,7 +75,7 @@ class SampleView(ViewClass):
         return docs
 
     def get_attributes(self) -> dict:
-        self._sample, self._user = db.session.query(Sample, User)\
+        sample, user = db.session.query(Sample, User)\
             .filter(Sample.id == self.sample_id)\
             .filter(Sample.author_id == User.id)\
             .first_or_404()
@@ -80,26 +83,29 @@ class SampleView(ViewClass):
 
 
         data = {
-            "id" : self._sample.id,
-            "biobank_barcode" : self._sample.biobank_barcode,
-            "sample_type" : self._sample.sample_type,
-            "sample_status" : self._sample.sample_status,
-            "collection_date" : self._sample.collection_date,
-            "quantity" : self._sample.quantity,
-            "current_quantity": self._sample.current_quantity,
-            "is_closed" : self._sample.is_closed,
-            "disposal_instruction" : self._sample.disposal_instruction,
-            "disposal_date" : self._sample.disposal_date,
-            "create_date" : self._sample.creation_date,
-            "update_date" : self._sample.update_date
+            "id" : sample.id,
+            "biobank_barcode" : sample.biobank_barcode,
+            "sample_type" : sample.sample_type,
+            "sample_status" : sample.sample_status,
+            "collection_date" : sample.collection_date,
+            "quantity" : sample.quantity,
+            "current_quantity": sample.current_quantity,
+            "is_closed" : sample.is_closed,
+            "disposal_instruction" : sample.disposal_instruction,
+            "disposal_date" : sample.disposal_date,
+            "create_date" : sample.creation_date,
+            "update_date" : sample.update_date
         }
 
 
         data["author_id"] = {
-            "id" : self._user.id,
-            "user" : self._user.name,
-            "gravatar" : self._user.gravatar()
+            "id" : user.id,
+            "user" : user.name,
+            "gravatar" : user.gravatar()
         }
+
+        self.db_sessions["sample"] = sample
+        self.db_sessions["user"] = user
 
         data["custom_attributes"] = self._get_custom_attrs()
 

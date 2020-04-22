@@ -1,78 +1,59 @@
-from flask import render_template, redirect, session, url_for, request, jsonify
-from .. import sample
-from flask_login import login_required, current_user
 from ... import db
-from ..models import (
-    Sample,
-    SampleAttribute,
-    SampleAttributeOption,
-    SampleAttributeOptionValue,
-    SampleAttributeTextValue,
-    SampleAttributeTextSetting,
-)
-from ...dynform import clear_session
-
+from ..models import SampleAttribute
 from ...auth.models import User
-from ...misc.generators import generate_random_hash
+from ...ViewClass import ViewClass
 
+class SampleAttributesIndexView(ViewClass):
 
-@sample.route("attribute/")
-@login_required
-def attribute_portal():
-    sample_attributes = (
-        db.session.query(SampleAttribute, User)
-        .filter(SampleAttribute.author_id == User.id)
-        .all()
-    )
-    return render_template(
-        "sample/attribute/index.html", sample_attributes=sample_attributes
-    )
-
-
-
-
-@sample.route("attribute/view/LIMBSATTR-<attribute_id>")
-@login_required
-def view_attribute(attribute_id):
-    attribute, attribute_user = (
-        db.session.query(SampleAttribute, User)
-        .filter(SampleAttribute.id == attribute_id)
-        .filter(SampleAttribute.author_id == User.id)
-        .first()
-    )
-
-    if attribute.type.value == "Text":
-        settings = (
-            db.session.query(SampleAttributeTextSetting)
-            .filter(SampleAttributeTextSetting.sample_attribute_id == attribute.id)
-            .first()
-        )
-        samples = (
-            db.session.query(SampleAttribute, Sample, User)
-            .filter(SampleAttributeTextValue.sample_attribute_id == attribute.id)
-            .filter(SampleAttributeTextValue.sample_id == Sample.id)
-            .filter(Sample.author_id == User.id)
-            .all()
+    def get_attributes(self) -> dict:
+        attributes = (
+            db.session.query(SampleAttribute, User)
+                .filter(SampleAttribute.author_id == User.id)
+                .all()
         )
 
-    elif attribute.type.value == "Option":
-        settings = (
-            db.session.query(SampleAttributeOption)
-            .filter(SampleAttributeOption.sample_attribute_id == attribute.id)
-            .all()
-        )
-        samples = (
-            db.session.query(SampleAttribute, Sample, User)
-            .filter(SampleAttributeTextValue.sample_attribute_id == attribute.id)
-            .filter(SampleAttributeTextValue.sample_id == Sample.id)
-            .filter(Sample.author_id == User.id)
-            .all()
+        data = {}
+
+        for attr, user in attributes:
+            data[attr.id] = {
+                "term" : attr.term,
+                "type" : attr.type,
+                "creation_date" : attr.creation_date,
+                "required" : attr.required,
+                "author_id" : {
+                    "id": user.id,
+                    "name": user.name,
+                    "gravatar": user.gravatar()
+                }
+            }
+
+        return data
+
+class SampleAttributeView(ViewClass):
+    def __init__(self, attribute_id):
+        self.attribute = attribute_id
+
+    def get_attributes(self) -> dict:
+
+        attribute, user = (
+            db.session.query(SampleAttribute, User)
+                .filter(SampleAttribute.author_id == User.id)
+                .first_or_404()
         )
 
-    return render_template(
-        "sample/attribute/view.html",
-        attribute=attribute,
-        attribute_user=attribute_user,
-        settings=settings,
-        samples=samples,
-    )
+        data = {
+            "id" : attribute.id,
+            "term" : attribute.term,
+            "creation_date": attribute.creation_date,
+            "type": attribute.type,
+            "author_id" : {
+                "id": user.id,
+                "name": user.name,
+                "gravatar": user.gravatar()
+            }
+        }
+
+
+        return data
+
+

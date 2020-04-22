@@ -1,5 +1,5 @@
 from .. import sample
-from flask import render_template, session, redirect, url_for
+from flask import render_template, session, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 from ... import db
 
@@ -8,6 +8,8 @@ from ...dynform import clear_session
 from ...misc.generators import generate_random_hash
 
 from ..models import *
+
+from ..views.attributes import SampleAttributesIndexView, SampleAttributeView
 
 
 from ..forms import (
@@ -19,11 +21,20 @@ from ..forms import (
 @sample.route("attribute/")
 @login_required
 def attribute_portal():
-    sample_attributes = []
+    sample_attributes = SampleAttributesIndexView().get_attributes()
     return render_template(
         "sample/attribute/index.html", sample_attributes=sample_attributes
     )
 
+
+@sample.route("attribute/view/LIMBSATTR-<attribute_id>")
+@login_required
+def view_attribute(attribute_id):
+    attribute = SampleAttributeView(attribute_id).get_attributes()
+    return render_template(
+        "sample/attribute/view.html",
+        attribute=attribute
+    )
 
 @sample.route("attribute/add/one", methods=["GET", "POST"])
 @login_required
