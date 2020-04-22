@@ -40,7 +40,7 @@ class DynamicAttributeFormGenerator:
                 setattr(
                     self._form,
                     p.number_to_words(attr.id),
-                    SelectField(attr.term, choices=[(x.term, x.id) for x in options]),
+                    SelectField(attr.term, coerce=int, choices=[(x.id, x.term) for x in options]),
                 )
 
     def _inject_submit(self):
