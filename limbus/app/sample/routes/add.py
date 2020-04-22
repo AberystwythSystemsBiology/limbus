@@ -94,7 +94,7 @@ def select_sample_type(hash):
             }
         elif a["sample_type"] == "FLU":
             b = {
-                "type": form.molecular_sample_type.data,
+                "type": form.fluid_sample_type.data,
                 "container": form.fluid_container.data
             }
         elif a["sample_type"] == "MOL":
@@ -172,6 +172,7 @@ def add_sample_form(hash):
         .filter(SampleAttribute.id.in_(session["%s sample_attributes" % (hash)]))
         .all()
     )
+
     form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
 
     if form.validate_on_submit():
@@ -204,6 +205,7 @@ def add_sample_form(hash):
             disposal_date = None
 
         sample_type = sample_type_info["sample_type"]
+
 
         sample = Sample(
             sample_type=sample_type,
@@ -241,10 +243,10 @@ def add_sample_form(hash):
                 author_id = current_user.id
             )
 
+
         db.session.add(stot)
         db.session.flush()
-
-        # TODO: Need to add container stuff
+        
 
         for attr in form:
             if attr.id not in [
@@ -321,6 +323,5 @@ def add_sample_form(hash):
 
         clear_session(hash)
         return redirect(url_for("sample.index"))
-
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
