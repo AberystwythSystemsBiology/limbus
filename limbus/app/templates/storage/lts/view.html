@@ -1,28 +1,35 @@
 {% extends "template.html" %}
 
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
 {% block title %}LIMBLTS-{{ lts.id }}{% endblock %}
 
 {% block body %}
 
-    <div class="container">
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="container">
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fa fa-building"></i> LIMBLTS-{{ lts.id }}: {{ lts.manufacturer }}</h2>
-            <div class="btn-toolbar">
-                <div class="btn-group mr-2">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h2><i class="fa fa-building"></i> LIMBLTS-{{ lts.id }}: {{ lts.manufacturer }}</h2>
+                <div class="btn-toolbar">
+                    <div class="btn-group mr-2">
 
-                    <buton class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i>
-                        Add Shelf
-                    </buton>
+                        <buton class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i>
+                            Add Shelf
+                        </buton>
 
+                    </div>
                 </div>
             </div>
-        </div>
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-        <h5>Shelves</h5>
-    </div>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h5>Shelves</h5>
+            </div>
 
-        {% for id in shelves %}
+            {% for id in shelves %}
             <div class="card">
                 <div class="card-header">
                     {{ shelves[id]["shelf_information"].name }}
@@ -30,39 +37,43 @@
                 {% if shelves[id]["samples"] | length > 0 %}
                 <ul class="list-group list-group-flush">
                     {% for user, sample in shelves[id]["samples"] %}
-                        <li class="list-group-item">Cras justo udo</li>
+                    <li class="list-group-item">Cras justo udo</li>
                     {% endfor  %}
                 </ul>
                 {% endif %}
             </div>
-        {% endfor %}
+            {% endfor %}
 
-
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Add Shelf</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                    <form action="{{ url_for('storage.view_lts', lts_id=lts.id) }}" method="post">
-                    <div class="modal-body">
-                        {{ form.csrf_token() }}
-                        {{ form_field(form.name) }}
-                    </div>
-                    <div class="modal-footer">
-                        {{ form_field(form.submit) }}
-                    </div>
-                    </form>
 
         </div>
-    </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add Shelf</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ url_for('storage.view_lts', lts_id=lts.id) }}" method="post">
+                        <div class="modal-body">
+                            {{ form.csrf_token() }}
+                            {{ form_field(form.name) }}
+                        </div>
+                        <div class="modal-footer">
+                            {{ form_field(form.submit) }}
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
     </div>
 
 {% endblock %}
 
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}
