@@ -16,6 +16,8 @@
           rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/datatables.net-searchpanes-dt/css/searchPanes.dataTables.min.css') }}"
           rel="stylesheet">
+    <link href="{{ url_for('static', filename='node_modules/jstree/dist/themes/default/style.min.css') }}"
+          rel="stylesheet">
 
     {% block head %}
     {% endblock %}
@@ -153,6 +155,7 @@
 <script src="{{ url_for('static', filename='node_modules/datatables.net-searchpanes/js/dataTables.searchPanes.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/datatables.net-select/js/dataTables.select.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/d3/dist/d3.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/jstree/dist/jstree.min.js') }}"></script>
 
 {% block javascript %}
 
