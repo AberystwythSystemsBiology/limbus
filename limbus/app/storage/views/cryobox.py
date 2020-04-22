@@ -11,10 +11,10 @@ from ..models import (
     CryovialBox,
     SampleToCryovialBox,
     CryovialBoxToFixedColdStorageShelf,
-    FixedColdStorageShelf,
-    NewCryovialBoxForm,
-    SampleToBoxForm
+    FixedColdStorageShelf
 )
+
+from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
 from ...auth.models import User
 from ...sample.models import Sample
