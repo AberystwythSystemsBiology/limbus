@@ -5,15 +5,16 @@ from ... import db
 from .. import storage
 
 from ..models import (
+    Site,
+    Room,
+    FixedColdStorage,
     CryovialBox,
     SampleToCryovialBox,
-    FixedColdStorage,
-    Room,
-    Site,
-    FixedColdStorageShelf,
     CryovialBoxToFixedColdStorageShelf,
+    FixedColdStorageShelf,
+    NewCryovialBoxForm,
+    SampleToBoxForm
 )
-from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
 from ...auth.models import User
 from ...sample.models import Sample

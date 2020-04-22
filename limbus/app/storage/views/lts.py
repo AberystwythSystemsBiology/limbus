@@ -5,11 +5,11 @@ from ... import db
 from .. import storage
 
 from ..models import (
-    Room,
     Site,
+    Room,
     FixedColdStorage,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
+    SampleToFixedColdStorageShelf
 )
 from ...auth.models import User
 from ...sample.models import Sample

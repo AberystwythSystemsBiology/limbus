@@ -12,7 +12,7 @@ from ..models import (
     FixedColdStorage,
     FixedColdStorageShelf,
     SampleToFixedColdStorageShelf,
-    CryovialBoxToFixedColdStorageShelf,
+    CryovialBoxToFixedColdStorageShelf
 )
 
 from ...misc.models import Address
