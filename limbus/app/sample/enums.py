@@ -1,4 +1,3 @@
-from enum import Enum
 from ..FormEnum import FormEnum
 
 class SubSampleType(FormEnum):

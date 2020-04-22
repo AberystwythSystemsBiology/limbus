@@ -16,6 +16,7 @@ class SampleView(ViewClass):
             .first_or_404()
 
         data = {
+            "id" : sample.id,
             "biobank_barcode" : sample.biobank_barcode,
             "sample_type" : sample.sample_type.value,
             "sample_status" : sample.sample_status.value,
@@ -28,6 +29,7 @@ class SampleView(ViewClass):
             "create_date" : sample.creation_date,
             "update_date" : sample.update_date
         }
+
 
         data["custom_attributes"] = {
 

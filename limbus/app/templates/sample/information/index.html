@@ -9,10 +9,11 @@
 
             <div class="btn-toolbar">
                 <div class="btn-group mr-2">
+                    <a href="{{ url_for('sample.add_sample_pcf') }}">
                         <div class="btn btn-primary">
                             <i class="fas fa-plus"></i> Add Sample
                         </div>
-                    <!-- </a>> -->
+                    </a>
                 </div>
                 <div class="btn-group mr-2">
                     <div id="showFilter" class="btn btn-success"><i class="fa fa-filter"></i>
@@ -31,21 +32,21 @@
                 <th>Sample Status</th>
                 <th>Collection Date</th>
                 <th>Sample Creator</th>
-                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for sample_id, sample in samples.items() %}
                 <tr>
-                    <td>LIMBSMP-{{ sample_id }}</td>
+                    <td>
+                        <a href="{{ url_for('sample.view', sample_id=sample_id) }}">
+                            <i class="fas fa-vial"></i> LIMBSMP-{{ sample_id }}
+                        </a>
+                    </td>
                     <td>{{ sample["sample_type"] }}</td>
                     <td>{{ sample["sample_status"] }}</td>
                     <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
                     <td>
                         {{ sample["user_information"]["name"] }}
-                    </td>
-                    <td>
-
                     </td>
                 </tr>
             {% endfor %}

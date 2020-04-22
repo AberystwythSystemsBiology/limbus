@@ -1,7 +1,6 @@
 from flask import render_template, redirect, session, url_for
 from flask_login import current_user
 
-
 from .. import sample
 from flask_login import login_required
 from ... import db
