@@ -7,6 +7,7 @@ from ..views import SamplesIndexView
 from .attributes import *
 from .sample import *
 from .add import *
+from .aliquot import *
 
 @sample.route("/")
 @login_required

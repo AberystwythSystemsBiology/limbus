@@ -17,7 +17,9 @@
             <button type="button" class="btn btn-outline-dark"><i class="fa fa-code-branch"></i> Derive</button>
           </div>
           <div class="btn-group mr-2" role="group" aria-label="Third group">
+              <a href="{{ url_for('sample.aliquot', sample_id=sample["id"]) }}">
                 <button type="button" class="btn btn-outline-dark"><i class="fa fa-code-branch"></i> Aliquot</button>
+              </a>
           </div>
             <div class="btn-group" role="group" aria-label="Third group">
             <button type="button" class="btn btn-outline-dark"><i class="fa fa-print"></i> Print</button>
@@ -36,6 +38,7 @@
                 {{ show_value(sample["current_quantity"], "Current Quantity", "text") }}
             </div>
         </div>
+
 
     </div>
 {% endblock %}
