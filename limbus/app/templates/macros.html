@@ -4,8 +4,8 @@
     {% set with_quantity = kwargs.pop('q', False) %}
 
     {% if field.errors %}
-        <div class="alert alert-warning" role="alert">
-            <b>Error:</b> {{ field.errors|join(', ') }}
+        <div class="alert alert-danger text-center" role="alert">
+            <b><i class="fa fa-exclamation-triangle"></i> Error:</b>  {{ field.errors|join(', ') }}. ({{ field.label.text }})
         </div>
     {% endif %}
 
@@ -17,6 +17,7 @@
             </label>
         </div>
         {% elif field.type == "StringField" %}
+
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
                 {% if with_quantity %}
@@ -27,33 +28,40 @@
                         <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"{% if field.flags.required %}required{% endif %}>
                     </div>
                 {% else %}
-                    <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"{% if field.flags.required %}required{% endif %}>
+                    {{ field(class="form-control") }}
                 {% endif %}
             </div>
         {% elif field.type == "SelectField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}: </label>
-                <select class="form-control" id="{{ field.id }}" name="{{ field.name }}">
-                    {% for value, key, bo in field.iter_choices() %}
-                        <option value="{{ value }}">{{ key }}</option>
-                    {% endfor %}
-                </select>
+                {{ field(class="form-control") }}
             </div>
         {% elif field.type == "DateField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
-                <input type="date" name="{{ field.name }}" id="{{ field.id }}" min="1000-01-01"
-                   max="3000-12-31" class="form-control">
+                {{ field(class="form-control", type="date") }}
             </div>
         {% elif field.type == "TimeField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
-                <input type="time" class="form-control"  id="{{ field.id }}" name="{{field.name}}" value="13:30" {% if field.flags.required %}required{% endif %} />
+                {{ field(class="form-control", type="time") }}
+            </div>
+        {% elif field.type == "RadioField" %}
+            <div class="form-group" id="{{ field.id }}_div">
+                <div class="col-form-label">
+                    {{ field.label.text }}:
+                </div>
+            {% for key, value, bo in field.iter_choices() %}
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input"  name="{{ field.id }}" value="{{ key }}" checked>
+                    <label class="form-check-label" for="{{ field.id }}">{{ value }}</label>
+                </div>
+            {% endfor %}
             </div>
         {% elif field.type == "PasswordField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
-                <input type="password" class="form-control" id="{{ field.id }}" name="{{ field.name }}" required>
+                {{ field(class="form-control", type="password") }}
             </div>
         {% elif field.type == "FileField" %}
             <div class="form-group" id="{{ field.id }}_div">
@@ -64,8 +72,7 @@
         {% elif field.type == "IntegerField" %}
             <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
-                <input type="number" class="form-control" id="{{ field.id }}" name="{{ field.name }}" min="1"
-                   {% if field.flags.required %}value="1" required{% endif %}>
+                {{ field(class="form-control", type="number") }}
             </div>
         {% elif field.type == "SubmitField" %}
             <div class="form-group" id="{{ field.id }}_div">
