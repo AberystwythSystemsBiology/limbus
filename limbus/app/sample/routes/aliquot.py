@@ -12,7 +12,9 @@ from ..views.sample import SampleView
 @sample.route("view/LIMBSMP-<sample_id>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(sample_id):
-    sample = SampleView(sample_id).get_attributes()
+    s = SampleView(sample_id)
+
+    sample = s.get_attributes()
 
     if sample["sample_type"] == SampleType.MOL:
         sample_type = SampleToMolecularSampleType
@@ -41,8 +43,8 @@ def aliquot(sample_id):
             # Create Sample
             a_s = Sample(
                 sample_type = sample["sample_type"],
-                creation_date = aliquot_date,
-                collection_date = aliquot_time,
+                sample_status = sample["sample_status"],
+                collection_date = aliquot_date,
                 quantity = size,
                 current_quantity = size,
                 disposal_date = sample["disposal_date"],
@@ -78,12 +80,13 @@ def aliquot(sample_id):
             db.session.add(s_ss)
             db.session.commit()
 
-        sample.db_sessions["sample"].current_quantity = size * counts
+
+        s.db_sessions["sample"].current_quantity = size * counts
 
         if lock_parent:
-            sample.db_sessions["sample"].is_closed = True
+            s.db_sessions["sample"].is_closed = True
 
-        db.session.add(sample.db_sessions)
+        db.session.add(s.db_sessions["sample"])
         db.session.commit()
 
         return redirect(url_for("sample.view", sample_id=sample_id))
