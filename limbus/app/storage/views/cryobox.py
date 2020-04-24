@@ -1,4 +1,4 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
+from flask import redirect, abort, render_template, url_for, session, request, jsonify, Response
 from flask_login import current_user
 
 from ... import db
@@ -128,3 +128,39 @@ def add_cryobox_sample(cryo_id, row, col):
     return render_template(
         "storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col
     )
+
+
+@storage.route("/cryobox/unassigned")
+def list_unassigned():
+    assigned_cryoboxes = db.session.query(CryovialBoxToFixedColdStorageShelf.box_id)
+    cryobox_results = (
+        db.session.query(CryovialBox)
+        .filter(CryovialBox.id.in_(assigned_cryoboxes))
+    )
+    cryoboxes = [{'id': box.id, 'serial': box.serial} for box in cryobox_results]
+    return jsonify(cryoboxes)
+
+@storage.route("/cryobox/assign/LIMCRB-<cryo_id>", methods=["POST"])
+def assign(cryo_id):
+    data = request.get_json(force=True)
+    if not data['id']:
+        return Response("{'err':'No ID supplied', 'success': false}", status=201, mimetype='application/json')
+
+    box = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
+    shelf = db.session.query(FixedColdStorageShelf).filter(FixedColdStorageShelf.id == data['id']).first_or_404()
+
+    box2shelf = CryovialBoxToFixedColdStorageShelf(
+        box_id=box.id,
+        shelf_id=shelf.id
+    )
+
+    existing_assignments = (
+        db.session.query(CryovialBoxToFixedColdStorageShelf)
+        .filter(CryovialBoxToFixedColdStorageShelf.box_id == cryo_id)
+    )
+    for assignment in existing_assignments:
+        db.session.delete(assignment)
+
+    db.session.add(box2shelf)
+    db.session.commit()
+    return jsonify({'success': True})

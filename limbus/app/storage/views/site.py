@@ -63,7 +63,6 @@ def view_site(id):
         .first_or_404()
     )
     rooms = db.session.query(Room).filter(Room.site_id == id).all()
-    rooms = [rooms[i : i + 3] for i in range(0, len(rooms), 3)]
 
     return render_template(
         "storage/site/view.html",
@@ -160,8 +159,3 @@ def new_room(s_id):
 
         return redirect(url_for("storage.view_site", id=site.id))
     return render_template("storage/room/new.html", form=form, site=site)
-
-
-@storage.route("/sites/LIBSIT-<site_id>/room/<room_id>,")
-def view_room(site_id, room_id):
-    return "Hello World"

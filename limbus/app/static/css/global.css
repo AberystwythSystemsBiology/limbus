@@ -52,3 +52,7 @@ h2 {
 .no {
 	background-color: red;
 }
+
+.hidden {
+    display: none;
+}

@@ -20,13 +20,13 @@ from ...auth.models import User
 
 
 @storage.route("rooms/")
-def site_index():
+def room_index():
     sites = db.session.query(Site, User).filter(Site.author_id == User.id).all()
     return render_template("storage/site/index.html", sites=sites)
 
 
 @storage.route("rooms/new", methods=["GET", "POST"])
-def add_site():
+def add_room():
     form = SiteRegistrationForm()
     if form.validate_on_submit():
 
@@ -54,28 +54,25 @@ def add_site():
 
 
 @storage.route("/rooms/view/LIMBROM-<id>")
-def view_site(id):
-    site, address, uploader = (
-        db.session.query(Site, Address, User)
-        .filter(Site.id == id)
-        .filter(Site.author_id == User.id)
-        .filter(Site.address_id == Address.id)
-        .first_or_404()
+def view_room(id):
+    site = db.session.query(Site).filter(Site.id == Room.site_id).first_or_404()
+    room = db.session.query(Room).filter(Room.id == id).first_or_404()
+    ltss = (
+        db.session.query(FixedColdStorage)
+        .filter(FixedColdStorage.room_id == id)
+        .all()
     )
-    rooms = db.session.query(Room).filter(Room.site_id == id).all()
-    rooms = [rooms[i : i + 3] for i in range(0, len(rooms), 3)]
 
     return render_template(
-        "storage/site/view.html",
+        "storage/room/view.html",
         site=site,
-        address=address,
-        rooms=rooms,
-        uploader=uploader,
+        room=room,
+        ltss=ltss
     )
 
 
 @storage.route("/rooms/view/LIMBROM-<id>/get")
-def get_data(id):
+def get_room(id):
     site = db.session.query(Site).filter(Site.id == id).first_or_404()
     rooms = db.session.query(Room).filter(Room.site_id == Site.id).all()
 
@@ -142,7 +139,7 @@ def get_data(id):
 
 
 @storage.route("/rooms/new/LIMBROM-<s_id>", methods=["GET", "POST"])
-def new_room(s_id):
+def xnew_room(s_id):
     site = db.session.query(Site).filter(Site.id == s_id).first_or_404()
 
     form = RoomRegistrationForm()
@@ -160,8 +157,3 @@ def new_room(s_id):
 
         return redirect(url_for("storage.view_site", id=site.id))
     return render_template("storage/room/new.html", form=form, site=site)
-
-
-@storage.route("/rooms/LIBROM-<room_id>/room/<room_id>,")
-def view_room(site_id, room_id):
-    return "Hello World"

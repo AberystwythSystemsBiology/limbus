@@ -82,7 +82,7 @@ $(function() {
 
     function selectRoom(room) {
         var room_id = parseId(room.id);
-        location.href=`/storage/sites/view/LIMBLTS-${room_id}`
+        location.href=`/storage/rooms/view/LIMBROM-${room_id}`
     }
 
     function selectFridge(fridge) {
@@ -92,7 +92,7 @@ $(function() {
 
     function selectShelf(shelf) {
         var shelf_id = parseId(shelf.id);
-        location.href=`/storage/sites/view/LIMBSIT-${shelf_id}`
+        location.href=`/storage/shelves/view/LIMBSHF-${shelf_id}`
     }
 
     function selectBox(box) {
@@ -102,7 +102,7 @@ $(function() {
 
     function selectSample(sample) {
         var sample_id = parseId(sample.id);
-        location.href=`/storage/sites/view/LIMBSIT-${sample_id}`
+        location.href=`/storage/samples/view/LIMBSAM-${sample_id}`
     }
 
     function parseId(id_field) {
