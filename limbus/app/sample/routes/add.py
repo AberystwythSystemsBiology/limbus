@@ -206,7 +206,6 @@ def add_sample_form(hash):
 
         sample_type = sample_type_info["sample_type"]
 
-
         sample = Sample(
             sample_type=sample_type,
             quantity=sample_type_info["quantity"],
@@ -299,6 +298,7 @@ def add_sample_form(hash):
 
         db.session.add(spcfta)
         db.session.flush()
+
         spta = SampleProcessingTemplateAssociation(
             sample_id=sample.id,
             template_id=processing_protocol["protocol_id"],

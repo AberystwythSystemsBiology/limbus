@@ -8,65 +8,80 @@
             <h2><i class="fa fa-code-branch"></i> Create Aliquot</h2>
         </div>
 
-        <div id="nes_warning" class="alert alert-danger text-center" style="display: none;">
-            <i class="fa fa-exclamation-triangle"></i> <b>Notice:</b> Proposed aliquot amount greater than available sample.
-        </div>
+        {% if num_processing_templates > 0 %}
 
-        <div class="row">
-            <div class="col-6">
-                <div class="form-group row">
-                    <div class="col-sm-3">Parent Sample:</div>
-                    <div class="col-sm-9">LIMBSMP-{{ sample.id }}</div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-3">Sample Type:</div>
-                    <div class="col-sm-9">{{ sample_type.sample_type }} ({{ sample.sample_type }})</div>
-                </div>
+            <div id="nes_warning" class="alert alert-danger text-center" style="display: none;">
+                <i class="fa fa-exclamation-triangle"></i> <b>Notice:</b> Proposed aliquot amount greater than available sample.
             </div>
-            <div class="col-6">
-                <div class="form-group row">
-                    <div class="col-sm-3">Original Quantity:</div>
-                    <div class="col-sm-9">{{ sample.quantity }}</div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-3">Available Quantity:</div>
-                    <div class="col-sm-9"><span id="available_quantity">{{ sample.current_quantity }}</span></div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-3">Proposed Quantity:</div>
-                    <div class="col-sm-9"><span id="proposed_quantity">{{ sample.current_quantity }}</span></div>
-                </div>
-            </div>
-        </div>
-
-        <form action="{{ url_for('sample.aliquot', sample_id=sample.id) }}" method="POST">
-            {{ form.csrf_token() }}
-            <div class="row">
-                <div class="col-6">
-                    {{ form_field(form.size) }}
-                </div>
-                <div class="col-6">
-                    {{ form_field(form.count) }}
-                </div>
-            </div>
-            {{ form_field(form.use_entire) }}
-            {{ form_field(form.sample_type) }}
 
             <div class="row">
                 <div class="col-6">
-                    {{ form_field(form.aliquot_date) }}
+                    <div class="form-group row">
+                        <div class="col-sm-3">Parent Sample:</div>
+                        <div class="col-sm-9">LIMBSMP-{{ sample.id }}</div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-3">Sample Type:</div>
+                        <div class="col-sm-9">{{ sample_type.sample_type }} ({{ sample.sample_type }})</div>
+                    </div>
                 </div>
                 <div class="col-6">
-                    {{ form_field(form.aliquot_time) }}
+                    <div class="form-group row">
+                        <div class="col-sm-3">Original Quantity:</div>
+                        <div class="col-sm-9">{{ sample.quantity }}</div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-3">Available Quantity:</div>
+                        <div class="col-sm-9"><span id="available_quantity">{{ sample.current_quantity }}</span></div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-3">Proposed Quantity:</div>
+                        <div class="col-sm-9"><span id="proposed_quantity">{{ sample.current_quantity }}</span></div>
+                    </div>
                 </div>
             </div>
-            {% if sample.sample_type == "Cellular" %}
-                {{ form_field(form.cell_viability) }}
-            {% endif %}
-            {{ form_field(form.lock_parent) }}
-            {{ form_field(form.submit) }}
-        </form>
 
+
+
+
+            <form action="{{ url_for('sample.aliquot', sample_id=sample.id) }}" method="POST">
+                {{ form.csrf_token() }}
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.size) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.count) }}
+                    </div>
+                </div>
+                {{ form_field(form.use_entire) }}
+                {{ form_field(form.sample_type) }}
+
+                {{ form_field(form.processing_template) }}
+
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.aliquot_date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.aliquot_time) }}
+                    </div>
+                </div>
+                {% if sample.sample_type == "Cellular" %}
+                    {{ form_field(form.cell_viability) }}
+                {% endif %}
+                {{ form_field(form.lock_parent) }}
+                {{ form_field(form.submit) }}
+            </form>
+        {% else %}
+            {{ render_warning(
+                    "No Suitable Processing Protocol Found",
+                    [
+                        "There are no suitable processing protocols found.",
+                        "Please add one before attempting an aliquot."
+                     ], 'processing.new_protocol', "New Processing Protocol", True, True
+                ) }}
+        {% endif %}
     </div>
 
 {% endblock %}

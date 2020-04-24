@@ -18,6 +18,9 @@ from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
 from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
+from ..processing.models import ProcessingTemplate
+from ..processing.enums import ProtocolTypes, ProtocolSampleType
+
 from ..storage.enums import CellContainer, FluidContainer, FixationType
 
 from .. import db
@@ -142,6 +145,7 @@ def ProtocolTemplateSelectForm(templates):
     length = len(templates)
     choices = []
 
+
     for t in templates:
         choice = " LIMBPRO-%s: %s" % (t.id, t.name)
         choices.append([str(t.id), choice])
@@ -155,6 +159,8 @@ def ProtocolTemplateSelectForm(templates):
             choices=choices,
         ),
     )
+
+
 
     return StaticForm(), length
 
@@ -178,12 +184,7 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
 
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
-    if sample_type == SampleType.FLU:
-        enums = FluidSampleType
-    elif sample_type == SampleType.CEL:
-        enums = CellSampleType
-    else:
-        enums = MolecularSampleType
+
 
     class StaticForm(FlaskForm):
         count = IntegerField("Aliquot Count", validators=[DataRequired()])
@@ -196,10 +197,24 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
         submit = SubmitField("Submit")
 
-    _ec = enums.choices()
+    if sample_type == SampleType.FLU:
+        sample_type_enums = FluidSampleType
+        processsing_enum = ProtocolSampleType.FLU
+    elif sample_type == SampleType.CEL:
+        sample_type_enums = CellSampleType
+        processsing_enum = ProtocolSampleType.CEL
 
+    else:
+        sample_type_enums = MolecularSampleType
+        processsing_enum = ProtocolSampleType.MOL
+
+
+    _ec = sample_type_enums.choices()
     _i = [i for i, x in enumerate(_ec) if x[1] == default_type][0]
     _ec.insert(0, _ec.pop(_i))
+
+
+
 
     setattr(
         StaticForm,
@@ -207,4 +222,14 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
         SelectField("Sample Type", choices=_ec)
     )
 
-    return StaticForm()
+    processing_templates = db.session.query(ProcessingTemplate).filter(
+        ProcessingTemplate.type == ProtocolTypes.ALD
+    ).filter(ProcessingTemplate.sample_type == processsing_enum).all()
+
+    setattr(
+        StaticForm,
+        "processing_template",
+        SelectField("Processing Template (Aliquot)", coerce=int, choices=[(x.id, "LIMBPRO-%i: %s" % (x.id, x.name)) for x in processing_templates])
+    )
+
+    return StaticForm(), len(processing_templates)

@@ -29,22 +29,18 @@
                 <th>Identifier</th>
                 <th>Sample Type</th>
                 <th>Sample Creator</th>
-                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for s, user in protocols %}
                 <tr>
-                    <td>LIMBPRO-{{ s.id }}: {{ s.name }}</td>
-                    <td>{{ s.sample_type.value }}</td>
-                    <td>{{ user.email }}</td>
                     <td>
                         <a href="{{ url_for('processing.view_protocol', protocol_id=s.id) }}">
-                            <div class="btn btn-primary btn-sm">
-                                <i class="fas fa-eye"></i> View
-                            </div>
+                            <i class="fa fa-project-diagram"></i> LIMBPRO-{{ s.id }}: {{ s.name }}
                         </a>
                     </td>
+                    <td>{{ s.sample_type.value }}</td>
+                    <td>{{ user.email }}</td>
                 </tr>
             {% endfor %}
             </tbody>
