@@ -1,6 +1,8 @@
-from enum import Enum
 from ..FormEnum import FormEnum
 
+class SubSampleType(FormEnum):
+    ALI = "Aliquot"
+    DER = "Derivative"
 
 class SampleType(FormEnum):
     FLU = "Fluid"
@@ -72,6 +74,7 @@ class TissueSampleType(FormEnum):
     MDS = "Microdissected"
 
 class DisposalInstruction(FormEnum):
+    NAP = "No Disposal"
     DES = "Destroy"
     TRA = "Transfer"
     REV = "Review"
@@ -83,7 +86,7 @@ class SampleStatus(FormEnum):
     DES = "Destroyed"
     TRA = "Transferred"
     MIS = "Missing"
-
+    NPR = "Not Processed"
 
 class SampleAttributeTypes(FormEnum):
     OPTION = "Option"

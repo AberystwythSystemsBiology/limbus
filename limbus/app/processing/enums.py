@@ -1,40 +1,28 @@
 from ..FormEnum import FormEnum
 
+class ProtocolSampleType(FormEnum):
+    # Ideally I'd like to extend sample.enums.SampleType directly
+    # to add the all, but it turns out that you can't
+    # subclass an enumeration if an enumeration defines
+    # any members. I love you Python, but sometimes I want
+    # to strangle you.
+    ALL = "All"
+    FLU = "Fluid"
+    CEL = "Cell"
+    MOL = "Molecular"
+
 
 class ProtocolTypes(FormEnum):
-    DOC = "Document"
+    ACQ = "Sample Acquisition"
+    ALD = "Sample Aliquoting / Derivation"
+    STR = "Sample Transfer"
+    SDE = "Sample Destruction"
+
+class ProtocolUploadTypes(FormEnum):
+    # TODO: Extend this.
+    #DOC = "Document"
     DIG = "Digital"
-    DIC = "Digital and Document"
-
-
-class FluidContainer(FormEnum):
-    ACD = "Acid citrate dextrose"
-    ADD = "Additives"
-    CAT = "Serum tube without clot activator"
-    CPD = "Sitrate phosphate dextrose"
-    CPT = "Cell Preperation Tube"
-    EDG = "EDTA and gel"
-    HEP = "Lithium heparin"
-    HIR = "Hirudin"
-    LHG = "Lithium heparin and gel"
-    ORG = "Oragene collection container or equivalent"
-    PAX = "PAXgene blood RNA+"
-    PED = "Potassium EDTA"
-    PET = "Polyethylene tube sterile"
-    PIONE = "S8820 protease inhibitor tablets or equivalent"
-    PIX = "Protease inhibators"
-    PPS = "Polypropylene tube sterile"
-    PXD = "PAXgene blood DNA"
-    PXR = "PAXgene bone marrow RNA"
-    SCI = "Sodium citrate"
-    SED = "Sodium EDTA"
-    SHP = "Sodium heparin"
-    SPO = "Sodium fluoride/potassium oxalate"
-    SST = "Serum seperator tube with clot activator"
-    TEM = "Tempus tube"
-    TRC = "Trace element tube"
-    XXX = "Unknown"
-    ZZZ = "Other"
+    #DIC = "Digital and Document"
 
 
 # Replace this with something smarter.
