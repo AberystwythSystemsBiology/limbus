@@ -153,9 +153,13 @@
 {%- endmacro %}
 
 {% macro render_question(field, count) -%}
-    <div class="list-group-item flex-column align-items-start">
+    <div id="list-question-{{ count+1 }}" class="list-group-item list-group-item-warning flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">Question {{ count+1 }}</h5>
+            <h5 class="mb-1">
+              Question {{ count+1 }}
+              <i class="fa fa-exclamation-triangle question-warning"
+                 title="Ensure correct consent is given, ignore this if you're sure this is an acceptable answer"></i>
+            </h5>
             <small>
                 <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             </small>
