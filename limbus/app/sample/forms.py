@@ -213,9 +213,6 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     _i = [i for i, x in enumerate(_ec) if x[1] == default_type][0]
     _ec.insert(0, _ec.pop(_i))
 
-
-
-
     setattr(
         StaticForm,
         "sample_type",
