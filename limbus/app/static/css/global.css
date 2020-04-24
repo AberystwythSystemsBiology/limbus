@@ -53,3 +53,7 @@ h2 {
 .no {
 	background-color: red;
 }
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 1.00);
+}
