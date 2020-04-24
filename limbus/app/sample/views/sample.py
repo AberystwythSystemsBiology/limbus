@@ -8,6 +8,8 @@ from ...ViewClass import ViewClass
 from ...document.models import Document
 from ...processing.models import ProcessingTemplate
 
+from ...patientconsentform.models import *
+
 class SampleView(ViewClass):
     def __init__(self, sample_id):
         self.sample_id = sample_id
@@ -52,7 +54,16 @@ class SampleView(ViewClass):
 
 
     def _get_consent_info(self):
-        return {}
+        spcta, cft =  db.session.query(
+            SamplePatientConsentFormTemplateAssociation, ConsentFormTemplate
+        ).filter(SamplePatientConsentFormTemplateAssociation.sample_id == self.sample_id).filter(
+            ConsentFormTemplate.id == SamplePatientConsentFormTemplateAssociation.template_id
+        ).first_or_404()
+
+        return {
+            "id": cft.id,
+            "association_id": spcta.id
+        }
 
     def _get_documents(self):
         associated_document, documents = (

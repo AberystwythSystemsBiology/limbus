@@ -1,6 +1,5 @@
 from app import db
 
-
 class ConsentFormTemplate(db.Model):
     __tablename__ = "consent_form_templates"
 

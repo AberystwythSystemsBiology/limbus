@@ -1,4 +1,4 @@
-from ..models import Sample
+from ..models import Sample, SubSampleToSample
 from ...auth.models import User
 from ... import db
 from ...ViewClass import ViewClass
@@ -15,7 +15,8 @@ class SamplesIndexView(ViewClass):
             - None.
     """
     def __init__(self):
-        self.samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).all()
+        subsamples = [x.subsample_sample_id for x in db.session.query(SubSampleToSample).all()]
+        self.samples = db.session.query(Sample, User).filter(Sample.author_id == User.id).filter(~Sample.id.in_(subsamples)).all()
 
     def get_attributes(self) -> dict:
         data = {}

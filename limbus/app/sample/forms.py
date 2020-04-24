@@ -224,7 +224,7 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
     processing_templates = db.session.query(ProcessingTemplate).filter(
         ProcessingTemplate.type == ProtocolTypes.ALD
-    ).filter(ProcessingTemplate.sample_type == processsing_enum).all()
+    ).filter(ProcessingTemplate.sample_type.in_([processsing_enum, ProtocolSampleType.ALL])).all()
 
     setattr(
         StaticForm,
