@@ -1,8 +1,8 @@
 function updateCryoChoices(cryo_ids) {
-    $('#cryobox-modal-body').empty();
+    $('#cryobox-body-list').empty();
     for(var i=0; i < cryo_ids.length; i++) {
-        var cryo_container = document.createElement('div');
-        $(cryo_container).addClass('card')
+        var cryo_container = document.createElement('li');
+        $(cryo_container).addClass('list-group-item')
         var cryo_radio = document.createElement('input');
         $(cryo_radio).addClass('form-check-input')
                     .attr('type', 'radio')
