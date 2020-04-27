@@ -53,6 +53,9 @@ def add_sample_pcf_data(hash):
         .filter(ConsentFormTemplateQuestion.template_id == t_id)
         .all()
     )
+
+
+    # TODO: Drop dependency on p.
     questionnaire = PatientConsentQuestionnaire(pcf_questions)
     conv = {p.number_to_words(x.id): x.id for x in pcf_questions}
 

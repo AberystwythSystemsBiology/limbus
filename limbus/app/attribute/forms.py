@@ -67,13 +67,10 @@ class CustomTextAttributeCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class CustomNumericAttributionCreationForm(FlaskForm):
-    measurement = SelectField("Measurement",
-        choices=EnumFromOntology(units).choices()
-    )
-
+    requires_measurement = BooleanField("Measurement?")
+    requires_prefix = BooleanField("Prefix?")
+    measurement = SelectField("Measurement", choices=EnumFromOntology(units).choices())
     prefix = SelectField("Prefix", choices=EnumFromOntology(prefixs).choices())
-
-
     submit = SubmitField("Submit")
 
 class CustomOptionAttributionCreationForm(FlaskForm):

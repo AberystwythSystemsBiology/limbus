@@ -1,4 +1,4 @@
-from .enums import CustomAttributeTypes
+from .enums import CustomAttributeTypes, CustomAttributeElementTypes
 from app import db
 
 class CustomAttributes(db.Model):
@@ -10,6 +10,8 @@ class CustomAttributes(db.Model):
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
+
+    element = db.Column(db.Enum(CustomAttributeElementTypes))
 
     required = db.Column(db.Boolean(), default=False)
 
@@ -35,11 +37,14 @@ class CustomAttributeTextSetting(db.Model):
 
 
 class CustomAttributeNumericSetting(db.Model):
-    __tablename__ = "sample_attribute_numeric_settings"
+    __tablename__ = "custom_attribute_numeric_settings"
 
     id = db.Column(db.Integer, primary_key=True)
 
     custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
+
+    measurement = db.Column(db.String(32))
+    prefix = db.Column(db.String(32))
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
@@ -54,7 +59,7 @@ class CustomAttributeOption(db.Model):
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
 
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("sample_attributes.id"))
+    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
@@ -81,7 +86,7 @@ class CustomAttributeOptionValue(db.Model):
     __tablename__ = "custom_attribute_option_values"
     id = db.Column(db.Integer, primary_key=True)
 
-    sample_option_id = db.Column(db.Integer, db.ForeignKey("custom_attribute_options.id"))
+    custom_option_id = db.Column(db.Integer, db.ForeignKey("custom_attribute_options.id"))
 
     custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
     sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
