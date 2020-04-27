@@ -146,17 +146,13 @@ def add_sample_attr(hash):
 
     if form.validate_on_submit():
         attribute_ids = []
-        '''
-        for attr in attr_selection:
-            if attr.id in conv and attr.data == True:
-                attribute_ids.append(conv[attr.id])
-        '''
+
+        for e in form:
+            if e.type == "BooleanField" and e.data:
+                attribute_ids.append(str(e.id))
 
         session["%s sample_attributes" % (hash)] = attribute_ids
-        #session["%s converted_ids" % (hash)] = conv
-        # return redirect(url_for("sample.add_sample_form", hash=hash))
-
-        return ";".join(attribute_ids)
+        return redirect(url_for("sample.add_sample_form", hash=hash))
 
     return render_template(
         "sample/sample/add/step_five.html",
