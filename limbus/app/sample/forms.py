@@ -135,6 +135,14 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
 
 
+class FinalSampleForm:
+    elements = {
+        "collection_date": DateField("Collection Date", validators=[DataRequired()]),
+        "disposal_instruction": SelectField("Disposal Instructions", choices=DisposalInstruction.choices()),
+        "disposal_date" : DateField("Disposal Date"),
+        "submit": SubmitField("Submit")
+    }
+
 
 
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:

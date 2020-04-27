@@ -98,12 +98,6 @@ def CustomAttributeSelectForm(element: CustomAttributeElementTypes = CustomAttri
     return StaticForm()
 
 
-class FinalSampleForm:
-    elements = {
-        "collection_date": DateField("Collection Date", validators=[DataRequired()]),
-        "submit": SubmitField("Submit")
-    }
-
 def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
     class StaticForm(FlaskForm):
         pass

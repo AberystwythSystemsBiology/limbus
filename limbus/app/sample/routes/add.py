@@ -8,7 +8,7 @@ from ... import db
 from ..models import *
 from ..forms import *
 
-from ...attribute.forms import CustomAttributeSelectForm, CustomAttributeGeneratedForm, FinalSampleForm
+from ...attribute.forms import CustomAttributeSelectForm, CustomAttributeGeneratedForm
 from ...attribute.enums import CustomAttributeElementTypes
 from ...processing.models import ProcessingTemplate
 
