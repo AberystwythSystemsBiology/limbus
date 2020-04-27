@@ -1,19 +1,20 @@
 from flask_wtf import FlaskForm
+
 from wtforms import (
-    SelectField,
     StringField,
+    SelectField,
     SubmitField,
     DateField,
     BooleanField,
     IntegerField,
 )
 
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 from .enums import *
 
 from .. import db
-from .models import CustomAttributes
+from .models import CustomAttributes, CustomAttributeOption, CustomAttributeTextSetting
 
 
 # Pronto stuff here.
@@ -96,3 +97,36 @@ def CustomAttributeSelectForm(element: CustomAttributeElementTypes = CustomAttri
 
     return StaticForm()
 
+
+class FinalSampleForm:
+    elements = {
+        "collection_date": DateField("Collection Date", validators=[DataRequired()]),
+        "submit": SubmitField("Submit")
+    }
+
+def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        pass
+
+    for id, element in form.elements.items():
+        setattr(StaticForm, id, element)
+
+    attrs = db.session.query(CustomAttributes).filter(CustomAttributes.id.in_(attribute_ids)).all()
+
+    for attr in attrs:
+        if attr.type == CustomAttributeTypes.NUMERIC:
+            field = IntegerField(attr.term, render_kw={"_custom_val": True})
+        elif attr.type == CustomAttributeTypes.TEXT:
+            text_settings = db.session.query(CustomAttributeTextSetting).filter(CustomAttributeTextSetting.custom_attribute_id == attr.id).first_or_404()
+            field = StringField(attr.term, render_kw={"_custom_val": True}, validators=[Length(max=text_settings.max_length)])
+        else:
+            options = db.session.query(CustomAttributeOption).filter(CustomAttributeOption.custom_attribute_id == attr.id).all()
+            choices = [(x.id, x.term) for x in options]
+            field = SelectField(attr.term, choices=choices, coerce=int, render_kw={"_custom_val": True})
+
+        if attr.required:
+            field.validators.append(DataRequired())
+
+        setattr(StaticForm, str(attr.id), field)
+
+    return StaticForm()

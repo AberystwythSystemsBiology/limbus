@@ -8,11 +8,12 @@ from ... import db
 from ..models import *
 from ..forms import *
 
-from ...attribute.forms import CustomAttributeSelectForm
+from ...attribute.forms import CustomAttributeSelectForm, CustomAttributeGeneratedForm, FinalSampleForm
 from ...attribute.enums import CustomAttributeElementTypes
 from ...processing.models import ProcessingTemplate
 
 from ...misc.generators import generate_random_hash
+
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
@@ -158,20 +159,16 @@ def add_sample_attr(hash):
         "sample/sample/add/step_five.html",
         form=form,
         hash=hash,
-        num_attr=20,
+        num_attr=len([e for e in form if e.type == "BooleanField"]),
     )
 
 
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_form(hash):
-    query = (
-        db.session.query(SampleAttribute)
-        .filter(SampleAttribute.id.in_(session["%s sample_attributes" % (hash)]))
-        .all()
-    )
+    attributes = session["%s sample_attributes" % (hash)]
 
-    form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
+    form = CustomAttributeGeneratedForm(FinalSampleForm(), attributes)
 
     if form.validate_on_submit():
         sample_type_info = session["%s sample_type_info" % (hash)]

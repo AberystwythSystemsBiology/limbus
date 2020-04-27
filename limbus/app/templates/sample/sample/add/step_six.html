@@ -12,13 +12,15 @@
 
         <form method="POST" action="{{ url_for('sample.add_sample_form', hash=hash) }}">
             {{ form.csrf_token }}
+            {{ form_field(form.collection_date) }}
+
+            <h3>Custom Attributes</h3>
             {% for attribute in form %}
-                {% if attribute.id != "csrf_token" %}
+                {% if attribute.render_kw._custom_val %}
                     {{ form_field(attribute) }}
-                {% else %}
-                    {{ attribute }}
                 {% endif %}
             {% endfor %}
+            {{ form_field(form.submit) }}
         </form>
     </div>
 {% endblock %}
