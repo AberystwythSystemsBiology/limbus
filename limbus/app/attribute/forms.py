@@ -12,6 +12,10 @@ from wtforms.validators import DataRequired
 
 from .enums import *
 
+from .. import db
+from .models import CustomAttributes
+
+
 # Pronto stuff here.
 import pronto
 
@@ -73,5 +77,22 @@ class CustomNumericAttributionCreationForm(FlaskForm):
     prefix = SelectField("Prefix", choices=EnumFromOntology(prefixs).choices())
     submit = SubmitField("Submit")
 
-class CustomOptionAttributionCreationForm(FlaskForm):
-    pass
+
+def CustomAttributeSelectForm(element):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    attrs = db.session.query(CustomAttributes).filter(CustomAttributes.element.in_([element, CustomAttributeElementTypes.ALL])).all()
+
+    for attr in attrs:
+        bf = BooleanField(
+            attr.term,
+            render_kw={
+                "required": attr.required,
+                "_type" : attr.type.value
+            })
+
+        setattr(StaticForm, str(attr.id), bf)
+
+    return StaticForm()
+

@@ -11,6 +11,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length
 
+
 from .enums import *
 from ..document.models import Document, DocumentType
 from ..auth.models import User
@@ -50,23 +51,6 @@ class SampleCreationForm(FlaskForm):
     collection_date = DateField("Sample Collection Date", validators=[DataRequired()])
     disposal_instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
     disposal_date = DateField("Disposal Date")
-
-
-def DynamicAttributeSelectForm(query, attr):
-    class StaticForm(FlaskForm):
-        pass
-
-    for attribute in query:
-
-        bool = BooleanField(getattr(attribute, attr))
-
-        setattr(bool, "_required", attribute.required)
-
-        # Sett additional attrs.
-        setattr(StaticForm, attribute.id, bool)
-
-    setattr(StaticForm, "submit", SubmitField())
-    return StaticForm()
 
 
 def PatientConsentFormSelectForm():

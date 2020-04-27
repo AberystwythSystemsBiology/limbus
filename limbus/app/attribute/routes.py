@@ -96,7 +96,7 @@ def add_option(hash):
             term=attribute_info["term"],
             description=attribute_info["description"],
             author_id=current_user.id,
-            type=CustomAttributeTypes.NUMERIC,
+            type=CustomAttributeTypes.OPTION,
             element=attribute_info["element"]
         )
 
@@ -131,7 +131,7 @@ def add_textual(hash):
             term=attribute_info["term"],
             description=attribute_info["description"],
             author_id=current_user.id,
-            type=CustomAttributeTypes.NUMERIC,
+            type=CustomAttributeTypes.TEXT,
             element=attribute_info["element"]
         )
 

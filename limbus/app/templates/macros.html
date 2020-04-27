@@ -185,8 +185,16 @@
             {% if field.type == "BooleanField" %}
                 <tr>
                     <td>{{ field.label }}</td>
-                    <td>{{ field.__dict__ }}</td>
-                    <td>{{ field.data }}</td>
+                    <td>
+                        {% if field.render_kw["_type"] == "Numeric" %}
+                            Numeric
+                        {% elif field.render_kw["_type"] == "Textual" %}
+                            Textual
+                        {% else %}
+                            Option
+                        {% endif %}
+                    </td>
+                    <td>{{ field.render_kw["required"] }}</td>
                     <td>{{ field }}</td>
                 </tr>
             {% endif %}

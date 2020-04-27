@@ -8,6 +8,8 @@ from ... import db
 from ..models import *
 from ..forms import *
 
+from ...attribute.forms import CustomAttributeSelectForm
+from ...attribute.enums import CustomAttributeElementTypes
 from ...processing.models import ProcessingTemplate
 
 from ...misc.generators import generate_random_hash
@@ -140,26 +142,27 @@ def select_processing_protocol(hash):
 @sample.route("add/five/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_attr(hash):
+    form = CustomAttributeSelectForm(CustomAttributeElementTypes.SAMPLE)
 
-    query = db.session.query(SampleAttribute).all()
-    conv = {p.number_to_words(x.id): x.id for x in query}
-    attr_selection = DynamicAttributeSelectForm(query, "term")
-
-    if attr_selection.validate_on_submit():
+    if form.validate_on_submit():
         attribute_ids = []
+        '''
         for attr in attr_selection:
             if attr.id in conv and attr.data == True:
                 attribute_ids.append(conv[attr.id])
+        '''
 
         session["%s sample_attributes" % (hash)] = attribute_ids
-        session["%s converted_ids" % (hash)] = conv
-        return redirect(url_for("sample.add_sample_form", hash=hash))
+        #session["%s converted_ids" % (hash)] = conv
+        # return redirect(url_for("sample.add_sample_form", hash=hash))
+
+        return ";".join(attribute_ids)
 
     return render_template(
         "sample/sample/add/step_five.html",
-        form=attr_selection,
+        form=form,
         hash=hash,
-        num_attr=len(query),
+        num_attr=20,
     )
 
 
