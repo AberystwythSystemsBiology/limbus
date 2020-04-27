@@ -15,4 +15,14 @@ class SamplePatientConsentFormTemplateAssociation(db.Model):
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
 
+class SamplePatientConsentFormAnswersAssociation(db.Model):
+    __tablename__ = "pcf_answers"
 
+    id = db.Column(db.Integer, primary_key=True)
+
+    sample_pcf_association_id = db.Column(
+        db.Integer, db.ForeignKey("sample_pcf_associations.id")
+    )
+
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

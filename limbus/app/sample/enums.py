@@ -88,7 +88,4 @@ class SampleStatus(FormEnum):
     MIS = "Missing"
     NPR = "Not Processed"
 
-class SampleAttributeTypes(FormEnum):
-    OPTION = "Option"
-    TEXT = "Text"
-    NUMERIC = "Numeric"
+

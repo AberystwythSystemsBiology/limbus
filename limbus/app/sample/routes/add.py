@@ -12,10 +12,6 @@ from ...processing.models import ProcessingTemplate
 
 from ...misc.generators import generate_random_hash
 
-# TODO: Take a look at this.
-from ...dynform import DynamicAttributeFormGenerator, clear_session
-
-
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf():

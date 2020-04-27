@@ -1,0 +1,20 @@
+{% extends "template.html" %}
+
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fab fa-buffer"></i> Numeric: Add Attribute</h2>
+        </div>
+
+
+        <form>
+            {{ form_field(form.measurement) }}
+            {{ form_field(form.prefix) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+    </div>
+{% endblock %}
