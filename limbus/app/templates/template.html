@@ -50,9 +50,16 @@
                         <a class="dropdown-item" href="{{ url_for('pcf.index' ) }}"><i class="fa fa-question-circle"></i> Consent Management</a>
                     </div>
                   </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('donor.index') }}"><i class="fas fa-male"></i> Donor Portal</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('attribute.index') }}">
+                            <i class="fab fa-buffer"></i> Attribute Portal
+                        </a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document
                             Portal</a>
