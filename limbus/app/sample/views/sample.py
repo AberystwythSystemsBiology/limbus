@@ -118,7 +118,6 @@ class SampleView(ViewClass):
         self.db_sessions["sample"] = sample
         self.db_sessions["user"] = user
 
-        data["custom_attributes"] = self._get_custom_attrs()
 
         data["storage_info"] = self._get_storage()
 

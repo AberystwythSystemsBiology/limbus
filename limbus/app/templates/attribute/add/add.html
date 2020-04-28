@@ -1,0 +1,25 @@
+{% extends "template.html" %}
+
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fab fa-buffer"></i> Add Attribute</h2>
+        </div>
+
+
+        <form action="{{ url_for('attribute.add') }}" method="POST">
+            {{ form.csrf_token() }}
+
+            {{ form_field(form.term) }}
+            {{ form_field(form.description) }}
+            {{ form_field(form.element) }}
+            {{ form_field(form.type) }}
+            {{ form_field(form.required) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+    </div>
+{% endblock %}

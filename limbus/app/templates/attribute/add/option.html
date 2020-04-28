@@ -1,9 +1,10 @@
 {% extends "template.html" %}
 
-{% block title %}Add Sample Attribute : Sample Acquisition Portal{% endblock %}
 
 {% block body %}
+
     <div class="container">
+
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2>
@@ -39,32 +40,33 @@
     </div>
 
 
-    <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Add Option</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Add Option</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <div class="form-group">
+            <label for="formGroupExampleInput">Enter Option</label>
+            <input type="text" class="form-control" id="optionInput">
       </div>
-      <div class="modal-body">
-          <div class="form-group">
-        <label for="formGroupExampleInput">Enter Option</label>
-        <input type="text" class="form-control" id="optionInput">
-  </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" id="submitOption" class="btn btn-primary">Save changes</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" id="submitOption" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
+    </div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/sample/attribute/add/two_option.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/attribute/add/option.js') }}"></script>
 {% endblock %}

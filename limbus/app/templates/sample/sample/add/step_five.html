@@ -22,7 +22,7 @@
                     [
                         "There are no suitable patient consent form templates found.",
                         "Please add one before adding a sample.",
-                     ], 'sample.add_attribute', "New Attribute", True, True
+                     ], 'attribute.add', "New Attribute", True, True
                 ) }}
         {% endif %}
         <form action="{{ url_for('sample.add_sample_attr', hash=hash) }}" method="POST">

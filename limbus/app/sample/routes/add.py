@@ -8,12 +8,12 @@ from ... import db
 from ..models import *
 from ..forms import *
 
+from ...attribute.forms import CustomAttributeSelectForm, CustomAttributeGeneratedForm
+from ...attribute.enums import CustomAttributeElementTypes
 from ...processing.models import ProcessingTemplate
 
 from ...misc.generators import generate_random_hash
-
-# TODO: Take a look at this.
-from ...dynform import DynamicAttributeFormGenerator, clear_session
+from ...misc import clear_session
 
 
 @sample.route("add/one", methods=["GET", "POST"])
@@ -57,6 +57,9 @@ def add_sample_pcf_data(hash):
         .filter(ConsentFormTemplateQuestion.template_id == t_id)
         .all()
     )
+
+
+    # TODO: Drop dependency on p.
     questionnaire = PatientConsentQuestionnaire(pcf_questions)
     conv = {p.number_to_words(x.id): x.id for x in pcf_questions}
 
@@ -141,39 +144,32 @@ def select_processing_protocol(hash):
 @sample.route("add/five/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_attr(hash):
+    form = CustomAttributeSelectForm(CustomAttributeElementTypes.SAMPLE)
 
-    query = db.session.query(SampleAttribute).all()
-    conv = {p.number_to_words(x.id): x.id for x in query}
-    attr_selection = DynamicAttributeSelectForm(query, "term")
-
-    if attr_selection.validate_on_submit():
+    if form.validate_on_submit():
         attribute_ids = []
-        for attr in attr_selection:
-            if attr.id in conv and attr.data == True:
-                attribute_ids.append(conv[attr.id])
+
+        for e in form:
+            if e.type == "BooleanField" and e.data:
+                attribute_ids.append(str(e.id))
 
         session["%s sample_attributes" % (hash)] = attribute_ids
-        session["%s converted_ids" % (hash)] = conv
         return redirect(url_for("sample.add_sample_form", hash=hash))
 
     return render_template(
         "sample/sample/add/step_five.html",
-        form=attr_selection,
+        form=form,
         hash=hash,
-        num_attr=len(query),
+        num_attr=len([e for e in form if e.type == "BooleanField"]),
     )
 
 
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_form(hash):
-    query = (
-        db.session.query(SampleAttribute)
-        .filter(SampleAttribute.id.in_(session["%s sample_attributes" % (hash)]))
-        .all()
-    )
+    attributes = session["%s sample_attributes" % (hash)]
 
-    form = DynamicAttributeFormGenerator(query, SampleCreationForm).make_form()
+    form = CustomAttributeGeneratedForm(FinalSampleForm(), attributes)
 
     if form.validate_on_submit():
         sample_type_info = session["%s sample_type_info" % (hash)]
@@ -205,6 +201,8 @@ def add_sample_form(hash):
             disposal_date = None
 
         sample_type = sample_type_info["sample_type"]
+
+        print(">>>> TEST", form.collection_date.data ,type(form.collection_date.data))
 
         sample = Sample(
             sample_type=sample_type,
@@ -248,44 +246,32 @@ def add_sample_form(hash):
         
 
         for attr in form:
-            if attr.id not in [
-                "csrf_token",
-                "biobank_accession_number",
-                "sample_status",
-                "batch_number",
-                "submit",
-                "sample_type",
-                "collection_date",
-                "disposal_instruction",
-            ]:
-                if attr.type in ["TextAreaField", "StringField"]:
-                    attr_value = SampleAttributeTextValue(
-                        value=attr.data,
-                        sample_attribute_id=session["%s converted_ids" % (hash)][
-                            attr.id
-                        ],
-                        sample_id=sample.id,
-                        author_id=current_user.id,
-                    )
-                    db.session.add(attr_value)
+            if hasattr(attr, "render_kw") and attr.render_kw != None:
+                if "_custom_val" in attr.render_kw:
+                    if attr.type == "StringField":
+                        ca_v = SampleToCustomAttributeTextValue(
+                            value = attr.data,
+                            custom_attribute_id = attr.id,
+                            sample_id = sample.id,
+                            author_id = current_user.id
+                        )
 
-                elif attr.type in ["SelectField"]:
-                    option = (
-                        db.session.query(SampleAttributeOption)
-                        .filter(SampleAttributeOption.term == attr.data)
-                        .first()
-                    )
+                    elif attr == "SelectField":
+                        ca_v = SampleToCustomAttributeOptionValue(
+                            custom_option_id = attr.data,
+                            custom_attribute_id = attr.id,
+                            sample_id = sample.id,
+                            author_id = current_user.id
+                        )
+                    else:
+                        ca_v = SampleToCustomAttributeNumericValue(
+                            value = attr.data,
+                            custom_attribute_id = attr.id,
+                            sample_id = sample.id,
+                            author_id = current_user.id
+                        )
 
-                    option_value = SampleAttributeOptionValue(
-                        sample_attribute_id=session["%s converted_ids" % (hash)][
-                            attr.id
-                        ],
-                        sample_id=sample.id,
-                        sample_option_id=option.id,
-                        author_id=current_user.id,
-                    )
-
-                    db.session.add(option_value)
+                    db.session.add(ca_v)
 
         consent_info = session["%s consent_info" % (hash)]
 

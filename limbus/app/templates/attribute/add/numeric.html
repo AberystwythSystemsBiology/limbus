@@ -1,0 +1,36 @@
+{% extends "template.html" %}
+
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fab fa-buffer"></i> Numeric: Add Attribute</h2>
+        </div>
+
+
+        <form action="{{ url_for('attribute.add_numeric', hash=hash) }}" method="POST">
+            {{ form.csrf_token }}
+
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.requires_measurement) }}
+                    {{ form_field(form.measurement) }}
+
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.requires_prefix) }}
+                    {{ form_field(form.prefix) }}
+                </div>
+            </div>
+
+            {{ form_field(form.submit) }}
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/attribute/add/numeric.js') }}"></script>
+{% endblock %}

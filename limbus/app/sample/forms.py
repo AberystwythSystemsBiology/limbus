@@ -11,6 +11,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length
 
+
 from .enums import *
 from ..document.models import Document, DocumentType
 from ..auth.models import User
@@ -50,53 +51,6 @@ class SampleCreationForm(FlaskForm):
     collection_date = DateField("Sample Collection Date", validators=[DataRequired()])
     disposal_instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
     disposal_date = DateField("Disposal Date")
-
-
-class SampleAttributeCreationForm(FlaskForm):
-    term = StringField("Attribute Term", validators=[DataRequired()])
-    term_type = SelectField(
-        "Attribute Type",
-        validators=[DataRequired()],
-        choices=[(x.name, x.value) for x in SampleAttributeTypes],
-    )
-    required = BooleanField("Required")
-    submit = SubmitField("Submit")
-
-
-class SampleAttributionCreationFormText(FlaskForm):
-    max_length = StringField(
-        "Maximum Length",
-        validators=[DataRequired()],
-        description="The maximum length of characters that a user can enter",
-        default="1024",
-    )
-    submit = SubmitField("Submit")
-
-
-class SampleAttributeCreationFormNumeric(FlaskForm):
-    type = SelectField(
-        "Unit of Measurement",
-        validators=[DataRequired()],
-        choices=[(x.name, x.value) for x in UnitsOfMeasurement],
-    )
-    submit = SubmitField("Submit")
-
-
-def DynamicAttributeSelectForm(query, attr):
-    class StaticForm(FlaskForm):
-        pass
-
-    for attribute in query:
-
-        bool = BooleanField(getattr(attribute, attr))
-
-        setattr(bool, "_required", attribute.required)
-
-        # Sett additional attrs.
-        setattr(StaticForm, p.number_to_words(attribute.id), bool)
-
-    setattr(StaticForm, "submit", SubmitField())
-    return StaticForm()
 
 
 def PatientConsentFormSelectForm():
@@ -180,6 +134,14 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
     return StaticForm()
 
 
+
+class FinalSampleForm:
+    elements = {
+        "collection_date": DateField("Collection Date", validators=[DataRequired()]),
+        "disposal_instruction": SelectField("Disposal Instructions", choices=DisposalInstruction.choices()),
+        "disposal_date" : DateField("Disposal Date"),
+        "submit": SubmitField("Submit")
+    }
 
 
 

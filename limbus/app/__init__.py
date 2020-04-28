@@ -16,6 +16,7 @@ app_admin = Admin(name="Administrator Panel", template_mode="bootstrap3")
 from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
+from .attribute import attribute as attribute_blueprint
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
@@ -23,8 +24,6 @@ from .api import api as api_blueprint
 from .patientconsentform import pcf as pcf_blueprint
 from .processing import processing as processing_blueprint
 from .storage import storage as storage_blueprint
-
-from .demo import demo as demo_blueprint
 
 
 def create_app():
@@ -52,10 +51,12 @@ def create_app():
     from app.patientconsentform import models as pcf_models
     from app.processing import models as processing_models
     from app.storage import models as storage_models
+    from app.attribute import models as attribute_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(attribute_blueprint, url_prefix="/attributes")
     app.register_blueprint(processing_blueprint, url_prefix="/processing")
     app.register_blueprint(doc_blueprint, url_prefix="/documents")
     app.register_blueprint(sample_blueprint, url_prefix="/samples")
@@ -63,8 +64,6 @@ def create_app():
     app.register_blueprint(api_blueprint, url_prefix="/api")
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
-
-    app.register_blueprint(demo_blueprint, url_prefix="/demo")
 
     from app.admin import add_admin_views
 

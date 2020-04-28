@@ -35,3 +35,4 @@ class ConsentFormTemplateQuestion(db.Model):
         nullable=False,
     )
     uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+
