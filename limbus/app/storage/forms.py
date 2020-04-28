@@ -77,7 +77,7 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-def LongTermColdStorageForm(rs_query):
+def LongTermColdStorageForm():
     class StaticForm(FlaskForm):
         serial_number = StringField("Serial Number")
         manufacturer = StringField("Manufacturer", validators=[DataRequired()])
@@ -92,16 +92,6 @@ def LongTermColdStorageForm(rs_query):
             validators=[DataRequired()],
         )
 
-    site_choices = []
-
-    for index, (room, site) in enumerate(rs_query):
-        site_choices.append(
-            [str(room.id), "Room %s in %s" % (room.room_number, site.name)]
-        )
-
-    room = SelectField("Room", choices=site_choices, validators=[DataRequired()])
-
-    setattr(StaticForm, "room", room)
     setattr(StaticForm, "submit", SubmitField("Register Long Term Cold Storage"))
 
     return StaticForm()

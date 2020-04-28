@@ -4,7 +4,7 @@ from flask_login import current_user
 from ... import db
 from .. import storage
 
-from ..forms import SiteRegistrationForm, RoomRegistrationForm
+from ..forms import SiteRegistrationForm, RoomRegistrationForm, LongTermColdStorageForm
 
 from ..models import (
     Site,
@@ -138,22 +138,23 @@ def get_room(id):
     return jsonify(output), 201, {"Content-Type": "application/json"}
 
 
-@storage.route("/rooms/new/LIMBROM-<s_id>", methods=["GET", "POST"])
-def xnew_room(s_id):
-    site = db.session.query(Site).filter(Site.id == s_id).first_or_404()
-
-    form = RoomRegistrationForm()
+@storage.route("/rooms/add_lts/LIMBROM-<id>", methods=["GET", "POST"])
+def add_lts(id):
+    room = db.session.query(Room).filter(Room.id == id).first_or_404()
+    form = LongTermColdStorageForm()
 
     if form.validate_on_submit():
-        room = Room(
-            room_number=form.room.data,
-            building=form.building.data,
-            site_id=site.id,
+        fcs = FixedColdStorage(
+            serial_number=form.serial_number.data,
+            manufacturer=form.manufacturer.data,
+            temperature=form.temperature.data,
+            type=form.type.data,
+            room_id=id,
             author_id=current_user.id,
         )
 
-        db.session.add(room)
+        db.session.add(fcs)
         db.session.commit()
+        return redirect(url_for("storage.view_room", id=id))
 
-        return redirect(url_for("storage.view_site", id=site.id))
-    return render_template("storage/room/new.html", form=form, site=site)
+    return render_template("storage/lts/new.html", form=form, room=room)
