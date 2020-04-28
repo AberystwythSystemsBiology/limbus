@@ -77,10 +77,10 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right position-absolute"
                              aria-labelledby="navbarDropdown" style="width:300px">
-                <span class="dropdown-item">
-                    <h6>Helo, {{ current_user.name }}!</h6>
-                    <p class="small">Now you know how to say hello in Welsh!</p>
-                </span>
+                            <span class="dropdown-item">
+                                <h6>Helo, {{ current_user.name }}!</h6>
+                                <p class="small">Now you know how to say hello in Welsh!</p>
+                            </span>
                             <div class="dropdown-divider"></div>
                             {% if current_user.is_admin %}
                                 <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i

@@ -13,10 +13,11 @@ from .. import db
 
 from ..misc import clear_session
 
+from .views import CustomAttributesIndexView
 
 @attribute.route("/")
 def index():
-    attributes = db.session.query(CustomAttributes).all()
+    attributes = CustomAttributesIndexView().get_attributes()
     return render_template("attribute/index.html", attributes=attributes)
 
 @attribute.route("/add", methods=["GET", "POST"])
