@@ -11,7 +11,8 @@ from ..models import (
     CryovialBox,
     SampleToCryovialBox,
     CryovialBoxToFixedColdStorageShelf,
-    FixedColdStorageShelf
+    FixedColdStorageShelf,
+    SampleToFixedColdStorageShelf
 )
 
 from ..forms import NewCryovialBoxForm, SampleToBoxForm
@@ -75,6 +76,27 @@ def add_cryobox_sample(cryo_id, row, col):
     form = SampleToBoxForm(samples)
 
     if form.validate_on_submit():
+        sample = (
+            db.session.query(Sample)
+                      .filter(Sample.id == form.samples.data)
+                      .first_or_404()
+        )
+
+        sample_shelf_binds = (
+            db.session.query(SampleToFixedColdStorageShelf)
+                      .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
+                      .all()
+        )
+
+        sample_box_binds = (
+            db.session.query(SampleToCryovialBox)
+                      .filter(SampleToCryovialBox.sample_id == sample.id)
+                      .all()
+        )
+
+        for bind in sample_shelf_binds + sample_box_binds:
+            db.session.delete(bind)
+
         scb = SampleToCryovialBox(
             sample_id=form.samples.data,
             box_id=cryo_id,
@@ -91,39 +113,3 @@ def add_cryobox_sample(cryo_id, row, col):
     return render_template(
         "storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col
     )
-
-
-@storage.route("/cryobox/unassigned")
-def list_unassigned():
-    assigned_cryoboxes = db.session.query(CryovialBoxToFixedColdStorageShelf.box_id)
-    cryobox_results = (
-        db.session.query(CryovialBox)
-        .filter(CryovialBox.id.in_(assigned_cryoboxes))
-    )
-    cryoboxes = [{'id': box.id, 'serial': box.serial} for box in cryobox_results]
-    return jsonify(cryoboxes)
-
-@storage.route("/cryobox/assign/LIMCRB-<cryo_id>", methods=["POST"])
-def assign(cryo_id):
-    data = request.get_json(force=True)
-    if not data['id']:
-        return Response("{'err':'No ID supplied', 'success': false}", status=201, mimetype='application/json')
-
-    box = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
-    shelf = db.session.query(FixedColdStorageShelf).filter(FixedColdStorageShelf.id == data['id']).first_or_404()
-
-    box2shelf = CryovialBoxToFixedColdStorageShelf(
-        box_id=box.id,
-        shelf_id=shelf.id
-    )
-
-    existing_assignments = (
-        db.session.query(CryovialBoxToFixedColdStorageShelf)
-        .filter(CryovialBoxToFixedColdStorageShelf.box_id == cryo_id)
-    )
-    for assignment in existing_assignments:
-        db.session.delete(assignment)
-
-    db.session.add(box2shelf)
-    db.session.commit()
-    return jsonify({'success': True})

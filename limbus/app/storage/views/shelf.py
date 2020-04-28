@@ -12,13 +12,14 @@ from ..models import (
     FixedColdStorageShelf,
     SampleToFixedColdStorageShelf,
     CryovialBox,
-    CryovialBoxToFixedColdStorageShelf
+    CryovialBoxToFixedColdStorageShelf,
+    SampleToCryovialBox
 )
 from ...sample.models import Sample
 
 from ...misc.models import Address
 from ...auth.models import User
-from ..forms import NewCryovialBoxForm
+from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
 
 @storage.route("/shelves/view/LIMBSHF-<id>")
@@ -78,3 +79,48 @@ def add_cryobox(shelf_id):
         return redirect(url_for("storage.view_shelf", id=shelf.id))
 
     return render_template("storage/cryobox/new.html", form=form, shelf=shelf)
+
+
+@storage.route("/shelves/assign_sample/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
+def assign_sample_to_shelf(shelf_id):
+    shelf = (
+        db.session.query(FixedColdStorageShelf)
+                  .filter(FixedColdStorageShelf.id == shelf_id)
+                  .first_or_404()
+    )
+    samples = db.session.query(Sample).all()
+
+    form = SampleToBoxForm(samples)
+    if form.validate_on_submit():
+
+        sample = (
+            db.session.query(Sample)
+                      .filter(Sample.id == form.samples.data)
+                      .first_or_404()
+        )
+
+        sample_shelf_binds = (
+            db.session.query(SampleToFixedColdStorageShelf)
+                      .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
+                      .all()
+        )
+
+        sample_box_binds = (
+            db.session.query(SampleToCryovialBox)
+                      .filter(SampleToCryovialBox.sample_id == sample.id)
+                      .all()
+        )
+
+        for bind in sample_shelf_binds + sample_box_binds:
+            db.session.delete(bind)
+
+        sfcs = SampleToFixedColdStorageShelf(
+            sample_id=sample.id, shelf_id=shelf.id, author_id=current_user.id
+        )
+
+        db.session.add(sfcs)
+        db.session.commit()
+
+        return redirect(url_for("storage.view_shelf", id=shelf.id))
+
+    return render_template("storage/shelf/sample_to_shelf.html", form=form, shelf=shelf)

@@ -1,0 +1,33 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}{{ shelf.name }}: Assign sample{% endblock %}
+
+{% block body %}
+
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="container">
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h2><i class="fa fa-cube"></i> {{ shelf.name }}: Assign sample</h2>
+            </div>
+
+            <form action="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}" method="post">
+                {{ form.csrf_token }}
+                {{ form_field(form.samples) }}
+                {{ form_field(form.submit) }}
+            </form>
+
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

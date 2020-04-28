@@ -34,13 +34,6 @@
                 <div class="card-header">
                     {{ shelves[id]["shelf_information"].name }}
                 </div>
-                {% if shelves[id]["samples"] | length > 0 %}
-                <ul class="list-group list-group-flush">
-                    {% for user, sample in shelves[id]["samples"] %}
-                    <li class="list-group-item">Cras justo udo</li>
-                    {% endfor  %}
-                </ul>
-                {% endif %}
             </div>
             {% endfor %}
 

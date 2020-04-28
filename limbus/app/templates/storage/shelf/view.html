@@ -25,9 +25,12 @@
 
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h3>Samples</h3>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#assign-sample-modal"><i class="fa fa-plus"></i>
-                    Assign Sample
-                </button>
+                <a href="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}">
+                    <button class="btn btn-primary"">
+                        <i class="fa fa-plus"></i>
+                        Assign Sample
+                    </button>
+                </a>
             </div>
             {% if samples|length > 0 %}
                 {% for sample in samples %}
@@ -62,55 +65,9 @@
                 <span class="text-secondary">No Cryovial Boxes</span>
             {% endif %}
         </div>
-
-        <div id="assign-sample-modal" class="modal" tabindex="-1" role="dialog">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Assign sample to {{ shelf.name }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p>Modal body text goes here.</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Assign</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="assign-cryobox-modal" class="modal" tabindex="-1" role="dialog">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Add cryovial box to {{ shelf.name }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div id="cryobox-modal-body" class="modal-body">
-                  <ul id="cryobox-body-list" class="list-group">
-
-                  </ul>
-              </div>
-              <div id="cryobox-error-alert" class="alert alert-danger hidden">
-                  <strong>Error: </strong><span id="cryobox-error-message">Could not add Cryobox to shelf</span>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button id="assign-cryobox-button" type="button" class="btn btn-primary">Assign</button>
-              </div>
-            </div>
-          </div>
-        </div>
     </div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/shelf/view.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}
