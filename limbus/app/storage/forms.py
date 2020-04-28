@@ -21,7 +21,6 @@ class RoomRegistrationForm(FlaskForm):
 
 
 class NewShelfForm(FlaskForm):
-
     name = StringField(
         "Shelf Name",
         validators=[DataRequired()],
@@ -31,28 +30,11 @@ class NewShelfForm(FlaskForm):
     submit = SubmitField("Register Shelf")
 
 
-def NewCryovialBoxForm(results):
+def NewCryovialBoxForm():
     class StaticForm(FlaskForm):
         serial = StringField("Serial Number", validators=[DataRequired()])
         num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
         num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
-
-    choices = []
-
-    for fcss, fcs, room, site in results:
-        choices.append(
-            [
-                str(fcss.id),
-                "%s in %s in %s in %s"
-                % (fcss.name, fcs.manufacturer, room.room_number, site.name),
-            ]
-        )
-
-    setattr(
-        StaticForm,
-        "lts",
-        SelectField("Long Term Storage", choices=choices, validators=[DataRequired()]),
-    )
 
     setattr(StaticForm, "submit", SubmitField("Register Cryovial Box"))
 

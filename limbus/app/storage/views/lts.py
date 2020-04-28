@@ -17,7 +17,7 @@ from ...sample.models import Sample
 from ..forms import NewShelfForm
 
 
-@storage.route("/lts/view/LIMBLTS-<lts_id>", methods=["GET", "POST"])
+@storage.route("/lts/view/LIMBLTS-<lts_id>", methods=["GET"])
 def view_lts(lts_id):
     lts = (
         db.session.query(FixedColdStorage)
@@ -44,6 +44,19 @@ def view_lts(lts_id):
 
         _shelves[shelf.id] = {"shelf_information": shelf, "samples": samples}
 
+    return render_template(
+        "/storage/lts/view.html", lts=lts, shelves=_shelves
+    )
+
+
+@storage.route("/lts/add_shelf/LIMBLTS-<lts_id>", methods=["GET", "POST"])
+def add_shelf(lts_id):
+    lts = (
+        db.session.query(FixedColdStorage)
+        .filter(FixedColdStorage.id == lts_id)
+        .first_or_404()
+    )
+
     form = NewShelfForm()
 
     if form.validate_on_submit():
@@ -57,5 +70,7 @@ def view_lts(lts_id):
         return redirect(url_for("storage.view_lts", lts_id=lts_id))
 
     return render_template(
-        "/storage/lts/view.html", lts=lts, form=form, shelves=_shelves
+        "/storage/shelf/new.html", form=form, lts=lts
     )
+
+

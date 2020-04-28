@@ -43,9 +43,12 @@
 
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h3>Cryovial Boxes</h3>
-                <button class="btn btn-primary" data-toggle="modal" data-target="#assign-cryobox-modal"><i class="fa fa-plus"></i>
-                    Assign Cryovial Box
-                </button>
+                <a href="{{ url_for('storage.add_cryobox', shelf_id=shelf.id) }}">
+                    <button class="btn btn-primary"">
+                        <i class="fa fa-plus"></i>
+                        Add Cryovial Box
+                    </button>
+                </a>
             </div>
             {% if cryoboxes|length > 0 %}
                 {% for box in cryoboxes %}
@@ -84,16 +87,18 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">Assign cryovial box to {{ shelf.name }}</h5>
+                <h5 class="modal-title">Add cryovial box to {{ shelf.name }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div id="cryobox-modal-body" class="modal-body">
-                  <ul id="cryobox-body-list" class="list-group"></ul>
+                  <ul id="cryobox-body-list" class="list-group">
+
+                  </ul>
               </div>
               <div id="cryobox-error-alert" class="alert alert-danger hidden">
-                  <strong>Error: </strong><span id="cryobox-error-message">Could not assign Cryobox to shelf</span>
+                  <strong>Error: </strong><span id="cryobox-error-message">Could not add Cryobox to shelf</span>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

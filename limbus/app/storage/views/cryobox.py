@@ -30,43 +30,6 @@ def cryobox_index():
     return render_template("storage/cryobox/index.html", boxes=boxes)
 
 
-@storage.route("/cryobox/new", methods=["GET", "POST"])
-def add_cryobox():
-    storage_options = (
-        db.session.query(FixedColdStorageShelf, FixedColdStorage, Room, Site)
-        .filter(FixedColdStorageShelf.storage_id == FixedColdStorage.id)
-        .filter(Room.id == FixedColdStorage.room_id)
-        .filter(Site.id == Room.id)
-        .all()
-    )
-
-    form = NewCryovialBoxForm(storage_options)
-
-    if form.validate_on_submit():
-
-        cb = CryovialBox(
-            serial=form.serial.data,
-            num_rows=form.num_rows.data,
-            num_cols=form.num_cols.data,
-            author_id=current_user.id,
-        )
-
-        db.session.add(cb)
-        db.session.flush()
-
-        cbfcs = CryovialBoxToFixedColdStorageShelf(
-            box_id=cb.id, shelf_id=int(form.lts.data), author_id=current_user.id
-        )
-
-        db.session.add(cbfcs)
-
-        db.session.commit()
-
-        return redirect(url_for("storage.cryobox_index"))
-
-    return render_template("storage/cryobox/new.html", form=form)
-
-
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
 def view_cryobox(cryo_id):
     cryo = (
