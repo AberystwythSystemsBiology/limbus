@@ -14,16 +14,14 @@
         <div class="row">
             <div class="col col-sm-9">
                 {{ show_value(user.email, "Email Address", "text") }}
-                {{ show_value(profile.title.value, "Title", "text") }}
-                {{ show_value(profile.first_name, "First Name", "text") }}
-                {{ show_value(profile.middle_name, "Middle Name", "text") }}
-                {{ show_value(profile.last_name, "Last Name", "text") }}
-
+                {{ show_value(user.profile.title, "Title", "enum") }}
+                {{ show_value(user.profile.first_name, "First Name", "text") }}
+                {{ show_value(user.profile.middle_name, "Middle Name", "text") }}
+                {{ show_value(user.profile.last_name, "Last Name", "text") }}
             </div>
             <div class="col text-center">
-                <img src="{{ user.gravatar() }}" class="rounded-circle"
+                <img src="{{ user.gravatar }}" class="rounded-circle"
                      style="padding-bottom: 10px;">
-                <p class="text-muted small">Can't see an image? See Gravatar for more information.</p>
 
                 <button class="btn btn-primary full-width" data-toggle="modal" data-target="#exampleModalLong">Change
                     Password
