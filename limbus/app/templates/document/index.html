@@ -31,24 +31,21 @@
                 <th>Document Type</th>
                 <th>Upload Date</th>
                 <th>Uploader</th>
-                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
-            {% for user, document  in documents %}
+            {% for id, document  in documents.items() %}
                 <tr>
 
-                    <td>LIMBDOC-{{ document.id }}: {{ document.name }}</td>
-                    <td>{{ document.type.value }}</td>
-                    <td>{{ document.upload_date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ user.name }}</td>
                     <td>
-                        <a href="{{ url_for('document.view', doc_id=document.id) }}">
-                            <btn class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye"></i> View
-                            </btn>
+                        <a href="{{ url_for('document.view', doc_id=id) }}">
+                            <i class="fas fa-file"></i> LIMBDOC-{{ id }}: {{ document.name }}
                         </a>
                     </td>
+                    <td>{{ document.type.value }}</td>
+                    <td>{{ document.upload_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ document.user_information.email }}</td>
+
                 </tr>
             {% endfor %}
             </tbody>

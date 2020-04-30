@@ -30,18 +30,12 @@ from ..auth.models import User
 
 from .. import db
 
+from .views import DocumentIndexView, DocumentView
 
 @login_required
 @document.route("/")
 def index():
-    if current_user.is_admin:
-
-        documents = (
-            db.session.query(User, Document).filter(Document.uploader == User.id).all()
-        )
-
-    else:
-        documents = Document.query.filter(Document.uploader == current_user.id).all()
+    documents= DocumentIndexView()
 
     return render_template("document/index.html", documents=documents)
 
@@ -132,40 +126,9 @@ def document_upload(hash):
 @document.route("/view/LIMBDOC-<doc_id>")
 @login_required
 def view(doc_id):
+    view = DocumentView(doc_id)
+    return render_template("document/view.html", document=view)
 
-    upload_user, document = (
-        db.session.query(User, Document)
-        .filter(Document.id == doc_id)
-        .filter(DocumentFile.uploader == User.id)
-        .first()
-    )
-
-    if current_user.is_admin or upload_user.id == current_user.id:
-
-        files = (
-            db.session.query(User, DocumentFile)
-            .filter(DocumentFile.uploader == User.id)
-            .filter(DocumentFile.document_id == doc_id)
-            .all()
-        )
-
-        # TODO: Build an association view class
-        associated_document = (
-            db.session.query(SampleDocumentAssociation)
-            .filter(SampleDocumentAssociation.document_id == doc_id)
-            .all()
-        )
-
-        return render_template(
-            "document/view.html",
-            document=document,
-            upload_user=upload_user,
-            files=files,
-            associated_document=associated_document,
-        )
-
-    else:
-        return abort(401)
 
 
 @document.route("/download/D<doc_id>F<file_id>")

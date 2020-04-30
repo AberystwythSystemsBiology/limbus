@@ -1,6 +1,5 @@
 from .. import db
-from .models import User, Profile, ProfileToAddress
-from ..misc.models import Address
+from .models import User, Profile
 
 def UserIndexView() -> dict:
     users = db.session.query(User).all()
