@@ -10,7 +10,7 @@ from ...auth.models import User
 
 from ..models import *
 from ...document.models import Document
-from ...document.views import save_document
+from ...document.routes import save_document
 from ...document.models import DocumentType
 
 @processing.route("/protocols")

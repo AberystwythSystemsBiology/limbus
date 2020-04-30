@@ -1,16 +1,16 @@
 from .models import CustomAttributes
-from ..auth.models import User
+from ..auth.views import UserView
 from .. import db
 
-def CustomAttributesIndexView():
+def CustomAttributesIndexView() -> dict:
     """
         This method returns an dictionary of information concerning attributes, as well as their author information.
     """
-    attributes = db.session.query(CustomAttributes, User).filter(CustomAttributes.author_id == User.id).all()
+    attributes = db.session.query(CustomAttributes).filter().all()
 
     data = {}
 
-    for attribute, user in attributes:
+    for attribute in attributes:
 
         data[attribute.id] = {
             "term" : attribute.term,
@@ -21,11 +21,7 @@ def CustomAttributesIndexView():
             "element": attribute.element.value,
             "required": attribute.required,
             "creation_date": attribute.creation_date,
-            "user_information" : {
-                "email": user.email,
-                "name": user.name,
-                "gravatar": user.gravatar()
-            }
+            "user_information" : UserView(attribute.author_id)
         }
 
         return data

@@ -17,7 +17,7 @@ from .views import CustomAttributesIndexView
 
 @attribute.route("/")
 def index():
-    attributes = CustomAttributesIndexView().get_attributes()
+    attributes = CustomAttributesIndexView()
     return render_template("attribute/index.html", attributes=attributes)
 
 @attribute.route("/add", methods=["GET", "POST"])
