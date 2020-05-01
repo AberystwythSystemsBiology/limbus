@@ -1,95 +1,15 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBPRO-{{ protocol.id }}{% endblock %}
-
-{% set count = 0 %}
-
 {% block body %}
 
     <div class="container">
-
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <h2><i class="fa fa-project-diagram"></i>
-                LIMBPRO-{{ protocol.id }}: {{ protocol.template_info.template_name }}</h2>
-
+                LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h2>
         </div>
 
-        {{ show_value(protocol.template_info.sample_type, "Sample Type", "enum") }}
-        {{ show_value(protocol.container_info.type, "Container Type", "enum") }}
-
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h3><i class="fa fa-arrow-alt-circle-down"></i> Protocol Flow</h3>
-        </div>
-
-        <div class="list-group">
-            {% if protocol.pre_centr_info %}
-                {% set count = count + 1 %}
-                <div class="list-group-item" style="max-width: 500px; margin: 0 auto 0;">
-                    <div class="text-center">
-                        <h5 class="mb-1">Step {{ count }}: Pre-Centrifuge</h5>
-                    <p class="mb-1">
-                        Before processing, the sample is kept at {{ protocol.pre_centr_info.temp }}
-                        for {{ protocol.pre_centr_info.time }}.
-                    </p>
-                                        </div>
-
-                </div>
-                <div class="text-center">
-                    <h3><i class="fa fa-arrow-down"></i></h3>
-                </div>
-
-            {% endif %}
-
-            {% if protocol.centr %}
-                {% set count = count + 1 %}
-                <div class="list-group-item" style="max-width: 500px; margin: 0 auto 0;">
-                    <div class="text-center">
-                        <h5>Step {{ count }}: Centrifuge</h5>
-                    <p>
-                        The sample ({{ protocol.centr.weight }}) is centrifuged at {{ protocol.centr.temp }}
-                        for {{ protocol.centr.time }}
-                        {% if (protocol.centr.braking == True) %}.{% else %}without braking.{% endif %}
-                    </p>
-                    </div>
-                </div>
-                <div class="text-center">
-                    <h3><i class="fa fa-arrow-down"></i></h3>
-                </div>
-            {% endif %}
-
-            {% if protocol.sec_centr %}
-                {% set count = count + 1 %}
-                <div class="list-group-item" style="max-width: 500px; margin: 0 auto 0;">
-                    <div class="text-center">
-                        <h5>Step {{ count }}: Centrifuge (Again)</h5>
-                    <p>
-                        The sample ({{ protocol.sec_centr.weight }}) is centrifuged again
-                        at {{ protocol.sec_centr.temp }} for {{ protocol.sec_centr.time }}
-                        {% if (protocol.sec_centr.braking == True) %}.{% else %}without braking.{% endif %}
-                    </p>
-                    </div>
-
-                </div>
-                                <div class="text-center">
-                    <h3><i class="fa fa-arrow-down"></i></h3>
-                </div>
-            {% endif %}
-
-            {% if protocol.post_centr %}
-                {% set count = count + 1 %}
-                <div class="list-group-item" style="max-width: 500px; margin: 0 auto 0;">
-                    <div class="text-center">
-                        <h5 class="mb-1">Step {{ count }}: Post Centrifuge</h5>
-                    <p class="mb-1">
-                        The sample is then left out at {{ protocol.post_centr.temp }} for {{ protocol.post_centr.time }}.
-                    </p>
-                    </div>
-
-                </div>
-            {% endif %}
-
-
-        </div>
+        {{ show_value(protocol.sample_type, "Sample Type", "enum") }}
 
     </div>
+
 {% endblock %}

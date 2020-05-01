@@ -29,7 +29,7 @@
 
 <body>
 
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+<nav class="navbar  navbar-dark bg-primary fixed-top navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand" href="{{ url_for('misc.index') }}">
             <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"> LImBuS
@@ -41,23 +41,29 @@
         <div class="collapse navbar-collapse" id="navbarText">
             {% if current_user.is_authenticated %}
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('sample.sap_portal') }}"><i class="fas fa-vial"></i> SAQ
-                            Portal</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('processing.index') }}"><i class="fas fa-boxes"></i> SAP
-                            Portal</a>
-                    </li>
+                    <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-vial"></i> Sample Acquisition
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                         <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Samples</a>
+                         <a class="dropdown-item" href="{{ url_for('processing.protocol_index') }}"><i class="fa fa-project-diagram"></i> Processing Protocols</a>
+                        <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Sample Storage</a>
+                        <a class="dropdown-item" href="{{ url_for('pcf.index' ) }}"><i class="fa fa-question-circle"></i> Consent Management</a>
+                    </div>
+                  </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('donor.index') }}"><i class="fas fa-male"></i> Donor Portal</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Doc
-                            Portal</a>
+                        <a class="nav-link" href="{{ url_for('attribute.index') }}">
+                            <i class="fab fa-buffer"></i> Attribute Portal
+                        </a>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('pcf.index' ) }}"><i class="fa fa-question-circle"></i> PCF
+                        <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document
                             Portal</a>
                     </li>
 
@@ -73,10 +79,10 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right position-absolute"
                              aria-labelledby="navbarDropdown" style="width:300px">
-                <span class="dropdown-item">
-                    <h6>Helo, {{ current_user.name }}!</h6>
-                    <p class="small">Now you know how to say hello in Welsh!</p>
-                </span>
+                            <span class="dropdown-item">
+                                <h6>Helo, {{ current_user.name }}!</h6>
+                                <p class="small">Now you know how to say hello in Welsh!</p>
+                            </span>
                             <div class="dropdown-divider"></div>
                             {% if current_user.is_admin %}
                                 <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i

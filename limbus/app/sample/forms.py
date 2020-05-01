@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import (
     SelectField,
@@ -6,8 +7,10 @@ from wtforms import (
     DateField,
     BooleanField,
     TimeField,
+    IntegerField,
 )
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
+
 
 from .enums import *
 from ..document.models import Document, DocumentType
@@ -16,6 +19,11 @@ from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
 from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
+from ..processing.models import ProcessingTemplate
+from ..processing.enums import ProtocolTypes, ProtocolSampleType
+
+from ..storage.enums import CellContainer, FluidContainer, FixationType
+
 from .. import db
 
 import inflect
@@ -23,72 +31,31 @@ import inflect
 p = inflect.engine()
 
 
+class SampleTypeSelectForm(FlaskForm):
+    sample_type = SelectField("Sample Type", choices=SampleType.choices())
+    barcode = StringField("Biobank Barcode")
+
+    fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
+    molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
+    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+    quantity = StringField("Quantity")
+
+    cell_container = SelectField("Cell Container", choices=CellContainer.choices())
+    fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
+
+    fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
+
+    submit = SubmitField("Submit")
+
 class SampleCreationForm(FlaskForm):
-
-    collection_date = DateField(validators=[DataRequired()])
-
-    sample_status = SelectField(
-        "Sample Status", validators=[DataRequired()], choices=SampleStatus.choices()
-    )
-
-    disposal_date = DateField(validators=[DataRequired()])
-    disposal_instruction = SelectField(
-        "Disposal Instructions",
-        validators=[DataRequired()],
-        choices=DisposalInstruction.choices(),
-    )
-
-
-class SampleAttributeCreationForm(FlaskForm):
-    term = StringField("Attribute Term", validators=[DataRequired()])
-    term_type = SelectField(
-        "Attribute Type",
-        validators=[DataRequired()],
-        choices=[(x.name, x.value) for x in SampleAttributeTypes],
-    )
-    required = BooleanField("Required")
-    submit = SubmitField("Submit")
-
-
-class SampleAttributionCreationFormText(FlaskForm):
-    max_length = StringField(
-        "Maximum Length",
-        validators=[DataRequired()],
-        description="The maximum length of characters that a user can enter",
-        default="1024",
-    )
-    submit = SubmitField("Submit")
-
-
-class SampleAttributeCreationFormNumeric(FlaskForm):
-    type = SelectField(
-        "Unit of Measurement",
-        validators=[DataRequired()],
-        choices=[(x.name, x.value) for x in UnitsOfMeasurement],
-    )
-    submit = SubmitField("Submit")
-
-
-def DynamicAttributeSelectForm(query, attr):
-    class StaticForm(FlaskForm):
-        pass
-
-    for attribute in query:
-
-        bool = BooleanField(getattr(attribute, attr))
-
-        setattr(bool, "_required", attribute.required)
-
-        # Sett additional attrs.
-        setattr(StaticForm, p.number_to_words(attribute.id), bool)
-
-    setattr(StaticForm, "submit", SubmitField())
-    return StaticForm()
+    collection_date = DateField("Sample Collection Date", validators=[DataRequired()])
+    disposal_instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
+    disposal_date = DateField("Disposal Date")
 
 
 def PatientConsentFormSelectForm():
     class StaticForm(FlaskForm):
-        pass
+        consent_id = StringField("Patient Consent Identifier")
 
     length = 0
 
@@ -124,17 +91,18 @@ def PatientConsentFormSelectForm():
 # TODO: Duplicate Code
 def ProtocolTemplateSelectForm(templates):
     class StaticForm(FlaskForm):
-        pass
+        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
+        processing_time = TimeField("Processing Time", default=datetime.today)
+        processing_date = DateField("Processing Date")
+        submit = SubmitField("Submit")
 
-    length = 0
-
+    length = len(templates)
     choices = []
 
+
     for t in templates:
-        id = t.id
-        length += 1
-        choice = " LIMBPRO-%s: %s" % (id, t.name)
-        choices.append([str(id), choice])
+        choice = " LIMBPRO-%s: %s" % (t.id, t.name)
+        choices.append([str(t.id), choice])
 
     setattr(
         StaticForm,
@@ -146,19 +114,7 @@ def ProtocolTemplateSelectForm(templates):
         ),
     )
 
-    setattr(
-        StaticForm,
-        "processing_date",
-        DateField("Processing Date", validators=[DataRequired()]),
-    )
 
-    setattr(
-        StaticForm,
-        "processing_time",
-        TimeField("Processing Time", validators=[DataRequired()]),
-    )
-
-    setattr(StaticForm, "submit", SubmitField())
 
     return StaticForm(), length
 
@@ -178,25 +134,61 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
     return StaticForm()
 
 
-class SampleTypeSelectForm(FlaskForm):
-    sample_type = SelectField(
-        "Sample Type", choices=SampleType.choices()
-    )
 
-    fluid_sample_type = SelectField(
-        "Fluid Sample Type", choices=FluidSampleType.choices()
-    )
-    molecular_sample_type = SelectField(
-        "Molecular Sample Type", choices=MolecularSampleType.choices()
-    )
-    cell_sample_type = SelectField(
-        "Cell Sample Type", choices=CellSampleType.choices()
-    )
-
-    # This needs to have some jQuery fiddling to make it work as intented
-    quantity = StringField(
-        "Quantity"
-    )
+class FinalSampleForm:
+    elements = {
+        "collection_date": DateField("Collection Date", validators=[DataRequired()]),
+        "disposal_instruction": SelectField("Disposal Instructions", choices=DisposalInstruction.choices()),
+        "disposal_date" : DateField("Disposal Date"),
+        "submit": SubmitField("Submit")
+    }
 
 
-    submit = SubmitField("Submit")
+
+def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
+
+
+    class StaticForm(FlaskForm):
+        count = IntegerField("Aliquot Count", validators=[DataRequired()])
+        size = StringField("Sample Quantity per Aliquot", validators=[DataRequired(), Length(min=1)])
+        use_entire = BooleanField("Use all of Parent Sample?")
+        aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
+        aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
+        cell_viability = IntegerField("Cell Viability %")
+        lock_parent = BooleanField("Lock Parent?")
+
+        submit = SubmitField("Submit")
+
+    if sample_type == SampleType.FLU:
+        sample_type_enums = FluidSampleType
+        processsing_enum = ProtocolSampleType.FLU
+    elif sample_type == SampleType.CEL:
+        sample_type_enums = CellSampleType
+        processsing_enum = ProtocolSampleType.CEL
+
+    else:
+        sample_type_enums = MolecularSampleType
+        processsing_enum = ProtocolSampleType.MOL
+
+
+    _ec = sample_type_enums.choices()
+    _i = [i for i, x in enumerate(_ec) if x[1] == default_type][0]
+    _ec.insert(0, _ec.pop(_i))
+
+    setattr(
+        StaticForm,
+        "sample_type",
+        SelectField("Sample Type", choices=_ec)
+    )
+
+    processing_templates = db.session.query(ProcessingTemplate).filter(
+        ProcessingTemplate.type == ProtocolTypes.ALD
+    ).filter(ProcessingTemplate.sample_type.in_([processsing_enum, ProtocolSampleType.ALL])).all()
+
+    setattr(
+        StaticForm,
+        "processing_template",
+        SelectField("Processing Template (Aliquot)", coerce=int, choices=[(x.id, "LIMBPRO-%i: %s" % (x.id, x.name)) for x in processing_templates])
+    )
+
+    return StaticForm(), len(processing_templates)

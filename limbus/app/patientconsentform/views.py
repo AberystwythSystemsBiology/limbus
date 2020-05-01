@@ -13,6 +13,9 @@ from ..sample.models import (
     SamplePatientConsentFormAnswersAssociation,
 )
 
+
+from ..misc import clear_session
+
 from .api import *
 
 @pcf.route("/")
@@ -102,5 +105,7 @@ def new_two(hash):
         db.session.commit()
 
         resp = jsonify({"redirect": url_for("pcf.view", pcf_id=cfi_id, _external=True)})
+
+        clear_session(hash)
         return resp, 200, {"ContentType": "application/json"}
     return render_template("patientconsentform/add/two.html")
