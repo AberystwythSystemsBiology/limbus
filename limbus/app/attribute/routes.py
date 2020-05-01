@@ -13,7 +13,7 @@ from .. import db
 
 from ..misc import clear_session
 
-from .views import CustomAttributesIndexView
+from .views import CustomAttributesIndexView, CustomAttributeView
 
 @attribute.route("/")
 def index():
@@ -25,6 +25,9 @@ def index():
 
 @attribute.route("/view/LIMBATTR-<attr_id>")
 def view(attr_id):
+
+    cav = CustomAttributeView(attr_id)
+
     return "Hello World"
 
 @attribute.route("/add", methods=["GET", "POST"])
