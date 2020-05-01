@@ -7,6 +7,7 @@ from ..auth.models import User
 from .forms import NewConsentFormTemplate
 from ..misc.generators import generate_random_hash
 
+from .models import *
 from ..misc import clear_session
 
 from .views import PatientConsentFormIndexView, PatientConsentFormView

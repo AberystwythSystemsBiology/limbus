@@ -98,7 +98,7 @@
             {% elif type == "boolean" %}
                 {{ attribute }}
             {% elif type == "datetime" %}
-                <p class="col-sm-4">{{ attribute.strftime('%Y-%m-%d') }}</p>
+                <p class="col-sm-4">{{ attribute.strftime('%d-%m-%Y') }}</p>
             {% endif %}
 
         </div>
