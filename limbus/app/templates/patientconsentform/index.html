@@ -23,27 +23,21 @@
             <thead>
             <tr>
                 <th>Identifier</th>
-                <th>Template Name</th>
                 <th>Upload Date</th>
                 <th>Creator</th>
-
-                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
-            {% for s, user in templates %}
+            {% for id, pcf in templates.items() %}
                 <tr>
-                    <td>LIMBPCF-{{ s.id }}</td>
-                    <td>{{ s.name }}</td>
-                    <td>{{ s.upload_date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ user.email }}</td>
                     <td>
-                        <a href="{{ url_for('pcf.view', pcf_id=s.id) }}">
-                            <div class="btn btn-primary btn-sm">
-                                <i class="fas fa-eye"></i> View
-                            </div>
+                        <a href="{{ url_for('pcf.view', pcf_id=id) }}">
+                            <i class="fa fa-question-circle"></i> LIMBPCF-{{ id }}: {{ pcf.name }}
                         </a>
                     </td>
+                    <td>{{ pcf.upload_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ pcf.user_information.email }}</td>
+
                 </tr>
             {% endfor %}
             </tbody>
