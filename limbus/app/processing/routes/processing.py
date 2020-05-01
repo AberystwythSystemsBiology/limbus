@@ -13,9 +13,11 @@ from ...document.models import Document
 from ...document.routes import save_document
 from ...document.models import DocumentType
 
+from ..views import ProcessingProtocolsIndexView
+
 @processing.route("/protocols")
 def protocol_index():
-    protocols = db.session.query(ProcessingTemplate, User).filter(ProcessingTemplate.author_id == User.id).all()
+    protocols = ProcessingProtocolsIndexView()
     return render_template("processing/protocols/index.html", protocols=protocols)
 
 

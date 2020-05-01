@@ -19,7 +19,6 @@
                 </div>
             </div>
         </div>
-        <p>Welcome to the Sample Acquisition Portal. Here you can find information concerning samples, including:</p>
 
 
 
@@ -32,15 +31,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for s, user in protocols %}
+            {% for protocol_id, protocol in protocols.items() %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('processing.view_protocol', protocol_id=s.id) }}">
-                            <i class="fa fa-project-diagram"></i> LIMBPRO-{{ s.id }}: {{ s.name }}
+                        <a href="{{ url_for('processing.view_protocol', protocol_id=protocol_id) }}">
+                            <i class="fa fa-project-diagram"></i> LIMBPRO-{{ protocol_id }}: {{ protocol.name }}
                         </a>
                     </td>
-                    <td>{{ s.sample_type.value }}</td>
-                    <td>{{ user.email }}</td>
+                    <td>{{ protocol.sample_type.value }}</td>
+                    <td>{{ protocol.user_information.email }}</td>
                 </tr>
             {% endfor %}
             </tbody>
