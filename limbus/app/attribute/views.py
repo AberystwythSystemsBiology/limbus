@@ -1,5 +1,4 @@
-from .models import CustomAttributes
-from .enums import CustomAttributeTypes
+from .models import CustomAttributes, CustomAttributeOption, CustomAttributeTextSetting, CustomAttributeNumericSetting
 from ..auth.views import UserView
 from .. import db
 
@@ -46,8 +45,39 @@ def CustomAttributeView(ca_id) -> dict:
     }
 
     if data["type"] == "Option":
-        options = db.session.query()
+        options = db.session.query(CustomAttributeOption).filter(CustomAttributeOption.custom_attribute_id == attribute.id).all()
 
-        pass
+        o_data = {}
+
+        for option in options:
+            o_data[option.id] = {
+                "term": option.term,
+                "accession": option.accession,
+                "ref" : option.ref
+            }
+
+        data["option_info"] = o_data
+
+    elif data["type"] == "Numeric":
+
+        settings = db.session.query(CustomAttributeNumericSetting).filter(CustomAttributeNumericSetting.custom_attribute_id == attribute.id).first_or_404()
+
+        data["numeric_settings"] = {
+            "id" : settings.id,
+            "measurement": settings.measurement,
+            "prefix" : settings.prefix
+        }
+
+    else:
+
+        settings = db.session.query(CustomAttributeTextSetting).filter(CustomAttributeTextSetting.custom_attribute_id == attribute.id).first_or_404()
+
+
+        data["text_settings"] = {
+            "id" : settings.id,
+            "max_length": settings.max_length
+        }
+
+
 
     return data

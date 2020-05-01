@@ -25,10 +25,8 @@ def index():
 
 @attribute.route("/view/LIMBATTR-<attr_id>")
 def view(attr_id):
-
     cav = CustomAttributeView(attr_id)
-
-    return "Hello World"
+    return render_template("attribute/view.html", attribute=cav)
 
 @attribute.route("/add", methods=["GET", "POST"])
 def add():
@@ -56,7 +54,6 @@ def add():
 @attribute.route("/add/numeric/<hash>", methods=["GET", "POST"])
 def add_numeric(hash):
     form = CustomNumericAttributionCreationForm()
-
 
     if form.validate_on_submit():
         attribute_info = session["%s attribute_info"]
