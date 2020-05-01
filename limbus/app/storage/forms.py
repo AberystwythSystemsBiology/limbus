@@ -26,31 +26,15 @@ class NewShelfForm(FlaskForm):
         validators=[DataRequired()],
         description="A descriptive name for the shelf, something like top shelf.",
     )
+
     submit = SubmitField("Register Shelf")
 
 
-def NewCryovialBoxForm(results):
+def NewCryovialBoxForm():
     class StaticForm(FlaskForm):
         serial = StringField("Serial Number", validators=[DataRequired()])
         num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
         num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
-
-    choices = []
-
-    for fcss, fcs, room, site in results:
-        choices.append(
-            [
-                str(fcss.id),
-                "%s in %s in %s in %s"
-                % (fcss.name, fcs.manufacturer, room.room_number, site.name),
-            ]
-        )
-
-    setattr(
-        StaticForm,
-        "lts",
-        SelectField("Long Term Storage", choices=choices, validators=[DataRequired()]),
-    )
 
     setattr(StaticForm, "submit", SubmitField("Register Cryovial Box"))
 
@@ -75,7 +59,7 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-def LongTermColdStorageForm(rs_query):
+def LongTermColdStorageForm():
     class StaticForm(FlaskForm):
         serial_number = StringField("Serial Number")
         manufacturer = StringField("Manufacturer", validators=[DataRequired()])
@@ -90,16 +74,6 @@ def LongTermColdStorageForm(rs_query):
             validators=[DataRequired()],
         )
 
-    site_choices = []
-
-    for index, (room, site) in enumerate(rs_query):
-        site_choices.append(
-            [str(room.id), "Room %s in %s" % (room.room_number, site.name)]
-        )
-
-    room = SelectField("Room", choices=site_choices, validators=[DataRequired()])
-
-    setattr(StaticForm, "room", room)
     setattr(StaticForm, "submit", SubmitField("Register Long Term Cold Storage"))
 
     return StaticForm()

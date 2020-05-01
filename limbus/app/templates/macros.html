@@ -202,3 +202,19 @@
         </tbody>
     </table>
 {%- endmacro %}
+
+{% macro storage_navbar() %}
+<div id="sidebar" class="border-right border-bottom text-white bg-primary">
+    <button id="add-site-button" class="btn btn-block btn-secondary">
+        <i class="fa fa-plus"></i>
+        Add site
+    </button>
+    <div id="jstree">
+    </div>
+    <div id="sidebar-collapse" class="align-self-center">
+        <button class="btn btn-lg btn-block btn-light">
+            <i id="sidebar-collapse-icon" class="fa fa-chevron-left"></i>
+        </button>
+    </div>
+</div>
+{% endmacro %}

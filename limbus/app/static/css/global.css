@@ -54,6 +54,10 @@ h2 {
 	background-color: red;
 }
 
+.hidden {
+    display: none;
+}
+
 .navbar-dark .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 1.00);
 }

@@ -1,25 +1,36 @@
 {% extends "template.html" %}
 
-{% block title %}New Cryovial Box{% endblock %}
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}{{ shelf.name }}: New Cryovial Box{% endblock %}
 
 {% block body %}
 
-    <div class="container">
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="container">
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fa fa-cube"></i> New Cryovial Box</h2>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h2><i class="fa fa-cube"></i> New Cryovial Box</h2>
+            </div>
+
+            <form action="{{ url_for('storage.add_cryobox', shelf_id=shelf.id) }}" method="post">
+                {{ form.csrf_token }}
+                {{ form_field(form.serial) }}
+                {{ form_field(form.num_rows) }}
+                {{ form_field(form.num_cols) }}
+                {{ form_field(form.submit) }}
+
+            </form>
+
+
         </div>
-
-    <form action="{{ url_for('storage.add_cryobox') }}" method="post">
-        {{ form.csrf_token }}
-        {{ form_field(form.serial) }}
-        {{ form_field(form.num_rows) }}
-        {{ form_field(form.num_cols) }}
-        {{ form_field(form.lts) }}
-        {{ form_field(form.submit) }}
-
-    </form>
-
-
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}
