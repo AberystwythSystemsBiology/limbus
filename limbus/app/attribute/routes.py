@@ -18,7 +18,14 @@ from .views import CustomAttributesIndexView
 @attribute.route("/")
 def index():
     attributes = CustomAttributesIndexView()
+    # TODO: Temporary fix.
+    if attributes == None:
+        attributes = {}
     return render_template("attribute/index.html", attributes=attributes)
+
+@attribute.route("/view/LIMBATTR-<attr_id>")
+def view(attr_id):
+    return "Hello World"
 
 @attribute.route("/add", methods=["GET", "POST"])
 def add():
