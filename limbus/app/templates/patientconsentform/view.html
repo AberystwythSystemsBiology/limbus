@@ -1,7 +1,6 @@
 {% extends "template.html" %}
 
 
-{% set count = 0 %}
 
 {% block body %}
     <div class="container">
@@ -35,7 +34,9 @@
                 </h5>
 
         </div>
-        <p class="mb-1">{{ question.question }}</p>
+            <p class="mb-1">
+                {{ question.question }}
+            </p>
         </div>
         {% endfor %}
 

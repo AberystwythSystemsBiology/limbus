@@ -20,7 +20,6 @@ from .attribute import attribute as attribute_blueprint
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
-from .api import api as api_blueprint
 from .patientconsentform import pcf as pcf_blueprint
 from .processing import processing as processing_blueprint
 from .storage import storage as storage_blueprint
@@ -61,7 +60,6 @@ def create_app():
     app.register_blueprint(doc_blueprint, url_prefix="/documents")
     app.register_blueprint(sample_blueprint, url_prefix="/samples")
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
-    app.register_blueprint(api_blueprint, url_prefix="/api")
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
 
