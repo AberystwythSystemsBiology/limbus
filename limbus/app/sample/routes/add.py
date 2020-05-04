@@ -15,6 +15,8 @@ from ...processing.models import ProcessingTemplate
 from ...misc.generators import generate_random_hash
 from ...misc import clear_session
 
+import uuid
+
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
@@ -205,6 +207,7 @@ def add_sample_form(hash):
         print(">>>> TEST", form.collection_date.data ,type(form.collection_date.data))
 
         sample = Sample(
+            uuid = uuid.uuid4(),
             sample_type=sample_type,
             quantity=sample_type_info["quantity"],
             current_quantity=sample_type_info["quantity"],

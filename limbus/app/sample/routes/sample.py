@@ -4,10 +4,6 @@ from flask_login import login_required
 
 from ..views.sample import SampleView
 
-@sample.route("abc/")
-def abc():
-    return "abc"
-
 @sample.route("view/LIMBSMP-<sample_id>")
 @login_required
 def view(sample_id: int):

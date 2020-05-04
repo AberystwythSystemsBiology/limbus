@@ -95,6 +95,7 @@ class SampleView(ViewClass):
 
         data = {
             "id" : sample.id,
+            "uuid": sample.uuid,
             "biobank_barcode" : sample.biobank_barcode,
             "sample_type" : sample.sample_type,
             "sample_status" : sample.sample_status,
