@@ -268,7 +268,7 @@ def add_sample_form(hash):
                         )
                     else:
                         ca_v = SampleToCustomAttributeNumericValue(
-                            value = attr.data,
+                            value = str(attr.data),
                             custom_attribute_id = attr.id,
                             sample_id = sample.id,
                             author_id = current_user.id

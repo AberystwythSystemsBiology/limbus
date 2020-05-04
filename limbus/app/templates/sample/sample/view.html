@@ -36,13 +36,18 @@
                   <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i> Print</button>
                 </div>
               </div>
-              {{ show_value(sample["uuid"], "UUID", "text")  }}
+              {{ show_value(sample.uuid, "UUID", "text")  }}
 
-              {{ show_value(sample["biobank_barcode"], "Biobank Barcode", "text")  }}
-                {{ show_value(sample["collection_date"], "Collection Date", "datetime") }}
-                {{ show_value(sample["sample_type"], "Sample Type", "text") }}
-                {{ show_value(sample["quantity"], "Quantity", "text")  }}
-                {{ show_value(sample["current_quantity"], "Current Quantity", "text") }}
+                {{ show_value(sample.biobank_barcode, "Biobank Barcode", "text")  }}
+                {{ show_value(sample.collection_date, "Collection Date", "datetime") }}
+                {{ show_value(sample.quantity, "Quantity", "text")  }}
+                {{ show_value(sample.current_quantity, "Current Quantity", "text") }}
+                {{ show_value(sample.sample_type_info.sample_type, "Sample Type", "text") }}
+                {{ show_value(sample.sample_type_info.storage_type, "Storage Type", "text") }}
+
+                {% for term, value in sample.custom_attribute_data.items() %}
+                  {{ show_value(value, term, "text") }}
+                {% endfor %}
             </div>
             <div class="col-sm-3">
               <div class="card">
@@ -56,15 +61,17 @@
                     </div>
                     <p class="text-muted">Generating Barcode...</h4>
                   </div>
-                  
                   <img src="" id="barcode">
                 </div>
-
               </div>
-              
 
             </div>
-        </div>
+        </div> 
+
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+          <h3><i class="fa fa-question-circle"></i>  Patient Consent Information</h3>
+      </div>
 
     </div>
 {% endblock %}
