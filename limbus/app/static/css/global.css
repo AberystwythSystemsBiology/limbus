@@ -57,3 +57,7 @@ h2 {
 .navbar-dark .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 1.00);
 }
+
+#barcode {
+    width:100%;
+}

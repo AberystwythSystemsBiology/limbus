@@ -42,12 +42,17 @@
                 <div class="card-header">
                   <i class="fa fa-qrcode"></i> Sample Barcode
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="text-align: center;">
+                  <div id="loading-barcode">
+                    <div class="spinner-border" role="status">
+                      <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="text-muted">Generating Barcode...</h4>
+                  </div>
+                  
                   <img src="" id="barcode">
                 </div>
-                <div class="card-footer">
-                    UUID
-                </div>
+
               </div>
               
 
@@ -55,4 +60,8 @@
         </div>
 
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/information/view.js') }}"></script>
 {% endblock %}
