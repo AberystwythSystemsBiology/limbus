@@ -299,8 +299,7 @@ def add_sample_form(hash):
         for answer in session["%s checked_consent" % (hash)]:
             spcfaa = SamplePatientConsentFormAnswersAssociation(
                 sample_pcf_association_id=spcfta.id,
-                checked=answer,
-                author_id=current_user.id,
+                author_id=current_user.id
             )
 
             db.session.add(spcfaa)
