@@ -3,14 +3,13 @@ from ... import db
 from ..models import *
 
 from ...auth.models import User
-from ...ViewClass import ViewClass
 
 from ...document.models import Document
 from ...processing.models import ProcessingTemplate
 
 from ...patientconsentform.models import *
 
-class SampleView(ViewClass):
+class SampleView():
     def __init__(self, sample_id):
         self.sample_id = sample_id
         self.db_sessions = {

@@ -15,7 +15,6 @@ from wtforms.validators import DataRequired, Length
 from .enums import *
 from ..document.models import Document, DocumentType
 from ..auth.models import User
-from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
 from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 

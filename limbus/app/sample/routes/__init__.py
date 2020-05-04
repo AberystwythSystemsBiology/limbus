@@ -16,5 +16,5 @@ def sap_portal() -> str:
 @sample.route("samples/")
 @login_required
 def index() -> str:
-    samples = SamplesIndexView().get_attributes()
+    samples = SamplesIndexView()
     return render_template("sample/information/index.html", samples=samples)
