@@ -14,9 +14,9 @@ app_admin = Admin(name="Administrator Panel", template_mode="bootstrap3")
 
 # blueprint imports
 from .misc import misc as misc_blueprint
+from .attribute import attribute as attribute_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
-from .attribute import attribute as attribute_blueprint
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
