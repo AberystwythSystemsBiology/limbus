@@ -70,22 +70,44 @@
     </div>
   </div>
 
-
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h3><i class="fa fa-question-circle"></i> Patient Consent Information</h3>
+    <h3><i class="fa fa-code-branch"></i> Subsamples</h3>
   </div>
 
-  {{ show_value(sample.consent_info.name, "Consent Form Template", "text") }}
-  {{ show_value(sample.consent_info.version, "Consent Form Version", "text") }}
 
-  <h4>Answers</h4>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h3><i class="fa fa-question-circle"></i> Patient Consent Information</h3>
+      </div>
+    
+      {{ show_value(sample.consent_info.name, "Consent Form Template", "text") }}
+      {{ show_value(sample.consent_info.version, "Consent Form Version", "text") }}
+       
+      <ul class="list-group">
+        <li class="list-group-item active">Answers</li>
+        {% for id, question in sample.consent_info.answers.items() %}
+          <li class="list-group-item">{{question.question}}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-sm-6">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h3><i class="fa fa-question-circle"></i> Sample Processing Information</h3>
+      </div>
 
+      {{ show_value(sample.processing_info.name, "Processing Template Name", "text") }}
+      {{ show_value(sample.processing_info.processing_time, "Processing Time", "text") }}
+      {{ show_value(sample.processing_info.processing_date, "Processing Date", "text") }}
 
-  {{sample}}
-
+    </div>
+  </div>
 
 </div>
+
+
 {% endblock %}
+
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/sample/information/view.js') }}"></script>

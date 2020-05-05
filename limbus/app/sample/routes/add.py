@@ -54,6 +54,8 @@ def add_sample_pcf_data(hash):
         .filter(ConsentFormTemplate.id == t_id)
         .first_or_404()
     )
+
+
     pcf_questions = (
         db.session.query(ConsentFormTemplateQuestion)
         .filter(ConsentFormTemplateQuestion.template_id == t_id)
@@ -61,18 +63,18 @@ def add_sample_pcf_data(hash):
     )
 
 
-    # TODO: Drop dependency on p.
     questionnaire = PatientConsentQuestionnaire(pcf_questions)
-    conv = {p.number_to_words(x.id): x.id for x in pcf_questions}
 
     if questionnaire.validate_on_submit():
-        ticked = []
+
+        checked = []
+
         for q in questionnaire:
             if q.type == "BooleanField":
                 if q.data:
-                    ticked.append(conv[q.name])
+                    checked.append(int(q.name))
 
-        session["%s checked_consent" % (hash)] = ticked
+        session["%s checked_consent" % (hash)] = checked
         return redirect(url_for("sample.select_sample_type", hash=hash))
 
     return render_template(
@@ -204,8 +206,6 @@ def add_sample_form(hash):
 
         sample_type = sample_type_info["sample_type"]
 
-        print(">>>> TEST", form.collection_date.data ,type(form.collection_date.data))
-
         sample = Sample(
             uuid = uuid.uuid4(),
             sample_type=sample_type,
@@ -268,7 +268,7 @@ def add_sample_form(hash):
                         )
                     else:
                         ca_v = SampleToCustomAttributeNumericValue(
-                            value = str(attr.data),
+                            value = attr.data,
                             custom_attribute_id = attr.id,
                             sample_id = sample.id,
                             author_id = current_user.id
@@ -302,7 +302,8 @@ def add_sample_form(hash):
         for answer in session["%s checked_consent" % (hash)]:
             spcfaa = SamplePatientConsentFormAnswersAssociation(
                 sample_pcf_association_id=spcfta.id,
-                author_id=current_user.id
+                author_id=current_user.id,
+                checked = answer
             )
 
             db.session.add(spcfaa)

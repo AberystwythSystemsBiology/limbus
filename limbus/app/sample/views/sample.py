@@ -34,11 +34,7 @@ def SampleView(sample_id: int) -> dict:
         
         cft, spcfta = db.session.query(ConsentFormTemplate, SamplePatientConsentFormTemplateAssociation).filter(SamplePatientConsentFormTemplateAssociation.sample_id == sample_id).filter(ConsentFormTemplate.id == SamplePatientConsentFormTemplateAssociation.template_id).first_or_404()
 
-        checked_answers = db.session.query(SamplePatientConsentFormAnswersAssociation).filter(SamplePatientConsentFormAnswersAssociation.sample_pcf_association_id == spcfta.id).all()
-
-        checked = [x.checked for x in checked_answers]
-
-        print(">>>>> PRINT", checked)
+        checked_answers = db.session.query(SamplePatientConsentFormAnswersAssociation, ConsentFormTemplateQuestion).filter(SamplePatientConsentFormAnswersAssociation.sample_pcf_association_id == spcfta.id).filter(ConsentFormTemplateQuestion.id == SamplePatientConsentFormAnswersAssociation.checked).all()
 
 
         data = {
@@ -48,15 +44,28 @@ def SampleView(sample_id: int) -> dict:
             "answers": {}
         }
 
-
-
+        for _, answer in checked_answers:
+            data["answers"][answer.id] = {
+                "question": answer.question
+            }
 
         return data
 
 
     def _get_processing_information(sample_id: int) -> dict:
         
-        pass
+
+        template, assoc = db.session.query(ProcessingTemplate, SampleProcessingTemplateAssociation).filter(SampleProcessingTemplateAssociation.sample_id == sample_id).filter(ProcessingTemplate.id == SampleProcessingTemplateAssociation.template_id).first_or_404()
+
+        data = {
+            "id": template.id,
+            "name": template.name,
+            "processing_time": assoc.processing_time,
+            "processing_date" : assoc.processing_date
+        }
+
+
+        return data
 
 
 
@@ -114,5 +123,7 @@ def SampleView(sample_id: int) -> dict:
     data["custom_attribute_data"] = _get_custom_attributes(sample.id)
     data["consent_info"] = _get_consent_information(sample.id)    
 
+
+    data["processing_info"] = _get_processing_information(sample.id)
 
     return data

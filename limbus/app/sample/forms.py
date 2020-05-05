@@ -25,11 +25,6 @@ from ..storage.enums import CellContainer, FluidContainer, FixationType
 
 from .. import db
 
-import inflect
-
-p = inflect.engine()
-
-
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
     barcode = StringField("Biobank Barcode")
@@ -124,7 +119,7 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
     for question in questions:
         setattr(
-            StaticForm, p.number_to_words(question.id), BooleanField(question.question)
+            StaticForm, str(question.id), BooleanField(question.question)
         )
 
     # Inject submit

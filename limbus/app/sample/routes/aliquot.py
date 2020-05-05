@@ -15,13 +15,11 @@ from ..views.sample import SampleView
 @s_bp.route("view/LIMBSMP-<sample_id>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(sample_id):
-    s = SampleView(sample_id)
+    sample_attributes = SampleView(sample_id)
 
-    sample_attributes = s.get_attributes()
-
-    if sample_attributes["sample_type"] == SampleType.MOL:
+    if sample_attributes["sample_type_info"]["sample_type"] == SampleType.MOL:
         sample_type = SampleToMolecularSampleType
-    elif sample_attributes["sample_type"] == SampleType.FLU:
+    elif sample_attributes["sample_type_info"]["sample_type"] == SampleType.FLU:
         sample_type = SampleToFluidSampleType
     else:
         sample_type = SampleToCellSampleType
@@ -30,7 +28,7 @@ def aliquot(sample_id):
         db.session.query(sample_type).filter(sample_type.sample_id == sample_id).first_or_404()
     )
 
-    form, num_processing_templates = SampleAliquotingForm(sample_attributes["sample_type"], sample_type.sample_type)
+    form, num_processing_templates = SampleAliquotingForm(sample_attributes["sample_type_info"]["sample_type"], sample_type.sample_type)
 
     if form.validate_on_submit():
 
