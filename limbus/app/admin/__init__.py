@@ -1,1 +1,5 @@
-from .views import add_admin_views
+from flask import Blueprint
+
+admin = Blueprint("admin", __name__)
+
+from . import routes

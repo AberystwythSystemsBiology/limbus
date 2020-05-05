@@ -1,17 +1,13 @@
-from functools import wraps
+from .routes import db
+from ..auth.models import User, Profile
+from ..auth.views import UserView
 
-from flask import redirect, render_template, url_for, flash, abort
-from flask_admin.contrib.sqla import ModelView
+def UserAccountsView() -> dict:
+    users = db.session.query(User, Profile).filter(User.profile_id == Profile.id).all()
 
-from .. import db
-from ..auth.models import User
+    data = {}
 
+    for user, profile in users:
+        data[user.id] = UserView(user.id, [user, profile])
 
-class UserView(ModelView):
-    column_exclude_list = ["password_hash"]
-
-
-def add_admin_views():
-    from .. import app_admin
-
-    app_admin.add_view(UserView(User, db.session))
+    return data

@@ -6,13 +6,12 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_continuum import make_versioned
 from flask_login import LoginManager
 from flask_migrate import Migrate
-from flask_admin import Admin
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-app_admin = Admin(name="Administrator Panel", template_mode="bootstrap3")
 
 # blueprint imports
+from .admin import admin as admin_blueprint
 from .misc import misc as misc_blueprint
 from .attribute import attribute as attribute_blueprint
 from .setup import setup as setup_blueprint
@@ -28,6 +27,7 @@ from .storage import storage as storage_blueprint
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
+
     app.config.from_object(app_config[os.getenv("FLASK_CONFIG")])
     app.config.from_pyfile("config.py")
 
@@ -40,7 +40,7 @@ def create_app():
 
     migrate = Migrate(app, db)
 
-    app_admin.init_app(app)
+
 
     # Load in models here
     from app.auth import models as auth_models
@@ -53,8 +53,9 @@ def create_app():
     from app.attribute import models as attribute_models
 
     app.register_blueprint(misc_blueprint)
-    app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    app.register_blueprint(admin_blueprint, url_prefix="/admin")
     app.register_blueprint(attribute_blueprint, url_prefix="/attributes")
     app.register_blueprint(processing_blueprint, url_prefix="/processing")
     app.register_blueprint(doc_blueprint, url_prefix="/documents")
@@ -63,9 +64,6 @@ def create_app():
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
 
-    from app.admin import add_admin_views
-
-    add_admin_views()
 
     @app.errorhandler(404)
     def page_not_found(e):
