@@ -40,6 +40,7 @@ def SampleView(sample_id: int) -> dict:
         data = {
             "id": cft.id,
             "name": cft.name,
+            "association_id": spcfta.id,
             "version": cft.version,
             "answers": {}
         }
@@ -67,6 +68,16 @@ def SampleView(sample_id: int) -> dict:
 
         return data
 
+    def _not_subsample(sample_id) -> dict:
+        subsample = db.session.query(SubSampleToSample).filter(SubSampleToSample.subsample_sample_id == sample_id).first()
+
+        if subsample != None:
+            return {
+                "parent_id": subsample.parent_sample_id
+            }
+
+        else:
+            return True
 
 
     def _get_custom_attributes(sample_id: int) -> dict:
@@ -100,6 +111,15 @@ def SampleView(sample_id: int) -> dict:
             "storage_type": sample_to_type.sample_type
         }
 
+    def _get_subsamples(sample_id: int) -> dict:
+        subsamples = db.session.query(SubSampleToSample).filter(SubSampleToSample.parent_sample_id == sample_id).all()
+
+        data = {}
+
+        for sample in subsamples:
+            data[sample.subsample_sample_id] = BasicSampleView(sample.subsample_sample_id)
+        
+        return data
     
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
 
@@ -119,11 +139,16 @@ def SampleView(sample_id: int) -> dict:
 
     }
 
+    data["not_subsample"] = _not_subsample(sample.id)
+
     data["sample_type_info"] = _get_sample_to_type(sample.sample_type, sample.id)
     data["custom_attribute_data"] = _get_custom_attributes(sample.id)
-    data["consent_info"] = _get_consent_information(sample.id)    
-
-
+    if data["not_subsample"] == True:
+        data["consent_info"] = _get_consent_information(sample.id)
+    else:
+        data["consent_info"] = _get_consent_information(data["not_subsample"]["parent_id"])
     data["processing_info"] = _get_processing_information(sample.id)
+
+    data["subsamples"] = _get_subsamples(sample.id)
 
     return data

@@ -12,6 +12,8 @@ from ..models import *
 
 from ..views.sample import SampleView
 
+import uuid
+
 @s_bp.route("view/LIMBSMP-<sample_id>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(sample_id):
@@ -50,6 +52,7 @@ def aliquot(sample_id):
 
             sample_cpy.id = None
             sample_cpy.biobank_barcode = None
+            sample_cpy.uuid = uuid.uuid4()
             sample_cpy.quantity = size
             sample_cpy.current_quantity = size
             sample_cpy.author_id = current_user.id
@@ -110,8 +113,6 @@ def aliquot(sample_id):
             db.session.commit()
 
         sample_cpy = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
-
-
 
         sample_cpy.current_quantity = float(sample_cpy.current_quantity) - (float(size) * float(counts))
 

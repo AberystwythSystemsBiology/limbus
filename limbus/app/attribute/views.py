@@ -24,7 +24,7 @@ def CustomAttributesIndexView() -> dict:
             "user_information" : UserView(attribute.author_id)
         }
 
-        return data
+    return data
 
 
 def CustomAttributeView(ca_id) -> dict:
