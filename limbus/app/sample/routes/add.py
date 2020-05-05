@@ -259,7 +259,7 @@ def add_sample_form(hash):
                             author_id = current_user.id
                         )
 
-                    elif attr == "SelectField":
+                    elif attr.type == "SelectField":
                         ca_v = SampleToCustomAttributeOptionValue(
                             custom_option_id = attr.data,
                             custom_attribute_id = attr.id,

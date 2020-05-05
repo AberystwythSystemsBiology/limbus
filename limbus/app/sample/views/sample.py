@@ -82,16 +82,23 @@ def SampleView(sample_id: int) -> dict:
 
     def _get_custom_attributes(sample_id: int) -> dict:
         text_values = db.session.query(CustomAttributes, SampleToCustomAttributeTextValue).filter(SampleToCustomAttributeTextValue.sample_id == sample_id).filter(SampleToCustomAttributeTextValue.custom_attribute_id == CustomAttributes.id).all()
-
         numeric_values = db.session.query(CustomAttributes, SampleToCustomAttributeNumericValue).filter(SampleToCustomAttributeNumericValue.sample_id == sample_id).filter(CustomAttributes.id == SampleToCustomAttributeNumericValue.custom_attribute_id).all()
+        option_values = db.session.query(CustomAttributes, SampleToCustomAttributeOptionValue, CustomAttributeOption).filter(SampleToCustomAttributeOptionValue.sample_id == sample_id).filter(CustomAttributeOption.id == SampleToCustomAttributeOptionValue.custom_option_id).all()
 
         custom_values = {}
 
+
+        for attribute, _, value in option_values:
+            custom_values[attribute.term] = value.term
+        
+
         for attribute, value in text_values:
             custom_values[attribute.term] = value.value
-        
+
         for attribute, value in numeric_values:
             custom_values[attribute.term] = value.value
+
+        
 
         return custom_values
 
@@ -146,7 +153,7 @@ def SampleView(sample_id: int) -> dict:
 
     else:
         # Also get custom attributes
-
+        data["custom_attribute_data"] = _get_custom_attributes(data["not_subsample"]["parent_id"])
         data["consent_info"] = _get_consent_information(data["not_subsample"]["parent_id"])
     data["processing_info"] = _get_processing_information(sample.id)
 
