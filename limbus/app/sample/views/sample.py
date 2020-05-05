@@ -30,11 +30,35 @@ def BasicSampleView(sample_id: int):
 
 def SampleView(sample_id: int) -> dict:
 
-    def _get_consent_information() -> dict:
+    def _get_consent_information(sample_id: int) -> dict:
+        
+        cft, spcfta = db.session.query(ConsentFormTemplate, SamplePatientConsentFormTemplateAssociation).filter(SamplePatientConsentFormTemplateAssociation.sample_id == sample_id).filter(ConsentFormTemplate.id == SamplePatientConsentFormTemplateAssociation.template_id).first_or_404()
+
+        checked_answers = db.session.query(SamplePatientConsentFormAnswersAssociation).filter(SamplePatientConsentFormAnswersAssociation.sample_pcf_association_id == spcfta.id).all()
+
+        checked = [x.checked for x in checked_answers]
+
+        print(">>>>> PRINT", checked)
+
+
+        data = {
+            "id": cft.id,
+            "name": cft.name,
+            "version": cft.version,
+            "answers": {}
+        }
+
+
+
+
+        return data
+
+
+    def _get_processing_information(sample_id: int) -> dict:
+        
         pass
 
-    def _get_processing_information() -> dict:
-        pass
+
 
     def _get_custom_attributes(sample_id: int) -> dict:
         text_values = db.session.query(CustomAttributes, SampleToCustomAttributeTextValue).filter(SampleToCustomAttributeTextValue.sample_id == sample_id).filter(SampleToCustomAttributeTextValue.custom_attribute_id == CustomAttributes.id).all()
@@ -58,6 +82,10 @@ def SampleView(sample_id: int) -> dict:
         if sample_type == SampleType.CEL:
             sample_to_type = db.session.query(SampleToCellSampleType).filter(SampleToCellSampleType.sample_id == id).first_or_404()
         
+        elif sample_type == SampleType.FLU:
+            sample_to_type = db.session.query(SampleToFluidSampleType).filter(SampleToFluidSampleType.sample_id == id).first_or_404()
+        
+
         return {
             "sample_type": sample_type,
             "storage_type": sample_to_type.sample_type
@@ -84,7 +112,7 @@ def SampleView(sample_id: int) -> dict:
 
     data["sample_type_info"] = _get_sample_to_type(sample.sample_type, sample.id)
     data["custom_attribute_data"] = _get_custom_attributes(sample.id)
-
+    data["consent_info"] = _get_consent_information(sample.id)    
 
 
     return data
