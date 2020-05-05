@@ -15,7 +15,6 @@ from wtforms.validators import DataRequired, Length
 from .enums import *
 from ..document.models import Document, DocumentType
 from ..auth.models import User
-from ..misc.enums import UnitsOfMeasurement
 from .models import SampleDocumentAssociation
 from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
@@ -25,11 +24,6 @@ from ..processing.enums import ProtocolTypes, ProtocolSampleType
 from ..storage.enums import CellContainer, FluidContainer, FixationType
 
 from .. import db
-
-import inflect
-
-p = inflect.engine()
-
 
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
@@ -125,7 +119,7 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
     for question in questions:
         setattr(
-            StaticForm, p.number_to_words(question.id), BooleanField(question.question)
+            StaticForm, str(question.id), BooleanField(question.question)
         )
 
     # Inject submit

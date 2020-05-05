@@ -22,21 +22,42 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-3">Sample Type:</div>
-                        <div class="col-sm-9">{{ sample_type.sample_type }} ({{ sample.sample_type }})</div>
+                        <div class="col-sm-9">{{ sample_type.sample_type }} ({{ sample.sample_type_info.sample_type }})</div>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="form-group row">
                         <div class="col-sm-3">Original Quantity:</div>
-                        <div class="col-sm-9">{{ sample.quantity }}</div>
+                        <div class="col-sm-9">
+                            {{ sample.quantity }}
+                            {% if sample.sample_type_info.sample_type.value == "Fluid" %}
+                                mL
+                            {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
+                                Cells
+                            {% else %}
+                                ug/ML
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-3">Available Quantity:</div>
-                        <div class="col-sm-9"><span id="available_quantity">{{ sample.current_quantity }}</span></div>
+                        <div class="col-sm-9"><span id="available_quantity">{{ sample.current_quantity }}</span>{% if sample.sample_type_info.sample_type.value == "Fluid" %}
+                            mL
+                        {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
+                            Cells
+                        {% else %}
+                            ug/ML
+                        {% endif %}</div>
                     </div>
                     <div class="form-group row">
                         <div class="col-sm-3">Proposed Quantity:</div>
-                        <div class="col-sm-9"><span id="proposed_quantity">{{ sample.current_quantity }}</span></div>
+                        <div class="col-sm-9"><span id="proposed_quantity">{{ sample.current_quantity }}</span>{% if sample.sample_type_info.sample_type.value == "Fluid" %}
+                            mL
+                        {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
+                            Cells
+                        {% else %}
+                            ug/ML
+                        {% endif %}</div>
                     </div>
                 </div>
             </div>
@@ -75,9 +96,9 @@
             </form>
         {% else %}
             {{ render_warning(
-                    "No Suitable Processing Protocol Found",
+                    "No Suitable Aliquoting Protocol Found",
                     [
-                        "There are no suitable processing protocols found.",
+                        "There are no suitable sample aliquoting protocols found.",
                         "Please add one before attempting an aliquot."
                      ], 'processing.new_protocol', "New Processing Protocol", True, True
                 ) }}

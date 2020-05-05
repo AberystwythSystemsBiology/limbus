@@ -1,6 +1,9 @@
 {% extends "template.html" %}
 
 
+{% block title %}Attribute Portal{% endblock %}
+
+
 {% block body %}
 
     <div class="container">
@@ -30,16 +33,18 @@
             </tr>
             </thead>
             <tbody>
+
             {% for id, attr in attributes.items() %}
                 <tr>
                     <td>
-                        <i class="fas fa-vial"></i> LIMBATTR-{{ id }}: {{ attr.term }}
+                        <a href="{{ url_for('attribute.view', attr_id=id) }}">
+                            <i class="fab fa-buffer"></i>  LIMBATTR-{{ id }}: {{ attr.term }}
+                        </a>
                     </td>
                     <td>{{ attr.type }}</td>
                     <td>{{ attr.element }}</td>
-                    <td>{{ attr.user_information.name }}</td>
-                    <td>{{ attr.creation_date }}</td>
-
+                    <td>{{ attr.user_information.email }}</td>
+                    <td>{{ attr.creation_date.strftime("%d-%m-%Y") }}</td>
                 </tr>
             {% endfor %}
             </tbody>

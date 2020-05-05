@@ -10,12 +10,14 @@ from ...auth.models import User
 
 from ..models import *
 from ...document.models import Document
-from ...document.views import save_document
+from ...document.routes import save_document
 from ...document.models import DocumentType
+
+from ..views import ProcessingProtocolsIndexView, ProcessingProtocolView
 
 @processing.route("/protocols")
 def protocol_index():
-    protocols = db.session.query(ProcessingTemplate, User).filter(ProcessingTemplate.author_id == User.id).all()
+    protocols = ProcessingProtocolsIndexView()
     return render_template("processing/protocols/index.html", protocols=protocols)
 
 
@@ -62,6 +64,6 @@ def new_protocol():
 
 @processing.route("/protocols/view/LIMBPRO-<protocol_id>")
 def view_protocol(protocol_id):
-    protocol, user = db.session.query(ProcessingTemplate, User).filter(ProcessingTemplate.author_id == User.id).filter(ProcessingTemplate.id == protocol_id).first_or_404()
+    protocol = ProcessingProtocolView(protocol_id)
 
     return render_template("processing/protocols/view.html", protocol=protocol)

@@ -6,6 +6,10 @@ class Sample(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
+
+    # UUID4 length = 36
+    uuid = db.Column(db.String(36))
+
     biobank_barcode = db.Column(db.String)
     sample_type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)

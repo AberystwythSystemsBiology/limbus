@@ -1,50 +1,46 @@
-from flask import redirect, render_template, url_for, flash
-from flask_login import login_required, login_user, logout_user, current_user
-
-from . import auth
-
-from .forms import LoginForm, ChangePassword
+from .. import db
 from .models import User, Profile
 
-from .. import db
+def UserIndexView() -> dict:
+    users = db.session.query(User).all()
+
+    data = {}
+
+    for user in users:
+        data[user.id] = {
+            "email": user.email,
+            "is_admin": user.is_admin,
+            "is_locked": user.is_locked,
+            "name": user.name,
+            "creation_date": user.creation_date,
+            "update_date": user.update_date
+        }
+
+    return data
 
 
-@auth.route("/login", methods=["GET", "POST"])
-def login():
-    form = LoginForm()
+def UserView(id: int) -> dict:
+    user, profile = db.session.query(
+        User,
+        Profile
+    ).filter(User.id == id).filter(Profile.id == User.profile_id).first_or_404()
 
-    if form.validate_on_submit():
-        user = db.session.query(User).filter(User.email == form.email.data).first()
-        if user is not None and user.verify_password(form.password.data):
-            login_user(user)
-            return redirect(url_for("misc.index"))
-        else:
-            flash("Incorrect email or password.")
-    return render_template("auth/login.html", form=form)
+    return {
+        "id": user.id,
+        "email": user.email,
+        "is_admin": user.is_admin,
+        "is_locked": user.is_locked,
+        "creation_date": user.creation_date,
+        "update_date": user.update_date,
+        "gravatar": user.gravatar(),
+        "profile" : {
+            "id": profile.id,
+            "title": profile.title,
+            "first_name": profile.first_name,
+            "middle_name": profile.middle_name,
+            "last_name": profile.last_name,
+            "creation_date": profile.creation_date,
+            "update_date": profile.update_date
+        }
 
-
-@auth.route("/logout")
-@login_required
-def logout():
-    logout_user()
-    flash("You have successfully been logged out.")
-    return redirect(url_for("auth.login"))
-
-
-@auth.route("/profile", methods=["GET", "POST"])
-def profile():
-    user, user_profile = (
-        db.session.query(User, Profile)
-        .filter(User.id == current_user.id)
-        .filter(User.profile_id == Profile.id)
-        .first_or_404()
-    )
-
-    password_change = ChangePassword()
-
-    return render_template(
-        "auth/profile.html",
-        user=user,
-        profile=user_profile,
-        password_change=password_change,
-    )
+    }

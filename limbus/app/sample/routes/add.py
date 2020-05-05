@@ -15,6 +15,8 @@ from ...processing.models import ProcessingTemplate
 from ...misc.generators import generate_random_hash
 from ...misc import clear_session
 
+import uuid
+
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
@@ -52,6 +54,8 @@ def add_sample_pcf_data(hash):
         .filter(ConsentFormTemplate.id == t_id)
         .first_or_404()
     )
+
+
     pcf_questions = (
         db.session.query(ConsentFormTemplateQuestion)
         .filter(ConsentFormTemplateQuestion.template_id == t_id)
@@ -59,18 +63,18 @@ def add_sample_pcf_data(hash):
     )
 
 
-    # TODO: Drop dependency on p.
     questionnaire = PatientConsentQuestionnaire(pcf_questions)
-    conv = {p.number_to_words(x.id): x.id for x in pcf_questions}
 
     if questionnaire.validate_on_submit():
-        ticked = []
+
+        checked = []
+
         for q in questionnaire:
             if q.type == "BooleanField":
                 if q.data:
-                    ticked.append(conv[q.name])
+                    checked.append(int(q.name))
 
-        session["%s checked_consent" % (hash)] = ticked
+        session["%s checked_consent" % (hash)] = checked
         return redirect(url_for("sample.select_sample_type", hash=hash))
 
     return render_template(
@@ -202,9 +206,8 @@ def add_sample_form(hash):
 
         sample_type = sample_type_info["sample_type"]
 
-        print(">>>> TEST", form.collection_date.data ,type(form.collection_date.data))
-
         sample = Sample(
+            uuid = uuid.uuid4(),
             sample_type=sample_type,
             quantity=sample_type_info["quantity"],
             current_quantity=sample_type_info["quantity"],
@@ -256,7 +259,7 @@ def add_sample_form(hash):
                             author_id = current_user.id
                         )
 
-                    elif attr == "SelectField":
+                    elif attr.type == "SelectField":
                         ca_v = SampleToCustomAttributeOptionValue(
                             custom_option_id = attr.data,
                             custom_attribute_id = attr.id,
@@ -299,8 +302,8 @@ def add_sample_form(hash):
         for answer in session["%s checked_consent" % (hash)]:
             spcfaa = SamplePatientConsentFormAnswersAssociation(
                 sample_pcf_association_id=spcfta.id,
-                checked=answer,
                 author_id=current_user.id,
+                checked = answer
             )
 
             db.session.add(spcfaa)

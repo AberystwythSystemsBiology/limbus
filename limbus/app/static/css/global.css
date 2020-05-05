@@ -1,3 +1,6 @@
+
+
+
 body {
     padding-top: 60px; /* Whatever the height of your navbar is; the
                              default is 50px */
@@ -60,4 +63,10 @@ h2 {
 
 .navbar-dark .navbar-nav .nav-link {
     color: rgba(255, 255, 255, 1.00);
+}
+
+#barcode {
+    width:100%;
+    padding:0px;
+    margin:0px;
 }

@@ -24,5 +24,7 @@ class SamplePatientConsentFormAnswersAssociation(db.Model):
         db.Integer, db.ForeignKey("sample_pcf_associations.id")
     )
 
+    checked = db.Column(db.Integer, db.ForeignKey("consent_form_template_questions.id"))
+
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

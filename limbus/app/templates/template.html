@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <meta name="author" content="Keiron O'Shea">
-    <title>{{ title }} : LImBuS - The LIbre Biobank System</title>
+    <title>{% block title %} {% endblock %} : LImBuS</title>
 
     <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/@fortawesome/fontawesome-free/css/all.css') }}"
@@ -53,9 +53,7 @@
                     </div>
                   </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('donor.index') }}"><i class="fas fa-male"></i> Donor Portal</a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('attribute.index') }}">
                             <i class="fab fa-buffer"></i> Attribute Portal
@@ -63,8 +61,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document
-                            Portal</a>
+                        <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document Portal</a>
                     </li>
 
                 </ul>

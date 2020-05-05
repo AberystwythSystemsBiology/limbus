@@ -90,15 +90,15 @@
         <label class="col-4 col-form-label text-muted">{{ label }}:</label>
         <div class="col-8">
             {% if type == "text" %}
-                <p class="col-sm-4">{{ attribute }}</p>
+                <p>{{ attribute }}</p>
             {% elif type == "textarea" %}
-                <p class="col-sm-4">{{ attribute }}</p>
+                <p>{{ attribute }}</p>
             {% elif type == "enum" %}
-                <p class="col-sm-4">{{ attribute.value }}</p>
+                <p>{{ attribute.value }}</p>
             {% elif type == "boolean" %}
                 {{ attribute }}
             {% elif type == "datetime" %}
-                <p class="col-sm-4">{{ attribute.strftime('%Y-%m-%d') }}</p>
+                <p>{{ attribute.strftime('%d-%m-%Y') }}</p>
             {% endif %}
 
         </div>

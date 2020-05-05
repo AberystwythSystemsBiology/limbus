@@ -1,111 +1,43 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
-
-from flask_login import current_user
-from . import pcf
 from .. import db
-from ..auth.models import User
-from .forms import NewConsentFormTemplate
-from ..misc.generators import generate_random_hash
 from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
-from ..sample.models import (
-    SamplePatientConsentFormTemplateAssociation,
-    Sample,
-    SamplePatientConsentFormAnswersAssociation,
-)
 
+from ..auth.views import UserView
 
-from ..misc import clear_session
+def PatientConsentFormIndexView() -> dict:
+    data = {}
 
-from .api import *
-
-@pcf.route("/")
-def index():
-    templates = (
-        db.session.query(ConsentFormTemplate, User)
-        .filter(ConsentFormTemplate.uploader == User.id)
-        .all()
-    )
-
-    return render_template("patientconsentform/index.html", templates=templates)
-
-
-@pcf.route("/view/LIMBPCF-<pcf_id>")
-def view(pcf_id):
-    template, uploader = (
-        db.session.query(ConsentFormTemplate, User)
-        .filter(ConsentFormTemplate.id == pcf_id)
-        .filter(ConsentFormTemplate.uploader == User.id)
-        .first_or_404()
-    )
-
-    questions = (
-        db.session.query(ConsentFormTemplateQuestion)
-        .filter(ConsentFormTemplateQuestion.template_id == pcf_id)
-        .all()
-    )
-    questions = [questions[i : (i + 3)] for i in range(0, len(questions), 3)]
-
-    assoc_samples = (
-        db.session.query(SamplePatientConsentFormTemplateAssociation, Sample)
-        .filter(SamplePatientConsentFormTemplateAssociation.template_id == pcf_id)
-        .filter(SamplePatientConsentFormTemplateAssociation.sample_id == Sample.id)
-        .all()
-    )
-
-    return render_template(
-        "patientconsentform/view.html",
-        template=template,
-        questions=questions,
-        uploader=uploader,
-        assoc_samples=[x[1] for x in assoc_samples],
-    )
-
-
-@pcf.route("/add", methods=["GET", "POST"])
-def new():
-    form = NewConsentFormTemplate()
-
-    if form.validate_on_submit():
-        hash = generate_random_hash()
-        session["%s consent_form_info" % (hash)] = {
-            "template_name": form.name.data,
-            "template_version": form.version.data,
+    for template in db.session.query(ConsentFormTemplate).all():
+        data[template.id] = {
+            "name": template.name,
+            "version": template.version,
+            "upload_date": template.upload_date,
+            "update_date": template.update_date,
+            "user_information": UserView(template.uploader)
         }
 
-        return redirect(url_for("pcf.new_two", hash=hash))
+    return data
 
-    return render_template("patientconsentform/add/one.html", form=form)
+def PatientConsentFormView(id) -> dict:
 
+    cft = db.session.query(ConsentFormTemplate).filter(ConsentFormTemplate.id == id).first_or_404()
 
-@pcf.route("/add/two/<hash>", methods=["GET", "POST"])
-def new_two(hash):
-    if request.method == "POST":
-        questions = request.form.getlist("questions[]")
+    data = {
+        "id": id,
+        "name" : cft.name,
+        "version" : cft.version,
+        "upload_date" : cft.upload_date,
+        "update_date" : cft.update_date,
+        "user_information": UserView(cft.uploader),
+        "questions": {
 
-        consent_form_info = session["%s consent_form_info" % (hash)]
+        }
+    }
 
-        cfi = ConsentFormTemplate(
-            name=consent_form_info["template_name"],
-            uploader=current_user.id,
-            version=consent_form_info["template_version"],
-        )
+    for question in db.session.query(ConsentFormTemplateQuestion).filter(ConsentFormTemplateQuestion.template_id == id).all():
+        data["questions"][question.id] = {
+            "question": question.question
+        }
 
-        db.session.add(cfi)
-        db.session.flush()
+    # TODO: Maybe get associated Samples?
 
-        cfi_id = cfi.id
-
-        for q in questions:
-            cf_question = ConsentFormTemplateQuestion(
-                question=q, uploader=current_user.id, template_id=cfi_id
-            )
-
-            db.session.add(cf_question)
-
-        db.session.commit()
-
-        resp = jsonify({"redirect": url_for("pcf.view", pcf_id=cfi_id, _external=True)})
-
-        clear_session(hash)
-        return resp, 200, {"ContentType": "application/json"}
-    return render_template("patientconsentform/add/two.html")
+    return data

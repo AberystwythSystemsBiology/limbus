@@ -13,12 +13,18 @@ from .. import db
 
 from ..misc import clear_session
 
-from .views import CustomAttributesIndexView
+from .views import CustomAttributesIndexView, CustomAttributeView
 
 @attribute.route("/")
 def index():
-    attributes = CustomAttributesIndexView().get_attributes()
+    attributes = CustomAttributesIndexView()
+    
     return render_template("attribute/index.html", attributes=attributes)
+
+@attribute.route("/view/LIMBATTR-<attr_id>")
+def view(attr_id):
+    cav = CustomAttributeView(attr_id)
+    return render_template("attribute/view.html", attribute=cav)
 
 @attribute.route("/add", methods=["GET", "POST"])
 def add():
@@ -46,7 +52,6 @@ def add():
 @attribute.route("/add/numeric/<hash>", methods=["GET", "POST"])
 def add_numeric(hash):
     form = CustomNumericAttributionCreationForm()
-
 
     if form.validate_on_submit():
         attribute_info = session["%s attribute_info"]
