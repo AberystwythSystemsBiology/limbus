@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% set title = "New Sample: Enter Patient Consent Form" %}
+{%block title%}New Sample: Enter Patient Consent Form{% endblock %}
 
 {% block head %}
 <link href="{{ url_for('static', filename='css/sample/information/add/step_two.css') }}" rel="stylesheet">
@@ -12,7 +12,7 @@
         {{ render_progress(2, 6) }}
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> {{ title }}</h2>
+            <h2><i class="fas fa-vial"></i> New Sample: Enter Patient Consent Form</h2>
         </div>
 
 
