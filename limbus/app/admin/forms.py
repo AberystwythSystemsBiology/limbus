@@ -16,8 +16,6 @@ from ..auth.models import User
 from ..misc.models import BiobankInformation
 
 
-
-
 class TemporaryRegistrationForm(FlaskForm):
 
 
@@ -42,6 +40,7 @@ class TemporaryRegistrationForm(FlaskForm):
         ],
     )
 
+   
 
     confirm_password = PasswordField("Confirm Password")
 
