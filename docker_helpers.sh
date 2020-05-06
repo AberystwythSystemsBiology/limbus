@@ -10,6 +10,7 @@ function limbus-pip-install() {
 }
 
 function limbus-c() {
+    echo ">>>> Cleaning binary files"
     docker-compose run web sh -c "find . -type f -name '*.pyc' -exec rm {} +"
 }
 
@@ -30,15 +31,22 @@ function yarn-deps() {
 }
 
 function limbus-b() {
+    echo ">>>> Building from Dockerfile"
     docker-compose build
 }
 
 function limbus-s() {
-    docker-compose up -d 
+    echo ">>>> Starting limbus daemon, to close it run limbus-d: to check logs run limbus-logs"
+    docker-compose up -d
+}
+
+function limbus-logs() {
+    docker-compose logs -f    
 }
 
 function limbus-d() {
-    docker-compose down -v
+    echo ">>>> Closing limbus daemon"
+    docker-compose down
 }
 
 function limbus-test() {
@@ -47,8 +55,8 @@ function limbus-test() {
 }
 
 function limbus-db-rebuild() {
-      docker-compose run --service-ports web sh -c "venv/bin/flask db downgrade base"
-      limbus-db-create
+    docker-compose run --service-ports web sh -c "venv/bin/flask db downgrade base"
+    limbus-db-create
 }
 
 
@@ -73,9 +81,8 @@ function limbus-db-upgrade() {
 }
 
 function limbus-db-nuke() {
-  docker stop limbus_postgres_1
-  docker rm limbus_postgres_1
-  docker-compose run web sh -c 'rm -rf migrations'
-  docker-compose run web sh -c 'find . -path "*/migrations/*.pyc"  -delete'
-  limbus-db-create
+    echo ">>> Wiping database:"
+    docker-compose down -v
+    docker-compose run web sh -c 'rm -rf migrations && find . -path "*/migrations/*.pyc"  -delete'
+    limbus-db-create
 }
