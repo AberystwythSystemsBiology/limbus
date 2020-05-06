@@ -1,12 +1,38 @@
-version: '3.2'
+version: "3"
 
 services:
-  nginx:
-    build: ./services/nginx
+  nginx-proxy:
+    image: jwilder/nginx-proxy
     ports:
-        - 80:80
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./services/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./services/certs:/etc/nginx/certs
+      - ./services/htpasswd:/etc/nginx/htpasswd
+      - ./services/nginx/html:/usr/share/nginx/html
+
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
+    networks:
+      - nginx
+  
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-ssl
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./services/nginx/vhost.d:/etc/nginx/vhost.d
+      - ./services/certs:/etc/nginx/certs
+      - ./services/nginx/html:/usr/share/nginx/html
+    links:
+      - nginx-proxy
     depends_on:
-        - web
+      - nginx-proxy
+    networks:
+      - nginx
   web:
     build:
       context: ./services/web
@@ -21,12 +47,17 @@ services:
       - db
     env_file:
       .env
+    
     command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
   db:
     image: postgres:10
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+
+networks:
+  nginx:
+    external: true
 
 volumes:
   postgres_data:
