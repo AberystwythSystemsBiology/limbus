@@ -38,7 +38,7 @@ def index():
         db.session.add(profile)
         db.session.flush()
 
-        user = User(email=form.email.data, password=form.password.data, is_admin=False, profile_id=profile.id)
+        user = User(email=form.email.data, password=form.password.data, is_admin=form.is_admin.data, profile_id=profile.id)
         db.session.add(user)
         db.session.commit()
 

@@ -6,6 +6,7 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
+    BooleanField
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 
@@ -40,6 +41,7 @@ class TemporaryRegistrationForm(FlaskForm):
         ],
     )
 
+    is_admin = BooleanField("Is Admin?")
    
 
     confirm_password = PasswordField("Confirm Password")
