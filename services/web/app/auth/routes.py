@@ -34,6 +34,7 @@ def logout():
 
 
 @auth.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
     user = UserView(current_user.id)
 

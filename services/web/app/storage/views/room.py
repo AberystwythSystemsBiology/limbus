@@ -1,6 +1,6 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
 
-from flask_login import current_user
+from flask_login import current_user, login_required
 from ... import db
 from .. import storage
 
@@ -20,12 +20,14 @@ from ...auth.models import User
 
 
 @storage.route("rooms/")
+@login_required
 def room_index():
     sites = db.session.query(Site, User).filter(Site.author_id == User.id).all()
     return render_template("storage/site/index.html", sites=sites)
 
 
 @storage.route("rooms/new", methods=["GET", "POST"])
+@login_required
 def add_room():
     form = SiteRegistrationForm()
     if form.validate_on_submit():
@@ -54,6 +56,7 @@ def add_room():
 
 
 @storage.route("/rooms/view/LIMBROM-<id>")
+@login_required
 def view_room(id):
     site = db.session.query(Site).filter(Site.id == Room.site_id).first_or_404()
     room = db.session.query(Room).filter(Room.id == id).first_or_404()
@@ -72,6 +75,7 @@ def view_room(id):
 
 
 @storage.route("/rooms/view/LIMBROM-<id>/get")
+@login_required
 def get_room(id):
     site = db.session.query(Site).filter(Site.id == id).first_or_404()
     rooms = db.session.query(Room).filter(Room.site_id == Site.id).all()
@@ -139,6 +143,7 @@ def get_room(id):
 
 
 @storage.route("/rooms/add_lts/LIMBROM-<id>", methods=["GET", "POST"])
+@login_required
 def add_lts(id):
     room = db.session.query(Room).filter(Room.id == id).first_or_404()
     form = LongTermColdStorageForm()

@@ -1,5 +1,5 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ... import db
 from .. import storage
@@ -18,6 +18,7 @@ from ..forms import NewShelfForm
 
 
 @storage.route("/lts/view/LIMBLTS-<lts_id>", methods=["GET"])
+@login_required
 def view_lts(lts_id):
     lts = (
         db.session.query(FixedColdStorage)
@@ -50,6 +51,7 @@ def view_lts(lts_id):
 
 
 @storage.route("/lts/add_shelf/LIMBLTS-<lts_id>", methods=["GET", "POST"])
+@login_required
 def add_shelf(lts_id):
     lts = (
         db.session.query(FixedColdStorage)

@@ -1,6 +1,6 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
 
-from flask_login import current_user
+from flask_login import current_user, login_required
 from ... import db
 from .. import storage
 
@@ -20,12 +20,14 @@ from ...auth.models import User
 
 
 @storage.route("sites/")
+@login_required
 def site_index():
     sites = db.session.query(Site, User).filter(Site.author_id == User.id).all()
     return render_template("storage/site/index.html", sites=sites)
 
 
 @storage.route("sites/new", methods=["GET", "POST"])
+@login_required
 def add_site():
     form = SiteRegistrationForm()
     if form.validate_on_submit():
@@ -54,6 +56,7 @@ def add_site():
 
 
 @storage.route("/sites/view/LIMBSIT-<id>")
+@login_required
 def view_site(id):
     site, address, uploader = (
         db.session.query(Site, Address, User)
@@ -74,6 +77,7 @@ def view_site(id):
 
 
 @storage.route("/sites/view/LIMBSIT-<id>/get")
+@login_required
 def get_data(id):
     site = db.session.query(Site).filter(Site.id == id).first_or_404()
     rooms = db.session.query(Room).filter(Room.site_id == Site.id).all()
@@ -141,6 +145,7 @@ def get_data(id):
 
 
 @storage.route("/sites/room/new/LIMBSIT-<s_id>", methods=["GET", "POST"])
+@login_required
 def new_room(s_id):
     site = db.session.query(Site).filter(Site.id == s_id).first_or_404()
 

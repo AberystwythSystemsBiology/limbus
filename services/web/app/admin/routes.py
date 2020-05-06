@@ -2,7 +2,8 @@ from . import admin
 from .. import db
 
 from flask import render_template, url_for, redirect, abort
-from flask_login import current_user
+from flask_login import current_user, login_required
+
 
 from .forms import TemporaryRegistrationForm
 from .views import UserAccountsView
@@ -21,6 +22,7 @@ def check_if_admin(f):
 
 @admin.route("/", methods=["GET", "POST"])
 @check_if_admin
+@login_required
 def index():
     form = TemporaryRegistrationForm()
 

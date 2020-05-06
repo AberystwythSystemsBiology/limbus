@@ -1,5 +1,5 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify, Response
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ... import db
 from .. import storage
@@ -22,6 +22,7 @@ from ...sample.models import Sample
 
 
 @storage.route("/cryobox")
+@login_required
 def cryobox_index():
     boxes = (
         db.session.query(CryovialBox, User)
@@ -32,6 +33,7 @@ def cryobox_index():
 
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
+@login_required
 def view_cryobox(cryo_id):
     cryo = (
         db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
@@ -40,6 +42,7 @@ def view_cryobox(cryo_id):
 
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>/data")
+@login_required
 def view_cryobox_api(cryo_id):
     cryo = (
         db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
@@ -63,9 +66,8 @@ def view_cryobox_api(cryo_id):
     return jsonify(data), 201, {"Content-Type": "application/json"}
 
 
-@storage.route(
-    "/cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"]
-)
+@storage.route("cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"])
+@login_required
 def add_cryobox_sample(cryo_id, row, col):
     cryo = (
         db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()

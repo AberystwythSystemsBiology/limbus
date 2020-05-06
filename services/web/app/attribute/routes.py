@@ -1,6 +1,6 @@
 from ..attribute import attribute
 
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask import render_template, session, redirect, url_for, request, jsonify
 
 from .forms import CustomAttributeCreationForm, CustomNumericAttributionCreationForm, CustomTextAttributeCreationForm
@@ -16,16 +16,19 @@ from ..misc import clear_session
 from .views import CustomAttributesIndexView, CustomAttributeView
 
 @attribute.route("/")
+@login_required
 def index():
     attributes = CustomAttributesIndexView()
     return render_template("attribute/index.html", attributes=attributes)
 
 @attribute.route("/view/LIMBATTR-<attr_id>")
+@login_required
 def view(attr_id):
     cav = CustomAttributeView(attr_id)
     return render_template("attribute/view.html", attribute=cav)
 
 @attribute.route("/add", methods=["GET", "POST"])
+@login_required
 def add():
     form = CustomAttributeCreationForm()
 
@@ -49,6 +52,7 @@ def add():
     return render_template("attribute/add/add.html", form=form)
 
 @attribute.route("/add/numeric/<hash>", methods=["GET", "POST"])
+@login_required
 def add_numeric(hash):
     form = CustomNumericAttributionCreationForm()
 
@@ -90,6 +94,7 @@ def add_numeric(hash):
     return render_template("attribute/add/numeric.html", form=form, hash=hash)
 
 @attribute.route("/add/option/<hash>", methods=["GET", "POST"])
+@login_required
 def add_option(hash):
     if request.method == "POST":
 
@@ -127,6 +132,7 @@ def add_option(hash):
     return render_template("attribute/add/option.html", hash=hash)
 
 @attribute.route("/add/textual/<hash>", methods=["GET", "POST"])
+@login_required
 def add_textual(hash):
     form = CustomTextAttributeCreationForm()
     if form.validate_on_submit():

@@ -1,5 +1,5 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ... import db
 from .. import storage
@@ -23,6 +23,7 @@ from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
 
 @storage.route("/shelves/view/LIMBSHF-<id>")
+@login_required
 def view_shelf(id):
     shelf = db.session.query(FixedColdStorageShelf).filter(FixedColdStorageShelf.id == id).first_or_404()
     samples = (
@@ -48,6 +49,7 @@ def view_shelf(id):
 
 
 @storage.route("/shelves/add_cryobox/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
+@login_required
 def add_cryobox(shelf_id):
     shelf = (
         db.session.query(FixedColdStorageShelf)
@@ -82,6 +84,7 @@ def add_cryobox(shelf_id):
 
 
 @storage.route("/shelves/assign_sample/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
+@login_required
 def assign_sample_to_shelf(shelf_id):
     shelf = (
         db.session.query(FixedColdStorageShelf)
