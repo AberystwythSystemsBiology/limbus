@@ -2,13 +2,9 @@ version: '3.2'
 
 services:
   web:
-    depends_on:
-      - db
     build:
       context: ./services/web
       dockerfile: Dockerfile
-    volumes:
-    - ./services/web/:/limbus
     environment:
       - FLASK_CONFIG=dev
       - FLASK_APP=/limbus/limbus/app
@@ -18,6 +14,8 @@ services:
       - 5000
     ports:
       - 5000:5000
+    depends_on:
+      - db
   db:
     image: postgres:10
     env_file: .env
