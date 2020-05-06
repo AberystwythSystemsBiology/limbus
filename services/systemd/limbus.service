@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 Restart=always
-ExecStart=/bin/bash docker-compose -f /limbus/docker-compose.prod.yml up -d --build
+ExecStart=/usr/local/bin/docker-compose -f /home/limbus/limbus/docker-compose.prod.yml up -d
 
 [Install]
 WantedBy=multi-user.target
