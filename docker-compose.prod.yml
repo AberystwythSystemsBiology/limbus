@@ -8,7 +8,6 @@ services:
       - 443:443
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./services/nginx/vhost.d:/etc/nginx/vhost.d
       - ./services/certs:/etc/nginx/certs
       - ./services/htpasswd:/etc/nginx/htpasswd
       - ./services/nginx/html:/usr/share/nginx/html
@@ -24,7 +23,6 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./services/nginx/vhost.d:/etc/nginx/vhost.d
       - ./services/certs:/etc/nginx/certs
       - ./services/nginx/html:/usr/share/nginx/html
     links:
