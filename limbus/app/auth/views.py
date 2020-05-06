@@ -19,11 +19,15 @@ def UserIndexView() -> dict:
     return data
 
 
-def UserView(id: int) -> dict:
-    user, profile = db.session.query(
-        User,
-        Profile
-    ).filter(User.id == id).filter(Profile.id == User.profile_id).first_or_404()
+def UserView(id: int, user_profile: list = None) -> dict:
+
+    if user_profile == None:
+        user, profile = db.session.query(
+            User,
+            Profile
+        ).filter(User.id == id).filter(Profile.id == User.profile_id).first_or_404()
+    else:
+        user, profile = user_profile
 
     return {
         "id": user.id,
