@@ -7,17 +7,14 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./services/web/:/limbus/
-    environment:
-      - FLASK_CONFIG=dev
-      - FLASK_APP=/limbus/app
-      - LANG=C.UTF-8
-      - LC_ALL=C.UTF-8
     expose:
       - 5000
     ports:
       - 5000:5000
     depends_on:
       - db
+    env:
+      ./services/web/.env
   db:
     image: postgres:10
     env_file: .env
