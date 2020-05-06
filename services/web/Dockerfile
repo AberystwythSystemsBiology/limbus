@@ -10,4 +10,4 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
 
 RUN npm install yarn -g
 
-WORKDIR /services/web
+WORKDIR /limbus

@@ -5,9 +5,11 @@ services:
     build:
       context: ./services/web
       dockerfile: Dockerfile
+    volumes:
+      - ./services/web/:/limbus/
     environment:
       - FLASK_CONFIG=dev
-      - FLASK_APP=/limbus/limbus/app
+      - FLASK_APP=/limbus/app
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8
     expose:
