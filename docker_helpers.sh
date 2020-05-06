@@ -1,17 +1,29 @@
 #!/bin/bash
 
+function limbus-pip-install() {
+    echo "Enter the pip package you want to install:"
+    read package
+    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install $package"
+    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip freeze > requirements.txt"
+
+}
+
 function limbus-c() {
-    docker-compose run web sh -c "find limbus -type f -name '*.pyc' -exec rm {} +"
+    docker-compose run web sh -c "find . -type f -name '*.pyc' -exec rm {} +"
 }
 
 function limbus-bwd() {
     limbus-b
-    limbus-deps
+    python-deps
+    yarn-deps
 }
 
-function limbus-deps() {
-    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install wheel"
-    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt && yarn install"
+function python-deps() {
+    docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt"
+}
+
+function yarn-deps() {
+    docker-compose run web sh -c "yarn install"
 }
 
 function limbus-b() {

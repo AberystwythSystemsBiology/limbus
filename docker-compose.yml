@@ -15,6 +15,7 @@ services:
       - db
     env_file:
       .env
+    command: venv/bin/python run.py
   db:
     image: postgres:10
     env_file: .env
