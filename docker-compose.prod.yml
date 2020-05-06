@@ -24,6 +24,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./services/certs:/etc/nginx/certs
+      - ./services/htpasswd:/etc/nginx/htpasswd
       - ./services/nginx/html:/usr/share/nginx/html
     links:
       - nginx-proxy
