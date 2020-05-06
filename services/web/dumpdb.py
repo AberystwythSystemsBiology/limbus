@@ -1,3 +1,12 @@
+# NOTE
+# =======
+# 
+# This is a really disgusting script that **should not be used in absolutely any circumstances**.
+#
+# No, I am not joking, if you use this script for anything, you are an # idiot. Don't be an idiot, 
+# don't use it.
+#
+
 import json
 import sqlalchemy as sqAl
 import os
@@ -37,6 +46,3 @@ if os.listdir(os.environ["DUMP_FOLDER"]) != []:
         write_json(result, fp)
 else:
     write_json(result, fp)
-
-
-#print()
