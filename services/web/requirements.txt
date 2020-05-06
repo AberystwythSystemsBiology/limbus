@@ -22,6 +22,7 @@ networkx==2.4
 Pillow==7.1.2
 pkg-resources==0.0.0
 pronto==2.1.0
+psycopg2-binary==2.8.5
 pycountry==19.8.18
 python-dateutil==2.8.1
 python-editor==1.0.4

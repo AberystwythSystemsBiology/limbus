@@ -3,9 +3,10 @@
 function limbus-pip-install() {
     echo "Enter the pip package you want to install:"
     read package
+    echo ">>> Now attempting to install $package:"
     docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install $package"
+    echo ">>> Writing to requirements.txt:"
     docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip freeze > requirements.txt"
-
 }
 
 function limbus-c() {
@@ -19,10 +20,12 @@ function limbus-bwd() {
 }
 
 function python-deps() {
+    echo ">>> Setting up Python dependencies:"
     docker-compose run web sh -c "python3 -m venv venv && venv/bin/pip install -r requirements.txt"
 }
 
 function yarn-deps() {
+    echo ">>> Running yarn install:"
     docker-compose run web sh -c "yarn install"
 }
 
@@ -31,8 +34,11 @@ function limbus-b() {
 }
 
 function limbus-s() {
-    docker-compose run --service-ports web sh -c "venv/bin/python limbus/run.py"
-    limbus-c
+    docker-compose up -d 
+}
+
+function limbus-d() {
+    docker-compose down -v
 }
 
 function limbus-test() {

@@ -1,6 +1,6 @@
 import os
 
-SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://{user}:{passwd}@postgres:5432/{db}".format(
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://{user}:{passwd}@db:5432/{db}".format(
     user=os.environ["POSTGRES_USER"],
     passwd=os.environ["POSTGRES_PASSWORD"],
     db=os.environ["POSTGRES_DB"])
