@@ -27,7 +27,6 @@ from .storage import storage as storage_blueprint
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-
     app.config.from_object(app_config[os.environ["FLASK_CONFIG"]])
     app.config.from_pyfile("config.py")
 
@@ -39,8 +38,6 @@ def create_app():
     login_manager.login_view = "auth.login"
 
     migrate = Migrate(app, db)
-
-
 
     # Load in models here
     from app.auth import models as auth_models
@@ -63,7 +60,6 @@ def create_app():
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
-
 
     @app.errorhandler(404)
     def page_not_found(e):

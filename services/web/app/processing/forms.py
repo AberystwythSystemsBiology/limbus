@@ -10,25 +10,15 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, EqualTo, URL
 
-from .enums import (
-    ProtocolSampleType,
-    ProtocolTypes
-
-)
+from .enums import ProtocolSampleType, ProtocolTypes
 
 
 class NewProtocolForm(FlaskForm):
     name = StringField("Protocol Name", validators=[DataRequired()])
 
-    protocol_type = SelectField(
-        "Protocol Type",
-        choices=ProtocolTypes.choices(),
-    )
+    protocol_type = SelectField("Protocol Type", choices=ProtocolTypes.choices())
 
-    sample_type = SelectField(
-        "Sample Type",
-        choices=ProtocolSampleType.choices(),
-    )
+    sample_type = SelectField("Sample Type", choices=ProtocolSampleType.choices())
 
     document_upload = FileField()
 

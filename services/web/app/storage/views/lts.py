@@ -9,7 +9,7 @@ from ..models import (
     Room,
     FixedColdStorage,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf
+    SampleToFixedColdStorageShelf,
 )
 from ...auth.models import User
 from ...sample.models import Sample
@@ -45,9 +45,7 @@ def view_lts(lts_id):
 
         _shelves[shelf.id] = {"shelf_information": shelf, "samples": samples}
 
-    return render_template(
-        "/storage/lts/view.html", lts=lts, shelves=_shelves
-    )
+    return render_template("/storage/lts/view.html", lts=lts, shelves=_shelves)
 
 
 @storage.route("/lts/add_shelf/LIMBLTS-<lts_id>", methods=["GET", "POST"])
@@ -71,8 +69,4 @@ def add_shelf(lts_id):
 
         return redirect(url_for("storage.view_lts", lts_id=lts_id))
 
-    return render_template(
-        "/storage/shelf/new.html", form=form, lts=lts
-    )
-
-
+    return render_template("/storage/shelf/new.html", form=form, lts=lts)

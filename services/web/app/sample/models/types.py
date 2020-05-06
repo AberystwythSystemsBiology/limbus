@@ -1,6 +1,7 @@
 from app import db
 from ..enums import *
 
+
 class SampleToFluidSampleType(db.Model):
     __tablename__ = "sample_to_fluid_sample_types"
 
@@ -17,6 +18,7 @@ class SampleToFluidSampleType(db.Model):
         nullable=False,
     )
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class SampleToMolecularSampleType(db.Model):
     __tablename__ = "sample_to_molecular_sample_types"
@@ -71,5 +73,3 @@ class SampleToTissueSampleType(db.Model):
     )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-

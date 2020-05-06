@@ -8,10 +8,12 @@ from .sample import *
 from .add import *
 from .aliquot import *
 
+
 @sample.route("/")
 @login_required
 def sap_portal() -> str:
     return render_template("sample/index.html")
+
 
 @sample.route("samples/")
 @login_required

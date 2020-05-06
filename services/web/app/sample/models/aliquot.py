@@ -1,6 +1,7 @@
 from app import db
 from ..enums import *
 
+
 class SubSampleToSample(db.Model):
     __tablename__ = "subsample_to_samples"
     id = db.Column(db.Integer, primary_key=True)

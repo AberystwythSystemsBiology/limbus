@@ -25,12 +25,17 @@ from ..storage.enums import CellContainer, FluidContainer, FixationType
 
 from .. import db
 
+
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
     barcode = StringField("Biobank Barcode")
 
-    fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
-    molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
+    fluid_sample_type = SelectField(
+        "Fluid Sample Type", choices=FluidSampleType.choices()
+    )
+    molecular_sample_type = SelectField(
+        "Molecular Sample Type", choices=MolecularSampleType.choices()
+    )
     cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
     quantity = StringField("Quantity")
 
@@ -41,9 +46,12 @@ class SampleTypeSelectForm(FlaskForm):
 
     submit = SubmitField("Submit")
 
+
 class SampleCreationForm(FlaskForm):
     collection_date = DateField("Sample Collection Date", validators=[DataRequired()])
-    disposal_instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
+    disposal_instruction = SelectField(
+        "Disposal Instructions", choices=DisposalInstruction.choices()
+    )
     disposal_date = DateField("Disposal Date")
 
 
@@ -93,7 +101,6 @@ def ProtocolTemplateSelectForm(templates):
     length = len(templates)
     choices = []
 
-
     for t in templates:
         choice = " LIMBPRO-%s: %s" % (t.id, t.name)
         choices.append([str(t.id), choice])
@@ -102,13 +109,9 @@ def ProtocolTemplateSelectForm(templates):
         StaticForm,
         "form_select",
         SelectField(
-            "Processing Protocol Template",
-            validators=[DataRequired()],
-            choices=choices,
+            "Processing Protocol Template", validators=[DataRequired()], choices=choices
         ),
     )
-
-
 
     return StaticForm(), length
 
@@ -118,9 +121,7 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
         pass
 
     for question in questions:
-        setattr(
-            StaticForm, str(question.id), BooleanField(question.question)
-        )
+        setattr(StaticForm, str(question.id), BooleanField(question.question))
 
     # Inject submit
 
@@ -128,23 +129,23 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
     return StaticForm()
 
 
-
 class FinalSampleForm:
     elements = {
         "collection_date": DateField("Collection Date", validators=[DataRequired()]),
-        "disposal_instruction": SelectField("Disposal Instructions", choices=DisposalInstruction.choices()),
-        "disposal_date" : DateField("Disposal Date"),
-        "submit": SubmitField("Submit")
+        "disposal_instruction": SelectField(
+            "Disposal Instructions", choices=DisposalInstruction.choices()
+        ),
+        "disposal_date": DateField("Disposal Date"),
+        "submit": SubmitField("Submit"),
     }
 
 
-
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
-
-
     class StaticForm(FlaskForm):
         count = IntegerField("Aliquot Count", validators=[DataRequired()])
-        size = StringField("Sample Quantity per Aliquot", validators=[DataRequired(), Length(min=1)])
+        size = StringField(
+            "Sample Quantity per Aliquot", validators=[DataRequired(), Length(min=1)]
+        )
         use_entire = BooleanField("Use all of Parent Sample?")
         aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
         aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
@@ -164,25 +165,33 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
         sample_type_enums = MolecularSampleType
         processsing_enum = ProtocolSampleType.MOL
 
-
     _ec = sample_type_enums.choices()
     _i = [i for i, x in enumerate(_ec) if x[1] == default_type][0]
     _ec.insert(0, _ec.pop(_i))
 
-    setattr(
-        StaticForm,
-        "sample_type",
-        SelectField("Sample Type", choices=_ec)
-    )
+    setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=_ec))
 
-    processing_templates = db.session.query(ProcessingTemplate).filter(
-        ProcessingTemplate.type == ProtocolTypes.ALD
-    ).filter(ProcessingTemplate.sample_type.in_([processsing_enum, ProtocolSampleType.ALL])).all()
+    processing_templates = (
+        db.session.query(ProcessingTemplate)
+        .filter(ProcessingTemplate.type == ProtocolTypes.ALD)
+        .filter(
+            ProcessingTemplate.sample_type.in_(
+                [processsing_enum, ProtocolSampleType.ALL]
+            )
+        )
+        .all()
+    )
 
     setattr(
         StaticForm,
         "processing_template",
-        SelectField("Processing Template (Aliquot)", coerce=int, choices=[(x.id, "LIMBPRO-%i: %s" % (x.id, x.name)) for x in processing_templates])
+        SelectField(
+            "Processing Template (Aliquot)",
+            coerce=int,
+            choices=[
+                (x.id, "LIMBPRO-%i: %s" % (x.id, x.name)) for x in processing_templates
+            ],
+        ),
     )
 
     return StaticForm(), len(processing_templates)

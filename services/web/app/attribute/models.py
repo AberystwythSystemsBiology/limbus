@@ -1,6 +1,7 @@
 from .enums import CustomAttributeTypes, CustomAttributeElementTypes
 from app import db
 
+
 class CustomAttributes(db.Model):
     __tablename__ = "custom_attributes"
 
@@ -19,8 +20,12 @@ class CustomAttributes(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
-
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class CustomAttributeTextSetting(db.Model):
@@ -33,7 +38,12 @@ class CustomAttributeTextSetting(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class CustomAttributeNumericSetting(db.Model):
@@ -47,7 +57,12 @@ class CustomAttributeNumericSetting(db.Model):
     prefix = db.Column(db.String(32))
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
 
 
 class CustomAttributeOption(db.Model):
@@ -64,4 +79,9 @@ class CustomAttributeOption(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
-    update_date = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+    update_date = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )

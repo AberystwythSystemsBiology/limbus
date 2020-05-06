@@ -1,6 +1,7 @@
 from app import db
 from ..enums import *
 
+
 class SampleProcessingTemplateAssociation(db.Model):
     __tablename__ = "sample_processing_tempalte_associations"
 

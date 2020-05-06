@@ -14,6 +14,7 @@ def clear_session(hash: str) -> None:
         if k.startswith(hash):
             del session[k]
 
+
 @misc.route("/")
 def index() -> str:
     if current_user.is_authenticated:

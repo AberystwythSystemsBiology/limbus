@@ -12,7 +12,7 @@ from ..models import (
     FixedColdStorage,
     FixedColdStorageShelf,
     SampleToFixedColdStorageShelf,
-    CryovialBoxToFixedColdStorageShelf
+    CryovialBoxToFixedColdStorageShelf,
 )
 
 from ...misc.models import Address
@@ -61,17 +61,10 @@ def view_room(id):
     site = db.session.query(Site).filter(Site.id == Room.site_id).first_or_404()
     room = db.session.query(Room).filter(Room.id == id).first_or_404()
     ltss = (
-        db.session.query(FixedColdStorage)
-        .filter(FixedColdStorage.room_id == id)
-        .all()
+        db.session.query(FixedColdStorage).filter(FixedColdStorage.room_id == id).all()
     )
 
-    return render_template(
-        "storage/room/view.html",
-        site=site,
-        room=room,
-        ltss=ltss
-    )
+    return render_template("storage/room/view.html", site=site, room=room, ltss=ltss)
 
 
 @storage.route("/rooms/view/LIMBROM-<id>/get")

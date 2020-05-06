@@ -1,6 +1,7 @@
 from app import db
 from ..enums import *
 
+
 class SamplePatientConsentFormTemplateAssociation(db.Model):
     __tablename__ = "sample_pcf_associations"
 

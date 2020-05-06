@@ -23,9 +23,11 @@ import pronto
 # Loading UO into memory upon creation of flask instance.
 uo = pronto.Ontology.from_obo_library("uo.obo")
 
+
 def create_uo_params():
     def _get_leafs(node):
         leafs = []
+
         def _traverse(n):
             n = [x for x in n.subclasses()]
             if len(n[1:]) > 1:
@@ -39,13 +41,13 @@ def create_uo_params():
         _traverse(node)
         return list(set(leafs))
 
-
     # Loading UO into memory upon creation of flask instance.
     uo_ontology = pronto.Ontology.from_obo_library("uo.obo")
     units = _get_leafs(uo_ontology["UO:0000000"])
     prefixs = _get_leafs(uo_ontology["UO:0000046"])
 
     return units, prefixs
+
 
 units, prefixs = create_uo_params()
 
@@ -57,6 +59,7 @@ class EnumFromOntology:
     def choices(self):
         return [(term.id, term.name) for term in self.ontology_list]
 
+
 class CustomAttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
     description = StringField("Attribute Description")
@@ -67,9 +70,11 @@ class CustomAttributeCreationForm(FlaskForm):
     required = BooleanField("Required")
     submit = SubmitField("Submit")
 
+
 class CustomTextAttributeCreationForm(FlaskForm):
     max_length = IntegerField("Max Length", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
 
 class CustomNumericAttributionCreationForm(FlaskForm):
     requires_measurement = BooleanField("Measurement?")
@@ -79,19 +84,24 @@ class CustomNumericAttributionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-def CustomAttributeSelectForm(element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL) -> FlaskForm:
+def CustomAttributeSelectForm(
+    element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL
+) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
 
-    attrs = db.session.query(CustomAttributes).filter(CustomAttributes.element.in_([element, CustomAttributeElementTypes.ALL])).all()
+    attrs = (
+        db.session.query(CustomAttributes)
+        .filter(
+            CustomAttributes.element.in_([element, CustomAttributeElementTypes.ALL])
+        )
+        .all()
+    )
 
     for attr in attrs:
         bf = BooleanField(
-            attr.term,
-            render_kw={
-                "required": attr.required,
-                "_type" : attr.type.value
-            })
+            attr.term, render_kw={"required": attr.required, "_type": attr.type.value}
+        )
 
         setattr(StaticForm, str(attr.id), bf)
 
@@ -105,18 +115,36 @@ def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
     for id, element in form.elements.items():
         setattr(StaticForm, id, element)
 
-    attrs = db.session.query(CustomAttributes).filter(CustomAttributes.id.in_(attribute_ids)).all()
+    attrs = (
+        db.session.query(CustomAttributes)
+        .filter(CustomAttributes.id.in_(attribute_ids))
+        .all()
+    )
 
     for attr in attrs:
         if attr.type == CustomAttributeTypes.NUMERIC:
             field = IntegerField(attr.term, render_kw={"_custom_val": True})
         elif attr.type == CustomAttributeTypes.TEXT:
-            text_settings = db.session.query(CustomAttributeTextSetting).filter(CustomAttributeTextSetting.custom_attribute_id == attr.id).first_or_404()
-            field = StringField(attr.term, render_kw={"_custom_val": True}, validators=[Length(max=text_settings.max_length)])
+            text_settings = (
+                db.session.query(CustomAttributeTextSetting)
+                .filter(CustomAttributeTextSetting.custom_attribute_id == attr.id)
+                .first_or_404()
+            )
+            field = StringField(
+                attr.term,
+                render_kw={"_custom_val": True},
+                validators=[Length(max=text_settings.max_length)],
+            )
         else:
-            options = db.session.query(CustomAttributeOption).filter(CustomAttributeOption.custom_attribute_id == attr.id).all()
+            options = (
+                db.session.query(CustomAttributeOption)
+                .filter(CustomAttributeOption.custom_attribute_id == attr.id)
+                .all()
+            )
             choices = [(x.id, x.term) for x in options]
-            field = SelectField(attr.term, choices=choices, coerce=int, render_kw={"_custom_val": True})
+            field = SelectField(
+                attr.term, choices=choices, coerce=int, render_kw={"_custom_val": True}
+            )
 
         if attr.required:
             field.validators.append(DataRequired())

@@ -53,7 +53,7 @@ class SiteRegistrationForm(FlaskForm):
         choices=[(country.alpha_2, country.name) for country in pycountry.countries],
     )
     post_code = StringField(
-        "Post Code", validators=[DataRequired(), post_code_validator],
+        "Post Code", validators=[DataRequired(), post_code_validator]
     )
 
     submit = SubmitField("Register Site")

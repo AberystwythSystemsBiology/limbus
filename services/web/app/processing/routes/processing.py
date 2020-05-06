@@ -15,6 +15,7 @@ from ...document.models import DocumentType
 
 from ..views import ProcessingProtocolsIndexView, ProcessingProtocolView
 
+
 @processing.route("/protocols")
 @login_required
 def protocol_index():
@@ -30,11 +31,11 @@ def new_protocol():
         has_document = bool(form.document_upload.data)
 
         pt = ProcessingTemplate(
-            name = form.name.data,
-            type = form.protocol_type.data,
-            sample_type = form.sample_type.data,
+            name=form.name.data,
+            type=form.protocol_type.data,
+            sample_type=form.sample_type.data,
             has_document=has_document,
-            author_id = current_user.id
+            author_id=current_user.id,
         )
 
         db.session.add(pt)
@@ -46,13 +47,11 @@ def new_protocol():
                 "%s Document" % form.name.data,
                 "",
                 DocumentType.PROTO,
-                current_user.id
+                current_user.id,
             )
 
             pttd = ProcessingTemplateToDocument(
-                template_id = pt.id,
-                document_id = doc_id,
-                author_id = current_user.id
+                template_id=pt.id, document_id=doc_id, author_id=current_user.id
             )
 
             db.session.add(pttd)

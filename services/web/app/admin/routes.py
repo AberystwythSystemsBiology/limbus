@@ -12,13 +12,16 @@ from ..auth.models import Profile, User
 
 from functools import wraps
 
+
 def check_if_admin(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if current_user.is_admin:
             return f(*args, **kwargs)
         return abort(401)
+
     return decorated_function
+
 
 @admin.route("/", methods=["GET", "POST"])
 @check_if_admin
@@ -29,7 +32,7 @@ def index():
     accounts = UserAccountsView()
 
     if form.validate_on_submit():
-        
+
         profile = Profile(
             title=form.title.data,
             first_name=form.first_name.data,
@@ -40,7 +43,12 @@ def index():
         db.session.add(profile)
         db.session.flush()
 
-        user = User(email=form.email.data, password=form.password.data, is_admin=form.is_admin.data, profile_id=profile.id)
+        user = User(
+            email=form.email.data,
+            password=form.password.data,
+            is_admin=form.is_admin.data,
+            profile_id=profile.id,
+        )
         db.session.add(user)
         db.session.commit()
 

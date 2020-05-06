@@ -1,13 +1,16 @@
 from ..FormEnum import FormEnum
 
+
 class SubSampleType(FormEnum):
     ALI = "Aliquot"
     DER = "Derivative"
+
 
 class SampleType(FormEnum):
     FLU = "Fluid"
     CEL = "Cell"
     MOL = "Molecular"
+
 
 class FluidSampleType(FormEnum):
     # If Fluid the Quantity == ml
@@ -54,6 +57,7 @@ class MolecularSampleType(FormEnum):
     TNA = "Total Nucleic Acid"
     WGA = "Whole Genome Amplified DNA"
 
+
 class CellSampleType(FormEnum):
     # If Cell Quantity == Cells
     CYO = "Cyropreserved Cells"
@@ -62,6 +66,7 @@ class CellSampleType(FormEnum):
     FCP = "Frozen Cell Pellet"
     PRM = "PMRC"
     SLI = "Slide"
+
 
 class TissueSampleType(FormEnum):
     FIX = "Fixed Tissue"
@@ -72,6 +77,7 @@ class TissueSampleType(FormEnum):
     FROTB = "Frozen Tissue Block"
     FROTS = "Frozen Tissue Slide"
     MDS = "Microdissected"
+
 
 class DisposalInstruction(FormEnum):
     NAP = "No Disposal"
@@ -87,5 +93,3 @@ class SampleStatus(FormEnum):
     TRA = "Transferred"
     MIS = "Missing"
     NPR = "Not Processed"
-
-

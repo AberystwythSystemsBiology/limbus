@@ -1,4 +1,13 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify, Response
+from flask import (
+    redirect,
+    abort,
+    render_template,
+    url_for,
+    session,
+    request,
+    jsonify,
+    Response,
+)
 from flask_login import current_user, login_required
 
 from ... import db
@@ -12,7 +21,7 @@ from ..models import (
     SampleToCryovialBox,
     CryovialBoxToFixedColdStorageShelf,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf
+    SampleToFixedColdStorageShelf,
 )
 
 from ..forms import NewCryovialBoxForm, SampleToBoxForm
@@ -66,7 +75,9 @@ def view_cryobox_api(cryo_id):
     return jsonify(data), 201, {"Content-Type": "application/json"}
 
 
-@storage.route("cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"])
+@storage.route(
+    "cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"]
+)
 @login_required
 def add_cryobox_sample(cryo_id, row, col):
     cryo = (
@@ -80,20 +91,20 @@ def add_cryobox_sample(cryo_id, row, col):
     if form.validate_on_submit():
         sample = (
             db.session.query(Sample)
-                      .filter(Sample.id == form.samples.data)
-                      .first_or_404()
+            .filter(Sample.id == form.samples.data)
+            .first_or_404()
         )
 
         sample_shelf_binds = (
             db.session.query(SampleToFixedColdStorageShelf)
-                      .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
-                      .all()
+            .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
+            .all()
         )
 
         sample_box_binds = (
             db.session.query(SampleToCryovialBox)
-                      .filter(SampleToCryovialBox.sample_id == sample.id)
-                      .all()
+            .filter(SampleToCryovialBox.sample_id == sample.id)
+            .all()
         )
 
         for bind in sample_shelf_binds + sample_box_binds:

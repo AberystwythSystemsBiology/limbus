@@ -12,6 +12,7 @@ from ..misc import clear_session
 
 from .views import PatientConsentFormIndexView, PatientConsentFormView
 
+
 @pcf.route("/")
 @login_required
 def index():
@@ -23,10 +24,7 @@ def index():
 @login_required
 def view(pcf_id):
     pcf = PatientConsentFormView(pcf_id)
-    return render_template(
-        "patientconsentform/view.html",
-        pcf=pcf
-    )
+    return render_template("patientconsentform/view.html", pcf=pcf)
 
 
 @pcf.route("/add", methods=["GET", "POST"])

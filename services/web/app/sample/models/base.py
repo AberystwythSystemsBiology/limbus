@@ -1,11 +1,11 @@
 from app import db
 from ..enums import *
 
+
 class Sample(db.Model):
     __tablename__ = "samples"
 
     id = db.Column(db.Integer, primary_key=True)
-
 
     # UUID4 length = 36
     uuid = db.Column(db.String(36))

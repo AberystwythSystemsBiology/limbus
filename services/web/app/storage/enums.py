@@ -14,6 +14,7 @@ class FixedColdStorageTemps(FormEnum):
     E = "-9 to -5°C"
     F = "-4 to 0°C"
 
+
 class CellContainer(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"
@@ -25,6 +26,7 @@ class CellContainer(FormEnum):
     TIS = "Solid tissue"
     TCM = "Disrupted tissue, non-viable"
     ZZZ = "Other"
+
 
 class FixationType(FormEnum):
     ACA = "Non-aldehyde with acetic acid"
@@ -41,6 +43,7 @@ class FixationType(FormEnum):
     RNL = "RNA Later"
     XXX = "Unknown"
     ZZZ = "Other"
+
 
 class FluidContainer(FormEnum):
     ACD = "Acid citrate dextrose"

@@ -32,10 +32,11 @@ from .. import db
 
 from .views import DocumentIndexView, DocumentView
 
+
 @login_required
 @document.route("/")
 def index():
-    documents= DocumentIndexView()
+    documents = DocumentIndexView()
 
     return render_template("document/index.html", documents=documents)
 
@@ -68,10 +69,7 @@ def save_document(file, name, description, type, uploader, commit=False) -> int:
     filepath = os.path.join(rel_path, sfn)
 
     document = Document(
-        name=name,
-        description=description,
-        type=type,
-        uploader=uploader,
+        name=name, description=description, type=type, uploader=uploader
     )
 
     db.session.add(document)
@@ -100,7 +98,13 @@ def document_upload(hash):
 
     if form.validate_on_submit():
         document_info = session["%s document_info" % (hash)]
-        document_id = save_document(form.file, document_info["name"], document_info["description"], document_info["type"], current_user.id)
+        document_id = save_document(
+            form.file,
+            document_info["name"],
+            document_info["description"],
+            document_info["type"],
+            current_user.id,
+        )
 
         if "%s patient_consent_info" % (hash) in session:
             consent_info = session["%s patient_consent_info" % (hash)]
@@ -111,7 +115,7 @@ def document_upload(hash):
                 animal=consent_info["animal"],
                 genetic=consent_info["genetic"],
                 indefinite=True,
-                document_id=document_id
+                document_id=document_id,
             )
 
             db.session.add(pcf)
@@ -128,7 +132,6 @@ def document_upload(hash):
 def view(doc_id):
     view = DocumentView(doc_id)
     return render_template("document/view.html", document=view)
-
 
 
 @document.route("/download/D<doc_id>F<file_id>")
