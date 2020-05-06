@@ -1,8 +1,7 @@
 from flask import render_template, redirect, session, url_for
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from .. import sample
-from flask_login import login_required
 from ... import db
 
 from ..models import *
@@ -27,13 +26,10 @@ def add_sample_pcf():
 
     if document_selection.validate_on_submit():
         sample_add_hash = generate_random_hash()
-        session[
-            "%s consent_info" % (sample_add_hash)
-        ] = {
+        session["%s consent_info" % (sample_add_hash)] = {
             "consent_form_id": document_selection.form_select.data,
-            "consent_id": document_selection.consent_id.data
+            "consent_id": document_selection.consent_id.data,
         }
-
 
         return redirect(url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
     return render_template(
@@ -55,13 +51,11 @@ def add_sample_pcf_data(hash):
         .first_or_404()
     )
 
-
     pcf_questions = (
         db.session.query(ConsentFormTemplateQuestion)
         .filter(ConsentFormTemplateQuestion.template_id == t_id)
         .all()
     )
-
 
     questionnaire = PatientConsentQuestionnaire(pcf_questions)
 
@@ -91,23 +85,23 @@ def select_sample_type(hash):
     form = SampleTypeSelectForm()
 
     if form.validate_on_submit():
-        a = {"sample_type" : form.sample_type.data, "quantity": form.quantity.data}
+        a = {"sample_type": form.sample_type.data, "quantity": form.quantity.data}
 
         if a["sample_type"] == "CEL":
             b = {
                 "type": form.cell_sample_type.data,
                 "container": form.cell_container.data,
-                "fixation": form.fixation_type.data
+                "fixation": form.fixation_type.data,
             }
         elif a["sample_type"] == "FLU":
             b = {
                 "type": form.fluid_sample_type.data,
-                "container": form.fluid_container.data
+                "container": form.fluid_container.data,
             }
         elif a["sample_type"] == "MOL":
             b = {
-                "type" : form.molecular_sample_type.data,
-                "container" : form.fluid_container.data
+                "type": form.molecular_sample_type.data,
+                "container": form.fluid_container.data,
             }
 
         data = {**a, **b}
@@ -123,7 +117,11 @@ def select_sample_type(hash):
 def select_processing_protocol(hash):
     templates = (
         db.session.query(ProcessingTemplate)
-        .filter(ProcessingTemplate.sample_type.in_([session["%s sample_type_info" % (hash)]["sample_type"], "ALL"]))
+        .filter(
+            ProcessingTemplate.sample_type.in_(
+                [session["%s sample_type_info" % (hash)]["sample_type"], "ALL"]
+            )
+        )
         .all()
     )
     form, _ = ProtocolTemplateSelectForm(templates)
@@ -207,7 +205,7 @@ def add_sample_form(hash):
         sample_type = sample_type_info["sample_type"]
 
         sample = Sample(
-            uuid = uuid.uuid4(),
+            uuid=uuid.uuid4(),
             sample_type=sample_type,
             quantity=sample_type_info["quantity"],
             current_quantity=sample_type_info["quantity"],
@@ -218,60 +216,57 @@ def add_sample_form(hash):
             sample_status=processing_protocol["sample_status"],
         )
 
-
         db.session.add(sample)
         db.session.flush()
 
         if sample_type == "FLU":
             stot = SampleToFluidSampleType(
-                sample_id = sample.id,
-                sample_type = sample_type_info["type"],
-                author_id = current_user.id
+                sample_id=sample.id,
+                sample_type=sample_type_info["type"],
+                author_id=current_user.id,
             )
 
         elif sample_type == "MOL":
             stot = SampleToMolecularSampleType(
-                sample_id = sample.id,
-                sample_type = sample_type_info["type"],
-                author_id = current_user.id
+                sample_id=sample.id,
+                sample_type=sample_type_info["type"],
+                author_id=current_user.id,
             )
 
         elif sample_type == "CEL":
             stot = SampleToCellSampleType(
-                sample_id = sample.id,
-                sample_type = sample_type_info["type"],
-                author_id = current_user.id
+                sample_id=sample.id,
+                sample_type=sample_type_info["type"],
+                author_id=current_user.id,
             )
-
 
         db.session.add(stot)
         db.session.flush()
-        
 
         for attr in form:
             if hasattr(attr, "render_kw") and attr.render_kw != None:
                 if "_custom_val" in attr.render_kw:
                     if attr.type == "StringField":
                         ca_v = SampleToCustomAttributeTextValue(
-                            value = attr.data,
-                            custom_attribute_id = attr.id,
-                            sample_id = sample.id,
-                            author_id = current_user.id
+                            value=attr.data,
+                            custom_attribute_id=attr.id,
+                            sample_id=sample.id,
+                            author_id=current_user.id,
                         )
 
                     elif attr.type == "SelectField":
                         ca_v = SampleToCustomAttributeOptionValue(
-                            custom_option_id = attr.data,
-                            custom_attribute_id = attr.id,
-                            sample_id = sample.id,
-                            author_id = current_user.id
+                            custom_option_id=attr.data,
+                            custom_attribute_id=attr.id,
+                            sample_id=sample.id,
+                            author_id=current_user.id,
                         )
                     else:
                         ca_v = SampleToCustomAttributeNumericValue(
-                            value = attr.data,
-                            custom_attribute_id = attr.id,
-                            sample_id = sample.id,
-                            author_id = current_user.id
+                            value=attr.data,
+                            custom_attribute_id=attr.id,
+                            sample_id=sample.id,
+                            author_id=current_user.id,
                         )
 
                     db.session.add(ca_v)
@@ -281,7 +276,7 @@ def add_sample_form(hash):
         spcfta = SamplePatientConsentFormTemplateAssociation(
             sample_id=sample.id,
             template_id=consent_info["consent_form_id"],
-            consent_id = consent_info["consent_id"],
+            consent_id=consent_info["consent_id"],
             author_id=current_user.id,
         )
 
@@ -303,7 +298,7 @@ def add_sample_form(hash):
             spcfaa = SamplePatientConsentFormAnswersAssociation(
                 sample_pcf_association_id=spcfta.id,
                 author_id=current_user.id,
-                checked = answer
+                checked=answer,
             )
 
             db.session.add(spcfaa)

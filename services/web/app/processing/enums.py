@@ -1,5 +1,6 @@
 from ..FormEnum import FormEnum
 
+
 class ProtocolSampleType(FormEnum):
     # Ideally I'd like to extend sample.enums.SampleType directly
     # to add the all, but it turns out that you can't
@@ -18,11 +19,12 @@ class ProtocolTypes(FormEnum):
     STR = "Sample Transfer"
     SDE = "Sample Destruction"
 
+
 class ProtocolUploadTypes(FormEnum):
     # TODO: Extend this.
-    #DOC = "Document"
+    # DOC = "Document"
     DIG = "Digital"
-    #DIC = "Digital and Document"
+    # DIC = "Digital and Document"
 
 
 # Replace this with something smarter.

@@ -1,12 +1,14 @@
-{% set title = "New Sample: Sample Type and Storage Medium" %}
 
 {% extends "template.html" %}
+
+
+{% block title %}New Sample: Sample Type and Storage Medium{%endblock%}
 
 {% block body %}
     <div class="container">
 
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> {{ title }}</h2>
+            <h2><i class="fas fa-vial"></i> New Sample: Sample Type and Storage Medium</h2>
         </div>
         {{ render_progress(3, 6) }}
 

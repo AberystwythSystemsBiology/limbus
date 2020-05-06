@@ -1,5 +1,6 @@
 from app import db
 
+
 class SampleDocumentAssociation(db.Model):
     __tablename__ = "sample_document_associations"
 

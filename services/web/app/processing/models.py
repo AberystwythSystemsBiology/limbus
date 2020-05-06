@@ -28,6 +28,7 @@ class ProcessingTemplate(db.Model):
         nullable=False,
     )
 
+
 class ProcessingTemplateToDocument(db.Model):
     __tablename__ = "processing_templates_to_documents"
 

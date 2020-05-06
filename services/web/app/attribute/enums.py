@@ -1,9 +1,11 @@
 from ..FormEnum import FormEnum
 
+
 class CustomAttributeTypes(FormEnum):
     TEXT = "Text"
     NUMERIC = "Numeric"
     OPTION = "Option"
+
 
 class CustomAttributeElementTypes(FormEnum):
     ALL = "All"

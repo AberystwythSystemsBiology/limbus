@@ -28,21 +28,22 @@
         <table id="accountTable" class="table table-striped table-bordered" style="width:100%">
           <thead>
           <tr>
+              <th>Name</th>
               <th>Email Address</th>
               <th>Admin</th>
               <th>Is Locked</th>
               <th>Creation Date</th>
-              <th>Actions</th>
           </tr>
           </thead>
           <tbody>
             {% for uid, account in accounts.items() %}
             <tr>
+
+              <td>{{account.profile.first_name}} {{account.profile.last_name}}</td>
               <td>{{account.email}}</td>
               <td>{{account.is_admin}}</td>
               <td>{{account.is_locked}}</td>
               <td>{{account.creation_date}}</td>
-              <td></td>
             </tr>
           {% endfor %}
           
@@ -75,6 +76,8 @@
               {{form_field(form.email)}}
               {{form_field(form.password)}}
               {{form_field(form.confirm_password)}}
+              {{form_field(form.is_admin)}}
+
         </div>
         <div class="modal-footer">
           {{form_field(form.submit)}}

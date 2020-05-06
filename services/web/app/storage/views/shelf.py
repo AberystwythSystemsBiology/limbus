@@ -1,5 +1,5 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from ... import db
 from .. import storage
@@ -13,7 +13,7 @@ from ..models import (
     SampleToFixedColdStorageShelf,
     CryovialBox,
     CryovialBoxToFixedColdStorageShelf,
-    SampleToCryovialBox
+    SampleToCryovialBox,
 )
 from ...sample.models import Sample
 
@@ -23,8 +23,13 @@ from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
 
 @storage.route("/shelves/view/LIMBSHF-<id>")
+@login_required
 def view_shelf(id):
-    shelf = db.session.query(FixedColdStorageShelf).filter(FixedColdStorageShelf.id == id).first_or_404()
+    shelf = (
+        db.session.query(FixedColdStorageShelf)
+        .filter(FixedColdStorageShelf.id == id)
+        .first_or_404()
+    )
     samples = (
         db.session.query(SampleToFixedColdStorageShelf)
         .filter(SampleToFixedColdStorageShelf.shelf_id == id)
@@ -40,19 +45,17 @@ def view_shelf(id):
     )
 
     return render_template(
-        "storage/shelf/view.html",
-        shelf=shelf,
-        samples=samples,
-        cryoboxes=cryoboxes
+        "storage/shelf/view.html", shelf=shelf, samples=samples, cryoboxes=cryoboxes
     )
 
 
 @storage.route("/shelves/add_cryobox/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
+@login_required
 def add_cryobox(shelf_id):
     shelf = (
         db.session.query(FixedColdStorageShelf)
-                  .filter(FixedColdStorageShelf.id == shelf_id)
-                  .first_or_404()
+        .filter(FixedColdStorageShelf.id == shelf_id)
+        .first_or_404()
     )
     form = NewCryovialBoxForm()
 
@@ -82,11 +85,12 @@ def add_cryobox(shelf_id):
 
 
 @storage.route("/shelves/assign_sample/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
+@login_required
 def assign_sample_to_shelf(shelf_id):
     shelf = (
         db.session.query(FixedColdStorageShelf)
-                  .filter(FixedColdStorageShelf.id == shelf_id)
-                  .first_or_404()
+        .filter(FixedColdStorageShelf.id == shelf_id)
+        .first_or_404()
     )
     samples = db.session.query(Sample).all()
 
@@ -95,20 +99,20 @@ def assign_sample_to_shelf(shelf_id):
 
         sample = (
             db.session.query(Sample)
-                      .filter(Sample.id == form.samples.data)
-                      .first_or_404()
+            .filter(Sample.id == form.samples.data)
+            .first_or_404()
         )
 
         sample_shelf_binds = (
             db.session.query(SampleToFixedColdStorageShelf)
-                      .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
-                      .all()
+            .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
+            .all()
         )
 
         sample_box_binds = (
             db.session.query(SampleToCryovialBox)
-                      .filter(SampleToCryovialBox.sample_id == sample.id)
-                      .all()
+            .filter(SampleToCryovialBox.sample_id == sample.id)
+            .all()
         )
 
         for bind in sample_shelf_binds + sample_box_binds:

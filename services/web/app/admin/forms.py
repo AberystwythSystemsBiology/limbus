@@ -1,4 +1,3 @@
-
 from flask_wtf import FlaskForm
 from wtforms import (
     PasswordField,
@@ -6,6 +5,7 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
+    BooleanField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 
@@ -17,7 +17,6 @@ from ..misc.models import BiobankInformation
 
 
 class TemporaryRegistrationForm(FlaskForm):
-
 
     title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
 
@@ -40,7 +39,7 @@ class TemporaryRegistrationForm(FlaskForm):
         ],
     )
 
-   
+    is_admin = BooleanField("Is Admin?")
 
     confirm_password = PasswordField("Confirm Password")
 

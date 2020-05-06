@@ -1,0 +1,14 @@
+[Unit]
+Description=LImBuS Database Dumper Service
+Requires=docker.service
+After=docker.service
+Requires=limbus.service
+After=limbus.service
+
+[Service]
+Restart=always
+RestartSec=300s
+ExecStart=/bin/bash docker-compose run --service-ports web sh -c "venv/bin/python dumpdb.py"
+
+[Install]
+WantedBy=multi-user.target

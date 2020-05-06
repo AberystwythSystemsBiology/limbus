@@ -2,6 +2,7 @@ from .routes import db
 from ..auth.models import User, Profile
 from ..auth.views import UserView
 
+
 def UserAccountsView() -> dict:
     users = db.session.query(User, Profile).filter(User.profile_id == Profile.id).all()
 

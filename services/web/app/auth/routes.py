@@ -34,13 +34,12 @@ def logout():
 
 
 @auth.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
     user = UserView(current_user.id)
 
     password_change = ChangePassword()
 
     return render_template(
-        "auth/profile.html",
-        user=user,
-        password_change=password_change,
+        "auth/profile.html", user=user, password_change=password_change
     )

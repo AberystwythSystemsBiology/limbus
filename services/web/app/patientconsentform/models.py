@@ -1,5 +1,6 @@
 from app import db
 
+
 class ConsentFormTemplate(db.Model):
     __tablename__ = "consent_form_templates"
 
@@ -35,4 +36,3 @@ class ConsentFormTemplateQuestion(db.Model):
         nullable=False,
     )
     uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
-

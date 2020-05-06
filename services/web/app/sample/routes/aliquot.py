@@ -14,6 +14,7 @@ from ..views.sample import SampleView
 
 import uuid
 
+
 @s_bp.route("view/LIMBSMP-<sample_id>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(sample_id):
@@ -27,10 +28,14 @@ def aliquot(sample_id):
         sample_type = SampleToCellSampleType
 
     sample_type = (
-        db.session.query(sample_type).filter(sample_type.sample_id == sample_id).first_or_404()
+        db.session.query(sample_type)
+        .filter(sample_type.sample_id == sample_id)
+        .first_or_404()
     )
 
-    form, num_processing_templates = SampleAliquotingForm(sample_attributes["sample_type_info"]["sample_type"], sample_type.sample_type)
+    form, num_processing_templates = SampleAliquotingForm(
+        sample_attributes["sample_type_info"]["sample_type"], sample_type.sample_type
+    )
 
     if form.validate_on_submit():
 
@@ -45,7 +50,9 @@ def aliquot(sample_id):
 
         for i in range(counts):
 
-            sample_cpy = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
+            sample_cpy = (
+                db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
+            )
 
             db.session.expunge(sample_cpy)
             make_transient(sample_cpy)
@@ -71,9 +78,9 @@ def aliquot(sample_id):
                 s_sample_type = SampleToCellSampleType
 
             sst = s_sample_type(
-                sample_id = sample_cpy.id,
-                sample_type = selected_sample_type,
-                author_id = current_user.id
+                sample_id=sample_cpy.id,
+                sample_type=selected_sample_type,
+                author_id=current_user.id,
             )
 
             db.session.add(sst)
@@ -104,17 +111,21 @@ def aliquot(sample_id):
 
             # Add SubSample
             s_ss = SubSampleToSample(
-                parent_sample_id = sample_id,
-                subsample_sample_id = sample_cpy.id,
-                author_id = current_user.id
+                parent_sample_id=sample_id,
+                subsample_sample_id=sample_cpy.id,
+                author_id=current_user.id,
             )
 
             db.session.add(s_ss)
             db.session.commit()
 
-        sample_cpy = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
+        sample_cpy = (
+            db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
+        )
 
-        sample_cpy.current_quantity = float(sample_cpy.current_quantity) - (float(size) * float(counts))
+        sample_cpy.current_quantity = float(sample_cpy.current_quantity) - (
+            float(size) * float(counts)
+        )
 
         if lock_parent:
             sample_cpy.is_closed = True
@@ -124,9 +135,10 @@ def aliquot(sample_id):
 
         return redirect(url_for("sample.view", sample_id=sample_id))
 
-    return render_template("sample/sample/aliquot/create.html",
-                           sample=sample_attributes,
-                           sample_type=sample_type,
-                           form=form,
-                           num_processing_templates=num_processing_templates
-                           )
+    return render_template(
+        "sample/sample/aliquot/create.html",
+        sample=sample_attributes,
+        sample_type=sample_type,
+        form=form,
+        num_processing_templates=num_processing_templates,
+    )
