@@ -1,6 +1,7 @@
 .vscode/*
 .idea/*
 documents/
+dumps/
 
 
 # Byte-compiled / optimized / DLL files
