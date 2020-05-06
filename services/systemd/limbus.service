@@ -1,7 +1,9 @@
 [Unit]
 Description=LImBuS Service
-After=docker.service
 Requires=docker.service
+After=docker.service
+Requires=limbus.service
+After=limbus.service
 
 [Service]
 TimeoutStartSec=0
