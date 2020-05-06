@@ -1,4 +1,4 @@
-<img src="limbus/app/static/images/logos/limbus_logo_250px.png" align="right" width="200px">
+<img src="services/web/app/static/images/logos/limbus_logo_250px.png" align="right" width="200px">
 
 # LImBuS: The LIbre Biobank System
 

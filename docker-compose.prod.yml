@@ -1,6 +1,12 @@
 version: '3.2'
 
 services:
+  nginx:
+    build: ./services/nginx
+    ports:
+        - 80:80
+    depends_on:
+        - web
   web:
     build:
       context: ./services/web
@@ -15,7 +21,7 @@ services:
       - db
     env_file:
       .env
-    command: venv/bin/python run.py
+    command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
   db:
     image: postgres:10
     env_file: .env
