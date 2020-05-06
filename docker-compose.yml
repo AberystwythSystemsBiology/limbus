@@ -13,7 +13,7 @@ services:
       - 5000:5000
     depends_on:
       - db
-    env:
+    env_file:
       ./services/web/.env
   db:
     image: postgres:10
