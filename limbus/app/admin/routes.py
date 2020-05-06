@@ -14,7 +14,7 @@ from functools import wraps
 def check_if_admin(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if db.session.query(User).filter(User.id == current_user.id).first().is_admin:
+        if current_user.is_admin:
             return f(*args, **kwargs)
         return abort(401)
     return decorated_function
