@@ -1,6 +1,25 @@
 version: "3"
 
 services:
+  web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/web/:/limbus/
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+    depends_on: 
+      - db
+    env_file: .env
+    command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
+  db:
+    image: postgres:10
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
   nginx-proxy:
     image: jwilder/nginx-proxy
     ports:
@@ -12,11 +31,9 @@ services:
       - vhostd:/etc/nginx/vhost.d
       - /var/run/docker.sock:/tmp/docker.sock:ro
     labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"  
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nginx-ssl
-    restart: always
     volumes:
       - certs:/etc/nginx/certs
       - html:/usr/share/nginx/html
@@ -26,26 +43,6 @@ services:
       - NGINX_PROXY_CONTAINER=nginx-proxy
     depends_on:
       - nginx-proxy
-  web:
-    build:
-      context: ./services/web
-      dockerfile: Dockerfile
-    volumes:
-      - ./services/web/:/limbus/
-    expose:
-      - 5000
-    ports:
-      - 5000:5000
-    depends_on:
-      - db
-    env_file:
-      .env
-    command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
-  db:
-    image: postgres:10
-    env_file: .env
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
 volumes:
   postgres_data:
   certs:
