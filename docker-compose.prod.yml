@@ -57,7 +57,6 @@ services:
     expose:
       - "5000"
     volumes:
-      - ./services/web/:/limbus/
       - nginx-conf:/etc/nginx/conf.d
     env_file: .env
     depends_on: 
