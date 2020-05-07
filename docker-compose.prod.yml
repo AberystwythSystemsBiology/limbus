@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    name: limbus-web
+    container_name: limbus-web
     build:
       context: ./services/web
       dockerfile: Dockerfile
@@ -17,13 +17,13 @@ services:
     env_file: .env
     command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
   db:
-    name: limbus-db
+    container_name: limbus-db
     image: postgres:10
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
   nginx-proxy:
-    name: nginx-proxy
+    container_name: nginx-proxy
     image: jwilder/nginx-proxy
     ports:
       - "80:80"
@@ -36,7 +36,7 @@ services:
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
   letsencrypt:
-    name: letsencrypt
+    container_name: letsencrypt
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:
       - certs:/etc/nginx/certs
