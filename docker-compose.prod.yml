@@ -1,55 +1,79 @@
-version: "3"
-
+version: '3'
 services:
-  web:
-    container_name: limbus-web
-    build:
-      context: ./services/web
-      dockerfile: Dockerfile
-    volumes:
-      - ./services/web/:/limbus/
-    expose:
-      - 5000
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: unless-stopped
     ports:
-      - 5000:5000
-    depends_on: 
-      - db
-    env_file: .env
-    command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginx-conf:/etc/nginx/conf.d
+      - nginx-vhost:/etc/nginx/vhost.d
+      - letsencrypt-challenges:/usr/share/nginx/html
+      - letsencrypt-certs:/etc/nginx/certs:ro
+    labels:
+        com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+
+  nginx-gen:
+    image: jwilder/docker-gen
+    command: -notify-sighup nginx -watch -wait 5s:30s /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    container_name: nginx-gen
+    restart: unless-stopped
+    volumes:
+      - nginx-conf:/etc/nginx/conf.d
+      - nginx-vhost:/etc/nginx/vhost.d
+      - letsencrypt-challenges:/usr/share/nginx/html
+      - letsencrypt-certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - letsencrypt-templates:/etc/docker-gen/templates:ro
+
+  nginx-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-letsencrypt
+    restart: unless-stopped
+    volumes:
+      - nginx-conf:/etc/nginx/conf.d
+      - nginx-vhost:/etc/nginx/vhost.d
+      - letsencrypt-challenges:/usr/share/nginx/html
+      - letsencrypt-certs:/etc/nginx/certs:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      NGINX_DOCKER_GEN_CONTAINER: "nginx-gen"
+      NGINX_PROXY_CONTAINER: "nginx"
+    
   db:
     container_name: limbus-db
     image: postgres:10
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  nginx-proxy:
-    container_name: nginx-proxy
-    image: jwilder/nginx-proxy
-    ports:
-      - "80:80"
-      - "443:443"
+
+  web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+    expose:
+      - "5000"
     volumes:
-      - certs:/etc/nginx/certs
-      - html:/usr/share/nginx/html
-      - vhostd:/etc/nginx/vhost.d
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
-  letsencrypt:
-    container_name: letsencrypt
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    volumes:
-      - certs:/etc/nginx/certs
-      - html:/usr/share/nginx/html
-      - vhostd:/etc/nginx/vhost.d
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - NGINX_PROXY_CONTAINER=nginx-proxy
-    depends_on:
-      - nginx-proxy
+      - nginx-conf:/etc/nginx/conf.d
+      - ./services/web/:/limbus/
+    env_file: .env
+    depends_on: 
+      - db
+    command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
+
 
 volumes:
+  nginx-conf:
+  nginx-vhost:
+  letsencrypt-certs:
+  letsencrypt-templates:
+  letsencrypt-challenges:
   postgres_data:
-  certs:
-  html:
-  vhostd:
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
