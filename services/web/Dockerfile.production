@@ -17,3 +17,4 @@ ADD ./* /limbus/
 
 WORKDIR /limbus
 
+RUN python3 -m venv venv && source venv/bin/activate && pip install wheel && pip install -r requirements.txt
