@@ -13,8 +13,10 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
 
 RUN npm install yarn -g
 
-ADD ./* /limbus/
+ADD ./ /limbus
 
 WORKDIR /limbus
+
+RUN ls
 
 RUN python3 -m venv venv && venv/bin/pip install wheel && venv/bin/pip install -r requirements.txt
