@@ -4,35 +4,28 @@ services:
   nginx-proxy:
     image: jwilder/nginx-proxy
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./services/certs:/etc/nginx/certs
-      - ./services/htpasswd:/etc/nginx/htpasswd
-      - ./services/nginx/html:/usr/share/nginx/html
-      - ./services/nginx/vhost.d:/etc/nginx/vhost.d 
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhostd:/etc/nginx/vhost.d
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
-    networks:
-      - nginx
-  
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"  
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
     container_name: nginx-ssl
     restart: always
     volumes:
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhostd:/etc/nginx/vhost.d
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./services/certs:/etc/nginx/certs
-      - ./services/htpasswd:/etc/nginx/htpasswd
-      - ./services/nginx/html:/usr/share/nginx/html
-      - ./services/nginx/vhost.d:/etc/nginx/vhost.d 
-    links:
-      - nginx-proxy
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
     depends_on:
       - nginx-proxy
-    networks:
-      - nginx
   web:
     build:
       context: ./services/web
@@ -47,17 +40,14 @@ services:
       - db
     env_file:
       .env
-    
     command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
   db:
     image: postgres:10
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-
-networks:
-  nginx:
-    external: true
-
 volumes:
   postgres_data:
+  certs:
+  html:
+  vhostd:
