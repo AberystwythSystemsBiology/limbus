@@ -1,4 +1,4 @@
-version: '3'
+version: '3.2'
 services:
 
   nginx:
@@ -57,8 +57,8 @@ services:
     expose:
       - "5000"
     volumes:
-      - nginx-conf:/etc/nginx/conf.d
       - ./services/web/:/limbus/
+      - nginx-conf:/etc/nginx/conf.d
     env_file: .env
     depends_on: 
       - db
