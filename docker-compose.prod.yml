@@ -48,6 +48,7 @@ services:
       - "5000"
     volumes:
       - nginx-conf:/etc/nginx/conf.d
+      - /home/limbus/dbdump:/limbus/dumps
     env_file: .env
     depends_on:
       - db
