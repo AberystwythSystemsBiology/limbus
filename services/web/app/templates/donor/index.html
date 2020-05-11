@@ -3,51 +3,44 @@
 {% block title %}Donors{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2"><i class="fa fa-male"></i> Donors</h1>
-            <div class="btn-toolbar mb-2 mb-md-0">
-                <a href="#">
-                    <div class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Donor
-                    </div>
-                </a>
-            </div>
+<div class="container">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-user-circle"></i> Donors</h2>
         </div>
 
-        <p>This is the Donor Portal. This is where your donors can be found. </p>
+    <p>A donor is a subject from which samples are collected.</p>
 
-        <table id="documents" class="table table-striped table-bordered" style="width:100%">
-            <thead>
+    <table id="attributeTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+        <tr>
+            <th>Donor</th>
+            <th>Sex</th>
+            <th>Status</th>
+            <th>Creator</th>
+            <th>Creation Date</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for id, donor in donors.items() %}
             <tr>
-                <th>Identifier</th>
-                <th>Age</th>
-                <th>Sex</th>
-                <th>Upload Date</th>
-                <th>Actions</th>
+                <td>
+                    <a href="{{ url_for('donor.view', donor_id=id) }}">
+                        <i class="fa fa-user-circle"></i> LIMBDON-{{ id }}
+                    </a>
+                </td>
+                <td>{{ donor.age }}</td>
+                <td>{{ donor.sex }}</td>
+                <td>{{ donor.status }}</td>
+                <td>{{ donor.user_information.email }}</td>
+                <td>{{ donor.creation_date.strftime("%d-%m-%Y") }}</td>
             </tr>
-            </thead>
-            <tbody>
-            {% for donor in donors %}
-                <tr>
-                    <td>
-                        LIMBDON-{{ donor.id }}
-                    </td>
-                    <td>{{ donor.age }}</td>
-                    <td>{{ donor.sex.value }}</td>
-                    <td>{{ donor.creation_date.strftime('%Y-%m-%d') }}</td>
-                    <td>
-                        <a href="#">
-                            <btn class="btn btn-sm btn-primary">
-                                View
-                            </btn>
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        {% endfor %}
+        </tbody>
+    </table>
 
 
-    </div>
+   
+</div>
+
 {% endblock %}

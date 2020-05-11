@@ -1,19 +1,30 @@
+
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired
-from wtforms import SelectField, StringField, SubmitField
+from wtforms import (
+    FileField,
+    StringField,
+    SubmitField,
+    ValidationError,
+    SelectField,
+    BooleanField,
+    DecimalField,
+    DateField,
+    IntegerField
+)
+from wtforms.validators import DataRequired, Email, EqualTo, URL
 
-from .enums import DonorSex, DonorRace
 
+from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
 
 class DonorCreationForm(FlaskForm):
-    age = StringField("Age", validators=[DataRequired()], description="Age in Years")
-    race = SelectField("Race", validators=[DataRequired()], choices=DonorRace.choices())
 
-    height = StringField("Height (cm)", validators=[DataRequired()])
-    weight = StringField("Weight (kg)", validators=[DataRequired()])
+    age = IntegerField("Age (years)", description="The length of time that a donor has lived in years.")
+    sex = SelectField("Sex", choices=BiologicalSexTypes.choices())
+    status = SelectField("Status", choices=DonorStatusTypes.choices())
+    death_date = DateField("Date of Death")
+    weight = DecimalField("Weight (kg)")
+    height = DecimalField("Height (cm)")
+    # site ?
+    race = SelectField("Race", choices=RaceTypes.choices())
 
-    sex = SelectField(
-        "Biological Sex", choices=DonorSex.choices(), validators=[DataRequired()]
-    )
-
-    submit = SubmitField()
+    submit = SubmitField("Submit")

@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+
+{% block title %}LIMBDONOR-{{donor.id}}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-user-circle"></i> LIMBDONOR-{{donor.id}}</h2>
+        </div>
+   
+        {{ show_value(donor.age, "Age", "text") }}
+        {{ show_value(donor.sex, "Sex", "enum") }}
+        {{ show_value(donor.status, "Status", "enum") }}
+        {{ show_value(donor.race, "Race", "enum") }}
+        {{ show_value(donor.height, "Height (cm)", "text") }}
+        {{ show_value(donor.weight, "Weight (kg)", "text") }}
+        
+        {% if donor.status.value == "Deceased" %}
+        {{ show_value(donor.death_date, "Death Date", "datetime") }}
+
+        {%endif %}
+</div>
+
+{% endblock %}

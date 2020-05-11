@@ -3,9 +3,14 @@ import os
 from flask import Flask, g, render_template
 from config import app_config
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_continuum import make_versioned
 from flask_login import LoginManager
 from flask_migrate import Migrate
+
+import sqlalchemy as sa
+
+from sqlalchemy_continuum import make_versioned
+
+
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -48,6 +53,7 @@ def create_app():
     from app.processing import models as processing_models
     from app.storage import models as storage_models
     from app.attribute import models as attribute_models
+    from app.donor import models as donor_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint)
@@ -65,4 +71,6 @@ def create_app():
     def page_not_found(e):
         return render_template("misc/404.html"), 404
 
+    sa.orm.configure_mappers()
+    
     return app

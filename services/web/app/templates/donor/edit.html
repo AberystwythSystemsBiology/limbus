@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+
+{% block title %}Add Donor{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+            <h2><i class="fa fa-user-circle"></i> Edit: LIMBDON-{{donor_id}}</h2>
+        </div>
+
+        <form method="POST" action="{{ url_for('donor.edit', donor_id=donor_id ) }}">
+            
+            {{ form.csrf_token() }}
+            {{ form_field(form.age)}}
+
+            {{ form_field(form.sex)}}
+            {{ form_field(form.weight)}}
+            {{ form_field(form.height)}}
+            {{ form_field(form.race)}}
+
+            {{ form_field(form.status)}}
+            {{ form_field(form.submit) }}
+
+        </form>
+
+   
+</div>
+
+{% endblock %}

@@ -1,35 +1,40 @@
-from flask import render_template, redirect, url_for
-from . import donor
-from .models import Donor, DonorDiagnosticProcedureInformation, DonorVisitNumber
-from .forms import DonorCreationForm
-from flask_login import login_required, current_user
-
 from .. import db
+from .models import Donors
+from ..auth.views import UserView
 
+def DonorIndexView():
+    donors = db.session.query(Donors).all()
 
-@donor.route("/")
-@login_required
-def index() -> str:
-    donors = db.session.query(Donor).all()
-    return render_template("donor/index.html", donors=donors)
+    data = {}
 
+    for donor in donors:
+        data[donor.id] = {
+            "age": donor.age,
+            "sex": donor.sex,
+            "status": donor.status,
+            "creation_date": donor.creation_date,
+            "user_information": UserView(donor.author_id)
+        }
 
-@donor.route("/add", methods=["GET", "POST"])
-@login_required
-def add_donor() -> str:
-    form = DonorCreationForm()
+    return data
 
-    if form.validate_on_submit():
-        donor = Donor(
-            age=form.age.data,
-            height=form.height.data,
-            sex=form.sex.data,
-            author_id=current_user.id,
-        )
+def DonorView(donor_id):
+    donor = db.session.query(Donors).filter(Donors.id == donor_id).first_or_404()
 
-        db.session.add(donor)
-        db.session.commit()
+    data = {
+        "id": donor.id,
+        "age": donor.age,
+        "sex": donor.sex,
+        "status": donor.status,
+        "death_date": donor.death_date,
+        "race": donor.race,
+        "height": donor.height,
+        "weight": donor.weight,
+        "creation_date": donor.creation_date,
+        "update_date": donor.update_date,
+        "user_information": UserView(donor.author_id)
+    }
 
-        return redirect(url_for("donor.index"))
+    return data
 
-    return render_template("donor/information/add.html", form=form)
+    
