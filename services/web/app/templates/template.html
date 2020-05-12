@@ -27,7 +27,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"/>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <nav class="navbar  navbar-dark bg-primary fixed-top navbar-expand-lg">
     <div class="container">
@@ -102,7 +102,6 @@
                             </a>
                         </div>
                     </li>
-                </ul>
 
             {% else %}
 
@@ -110,8 +109,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fa fa-sign-in-alt"></i> Log In</a>
                     </li>
-                </ul>
             {% endif %}
+        </ul>
+
         </div>
     </div>
 </nav>
@@ -141,13 +141,13 @@
 {% endblock %}
 
 
-</body>
+
+<div class="wrapper flex-grow-1"></div>
 
 
-<footer class="container py-5">
-    <div class="alert alert-danger text-center">
-        <i class="fa fa-exclamation-triangle"></i> <b>Notice:</b> This is a development version of LImBuS and is not suitable for real world use.
-    </div>
+<footer>
+    <div class="container py-5">
+
 
     <div class="row">
         <div class="col-6 col-md">
@@ -180,7 +180,7 @@
     </div>
         <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019-2020</small>
     </div>
-
+</div>
     </div>
 </footer>
 
@@ -201,5 +201,6 @@
 
 {% endblock %}
 
+</body>
 
 </html>

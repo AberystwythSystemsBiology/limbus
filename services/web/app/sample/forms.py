@@ -57,7 +57,7 @@ class SampleCreationForm(FlaskForm):
 
 def PatientConsentFormSelectForm():
     class StaticForm(FlaskForm):
-        consent_id = StringField("Patient Consent Identifier")
+        consent_id = StringField("Patient Consent Identifier", description="Test.")
 
     length = 0
 

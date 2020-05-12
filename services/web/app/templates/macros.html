@@ -76,7 +76,7 @@
             </div>
         {% elif field.type == "SubmitField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
+                <button type="submit" class="btn btn-success float-right top10" id="{{ field.id }}">
                     <i class="fa fa-check"></i> {{ field.label.text }}
                 </button>
             </div>
@@ -120,7 +120,7 @@
 {% macro render_warning(title, description, button_url, button_text, add, refresh) -%}
 <div class="jumbotron jumbotron-fluid">
   <div class="container text-center">
-    <h4><i class="fa fa-exclamation-triangle"></i> {{ title }}</h4>
+    <h2><i class="fa fa-exclamation-triangle"></i> {{ title }}</h2>
       {% for line in description %}
           <p>{{ line }}</p>
       {% endfor %}
@@ -137,11 +137,9 @@
 {%- endmacro %}
 
 {% macro render_progress(now, max) -%}
-
-<div class="progress">
+    <div class="progress">
         <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}" aria-valuemin="0" aria-valuemax="{{ max }}"></div>
-</div>
-
+    </div>
 {%- endmacro %}
 
 {% macro render_success(title, description) -%}

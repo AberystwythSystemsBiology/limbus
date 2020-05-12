@@ -4,24 +4,21 @@
 
 {% block body %}
     <div class="container">
+
+        
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Consent Information</h1>
         {{ render_progress(1, 6) }}
-
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> New Sample: Select Patient Consent Form</h2>
-        </div>
-
 
         {% if pcf_documents > 0 and template_count > 0 %}
 
             <p>Before we continue, you must first link the sample to a patient consent form.</p>
 
-            <p>If you are unable to find the patient consent form template please take a look at the
-            </p>
+            <p>If you are unable to find the patient consent form, it's likely that you have yet to add it. <a href="{{ url_for('pcf.new') }}">Click here</a> to add a new patient consent form.</p>
 
             <form action="{{ url_for('sample.add_sample_pcf') }}" method="POST">
                 {{ form.csrf_token }}
-                {{ form_field(form.consent_id) }}
                 {{ form_field(form.form_select) }}
+                {{ form_field(form.consent_id) }}
                 {{ form_field(form.submit) }}
             </form>
         {% else %}
