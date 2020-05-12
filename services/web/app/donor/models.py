@@ -7,7 +7,8 @@ class Donors(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    
+    uuid = db.Column(db.String(36))
+
     age = db.Column(db.Integer)
     sex = db.Column(db.Enum(BiologicalSexTypes))
     status = db.Column(db.Enum(DonorStatusTypes))
@@ -19,6 +20,8 @@ class Donors(db.Model):
     race = db.Column(db.Enum(RaceTypes))
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(
         db.DateTime,

@@ -8,6 +8,8 @@ from .views import DonorIndexView, DonorView
 
 from .. import db
 
+import uuid
+
 
 @login_required
 @donor.route("/")
@@ -26,6 +28,7 @@ def add():
             death_date = form.death_date.data
 
         donor = Donors(
+            uuid=uuid.uuid4(),
             age = form.age.data,
             sex = form.sex.data,
             status = form.status.data,
@@ -64,6 +67,7 @@ def edit(donor_id):
         donor_obj.height = form.height.data
         donor_obj.race = form.race.data
         donor_obj.status = form.status.data
+        donor_obj.updater_id = current_user.id
 
         db.session.commit()
         flash("Donor information successfully edited!")

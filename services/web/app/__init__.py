@@ -6,14 +6,16 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
-import sqlalchemy as sa
+from sqlalchemy import orm
 
 from sqlalchemy_continuum import make_versioned
-
-
+from sqlalchemy_continuum.plugins import FlaskPlugin
+from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+
+make_versioned(plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
 
 # blueprint imports
 from .admin import admin as admin_blueprint
@@ -35,14 +37,13 @@ def create_app():
     app.config.from_object(app_config[os.environ["FLASK_CONFIG"]])
     app.config.from_pyfile("config.py")
 
-    make_versioned(user_cls=None)
-
     db.init_app(app)
+    migrate = Migrate(app, db)
+
+    orm.configure_mappers()
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
-
-    migrate = Migrate(app, db)
 
     # Load in models here
     from app.auth import models as auth_models
@@ -71,6 +72,5 @@ def create_app():
     def page_not_found(e):
         return render_template("misc/404.html"), 404
 
-    sa.orm.configure_mappers()
     
     return app

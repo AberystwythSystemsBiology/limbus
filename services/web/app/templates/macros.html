@@ -86,10 +86,13 @@
 
 
 {% macro show_value(attribute, label, type) -%}
-    <div class="form-group row">
-        <label class="col-4 col-form-label text-muted">{{ label }}:</label>
-        <div class="col-8">
-            {% if type == "text" %}
+
+<tr>
+    <th>
+        {{ label }}:
+    </th>
+    <td>
+        {% if type == "text" %}
                 <p>{{ attribute }}</p>
             {% elif type == "textarea" %}
                 <p>{{ attribute }}</p>
@@ -100,9 +103,9 @@
             {% elif type == "datetime" %}
                 <p>{{ attribute.strftime('%d-%m-%Y') }}</p>
             {% endif %}
+    </td>
+</tr>
 
-        </div>
-    </div>
 
 {%- endmacro %}
 
