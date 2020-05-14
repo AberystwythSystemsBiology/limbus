@@ -37,7 +37,7 @@ nav a {
 }
 
 .form-group label {
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .form-check-label {
@@ -46,7 +46,7 @@ nav a {
 
 .form-error {
     color: #b10e1e;
-    font-weight: 700;
+    font-weight: 600;
     margin:0px;
 }
 
@@ -63,6 +63,11 @@ h2 {
     font-weight: 700;
 
     font-size: 24px;
+}
+
+.error {
+    border-left: 5px #b10e1e solid;
+    padding-left:10px;
 }
 
 h3 {

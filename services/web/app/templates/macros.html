@@ -10,19 +10,17 @@
     {% set with_label = kwargs.pop('with_label', True) %}
     {% set with_quantity = kwargs.pop('q', False) %}
 
+    <div class="form-group {% if field.errors %}error{% endif %}" id="{{ field.id }}_div">
 
 
     {% if field.type == "BooleanField" %}
-        <div class="form-group form-check" id="{{ field.id }}_div">
             <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             <label class="form-check-label" for="{{ field.id }}">
                 {{ field.label.text }}
             </label>
-        </div>
         {% elif field.type in (["StringField", "DecimalField"]) %}
 
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
+               <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
                 {{render_form_error(field) }}
 
                 {% if with_quantity %}
@@ -35,29 +33,21 @@
                 {% else %}
                     {{ field(class="form-control") }}
                 {% endif %}
-            </div>
         {% elif field.type == "SelectField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }} </label>
                 {{render_form_error(field) }}
                 {{ field(class="form-control") }}
-            </div>
         {% elif field.type == "DateField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}
 
                 {{ field(class="form-control", type="date") }}
-            </div>
         {% elif field.type == "TimeField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}
 
                 {{ field(class="form-control", type="time") }}
-            </div>
         {% elif field.type == "RadioField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <div class="col-form-label">
                     {{ field.label.text }}:
                 </div>
@@ -68,33 +58,25 @@
                     <label class="form-check-label" for="{{ field.id }}">{{ value }}</label>
                 </div>
             {% endfor %}
-            </div>
         {% elif field.type == "PasswordField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}
                 {{ field(class="form-control", type="password") }}
-            </div>
         {% elif field.type == "FileField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}
                 <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
                    {% if field.flags.required %}required{% endif %}>
-            </div>
         {% elif field.type == "IntegerField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}
                 {{ field(class="form-control", type="number") }}
-            </div>
         {% elif field.type == "SubmitField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <button type="submit" class="btn btn-success float-right top10" id="{{ field.id }}">
                     <i class="fa fa-check"></i> {{ field.label.text }}
                 </button>
-            </div>
         {% endif %}
+    </div>
 
 {%- endmacro %}
 
