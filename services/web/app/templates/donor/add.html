@@ -4,25 +4,25 @@
 
 {% block body %}
 <div class="container">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fa fa-user-circle"></i> Add Donor</h2>
-        </div>
+    <h1><span class="secondary-heading"><i class="fa fa-user-circle"></i> New Donor</span>Donor Attribute Information</h1>
 
-        <form method="POST" action="{{ url_for('donor.add' ) }}">
-        
-            {{ form.csrf_token() }}
-            {{ form_field(form.age)}}
 
-            {{ form_field(form.sex)}}
-            {{ form_field(form.weight)}}
-            {{ form_field(form.height)}}
-            {{ form_field(form.race)}}
+    <form method="POST" action="{{ url_for('donor.add' ) }}">
+    
+        {{ form.csrf_token() }}
 
-            {{ form_field(form.status)}}
-            {{ form_field(form.death_date)}}
+        {{ form_field(form.race)}}
+        {{ form_field(form.sex)}}
+        {{ form_field(form.age)}}
 
-            {{form_field(form.submit)}}
-        </form>
+        {{ form_field(form.height)}}
+        {{ form_field(form.weight)}}
+
+        {{ form_field(form.status)}}
+        {{ form_field(form.death_date)}}
+
+        {{form_field(form.submit)}}
+    </form>
 
    
 </div>

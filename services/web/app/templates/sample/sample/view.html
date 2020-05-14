@@ -5,25 +5,7 @@
 {% block body %}
 <div class="container">
 
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-    <h2><i class="fas fa-vial"></i> LIMBSMP-{{ sample["id"] }}
-    
-      {% if sample.not_subsample == True%}
-      {% else %}
-        (Subsample of LIMBSMP-{{sample.not_subsample.parent_id}})
-      {% endif %}
-
-    </h2>
-    {% if sample.sample_status.value == "Destroyed" %}
-    <div class='btn btn-danger pull-right'>Destroyed</div>
-    {% elif sample.sample_status.value == "Available" %}
-    <div class='btn btn-success pull-right'>Available</div>
-    {% else %}
-    {{sample.sample_status.value}}
-    {% endif %}
-  </div>
-
-
+  <h1><span class="secondary-heading"><i class="fas fa-vial"></i> {{ sample.sample_status.value }} Sample</span>LIMBSMP-{{sample.id}}</h1>
 
   <div class="row">
     <div class="col-sm-9">

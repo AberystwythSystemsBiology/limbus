@@ -1,13 +1,16 @@
+{% macro render_form_error(field) -%}
+    {% if field.errors %}
+    <p class="form-error">{{ field.errors|join(', ') }}</p>
+    {% endif %}
+{%- endmacro %}
+
+
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}
     {% set with_quantity = kwargs.pop('q', False) %}
 
-    {% if field.errors %}
-        <div class="alert alert-danger text-center" role="alert">
-            <b><i class="fa fa-exclamation-triangle"></i> Error:</b>  {{ field.errors|join(', ') }}. ({{ field.label.text }})
-        </div>
-    {% endif %}
+
 
     {% if field.type == "BooleanField" %}
         <div class="form-group form-check" id="{{ field.id }}_div">
@@ -19,7 +22,9 @@
         {% elif field.type in (["StringField", "DecimalField"]) %}
 
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
+                {{render_form_error(field) }}
+
                 {% if with_quantity %}
                     <div class="input-group mb-2">
                         <div class="input-group-prepend">
@@ -33,17 +38,22 @@
             </div>
         {% elif field.type == "SelectField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }} </label>
+                {{render_form_error(field) }}
                 {{ field(class="form-control") }}
             </div>
         {% elif field.type == "DateField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
+
                 {{ field(class="form-control", type="date") }}
             </div>
         {% elif field.type == "TimeField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
+
                 {{ field(class="form-control", type="time") }}
             </div>
         {% elif field.type == "RadioField" %}
@@ -51,6 +61,7 @@
                 <div class="col-form-label">
                     {{ field.label.text }}:
                 </div>
+                {{render_form_error(field) }}
             {% for key, value, bo in field.iter_choices() %}
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input"  name="{{ field.id }}" value="{{ key }}" checked>
@@ -60,18 +71,21 @@
             </div>
         {% elif field.type == "PasswordField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
                 {{ field(class="form-control", type="password") }}
             </div>
         {% elif field.type == "FileField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
                 <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
                    {% if field.flags.required %}required{% endif %}>
             </div>
         {% elif field.type == "IntegerField" %}
             <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
                 {{ field(class="form-control", type="number") }}
             </div>
         {% elif field.type == "SubmitField" %}

@@ -36,6 +36,20 @@ nav a {
     width:100%;
 }
 
+.form-group label {
+    font-weight: 700;
+}
+
+.form-check-label {
+    font-weight: 400 !important;
+}
+
+.form-error {
+    color: #b10e1e;
+    font-weight: 700;
+    margin:0px;
+}
+
 h1, h2, h3, h4 {
     margin-top: 15px;
 }
@@ -131,7 +145,11 @@ p {
     margin: 20px;
 }
 
-
+footer {
+    background-color: #F5F5F5;
+    border-top: solid 5px #404040;
+    margin-top: 10px;
+}
 
 .segment {
 	display: block;

@@ -4,14 +4,11 @@
 
 {% block body %}
 <div class="container">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fa fa-user-circle"></i> LIMBDONOR-{{donor.id}}</h2>
-        </div>
-   
+
+        <h1><span class="secondary-heading"><i class="fa fa-user-circle"></i> Donor</span>LIMBDON-{{donor.id}}</h1>
 
         <div class="row">
             <div class="col-sm-8">
-
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href="{{url_for('donor.edit', donor_id=donor.id) }}">
