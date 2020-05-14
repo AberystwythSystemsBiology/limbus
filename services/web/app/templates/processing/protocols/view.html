@@ -5,10 +5,8 @@
 {% block body %}
 
     <div class="container">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fa fa-project-diagram"></i>
-                LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h2>
-        </div>
+
+        <h1><span class="secondary-heading"><i class="fa fa-project-diagram"></i> Protocol</span>LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h1>
 
         {{ show_value(protocol.type, "Protocol Type", "enum") }}
         {{ show_value(protocol.description, "Description", "text") }}

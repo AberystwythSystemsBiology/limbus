@@ -98,6 +98,24 @@ p {
     border-radius: 0px;
 }
 
+.data {
+    line-height: 1;
+    display:block;
+    font-weight: 700;
+}
+
+canvas {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.data .large {
+    font-size: 80px;
+}
+
+.data .small {
+    font-size: 18px;
+}
 
 .modal {
     border-radius: 0px;
