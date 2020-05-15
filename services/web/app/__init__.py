@@ -68,9 +68,10 @@ def create_app():
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
 
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return render_template("misc/404.html"), 404
+    from app.errors import error_handlers
+    
+    for error_handler in error_handlers:
+        app.register_error_handler(error_handler['code_or_exception'], error_handler['func'])
 
     
     return app

@@ -168,10 +168,15 @@ canvas {
     margin: 20px;
 }
 
+.storage {
+    max-width:100% !important;
+}
+
 footer {
     background-color: #F5F5F5;
     border-top: solid 5px #404040;
-    margin-top: 10px;
+    margin-top: -3px;
+    z-index:1000;
 }
 
 .segment {
@@ -182,6 +187,15 @@ footer {
 
 .no {
 	background-color: red;
+}
+
+.exception-smiley {
+    padding-top: 30px;
+    font-size: 192px;
+}
+
+.exception-error {
+    text-align: center;
 }
 
 .hidden {

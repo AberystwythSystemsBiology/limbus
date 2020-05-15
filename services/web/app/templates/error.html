@@ -1,0 +1,14 @@
+{%- extends "template.html" -%}
+
+
+{% block title %}{{text}}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="exception-error">
+        <p class="exception-smiley">{{ smiley }}</p>
+        <h1>{{ text }}</h1>
+    </div>
+</div>
+	
+{%- endblock %}
