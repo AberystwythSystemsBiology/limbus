@@ -4,8 +4,10 @@
 
 {% block body %}
     <div class="container">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom space-top">
-            <h2><i class="fas fa-file"></i> Document Portal</h2>
+
+
+        <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+            <h1><i class="fas fa-file"></i> Document Portal</h1>
             <div class="btn-toolbar">
                 <div class="btn-group mr-2">
                     <a href="{{ url_for('document.upload') }}">
@@ -19,8 +21,9 @@
                         <span id="showFilterText">Show Filters</span>
                     </div>
                 </div>
-            </div>
-        </div>
+                </div>
+            </span>
+
 
         <p>This is the Document Portal. This is where your documents can be found. </p>
 

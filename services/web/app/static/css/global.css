@@ -194,6 +194,10 @@ footer {
     font-size: 192px;
 }
 
+#submit {
+    margin-bottom: 30px;
+}
+
 .exception-error {
     text-align: center;
 }

@@ -61,6 +61,12 @@ def edit(donor_id):
     form = DonorCreationForm(obj=donor_obj)
 
     if form.validate_on_submit():
+
+        death_date = None
+        
+        if form.status.data == "DE":
+            death_date = form.death_date.data
+
         donor_obj.age = form.age.data
         donor_obj.sex = form.sex.data
         donor_obj.weight = form.weight.data
@@ -68,6 +74,7 @@ def edit(donor_id):
         donor_obj.race = form.race.data
         donor_obj.status = form.status.data
         donor_obj.updater_id = current_user.id
+        donor_obj.death_date = form.death_date.data
 
         db.session.commit()
         flash("Donor information successfully edited!")

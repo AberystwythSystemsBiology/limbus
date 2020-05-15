@@ -47,11 +47,12 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                          <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Samples</a>
-                         <a class="dropdown-item" href="{{ url_for('processing.protocol_index') }}"><i class="fa fa-project-diagram"></i> Processing Protocols</a>
                         <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Sample Storage</a>
                         <a class="dropdown-item" href="{{ url_for('pcf.index' ) }}"><i class="fa fa-question-circle"></i> Consent Management</a>
                     </div>
                   </li>
+
+                  
 
                   <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('donor.index') }}">
@@ -59,13 +60,17 @@
                     </a>
                 </li>
 
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-vial"></i> Attributes and Protocols
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{{ url_for('attribute.index') }}"><i class="fab fa-buffer"></i> Attribute Portal</a>
+                         <a class="dropdown-item" href="{{ url_for('processing.protocol_index') }}"><i class="fa fa-project-diagram"></i> Processing Protocols</a>
+                    </div>
+                  </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('attribute.index') }}">
-                            <i class="fab fa-buffer"></i> Attribute Portal
-                        </a>
-                    </li>
-
+ 
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document Portal</a>
                     </li>

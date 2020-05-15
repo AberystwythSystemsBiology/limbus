@@ -63,7 +63,6 @@ def gone(e='410: Gone', json=False):
 @errorhandler(Exception)
 @errorhandler(InternalServerError.code)
 def internal_error(e):
-
     code = hexlify(urandom(4)).decode()
     error(Exception("Code: {}".format(code), e), exc_info=True)
     text = '500: Something awful has happened\n{}'.format(code)

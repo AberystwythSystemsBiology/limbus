@@ -18,6 +18,8 @@
             {{ form_field(form.race)}}
 
             {{ form_field(form.status)}}
+            {{ form_field(form.death_date)}}
+
             {{ form_field(form.submit) }}
 
         </form>
@@ -25,4 +27,8 @@
    
 </div>
 
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/donor/add.js') }}"></script>
 {% endblock %}
