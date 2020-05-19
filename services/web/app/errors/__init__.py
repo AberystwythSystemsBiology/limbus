@@ -10,8 +10,10 @@ from werkzeug.exceptions import Gone
 from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import MethodNotAllowed
 from werkzeug.exceptions import NotFound
-
+import os
 from random import choice
+
+
 
 error_handlers = []
 
@@ -62,9 +64,12 @@ def gone(e='410: Gone', json=False):
 
 @errorhandler(Exception)
 @errorhandler(InternalServerError.code)
-def internal_error(e):
+def internal_error(exce):
+    if os.environ["FLASK_CONFIG"] == "dev":
+        raise exce
+        
     code = hexlify(urandom(4)).decode()
-    error(Exception("Code: {}".format(code), e), exc_info=True)
+    error(Exception("Code: {}".format(code), exce), exc_info=True)
     text = '500: Something awful has happened\n{}'.format(code)
     return handle_error(text, InternalServerError.code)
 
