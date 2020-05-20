@@ -10,11 +10,10 @@
 {% block body %}
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="container">
+        <div class="storage container">
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h2><i class="fa fa-building"></i> New Room (LIMBSIT-{{ site.id }})</h2>
-            </div>
+            <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBSIT-{{ site.id }}</span>New Room</h1>
+
 
             <form method="POST" action="{{ url_for('storage.new_room', s_id=site.id) }}">
                 {{ form.csrf_token }}

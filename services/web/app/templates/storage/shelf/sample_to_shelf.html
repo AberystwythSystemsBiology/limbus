@@ -11,11 +11,10 @@
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="container">
+        <div class="storage container">
+            <h1><span class="secondary-heading"><i class="fa fa-bars"></i> {{ shelf.name }}</span>
+                <i class="fas fa-vial"></i> Assign Sample</h1>
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h2><i class="fa fa-cube"></i> {{ shelf.name }}: Assign sample</h2>
-            </div>
 
             <form action="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}" method="post">
                 {{ form.csrf_token }}
