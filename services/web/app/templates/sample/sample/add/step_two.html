@@ -1,44 +1,43 @@
 {% extends "template.html" %}
 
-{%block title%}New Sample: Enter Patient Consent Form{% endblock %}
-
-{% block head %}
-<link href="{{ url_for('static', filename='css/sample/information/add/step_two.css') }}" rel="stylesheet">
-{% endblock %}
-
+{%block title%}Enter Patient Consent Form Details{% endblock %}
 
 {% block body %}
     <div class="container">
+
+
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form Details</h1>
         {{ render_progress(2, 6) }}
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> New Sample: Enter Patient Consent Form</h2>
-        </div>
 
+        <p>Please replicate what the donor has checked on the physical consent sheet and press continue.</p>
 
-        <h3>{{ pcf.name }}</h3>
-
-        <p>Please replicate what the donor has checked on the physical consent sheet in order to continue.</p>
+        
 
         <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
             {{ questionnaire.csrf_token() }}
-            <div class="list-group" id="questionnaire-list">
-                {% for question in questionnaire %}
+            <div class="card">
+                <div class="card-header">
+                    <h2>{{ pcf.name }}</h2>
+                </div>
+                <ul id="#questionnaire-list" class="list-group list-group-flush">
+                    {% for question in questionnaire %}
                     {% if (question.type == "BooleanField") %}
                         {{ render_question( question, loop.index0 ) }}
                     {% endif %}
                 {% endfor %}
-            </div>
-            <!-- {{ form_field(questionnaire.submit) }} -->
-            <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#confirmModal">
+                </ul>
+              </div>
+
+            <button type="button" class="btn btn-primary float-right top10" data-toggle="modal" data-target="#confirmModal">
                 Confirm
             </button>
 
             <div id="confirmModal" class="modal" tabindex="-1" role="dialog">
-              <div class="modal-dialog" role="document">
+              <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title">{{ pcf.name }}</h5>
+                    <h3 class="modal-title">{{ pcf.name }}</h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -46,6 +45,7 @@
                   <div class="modal-body">
                       {{ questionnaire.csrf_token() }}
                       <div class="list-group" id="questionnaire-list">
+                          <p>Please double check what you've entered before submitting.</p>
                           {% for question in questionnaire %}
                               {% if (question.type == "BooleanField") %}
                               <div id="list-question-{{loop.index0 + 1}}-m" class="list-group-item flex-column align-items-start">
@@ -57,7 +57,10 @@
                               {% endif %}
                           {% endfor %}
                       </div>
-                      {{ form_field(questionnaire.submit) }}
+                  </div>
+                  <div class="model-footer" style="padding:10px;">
+                    {{ form_field(questionnaire.submit) }}
+
                   </div>
                 </div>
               </div>

@@ -1,0 +1,34 @@
+{% extends "template.html" %}
+
+{% block title %}Editing LIMBDON-{{donor_id}}{% endblock %}
+
+{% block body %}
+<div class="container">
+
+    <h1><span class="secondary-heading"><i class="fa fa-user-circle"></i> LIMBDON-{{donor_id}}</span>Edit</h1>
+
+        <form method="POST" action="{{ url_for('donor.edit', donor_id=donor_id ) }}">
+            
+            {{ form.csrf_token() }}
+            {{ form_field(form.age)}}
+
+            {{ form_field(form.sex)}}
+            {{ form_field(form.weight)}}
+            {{ form_field(form.height)}}
+            {{ form_field(form.race)}}
+
+            {{ form_field(form.status)}}
+            {{ form_field(form.death_date)}}
+
+            {{ form_field(form.submit) }}
+
+        </form>
+
+   
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/donor/add.js') }}"></script>
+{% endblock %}

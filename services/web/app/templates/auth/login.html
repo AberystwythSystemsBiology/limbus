@@ -7,24 +7,9 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container login">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-key"></i> Log In</h2>
-
-        </div>
-
-
-
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-warning">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-
-            {% endif %}
-        {% endwith %}
+    <div class="container">
+        
+        <h1>Log In</h1>
 
 
         <form method="POST" action="{{ url_for('auth.login' ) }}">

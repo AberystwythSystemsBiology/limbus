@@ -3,12 +3,19 @@ import os
 from flask import Flask, g, render_template
 from config import app_config
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_continuum import make_versioned
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
+from sqlalchemy import orm
+
+from sqlalchemy_continuum import make_versioned
+from sqlalchemy_continuum.plugins import FlaskPlugin
+from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+
 db = SQLAlchemy()
 login_manager = LoginManager()
+
+make_versioned(plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
 
 # blueprint imports
 from .admin import admin as admin_blueprint
@@ -30,14 +37,13 @@ def create_app():
     app.config.from_object(app_config[os.environ["FLASK_CONFIG"]])
     app.config.from_pyfile("config.py")
 
-    make_versioned(user_cls=None)
-
     db.init_app(app)
+    migrate = Migrate(app, db)
+
+    orm.configure_mappers()
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
-
-    migrate = Migrate(app, db)
 
     # Load in models here
     from app.auth import models as auth_models
@@ -48,6 +54,7 @@ def create_app():
     from app.processing import models as processing_models
     from app.storage import models as storage_models
     from app.attribute import models as attribute_models
+    from app.donor import models as donor_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint)
@@ -61,8 +68,10 @@ def create_app():
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
 
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return render_template("misc/404.html"), 404
+    from app.errors import error_handlers
+    
+    for error_handler in error_handlers:
+        app.register_error_handler(error_handler['code_or_exception'], error_handler['func'])
 
+    
     return app

@@ -6,10 +6,9 @@
 
     <div class="container">
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fab fa-buffer"></i> LIMBATTR-{{ attribute.id }}</h2>
-        </div>
+        <h1><span class="secondary-heading"><i class="fab fa-buffer"></i> Attribute</span>LIMBATTR-{{ attribute.id }}</h1>
 
+        
         {{ show_value(attribute.term, "Term", "text")  }}
         {{ show_value(attribute.description, "Description", "text")  }}
         {{ show_value(attribute.type, "Type", "text")  }}

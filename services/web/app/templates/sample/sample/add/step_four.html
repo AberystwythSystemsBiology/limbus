@@ -6,12 +6,8 @@
 {% block body %}
     <div class="container">
 
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h2><i class="fas fa-vial"></i> New Sample: Select Sample Processing Protocol</h2>
-        </div>
-
-            {{ render_progress(4, 6) }}
-
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Processing Information</h1>
+        {{ render_progress(4, 6) }}
 
         <p>Before we continue, you must first link the sample to processing protocol template.</p>
 

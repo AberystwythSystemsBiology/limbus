@@ -1,25 +1,30 @@
+{% macro render_form_error(field) -%}
+    {% if field.errors %}
+    <p class="form-error">{{ field.errors|join(', ') }}</p>
+    {% endif %}
+{%- endmacro %}
+
+
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}
     {% set with_quantity = kwargs.pop('q', False) %}
 
-    {% if field.errors %}
-        <div class="alert alert-danger text-center" role="alert">
-            <b><i class="fa fa-exclamation-triangle"></i> Error:</b>  {{ field.errors|join(', ') }}. ({{ field.label.text }})
-        </div>
-    {% endif %}
+    <div class="form-group {% if field.errors %}error{% endif %}" id="{{ field.id }}_div">
+
 
     {% if field.type == "BooleanField" %}
-        <div class="form-group form-check" id="{{ field.id }}_div">
+    <div class="form-check">
             <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             <label class="form-check-label" for="{{ field.id }}">
                 {{ field.label.text }}
             </label>
-        </div>
-        {% elif field.type == "StringField" %}
+            </div>
+        {% elif field.type in (["StringField", "DecimalField"]) %}
 
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+               <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
+                {{render_form_error(field) }}
+
                 {% if with_quantity %}
                     <div class="input-group mb-2">
                         <div class="input-group-prepend">
@@ -30,66 +35,62 @@
                 {% else %}
                     {{ field(class="form-control") }}
                 {% endif %}
-            </div>
         {% elif field.type == "SelectField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }} </label>
+                {{render_form_error(field) }}
                 {{ field(class="form-control") }}
-            </div>
         {% elif field.type == "DateField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
+
                 {{ field(class="form-control", type="date") }}
-            </div>
         {% elif field.type == "TimeField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
+
                 {{ field(class="form-control", type="time") }}
-            </div>
         {% elif field.type == "RadioField" %}
-            <div class="form-group" id="{{ field.id }}_div">
                 <div class="col-form-label">
                     {{ field.label.text }}:
                 </div>
+                {{render_form_error(field) }}
             {% for key, value, bo in field.iter_choices() %}
                 <div class="form-check form-check-inline">
                     <input type="radio" class="form-check-input"  name="{{ field.id }}" value="{{ key }}" checked>
                     <label class="form-check-label" for="{{ field.id }}">{{ value }}</label>
                 </div>
             {% endfor %}
-            </div>
         {% elif field.type == "PasswordField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
                 {{ field(class="form-control", type="password") }}
-            </div>
         {% elif field.type == "FileField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
                 <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
                    {% if field.flags.required %}required{% endif %}>
-            </div>
         {% elif field.type == "IntegerField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}: </label>
+                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{render_form_error(field) }}
                 {{ field(class="form-control", type="number") }}
-            </div>
         {% elif field.type == "SubmitField" %}
-            <div class="form-group" id="{{ field.id }}_div">
-                <button type="submit" class="btn btn-success float-right" id="{{ field.id }}">
+                <button type="submit" class="btn btn-success float-right top10" id="{{ field.id }}">
                     <i class="fa fa-check"></i> {{ field.label.text }}
                 </button>
-            </div>
         {% endif %}
+    </div>
 
 {%- endmacro %}
 
 
 {% macro show_value(attribute, label, type) -%}
-    <div class="form-group row">
-        <label class="col-4 col-form-label text-muted">{{ label }}:</label>
-        <div class="col-8">
-            {% if type == "text" %}
+
+<tr>
+    <th>
+        {{ label }}:
+    </th>
+    <td>
+        {% if type == "text" %}
                 <p>{{ attribute }}</p>
             {% elif type == "textarea" %}
                 <p>{{ attribute }}</p>
@@ -100,9 +101,9 @@
             {% elif type == "datetime" %}
                 <p>{{ attribute.strftime('%d-%m-%Y') }}</p>
             {% endif %}
+    </td>
+</tr>
 
-        </div>
-    </div>
 
 {%- endmacro %}
 
@@ -117,7 +118,7 @@
 {% macro render_warning(title, description, button_url, button_text, add, refresh) -%}
 <div class="jumbotron jumbotron-fluid">
   <div class="container text-center">
-    <h4><i class="fa fa-exclamation-triangle"></i> {{ title }}</h4>
+    <h2><i class="fa fa-exclamation-triangle"></i> {{ title }}</h2>
       {% for line in description %}
           <p>{{ line }}</p>
       {% endfor %}
@@ -134,11 +135,9 @@
 {%- endmacro %}
 
 {% macro render_progress(now, max) -%}
-
-<div class="progress">
+    <div class="progress">
         <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}" aria-valuemin="0" aria-valuemax="{{ max }}"></div>
-</div>
-
+    </div>
 {%- endmacro %}
 
 {% macro render_success(title, description) -%}

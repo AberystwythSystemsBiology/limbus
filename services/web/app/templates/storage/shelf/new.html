@@ -11,11 +11,10 @@
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="container">
+        <div class="storage container">
+            
+            <h1><span class="secondary-heading"><i class="fa fa-temperature-low"></i> {{ lts.manufacturer }}-{{ lts.serial_number }}</span>New Shelf</h1>
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h2><i class="fa fa-cube"></i> {{ lts.manufacturer }}-{{ lts.serial_number }}: New Shelf</h2>
-            </div>
 
             <form action="{{ url_for('storage.add_shelf', lts_id=lts.id) }}" method="post">
                     {{ form.csrf_token() }}

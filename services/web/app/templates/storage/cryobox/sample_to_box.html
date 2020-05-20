@@ -11,11 +11,10 @@
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="container">
+        <div class="storage container">
+            
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i>LIMBCRB-{{cryo.id}}</span> Sample to Box</h1>
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h2><i class="fa fa-cube"></i> Sample to Box</h2>
-            </div>
 
             <form action="{{ url_for('storage.add_cryobox_sample', cryo_id = cryo.id, row=row, col=col) }}" method="post">
                 {{ form.csrf_token }}
