@@ -40,8 +40,8 @@ nav a {
     font-weight: 600;
 }
 
-.form-check-label {
-    font-weight: 400 !important;
+.form-check label {
+    font-weight: 600 !important;
 }
 
 .form-error {
@@ -215,3 +215,4 @@ footer {
     padding:0px;
     margin:0px;
 }
+
