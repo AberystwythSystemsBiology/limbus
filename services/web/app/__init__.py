@@ -29,7 +29,7 @@ from .donor import donor as donor_blueprint
 from .patientconsentform import pcf as pcf_blueprint
 from .processing import processing as processing_blueprint
 from .storage import storage as storage_blueprint
-
+from .procedure import procedure as procedure_blueprint
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -55,6 +55,7 @@ def create_app():
     from app.storage import models as storage_models
     from app.attribute import models as attribute_models
     from app.donor import models as donor_models
+    from app.procedure import models as procedure_models
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint)
@@ -67,6 +68,7 @@ def create_app():
     app.register_blueprint(donor_blueprint, url_prefix="/donors")
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
+    app.register_blueprint(procedure_blueprint, url_prefix="/procedures")
 
     from app.errors import error_handlers
     
