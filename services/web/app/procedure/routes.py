@@ -9,10 +9,19 @@ from .forms import DiagnosticProcedureCreationForm
 
 import json
 
+from .views import DiagnosticProceduresIndexView, DiagnosticProcedureView
+
 @procedure.route("/")
 @login_required
 def index():
-    return render_template("procedure/index.html")
+    procedures = DiagnosticProceduresIndexView()
+    return render_template("procedure/index.html", procedures=procedures)
+
+@procedure.route("/view/LIMBDIAG-<procedure_id>")
+@login_required
+def view(procedure_id):
+    dpv = DiagnosticProcedureView(procedure_id)
+    return render_template("procedure/view.html", dpv=dpv)
 
 @procedure.route("/new", methods=["GET", "POST"])
 def new():
