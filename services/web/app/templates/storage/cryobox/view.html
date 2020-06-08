@@ -15,7 +15,7 @@
         {{ storage_navbar() }}
         <div class="storage container">
             
-            <h1><span class="secondary-heading">Cryovail Box Container</span>
+            <h1><span class="secondary-heading">Cryovial Box Container</span>
                 <i class="fa fa-cube"></i> LIMBCRB-{{ cryo.id }}</h1>
 
 
@@ -23,18 +23,18 @@
                 <thead>
                     <th scope="col" style="width: 0.5%;"></th>
                     {% for i in range(cryo.num_cols) %}
-                    <th style="width: {{ cryo.num_cols / 0.5 }}%;">{{ letters[i] }}</th>
+                    <th style="width: {{ cryo.num_cols / 0.5 }}%;">{{ letters[i]|upper }}</th>
                     {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for r in range(cryo.num_rows) %}
                     <tr>
-                        <th scope="row">{{ r }}</th>
+                        <th scope="row">{{ r+1 }}</th>
                         {% for c in range(cryo.num_cols) %}
-                        <td id="_{{ r }}_{{ c }}">
+                        <td class="boxcell" id="_{{ r }}_{{ c }}">
                             <a href="{{ url_for('storage.add_cryobox_sample', cryo_id=cryo.id, row=r, col=c) }}">
-                                <div class="btn btn-danger">
+                                <div class="cryovial empty">
                                     Add
                                 </div>
                             </a>

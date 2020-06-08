@@ -10,6 +10,7 @@ def SamplesIndexView():
     ]
     samples = db.session.query(Sample).filter(~Sample.id.in_(subsamples)).all()
 
+
     data = {}
     for sample in samples:
 

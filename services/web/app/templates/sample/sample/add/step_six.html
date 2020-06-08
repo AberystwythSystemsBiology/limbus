@@ -1,21 +1,15 @@
 {% extends "template.html" %}
 
-{% block title %}Add Sample{% endblock %}
+{% block title %}Custom Attribute Information{% endblock %}
 
 {% block body %}
     <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Additional Information</h1>
-        {{ render_progress(6, 6) }}
-
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Custom Attribute Information</h1>
+        {{ render_progress(6, 7) }}
 
         <form method="POST" action="{{ url_for('sample.add_sample_form', hash=hash) }}">
-            {{ form.csrf_token }}
-            {{ form_field(form.collection_date) }}
-            {{ form_field(form.disposal_instruction) }}
-            {{ form_field(form.disposal_date) }}
-
-            
+            {{ form.csrf_token }}            
             {% for attribute in form %}
                 {% if attribute.render_kw._custom_val %}
                     {{ form_field(attribute) }}

@@ -18,7 +18,8 @@
           rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/jstree/dist/themes/default/style.min.css') }}"
           rel="stylesheet">
-
+          <link href="{{ url_for('static', filename='node_modules/bootstrap-select/dist/css/bootstrap-select.min.css') }}"
+          rel="stylesheet">
     {% block head %}
     {% endblock %}
 
@@ -125,19 +126,14 @@
 
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-  <div class="position-absolute w-100 d-flex flex-column p-4">
     {% for message in messages %}
-        <div class="toast ml-auto" role="alert" data-delay="700" data-autohide="false">
-            <div class="toast-header">
-                <strong class="mr-auto text-primary">Notice:</strong>
-                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="toast-body">{{ message }}</div>
-        </div>
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <strong>Notice!</strong> {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
     {% endfor %}
-    </div>
 {% endif %}
 {% endwith %}
 
@@ -199,6 +195,7 @@
 <script src="{{ url_for('static', filename='node_modules/datatables.net-select/js/dataTables.select.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/d3/dist/d3.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/jstree/dist/jstree.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
 
 <script src="{{ url_for('static', filename='js/all.js') }}"></script>
 

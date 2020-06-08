@@ -22,83 +22,87 @@ from ..processing.models import ProcessingTemplate
 from ..processing.enums import ProtocolTypes, ProtocolSampleType
 
 from ..storage.enums import CellContainer, FluidContainer, FixationType
+from ..donor.models import Donors
 
 from .. import db
 
 
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
-    barcode = StringField("Biobank Barcode")
-
-    fluid_sample_type = SelectField(
-        "Fluid Sample Type", choices=FluidSampleType.choices()
-    )
-    molecular_sample_type = SelectField(
-        "Molecular Sample Type", choices=MolecularSampleType.choices()
-    )
-    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+    fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
+    molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
+    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())  
     quantity = StringField("Quantity")
-
-    cell_container = SelectField("Cell Container", choices=CellContainer.choices())
     fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
-
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
+    cell_container = SelectField("Cell Container", choices=CellContainer.choices())
 
     submit = SubmitField("Submit")
 
 
-class SampleCreationForm(FlaskForm):
-    collection_date = DateField("Sample Collection Date", validators=[DataRequired()])
-    disposal_instruction = SelectField(
-        "Disposal Instructions", choices=DisposalInstruction.choices()
-    )
-    disposal_date = DateField("Disposal Date")
-
-
 def PatientConsentFormSelectForm():
     class StaticForm(FlaskForm):
-        consent_id = StringField("Patient Consent Identifier", description="Test.")
+        barcode = StringField("Sample Biobank Barcode")
 
-    length = 0
+        collection_date = DateField(
+            "Sample Collection Date",
+            validators=[DataRequired()],
+            description="The date in which the sample was collected.")
+    
+        disposal_date = DateField("Disposal Date (*)", description="The date in which the sample is required to be disposed of in accordance to the disposal instructions.")
 
-    patient_consent_forms = (
-        db.session.query(ConsentFormTemplate, User)
-        .filter(ConsentFormTemplate.uploader == User.id)
-        .all()
+        disposal_instruction = SelectField(
+            "Disposal Instructions", choices=DisposalInstruction.choices(), description="The method of sample disposal."
+        )
+
+        has_donor = BooleanField("Has Donor")
+  
+
+    
+    donors = db.session.query(Donors).all()
+    if len(donors) == 0:
+        donor_choices = [["0", "No Suitable Donor Available"]]
+
+    for donor in donors:
+        donor_choices.append([str(donor.id), "LIMBDON-%s" % (d.id)])
+
+    setattr(
+        StaticForm,
+        "donor_select",
+        SelectField(
+            "Sample Donor",
+            choices=donor_choices,
+            description="The patient consent form template that reflects the consent form the sample donor signed. "
+        ),
     )
 
-    choices = []
+    patient_consent_forms = db.session.query(ConsentFormTemplate).all()
 
-    for cf, user in patient_consent_forms:
-        id = cf.id
-        length += 1
-        choice = " LIMBPCF-%s: %s" % (cf.id, cf.name)
-        choices.append([str(id), choice])
-
+    
     setattr(
         StaticForm,
         "form_select",
         SelectField(
             "Patient Consent Form Template",
             validators=[DataRequired()],
-            choices=choices,
+            choices=[(str(cf.id), "LIMBPCF-%s: %s" % (cf.id, cf.name)) for cf in patient_consent_forms],
+            description="The patient consent form template that reflects the consent form the sample donor signed. "
         ),
     )
 
     setattr(StaticForm, "submit", SubmitField())
 
-    return StaticForm(), length
+    return StaticForm()
 
 
-# TODO: Duplicate Code
 def ProtocolTemplateSelectForm(templates):
     class StaticForm(FlaskForm):
         sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
-        processing_time = TimeField("Processing Time", default=datetime.today)
         processing_date = DateField("Processing Date")
+        processing_time = TimeField("Processing Time")
+
         submit = SubmitField("Submit")
 
-    length = len(templates)
     choices = []
 
     for t in templates:
@@ -113,17 +117,15 @@ def ProtocolTemplateSelectForm(templates):
         ),
     )
 
-    return StaticForm(), length
+    return StaticForm()
 
 
 def PatientConsentQuestionnaire(questions) -> FlaskForm:
     class StaticForm(FlaskForm):
-        pass
+        consent_id = StringField("Patient Consent Form ID/Code", description="The identifying code of the signed patient consent form.")
 
     for question in questions:
         setattr(StaticForm, str(question.id), BooleanField(question.question))
-
-    # Inject submit
 
     setattr(StaticForm, "submit", SubmitField("Submit"))
     return StaticForm()
@@ -131,11 +133,6 @@ def PatientConsentQuestionnaire(questions) -> FlaskForm:
 
 class FinalSampleForm:
     elements = {
-        "collection_date": DateField("Collection Date", validators=[DataRequired()]),
-        "disposal_instruction": SelectField(
-            "Disposal Instructions", choices=DisposalInstruction.choices()
-        ),
-        "disposal_date": DateField("Disposal Date"),
         "submit": SubmitField("Submit"),
     }
 

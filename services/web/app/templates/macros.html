@@ -1,4 +1,7 @@
 {% macro render_form_error(field) -%}
+    {% if field.description %}
+    <span class="form-description form-text text-muted">{{field.description}}</span>
+    {%endif%}
     {% if field.errors %}
     <p class="form-error">{{ field.errors|join(', ') }}</p>
     {% endif %}
@@ -11,10 +14,11 @@
     {% set with_quantity = kwargs.pop('q', False) %}
 
     <div class="form-group {% if field.errors %}error{% endif %}" id="{{ field.id }}_div">
-
+        
 
     {% if field.type == "BooleanField" %}
     <div class="form-check">
+        
             <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             <label class="form-check-label" for="{{ field.id }}">
                 {{ field.label.text }}
@@ -38,7 +42,7 @@
         {% elif field.type == "SelectField" %}
                 <label for="{{ field.id }}">{{ field.label.text }} </label>
                 {{render_form_error(field) }}
-                {{ field(class="form-control") }}
+                {{ field(class="form-control selectpicker", **{"data-live-search": "true"}) }}
         {% elif field.type == "DateField" %}
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}

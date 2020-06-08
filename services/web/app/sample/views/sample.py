@@ -22,8 +22,6 @@ def BasicSampleView(sample_id: int):
         "biobank_barcode": sample.biobank_barcode,
         "collection_date": sample.collection_date,
         "sample_status": sample.sample_status,
-        "disposal_instruction": sample.disposal_instruction,
-        "disposal_date": sample.disposal_date,
         "creation_date": sample.creation_date,
         "update_date": sample.update_date,
         "author_information": UserView(sample.author_id),
@@ -186,6 +184,7 @@ def SampleView(sample_id: int) -> dict:
         return data
 
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
+    sample_disposal = db.session.query(SampleDisposalInformation).filter(SampleDisposalInformation.sample_id == sample_id).first_or_404()
 
     data = {
         "id": sample.id,
@@ -193,8 +192,8 @@ def SampleView(sample_id: int) -> dict:
         "biobank_barcode": sample.biobank_barcode,
         "collection_date": sample.collection_date,
         "sample_status": sample.sample_status,
-        "disposal_instruction": sample.disposal_instruction,
-        "disposal_date": sample.disposal_date,
+        "disposal_instruction": sample_disposal.disposal_instruction,
+        "disposal_date": sample_disposal.disposal_date,
         "creation_date": sample.creation_date,
         "update_date": sample.update_date,
         "current_quantity": sample.current_quantity,

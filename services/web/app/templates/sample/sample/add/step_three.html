@@ -2,27 +2,26 @@
 {% extends "template.html" %}
 
 
-{% block title %}New Sample: Sample Type and Storage Medium{%endblock%}
+{% block title %}New Sample: Sample and Storage Type{%endblock%}
 
 {% block body %}
     <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Type and Storage Information</h1>
-        {{ render_progress(3, 6) }}
-
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample and Storage Type</h1>
+        {{ render_progress(3, 7) }}
 
         <form action="{{ url_for('sample.select_sample_type', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
-            {{ form_field(form.barcode) }}
-
             {{ form_field(form.sample_type) }}
             {{ form_field(form.fluid_sample_type) }}
             {{ form_field(form.molecular_sample_type) }}
             {{ form_field(form.cell_sample_type) }}
-            {{ form_field(form.quantity, q=True) }}
-            {{ form_field(form.cell_container) }}
-            {{ form_field(form.fluid_container) }}
             {{ form_field(form.fixation_type) }}
+            {{ form_field(form.quantity, q=True) }}
+            {{ form_field(form.fluid_container) }}
+            {{ form_field(form.cell_container) }}
+
+
             {{ form_field(form.submit) }}
         </form>
 
