@@ -70,6 +70,7 @@ def view_cryobox_api(cryo_id):
         data["%i_%i" % (position.row, position.col)] = {
             "id": sample.id,
             "url": url_for("sample.view", sample_id=sample.id, _external=True),
+            "barcode": url_for("sample.get_barcode", sample_id=sample.id, attr="uuid", _external=True)
         }
 
     return jsonify(data), 201, {"Content-Type": "application/json"}

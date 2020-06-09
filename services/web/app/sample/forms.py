@@ -163,8 +163,7 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
         processsing_enum = ProtocolSampleType.MOL
 
     _ec = sample_type_enums.choices()
-    _i = [i for i, x in enumerate(_ec) if x[1] == default_type][0]
-    _ec.insert(0, _ec.pop(_i))
+
 
     setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=_ec))
 
