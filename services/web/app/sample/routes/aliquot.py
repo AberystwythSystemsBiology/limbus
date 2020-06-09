@@ -32,7 +32,7 @@ def aliquot(sample_id):
         .filter(sample_type.sample_id == sample_id)
         .first_or_404()
     )
-
+    
     form, num_processing_templates = SampleAliquotingForm(
         sample_attributes["sample_type_info"]["sample_type"], sample_type.sample_type
     )
@@ -57,6 +57,14 @@ def aliquot(sample_id):
             db.session.expunge(sample_cpy)
             make_transient(sample_cpy)
 
+            sample_dis_cpy = (
+                db.session.query(SampleDisposalInformation).filter(SampleDisposalInformation.sample_id == sample_id).first_or_404()
+            )
+
+            db.session.expunge(sample_dis_cpy)
+            make_transient(sample_dis_cpy)
+
+
             sample_cpy.id = None
             sample_cpy.biobank_barcode = None
             sample_cpy.uuid = uuid.uuid4()
@@ -66,8 +74,14 @@ def aliquot(sample_id):
             sample_cpy.collection_date = aliquot_date
 
             db.session.add(sample_cpy)
-
             db.session.flush()
+
+            sample_dis_cpy.id = None
+            sample_dis_cpy.sample_id = sample_cpy.id
+
+            db.session.add(sample_dis_cpy)
+            db.session.flush()
+
 
             # Sample Type
             if sample_cpy.sample_type == SampleType.MOL:

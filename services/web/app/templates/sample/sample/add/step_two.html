@@ -7,15 +7,19 @@
 
 
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form Details</h1>
-        {{ render_progress(2, 6) }}
+        {{ render_progress(2, 7) }}
 
 
-        <p>Please replicate what the donor has checked on the physical consent sheet and press continue.</p>
 
         
 
         <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
-            {{ questionnaire.csrf_token() }}
+            
+          {{form_field(questionnaire.consent_id)}}
+
+          <p>Please replicate what the donor has checked on the physical consent sheet and press continue.</p>
+
+          {{ questionnaire.csrf_token() }}
             <div class="card">
                 <div class="card-header">
                     <h2>{{ pcf.name }}</h2>

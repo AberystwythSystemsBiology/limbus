@@ -7,12 +7,12 @@
     <div class="container">
 
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Processing Information</h1>
-        {{ render_progress(4, 6) }}
+        {{ render_progress(4, 7) }}
 
         <p>Before we continue, you must first link the sample to processing protocol template.</p>
 
-
-        {% if templates > 0 %}
+        
+        {% if form.form_select.choices|length > 0 %}
             <form action="{{ url_for('sample.select_processing_protocol', hash=hash) }}" method="POST">
                 {{ form.csrf_token }}
                 {{ form_field(form.form_select) }}
@@ -29,9 +29,7 @@
                 {{ form_field(form.submit) }}
             </form>
         {% else %}
-
-
-
+            <h1>Naughty Naughty!</h1>
         {% endif %}
     </div>
 {% endblock %}

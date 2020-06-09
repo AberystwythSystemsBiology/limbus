@@ -24,7 +24,7 @@ class DonorCreationForm(FlaskForm):
     death_date = DateField("Date of Death")
     weight = DecimalField("Weight (kg)")
     height = DecimalField("Height (cm)")
-    # site ?
+
     race = SelectField("Race", choices=RaceTypes.choices())
 
     submit = SubmitField("Submit")

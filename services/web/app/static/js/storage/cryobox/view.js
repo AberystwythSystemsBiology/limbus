@@ -1,7 +1,6 @@
 
 function something_there(html_id, sample) {
-    var a = "<a href='"+ sample["url"]+ "'<div class='btn btn-success'>LIMSMP-" + sample["id"] + "</div></a>";
-    console.log(a);
+    var a = "<a href='"+ sample["url"]+ "'<div class='cryovial full'>LIMSMP-" + sample["id"] + "</div></a>";
     $(html_id).html(a);
 }
 

@@ -19,6 +19,7 @@ def login():
         user = db.session.query(User).filter(User.email == form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
+            flash("Successfuly logged in.")
             return redirect(url_for("misc.index"))
         else:
             flash("Incorrect email or password.")

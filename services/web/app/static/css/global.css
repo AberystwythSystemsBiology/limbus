@@ -19,6 +19,11 @@ nav img {
     height:30px;
 }
 
+.form-description {
+    margin-top:-10px;
+    padding:0;
+}
+
 nav a {
     text-decoration: none;
 
@@ -176,7 +181,7 @@ footer {
     background-color: #F5F5F5;
     border-top: solid 5px #404040;
     margin-top: -3px;
-    z-index:1000;
+    z-index:999;
 }
 
 .segment {
@@ -216,3 +221,33 @@ footer {
     margin:0px;
 }
 
+
+.btn-light, .btn-light:hover, .btn-light:active {
+    background-color: #fff;
+    border: 2px #000 solid;
+}
+
+.dropdown-item {
+    z-index: 1000;
+}
+
+.cryovial {
+    position: relative;
+    display: block;
+    width: 25%;
+    height: 0;
+    padding: 12.5% 0;
+    border-radius: 50%;
+    line-height: 0;
+    background: #6f777b;
+    color: white;
+    text-align: center;
+}
+
+.empty {
+    background: #dc3545;
+}
+
+.empty a:link {
+    text-decoration: none;
+}

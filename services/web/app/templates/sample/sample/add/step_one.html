@@ -1,15 +1,15 @@
 {% extends "template.html" %}
 
-{% block title %}New Sample: Select Patient Consent Form{% endblock %}
+{% block title %}New Sample: Collection and Consent Information{% endblock %}
 
 {% block body %}
     <div class="container">
-
         
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Consent Information</h1>
-        {{ render_progress(1, 6) }}
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Collection and Consent Information</h1>
+        {{ render_progress(1, 7) }}
 
-        {% if pcf_documents > 0 and template_count > 0 %}
+
+        {% if form.form_select.choices|length > 0 and template_count > 0%}
 
             <p>Before we continue, you must first link the sample to a patient consent form.</p>
 
@@ -17,14 +17,27 @@
 
             <form action="{{ url_for('sample.add_sample_pcf') }}" method="POST">
                 {{ form.csrf_token }}
+                {{ form_field(form.barcode) }}
+
                 {{ form_field(form.form_select) }}
-                {{ form_field(form.consent_id) }}
+
+                {{ form_field(form.collection_date) }}
+                {{ form_field(form.disposal_instruction) }}
+                {{ form_field(form.disposal_date) }}
+
+                {% if form.donor_select.choices|length > 0 %}
+                    {{ form_field(form.has_donor)}}
+                    {{ form_field(form.donor_select) }}
+                {% endif %}
+                
                 {{ form_field(form.submit) }}
+
             </form>
+            
         {% else %}
             <div class="row">
                 <div class="col">
-                    {% if pcf_documents == 0 %}
+                    {% if form.form_select.choices|length == 0 %}
                     {{ render_warning(
                     "No Suitable Patient Consent Form Found",
                     [
@@ -60,4 +73,8 @@
 
         {% endif %}
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/information/add/step_one.js') }}"></script>
 {% endblock %}
