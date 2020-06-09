@@ -23,8 +23,6 @@ import uuid
 def add_sample_pcf():
     form = PatientConsentFormSelectForm()
 
-    print(dir(form), form.validate_on_submit(), form.errors)
-
     template_count = db.session.query(ProcessingTemplate).count()
 
     if form.validate_on_submit():

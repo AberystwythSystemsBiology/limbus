@@ -4,6 +4,7 @@ from wtforms import (
     SelectField,
     StringField,
     SubmitField,
+    FloatField,
     DateField,
     BooleanField,
     TimeField,
@@ -32,7 +33,7 @@ class SampleTypeSelectForm(FlaskForm):
     fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
     molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
     cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())  
-    quantity = StringField("Quantity")
+    quantity = FloatField("Quantity", validators=[DataRequired()])
     fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
     cell_container = SelectField("Cell Container", choices=CellContainer.choices())
@@ -60,11 +61,12 @@ def PatientConsentFormSelectForm():
 
     
     donors = db.session.query(Donors).all()
+    donor_choices = []
     if len(donors) == 0:
-        donor_choices = [["0", "No Suitable Donor Available"]]
+        donor_choices.append(["0", "No Suitable Donor Available"])
 
     for donor in donors:
-        donor_choices.append([str(donor.id), "LIMBDON-%s" % (d.id)])
+        donor_choices.append([str(donor.id), "LIMBDON-%s" % (donor.id)])
 
     setattr(
         StaticForm,

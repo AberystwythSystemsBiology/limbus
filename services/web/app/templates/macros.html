@@ -24,7 +24,7 @@
                 {{ field.label.text }}
             </label>
             </div>
-        {% elif field.type in (["StringField", "DecimalField"]) %}
+        {% elif field.type in (["StringField", "DecimalField", "FloatField"]) %}
 
                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
                 {{render_form_error(field) }}
