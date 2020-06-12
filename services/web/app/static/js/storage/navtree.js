@@ -102,7 +102,7 @@ $(function() {
 
     function selectSample(sample) {
         var sample_id = parseId(sample.id);
-        location.href=`../samples/view/LIMBSMP-${sample_id}`
+        location.href=`../../../samples/view/LIMBSMP-${sample_id}`
     }
 
     function parseId(id_field) {

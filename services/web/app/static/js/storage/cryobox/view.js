@@ -1,6 +1,8 @@
 
 function something_there(html_id, sample) {
-    var a = "<a href='"+ sample["url"]+ "'<div class='cryovial full'>LIMSMP-" + sample["id"] + "</div></a>";
+    var a = "<a href='"+ sample["url"]+ "'<div class='tube full'><img src='"+sample["barcode"]+"'></div></a>";
+    
+    
     $(html_id).html(a);
 }
 

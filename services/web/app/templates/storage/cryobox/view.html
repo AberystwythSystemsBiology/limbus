@@ -19,23 +19,24 @@
                 <i class="fa fa-cube"></i> LIMBCRB-{{ cryo.id }}</h1>
 
 
+
             <table class="table table-responsive">
                 <thead>
                     <th scope="col" style="width: 0.5%;"></th>
                     {% for i in range(cryo.num_cols) %}
-                    <th style="width: {{ cryo.num_cols / 0.5 }}%;">{{ letters[i]|upper }}</th>
+                    <th class="text-center" style="width: {{ cryo.num_cols / 0.5 }}%;">{{ letters[i]|upper }}</th>
                     {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for r in range(cryo.num_rows) %}
                     <tr>
-                        <th scope="row">{{ r+1 }}</th>
+                        <th scope="row text-center">{{ r+1 }}</th>
                         {% for c in range(cryo.num_cols) %}
                         <td class="boxcell" id="_{{ r }}_{{ c }}">
                             <a href="{{ url_for('storage.add_cryobox_sample', cryo_id=cryo.id, row=r, col=c) }}">
-                                <div class="cryovial empty">
-                                    Add
+                                <div class="tube empty">
+                                    EMPTY
                                 </div>
                             </a>
                         </td>

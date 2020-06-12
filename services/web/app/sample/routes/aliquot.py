@@ -82,7 +82,6 @@ def aliquot(sample_id):
             db.session.add(sample_dis_cpy)
             db.session.flush()
 
-
             # Sample Type
             if sample_cpy.sample_type == SampleType.MOL:
                 s_sample_type = SampleToMolecularSampleType
