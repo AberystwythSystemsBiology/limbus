@@ -56,28 +56,31 @@
     <table id="history" class="table table-striped table-bordered" style="width:100%">
         <thead>
         <tr>
-            <th>Change(s)</th>
-            <th>Updater</th>
-            <th>Change Date</th>
+            <th width="70%">Change</th>
+            <th>Contributor</th>
         </tr>
         </thead>
         <tbody>
         {% for id, change  in donor.versions.items() %}
             <tr>
                 <td>
-                    {% for k, v in change.items() if k not in ["updater_id"] %}
-                        <p><b>{{ k }}:</b> {{ v|join(' >> ') }}</p>
-                    {% endfor %}
+                    <a data-toggle="collapse" href="#_{{id}}_collapse" aria-expanded="true" aria-controls="_{{id}}_collapse">
+                        <i class="fa fa-plus-circle"></i> {{change.items()|length}} changes ({{ change.update_date }})
+                        </a>
+                        <div class="collapse" id="_{{id}}_collapse">
+                        <ul>
+                        {% for k, v in change.items() if k not in ["updater_id"] %}
+                            <li><b>{{ k }}:</b> {{ v|join(' → ') }}</li>
+                        {% endfor %}
+                        </ul>
+                    </div>
                 </td>
                 <td>{{ change.updater_id.email }}</td>
-                <td>{{ change.update_date }} </td>
-
             </tr>
         {% endfor %}
         </tbody>
     </table>
 </div>
-
 
 
 

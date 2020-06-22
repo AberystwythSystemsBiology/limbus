@@ -180,8 +180,8 @@ canvas {
 footer {
     background-color: #F5F5F5;
     border-top: solid 5px #404040;
-    margin-top: -3px;
     z-index:999;
+    margin-top: 30px;
 }
 
 .segment {

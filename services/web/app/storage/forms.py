@@ -61,20 +61,29 @@ class SiteRegistrationForm(FlaskForm):
 
 def LongTermColdStorageForm():
     class StaticForm(FlaskForm):
-        serial_number = StringField("Serial Number")
-        manufacturer = StringField("Manufacturer", validators=[DataRequired()])
+        serial_number = StringField(
+            "Serial Number",
+            description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number."
+            )
+        manufacturer = StringField(
+            "Manufacturer",
+            validators=[DataRequired()],
+            description="The storage facility manufacturer."
+            )
         temperature = SelectField(
             "Temperature",
             choices=FixedColdStorageTemps.choices(),
             validators=[DataRequired()],
+            description="The temperature of the inside of the storage facility."
         )
         type = SelectField(
             "Storage Type",
             choices=FixedColdStorageType.choices(),
             validators=[DataRequired()],
+            description="A facility that provides storage for any type of biospecimen and/or biospecimen container."
         )
 
-    setattr(StaticForm, "submit", SubmitField("Register Long Term Cold Storage"))
+    setattr(StaticForm, "submit", SubmitField("Register"))
 
     return StaticForm()
 

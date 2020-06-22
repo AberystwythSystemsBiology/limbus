@@ -6,6 +6,7 @@ misc = Blueprint("misc", __name__)
 from .models import BiobankInformation
 
 from .. import db
+from itertools import islice
 
 
 def clear_session(hash: str) -> None:
@@ -14,6 +15,9 @@ def clear_session(hash: str) -> None:
         if k.startswith(hash):
             del session[k]
 
+def chunks(it, n):
+    it = iter(it)
+    return [x for x in iter(lambda: tuple(islice(it, n)), ())]
 
 @misc.route("/")
 def index() -> str:

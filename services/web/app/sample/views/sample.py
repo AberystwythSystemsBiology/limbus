@@ -13,7 +13,7 @@ from ...patientconsentform.models import *
 from ..enums import SampleType
 
 
-def BasicSampleView(sample_id: int):
+def BasicSampleView(sample_id: int) -> dict:
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
 
     return {
