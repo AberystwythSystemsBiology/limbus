@@ -30,32 +30,29 @@
                 <thead>
                 <tr>
                     <th>Identifier</th>
-                    <th>Sample Type</th>
                     <th>Sample Status</th>
                     <th>Collection Date</th>
                     <th>Sample Creator</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for sample_id, sample in samples.items() %}
+                {% for sample_id, sample in shelf.samples.items() %}
                     <tr>
                         <td>
                             <a href="{{ url_for('sample.view', sample_id=sample_id) }}">
                                 <i class="fas fa-vial"></i> LIMBSMP-{{ sample_id }}
                             </a>
                         </td>
-                        <td>{{ sample["sample_type"] }}</td>
                         <td>{{ sample["sample_status"] }}</td>
                         <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
                         <td>
-                            {{ sample["user_information"]["email"] }}
+                            {{ sample["author_information"]["email"] }}
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
     
-        </div>
     
 
 
@@ -68,10 +65,10 @@
                     </button>
                 </a>
             </div> 
-            {% if cryoboxes|length > 1 %}
-            {% for row in cryoboxes %}
+
+            {% for row in shelf.cryoboxes %}
                 <div class="row">
-                    {% for box in row %}
+                    {% for box_id, box in row %}
                     <div class="col-3">
                     <div class="card">
                         <div class="card-header text-center">
@@ -82,18 +79,18 @@
                             <p>Dimensions: {{ box.num_rows }} x {{ box.num_cols }}</p>
                         </div>
                         <div class="card-footer text-center">
-                            <div class="btn btn-primary full-width">
-                                Go
-                            </div>
+                            <a href="#">
+                                <div class="btn btn-primary full-width">
+                                    Go
+                                </div>
+                            </a>
                         </div>
                     </div>
                     </div>
                     {% endfor %}
                 </div>
             {% endfor %}
-            {%else %}
-                <span class="text-secondary">No Cryovial Boxes found</span>
-            {%endif%}
+
 
         </div>
     </div>

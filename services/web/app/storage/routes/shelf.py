@@ -21,7 +21,7 @@ from ...misc.models import Address
 from ...auth.models import User
 from ..forms import NewCryovialBoxForm, SampleToBoxForm
 
-from ..views import BasicShelfView
+from ..views import ShelfView
 
 from ...misc import chunks
 
@@ -29,38 +29,15 @@ from ...misc import chunks
 @storage.route("/shelves/view/LIMBSHF-<id>")
 @login_required
 def view_shelf(id):
+    shelf = ShelfView(id)
 
-    shelf = BasicShelfView(id)
-
-    print(shelf)
-
-    '''
-    shelf = (
-        db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.id == id)
-        .first_or_404()
-    )
-    samples = (
-        db.session.query(SampleToFixedColdStorageShelf)
-        .filter(SampleToFixedColdStorageShelf.shelf_id == id)
-        .join(FixedColdStorageShelf)
-        .all()
-    )
-
-    cryoboxes = (
-        db.session.query(CryovialBox)
-        .join(CryovialBoxToFixedColdStorageShelf)
-        .filter(CryovialBoxToFixedColdStorageShelf.shelf_id == id)
-        .all()
-    )
-    
+    # Conversion to make it renderable
+    shelf["cryoboxes"] = chunks([x for x in shelf["cryoboxes"].items()], 4)
 
     return render_template(
-        "storage/shelf/view.html", shelf=shelf, samples=samples, cryoboxes=chunks(cryoboxes, 4)
+        "storage/shelf/view.html", shelf=shelf
     )
-    '''
-
-    return "Hello World"
+    
 
 @storage.route("/shelves/add_cryobox/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
 @login_required

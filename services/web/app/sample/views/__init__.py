@@ -1,7 +1,7 @@
 from ..models import Sample, SubSampleToSample
 from ...auth.views import UserView
 from ... import db
-
+from .sample import BasicSampleView, SampleView
 
 def SamplesIndexView():
 
