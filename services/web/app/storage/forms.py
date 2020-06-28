@@ -3,6 +3,7 @@ from wtforms import (
     PasswordField,
     StringField,
     SubmitField,
+    FileField,
     ValidationError,
     SelectField,
     IntegerField,
@@ -40,6 +41,12 @@ def NewCryovialBoxForm():
 
     return StaticForm()
 
+class NewCryovialBoxFileUploadForm(FlaskForm):
+    serial = StringField("Serial Number", validators=[DataRequired()])
+    file = FileField("File", validators=[DataRequired()])
+    submit = SubmitField("Upload File")
+
+    
 
 class SiteRegistrationForm(FlaskForm):
     name = StringField("Site Name", validators=[DataRequired()])

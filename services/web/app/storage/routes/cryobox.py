@@ -13,6 +13,8 @@ from flask_login import current_user, login_required
 from ... import db
 from .. import storage
 
+import csv
+
 from ..models import (
     Site,
     Room,
@@ -24,10 +26,28 @@ from ..models import (
     SampleToFixedColdStorageShelf,
 )
 
-from ..forms import NewCryovialBoxForm, SampleToBoxForm
+from ..forms import NewCryovialBoxForm, SampleToBoxForm, NewCryovialBoxFileUploadForm
 
 from ...auth.models import User
 from ...sample.models import Sample
+
+def file_to_json(form) -> {}:
+    data = {}
+
+    csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in form.file.data.stream]
+
+    # Get Indexes
+    indexes = {
+        "Tube Barcode": csv_data[0].index("Tube Barcode"),
+        "Tube Position": csv_data[0].index("Tube Position")
+    }
+
+    positions = {x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]}
+
+    print(positions)
+
+    return data
+
 
 
 @storage.route("/cryobox")
@@ -40,6 +60,20 @@ def cryobox_index():
     )
     return render_template("storage/cryobox/index.html", boxes=boxes)
 
+
+@storage.route("/cryobox/new", methods=["GET", "POST"])
+@login_required
+def add_cryobox():
+    return render_template("storage/cryobox/new/option.html")
+
+
+@storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
+@login_required
+def cryobox_from_file():
+    form = NewCryovialBoxFileUploadForm()
+    if form.validate_on_submit():
+        return jsonify(file_to_json(form)), 201, {"Content-Type": "application/json"}
+    return render_template("storage/cryobox/new/from_file/step_one.html", form=form)
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
 @login_required

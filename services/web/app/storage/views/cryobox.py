@@ -11,5 +11,4 @@ def BasicCryoboxView(cryo_id: int) -> dict:
         "num_rows": box.num_rows,
         "num_cols": box.num_cols,
         "author_information": UserView(box.author_id)
-
     }

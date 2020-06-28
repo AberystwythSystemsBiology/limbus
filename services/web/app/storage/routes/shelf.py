@@ -31,7 +31,7 @@ from ...misc import chunks
 def view_shelf(id):
     shelf = ShelfView(id)
 
-    # Conversion to make it renderable
+    # Conversion to make it renderable in a nice way.
     shelf["cryoboxes"] = chunks([x for x in shelf["cryoboxes"].items()], 4)
 
     return render_template(
@@ -39,39 +39,9 @@ def view_shelf(id):
     )
     
 
-@storage.route("/shelves/add_cryobox/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
-@login_required
-def add_cryobox(shelf_id):
-    shelf = (
-        db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.id == shelf_id)
-        .first_or_404()
-    )
-    form = NewCryovialBoxForm()
+ #TODO: Associate a CryoBox with a shelf dynamically.
 
-    if form.validate_on_submit():
 
-        cb = CryovialBox(
-            serial=form.serial.data,
-            num_rows=form.num_rows.data,
-            num_cols=form.num_cols.data,
-            author_id=current_user.id,
-        )
-
-        db.session.add(cb)
-        db.session.flush()
-
-        cbfcs = CryovialBoxToFixedColdStorageShelf(
-            box_id=cb.id, shelf_id=shelf_id, author_id=current_user.id
-        )
-
-        db.session.add(cbfcs)
-
-        db.session.commit()
-
-        return redirect(url_for("storage.view_shelf", id=shelf.id))
-
-    return render_template("storage/cryobox/new.html", form=form, shelf=shelf)
 
 
 @storage.route("/shelves/assign_sample/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
