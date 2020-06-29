@@ -39,9 +39,6 @@ def view_shelf(id):
     )
     
 
- #TODO: Associate a CryoBox with a shelf dynamically.
-
-
 
 
 @storage.route("/shelves/assign_sample/LIMBSHF-<shelf_id>", methods=["GET", "POST"])

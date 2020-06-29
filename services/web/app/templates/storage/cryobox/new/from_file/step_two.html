@@ -1,0 +1,53 @@
+{% extends "template.html" %}
+
+{% block title %}Step Two: New Cryovial Box (From File){% endblock %}
+
+{% block body %}
+
+        <div class="container">
+
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> New Cryovial Box (From File)</span><i class="fa fa-upload"></i> Step Two: Validation</h1>
+            
+            <div class="alert alert-warning text-center">
+                <b>Notice:</b> This is currently in early development stages and will 
+                likely break if the following instructions are not followed.</div>
+        
+            
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.crybox_from_file_validation', hash=hash) }}" >
+                
+                {{ form.csrf_token() }}
+                
+                <table class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Sample</th>
+                            <th>Confirm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for field in form %}
+                    {% if field.render_kw["_selectform"] %}
+                        <tr>
+                        {% if field.render_kw["_has_sample"] %}
+                            <td>{{ field.label }}</td>
+                            <td>{{field.render_kw}}</td>
+                            <td>{{field}}</td>
+
+                        {% else %}
+                            <td>{{ field.label }}</td>
+                            <td>None Found</td>
+                            <td>Not Available</td>
+
+                        {% endif %}
+                        </tr>
+
+                    {% endif %}
+                    </tbody>
+
+                {% endfor %}
+                </table>
+                
+            </form>
+        </div>
+{% endblock %}

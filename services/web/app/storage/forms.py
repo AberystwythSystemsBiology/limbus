@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     PasswordField,
     StringField,
+    BooleanField,
     SubmitField,
     FileField,
     ValidationError,
@@ -47,7 +48,6 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     submit = SubmitField("Upload File")
 
     
-
 class SiteRegistrationForm(FlaskForm):
     name = StringField("Site Name", validators=[DataRequired()])
     address_line_one = StringField("Address Line1", validators=[DataRequired()])
@@ -97,7 +97,7 @@ def LongTermColdStorageForm():
 
 def SampleToBoxForm(samples: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        pass
+        submit = SubmitField("Submit Sample")
 
     samples_choices = []
 
@@ -109,9 +109,25 @@ def SampleToBoxForm(samples: list) -> FlaskForm:
     setattr(
         StaticForm,
         "samples",
-        SelectField("Sample", choices=samples_choices, validators=[DataRequired()]),
+        RadioField("Sample", choices=samples_choices, validators=[DataRequired()]),
     )
 
-    setattr(StaticForm, "submit", SubmitField("Submit Sample"))
+    return StaticForm()
+
+import re
+
+def CryoBoxFileUploadSelectForm(sample_data: dict):
+
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit Cryovial Box")
+
+    for position, info in sample_data.items():
+        setattr(
+            StaticForm,
+            position,
+            BooleanField(
+                position, render_kw={"_selectform": True, "_has_sample": info["sample"] != None, "_sample": info["sample"]})
+        )
+
 
     return StaticForm()

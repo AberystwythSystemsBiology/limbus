@@ -13,6 +13,8 @@ from flask_login import current_user, login_required
 from ... import db
 from .. import storage
 
+from ...misc.generators import generate_random_hash
+
 import csv
 
 from ..models import (
@@ -26,12 +28,12 @@ from ..models import (
     SampleToFixedColdStorageShelf,
 )
 
-from ..forms import NewCryovialBoxForm, SampleToBoxForm, NewCryovialBoxFileUploadForm
+from ..forms import NewCryovialBoxForm, SampleToBoxForm, NewCryovialBoxFileUploadForm, CryoBoxFileUploadSelectForm
 
 from ...auth.models import User
 from ...sample.models import Sample
 
-def file_to_json(form) -> {}:
+def file_to_json(form) -> dict:
     data = {}
 
     csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in form.file.data.stream]
@@ -44,7 +46,8 @@ def file_to_json(form) -> {}:
 
     positions = {x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]}
 
-    print(positions)
+    data["positions"] = positions
+    data["serial_number"] = form.serial.data
 
     return data
 
@@ -72,8 +75,29 @@ def add_cryobox():
 def cryobox_from_file():
     form = NewCryovialBoxFileUploadForm()
     if form.validate_on_submit():
-        return jsonify(file_to_json(form)), 201, {"Content-Type": "application/json"}
+        hash = generate_random_hash()
+        session[hash] = file_to_json(form)
+        return redirect(url_for("storage.crybox_from_file_validation", hash=hash))
     return render_template("storage/cryobox/new/from_file/step_one.html", form=form)
+
+@storage.route("/cryobox/new/from_file/validation/<hash>", methods=["GET", "POST"])
+@login_required
+def crybox_from_file_validation(hash: str):
+    session_data = session[hash]
+
+    sample_data = {}
+
+    for position, barcode in session_data["positions"].items():
+        sample_data[position] = {
+            "barcode": barcode,
+            "sample": db.session.query(Sample).filter(Sample.biobank_barcode == barcode).first()
+        }
+
+
+
+    form = CryoBoxFileUploadSelectForm(sample_data)
+    return render_template("storage/cryobox/new/from_file/step_two.html", form=form, hash=hash)
+
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
 @login_required
