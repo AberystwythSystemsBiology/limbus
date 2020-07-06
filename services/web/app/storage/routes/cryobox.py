@@ -15,8 +15,22 @@ from .. import storage
 
 from ...misc.generators import generate_random_hash
 
+from string import ascii_uppercase
+import itertools
 import csv
 import re
+
+def iter_all_strings():
+    for size in itertools.count(1):
+        for s in itertools.product(ascii_uppercase, repeat=size):
+            yield "".join(s)
+
+
+values = []
+for i in iter_all_strings():
+    values.append(i)
+    if i == "ZZZ":
+        break
 
 from ..models import (
     Site,
@@ -49,8 +63,6 @@ def file_to_json(form) -> dict:
 
     positions = {x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]}
 
-    
-
     data["positions"] = positions
     
     # Going to use plain old regex to do the splits
@@ -58,18 +70,14 @@ def file_to_json(form) -> dict:
 
     for position in data["positions"].keys():
         splitted = regex.split(position)
-        indexes["Tube Row"].append(splitted[0])
-        indexes["Tube Column"].append(int(splitted[1]))   
+        indexes["Tube Column"].append(splitted[0])
+        indexes["Tube Row"].append(int(splitted[1]))
 
-
-    data["num_rows"] = len(list(set(indexes["Tube Row"])))
-    data["num_cols"] = max(indexes["Tube Column"])
-
+    data["num_cols"] = len(list(set(indexes["Tube Column"])))
+    data["num_rows"] = max(indexes["Tube Row"])
     data["serial_number"] = form.serial.data
 
     return data
-
-
 
 @storage.route("/cryobox")
 @login_required
@@ -86,7 +94,6 @@ def cryobox_index():
 @login_required
 def add_cryobox():
     return render_template("storage/cryobox/new/option.html")
-
 
 @storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
 @login_required
@@ -127,13 +134,25 @@ def crybox_from_file_validation(hash: str):
         db.session.flush()
 
         for ele in form:
-            if ele.render_kw["_selectform"]:
+            if ele.type == "BooleanField":
                 if ele.data:
+                    regex = re.compile(r'(\d+|\s+)')
+                    col, row, _ = regex.split(ele.id)
+
                     stc = SampleToCryovialBox(
-                        
+                        box_id = cry.id,
+                        sample_id = ele.render_kw["_sample"].id,
+                        author_id = current_user.id,
+                        col = values.index(col),
+                        row = int(row)
                     )
 
-        return "Hello World"
+                    db.session.add(stc)
+                    db.session.flush()
+
+        db.session.commit()
+
+        return redirect(url_for("storage.cryobox_index"))
     return render_template("storage/cryobox/new/from_file/step_two.html", form=form, hash=hash, session_data=session_data)
 
 
@@ -144,7 +163,6 @@ def view_cryobox(cryo_id):
         db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
     )
     return render_template("storage/cryobox/view.html", cryo=cryo)
-
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>/data")
 @login_required
@@ -214,6 +232,8 @@ def add_cryobox_sample(cryo_id, row, col):
             row=row,
             author_id=current_user.id,
         )
+
+
 
         db.session.add(scb)
         db.session.commit()
