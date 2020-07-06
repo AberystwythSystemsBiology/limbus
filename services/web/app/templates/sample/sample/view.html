@@ -39,7 +39,7 @@
       {{ show_value(sample.sample_type_info.storage_type, "Storage Type", "text") }}
 
       {% for term, value in sample.custom_attribute_data.items() %}
-      {{ show_value(value, term, "text") }}
+        {{ show_value(value, term, "text") }}
       {% endfor %}
     </div>
     <div class="col-sm-3">

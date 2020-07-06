@@ -16,6 +16,7 @@ from .. import storage
 from ...misc.generators import generate_random_hash
 
 import csv
+import re
 
 from ..models import (
     Site,
@@ -41,12 +42,29 @@ def file_to_json(form) -> dict:
     # Get Indexes
     indexes = {
         "Tube Barcode": csv_data[0].index("Tube Barcode"),
-        "Tube Position": csv_data[0].index("Tube Position")
+        "Tube Position": csv_data[0].index("Tube Position"),
+        "Tube Row": [],
+        "Tube Column": []
     }
 
     positions = {x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]}
 
+    
+
     data["positions"] = positions
+    
+    # Going to use plain old regex to do the splits
+    regex = re.compile(r'(\d+|\s+)')
+
+    for position in data["positions"].keys():
+        splitted = regex.split(position)
+        indexes["Tube Row"].append(splitted[0])
+        indexes["Tube Column"].append(int(splitted[1]))   
+
+
+    data["num_rows"] = len(list(set(indexes["Tube Row"])))
+    data["num_cols"] = max(indexes["Tube Column"])
+
     data["serial_number"] = form.serial.data
 
     return data
@@ -93,10 +111,14 @@ def crybox_from_file_validation(hash: str):
             "sample": db.session.query(Sample).filter(Sample.biobank_barcode == barcode).first()
         }
 
-
-
     form = CryoBoxFileUploadSelectForm(sample_data)
-    return render_template("storage/cryobox/new/from_file/step_two.html", form=form, hash=hash)
+
+    if form.validate_on_submit():
+        
+        #pass
+
+        return "Hello World"
+    return render_template("storage/cryobox/new/from_file/step_two.html", form=form, hash=hash, session_data=session_data)
 
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")

@@ -12,7 +12,13 @@
                 <b>Notice:</b> This is currently in early development stages and will 
                 likely break if the following instructions are not followed.</div>
         
-            
+            <div class="row">
+                {{ show_value(session_data["serial_number"], "Serial Number", "text")  }}
+
+                {{ show_value(session_data["num_rows"], "Number ofRows", "text")  }}
+                {{ show_value(session_data["num_cols"], "Number of Columns", "text")  }}
+            </div>
+
             <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.crybox_from_file_validation', hash=hash) }}" >
                 
                 {{ form.csrf_token() }}
@@ -22,32 +28,33 @@
                         <tr>
                             <th>Position</th>
                             <th>Sample</th>
+                            <th>Sample Barcode</th>
                             <th>Confirm</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for field in form %}
-                    {% if field.render_kw["_selectform"] %}
+                        
+                    {% if field.render_kw["_selectform"]%}
                         <tr>
-                        {% if field.render_kw["_has_sample"] %}
-                            <td>{{ field.label }}</td>
-                            <td>{{field.render_kw}}</td>
-                            <td>{{field}}</td>
-
-                        {% else %}
-                            <td>{{ field.label }}</td>
-                            <td>None Found</td>
-                            <td>Not Available</td>
-
-                        {% endif %}
+                            <th scope="1">{{ field.label }}</td>
+                            {% if field.render_kw["_has_sample"] %}
+                                <td><i class="fas fa-vial"></i> LIMBSMP-{{field.render_kw["_sample"].id}}</td>
+                                <td>{{field.render_kw["_sample"].biobank_barcode}}</td>
+                                <td>{{field}}</td>
+                            {% else %}
+                                <td>Not Found</td>
+                                <td>Not Found</td>
+                                <td>Not Available</td>
+                            {%endif%}
                         </tr>
-
                     {% endif %}
-                    </tbody>
-
                 {% endfor %}
-                </table>
+            </tbody>
+            </table>
                 
+            {{ form_field(form.submit) }}
+
             </form>
         </div>
 {% endblock %}
