@@ -115,7 +115,23 @@ def crybox_from_file_validation(hash: str):
 
     if form.validate_on_submit():
         
-        #pass
+        cry = CryovialBox(
+            serial = session_data["serial_number"],
+            num_rows = session_data["num_rows"],
+            num_cols = session_data["num_cols"],
+            author_id = current_user.id
+
+        )
+
+        db.session.add(cry)
+        db.session.flush()
+
+        for ele in form:
+            if ele.render_kw["_selectform"]:
+                if ele.data:
+                    stc = SampleToCryovialBox(
+                        
+                    )
 
         return "Hello World"
     return render_template("storage/cryobox/new/from_file/step_two.html", form=form, hash=hash, session_data=session_data)
