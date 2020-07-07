@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}Cryovial Boxes{% endblock %}
+
+{% block body %}
+
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="storage container">
+
+            <h1><i class="fa fa-cube"></i> Cryovial Boxes</h1>
+
+
+
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}
