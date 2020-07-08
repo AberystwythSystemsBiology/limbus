@@ -35,6 +35,41 @@ from ..views import ShelfView, BasicCryoboxView
 from ...misc import chunks
 
 
+def move_cryovial_to_shelf(box_id: int, shelf_id: int) -> None:
+    # I may turn this into a single table, but for now it'll suffice to be broken up into two tables.
+    # :) :)
+    r = db.session.query(CryovialBoxToFixedColdStorageShelf).filter(CryovialBoxToFixedColdStorageShelf.box_id == box_id).first()
+
+    if r != None:
+        r.shelf_id = shelf_id
+        r.author_id = current_user.id
+    else:
+        new = CryovialBoxToFixedColdStorageShelf(
+            box_id = box_id,
+            shelf_id = shelf_id,
+            author_id = current_user.id
+        )
+        db.session.add(new)
+    db.session.commit()
+
+
+def move_sample_to_shelf(sample_id, shelf_id) -> None:
+    r = db.session.query(SampleToFixedColdStorageShelf).filter(SampleToFixedColdStorageShelf.shelf_id == sample_id).first()
+
+    if r != None:
+        r.shelf_id = shelf_id
+        r.author_id = current_user.id
+
+    else:
+        new = SampleToFixedColdStorageShelf(
+            shelf_id = shelf_id,
+            sample_id = sample_id,
+            author_id = current_user.id
+        )
+
+        db.session.add(new)
+    db.session.commit()
+
 @storage.route("/shelves/view/LIMBSHF-<id>")
 @login_required
 def view_shelf(id):

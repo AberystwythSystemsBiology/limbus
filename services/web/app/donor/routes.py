@@ -76,7 +76,7 @@ def edit(donor_id):
         donor_obj.race = form.race.data
         donor_obj.status = form.status.data
         donor_obj.updater_id = current_user.id
-        donor_obj.death_date = form.death_date.data
+        donor_obj.death_date = death_date
 
         db.session.commit()
         flash("Donor information successfully edited!")
