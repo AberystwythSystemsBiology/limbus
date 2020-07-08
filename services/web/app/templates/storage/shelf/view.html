@@ -58,7 +58,7 @@
 
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h2><i class="fa fa-cube"></i> Cryovial Boxes</h2>
-                <a href="{{ url_for('storage.add_cryobox', shelf_id=shelf.id) }}">
+                <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}">
                     <button class="btn btn-primary"">
                         <i class="fa fa-plus"></i>
                         Add Cryovial Box

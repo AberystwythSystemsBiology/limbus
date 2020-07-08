@@ -42,15 +42,11 @@ def view_shelf(id):
 @storage.route("/shelves/LIMBSHF-<shelf_id>/assign_box", methods=["GET", "POST"])
 @login_required
 def assign_box_to_shelf(shelf_id):
-    shelf = (
-        db.session.query(FixedColdStorageShelf)
-            .filter(FixedColdStorageShelf.id == shelf_id)
-            .first_or_404()
-    )
+    shelf = ShelfView(shelf_id)
 
     pass
 
-    return render_template("/storage/shelf/box_to_shelf.html", form=None)
+    return render_template("/storage/shelf/box_to_shelf.html", shelf=shelf, form=None)
 
 @storage.route("/shelves/LIMBSHF-<shelf_id>/assign_sample", methods=["GET", "POST"])
 @login_required
