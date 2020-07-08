@@ -89,16 +89,9 @@ def assign_box_to_shelf(shelf_id):
     form = BoxToShelfForm(db.session.query(CryovialBox).all())
 
     if form.validate_on_submit():
-        cbtfcss = CryovialBoxToFixedColdStorageShelf(
-            shelf_id=shelf_id, box_id=form.boxes.data, author_id=current_user.id
-        )
-
-        db.session.add(cbtfcss)
-        db.session.commit()
-
+        move_cryovial_to_shelf(form.boxes.data, shelf_id)
         flash("LIMBCRB-%i successfully moved!" % (form.boxes.data))
-
-        return redirect(url_for("storage.view_shelf", id=shelf_Cid))
+        return redirect(url_for("storage.view_shelf", id=shelf_id))
 
     return render_template("/storage/shelf/box_to_shelf.html", shelf=shelf, form=form)
 
