@@ -43,12 +43,13 @@ def NewCryovialBoxForm():
 
     return StaticForm()
 
+
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
     file = FileField("File", validators=[DataRequired()])
     submit = SubmitField("Upload File")
 
-    
+
 class SiteRegistrationForm(FlaskForm):
     name = StringField("Site Name", validators=[DataRequired()])
     address_line_one = StringField("Address Line1", validators=[DataRequired()])
@@ -71,24 +72,24 @@ def LongTermColdStorageForm():
     class StaticForm(FlaskForm):
         serial_number = StringField(
             "Serial Number",
-            description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number."
-            )
+            description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
+        )
         manufacturer = StringField(
             "Manufacturer",
             validators=[DataRequired()],
-            description="The storage facility manufacturer."
-            )
+            description="The storage facility manufacturer.",
+        )
         temperature = SelectField(
             "Temperature",
             choices=FixedColdStorageTemps.choices(),
             validators=[DataRequired()],
-            description="The temperature of the inside of the storage facility."
+            description="The temperature of the inside of the storage facility.",
         )
         type = SelectField(
             "Storage Type",
             choices=FixedColdStorageType.choices(),
             validators=[DataRequired()],
-            description="A facility that provides storage for any type of biospecimen and/or biospecimen container."
+            description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
         )
 
     setattr(StaticForm, "submit", SubmitField("Register"))
@@ -115,6 +116,7 @@ def SampleToBoxForm(samples: list) -> FlaskForm:
 
     return StaticForm()
 
+
 def BoxToShelfForm(boxes: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
@@ -125,15 +127,13 @@ def BoxToShelfForm(boxes: list) -> FlaskForm:
         choices.append([box.id, "LIMCRB-%s (Serial: %s)" % (box.id, box.serial)])
 
     setattr(
-        StaticForm,
-        "boxes",
-        SelectField("Cryovial Box", choices=choices, coerce=int)
+        StaticForm, "boxes", SelectField("Cryovial Box", choices=choices, coerce=int)
     )
 
     return StaticForm()
 
-def CryoBoxFileUploadSelectForm(sample_data: dict):
 
+def CryoBoxFileUploadSelectForm(sample_data: dict):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit Cryovial Box")
 
@@ -142,8 +142,13 @@ def CryoBoxFileUploadSelectForm(sample_data: dict):
             StaticForm,
             position,
             BooleanField(
-                position, render_kw={"_selectform": True, "_has_sample": info["sample"] != None, "_sample": info["sample"]})
+                position,
+                render_kw={
+                    "_selectform": True,
+                    "_has_sample": info["sample"] != None,
+                    "_sample": info["sample"],
+                },
+            ),
         )
-
 
     return StaticForm()

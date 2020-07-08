@@ -15,9 +15,11 @@ def clear_session(hash: str) -> None:
         if k.startswith(hash):
             del session[k]
 
+
 def chunks(it, n):
     it = iter(it)
     return [x for x in iter(lambda: tuple(islice(it, n)), ())]
+
 
 @misc.route("/")
 def index() -> str:

@@ -17,6 +17,7 @@ def index():
     donors = DonorIndexView()
     return render_template("donor/index.html", donors=donors)
 
+
 @login_required
 @donor.route("/add", methods=["GET", "POST"])
 def add():
@@ -29,30 +30,31 @@ def add():
 
         donor = Donors(
             uuid=uuid.uuid4(),
-            age = form.age.data,
-            sex = form.sex.data,
-            status = form.status.data,
-            race = form.race.data,
-            death_date = death_date,
-            weight = form.weight.data,
-            height = form.height.data,
-            author_id = current_user.id
+            age=form.age.data,
+            sex=form.sex.data,
+            status=form.status.data,
+            race=form.race.data,
+            death_date=death_date,
+            weight=form.weight.data,
+            height=form.height.data,
+            author_id=current_user.id,
         )
 
         db.session.add(donor)
         db.session.commit()
-        
+
         flash("Donor information successfully added!")
         return redirect(url_for("donor.index"))
 
-        
     return render_template("donor/add.html", form=form)
+
 
 @login_required
 @donor.route("/view/LIMBDON-<donor_id>")
 def view(donor_id):
     donor = DonorView(donor_id)
     return render_template("donor/view.html", donor=donor)
+
 
 @login_required
 @donor.route("/edit/LIMBDON-<donor_id>", methods=["GET", "POST"])
@@ -63,7 +65,7 @@ def edit(donor_id):
     if form.validate_on_submit():
 
         death_date = None
-        
+
         if form.status.data == "DE":
             death_date = form.death_date.data
 
@@ -78,6 +80,6 @@ def edit(donor_id):
 
         db.session.commit()
         flash("Donor information successfully edited!")
-        return redirect(url_for("donor.view",donor_id=donor_id))
+        return redirect(url_for("donor.view", donor_id=donor_id))
 
     return render_template("donor/edit.html", form=form, donor_id=donor_id)

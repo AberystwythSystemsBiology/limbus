@@ -1,5 +1,6 @@
 from app import db
 
+
 class DiagnosticProcedureClass(db.Model):
     __versioned__ = {}
     __tablename__ = "diagnostic_procedure_classes"
@@ -10,7 +11,6 @@ class DiagnosticProcedureClass(db.Model):
     version = db.Column(db.String)
     description = db.Column(db.String)
 
-    
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
@@ -21,6 +21,7 @@ class DiagnosticProcedureClass(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
+
 
 class DiagnosticProcedureVolume(db.Model):
     __versioned__ = {}
@@ -43,6 +44,7 @@ class DiagnosticProcedureVolume(db.Model):
         server_onupdate=db.func.now(),
         nullable=False,
     )
+
 
 class DiagnosticProcedureSubheading(db.Model):
     __versioned__ = {}
@@ -69,6 +71,7 @@ class DiagnosticProcedureSubheading(db.Model):
         nullable=False,
     )
 
+
 class DiagnosticProcedure(db.Model):
     __versioned__ = {}
     __tablename__ = "diagnostic_procedures"
@@ -81,7 +84,9 @@ class DiagnosticProcedure(db.Model):
     # Website linking to page?
     reference = db.Column(db.String(256))
 
-    subheading_id = db.Column(db.Integer, db.ForeignKey("diagnostic_procedure_subheadings.id"))
+    subheading_id = db.Column(
+        db.Integer, db.ForeignKey("diagnostic_procedure_subheadings.id")
+    )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))

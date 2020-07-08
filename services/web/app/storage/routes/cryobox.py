@@ -20,6 +20,7 @@ import itertools
 import csv
 import re
 
+
 def iter_all_strings():
     for size in itertools.count(1):
         for s in itertools.product(ascii_uppercase, repeat=size):
@@ -45,30 +46,40 @@ from ..models import (
     SampleToFixedColdStorageShelf,
 )
 
-from ..forms import NewCryovialBoxForm, SampleToBoxForm, NewCryovialBoxFileUploadForm, CryoBoxFileUploadSelectForm
+from ..forms import (
+    NewCryovialBoxForm,
+    SampleToBoxForm,
+    NewCryovialBoxFileUploadForm,
+    CryoBoxFileUploadSelectForm,
+)
 
 from ...auth.models import User
 from ...sample.models import Sample
 
+
 def file_to_json(form) -> dict:
     data = {}
 
-    csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in form.file.data.stream]
+    csv_data = [
+        x.decode("UTF-8").replace("\n", "").split(",") for x in form.file.data.stream
+    ]
 
     # Get Indexes
     indexes = {
         "Tube Barcode": csv_data[0].index("Tube Barcode"),
         "Tube Position": csv_data[0].index("Tube Position"),
         "Tube Row": [],
-        "Tube Column": []
+        "Tube Column": [],
     }
 
-    positions = {x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]}
+    positions = {
+        x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]
+    }
 
     data["positions"] = positions
-    
+
     # Going to use plain old regex to do the splits
-    regex = re.compile(r'(\d+|\s+)')
+    regex = re.compile(r"(\d+|\s+)")
 
     for position in data["positions"].keys():
         splitted = regex.split(position)
@@ -80,6 +91,7 @@ def file_to_json(form) -> dict:
     data["serial_number"] = form.serial.data
 
     return data
+
 
 @storage.route("/cryobox")
 @login_required
@@ -93,6 +105,7 @@ def cryobox_index():
 def add_cryobox():
     return render_template("storage/cryobox/new/option.html")
 
+
 @storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
 @login_required
 def cryobox_from_file():
@@ -102,6 +115,7 @@ def cryobox_from_file():
         session[hash] = file_to_json(form)
         return redirect(url_for("storage.crybox_from_file_validation", hash=hash))
     return render_template("storage/cryobox/new/from_file/step_one.html", form=form)
+
 
 @storage.route("/cryobox/new/from_file/validation/<hash>", methods=["GET", "POST"])
 @login_required
@@ -113,19 +127,20 @@ def crybox_from_file_validation(hash: str):
     for position, barcode in session_data["positions"].items():
         sample_data[position] = {
             "barcode": barcode,
-            "sample": db.session.query(Sample).filter(Sample.biobank_barcode == barcode).first()
+            "sample": db.session.query(Sample)
+            .filter(Sample.biobank_barcode == barcode)
+            .first(),
         }
 
     form = CryoBoxFileUploadSelectForm(sample_data)
 
     if form.validate_on_submit():
-        
-        cry = CryovialBox(
-            serial = session_data["serial_number"],
-            num_rows = session_data["num_rows"],
-            num_cols = session_data["num_cols"],
-            author_id = current_user.id
 
+        cry = CryovialBox(
+            serial=session_data["serial_number"],
+            num_rows=session_data["num_rows"],
+            num_cols=session_data["num_cols"],
+            author_id=current_user.id,
         )
 
         db.session.add(cry)
@@ -134,15 +149,15 @@ def crybox_from_file_validation(hash: str):
         for ele in form:
             if ele.type == "BooleanField":
                 if ele.data:
-                    regex = re.compile(r'(\d+|\s+)')
+                    regex = re.compile(r"(\d+|\s+)")
                     col, row, _ = regex.split(ele.id)
 
                     stc = SampleToCryovialBox(
-                        box_id = cry.id,
-                        sample_id = ele.render_kw["_sample"].id,
-                        author_id = current_user.id,
-                        col = values.index(col),
-                        row = int(row)
+                        box_id=cry.id,
+                        sample_id=ele.render_kw["_sample"].id,
+                        author_id=current_user.id,
+                        col=values.index(col),
+                        row=int(row),
                     )
 
                     db.session.add(stc)
@@ -151,7 +166,12 @@ def crybox_from_file_validation(hash: str):
         db.session.commit()
 
         return redirect(url_for("storage.cryobox_index"))
-    return render_template("storage/cryobox/new/from_file/step_two.html", form=form, hash=hash, session_data=session_data)
+    return render_template(
+        "storage/cryobox/new/from_file/step_two.html",
+        form=form,
+        hash=hash,
+        session_data=session_data,
+    )
 
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
@@ -161,6 +181,7 @@ def view_cryobox(cryo_id):
         db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
     )
     return render_template("storage/cryobox/view.html", cryo=cryo)
+
 
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>/data")
 @login_required
@@ -182,7 +203,9 @@ def view_cryobox_api(cryo_id):
         data["%i_%i" % (position.row, position.col)] = {
             "id": sample.id,
             "url": url_for("sample.view", sample_id=sample.id, _external=True),
-            "barcode": url_for("sample.get_barcode", sample_id=sample.id, attr="uuid", _external=True)
+            "barcode": url_for(
+                "sample.get_barcode", sample_id=sample.id, attr="uuid", _external=True
+            ),
         }
 
     return jsonify(data), 201, {"Content-Type": "application/json"}
@@ -230,8 +253,6 @@ def add_cryobox_sample(cryo_id, row, col):
             row=row,
             author_id=current_user.id,
         )
-
-
 
         db.session.add(scb)
         db.session.commit()

@@ -8,6 +8,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired
 
+
 class DiagnosticProcedureCreationForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     version = DecimalField("Version")

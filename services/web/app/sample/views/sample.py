@@ -184,7 +184,11 @@ def SampleView(sample_id: int) -> dict:
         return data
 
     sample = db.session.query(Sample).filter(Sample.id == sample_id).first_or_404()
-    sample_disposal = db.session.query(SampleDisposalInformation).filter(SampleDisposalInformation.sample_id == sample_id).first_or_404()
+    sample_disposal = (
+        db.session.query(SampleDisposalInformation)
+        .filter(SampleDisposalInformation.sample_id == sample_id)
+        .first_or_404()
+    )
 
     data = {
         "id": sample.id,

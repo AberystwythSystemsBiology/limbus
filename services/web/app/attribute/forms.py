@@ -85,7 +85,7 @@ class CustomNumericAttributionCreationForm(FlaskForm):
 
 
 def CustomAttributeSelectForm(
-    element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL
+    element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL,
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")

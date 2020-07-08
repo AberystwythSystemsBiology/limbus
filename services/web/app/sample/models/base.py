@@ -29,6 +29,7 @@ class Sample(db.Model):
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
+
 class SampleDisposalInformation(db.Model):
     __tablename__ = "sample_disposal_instruction"
     id = db.Column(db.Integer, primary_key=True)
@@ -47,6 +48,7 @@ class SampleDisposalInformation(db.Model):
     )
 
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 class SampleToDonor(db.Model):
     __tablename__ = "sample_to_donors"

@@ -1,5 +1,6 @@
 from ..FormEnum import FormEnum
 
+
 class RaceTypes(FormEnum):
     A = "White"
     A1 = "Welsh/Englush/Scottish/Northern Irish/British"
@@ -26,9 +27,11 @@ class RaceTypes(FormEnum):
     E2 = "Any Other Ethnic Group"
     UNK = "Unknown"
 
+
 class BiologicalSexTypes(FormEnum):
     M = "Male"
     F = "Female"
+
 
 class DonorStatusTypes(FormEnum):
     AL = "Alive"
