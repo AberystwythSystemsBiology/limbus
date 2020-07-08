@@ -32,6 +32,8 @@ for i in iter_all_strings():
     if i == "ZZZ":
         break
 
+from ..views import CryoboxIndexView
+
 from ..models import (
     Site,
     Room,
@@ -82,11 +84,7 @@ def file_to_json(form) -> dict:
 @storage.route("/cryobox")
 @login_required
 def cryobox_index():
-    boxes = (
-        db.session.query(CryovialBox, User)
-        .filter(CryovialBox.author_id == User.id)
-        .all()
-    )
+    boxes = CryoboxIndexView()
     return render_template("storage/cryobox/index.html", boxes=boxes)
 
 

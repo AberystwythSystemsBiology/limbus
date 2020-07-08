@@ -15,8 +15,32 @@
 
             <h1><i class="fa fa-cube"></i> Cryovial Boxes</h1>
 
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Box</th>
+                    <th scope="col">Serial Number</th>
+                    <th scope="col">Rows</th>
+                    <th scope="col">Columns</th>
+                    <th scope="col">Author</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for id, box in boxes.items() %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('storage.view_cryobox', cryo_id=id) }}">
+                        <i class="fa fa-cube"></i> LIMBCRB-{{ id }}</a>
+                    </td>
+                    <td>{{ box.serial }}</td>
+                    <td>{{ box.num_rows }}</td>
+                    <td>{{ box.num_cols }}</td>
+                    <td>{{ box.author_information.email }}</td>
+                </tr>
+                {% endfor %}
 
-
+                </tbody>
+            </table>
 
         </div>
     </div>
