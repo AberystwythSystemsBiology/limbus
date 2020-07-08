@@ -3,6 +3,7 @@ from wtforms import (
     PasswordField,
     StringField,
     BooleanField,
+    RadioField,
     SubmitField,
     FileField,
     ValidationError,
@@ -109,12 +110,27 @@ def SampleToBoxForm(samples: list) -> FlaskForm:
     setattr(
         StaticForm,
         "samples",
-        RadioField("Sample", choices=samples_choices, validators=[DataRequired()]),
+        SelectField("Sample", choices=samples_choices, validators=[DataRequired()]),
     )
 
     return StaticForm()
 
-import re
+def BoxToShelfForm(boxes: list) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    choices = []
+
+    for box in boxes:
+        choices.append([box.id, "LIMCRB-%s (Serial: %s)" % (box.id, box.serial)])
+
+    setattr(
+        StaticForm,
+        "boxes",
+        SelectField("Cryovial Box", choices=choices, coerce=int)
+    )
+
+    return StaticForm()
 
 def CryoBoxFileUploadSelectForm(sample_data: dict):
 

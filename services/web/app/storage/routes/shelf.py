@@ -1,4 +1,4 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
+from flask import redirect, abort, render_template, url_for, session, request, jsonify, flash
 from flask_login import current_user, login_required
 
 from ... import db
@@ -19,9 +19,9 @@ from ...sample.models import Sample
 
 from ...misc.models import Address
 from ...auth.models import User
-from ..forms import NewCryovialBoxForm, SampleToBoxForm
+from ..forms import NewCryovialBoxForm, SampleToBoxForm, BoxToShelfForm
 
-from ..views import ShelfView
+from ..views import ShelfView, BasicCryoboxView
 
 from ...misc import chunks
 
@@ -44,9 +44,25 @@ def view_shelf(id):
 def assign_box_to_shelf(shelf_id):
     shelf = ShelfView(shelf_id)
 
-    pass
+    form = BoxToShelfForm(db.session.query(CryovialBox).all())
 
-    return render_template("/storage/shelf/box_to_shelf.html", shelf=shelf, form=None)
+    if form.validate_on_submit():
+        cbtfcss = CryovialBoxToFixedColdStorageShelf(
+            shelf_id = shelf_id,
+            box_id = form.boxes.data,
+            author_id = current_user.id
+        )
+
+        db.session.add(cbtfcss)
+        db.session.commit()
+
+        flash("LIMBCRB-%i successfully moved!" % (form.boxes.data))
+
+
+        return redirect(url_for("storage.view_shelf", id=shelf_id))
+
+
+    return render_template("/storage/shelf/box_to_shelf.html", shelf=shelf, form=form)
 
 @storage.route("/shelves/LIMBSHF-<shelf_id>/assign_sample", methods=["GET", "POST"])
 @login_required

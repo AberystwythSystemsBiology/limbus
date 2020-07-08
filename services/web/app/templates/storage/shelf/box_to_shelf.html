@@ -5,7 +5,7 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}//{% endblock %}
+{% block title %}LIMSHF-{{ shelf.id }}: Cryovial Box to Shelf{% endblock %}
 
 {% block body %}
 
@@ -15,8 +15,11 @@
             <h1><span class="secondary-heading"><i class="fa fa-temperature-low"></i> LIMSHF-{{ shelf.id }}</span>Cryovial Box to Shelf</h1>
 
             <p>Something here.</p>
-            <form>
-                
+            <form method="POST" action="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id ) }}">
+                {{ form.csrf_token }}
+                {{ form_field(form.boxes) }}
+                {{ form_field(form.submit) }}
+
             </form>
         </div>
     </div>
