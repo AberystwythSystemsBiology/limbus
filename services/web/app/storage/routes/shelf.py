@@ -26,8 +26,6 @@ from ..models import (
 )
 from ...sample.models import Sample
 
-from ...misc.models import Address
-from ...auth.models import User
 from ..forms import NewCryovialBoxForm, SampleToBoxForm, BoxToShelfForm
 
 from ..views import ShelfView, BasicCryoboxView

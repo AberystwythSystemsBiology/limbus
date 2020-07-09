@@ -13,6 +13,8 @@ class SampleToCryovialBox(db.Model):
     col = db.Column(db.Integer)
     row = db.Column(db.Integer)
 
+    removed = db.Column(db.Boolean)
+
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
     update_date = db.Column(
@@ -36,6 +38,8 @@ class CryovialBoxToFixedColdStorageShelf(db.Model):
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
+    removed = db.Column(db.Boolean)
+
     update_date = db.Column(
         db.DateTime,
         server_default=db.func.now(),
@@ -53,6 +57,8 @@ class CryovialBox(db.Model):
     serial = db.Column(db.String)
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+
+    removed = db.Column(db.Boolean)
 
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
