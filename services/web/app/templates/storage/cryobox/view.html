@@ -51,9 +51,11 @@
                                 </div>
                             {% else %}
                                 {% set anot = namespace(value="%i_%i" % (_row.value, _col.value)) %}
-                                <div class="col" id="anot">
-                                    <div class="square">
-                                        <div class="align-middle tube">
+                                <div class="col" id="{{ anot.value }}">
+                                    <a href="{{ url_for("storage.add_cryobox_sample", cryo_id=cryo.info.id, row=_row.value, col=_col.value) }}">
+
+                                    <div class="square {% if anot.value in cryo.sample_information %}present{% endif %}">
+                                        <div class="tube align-middle">
                                         {% set verbose_tube_count.value = verbose_tube_count.value + 1 %}
                                             {% if anot.value in cryo.sample_information %}
                                                 <div class="present-tube">
@@ -69,7 +71,7 @@
 
                                         </div>
                                     </div>
-
+                                    </a>
                                 </div>
                             {% endif %}
                         {% endfor %}
@@ -83,6 +85,7 @@
                     <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
             <tr>
+                <th>Position</th>
                 <th>Identifier</th>
                 <th>Sample Status</th>
                 <th>Collection Date</th>
@@ -92,6 +95,11 @@
             <tbody>
             {% for _, sample in cryo.sample_information.items() %}
                 <tr>
+                    <td>
+                        <div class="btn btn-sm btn-primary">
+                            View
+                        </div>
+                    </td>
                     <td>
                         <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
                             <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
