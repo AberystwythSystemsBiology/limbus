@@ -1,4 +1,4 @@
-<img src="services/web/app/static/images/logos/limbus_logo_250px.png" style="margin: 0 auto 0;" width="200px">
+<img src="banner.png" width="100%">
 
 <p align="center">
 
