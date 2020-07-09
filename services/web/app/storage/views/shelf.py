@@ -27,18 +27,17 @@ def ShelfView(shelf_id: int) -> dict:
     data = BasicShelfView(shelf_id)
 
     boxes = (
-        db.session.query(CryovialBox)
-        .join(CryovialBoxToFixedColdStorageShelf)
+        db.session.query(CryovialBoxToFixedColdStorageShelf)
         .filter(CryovialBoxToFixedColdStorageShelf.shelf_id == shelf_id)
         .all()
     )
+
     samples = (
         db.session.query(SampleToFixedColdStorageShelf)
         .filter(SampleToFixedColdStorageShelf.shelf_id == shelf_id)
-        .join(FixedColdStorageShelf)
         .all()
     )
-    data["samples"] = {x.id: BasicSampleView(x.id) for x in samples}
-    data["cryoboxes"] = {x.id: BasicCryoboxView(x.id) for x in boxes}
+    data["samples"] = {x.id: BasicSampleView(x.sample_id) for x in samples}
+    data["cryoboxes"] = {x.id: BasicCryoboxView(x.box_id) for x in boxes}
 
     return data
