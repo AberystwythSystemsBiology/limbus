@@ -1,14 +1,13 @@
 <img src="services/web/app/static/images/logos/limbus_logo_250px.png" style="margin: 0 auto 0;" width="200px">
 
-<div style="text-align: center; margin:0 auto 0">
-<h1>LImBus, the LIbre Biobank System</h1>
+<p align="center">
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/AberystwythSystemsBiology/LImBuS)
 ![GitHub issues](https://img.shields.io/github/issues/AberystwythSystemsBiology/LImBuS)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AberystwythSystemsBiology/LImBuS)
 ![Docker Image CI (testing)](https://github.com/AberystwythSystemsBiology/LImBuS/workflows/Docker%20Image%20CI%20(testing)/badge.svg)
 
-</div>
+</p>
 
 The goal of this project is to develop a Biobank Information Management System (BIMS) for the management of biospecimens and associated data that are accepted, processed, distributed, and tracked by the biorepository at Hywel Dda University Health Board's Clinical Research Centre (CRC).
 
