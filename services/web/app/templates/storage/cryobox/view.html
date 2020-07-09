@@ -8,8 +8,10 @@
 {% block title %}LIMCRB-{{ cryo.info.id }} : Cryovial Box{% endblock %}
 
 {% set count = namespace(value=0) %}
-{% set tube_count = namespace(value=0) %}
+{% set verbose_tube_count = namespace(value=0) %}
 
+{% set _row = namespace(value=0) %}
+{% set _col = namespace(value=0) %}
 
 {% block body %}
 
@@ -20,8 +22,8 @@
             <h1><span class="secondary-heading">Cryovial Box Container</span>
                 <i class="fa fa-cube"></i> LIMBCRB-{{ cryo.info.id }}</h1>
 
-            Serial Number
-            Location
+              {{ show_value(cryo.info.serial, "Serial Number", "text")  }}
+
 
             <div class="row">
                 <div class="col-sm-5 box">
@@ -46,25 +48,64 @@
                                         {{ count.value }}
                                     </div>
                                 </div>
-
                                 </div>
                             {% else %}
-                                <div class="col" >
+                                {% set anot = namespace(value="%i_%i" % (_row.value, _col.value)) %}
+                                <div class="col" id="anot">
                                     <div class="square">
                                         <div class="align-middle tube">
-                                        {% set tube_count.value = tube_count.value + 1%}
-                                         {{ tube_count.value }}
+                                        {% set verbose_tube_count.value = verbose_tube_count.value + 1 %}
+                                            {% if anot.value in cryo.sample_information %}
+                                                <div class="present-tube">
+                                                    {{ verbose_tube_count.value }}
+                                                </div>
+                                            {% else %}
+                                                <div class="empty-tube">
+                                                    {{ verbose_tube_count.value }}
+                                                </div>
+                                            {% endif %}
+
+                                            {% set _col.value = _col.value + 1%}
+
                                         </div>
                                     </div>
 
                                 </div>
                             {% endif %}
                         {% endfor %}
+                        {% set _row.value = _row.value + 1 %}
                         </div>
+                        {% set _col.value = 0 %}
+
                     {% endfor %}
                 </div>
                 <div class="col-7">
-                    <p>Stuff here</p>
+                    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Sample Status</th>
+                <th>Collection Date</th>
+                <th>Sample Creator</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for _, sample in cryo.sample_information.items() %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
+                            <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
+                        </a>
+                    </td>
+                    <td>{{ sample["sample_status"] }}</td>
+                    <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {{ sample.author_information.email }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
                 </div>
             </div>
         </div>
@@ -72,6 +113,5 @@
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/cryobox/view.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}
