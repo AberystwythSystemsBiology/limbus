@@ -15,8 +15,6 @@ from .. import storage
 
 from ...misc.generators import generate_random_hash
 
-from string import ascii_uppercase
-
 from ..views import CryoboxIndexView
 
 from ..models import (
@@ -36,9 +34,10 @@ from ..forms import (
 
 from ...auth.models import User
 from ...sample.models import Sample
-
+from string import ascii_uppercase
 import itertools
 import re
+
 
 def iter_all_strings():
     for size in itertools.count(1):
@@ -51,7 +50,6 @@ for i in iter_all_strings():
     values.append(i)
     if i == "ZZZ":
         break
-
 
 def move_sample_to_cryobox(sample_id: int, box_id: int, col: int, row: int) -> None:
     r = db.session.query(SampleToCryovialBox).filter(SampleToCryovialBox.sample_id == sample_id).first()

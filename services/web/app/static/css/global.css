@@ -203,6 +203,10 @@ footer {
     margin-bottom: 30px;
 }
 
+.no-margin {
+    margin-bottom: 0px !important;
+}
+
 .exception-error {
     text-align: center;
 }
