@@ -36,11 +36,11 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for sample_id, sample in shelf.samples.items() %}
+                {% for count, sample in shelf.samples.items() %}
                     <tr>
                         <td>
-                            <a href="{{ url_for('sample.view', sample_id=sample_id) }}">
-                                <i class="fas fa-vial"></i> LIMBSMP-{{ sample_id }}
+                            <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
+                                <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
                             </a>
                         </td>
                         <td>{{ sample["sample_status"] }}</td>

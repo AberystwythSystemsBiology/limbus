@@ -7,6 +7,7 @@ from flask import (
     request,
     jsonify,
     Response,
+    flash,
 )
 from flask_login import current_user, login_required
 
@@ -38,12 +39,13 @@ from string import ascii_uppercase
 import itertools
 import re
 
+from ...misc import clear_session
+
 
 def iter_all_strings():
     for size in itertools.count(1):
         for s in itertools.product(ascii_uppercase, repeat=size):
             yield "".join(s)
-
 
 values = []
 for i in iter_all_strings():
@@ -120,6 +122,27 @@ def add_cryobox():
     return render_template("storage/cryobox/new/option.html")
 
 
+@storage.route("/cryobox/new/manual", methods=["GET", "POST"])
+@login_required
+def cryobox_manual_entry():
+    form = NewCryovialBoxForm()
+    if form.validate_on_submit():
+        cb = CryovialBox(
+            serial = form.serial.data,
+            num_rows = form.num_rows.data,
+            num_cols = form.num_cols.data,
+            removed = False,
+            author_id = current_user.id
+        )
+
+        db.session.add(cb)
+        db.session.commit()
+
+        flash("Cryovial Box Added")
+        return redirect(url_for("storage.cryobox_index"))
+
+    return render_template("storage/cryobox/new/manual/new.html", form=form)
+
 @storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
 @login_required
 def cryobox_from_file():
@@ -170,7 +193,7 @@ def crybox_from_file_validation(hash: str):
                     move_sample_to_cryobox(sample_id, cry.id, values.index(col), int(row))
 
         db.session.commit()
-
+        clear_session(hash)
         return redirect(url_for("storage.cryobox_index"))
     return render_template(
         "storage/cryobox/new/from_file/step_two.html",
