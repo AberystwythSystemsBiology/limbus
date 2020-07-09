@@ -57,6 +57,26 @@ from ...auth.models import User
 from ...sample.models import Sample
 
 
+def move_sample_to_cryobox(sample_id: int, box_id: int, col: int, row: int) -> None:
+    r = db.session.query(SampleToCryovialBox).filter(SampleToCryovialBox.sample_id == sample_id).first()
+
+    if r != None:
+        r.box_id = box_id
+        r.row = row
+        r.col = col
+        r.author_id = current_user.id
+    else:
+        new = SampleToCryovialBox(
+            sample_id = sample_id,
+            box_id = box_id,
+            col = col,
+            row = row,
+            author_id = current_user.id
+        )
+        db.session.add(new)
+
+    db.session.commit()
+
 def file_to_json(form) -> dict:
     data = {}
 
@@ -151,17 +171,9 @@ def crybox_from_file_validation(hash: str):
                 if ele.data:
                     regex = re.compile(r"(\d+|\s+)")
                     col, row, _ = regex.split(ele.id)
+                    sample_id = ele.render_kw["_sample"].id
 
-                    stc = SampleToCryovialBox(
-                        box_id=cry.id,
-                        sample_id=ele.render_kw["_sample"].id,
-                        author_id=current_user.id,
-                        col=values.index(col),
-                        row=int(row),
-                    )
-
-                    db.session.add(stc)
-                    db.session.flush()
+                    move_sample_to_cryobox(sample_id, cry.id, values.index(col), int(row))
 
         db.session.commit()
 
