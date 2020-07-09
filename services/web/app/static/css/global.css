@@ -235,32 +235,31 @@ footer {
     z-index: 1000;
 }
 
-.tube {
-    margin: 0 auto 0;
-    position: relative;
-    display: block;
-    width: 25%;
-    min-width: 80px;
-    min-height: 80px;
-    height: 0;
-    border-radius: 50%;
-    background: #000;
-    color: white;
+.box {
     text-align: center;
 }
 
+.square {
+    margin:0.1em;
+    padding-bottom: 100%;
+    position: relative;
+    height: 0;
 
-.tube img {
-    display: inline;
-    margin: 0 auto;
-    height: 100%;
-    width: auto;
-    border: 3px solid #000;
-  }
+}
 
-.empty {
-    background: #aaaaaa;
-    padding: 12.5% 0;
+.tube {
+    border: #9ecae1 solid 1px;
+}
 
+.box-heading {
+    max-height: 3em;
+}
+
+.square>div {
+    width:100%;
+  position: absolute;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
 }
 

@@ -16,7 +16,7 @@ from .. import storage
 
 from ...misc.generators import generate_random_hash
 
-from ..views import CryoboxIndexView
+from ..views import CryoboxIndexView, CryoboxView
 
 from ..models import (
     CryovialBox,
@@ -206,38 +206,8 @@ def crybox_from_file_validation(hash: str):
 @storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
 @login_required
 def view_cryobox(cryo_id):
-    cryo = (
-        db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
-    )
+    cryo = CryoboxView(cryo_id)
     return render_template("storage/cryobox/view.html", cryo=cryo)
-
-
-@storage.route("/cryobox/view/LIMBCRB-<cryo_id>/data")
-@login_required
-def view_cryobox_api(cryo_id):
-    cryo = (
-        db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
-    )
-
-    samples = (
-        db.session.query(SampleToCryovialBox, Sample, User)
-        .filter(SampleToCryovialBox.box_id == cryo_id)
-        .filter(Sample.id == SampleToCryovialBox.sample_id)
-        .filter(Sample.author_id == User.id)
-        .all()
-    )
-
-    data = {}
-    for position, sample, user in samples:
-        data["%i_%i" % (position.row, position.col)] = {
-            "id": sample.id,
-            "url": url_for("sample.view", sample_id=sample.id, _external=True),
-            "barcode": url_for(
-                "sample.get_barcode", sample_id=sample.id, attr="uuid", _external=True
-            ),
-        }
-
-    return jsonify(data), 201, {"Content-Type": "application/json"}
 
 
 @storage.route(

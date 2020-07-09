@@ -1,7 +1,7 @@
 from ... import db
-from ..models import CryovialBox
+from ..models import CryovialBox, SampleToCryovialBox
 from ...auth.views import UserView
-
+from ...sample.views import BasicSampleView
 
 def CryoboxIndexView() -> dict:
     boxes = db.session.query(CryovialBox).all()
@@ -26,3 +26,14 @@ def BasicCryoboxView(cryo_id: int) -> dict:
         "num_cols": box.num_cols,
         "author_information": UserView(box.author_id),
     }
+
+def CryoboxView(cryo_id: int) -> dict:
+    data = {}
+
+    data["info"] = BasicCryoboxView(cryo_id)
+    data["sample_information"] = {}
+
+    for sample in db.session.query(SampleToCryovialBox).filter(SampleToCryovialBox.box_id == cryo_id).all():
+        data["sample_information"]["%i_%i" % (sample.row, sample.col)] = BasicSampleView(sample.sample_id)
+
+    return data

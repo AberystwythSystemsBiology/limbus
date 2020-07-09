@@ -5,9 +5,11 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}Cryovial Boxes{% endblock %}
+{% block title %}LIMCRB-{{ cryo.info.id }} : Cryovial Box{% endblock %}
 
-{% set letters="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+{% set count = namespace(value=0) %}
+{% set tube_count = namespace(value=0) %}
+
 
 {% block body %}
 
@@ -16,36 +18,55 @@
         <div class="storage container">
             
             <h1><span class="secondary-heading">Cryovial Box Container</span>
-                <i class="fa fa-cube"></i> LIMBCRB-{{ cryo.id }}</h1>
+                <i class="fa fa-cube"></i> LIMBCRB-{{ cryo.info.id }}</h1>
 
+            Serial Number
+            Location
 
-
-            <table class="table table-responsive">
-                <thead>
-                    <th scope="col" style="width: 0.5%;"></th>
-                    {% for i in range(cryo.num_cols) %}
-                    <th class="text-center" style="width: {{ cryo.num_cols / 0.5 }}%;">{{ letters[i]|upper }}</th>
-                    {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in range(cryo.num_rows) %}
-                    <tr>
-                        <th scope="row text-center">{{ r+1 }}</th>
-                        {% for c in range(cryo.num_cols) %}
-                        <td class="boxcell" id="_{{ r }}_{{ c }}">
-                            <a href="{{ url_for('storage.add_cryobox_sample', cryo_id=cryo.id, row=r, col=c) }}">
-                                <div class="tube empty">
-                                    EMPTY
+            <div class="row">
+                <div class="col-sm-5 box">
+                    <div class="row no-gutters">
+                        <div class="col col-sm"></div>
+                        {% for i in range(cryo.info.num_cols) %}
+                            <div class="col box-heading">
+                                <div class="square">
+                                    <div class="align-middle">{{ i + 1 }}</div>
                                 </div>
-                            </a>
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </div>
+                        {% endfor  %}
+                    </div>
+                    {% for i in range(cryo.info.num_rows) %}
+                        <div class="row no-gutters">
+                        {% for j in range(cryo.info.num_cols + 1) %}
+                            {% if j == 0%}
+                                <div class="col">
+                                <div class="square">
+                                    <div class="align-middle">
+                                    {% set count.value = count.value + 1%}
+                                        {{ count.value }}
+                                    </div>
+                                </div>
 
+                                </div>
+                            {% else %}
+                                <div class="col" >
+                                    <div class="square">
+                                        <div class="align-middle tube">
+                                        {% set tube_count.value = tube_count.value + 1%}
+                                         {{ tube_count.value }}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="col-7">
+                    <p>Stuff here</p>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
