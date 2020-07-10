@@ -69,8 +69,6 @@ def overview():
     fridges = db.session.query(FixedColdStorage).all()
     shelves = db.session.query(FixedColdStorageShelf).all()
 
-
-
     output = {"sites": []}
     for site in sites:
         out_site = {"name": site.name, "id": site.id, "rooms": []}
