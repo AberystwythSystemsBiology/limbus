@@ -20,10 +20,6 @@ from ..views import CryoboxIndexView, CryoboxView
 
 from ..models import (
     CryovialBox,
-    SampleToCryovialBox,
-    CryovialBoxToFixedColdStorageShelf,
-    FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
 )
 
 from ..forms import (
@@ -52,26 +48,6 @@ for i in iter_all_strings():
     values.append(i)
     if i == "ZZZ":
         break
-
-def move_sample_to_cryobox(sample_id: int, box_id: int, col: int, row: int) -> None:
-    r = db.session.query(SampleToCryovialBox).filter(SampleToCryovialBox.sample_id == sample_id).first()
-
-    if r != None:
-        r.box_id = box_id
-        r.row = row
-        r.col = col
-        r.author_id = current_user.id
-    else:
-        new = SampleToCryovialBox(
-            sample_id = sample_id,
-            box_id = box_id,
-            col = col,
-            row = row,
-            author_id = current_user.id
-        )
-        db.session.add(new)
-
-    db.session.commit()
 
 def file_to_json(form) -> dict:
     data = {}

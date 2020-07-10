@@ -9,7 +9,6 @@ from ..models import (
     Room,
     FixedColdStorage,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
 )
 from ...auth.models import User
 from ...sample.models import Sample
@@ -35,6 +34,8 @@ def view_lts(lts_id):
 
     _shelves = {}
 
+    '''
+
     for shelf, user_info in shelves:
         samples = (
             db.session.query(SampleToFixedColdStorageShelf, Sample)
@@ -44,6 +45,7 @@ def view_lts(lts_id):
         )
 
         _shelves[shelf.id] = {"shelf_information": shelf, "samples": samples}
+    '''
 
     return render_template("/storage/lts/view.html", lts=lts, shelves=_shelves)
 

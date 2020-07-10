@@ -1,6 +1,11 @@
 from ..FormEnum import FormEnum
 
 
+class EntityToStorageTpye(FormEnum):
+    STB = "Sample to Box"
+    STS = "Sample to Shelf"
+    BTS = "Box to Shelf"
+
 class FixedColdStorageType(FormEnum):
     FRI = "Fridge"
     FRE = "Freezer"

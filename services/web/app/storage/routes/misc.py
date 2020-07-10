@@ -9,8 +9,6 @@ from ..models import (
     Room,
     FixedColdStorage,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
-    CryovialBoxToFixedColdStorageShelf,
     CryovialBox,
 )
 from ...sample.models import Sample
@@ -21,7 +19,7 @@ def index():
     return render_template("storage/index.html")
 
 
-# TODO: Replace all of this with a sensible, granular RESTful API
+# TODO: Replace all of this with a sensible, granular RESTful API (lol)
 @storage.route("/overview")
 def overview():
     sites = db.session.query(Site).all()
@@ -65,6 +63,7 @@ def overview():
                         "samples": [],
                     }
                     room_fridge["shelves"].append(fridge_shelf)
+                    '''
                     cryoboxes = (
                         db.session.query(CryovialBox)
                         .outerjoin(
@@ -90,5 +89,6 @@ def overview():
                         fridge_shelf["cryoboxes"].append({"id": cryobox.id})
                     for sample in samples:
                         fridge_shelf["samples"].append({"id": sample.id})
+                    '''
 
     return jsonify(output), 201, {"Content-Type": "application/json"}

@@ -11,8 +11,6 @@ from ..models import (
     Room,
     FixedColdStorage,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
-    CryovialBoxToFixedColdStorageShelf,
 )
 
 from ...misc.models import Address
@@ -108,7 +106,7 @@ def get_room(id):
                     "samples": {},
                     "cryo": {},
                 }
-
+                ''''
                 samples_to_shelf = (
                     db.session.query(SampleToFixedColdStorageShelf)
                     .filter(SampleToFixedColdStorageShelf.shelf_id == shelf.id)
@@ -131,7 +129,8 @@ def get_room(id):
                     output[room.id]["storage"][storage.id]["shelves"][shelf.id]["cryo"][
                         cryo.id
                     ] = {"test": "data"}
-
+                '''
+                
     return jsonify(output), 201, {"Content-Type": "application/json"}
 
 
