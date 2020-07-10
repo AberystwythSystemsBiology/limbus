@@ -12,6 +12,7 @@ from ..models import (
 )
 from ...auth.models import User
 from ...sample.models import Sample
+from uuid import uuid4
 
 from ..forms import NewShelfForm
 
@@ -50,7 +51,7 @@ def view_lts(lts_id):
     return render_template("/storage/lts/view.html", lts=lts, shelves=_shelves)
 
 
-@storage.route("/lts/add_shelf/LIMBLTS-<lts_id>", methods=["GET", "POST"])
+@storage.route("/lts/LIMBLTS-<lts_id>/add_shelf", methods=["GET", "POST"])
 @login_required
 def add_shelf(lts_id):
     lts = (
@@ -63,7 +64,12 @@ def add_shelf(lts_id):
 
     if form.validate_on_submit():
         shelf = FixedColdStorageShelf(
-            name=form.name.data, storage_id=lts_id, author_id=current_user.id
+            name=form.name.data,
+            # Generate a UUID :)
+            uuid = uuid4(),
+            description=form.description.data,
+            storage_id=lts_id,
+            author_id=current_user.id
         )
 
         db.session.add(shelf)

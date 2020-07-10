@@ -19,6 +19,7 @@
             <form action="{{ url_for('storage.add_shelf', lts_id=lts.id) }}" method="post">
                     {{ form.csrf_token() }}
                     {{ form_field(form.name) }}
+                    {{ form_field(form.description) }}
                     {{ form_field(form.submit) }}
             </form>
 

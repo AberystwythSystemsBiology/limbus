@@ -15,9 +15,11 @@
 
             <h1><i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
 
+        <div class="row">
+            <div class="col-sm-6">
 
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2><i class="fas fa-vial"></i> Samples</h3>
+                <h2><i class="fas fa-vial"></i> Samples</h2>
                 <a href="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}">
                     <button class="btn btn-primary"">
                         <i class="fa fa-plus"></i>
@@ -52,11 +54,11 @@
                 {% endfor %}
                 </tbody>
             </table>
-    
-    
 
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+            </div>
+            <div class="col-sm-6">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
                 <h2><i class="fa fa-cube"></i> Cryovial Boxes</h2>
                 <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}">
                     <button class="btn btn-primary"">
@@ -64,7 +66,7 @@
                         Add Cryovial Box
                     </button>
                 </a>
-            </div> 
+            </div>
 
             {% for row in shelf.cryoboxes %}
                 <div class="row">
@@ -90,6 +92,8 @@
                     {% endfor %}
                 </div>
             {% endfor %}
+            </div>
+        </div>
 
 
         </div>

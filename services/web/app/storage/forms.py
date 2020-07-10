@@ -5,6 +5,8 @@ from wtforms import (
     BooleanField,
     RadioField,
     SubmitField,
+    DateField,
+    TimeField,
     FileField,
     ValidationError,
     SelectField,
@@ -28,6 +30,11 @@ class NewShelfForm(FlaskForm):
         "Shelf Name",
         validators=[DataRequired()],
         description="A descriptive name for the shelf, something like top shelf.",
+    )
+
+    description = StringField(
+        "Shelf Description",
+        description="A brief description of the shelf."
     )
 
     submit = SubmitField("Register Shelf")
@@ -99,7 +106,11 @@ def LongTermColdStorageForm():
 
 def SampleToBoxForm(samples: list) -> FlaskForm:
     class StaticForm(FlaskForm):
+        date = DateField("Entry Date", validators=[DataRequired()])
+        time = TimeField("Entry Time", validators=[DataRequired()])
+        entered_by = StringField("Entered By", description="The initials of the person that entered the sample.")
         submit = SubmitField("Submit Sample")
+
 
     samples_choices = []
 

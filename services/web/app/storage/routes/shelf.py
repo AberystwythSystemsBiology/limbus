@@ -13,6 +13,8 @@ from flask_login import current_user, login_required
 from ... import db
 from .. import storage
 
+from .misc import move_entity_to_storage
+
 
 from ..models import (
     FixedColdStorageShelf,
@@ -23,6 +25,7 @@ from ...sample.models import Sample
 from ..forms import SampleToBoxForm, BoxToShelfForm
 from ..views import ShelfView
 from ...misc import chunks
+from ..enums import EntityToStorageTpye
 
 
 @storage.route("/shelves/view/LIMBSHF-<id>")
@@ -32,7 +35,6 @@ def view_shelf(id):
 
     # Conversion to make it renderable in a nice way.
     shelf["cryoboxes"] = chunks([x for x in shelf["cryoboxes"].items()], 4)
-
     return render_template("storage/shelf/view.html", shelf=shelf)
 
 
@@ -62,6 +64,7 @@ def assign_sample_to_shelf(shelf_id):
     samples = db.session.query(Sample).all()
 
     form = SampleToBoxForm(samples)
+
     if form.validate_on_submit():
 
         sample = (
@@ -70,8 +73,17 @@ def assign_sample_to_shelf(shelf_id):
             .first_or_404()
         )
 
+        move_entity_to_storage(
+            sample_id = sample.id,
+            shelf_id=shelf_id,
+            entered=form.date.data.strftime('%Y-%m-%d, %H:%M:%S'),
+            entered_by=form.entered_by.data,
+            author_id=current_user.id,
+            storage_type=EntityToStorageTpye.STS
+        )
 
-        # TODO: Needs rewrite.
+        flash("Sample assigned to shelf!")
+
         return redirect(url_for("storage.view_shelf", id=shelf.id))
 
     return render_template("storage/shelf/sample_to_shelf.html", form=form, shelf=shelf)
