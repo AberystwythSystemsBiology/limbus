@@ -1,5 +1,23 @@
 from app import db
 
+class EntityToStorage(db.Model):
+    __versioned__ = {}
+    __tablename__ = "entities_to_storage"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
+    box_id = db.Column(db.Integer, db.ForeignKey("cryovial_boxes.id"))
+    #shelf_id = db.Column(db.Integer, db.ForeignKey("shelves.id"))
+    #storage_type = db.Enum()
+
+    enter_date = db.Column()
+    enter_time = db.Column()
+    entered_by = db.Column()
+
+    #creation_date = db.Column()
+
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 class SampleToCryovialBox(db.Model):
     __versioned__ = {}
