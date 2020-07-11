@@ -1,5 +1,6 @@
 from ... import db
-from ..models import CryovialBox
+from ..models import CryovialBox, EntityToStorage
+from ..enums import EntityToStorageTpye
 from ...auth.views import UserView
 from ...sample.views import BasicSampleView
 
@@ -32,8 +33,8 @@ def CryoboxView(cryo_id: int) -> dict:
 
     data["info"] = BasicCryoboxView(cryo_id)
     data["sample_information"] = {}
-    '''
-    for sample in db.session.query(SampleToCryovialBox).filter(SampleToCryovialBox.box_id == cryo_id).all():
+
+    for sample in db.session.query(EntityToStorage).filter(EntityToStorage.box_id == cryo_id, EntityToStorage.storage_type == EntityToStorageTpye.STB).all():
         data["sample_information"]["%i_%i" % (sample.row, sample.col)] = BasicSampleView(sample.sample_id)
-    '''
+    
     return data

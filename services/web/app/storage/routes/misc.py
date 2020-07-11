@@ -24,39 +24,40 @@ def move_entity_to_storage(
         sample_id: int = None,
         box_id: int = None,
         shelf_id: int = None,
+        row: int = None,
+        col: int = None,
         entered = None,
         entered_by = None,
         author_id: int = None,
         storage_type: EntityToStorageTpye = None) -> None:
 
-    if storage_type in [EntityToStorageTpye.STB, EntityToStorageTpye.STB] :
+    if storage_type in [EntityToStorageTpye.STB, EntityToStorageTpye.STS]:
         r = db.session.query(EntityToStorage).filter(EntityToStorage.sample_id == sample_id).first()
-    else:
+    elif storage_type == EntityToStorageTpye.BTS:
         r = db.session.query(EntityToStorage).filter(EntityToStorage.box_id == box_id).first()
 
-
     if r != None:
-
         r.sample_id = sample_id
         r.box_id = box_id
         r.shelf_id = shelf_id
+        r.row = row
+        r.col = col
         r.entered = entered
         r.entered_by = entered_by
         r.author_id = author_id
         r.storage_type = storage_type
-
-
     else:
         r = EntityToStorage(
             sample_id = sample_id,
             box_id = box_id,
             shelf_id = shelf_id,
+            row=row,
+            col=col,
             storage_type = storage_type,
             entered = entered,
             entered_by = entered_by,
             author_id = author_id
         )
-
         db.session.add(r)
 
     db.session.commit()

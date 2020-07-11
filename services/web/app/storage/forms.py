@@ -104,7 +104,7 @@ def LongTermColdStorageForm():
     return StaticForm()
 
 
-def SampleToBoxForm(samples: list) -> FlaskForm:
+def SampleToEntityForm(samples: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         date = DateField("Entry Date", validators=[DataRequired()])
         time = TimeField("Entry Time", validators=[DataRequired()])

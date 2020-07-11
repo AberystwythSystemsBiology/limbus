@@ -15,6 +15,8 @@ from ... import db
 from .. import storage
 
 from ...misc.generators import generate_random_hash
+from .misc import move_entity_to_storage
+from ..enums import EntityToStorageTpye
 
 from ..views import CryoboxIndexView, CryoboxView
 
@@ -24,7 +26,7 @@ from ..models import (
 
 from ..forms import (
     NewCryovialBoxForm,
-    SampleToBoxForm,
+    SampleToEntityForm,
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
 )
@@ -166,7 +168,6 @@ def crybox_from_file_validation(hash: str):
                     col, row, _ = regex.split(ele.id)
                     sample_id = ele.render_kw["_sample"].id
 
-                    move_sample_to_cryobox(sample_id, cry.id, values.index(col), int(row))
 
         db.session.commit()
         clear_session(hash)
@@ -197,7 +198,7 @@ def add_cryobox_sample(cryo_id, row, col):
 
     samples = db.session.query(Sample).all()
 
-    form = SampleToBoxForm(samples)
+    form = SampleToEntityForm(samples)
 
     if form.validate_on_submit():
         sample = (
@@ -206,32 +207,18 @@ def add_cryobox_sample(cryo_id, row, col):
             .first_or_404()
         )
 
-        sample_shelf_binds = (
-            db.session.query(SampleToFixedColdStorageShelf)
-            .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
-            .all()
-        )
-
-        sample_box_binds = (
-            db.session.query(SampleToCryovialBox)
-            .filter(SampleToCryovialBox.sample_id == sample.id)
-            .all()
-        )
-
-        for bind in sample_shelf_binds + sample_box_binds:
-            db.session.delete(bind)
-
-        scb = SampleToCryovialBox(
-            sample_id=form.samples.data,
+        move_entity_to_storage(
+            sample_id=sample.id,
             box_id=cryo_id,
-            col=col,
-            row=row,
+            row = row,
+            col = col,
+            entered=form.date.data.strftime('%Y-%m-%d, %H:%M:%S'),
+            entered_by=form.entered_by.data,
             author_id=current_user.id,
+            storage_type=EntityToStorageTpye.STB
         )
 
-        db.session.add(scb)
-        db.session.commit()
-
+        flash("Sample assigned to shelf!")
         return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
 
     return render_template(

@@ -22,7 +22,7 @@ from ..models import (
 )
 from ...sample.models import Sample
 
-from ..forms import SampleToBoxForm, BoxToShelfForm
+from ..forms import SampleToEntityForm, BoxToShelfForm
 from ..views import ShelfView
 from ...misc import chunks
 from ..enums import EntityToStorageTpye
@@ -63,7 +63,7 @@ def assign_sample_to_shelf(shelf_id):
     )
     samples = db.session.query(Sample).all()
 
-    form = SampleToBoxForm(samples)
+    form = SampleToEntityForm(samples)
 
     if form.validate_on_submit():
 

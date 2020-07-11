@@ -18,6 +18,9 @@ class EntityToStorage(db.Model):
     shelf_id = db.Column(db.Integer, db.ForeignKey("fixed_cold_storage_shelves.id"))
     storage_type = db.Column(db.Enum(EntityToStorageTpye))
 
+    row = db.Column(db.Integer)
+    col = db.Column(db.Integer)
+
     entered = db.Column(db.DateTime)
     entered_by = db.Column(db.String(5))
 
