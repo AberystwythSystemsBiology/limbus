@@ -62,6 +62,7 @@ def move_entity_to_storage(
 
     db.session.commit()
 
+
 # TODO: Replace all of this with a sensible, granular RESTful API (lol)
 @storage.route("/overview")
 def overview():
@@ -103,32 +104,5 @@ def overview():
                         "samples": [],
                     }
                     room_fridge["shelves"].append(fridge_shelf)
-                    '''
-                    cryoboxes = (
-                        db.session.query(CryovialBox)
-                        .outerjoin(
-                            CryovialBoxToFixedColdStorageShelf,
-                            CryovialBox.id == CryovialBoxToFixedColdStorageShelf.box_id,
-                        )
-                        .filter(CryovialBoxToFixedColdStorageShelf.shelf_id == shelf.id)
-                        .filter(
-                            CryovialBox.id == CryovialBoxToFixedColdStorageShelf.box_id
-                        )
-                        .all()
-                    )
-                    samples = (
-                        db.session.query(Sample)
-                        .outerjoin(
-                            SampleToFixedColdStorageShelf,
-                            Sample.id == SampleToFixedColdStorageShelf.sample_id,
-                        )
-                        .filter(SampleToFixedColdStorageShelf.shelf_id == shelf.id)
-                        .all()
-                    )
-                    for cryobox in cryoboxes:
-                        fridge_shelf["cryoboxes"].append({"id": cryobox.id})
-                    for sample in samples:
-                        fridge_shelf["samples"].append({"id": sample.id})
-                    '''
 
     return jsonify(output), 201, {"Content-Type": "application/json"}

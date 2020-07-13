@@ -32,7 +32,6 @@ from ..enums import EntityToStorageTpye
 @login_required
 def view_shelf(id):
     shelf = ShelfView(id)
-
     # Conversion to make it renderable in a nice way.
     shelf["cryoboxes"] = chunks([x for x in shelf["cryoboxes"].items()], 4)
     return render_template("storage/shelf/view.html", shelf=shelf)
@@ -46,7 +45,15 @@ def assign_box_to_shelf(shelf_id):
     form = BoxToShelfForm(db.session.query(CryovialBox).all())
 
     if form.validate_on_submit():
-        # move_cryovial_to_shelf(form.boxes.data, shelf_id)
+        move_entity_to_storage(
+            box_id = form.boxes.data,
+            shelf_id=shelf_id,
+            entered=form.date.data.strftime('%Y-%m-%d, %H:%M:%S'),
+            entered_by=form.entered_by.data,
+            author_id=current_user.id,
+            storage_type=EntityToStorageTpye.BTS
+        )
+
         flash("LIMBCRB-%i successfully moved!" % (form.boxes.data))
         return redirect(url_for("storage.view_shelf", id=shelf_id))
 

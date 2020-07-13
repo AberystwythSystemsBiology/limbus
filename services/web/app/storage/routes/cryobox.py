@@ -22,6 +22,7 @@ from ..views import CryoboxIndexView, CryoboxView
 
 from ..models import (
     CryovialBox,
+    EntityToStorage
 )
 
 from ..forms import (
@@ -186,6 +187,19 @@ def view_cryobox(cryo_id):
     cryo = CryoboxView(cryo_id)
     return render_template("storage/cryobox/view.html", cryo=cryo)
 
+
+from sqlalchemy_continuum import version_class
+from sqlalchemy import desc
+@storage.route("/cryobox/view/LIMB<storage_type>-<id>/history")
+@login_required
+def view_history(storage_type, id):
+    EntityToStorageVersioned = version_class(EntityToStorage)
+    if storage_type == "CRB":
+        attr = "box_id"
+
+    for change in db.session.query(EntityToStorageVersioned).filter(getattr(EntityToStorageVersioned, attr) == id).order_by(desc(EntityToStorageVersioned.update_date)).all():
+        print(">>>>>>>>> change", getattr(change, attr), change.sample_id, change.shelf_id, change.storage_type)
+    return jsonify({}), 201, {"Content-Type": "application/json"}
 
 @storage.route(
     "cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"]

@@ -19,38 +19,41 @@ from .models import CustomAttributes, CustomAttributeOption, CustomAttributeText
 
 # Pronto stuff here.
 import pronto
+import urllib
 
-# Loading UO into memory upon creation of flask instance.
-uo = pronto.Ontology.from_obo_library("uo.obo")
-
-
-def create_uo_params():
-    def _get_leafs(node):
-        leafs = []
-
-        def _traverse(n):
-            n = [x for x in n.subclasses()]
-            if len(n[1:]) > 1:
-                for _n in n[1:]:
-                    _traverse(_n)
-            elif len(n) == 1:
-                leafs.extend(n)
-            else:
-                pass
-
-        _traverse(node)
-        return list(set(leafs))
+try:
 
     # Loading UO into memory upon creation of flask instance.
-    uo_ontology = pronto.Ontology.from_obo_library("uo.obo")
-    units = _get_leafs(uo_ontology["UO:0000000"])
-    prefixs = _get_leafs(uo_ontology["UO:0000046"])
-
-    return units, prefixs
+    uo = pronto.Ontology.from_obo_library("uo.obo")
 
 
-units, prefixs = create_uo_params()
+    def create_uo_params():
+        def _get_leafs(node):
+            leafs = []
 
+            def _traverse(n):
+                n = [x for x in n.subclasses()]
+                if len(n[1:]) > 1:
+                    for _n in n[1:]:
+                        _traverse(_n)
+                elif len(n) == 1:
+                    leafs.extend(n)
+                else:
+                    pass
+
+            _traverse(node)
+            return list(set(leafs))
+
+        # Loading UO into memory upon creation of flask instance.
+        uo_ontology = pronto.Ontology.from_obo_library("uo.obo")
+        units = _get_leafs(uo_ontology["UO:0000000"])
+        prefixs = _get_leafs(uo_ontology["UO:0000046"])
+
+        return units, prefixs
+
+    units, prefixs = create_uo_params()
+except Exception:
+    units, prefixs = [], []
 
 class EnumFromOntology:
     def __init__(self, ontology_list):
