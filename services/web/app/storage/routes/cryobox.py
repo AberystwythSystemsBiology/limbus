@@ -193,13 +193,17 @@ from sqlalchemy_continuum import version_class
 from sqlalchemy import desc
 
 
-@storage.route("/cryobox/view/LIMB<storage_type>-<id>/history")
+@storage.route("/history/LIMB<storage_type>-<id>/")
 @login_required
 def view_history(storage_type, id):
     EntityToStorageVersioned = version_class(EntityToStorage)
     if storage_type == "CRB":
         attr = "box_id"
-
+    elif storage_type == "SHF":
+        attr = "shelf_id"
+    elif storage_type == "SMP":
+        attr = "sample_id"
+        
     changes = {}
 
     for change in (
