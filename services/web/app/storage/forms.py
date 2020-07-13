@@ -33,8 +33,7 @@ class NewShelfForm(FlaskForm):
     )
 
     description = StringField(
-        "Shelf Description",
-        description="A brief description of the shelf."
+        "Shelf Description", description="A brief description of the shelf."
     )
 
     submit = SubmitField("Register Shelf")
@@ -107,8 +106,11 @@ def LongTermColdStorageForm():
 class ToEntityForm(FlaskForm):
     date = DateField("Entry Date", validators=[DataRequired()])
     time = TimeField("Entry Time", validators=[DataRequired()])
-    entered_by = StringField("Entered By", description="The initials of the person that entered the sample.")
+    entered_by = StringField(
+        "Entered By", description="The initials of the person that entered the sample."
+    )
     submit = SubmitField("Submit")
+
 
 def SampleToEntityForm(samples: list) -> FlaskForm:
 

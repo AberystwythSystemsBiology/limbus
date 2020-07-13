@@ -12,6 +12,7 @@ from ..models import (
     EntityToStorage,
 )
 
+
 @storage.route("/")
 def index():
     return render_template("storage/index.html")
@@ -20,21 +21,31 @@ def index():
 from ..enums import EntityToStorageTpye
 from ..models import EntityToStorage
 
+
 def move_entity_to_storage(
-        sample_id: int = None,
-        box_id: int = None,
-        shelf_id: int = None,
-        row: int = None,
-        col: int = None,
-        entered = None,
-        entered_by = None,
-        author_id: int = None,
-        storage_type: EntityToStorageTpye = None) -> None:
+    sample_id: int = None,
+    box_id: int = None,
+    shelf_id: int = None,
+    row: int = None,
+    col: int = None,
+    entered=None,
+    entered_by=None,
+    author_id: int = None,
+    storage_type: EntityToStorageTpye = None,
+) -> None:
 
     if storage_type in [EntityToStorageTpye.STB, EntityToStorageTpye.STS]:
-        r = db.session.query(EntityToStorage).filter(EntityToStorage.sample_id == sample_id).first()
+        r = (
+            db.session.query(EntityToStorage)
+            .filter(EntityToStorage.sample_id == sample_id)
+            .first()
+        )
     elif storage_type == EntityToStorageTpye.BTS:
-        r = db.session.query(EntityToStorage).filter(EntityToStorage.box_id == box_id).first()
+        r = (
+            db.session.query(EntityToStorage)
+            .filter(EntityToStorage.box_id == box_id)
+            .first()
+        )
 
     if r != None:
         r.sample_id = sample_id
@@ -48,15 +59,15 @@ def move_entity_to_storage(
         r.storage_type = storage_type
     else:
         r = EntityToStorage(
-            sample_id = sample_id,
-            box_id = box_id,
-            shelf_id = shelf_id,
+            sample_id=sample_id,
+            box_id=box_id,
+            shelf_id=shelf_id,
             row=row,
             col=col,
-            storage_type = storage_type,
-            entered = entered,
-            entered_by = entered_by,
-            author_id = author_id
+            storage_type=storage_type,
+            entered=entered,
+            entered_by=entered_by,
+            author_id=author_id,
         )
         db.session.add(r)
 

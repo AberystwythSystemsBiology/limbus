@@ -1,5 +1,6 @@
 from app import db
 
+
 class CryovialBox(db.Model):
     __tablename__ = "cryovial_boxes"
     id = db.Column(db.Integer, primary_key=True)

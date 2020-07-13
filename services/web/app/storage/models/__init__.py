@@ -7,6 +7,7 @@ from .shelf import *
 from .cryobox import *
 from ..enums import EntityToStorageTpye
 
+
 class EntityToStorage(db.Model):
     __versioned__ = {}
     __tablename__ = "entities_to_storage"

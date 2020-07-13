@@ -1,5 +1,6 @@
 from app import db
 
+
 class FixedColdStorageShelf(db.Model):
     __versioned__ = {}
     __tablename__ = "fixed_cold_storage_shelves"

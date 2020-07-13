@@ -26,8 +26,22 @@ def ShelfView(shelf_id: int) -> dict:
 
     data = BasicShelfView(shelf_id)
 
-    boxes = db.session.query(EntityToStorage).filter(EntityToStorage.shelf_id == shelf_id, EntityToStorage.storage_type == EntityToStorageTpye.BTS).all()
-    samples = db.session.query(EntityToStorage).filter(EntityToStorage.shelf_id == shelf_id, EntityToStorage.storage_type == EntityToStorageTpye.STS).all()
+    boxes = (
+        db.session.query(EntityToStorage)
+        .filter(
+            EntityToStorage.shelf_id == shelf_id,
+            EntityToStorage.storage_type == EntityToStorageTpye.BTS,
+        )
+        .all()
+    )
+    samples = (
+        db.session.query(EntityToStorage)
+        .filter(
+            EntityToStorage.shelf_id == shelf_id,
+            EntityToStorage.storage_type == EntityToStorageTpye.STS,
+        )
+        .all()
+    )
 
     data["samples"] = {x.id: BasicSampleView(x.sample_id) for x in samples}
     data["cryoboxes"] = {x.id: BasicCryoboxView(x.box_id) for x in boxes}

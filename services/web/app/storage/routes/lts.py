@@ -35,7 +35,7 @@ def view_lts(lts_id):
 
     _shelves = {}
 
-    '''
+    """
 
     for shelf, user_info in shelves:
         samples = (
@@ -46,7 +46,7 @@ def view_lts(lts_id):
         )
 
         _shelves[shelf.id] = {"shelf_information": shelf, "samples": samples}
-    '''
+    """
 
     return render_template("/storage/lts/view.html", lts=lts, shelves=_shelves)
 
@@ -66,10 +66,10 @@ def add_shelf(lts_id):
         shelf = FixedColdStorageShelf(
             name=form.name.data,
             # Generate a UUID :)
-            uuid = uuid4(),
+            uuid=uuid4(),
             description=form.description.data,
             storage_id=lts_id,
-            author_id=current_user.id
+            author_id=current_user.id,
         )
 
         db.session.add(shelf)

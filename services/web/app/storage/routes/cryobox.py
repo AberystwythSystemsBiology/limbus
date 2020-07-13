@@ -20,10 +20,7 @@ from ..enums import EntityToStorageTpye
 
 from ..views import CryoboxIndexView, CryoboxView
 
-from ..models import (
-    CryovialBox,
-    EntityToStorage
-)
+from ..models import CryovialBox, EntityToStorage
 
 from ..forms import (
     NewCryovialBoxForm,
@@ -46,11 +43,13 @@ def iter_all_strings():
         for s in itertools.product(ascii_uppercase, repeat=size):
             yield "".join(s)
 
+
 values = []
 for i in iter_all_strings():
     values.append(i)
     if i == "ZZZ":
         break
+
 
 def file_to_json(form) -> dict:
     data = {}
@@ -107,11 +106,11 @@ def cryobox_manual_entry():
     form = NewCryovialBoxForm()
     if form.validate_on_submit():
         cb = CryovialBox(
-            serial = form.serial.data,
-            num_rows = form.num_rows.data,
-            num_cols = form.num_cols.data,
-            removed = False,
-            author_id = current_user.id
+            serial=form.serial.data,
+            num_rows=form.num_rows.data,
+            num_cols=form.num_cols.data,
+            removed=False,
+            author_id=current_user.id,
         )
 
         db.session.add(cb)
@@ -121,6 +120,7 @@ def cryobox_manual_entry():
         return redirect(url_for("storage.cryobox_index"))
 
     return render_template("storage/cryobox/new/manual/new.html", form=form)
+
 
 @storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
 @login_required
@@ -169,7 +169,6 @@ def crybox_from_file_validation(hash: str):
                     col, row, _ = regex.split(ele.id)
                     sample_id = ele.render_kw["_sample"].id
 
-
         db.session.commit()
         clear_session(hash)
         return redirect(url_for("storage.cryobox_index"))
@@ -190,6 +189,8 @@ def view_cryobox(cryo_id):
 
 from sqlalchemy_continuum import version_class
 from sqlalchemy import desc
+
+
 @storage.route("/cryobox/view/LIMB<storage_type>-<id>/history")
 @login_required
 def view_history(storage_type, id):
@@ -197,9 +198,21 @@ def view_history(storage_type, id):
     if storage_type == "CRB":
         attr = "box_id"
 
-    for change in db.session.query(EntityToStorageVersioned).filter(getattr(EntityToStorageVersioned, attr) == id).order_by(desc(EntityToStorageVersioned.update_date)).all():
-        print(">>>>>>>>> change", getattr(change, attr), change.sample_id, change.shelf_id, change.storage_type)
+    for change in (
+        db.session.query(EntityToStorageVersioned)
+        .filter(getattr(EntityToStorageVersioned, attr) == id)
+        .order_by(desc(EntityToStorageVersioned.update_date))
+        .all()
+    ):
+        print(
+            ">>>>>>>>> change",
+            getattr(change, attr),
+            change.sample_id,
+            change.shelf_id,
+            change.storage_type,
+        )
     return jsonify({}), 201, {"Content-Type": "application/json"}
+
 
 @storage.route(
     "cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"]
@@ -224,12 +237,12 @@ def add_cryobox_sample(cryo_id, row, col):
         move_entity_to_storage(
             sample_id=sample.id,
             box_id=cryo_id,
-            row = row,
-            col = col,
-            entered=form.date.data.strftime('%Y-%m-%d, %H:%M:%S'),
+            row=row,
+            col=col,
+            entered=form.date.data.strftime("%Y-%m-%d, %H:%M:%S"),
             entered_by=form.entered_by.data,
             author_id=current_user.id,
-            storage_type=EntityToStorageTpye.STB
+            storage_type=EntityToStorageTpye.STB,
         )
 
         flash("Sample assigned to shelf!")

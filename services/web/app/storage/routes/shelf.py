@@ -46,12 +46,12 @@ def assign_box_to_shelf(shelf_id):
 
     if form.validate_on_submit():
         move_entity_to_storage(
-            box_id = form.boxes.data,
+            box_id=form.boxes.data,
             shelf_id=shelf_id,
-            entered=form.date.data.strftime('%Y-%m-%d, %H:%M:%S'),
+            entered=form.date.data.strftime("%Y-%m-%d, %H:%M:%S"),
             entered_by=form.entered_by.data,
             author_id=current_user.id,
-            storage_type=EntityToStorageTpye.BTS
+            storage_type=EntityToStorageTpye.BTS,
         )
 
         flash("LIMBCRB-%i successfully moved!" % (form.boxes.data))
@@ -81,12 +81,12 @@ def assign_sample_to_shelf(shelf_id):
         )
 
         move_entity_to_storage(
-            sample_id = sample.id,
+            sample_id=sample.id,
             shelf_id=shelf_id,
-            entered=form.date.data.strftime('%Y-%m-%d, %H:%M:%S'),
+            entered=form.date.data.strftime("%Y-%m-%d, %H:%M:%S"),
             entered_by=form.entered_by.data,
             author_id=current_user.id,
-            storage_type=EntityToStorageTpye.STS
+            storage_type=EntityToStorageTpye.STS,
         )
 
         flash("Sample assigned to shelf!")

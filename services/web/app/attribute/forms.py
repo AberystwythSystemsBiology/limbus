@@ -26,7 +26,6 @@ try:
     # Loading UO into memory upon creation of flask instance.
     uo = pronto.Ontology.from_obo_library("uo.obo")
 
-
     def create_uo_params():
         def _get_leafs(node):
             leafs = []
@@ -54,6 +53,7 @@ try:
     units, prefixs = create_uo_params()
 except Exception:
     units, prefixs = [], []
+
 
 class EnumFromOntology:
     def __init__(self, ontology_list):

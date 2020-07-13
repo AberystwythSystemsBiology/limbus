@@ -6,6 +6,7 @@ class EntityToStorageTpye(FormEnum):
     STS = "Sample to Shelf"
     BTS = "Box to Shelf"
 
+
 class FixedColdStorageType(FormEnum):
     FRI = "Fridge"
     FRE = "Freezer"
