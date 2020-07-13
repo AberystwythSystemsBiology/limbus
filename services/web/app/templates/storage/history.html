@@ -1,0 +1,55 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}History{% endblock %}
+
+
+{% block body %}
+
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="storage container">
+            <h1>
+                <span class="secondary-heading"><i class="fa fa-history"></i> View History</span>
+                {% if storage_type == "CRB" %}
+                    <i class="fa fa-cube"></i>
+                {% elif storage_type == "SHF" %}
+                    <i class="fa fa-bars"></i>
+                {% elif storage_type == "SMP"%}
+                    <i class="fas fa-vial"></i>
+                {% endif %}
+
+                LIMB{{ storage_type }}-{{ id }}
+            </h1>
+
+            <ul class="list-group">
+                {% for id, c in changes.items() %}
+                    <div class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <b class="mb-1">{{ c.storage_type}}</b>
+                            <small>{{ c.entered }}</small>
+                        </div>
+                        {% if c.storage_type == "Sample to Box" %}
+                            <p>
+                                <a href="{{ url_for('sample.view', sample_id=c.sample_id) }}"><i class="fas fa-vial"></i>
+                                    LIMBSMP-{{ c.sample_id }}</a> was moved to <a href="{{ url_for('storage.view_cryobox', cryo_id=c.box_id) }}"><i class="fa fa-cube"></i> LIMBCRB-{{ c.box_id}}</a> (row {{ c.row }}, column {{ c.col }}).</p>
+                        {% elif c.storage_type == "Box to Shelf" %}
+                            <p><a href="#">LIMBCRB-{{ c.box_id }}</a> was moved to <a href="#"><i class="fa fa-bars"></i> LIMBSHF-{{ c.shelf_id }}</a></p>
+                        {% endif  %}
+                        <small><img src="{{ c.author_information.gravatar }}" style="max-width: 20px;"> {{ c.author_information.email }}.</small>
+                    </div>
+
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

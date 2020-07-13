@@ -20,6 +20,8 @@ from ..enums import EntityToStorageTpye
 
 from ..views import CryoboxIndexView, CryoboxView
 
+from ...auth.views import UserView
+
 from ..models import CryovialBox, EntityToStorage
 
 from ..forms import (
@@ -198,20 +200,28 @@ def view_history(storage_type, id):
     if storage_type == "CRB":
         attr = "box_id"
 
+    changes = {}
+
     for change in (
         db.session.query(EntityToStorageVersioned)
         .filter(getattr(EntityToStorageVersioned, attr) == id)
         .order_by(desc(EntityToStorageVersioned.update_date))
         .all()
     ):
-        print(
-            ">>>>>>>>> change",
-            getattr(change, attr),
-            change.sample_id,
-            change.shelf_id,
-            change.storage_type,
-        )
-    return jsonify({}), 201, {"Content-Type": "application/json"}
+        changes[change.id] = {
+            "sample_id": change.sample_id,
+            "box_id": change.box_id,
+            "shelf_id": change.shelf_id,
+            "storage_type": change.storage_type.value,
+            "row": change.row,
+            "col": change.col,
+            "entered_by": change.entered_by,
+            "entered": change.entered,
+            "update_date": change.update_date,
+            "author_information": UserView(change.author_id)
+        }
+
+    return render_template("storage/history.html", storage_type=storage_type, id=id, changes=changes)
 
 
 @storage.route(
