@@ -26,7 +26,9 @@
         <div class="col-sm-9">
             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-edit"></i> Edit</button>
+                    <a href="{{ url_for('storage.edit_cryobox', cryo_id=cryo.info.id) }}">
+                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
+                    </a>
                 </div>
 
                 <div class="btn-group mr-2" role="group" aria-label="Third group">
@@ -55,7 +57,6 @@
                             {{ show_value(cryo.info.serial, "Serial Number", "text") }}
                             {{ show_value(cryo.info.num_rows * cryo.info.num_cols, "Total Slots", "text") }}
                             {{ show_value(cryo.info.num_rows * cryo.info.num_cols, "Total Slots", "text") }}
-
                         </div>
                     </div>
                 </div>

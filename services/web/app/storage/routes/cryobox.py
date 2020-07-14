@@ -182,7 +182,7 @@ def crybox_from_file_validation(hash: str):
     )
 
 
-@storage.route("/cryobox/view/LIMBCRB-<cryo_id>")
+@storage.route("/cryobox/LIMBCRB-<cryo_id>")
 @login_required
 def view_cryobox(cryo_id):
     cryo = CryoboxView(cryo_id)
@@ -226,6 +226,15 @@ def view_history(storage_type, id):
         }
 
     return render_template("storage/history.html", storage_type=storage_type, id=id, changes=changes)
+
+@storage.route("cryobox/LIMCRB-<cryo_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_cryobox(cryo_id):
+    cryo = CryoboxView(cryo_id)
+
+    # TODO: Form.
+
+    return render_template("storage/cryobox/edit.html", cryo=cryo)
 
 
 @storage.route(

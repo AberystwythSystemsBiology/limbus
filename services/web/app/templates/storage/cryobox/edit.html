@@ -1,0 +1,21 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}LIMCRB-{{ cryo.info.id }} : Cryovial Box{% endblock %}
+{% block body %}
+    <div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> LIMBCRB-{{ cryo.info.id }}</span>Edit</h1>
+    </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}
