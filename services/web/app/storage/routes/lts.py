@@ -50,31 +50,3 @@ def view_lts(lts_id):
 
     return render_template("/storage/lts/view.html", lts=lts, shelves=_shelves)
 
-
-@storage.route("/lts/LIMBLTS-<lts_id>/add_shelf", methods=["GET", "POST"])
-@login_required
-def add_shelf(lts_id):
-    lts = (
-        db.session.query(FixedColdStorage)
-        .filter(FixedColdStorage.id == lts_id)
-        .first_or_404()
-    )
-
-    form = NewShelfForm()
-
-    if form.validate_on_submit():
-        shelf = FixedColdStorageShelf(
-            name=form.name.data,
-            # Generate a UUID :)
-            uuid=uuid4(),
-            description=form.description.data,
-            storage_id=lts_id,
-            author_id=current_user.id,
-        )
-
-        db.session.add(shelf)
-        db.session.commit()
-
-        return redirect(url_for("storage.view_lts", lts_id=lts_id))
-
-    return render_template("/storage/shelf/new.html", form=form, lts=lts)

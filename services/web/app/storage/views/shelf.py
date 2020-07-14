@@ -19,6 +19,7 @@ def BasicShelfView(shelf_id: int) -> dict:
     return {
         "id": shelf.id,
         "name": shelf.name,
+        "description": shelf.description,
         "lts_information": BasicLTSView(shelf.storage_id),
         "creation_date": shelf.creation_date,
         "update_date": shelf.update_date,
