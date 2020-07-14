@@ -4,9 +4,12 @@ from ..models import *
 from ...auth.views import UserView
 from ...sample.views import BasicSampleView
 from .cryobox import BasicCryoboxView
-
+from .lts import BasicLTSView
 
 def BasicShelfView(shelf_id: int) -> dict:
+
+
+
     shelf = (
         db.session.query(FixedColdStorageShelf)
         .filter(FixedColdStorageShelf.id == shelf_id)
@@ -16,6 +19,7 @@ def BasicShelfView(shelf_id: int) -> dict:
     return {
         "id": shelf.id,
         "name": shelf.name,
+        "lts_information": BasicLTSView(shelf.storage_id),
         "creation_date": shelf.creation_date,
         "update_date": shelf.update_date,
         "author_information": UserView(shelf.author_id),
