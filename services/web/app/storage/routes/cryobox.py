@@ -188,7 +188,7 @@ def view_cryobox(cryo_id):
     cryo = CryoboxView(cryo_id)
     return render_template("storage/cryobox/view.html", cryo=cryo)
 
-
+# TODO: All of this needs to be given a specific view.
 from sqlalchemy_continuum import version_class
 from sqlalchemy import desc
 
@@ -203,7 +203,7 @@ def view_history(storage_type, id):
         attr = "shelf_id"
     elif storage_type == "SMP":
         attr = "sample_id"
-        
+
     changes = {}
 
     for change in (

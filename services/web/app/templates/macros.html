@@ -88,26 +88,18 @@
 
 
 {% macro show_value(attribute, label, type) -%}
-
-<tr>
-    <th>
-        {{ label }}:
-    </th>
-    <td>
-        {% if type == "text" %}
-                <p>{{ attribute }}</p>
-            {% elif type == "textarea" %}
-                <p>{{ attribute }}</p>
-            {% elif type == "enum" %}
-                <p>{{ attribute.value }}</p>
-            {% elif type == "boolean" %}
-                {{ attribute }}
+    <div class="row" style="padding-bottom: 1em;">
+        <div class="col-5">{{ label }}:</div>
+        <div class="col-7">
+            {% if type == "enum" %}
+                {{ attribute.value }}
             {% elif type == "datetime" %}
-                <p>{{ attribute.strftime('%d-%m-%Y') }}</p>
+                {{ attribute.strftime('%d-%m-%Y') }}
+            {% else %}
+                {{ attribute }}
             {% endif %}
-    </td>
-</tr>
-
+        </div>
+    </div>
 
 {%- endmacro %}
 

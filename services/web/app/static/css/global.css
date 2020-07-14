@@ -174,8 +174,7 @@ canvas {
 }
 
 .storage {
-    background-color: #f8fafb;
-    max-width:100% !important;
+    max-width:90% !important;
 }
 
 footer {
