@@ -33,7 +33,6 @@ from ..enums import EntityToStorageTpye
 def view_shelf(id):
     shelf = ShelfView(id)
     # Conversion to make it renderable in a nice way.
-    shelf["cryoboxes"] = chunks([x for x in shelf["cryoboxes"].items()], 4)
     return render_template("storage/shelf/view.html", shelf=shelf)
 
 

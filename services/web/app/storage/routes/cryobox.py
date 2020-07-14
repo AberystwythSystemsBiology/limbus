@@ -9,6 +9,7 @@ from flask import (
     Response,
     flash,
 )
+from werkzeug.datastructures import MultiDict
 from flask_login import current_user, login_required
 
 from ... import db
@@ -232,9 +233,21 @@ def view_history(storage_type, id):
 def edit_cryobox(cryo_id):
     cryo = CryoboxView(cryo_id)
 
-    # TODO: Form.
+    form = NewCryovialBoxForm()
+    delattr(form, "num_cols")
+    delattr(form, "num_rows")
 
-    return render_template("storage/cryobox/edit.html", cryo=cryo)
+    if form.validate_on_submit():
+        cb = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first()
+        print(">>>>>>>>>>>>>>>", form.serial.data)
+        cb.serial = form.serial.data
+        db.session.add(cb)
+        db.session.commit()
+        flash("Cryobox information successfully edited!")
+        return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
+
+    form.serial.data = cryo["info"]["serial"]
+    return render_template("storage/cryobox/edit.html", cryo=cryo, form=form)
 
 
 @storage.route(

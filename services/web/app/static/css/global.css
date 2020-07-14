@@ -11,10 +11,6 @@ body {
     max-width: 960px;
 }
 
-a {
-    text-decoration: underline;
-}
-
 nav img {
     height:30px;
 }
@@ -183,6 +179,8 @@ footer {
     z-index:999;
     margin-top: 30px;
 }
+
+
 
 .segment {
 	display: block;

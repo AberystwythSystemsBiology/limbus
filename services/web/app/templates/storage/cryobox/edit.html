@@ -5,13 +5,22 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMCRB-{{ cryo.info.id }} : Cryovial Box{% endblock %}
+{% block title %}Editing LIMBCRB-{{ cryo.info.id }} : Cryovial Box{% endblock %}
 {% block body %}
     <div id="sidebar-wrapper">
     {{ storage_navbar() }}
     <div class="storage container">
-            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> LIMBCRB-{{ cryo.info.id }}</span>Edit</h1>
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> LIMBCRB-{{ cryo.info.id }}</span>
+                <i class="fa fa-edit"></i> Edit</h1>
+
+            <form  method="POST" action="{{ url_for('storage.edit_cryobox', cryo_id=cryo.info.id ) }}">
+                {{ form.csrf_token() }}
+                {{ form_field(form.serial) }}
+                {{ form_field(form.submit) }}
+            </form>
+
     </div>
+
     </div>
 {% endblock %}
 

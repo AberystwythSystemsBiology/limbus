@@ -15,85 +15,74 @@
 
             <h1><i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
 
-        <div class="row">
-            <div class="col-sm-6">
+            <div class="row">
+                <div class="col-sm-6">
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2><i class="fas fa-vial"></i> Samples</h2>
-                <a href="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}">
-                    <button class="btn btn-primary"">
-                        <i class="fa fa-plus"></i>
-                        Assign Sample
-                    </button>
-                </a>
-            </div>
-
-            <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
-                <thead>
-                <tr>
-                    <th>Identifier</th>
-                    <th>Sample Status</th>
-                    <th>Collection Date</th>
-                    <th>Sample Creator</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for count, sample in shelf.samples.items() %}
-                    <tr>
-                        <td>
-                            <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
-                                <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
-                            </a>
-                        </td>
-                        <td>{{ sample["sample_status"] }}</td>
-                        <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
-                        <td>
-                            {{ sample["author_information"]["email"] }}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-
-
-            </div>
-            <div class="col-sm-6">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                <h2><i class="fa fa-cube"></i> Cryovial Boxes</h2>
-                <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}">
-                    <button class="btn btn-primary"">
-                        <i class="fa fa-plus"></i>
-                        Add Cryovial Box
-                    </button>
-                </a>
-            </div>
-
-            {% for row in shelf.cryoboxes %}
-                <div class="row">
-                    {% for box_id, box in row %}
-                    <div class="col-3">
-                    <div class="card">
-                        <div class="card-header text-center">
-                            <h3><i class="fa fa-cube"></i></h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Serial Number: {{ box.serial }}</p>
-                            <p>Dimensions: {{ box.num_rows }} x {{ box.num_cols }}</p>
-                        </div>
-                        <div class="card-footer text-center">
-                            <a href="#">
-                                <div class="btn btn-primary full-width">
-                                    Go
-                                </div>
-                            </a>
-                        </div>
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                        <h2><i class="fas fa-vial"></i> Samples</h2>
+                        <a href="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}">
+                            <button class="btn btn-primary"
+                            ">
+                            <i class="fa fa-plus"></i>
+                            Assign Sample
+                            </button>
+                        </a>
                     </div>
-                    </div>
-                    {% endfor %}
+
+                    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                        <tr>
+                            <th>Identifier</th>
+                            <th>Sample Status</th>
+                            <th>Collection Date</th>
+                            <th>Sample Creator</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for count, sample in shelf.samples.items() %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
+                                        <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
+                                    </a>
+                                </td>
+                                <td>{{ sample["sample_status"] }}</td>
+                                <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {{ sample["author_information"]["email"] }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+
                 </div>
-            {% endfor %}
+                <div class="col-sm-6">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+                        <h2><i class="fa fa-cube"></i> Cryovial Boxes</h2>
+                    </div>
+
+
+                    <div class="list-group">
+                        {% for id, cryobox in shelf.cryoboxes.items() %}
+                            <a href="{{ url_for('storage.view_cryobox', cryo_id=cryobox.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">LIMBCRB-{{ cryobox.id }}</h5>
+                                <small>{{ cryobox.num_rows }} x {{ cryobox.num_cols }}</small>
+                            </div>
+                            <p class="mb-1">Serial Number: {{ cryobox.serial }}</p>
+                        </a>
+                        {% endfor %}
+                        <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}" class="list-group-item list-group-item-action flex-column active" style="text-align: center;">
+                            <i class="fa fa-plus"></i> Add Cryovial Box
+                        </a>
+                    </div>
+
+
+
+                </div>
             </div>
-        </div>
 
 
         </div>
