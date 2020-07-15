@@ -14,33 +14,11 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                
-                <h1><span class="secondary-heading"><i class="fa fa-building"></i> Sites</span>LIMBSIT-{{ site.id }}: {{ site.name }}</h1>
+            <h1><i class="fa fa-building"></i> LIMBSIT-{{ site.id }}</h1>
 
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('storage.new_room', s_id=site.id) }}">
-                            <div class="btn btn-primary"><i class="fa fa-plus"></i>
-                                Add Room
-                            </div>
-                        </a>
-                    </div>
-                </div>
+            <div class="row">
+
             </div>
-
-            <h3>Rooms</h3>
-            {% if rooms | length > 0 %}
-                {% for room in rooms %}
-                <div class="card">
-                    <div class="card-header">
-                        {{ room.building }} {{ room.room_number }}
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                No rooms
-            {% endif %}
         </div>
     </div>
 {% endblock %}

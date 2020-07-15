@@ -6,6 +6,8 @@ from .. import storage
 
 from ..forms import SiteRegistrationForm, RoomRegistrationForm
 
+from ..views.site import SiteView
+
 from ..models import (
     Site,
     Room,
@@ -53,24 +55,14 @@ def add_site():
     return render_template("storage/site/new.html", form=form)
 
 
-@storage.route("/sites/LIMBSIT-<id>")
+@storage.route("/sites/LIMBSIT-<site_id>")
 @login_required
-def view_site(id):
-    site, address, uploader = (
-        db.session.query(Site, Address, User)
-        .filter(Site.id == id)
-        .filter(Site.author_id == User.id)
-        .filter(Site.address_id == Address.id)
-        .first_or_404()
-    )
-    rooms = db.session.query(Room).filter(Room.site_id == id).all()
+def view_site(site_id: int):
+    site = SiteView(site_id)
 
     return render_template(
         "storage/site/view.html",
-        site=site,
-        address=address,
-        rooms=rooms,
-        uploader=uploader,
+        site=site
     )
 
 
