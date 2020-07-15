@@ -13,7 +13,10 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><span class="secondary-heading">Long Term Storage</span><i class="fa fa-temperature-low"></i> LIMBLTS-{{ lts.id }}</h1>
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('storage.view_room', room_id=lts.room_id) }}">
+                <i class="fa fa-door-closed"></i> LIMBROM-{{ lts.room_id }}</a>
+            </span><i class="fa fa-temperature-low"></i> LIMBLTS-{{ lts.id }} ({{ lts.temperature }})</h1>
 
             <div class="row">
                 <div class="col-sm-9">

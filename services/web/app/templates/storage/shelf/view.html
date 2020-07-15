@@ -13,9 +13,11 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><span class="secondary-heading"><i
-                    class="fa fa-temperature-low"></i> LIMBLTS-{{ shelf.lts_information.id }}</span><i
-                    class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('storage.view_lts', lts_id=shelf.storage_id) }}">
+                    <i class="fa fa-temperature-low"></i> LIMBLTS-{{ shelf.storage_id }}</span>
+                </a>
+                <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
 
             <div class="row">
                 <div class="col-sm-9">
@@ -101,17 +103,17 @@
                     </table>
                 </div>
                 <div class="col-sm-6">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                        <h2><i class="fa fa-cube"></i> Cryovial Boxes</h2>
-                    </div>
 
 
                     <div class="list-group">
+                    <li class="list-group-item active">
+                          <h5 class="mb-1"><i class="fa fa-cube"></i> Cryovial Boxes</h5>
+                      </li>
                         {% for id, cryobox in shelf.cryoboxes.items() %}
                             <a href="{{ url_for('storage.view_cryobox', cryo_id=cryobox.id) }}"
                                class="list-group-item list-group-item-action flex-column align-items-start">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">LIMBCRB-{{ cryobox.id }}</h5>
+                                    <h5 class="mb-1"><i class="fa fa-cube"></i> LIMBCRB-{{ cryobox.id }}</h5>
                                     <small>{{ cryobox.num_rows }} x {{ cryobox.num_cols }}</small>
                                 </div>
                                 <p class="mb-1">Serial Number: {{ cryobox.serial }}</p>

@@ -17,6 +17,7 @@ def BasicLTSView(lts_id: int) -> dict:
         "serial_number": lts.serial_number,
         "manufacturer": lts.manufacturer,
         "type": lts.type,
+        "room_id": lts.room_id,
         "temperature": lts.temperature,
         "creation_date": lts.creation_date,
         "update_date": lts.update_date,
