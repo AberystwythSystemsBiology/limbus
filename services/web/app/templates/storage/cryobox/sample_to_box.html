@@ -15,7 +15,7 @@
             
             <h1><span class="secondary-heading"><i class="fa fa-cube"></i>LIMBCRB-{{cryo.id}}</span> Sample to Box</h1>
 
-
+            {{ form.errors }}
             <form action="{{ url_for('storage.add_cryobox_sample', cryo_id = cryo.id, row=row, col=col) }}" method="post">
                 {{ form.csrf_token }}
                 {{ form_field(form.samples) }}

@@ -153,5 +153,5 @@ def new_room(s_id):
         db.session.add(room)
         db.session.commit()
 
-        return redirect(url_for("storage.view_site", id=site.id))
+        return redirect(url_for("storage.view_site", site_id=site.id))
     return render_template("storage/room/new.html", form=form, site=site)
