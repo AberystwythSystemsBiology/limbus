@@ -1,0 +1,34 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}Editing LIMBLTS-{{ lts.id }}{% endblock %}
+{% block body %}
+    <div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> LIMBLTS-{{ lts.id }}</span>
+                <i class="fa fa-edit"></i> Edit</h1>
+
+            {{ form.errors }}
+
+            <form method="POST" action="{{ url_for('storage.edit_lts', lts_id=lts.id ) }}">
+                {{ form.csrf_token() }}
+                {{ form_field(form.type) }}
+                {{ form_field(form.temperature) }}
+                {{ form_field(form.manufacturer) }}
+                {{ form_field(form.serial_number) }}
+                {{ form_field(form.submit) }}
+            </form>
+    </div>
+
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

@@ -19,6 +19,16 @@
             <form action="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}" method="post">
                 {{ form.csrf_token }}
                 {{ form_field(form.samples) }}
+                <div class="row">
+                    <div class="col-sm-6">
+                        {{ form_field(form.date) }}
+                    </div>
+                    <div class="col-sm-6">
+                        {{ form_field(form.time) }}
+                    </div>
+                </div>
+                {{ form_field(form.entered_by) }}
+
                 {{ form_field(form.submit) }}
             </form>
 

@@ -13,29 +13,69 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                <h1><span class="secondary-heading">Long Term Storage</span><i class="fa fa-temperature-low"></i> LIMBLTS-{{ lts.id }}</h1>
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('storage.add_shelf', lts_id=lts.id) }}">
-                            <button class="btn btn-primary"><i class="fa fa-plus"></i>
-                                Add Shelf
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('storage.view_room', room_id=lts.room_id) }}">
+                <i class="fa fa-door-closed"></i> LIMBROM-{{ lts.room_id }}</a>
+            </span><i class="fa fa-temperature-low"></i> LIMBLTS-{{ lts.id }} ({{ lts.temperature }})</h1>
+
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="{{ url_for('storage.edit_lts', lts_id=lts.id) }}">
+                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                </button>
+                            </a>
+                        </div>
+
+                        <div class="btn-group" role="group" aria-label="Third group">
+                            <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i>
+                                Print
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Information</h5>
+                            {{ show_value(lts.manufacturer, "Manufacturer", "text") }}
+                            {{ show_value(lts.type, "Type", "text") }}
+                            {{ show_value(lts.serial_number, "Serial Number", "text") }}
+                            {{ show_value(lts.creation_date, "Creation Date", "datetime") }}
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+
+                    <div class="list-group">
+                      <li class="list-group-item active">
+                          <h5 class="mb-1"><i class="fa fa-bars"></i> Shelves</h5>
+                      </li>
+                        {% for z, shelf in lts.shelves.items() %}
+                            <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1"><i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h5>
+                                    <small>{{ shelf.creation_date }}</small>
+                                </div>
+                                <p class="mb-1">Description: {{ shelf.description }}</p>
+                            </a>
+                        {% endfor %}
+                    <a href="{{ url_for('storage.add_shelf', lts_id=lts.id) }}"
+                           class="list-group-item list-group-item-action flex-column active"
+                           style="text-align: center;">
+                            <i class="fa fa-plus"></i> Add Shelf
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h5>Shelves</h5>
-            </div>
 
-            {% for id in shelves %}
-            <div class="card">
-                <div class="card-header">
-                    {{ shelves[id]["shelf_information"].name }}
-                </div>
-            </div>
-            {% endfor %}
+
+
 
 
         </div>

@@ -11,10 +11,6 @@ body {
     max-width: 960px;
 }
 
-a {
-    text-decoration: underline;
-}
-
 nav img {
     height:30px;
 }
@@ -174,15 +170,17 @@ canvas {
 }
 
 .storage {
-    max-width:100% !important;
+    max-width:90% !important;
 }
 
 footer {
     background-color: #F5F5F5;
     border-top: solid 5px #404040;
-    margin-top: -3px;
     z-index:999;
+    margin-top: 30px;
 }
+
+
 
 .segment {
 	display: block;
@@ -201,6 +199,10 @@ footer {
 
 #submit {
     margin-bottom: 30px;
+}
+
+.no-margin {
+    margin-bottom: 0px !important;
 }
 
 .exception-error {
@@ -231,23 +233,39 @@ footer {
     z-index: 1000;
 }
 
-.cryovial {
-    position: relative;
-    display: block;
-    width: 25%;
-    height: 0;
-    padding: 12.5% 0;
-    border-radius: 50%;
-    line-height: 0;
-    background: #6f777b;
-    color: white;
+.box {
     text-align: center;
 }
 
-.empty {
-    background: #dc3545;
+.square {
+    margin:0.1em;
+    padding-bottom: 100%;
+    position: relative;
+    height: 0;
+
 }
 
-.empty a:link {
-    text-decoration: none;
+.tube {
+    border: #9ecae1 solid 1px;
+}
+
+.box-heading {
+    max-height: 3em;
+}
+
+.square>div {
+    width:100%;
+  position: absolute;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.square:hover {
+    background-color: #30799B;
+    color:#fff;
+}
+
+.present {
+    background-color: #bbebdf;
 }

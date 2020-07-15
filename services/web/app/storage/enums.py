@@ -1,12 +1,19 @@
 from ..FormEnum import FormEnum
 
 
+class EntityToStorageTpye(FormEnum):
+    STB = "Sample to Box"
+    STS = "Sample to Shelf"
+    BTS = "Box to Shelf"
+
+
 class FixedColdStorageType(FormEnum):
     FRI = "Fridge"
     FRE = "Freezer"
 
 
 class FixedColdStorageTemps(FormEnum):
+    L = "-150 to -86°C"
     A = "-85 to -60°C"
     B = "-59 to -35°C"
     C = "-34 to -18°C"

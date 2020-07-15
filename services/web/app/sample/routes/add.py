@@ -41,15 +41,13 @@ def add_sample_pcf():
             "disposal_instruction": disposal_instruction,
             "disposal_date": disposal_date,
             "has_donor": form.has_donor.data,
-            "donor_select": form.donor_select.data
+            "donor_select": form.donor_select.data,
         }
 
         return redirect(url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
-    
+
     return render_template(
-        "sample/sample/add/step_one.html",
-        form=form,
-        template_count=template_count
+        "sample/sample/add/step_one.html", form=form, template_count=template_count
     )
 
 
@@ -82,7 +80,7 @@ def add_sample_pcf_data(hash):
 
         session["%s step_two" % (hash)] = {
             "consent_id": questionnaire.consent_id.data,
-            "checked": checked
+            "checked": checked,
         }
 
         return redirect(url_for("sample.select_sample_type", hash=hash))
@@ -100,21 +98,25 @@ def add_sample_pcf_data(hash):
 def select_sample_type(hash):
     form = SampleTypeSelectForm()
 
-
     if form.validate_on_submit():
-        a = {"sample_type": form.sample_type.data,
-            "quantity": form.quantity.data}
+        a = {"sample_type": form.sample_type.data, "quantity": form.quantity.data}
 
         if a["sample_type"] == "CEL":
-            b = {"type": form.cell_sample_type.data,
+            b = {
+                "type": form.cell_sample_type.data,
                 "fixation": form.fixation_type.data,
-                "storage_type": form.cell_container.data}      
+                "storage_type": form.cell_container.data,
+            }
         elif a["sample_type"] == "FLU":
-            b = {"type": form.fluid_sample_type.data,
-            "storage_type": form.fluid_container.data}
+            b = {
+                "type": form.fluid_sample_type.data,
+                "storage_type": form.fluid_container.data,
+            }
         elif a["sample_type"] == "MOL":
-            b = {"type": form.molecular_sample_type.data,
-            "storage_type": form.fluid_container.data}
+            b = {
+                "type": form.molecular_sample_type.data,
+                "storage_type": form.fluid_container.data,
+            }
 
         data = {**a, **b}
 
@@ -147,8 +149,7 @@ def select_processing_protocol(hash):
         }
         return redirect(url_for("sample.add_sample_attr", hash=hash))
 
-    return render_template(        
-
+    return render_template(
         "sample/sample/add/step_four.html",
         templates=len(templates),
         form=form,
@@ -199,37 +200,36 @@ def add_sample_form(hash):
         step_five = session["%s step_five" % (hash)]
 
         sample = Sample(
-            uuid = uuid.uuid4(),
-            biobank_barcode = step_one["barcode"],
-            sample_type = step_three["sample_type"],
-            collection_date = step_one["collection_date"],
-            quantity = step_three["quantity"],
-            current_quantity = step_three["quantity"],
-            is_closed = False,
-            author_id = current_user.id,
-            sample_status = step_four["sample_status"]
+            uuid=uuid.uuid4(),
+            biobank_barcode=step_one["barcode"],
+            sample_type=step_three["sample_type"],
+            collection_date=step_one["collection_date"],
+            quantity=step_three["quantity"],
+            current_quantity=step_three["quantity"],
+            is_closed=False,
+            author_id=current_user.id,
+            sample_status=step_four["sample_status"],
         )
 
         db.session.add(sample)
         db.session.flush()
 
         sdi = SampleDisposalInformation(
-            disposal_instruction = step_one["disposal_instruction"],
-            disposal_date = step_one["disposal_date"],
-            sample_id = sample.id,
-            author_id = current_user.id
+            disposal_instruction=step_one["disposal_instruction"],
+            disposal_date=step_one["disposal_date"],
+            sample_id=sample.id,
+            author_id=current_user.id,
         )
 
         db.session.add(sdi)
         db.session.flush()
 
-
-        if step_one["has_donor"] :
+        if step_one["has_donor"]:
 
             std = SampleToDonor(
-                sample_id = sample.id,
-                donor_id = step_one["donor_select"],
-                author_id = current_user.id
+                sample_id=sample.id,
+                donor_id=step_one["donor_select"],
+                author_id=current_user.id,
             )
 
             db.session.add(std)
@@ -255,7 +255,7 @@ def add_sample_form(hash):
             )
         else:
             abort(400)
-        
+
         db.session.add(stot)
         db.session.flush()
 
@@ -307,7 +307,6 @@ def add_sample_form(hash):
             )
 
             db.session.add(spcfaa)
-
 
         spta = SampleProcessingTemplateAssociation(
             sample_id=sample.id,

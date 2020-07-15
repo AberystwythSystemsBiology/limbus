@@ -31,6 +31,7 @@ from .processing import processing as processing_blueprint
 from .storage import storage as storage_blueprint
 from .procedure import procedure as procedure_blueprint
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
@@ -71,9 +72,10 @@ def create_app():
     app.register_blueprint(procedure_blueprint, url_prefix="/procedures")
 
     from app.errors import error_handlers
-    
-    for error_handler in error_handlers:
-        app.register_error_handler(error_handler['code_or_exception'], error_handler['func'])
 
-    
+    for error_handler in error_handlers:
+        app.register_error_handler(
+            error_handler["code_or_exception"], error_handler["func"]
+        )
+
     return app

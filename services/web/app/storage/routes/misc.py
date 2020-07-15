@@ -9,11 +9,8 @@ from ..models import (
     Room,
     FixedColdStorage,
     FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
-    CryovialBoxToFixedColdStorageShelf,
-    CryovialBox,
+    EntityToStorage,
 )
-from ...sample.models import Sample
 
 
 @storage.route("/")
@@ -21,16 +18,69 @@ def index():
     return render_template("storage/index.html")
 
 
-# TODO: Replace all of this with a sensible, granular RESTful API
+from ..enums import EntityToStorageTpye
+from ..models import EntityToStorage
+
+
+def move_entity_to_storage(
+    sample_id: int = None,
+    box_id: int = None,
+    shelf_id: int = None,
+    row: int = None,
+    col: int = None,
+    entered=None,
+    entered_by=None,
+    author_id: int = None,
+    storage_type: EntityToStorageTpye = None,
+) -> None:
+
+    if storage_type in [EntityToStorageTpye.STB, EntityToStorageTpye.STS]:
+        r = (
+            db.session.query(EntityToStorage)
+            .filter(EntityToStorage.sample_id == sample_id)
+            .first()
+        )
+    elif storage_type == EntityToStorageTpye.BTS:
+        r = (
+            db.session.query(EntityToStorage)
+            .filter(EntityToStorage.box_id == box_id)
+            .first()
+        )
+
+    if r != None:
+        r.sample_id = sample_id
+        r.box_id = box_id
+        r.shelf_id = shelf_id
+        r.row = row
+        r.col = col
+        r.entered = entered
+        r.entered_by = entered_by
+        r.author_id = author_id
+        r.storage_type = storage_type
+    else:
+        r = EntityToStorage(
+            sample_id=sample_id,
+            box_id=box_id,
+            shelf_id=shelf_id,
+            row=row,
+            col=col,
+            storage_type=storage_type,
+            entered=entered,
+            entered_by=entered_by,
+            author_id=author_id,
+        )
+        db.session.add(r)
+
+    db.session.commit()
+
+
+# TODO: Replace all of this with a sensible, granular RESTful API (lol)
 @storage.route("/overview")
 def overview():
     sites = db.session.query(Site).all()
     rooms = db.session.query(Room).all()
     fridges = db.session.query(FixedColdStorage).all()
     shelves = db.session.query(FixedColdStorageShelf).all()
-    from pprint import pprint
-
-    pprint(sites)
 
     output = {"sites": []}
     for site in sites:
@@ -65,30 +115,5 @@ def overview():
                         "samples": [],
                     }
                     room_fridge["shelves"].append(fridge_shelf)
-                    cryoboxes = (
-                        db.session.query(CryovialBox)
-                        .outerjoin(
-                            CryovialBoxToFixedColdStorageShelf,
-                            CryovialBox.id == CryovialBoxToFixedColdStorageShelf.box_id,
-                        )
-                        .filter(CryovialBoxToFixedColdStorageShelf.shelf_id == shelf.id)
-                        .filter(
-                            CryovialBox.id == CryovialBoxToFixedColdStorageShelf.box_id
-                        )
-                        .all()
-                    )
-                    samples = (
-                        db.session.query(Sample)
-                        .outerjoin(
-                            SampleToFixedColdStorageShelf,
-                            Sample.id == SampleToFixedColdStorageShelf.sample_id,
-                        )
-                        .filter(SampleToFixedColdStorageShelf.shelf_id == shelf.id)
-                        .all()
-                    )
-                    for cryobox in cryoboxes:
-                        fridge_shelf["cryoboxes"].append({"id": cryobox.id})
-                    for sample in samples:
-                        fridge_shelf["samples"].append({"id": sample.id})
 
     return jsonify(output), 201, {"Content-Type": "application/json"}

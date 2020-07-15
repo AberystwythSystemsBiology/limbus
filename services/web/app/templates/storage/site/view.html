@@ -5,42 +5,59 @@
           rel="stylesheet">
 {% endblock %}
 
-{% set title = "LIMBSIT-" %}
 
-{% block title %}{% endblock %}
+{% block title %}LIMBSIT-{{ site.id }}{% endblock %}
 
 {% block body %}
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                
-                <h1><span class="secondary-heading"><i class="fa fa-building"></i> Sites</span>LIMBSIT-{{ site.id }}: {{ site.name }}</h1>
+            <h1><i class="fa fa-building"></i> LIMBSIT-{{ site.id }}</h1>
 
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('storage.new_room', s_id=site.id) }}">
-                            <div class="btn btn-primary"><i class="fa fa-plus"></i>
-                                Add Room
-                            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Information</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            {{ show_value(site.name, "Name", "text") }}
+                            {{ show_value(site.address.street_address_one, "Address Line One", "text") }}
+                            {{ show_value(site.address.street_address_two, "Address Line Two", "text") }}
+                            {{ show_value(site.address.city, "City", "text") }}
+                            {{ show_value(site.address.county, "County", "text") }}
+                            {{ show_value(site.address.post_code, "Post Code", "text") }}
+                        </div>
+                        <div class="col-6">
+
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="list-group">
+                    <li class="list-group-item active">
+                          <h5 class="mb-1"><i class="fa fa-cube"></i> Rooms</h5>
+                      </li>
+                        {% for room in site.rooms %}
+                            <a href="{{ url_for('storage.view_room', room_id=room.id) }}"
+                               class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1"><i class="fa fa-door-closed"></i> LIMBRM-{{ room.id }}</h5>
+                                </div>
+                                <p class="mb-1">{{ room.room_number }}: {{ room.building }}</p>
+                            </a>
+                        {% endfor %}
+                        <a href="{{ url_for('storage.new_room', s_id=site.id) }}"
+                           class="list-group-item list-group-item-action flex-column active"
+                           style="text-align: center;">
+                            <i class="fa fa-plus"></i> Add Room
                         </a>
                     </div>
                 </div>
             </div>
-
-            <h3>Rooms</h3>
-            {% if rooms | length > 0 %}
-                {% for room in rooms %}
-                <div class="card">
-                    <div class="card-header">
-                        {{ room.building }} {{ room.room_number }}
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                No rooms
-            {% endif %}
         </div>
     </div>
 {% endblock %}

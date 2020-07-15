@@ -13,12 +13,13 @@
         <div class="storage container">
             <h1><span class="secondary-heading"><i class="fa fa-building"></i> {{ room.building }}-{{ room.room_number }}</span>New Long Term Cold Storage</h1>
 
-            <form method="POST" action="{{ url_for('storage.add_lts', id=room.id) }}">
+            <form method="POST" action="{{ url_for('storage.add_lts', room_id=room.id) }}">
                 {{ form.csrf_token }}
                 {{ form_field(form.type) }}
+                {{ form_field(form.temperature) }}
+
                 {{ form_field(form.manufacturer) }}
                 {{ form_field(form.serial_number) }}
-                {{ form_field(form.temperature) }}
 
                 {{ form_field(form.submit) }}
             </form>
@@ -29,5 +30,6 @@
 {% endblock %}
 
 {% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/lts/add.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,31 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}Editing LIMBSHF-{{ shelf.id }} : Shelf{% endblock %}
+{% block body %}
+    <div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> LIMBSHF-{{ shelf.id }}</span>
+                <i class="fa fa-edit"></i> Edit</h1>
+
+            <form  method="POST" action="{{ url_for('storage.edit_shelf', id=shelf.id ) }}">
+                {{ form.csrf_token() }}
+                {{ form_field(form.name) }}
+                {{ form_field(form.description) }}
+                {{ form_field(form.submit)   }}
+            </form>
+
+    </div>
+
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}Cryovial Boxes{% endblock %}
+
+{% block body %}
+
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="storage container">
+
+            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+            <h1><i class="fa fa-cube"></i> Cryovial Boxes</h1>
+            <div class="btn-toolbar">
+                <div class="btn-group mr-2">
+                    <a href="{{ url_for('storage.add_cryobox') }}">
+                        <div class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Box
+                        </div>
+                    </a>
+                </div>
+                <div class="btn-group mr-2">
+                    <div id="showFilter" class="btn btn-success"><i class="fa fa-filter"></i>
+                        <span id="showFilterText">Show Filters</span>
+                    </div>
+                </div>
+                </div>
+            </span>
+
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Box</th>
+                    <th scope="col">Serial Number</th>
+                    <th scope="col">Rows</th>
+                    <th scope="col">Columns</th>
+                    <th scope="col">Author</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for id, box in boxes.items() %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('storage.view_cryobox', cryo_id=id) }}">
+                        <i class="fa fa-cube"></i> LIMBCRB-{{ id }}</a>
+                    </td>
+                    <td>{{ box.serial }}</td>
+                    <td>{{ box.num_rows }}</td>
+                    <td>{{ box.num_cols }}</td>
+                    <td>{{ box.author_information.email }}</td>
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

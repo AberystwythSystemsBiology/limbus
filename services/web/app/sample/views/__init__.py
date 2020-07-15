@@ -1,6 +1,7 @@
 from ..models import Sample, SubSampleToSample
 from ...auth.views import UserView
 from ... import db
+from .sample import BasicSampleView, SampleView
 
 
 def SamplesIndexView():
@@ -9,7 +10,6 @@ def SamplesIndexView():
         x.subsample_sample_id for x in db.session.query(SubSampleToSample).all()
     ]
     samples = db.session.query(Sample).filter(~Sample.id.in_(subsamples)).all()
-
 
     data = {}
     for sample in samples:

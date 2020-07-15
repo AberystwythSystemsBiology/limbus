@@ -1,0 +1,46 @@
+{% extends "template.html" %}
+
+{% block title %}New Cryovial Box{% endblock %}
+
+{% block body %}
+
+        <div class="container">
+            <h1>
+                <div class="secondary-heading"><i class="fa fa-cube"></i> Cryovial Box</div>
+                Create
+            </h1>
+
+            </br>
+
+            <div class="row">
+                <div class="col">
+                    <div class="jumbotron jumbotron-fluid">
+                        <div class="container text-center">
+                          <h1><i class="fa fa-exclamation-triangle"></i></h1>
+                          <h2>Manual Entry</h2>
+                            <p>Enter the Cryovial Box information manually.</p>
+                            <a href="{{ url_for('storage.cryobox_manual_entry') }}">
+                          <div class="btn btn-primary">Go</div>
+                                </a>
+     
+                        </div>
+                      </div>
+                </div>
+                <div class="col">
+                    <div class="jumbotron jumbotron-fluid">
+                        <div class="container text-center">
+                          <h1><i class="fa fa-upload"></i></h1>
+                          <h2>From File</h2>
+                            <p>Create a Cryovial Box from a plaintext file.</p>
+                          <a href="{{ url_for('storage.cryobox_from_file') }}">
+                            <div class="btn btn-primary">Go</div>  
+                            </a>
+                        </div>
+                      </div>
+                </div>
+        </div>
+            </div>
+
+
+        </div>
+{% endblock %}

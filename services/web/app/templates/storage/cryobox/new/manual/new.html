@@ -5,27 +5,24 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}{{ shelf.name }}: New Cryovial Box{% endblock %}
+{% block title %}New Cryovial Box{% endblock %}
 
 {% block body %}
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="container">
+        <div class="storage container">
 
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h2><i class="fa fa-cube"></i> New Cryovial Box</h2>
-            </div>
+            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> Cryovial Box</span>New Cryovial Box</h1>
 
-            <form action="{{ url_for('storage.add_cryobox', shelf_id=shelf.id) }}" method="post">
+
+            <form action="{{ url_for('storage.cryobox_manual_entry') }}" method="post">
                 {{ form.csrf_token }}
                 {{ form_field(form.serial) }}
                 {{ form_field(form.num_rows) }}
                 {{ form_field(form.num_cols) }}
                 {{ form_field(form.submit) }}
-
             </form>
-
 
         </div>
     </div>

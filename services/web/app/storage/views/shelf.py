@@ -1,130 +1,55 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
-from flask_login import current_user, login_required
-
 from ... import db
-from .. import storage
+
+from ..models import *
+from ...auth.views import UserView
+from ...sample.views import BasicSampleView
+from .cryobox import BasicCryoboxView
 
 
-from ..models import (
-    Site,
-    Room,
-    FixedColdStorage,
-    FixedColdStorageShelf,
-    SampleToFixedColdStorageShelf,
-    CryovialBox,
-    CryovialBoxToFixedColdStorageShelf,
-    SampleToCryovialBox,
-)
-from ...sample.models import Sample
 
-from ...misc.models import Address
-from ...auth.models import User
-from ..forms import NewCryovialBoxForm, SampleToBoxForm
+def BasicShelfView(shelf_id: int) -> dict:
 
-
-@storage.route("/shelves/view/LIMBSHF-<id>")
-@login_required
-def view_shelf(id):
     shelf = (
         db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.id == id)
+        .filter(FixedColdStorageShelf.id == shelf_id)
         .first_or_404()
+    )
+
+    return {
+        "id": shelf.id,
+        "name": shelf.name,
+        "description": shelf.description,
+        "storage_id": shelf.storage_id,
+        "creation_date": shelf.creation_date,
+        "update_date": shelf.update_date,
+        "author_information": UserView(shelf.author_id),
+    }
+
+
+def ShelfView(shelf_id: int) -> dict:
+
+    data = BasicShelfView(shelf_id)
+
+
+
+    boxes = (
+        db.session.query(EntityToStorage)
+        .filter(
+            EntityToStorage.shelf_id == shelf_id,
+            EntityToStorage.storage_type == EntityToStorageTpye.BTS,
+        )
+        .all()
     )
     samples = (
-        db.session.query(SampleToFixedColdStorageShelf)
-        .filter(SampleToFixedColdStorageShelf.shelf_id == id)
-        .join(FixedColdStorageShelf)
+        db.session.query(EntityToStorage)
+        .filter(
+            EntityToStorage.shelf_id == shelf_id,
+            EntityToStorage.storage_type == EntityToStorageTpye.STS,
+        )
         .all()
     )
 
-    cryoboxes = (
-        db.session.query(CryovialBox)
-        .join(CryovialBoxToFixedColdStorageShelf)
-        .filter(CryovialBoxToFixedColdStorageShelf.shelf_id == id)
-        .all()
-    )
+    data["samples"] = {x.id: BasicSampleView(x.sample_id) for x in samples}
+    data["cryoboxes"] = {x.id: BasicCryoboxView(x.box_id) for x in boxes}
 
-    return render_template(
-        "storage/shelf/view.html", shelf=shelf, samples=samples, cryoboxes=cryoboxes
-    )
-
-
-@storage.route("/shelves/add_cryobox/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
-@login_required
-def add_cryobox(shelf_id):
-    shelf = (
-        db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.id == shelf_id)
-        .first_or_404()
-    )
-    form = NewCryovialBoxForm()
-
-    if form.validate_on_submit():
-
-        cb = CryovialBox(
-            serial=form.serial.data,
-            num_rows=form.num_rows.data,
-            num_cols=form.num_cols.data,
-            author_id=current_user.id,
-        )
-
-        db.session.add(cb)
-        db.session.flush()
-
-        cbfcs = CryovialBoxToFixedColdStorageShelf(
-            box_id=cb.id, shelf_id=shelf_id, author_id=current_user.id
-        )
-
-        db.session.add(cbfcs)
-
-        db.session.commit()
-
-        return redirect(url_for("storage.view_shelf", id=shelf.id))
-
-    return render_template("storage/cryobox/new.html", form=form, shelf=shelf)
-
-
-@storage.route("/shelves/assign_sample/LIMBSHF-<shelf_id>", methods=["GET", "POST"])
-@login_required
-def assign_sample_to_shelf(shelf_id):
-    shelf = (
-        db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.id == shelf_id)
-        .first_or_404()
-    )
-    samples = db.session.query(Sample).all()
-
-    form = SampleToBoxForm(samples)
-    if form.validate_on_submit():
-
-        sample = (
-            db.session.query(Sample)
-            .filter(Sample.id == form.samples.data)
-            .first_or_404()
-        )
-
-        sample_shelf_binds = (
-            db.session.query(SampleToFixedColdStorageShelf)
-            .filter(SampleToFixedColdStorageShelf.sample_id == sample.id)
-            .all()
-        )
-
-        sample_box_binds = (
-            db.session.query(SampleToCryovialBox)
-            .filter(SampleToCryovialBox.sample_id == sample.id)
-            .all()
-        )
-
-        for bind in sample_shelf_binds + sample_box_binds:
-            db.session.delete(bind)
-
-        sfcs = SampleToFixedColdStorageShelf(
-            sample_id=sample.id, shelf_id=shelf.id, author_id=current_user.id
-        )
-
-        db.session.add(sfcs)
-        db.session.commit()
-
-        return redirect(url_for("storage.view_shelf", id=shelf.id))
-
-    return render_template("storage/shelf/sample_to_shelf.html", form=form, shelf=shelf)
+    return data

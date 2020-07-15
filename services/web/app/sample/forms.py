@@ -30,9 +30,13 @@ from .. import db
 
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
-    fluid_sample_type = SelectField("Fluid Sample Type", choices=FluidSampleType.choices())
-    molecular_sample_type = SelectField("Molecular Sample Type", choices=MolecularSampleType.choices())
-    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())  
+    fluid_sample_type = SelectField(
+        "Fluid Sample Type", choices=FluidSampleType.choices()
+    )
+    molecular_sample_type = SelectField(
+        "Molecular Sample Type", choices=MolecularSampleType.choices()
+    )
+    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
     quantity = FloatField("Quantity", validators=[DataRequired()])
     fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
@@ -48,18 +52,22 @@ def PatientConsentFormSelectForm():
         collection_date = DateField(
             "Sample Collection Date",
             validators=[DataRequired()],
-            description="The date in which the sample was collected.")
-    
-        disposal_date = DateField("Disposal Date (*)", description="The date in which the sample is required to be disposed of in accordance to the disposal instructions.")
+            description="The date in which the sample was collected.",
+        )
+
+        disposal_date = DateField(
+            "Disposal Date (*)",
+            description="The date in which the sample is required to be disposed of in accordance to the disposal instructions.",
+        )
 
         disposal_instruction = SelectField(
-            "Disposal Instructions", choices=DisposalInstruction.choices(), description="The method of sample disposal."
+            "Disposal Instructions",
+            choices=DisposalInstruction.choices(),
+            description="The method of sample disposal.",
         )
 
         has_donor = BooleanField("Has Donor")
-  
 
-    
     donors = db.session.query(Donors).all()
     donor_choices = []
     if len(donors) == 0:
@@ -74,21 +82,23 @@ def PatientConsentFormSelectForm():
         SelectField(
             "Sample Donor",
             choices=donor_choices,
-            description="The patient consent form template that reflects the consent form the sample donor signed. "
+            description="The patient consent form template that reflects the consent form the sample donor signed. ",
         ),
     )
 
     patient_consent_forms = db.session.query(ConsentFormTemplate).all()
 
-    
     setattr(
         StaticForm,
         "form_select",
         SelectField(
             "Patient Consent Form Template",
             validators=[DataRequired()],
-            choices=[(str(cf.id), "LIMBPCF-%s: %s" % (cf.id, cf.name)) for cf in patient_consent_forms],
-            description="The patient consent form template that reflects the consent form the sample donor signed. "
+            choices=[
+                (str(cf.id), "LIMBPCF-%s: %s" % (cf.id, cf.name))
+                for cf in patient_consent_forms
+            ],
+            description="The patient consent form template that reflects the consent form the sample donor signed. ",
         ),
     )
 
@@ -124,7 +134,10 @@ def ProtocolTemplateSelectForm(templates):
 
 def PatientConsentQuestionnaire(questions) -> FlaskForm:
     class StaticForm(FlaskForm):
-        consent_id = StringField("Patient Consent Form ID/Code", description="The identifying code of the signed patient consent form.")
+        consent_id = StringField(
+            "Patient Consent Form ID/Code",
+            description="The identifying code of the signed patient consent form.",
+        )
 
     for question in questions:
         setattr(StaticForm, str(question.id), BooleanField(question.question))
@@ -165,7 +178,6 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
         processsing_enum = ProtocolSampleType.MOL
 
     _ec = sample_type_enums.choices()
-
 
     setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=_ec))
 

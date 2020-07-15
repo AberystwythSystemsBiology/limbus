@@ -1,6 +1,7 @@
 from app import db
 from .enums import *
 
+
 class Donors(db.Model):
     __versioned__ = {}
     __tablename__ = "donors"
@@ -13,7 +14,7 @@ class Donors(db.Model):
     sex = db.Column(db.Enum(BiologicalSexTypes))
     status = db.Column(db.Enum(DonorStatusTypes))
     death_date = db.Column(db.DateTime)
-    
+
     weight = db.Column(db.Float)
     height = db.Column(db.Float)
 
