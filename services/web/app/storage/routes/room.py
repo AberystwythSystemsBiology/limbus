@@ -1,52 +1,18 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
+from flask import redirect, abort, render_template, url_for, session, request, jsonify, flash
 
 from flask_login import current_user, login_required
 from ... import db
 from .. import storage
 
-from ..forms import SiteRegistrationForm, RoomRegistrationForm, LongTermColdStorageForm
+from ..forms import RoomRegistrationForm, LongTermColdStorageForm
 
 from ..models import (
-    Site,
-    Room,
     FixedColdStorage,
-    FixedColdStorageShelf,
+    Room
 )
 
-from ...misc.models import Address
-from ...auth.models import User
 
-from ..views.room import RoomView
-
-
-@storage.route("rooms/new", methods=["GET", "POST"])
-@login_required
-def add_room():
-    form = SiteRegistrationForm()
-    if form.validate_on_submit():
-
-        addr = Address(
-            street_address_one=form.address_line_one.data,
-            street_address_two=form.address_line_two.data,
-            city=form.city.data,
-            county=form.county.data,
-            post_code=form.post_code.data,
-            country=form.country.data,
-        )
-
-        db.session.add(addr)
-
-        db.session.flush()
-
-        site = Site(name=form.name.data, address_id=addr.id, author_id=current_user.id)
-
-        db.session.add(site)
-        db.session.commit()
-
-        return redirect(url_for("storage.site_index"))
-
-    return render_template("storage/site/new.html", form=form)
-
+from ..views.room import RoomView, BasicRoomView
 
 @storage.route("/rooms/LIMBROM-<room_id>")
 @login_required
@@ -58,12 +24,29 @@ def view_room(room_id: int):
 @storage.route("/rooms/LIMBROM-<room_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_room(room_id: int):
-    return "Hello World"
+    form = RoomRegistrationForm()
+    if form.validate_on_submit():
+        r = db.session.query(Room).filter(Room.id == room_id).first_or_404()
 
-@storage.route("/rooms/add_lts/LIMBROM-<id>", methods=["GET", "POST"])
+        r.room_number = form.room.data
+        r.building = form.building.data,
+        r.author_id = current_user.id
+
+        db.session.commit()
+
+        flash("LIMBROM-%s successfully updated." % (room_id))
+
+        return redirect(url_for("storage.view_room", room_id=room_id))
+
+    room = BasicRoomView(room_id)
+    form.room.data = room["room_number"]
+    form.building.data = room["building"]
+    return render_template("storage/room/edit.html", form=form, room=room)
+
+@storage.route("/rooms/add_storage/LIMBROM-<room_id>", methods=["GET", "POST"])
 @login_required
-def add_lts(id):
-    room = db.session.query(Room).filter(Room.id == id).first_or_404()
+def add_lts(room_id: int):
+    room = BasicRoomView(room_id)
     form = LongTermColdStorageForm()
 
     if form.validate_on_submit():
@@ -78,6 +61,6 @@ def add_lts(id):
 
         db.session.add(fcs)
         db.session.commit()
-        return redirect(url_for("storage.view_room", id=id))
+        return redirect(url_for("storage.view_room", room_id=room_id))
 
     return render_template("storage/lts/new.html", form=form, room=room)

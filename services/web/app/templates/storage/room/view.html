@@ -61,7 +61,7 @@
                                 </div>
                             </a>
                         {% endfor  %}
-                    <a href="{{ url_for('storage.add_lts', id=room.id) }}"
+                    <a href="{{ url_for('storage.add_lts', room_id=room.id) }}"
                            class="list-group-item list-group-item-action flex-column active"
                            style="text-align: center;">
                             <i class="fa fa-plus"></i> Add Cold Storage
