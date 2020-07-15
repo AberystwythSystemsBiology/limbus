@@ -45,7 +45,7 @@ function sap2tree(sap) {
         'types': {
             'home': { 'icon': 'fa fa-home' },
             'site': { 'icon': 'fa fa-hospital' },
-            'room': { 'icon': 'fa fa-warehouse' },
+            'room': { 'icon': 'fa fa-door-closed' },
             'fridge': { 'icon': 'fa fa-temperature-low' },
             'shelf': { 'icon': 'fa fa-bars' },
             'box': { 'icon': 'fa fa-box' },

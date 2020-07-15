@@ -12,34 +12,30 @@
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
-          
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                <h1><span class="secondary-heading"><i class="fa fa-building"></i> Site</span><i class="fa fa-warehouse"></i> LIMBROM-{{ room.id }}</h1>
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('storage.add_lts', id=room.id) }}">
-                            <button class="btn btn-primary">
-                                <i class="fa fa-plus"></i>
-                                Add LTS
-                            </button>
-                        </a>
+
+            <h1><i class="fa fa-door-closed"></i> LIMBROM-{{ room.id }}</h1>
+
+
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                         <div class="card-body">
+                            <h5 class="card-title">Information</h5>
+                            {{ show_value(room.room_number, "Room Number", "text") }}
+                            {{ show_value(room.building, "Building", "text") }}
+                            {{ show_value(room.creation_date, "Creation Date", "datetime") }}
+
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            {{ room.building }}: {{ room.room_number }}
-
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <h5>LTSs</h5>
-            </div>
-
-            {% for lts in ltss %}
-            <div class="card">
-                <div class="card-header">
-                    {{ lts.manufacturer }} {{ lts.serial_number }}
+                <div class="col-6">
+                    {% for storage in room.storage %}
+                        {{ storage }}
+                    {% endfor  %}
                 </div>
             </div>
-            {% endfor %}
+
+
         </div>
     </div>
 
