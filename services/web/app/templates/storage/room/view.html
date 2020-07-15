@@ -13,7 +13,15 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><i class="fa fa-door-closed"></i> LIMBROM-{{ room.id }}</h1>
+            <h1>
+
+                <span class="secondary-heading">
+                    <a href="{{ url_for('storage.view_site', site_id=room.site_id) }}">
+                        <i class="fa fa-building"></i> LIMBSIT-{{ room.site_id }}
+                                    </a>
+</span>
+                <i class="fa fa-door-closed"></i> LIMBROM-{{ room.id }}
+            </h1>
 
             <div class="row">
                 <div class="col-sm-9">

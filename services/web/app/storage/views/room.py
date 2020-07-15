@@ -11,15 +11,13 @@ def BasicRoomView(room_id: int) -> dict:
         "room_number": r.room_number,
         "building": r.building,
         "creation_date": r.creation_date,
-        "site_information": r.site_id,
+        "site_id": r.site_id,
         "author_information": UserView(r.author_id)
     }
 
 
 def RoomView(room_id: int) -> dict:
     data = BasicRoomView(room_id)
-
-    data["site_information"] = {"Site Here"}
 
     data["storage"] = [
         BasicLTSView(x.id) for x in db.session.query(FixedColdStorage).filter(FixedColdStorage.room_id == room_id).all()
