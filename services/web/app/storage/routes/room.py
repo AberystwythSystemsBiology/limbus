@@ -55,6 +55,10 @@ def view_room(room_id: int):
     return render_template("storage/room/view.html", room=room)
 
 
+@storage.route("/rooms/LIMBROM-<room_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_room(room_id: int):
+    return "Hello World"
 
 @storage.route("/rooms/add_lts/LIMBROM-<id>", methods=["GET", "POST"])
 @login_required
