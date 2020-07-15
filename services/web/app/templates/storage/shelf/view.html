@@ -13,7 +13,51 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><span class="secondary-heading"><i class="fa fa-temperature-low"></i> LIMBLTS-{{ shelf.lts_information.id }}</span><i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
+            <h1><span class="secondary-heading"><i
+                    class="fa fa-temperature-low"></i> LIMBLTS-{{ shelf.lts_information.id }}</span><i
+                    class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
+
+            <div class="row">
+                <div class="col-sm-9">
+                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="{{ url_for('storage.edit_shelf', id=shelf.id) }}">
+                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                </button>
+                            </a>
+                        </div>
+
+                        <div class="btn-group mr-2" role="group" aria-label="Third group">
+                            <a href="{{ url_for('storage.view_history', storage_type = "SHF", id=shelf.id) }}">
+                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-history"></i> History
+                                </button>
+                            </a>
+                        </div>
+
+                        <div class="btn-group" role="group" aria-label="Third group">
+                            <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i>
+                                Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card" style="margin-bottom: 3em">
+                <div class="card-body">
+                    <h5 class="card-title">Information</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            {{ show_value(shelf.description, "Description", "text") }}
+                        </div>
+                        <div class="col-6">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div class="row">
                 <div class="col-sm-6">
@@ -55,8 +99,6 @@
                         {% endfor %}
                         </tbody>
                     </table>
-
-
                 </div>
                 <div class="col-sm-6">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
@@ -66,24 +108,23 @@
 
                     <div class="list-group">
                         {% for id, cryobox in shelf.cryoboxes.items() %}
-                            <a href="{{ url_for('storage.view_cryobox', cryo_id=cryobox.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">LIMBCRB-{{ cryobox.id }}</h5>
-                                <small>{{ cryobox.num_rows }} x {{ cryobox.num_cols }}</small>
-                            </div>
-                            <p class="mb-1">Serial Number: {{ cryobox.serial }}</p>
-                        </a>
+                            <a href="{{ url_for('storage.view_cryobox', cryo_id=cryobox.id) }}"
+                               class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">LIMBCRB-{{ cryobox.id }}</h5>
+                                    <small>{{ cryobox.num_rows }} x {{ cryobox.num_cols }}</small>
+                                </div>
+                                <p class="mb-1">Serial Number: {{ cryobox.serial }}</p>
+                            </a>
                         {% endfor %}
-                        <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}" class="list-group-item list-group-item-action flex-column active" style="text-align: center;">
+                        <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}"
+                           class="list-group-item list-group-item-action flex-column active"
+                           style="text-align: center;">
                             <i class="fa fa-plus"></i> Add Cryovial Box
                         </a>
                     </div>
-
-
-
                 </div>
             </div>
-
 
         </div>
     </div>

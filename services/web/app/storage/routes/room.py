@@ -53,7 +53,7 @@ def add_room():
     return render_template("storage/site/new.html", form=form)
 
 
-@storage.route("/rooms/view/LIMBROM-<id>")
+@storage.route("/rooms/LIMBROM-<id>")
 @login_required
 def view_room(id):
     site = db.session.query(Site).filter(Site.id == Room.site_id).first_or_404()

@@ -4,7 +4,7 @@ from ..models import *
 from ...auth.views import UserView
 from ...sample.views import BasicSampleView
 from .cryobox import BasicCryoboxView
-from .lts import BasicLTSView
+#from ..views.lts import BasicLTSView
 
 def BasicShelfView(shelf_id: int) -> dict:
 
@@ -20,7 +20,7 @@ def BasicShelfView(shelf_id: int) -> dict:
         "id": shelf.id,
         "name": shelf.name,
         "description": shelf.description,
-        "lts_information": BasicLTSView(shelf.storage_id),
+        "lts_information": shelf.storage_id,
         "creation_date": shelf.creation_date,
         "update_date": shelf.update_date,
         "author_information": UserView(shelf.author_id),

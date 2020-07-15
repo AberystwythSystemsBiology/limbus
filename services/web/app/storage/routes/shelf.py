@@ -17,7 +17,6 @@ from .misc import move_entity_to_storage
 
 
 from ..models import (
-    FixedColdStorage,
     FixedColdStorageShelf,
     CryovialBox,
 )
@@ -26,42 +25,12 @@ from ...sample.models import Sample
 from ..forms import SampleToEntityForm, BoxToShelfForm, NewShelfForm
 from ..views import ShelfView, BasicShelfView
 from ..enums import EntityToStorageTpye
-from uuid import uuid4
 
 @storage.route("/shelves/LIMBSHF-<id>")
 @login_required
 def view_shelf(id):
     shelf = ShelfView(id)
     return render_template("storage/shelf/view.html", shelf=shelf)
-
-
-@storage.route("/lts/LIMBLTS-<lts_id>/add_shelf", methods=["GET", "POST"])
-@login_required
-def add_shelf(lts_id):
-    lts = (
-        db.session.query(FixedColdStorage)
-        .filter(FixedColdStorage.id == lts_id)
-        .first_or_404()
-    )
-
-    form = NewShelfForm()
-
-    if form.validate_on_submit():
-        shelf = FixedColdStorageShelf(
-            name=form.name.data,
-            # Generate a UUID :)
-            uuid=uuid4(),
-            description=form.description.data,
-            storage_id=lts_id,
-            author_id=current_user.id,
-        )
-
-        db.session.add(shelf)
-        db.session.commit()
-
-        return redirect(url_for("storage.view_lts", lts_id=lts_id))
-
-    return render_template("/storage/shelf/new.html", form=form, lts=lts)
 
 
 @storage.route("/shelves/LIMBSHF-<id>/edit", methods=["GET", "POST"])

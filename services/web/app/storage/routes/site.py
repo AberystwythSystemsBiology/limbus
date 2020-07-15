@@ -53,7 +53,7 @@ def add_site():
     return render_template("storage/site/new.html", form=form)
 
 
-@storage.route("/sites/view/LIMBSIT-<id>")
+@storage.route("/sites/LIMBSIT-<id>")
 @login_required
 def view_site(id):
     site, address, uploader = (

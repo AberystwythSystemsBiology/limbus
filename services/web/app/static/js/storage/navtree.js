@@ -55,7 +55,7 @@ function sap2tree(sap) {
         'plugins' : ['types', 'state'],
         'core': {
             'data': {
-                'text': 'Manage',
+                'text': 'Sites',
                 'type': 'home',
                 'children': sites
             }
@@ -77,32 +77,32 @@ $(function() {
 
     function selectSite(site) {
         var site_id = parseId(site.id);
-        location.href=`/storage/sites/view/LIMBSIT-${site_id}`
+        location.href=`/storage/sites/LIMBSIT-${site_id}`
     }
 
     function selectRoom(room) {
         var room_id = parseId(room.id);
-        location.href=`/storage/rooms/view/LIMBROM-${room_id}`
+        location.href=`/storage/rooms/LIMBROM-${room_id}`
     }
 
     function selectFridge(fridge) {
         var fridge_id = parseId(fridge.id);
-        location.href=`/storage/lts/view/LIMBLTS-${fridge_id}`
+        location.href=`/storage/lts/LIMBLTS-${fridge_id}`
     }
 
     function selectShelf(shelf) {
         var shelf_id = parseId(shelf.id);
-        location.href=`/storage/shelves/view/LIMBSHF-${shelf_id}`
+        location.href=`/storage/shelves/LIMBSHF-${shelf_id}`
     }
 
     function selectBox(box) {
         var box_id = parseId(box.id);
-        location.href=`/storage/cryobox/view/LIMBCRB-${box_id}`
+        location.href=`/storage/cryobox/LIMBCRB-${box_id}`
     }
 
     function selectSample(sample) {
         var sample_id = parseId(sample.id);
-        location.href=`../../../samples/view/LIMBSMP-${sample_id}`
+        location.href=`../../../samples/LIMBSMP-${sample_id}`
     }
 
     function parseId(id_field) {
