@@ -1,11 +1,18 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify, flash
+from flask import (
+    redirect,
+    abort,
+    render_template,
+    url_for,
+    session,
+    request,
+    jsonify,
+    flash,
+)
 from flask_login import current_user, login_required
 
 from ... import db
 from .. import storage
 
-from ..views.shelf import BasicShelfView
-from ...auth.models import User
 from ..forms import LongTermColdStorageForm, NewShelfForm
 from ..models import FixedColdStorageShelf, FixedColdStorage
 
@@ -19,6 +26,7 @@ from ..views import LTSView, BasicLTSView
 def view_lts(lts_id: int):
     lts = LTSView(lts_id)
     return render_template("/storage/lts/view.html", lts=lts)
+
 
 @storage.route("/lts/LIMBLTS-<lts_id>/add_shelf", methods=["GET", "POST"])
 @login_required
@@ -44,6 +52,7 @@ def add_shelf(lts_id: int):
 
     return render_template("/storage/shelf/new.html", form=form, lts=lts)
 
+
 @storage.route("/lts/LIMBLTS-<lts_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_lts(lts_id):
@@ -51,11 +60,15 @@ def edit_lts(lts_id):
     form = LongTermColdStorageForm()
 
     if form.validate_on_submit():
-        s = db.session.query(FixedColdStorage).filter(FixedColdStorage.id == lts_id).first_or_404()
+        s = (
+            db.session.query(FixedColdStorage)
+            .filter(FixedColdStorage.id == lts_id)
+            .first_or_404()
+        )
         s.manufacturer = form.manufacturer.data
         # TODO: Fix this annoying issue wherein forms aren't being validated against enumerated types properly.
         # s.temperature = form.temperature.data,
-        s.serial_number = form.serial_number.data,
+        s.serial_number = (form.serial_number.data,)
         s.type = form.type.data
 
         s.author_id = current_user.id

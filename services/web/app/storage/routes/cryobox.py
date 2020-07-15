@@ -189,6 +189,7 @@ def view_cryobox(cryo_id):
     cryo = CryoboxView(cryo_id)
     return render_template("storage/cryobox/view.html", cryo=cryo)
 
+
 # TODO: All of this needs to be given a specific view.
 from sqlalchemy_continuum import version_class
 from sqlalchemy import desc
@@ -223,10 +224,13 @@ def view_history(storage_type, id):
             "entered_by": change.entered_by,
             "entered": change.entered,
             "update_date": change.update_date,
-            "author_information": UserView(change.author_id)
+            "author_information": UserView(change.author_id),
         }
 
-    return render_template("storage/history.html", storage_type=storage_type, id=id, changes=changes)
+    return render_template(
+        "storage/history.html", storage_type=storage_type, id=id, changes=changes
+    )
+
 
 @storage.route("cryobox/LIMCRB-<cryo_id>/edit", methods=["GET", "POST"])
 @login_required

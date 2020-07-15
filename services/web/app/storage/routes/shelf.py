@@ -15,7 +15,6 @@ from .. import storage
 
 from .misc import move_entity_to_storage
 
-
 from ..models import (
     FixedColdStorageShelf,
     CryovialBox,
@@ -25,6 +24,7 @@ from ...sample.models import Sample
 from ..forms import SampleToEntityForm, BoxToShelfForm, NewShelfForm
 from ..views import ShelfView, BasicShelfView
 from ..enums import EntityToStorageTpye
+
 
 @storage.route("/shelves/LIMBSHF-<id>")
 @login_required
@@ -41,7 +41,11 @@ def edit_shelf(id):
     form = NewShelfForm()
 
     if form.validate_on_submit():
-        s = db.session.query(FixedColdStorageShelf).filter(FixedColdStorageShelf.id == id).first_or_404()
+        s = (
+            db.session.query(FixedColdStorageShelf)
+            .filter(FixedColdStorageShelf.id == id)
+            .first_or_404()
+        )
 
         s.name = form.name.data
         s.description = form.description.data
@@ -55,6 +59,7 @@ def edit_shelf(id):
     form.description.data = shelf["description"]
 
     return render_template("storage/shelf/edit.html", shelf=shelf, form=form)
+
 
 @storage.route("/shelves/LIMBSHF-<shelf_id>/assign_box", methods=["GET", "POST"])
 @login_required
