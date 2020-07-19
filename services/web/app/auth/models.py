@@ -3,8 +3,6 @@ import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
-#from ..misc.models import Address
-
 from .enums import Title
 
 class UserAccount(UserMixin, db.Model):

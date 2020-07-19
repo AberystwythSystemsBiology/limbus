@@ -1,7 +1,5 @@
 from app import db
 
-from ..auth.models import *
-
 class Address(db.Model):
     __versioned__ = {}
     __tablename__ = "addresses"

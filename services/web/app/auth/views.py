@@ -3,14 +3,14 @@ from .models import UserAccount
 
 import marshmallow_sqlalchemy as ma
 
-class BasicUserSchema(ma.SQLAlchemySchema):
+class BasicUserAccountSchema(ma.SQLAlchemySchema):
     class Meta:
         model = UserAccount
 
     email = ma.auto_field()
 
-basic_user_schema = BasicUserSchema()
-basic_users_schema = BasicUserSchema(many=True)
+basic_user_account_schema = BasicUserAccountSchema()
+basic_user_accounts_schema = BasicUserAccountSchema(many=True)
 
 
 
