@@ -4,7 +4,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from . import auth
 
 from .forms import LoginForm, ChangePassword
-from .models import User
+from .models import UserAccount
 
 from .views import UserView
 
@@ -16,7 +16,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = db.session.query(User).filter(User.email == form.email.data).first()
+        user = db.session.query(UserAccount).filter(UserAccount.email == form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
             flash("Successfuly logged in.")

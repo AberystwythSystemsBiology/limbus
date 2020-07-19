@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import redirect, abort, render_template, url_for
 
-from ..auth.models import User, Profile
+from ..auth.models import User
 from ..misc.models import BiobankInformation, Address
 
 from . import setup
@@ -46,20 +46,6 @@ def admin_registration():
         db.session.add(admin)
 
         db.session.flush()
-
-        profile = Profile(
-            title=form.title.data,
-            first_name=form.first_name.data,
-            middle_name=form.middle_name.data,
-            last_name=form.last_name.data,
-        )
-
-        db.session.add(profile)
-
-        db.session.flush()
-
-        admin.profile_id = profile.id
-
         db.session.commit()
 
         return redirect(url_for("setup.biobank_registration"))

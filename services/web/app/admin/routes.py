@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from .forms import TemporaryRegistrationForm
 from .views import UserAccountsView
 
-from ..auth.models import Profile, User
+from ..auth.models import  User
 
 from functools import wraps
 
@@ -33,21 +33,11 @@ def index():
 
     if form.validate_on_submit():
 
-        profile = Profile(
-            title=form.title.data,
-            first_name=form.first_name.data,
-            middle_name=form.middle_name.data,
-            last_name=form.last_name.data,
-        )
-
-        db.session.add(profile)
-        db.session.flush()
 
         user = User(
             email=form.email.data,
             password=form.password.data,
             is_admin=form.is_admin.data,
-            profile_id=profile.id,
         )
         db.session.add(user)
         db.session.commit()

@@ -12,8 +12,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 from ..auth.enums import Title
 
 
-from ..auth.models import User
-from ..misc.models import BiobankInformation
+from ..auth.models import UserAccount
 
 
 class TemporaryRegistrationForm(FlaskForm):
@@ -46,5 +45,5 @@ class TemporaryRegistrationForm(FlaskForm):
     submit = SubmitField("Register")
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        if UserAccount.query.filter_by(email=field.data).first():
             raise ValidationError("Email address already in use.")

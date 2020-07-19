@@ -8,7 +8,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 
-from .models import User
+from .models import UserAccount
 
 
 class LoginForm(FlaskForm):
@@ -52,5 +52,5 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField("Register")
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        if UserAccount.query.filter_by(email=field.data).first():
             raise ValidationError("Email address already in use.")

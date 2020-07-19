@@ -1,53 +1,61 @@
 from flask_login import UserMixin
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from app import db, login_manager
+
+#from ..misc.models import Address
 
 from .enums import Title
 
-
-class User(UserMixin, db.Model):
+class UserAccount(UserMixin, db.Model):
     __versioned__ = {}
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
 
-    email = db.Column(db.String(128), nullable=False, unique=True)
+    email = db.Column(db.String(320), nullable=False, unique=True)
+    title = db.Column(db.Enum(Title), nullable=False)
 
-    password_hash = db.Column(db.String(128))
+    first_name = db.Column(db.String(128), nullable=False)
+    middle_name = db.Column(db.String(128))
+    last_name = db.Column(db.String(128), nullable=False)
 
-    profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
+    password_hash = db.Column(db.String(256), nullable=False)
 
-    is_admin = db.Column(db.Boolean, default=False)
-    is_locked = db.Column(db.Boolean, default=False)
+    address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
 
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
+    created_on = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+
+    updated_on = db.Column(
         db.DateTime,
         server_default=db.func.now(),
         server_onupdate=db.func.now(),
         nullable=False,
     )
 
-    @property
-    def password(self) -> AttributeError:
-        raise AttributeError("Password is not accessible.")
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    is_locked = db.Column(db.Boolean, default=False, nullable=False)
 
-    def gravatar(self, size: int = 200) -> str:
+    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"), nullable=False)
+
+    @property
+    def password(self) -> str:
+        return "hunter2"
+
+    def get_gravatar(self, size: int = 100) -> str:
+        """
+
+        :param size:
+        :return:
+        """
         return "https://www.gravatar.com/avatar/%s?s=%i" % (
             hashlib.md5(self.email.encode()).hexdigest(),
             size,
         )
-
-    @property
-    def name(self) -> str:
-        profile = (
-            db.session.query(Profile)
-            .filter(Profile.id == self.profile_id)
-            .first_or_404()
-        )
-        return "%s %s" % (profile.first_name, profile.last_name)
 
     @password.setter
     def password(self, password):
@@ -58,42 +66,5 @@ class User(UserMixin, db.Model):
 
 
 @login_manager.user_loader
-def load_user(user_id: int) -> User:
-    return User.query.get(user_id)
-
-
-class Profile(db.Model):
-
-    __tablename__ = "profiles"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(db.Enum(Title), nullable=False)
-    first_name = db.Column(db.String(128))
-    middle_name = db.Column(db.String(128))
-    last_name = db.Column(db.String(128))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-
-class ProfileToAddress(db.Model):
-    __versioned__ = {}
-    __tablename__ = "profiles_to_addresses"
-    id = db.Column(db.Integer, primary_key=True)
-
-    profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
-    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+def load_user(user_id: int) -> UserAccount:
+    return UserAccount.query.get(user_id)

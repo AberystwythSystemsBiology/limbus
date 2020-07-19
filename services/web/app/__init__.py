@@ -6,23 +6,31 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
-from sqlalchemy import orm
+from flask_migrate import Migrate
+from flask_marshmallow import Marshmallow
 
+from sqlalchemy import orm
+#from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import FlaskPlugin
 from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 
 db = SQLAlchemy()
+ma = Marshmallow()
+
 login_manager = LoginManager()
 
-make_versioned(plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
+make_versioned(user_cls=None, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
 
-# blueprint imports
-from .admin import admin as admin_blueprint
+# Blueprint imports:
+# from .admin import admin as admin_blueprint
 from .misc import misc as misc_blueprint
+'''
 from .attribute import attribute as attribute_blueprint
 from .setup import setup as setup_blueprint
+'''
 from .auth import auth as auth_blueprint
+'''
 from .document import document as doc_blueprint
 from .sample import sample as sample_blueprint
 from .donor import donor as donor_blueprint
@@ -30,7 +38,7 @@ from .patientconsentform import pcf as pcf_blueprint
 from .processing import processing as processing_blueprint
 from .storage import storage as storage_blueprint
 from .procedure import procedure as procedure_blueprint
-
+'''
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -39,16 +47,19 @@ def create_app():
     app.config.from_pyfile("config.py")
 
     db.init_app(app)
-    migrate = Migrate(app, db)
+    ma.init_app(app)
 
-    orm.configure_mappers()
+    migrate = Migrate(app, db)
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
 
-    # Load in models here
-    from app.auth import models as auth_models
+
+    # Models imports:
     from app.misc import models as misc_models
+    from app.auth import models as auth_models
+
+    '''
     from app.document import models as doc_models
     from app.sample import models as sample_models
     from app.patientconsentform import models as pcf_models
@@ -57,10 +68,15 @@ def create_app():
     from app.attribute import models as attribute_models
     from app.donor import models as donor_models
     from app.procedure import models as procedure_models
+    '''
+
+    orm.configure_mappers()
+
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint)
-    app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    #app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    '''
     app.register_blueprint(admin_blueprint, url_prefix="/admin")
     app.register_blueprint(attribute_blueprint, url_prefix="/attributes")
     app.register_blueprint(processing_blueprint, url_prefix="/processing")
@@ -70,6 +86,7 @@ def create_app():
     app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
     app.register_blueprint(procedure_blueprint, url_prefix="/procedures")
+    '''
 
     from app.errors import error_handlers
 
