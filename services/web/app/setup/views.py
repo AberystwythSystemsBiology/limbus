@@ -1,95 +1,70 @@
 from functools import wraps
 
-from flask import redirect, abort, render_template, url_for
+from flask import redirect, abort, render_template, url_for, session
 
-from ..auth.models import User
-from ..misc.models import BiobankInformation, Address
+from ..auth.models import UserAccount
+from ..misc.models import SiteInformation, Address
 
 from . import setup
 from .. import db
-from .forms import BiobankRegistrationForm, AdministratorRegistrationForm
+from .forms import SiteRegistrationForm
 
-from ..storage.models import Site
+from ..decorators import check_if_user
 
-
-def check_if_user(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if User.query.first():
-            return abort(401)
-        return f(*args, **kwargs)
-
-    return decorated_function
+from ..generators import generate_random_hash
 
 
 @setup.route("/")
 @check_if_user
 def index():
-    # Step One: Provide the user with instructions.
     return render_template("setup/index.html")
 
 
 @setup.route("/eula")
 @check_if_user
 def eula():
-    # Step Two: Present the EULA.
     return render_template("setup/eula.html")
 
+@setup.route("/site_registration", methods=["GET", "POST"])
+def site_registration():
+
+    form = SiteRegistrationForm()
+
+    if form.validate_on_submit():
+
+        site = {
+            "name": form.name.data,
+            "url": form.url.data,
+            "description": form.description.data,
+            "address" : {
+                "street_address_one": form.address_line_one.data,
+                "street_address_two": form.address_line_two.data,
+                "city": form.city.data,
+                "country":  form.country.data,
+                "post_code": form.post_code.data,
+            }
+        }
+
+
+
+
+        return redirect(url_for("setup.complete"))
+
+    return render_template("setup/site_registration.html", form=form)
+
+
+# TODO: Register site first.
 
 @setup.route("/register_admin", methods=["GET", "POST"])
 @check_if_user
 def admin_registration():
     # Step Three: Ask the user to register themselves as administrator.
-    form = AdministratorRegistrationForm()
-    if form.validate_on_submit():
-        admin = User(email=form.email.data, password=form.password.data, is_admin=True)
-        db.session.add(admin)
+    form = BiobankRegistrationForm()
 
-        db.session.flush()
-        db.session.commit()
-
-        return redirect(url_for("setup.biobank_registration"))
 
     return render_template("setup/admin_registration.html", form=form)
 
 
-@setup.route("/biobank_registration", methods=["GET", "POST"])
-def biobank_registration():
-
-    form = BiobankRegistrationForm()
-
-    if form.validate_on_submit():
-
-        address = Address(
-            street_address_one=form.address_line_one.data,
-            street_address_two=form.address_line_two.data,
-            city=form.city.data,
-            country=form.country.data,
-            post_code=form.post_code.data,
-        )
-
-        db.session.add(address)
-        db.session.flush()
-
-        site = Site(name=form.name.data, address_id=address.id, author_id=1)
-
-        db.session.add(site)
-        db.session.flush()
-
-        biobank = BiobankInformation(
-            name=form.name.data,
-            url=form.url.data,
-            description=form.description.data,
-            address_id=address.id,
-        )
-        db.session.add(biobank)
-        db.session.flush()
-
-        db.session.commit()
-
-        return redirect(url_for("setup.complete"))
-
-    return render_template("setup/biobank_registration.html", form=form)
 
 
 @setup.route("/complete")

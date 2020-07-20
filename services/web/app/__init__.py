@@ -27,8 +27,8 @@ make_versioned(user_cls=None, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()
 from .misc import misc as misc_blueprint
 '''
 from .attribute import attribute as attribute_blueprint
-from .setup import setup as setup_blueprint
 '''
+from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 '''
 from .document import document as doc_blueprint
@@ -75,7 +75,7 @@ def create_app():
 
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint)
-    #app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    app.register_blueprint(setup_blueprint, url_prefix="/setup")
     '''
     app.register_blueprint(admin_blueprint, url_prefix="/admin")
     app.register_blueprint(attribute_blueprint, url_prefix="/attributes")

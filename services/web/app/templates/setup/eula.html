@@ -4,14 +4,17 @@
 
 {% block body %}
 <div class="container">
-    <h1><span class="secondary-heading"><i class="mega-octicon octicon-cloud-download"></i> LImBuS Setup</span>Not The End User License Agreement</h1>
+    <h1>
+        <span class="secondary-heading"><i class="fa fa-wrench"></i> LImBuS Setup</span>
+        <i class="fa fa-file-alt"></i> Not The End User License Agreement
+    </h1>
 
+        {{ render_progress(2, 7) }}
 
-    <p>As this project is licensed under the GNU General Public License v3.0, you are not required to agree to an EULA.
+    <p>As this project is licensed under the GNU General Public License v3.0, <b>you are not required to agree to an EULA</b>.
     </p>
 
-    <p>Instead, we afford you the four essential freedoms:</p>
-
+    <p>Instead, we afford you the <i>four essential freedoms</i>:</p>
 
 
     <ol start="0">
@@ -23,9 +26,10 @@
             community a chance to benefit from your changes. Access to the source code is a precondition for this. </li>
     </ol>
 
-    <p>If you would like to know more about this, you can find more information at the footer of this webpage.</p>
+    <p>If you would like to learn more about these freedoms, and why they are important, visit the
+        <a href="https://www.gnu.org/philosophy/free-sw.html" target="_blank">GNU Project</a> to find out more.</p>
 
-    <a href="{{ url_for('setup.admin_registration') }}">
+    <a href="{{ url_for('setup.site_registration') }}">
         <div class="btn btn-success float-right">
             <i class="fa fa-check"></i> Continue
         </div>
