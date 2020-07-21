@@ -90,7 +90,8 @@ def create_app():
     app.register_blueprint(procedure_blueprint, url_prefix="/procedures")
     '''
 
-    # Command line stuff.
+
+    # Command line blueprints.
     app.register_blueprint(cmd_setup_blueprint)
 
     from app.errors import error_handlers
