@@ -5,7 +5,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
 from .enums import Title
-from uuid import uuid4
 
 class UserAccount(UserMixin, db.Model):
     __versioned__ = {}
@@ -39,7 +38,9 @@ class UserAccount(UserMixin, db.Model):
     is_bot = db.Column(db.Boolean, default=False, nullable=True)
     is_locked = db.Column(db.Boolean, default=False, nullable=False)
 
-    # TODO: Replace with a site_id
+    token = db.relationship("UserAccountToken", uselist=False)
+
+    # TODO: Replace with sites
     #address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"), nullable=True)
 
     @property
@@ -96,12 +97,13 @@ class UserAccountToken(db.Model):
         nullable=False
     )
 
+    @property
     def token(self) -> str:
-        return "********"
+        return "*******"
 
     @token.setter
-    def token(self):
-        self.token_hash = generate_password_hash(uuid4().hex)
+    def token(self, token):
+        self.token_hash = generate_password_hash(token)
 
     def verify_token(self, token) -> bool:
         return check_password_hash(self.token_hash, token)

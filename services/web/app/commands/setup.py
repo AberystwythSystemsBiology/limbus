@@ -1,6 +1,6 @@
 from . import cmd_setup
 
-from ..auth.models import UserAccount
+from ..auth.models import UserAccount, UserAccountToken
 from .. import db
 
 from uuid import uuid4
@@ -8,7 +8,7 @@ from uuid import uuid4
 @cmd_setup.cli.command("create-kryten")
 def create_kryton():
     if UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first() is None:
-        kyrton = UserAccount(
+        kryten = UserAccount(
             email="kryten@jupiterminingcorp.co.uk",
             password=uuid4().hex,
             title="MR",
@@ -18,7 +18,15 @@ def create_kryton():
             is_admin=True
         )
 
-        db.session.add(kyrton)
+        db.session.add(kryten)
+        db.session.flush()
+
+        kryten_token = UserAccountToken(
+            user_id = kryten.id,
+            token=uuid4().hex
+        )
+
+        db.session.add(kryten_token)
         db.session.commit()
 
         print("NOTICE: Kryton created!")
