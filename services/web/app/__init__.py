@@ -1,7 +1,9 @@
+from __future__ import absolute_import
 import os
 
+
 from flask import Flask, g, render_template
-from config import app_config
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -45,7 +47,6 @@ from .commands import cmd_setup as cmd_setup_blueprint
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object(app_config[os.environ["FLASK_CONFIG"]])
     app.config.from_pyfile("config.py")
 
     db.init_app(app)

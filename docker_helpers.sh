@@ -16,7 +16,7 @@ function limbus-c() {
 
 function limbus-create-kryton() {
     echo ">>>> Creating Kryton"
-    docker-compose run web sh -c "venv/bin/flask manage.py create-kryton"
+    docker-compose run web sh -c "venv/bin/flask"
 }
 
 function limbus-bwd() {
