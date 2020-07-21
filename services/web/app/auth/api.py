@@ -8,11 +8,12 @@ from .models import UserAccount
 
 @auth.route("/api")
 def api_home():
-    return {"results": UserAccount.query.all()}
+    return {"results": basic_user_accounts_schema.dump(UserAccount.query.all())}
 
 @auth.route("/api/user/new", methods=["POST"])
+@login_required
 def new_user():
-    print(request)
+
     json_data = request.get_json()
 
     if not json_data:
@@ -21,5 +22,6 @@ def new_user():
     user_account = UserAccount(**json_data)
     db.session.add(user_account)
     db.session.commit()
+    db.session.flush()
 
-    return {"success": True}, 200
+    return {"success": True, "id":  user_account.id}, 200

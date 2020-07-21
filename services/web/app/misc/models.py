@@ -12,7 +12,7 @@ class Address(db.Model):
     post_code = db.Column(db.String(20), nullable=False)
     country = db.Column(db.String(2), nullable=False)
 
-    accounts = db.relationship("UserAccount")
+    #accounts = db.relationship("UserAccount")
 
     creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     update_date = db.Column(

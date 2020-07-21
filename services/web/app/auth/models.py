@@ -1,4 +1,5 @@
 from flask_login import UserMixin
+from flask import url_for
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
@@ -20,8 +21,6 @@ class UserAccount(UserMixin, db.Model):
 
     password_hash = db.Column(db.String(256), nullable=False)
 
-    address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
-
     created_on = db.Column(
         db.DateTime,
         server_default=db.func.now(),
@@ -36,9 +35,15 @@ class UserAccount(UserMixin, db.Model):
     )
 
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    is_bot = db.Column(db.Boolean, default=False, nullable=True)
     is_locked = db.Column(db.Boolean, default=False, nullable=False)
 
-    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"), nullable=False)
+    # TODO: Replace with a site_id
+    #address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"), nullable=True)
+
+    @property
+    def name(self) -> str:
+        return "%s %s" % (self.first_name, self.last_name)
 
     @property
     def password(self) -> str:
@@ -50,10 +55,13 @@ class UserAccount(UserMixin, db.Model):
         :param size:
         :return:
         """
-        return "https://www.gravatar.com/avatar/%s?s=%i" % (
-            hashlib.md5(self.email.encode()).hexdigest(),
-            size,
-        )
+        if self.is_bot:
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(self.email.encode()).hexdigest(),
+                size,
+            )
 
     @password.setter
     def password(self, password):
@@ -61,6 +69,10 @@ class UserAccount(UserMixin, db.Model):
 
     def verify_password(self, password) -> bool:
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_authenticated_and_not_bot(self) -> bool:
+        False not in [self.is_authenticated, self.is_bot]
 
 
 @login_manager.user_loader

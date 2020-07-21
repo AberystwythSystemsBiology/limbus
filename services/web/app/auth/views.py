@@ -1,36 +1,35 @@
-from .. import db
+from .. import db, ma
 from .models import UserAccount
 
-import marshmallow_sqlalchemy as ma
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
 
-class BasicUserAccountSchema(ma.SQLAlchemySchema):
+
+class BasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
 
-    email = ma.auto_field()
+    id = masql.auto_field()
+    email = masql.auto_field()
+
+    is_admin = masql.auto_field()
+    is_bot = masql.auto_field()
+
 
 basic_user_account_schema = BasicUserAccountSchema()
 basic_user_accounts_schema = BasicUserAccountSchema(many=True)
 
 
+class FullUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
 
-def UserIndexView() -> dict:
-    users = db.session.query(UserAccount).all()
+    id = masql.auto_field()
+    email = masql.auto_field()
 
-    data = {}
-
-    for user in users:
-        data[user.id] = {
-            "email": user.email,
-            "is_admin": user.is_admin,
-            "is_locked": user.is_locked,
-            "name": user.name,
-            "creation_date": user.creation_date,
-            "update_date": user.update_date,
-        }
-
-    return data
+    is_admin = masql.auto_field()
+    is_bot = masql.auto_field()
 
 
-def UserView(id: int, user_profile: list = None) -> dict:
-    return { }
+full_user_account_schema = FullUserAccountSchema()
+full_user_accounts_schema = FullUserAccountSchema(many=True)
