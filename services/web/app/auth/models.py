@@ -80,7 +80,7 @@ class UserAccountToken(db.Model):
     __tablename__ = "user_token"
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForgeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     token_hash = db.Column(db.String(256), nullable=False)
 
