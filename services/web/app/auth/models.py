@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
 from .enums import Title
+from uuid import uuid4
 
 class UserAccount(UserMixin, db.Model):
     __versioned__ = {}
@@ -42,10 +43,6 @@ class UserAccount(UserMixin, db.Model):
     #address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"), nullable=True)
 
     @property
-    def name(self) -> str:
-        return "%s %s" % (self.first_name, self.last_name)
-
-    @property
     def password(self) -> str:
         return "hunter2"
 
@@ -78,3 +75,33 @@ class UserAccount(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id: int) -> UserAccount:
     return UserAccount.query.get(user_id)
+
+class UserAccountToken(db.Model):
+    __tablename__ = "user_token"
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForgeignKey("user.id"), nullable=False)
+
+    token_hash = db.Column(db.String(256), nullable=False)
+
+    created_on = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+
+    updated_on = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+
+    def token(self) -> str:
+        return "********"
+
+    @token.setter
+    def token(self):
+        self.token_hash = generate_password_hash(uuid4().hex)
+
+    def verify_token(self, token) -> bool:
+        return check_password_hash(self.token_hash, token)

@@ -1,18 +1,24 @@
 from . import auth
 from .. import db
 from flask import request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
-from .views import basic_user_accounts_schema
+from .views import basic_user_accounts_schema, full_user_account_schema
 from .models import UserAccount
 
 @auth.route("/api")
 def api_home():
     return {"results": basic_user_accounts_schema.dump(UserAccount.query.all())}
 
+@auth.route("/api/user/<id>", methods=["GET"])
+@login_required
+def api_view_user(id: int):
+    # TODO: Check if admin or if the current user id == id.
+    return full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first())
+
 @auth.route("/api/user/new", methods=["POST"])
 @login_required
-def new_user():
+def api_new_user():
 
     json_data = request.get_json()
 

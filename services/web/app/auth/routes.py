@@ -1,13 +1,13 @@
-from flask import redirect, render_template, url_for, flash
+from flask import redirect, render_template, url_for, flash, abort
 from flask_login import login_required, login_user, logout_user, current_user
-
+import requests
 
 from . import auth
 
 from .forms import LoginForm, ChangePassword
 from .models import UserAccount
 
-from .views import UserView
+from .views import full_user_account_schema
 
 from .. import db
 
@@ -38,10 +38,14 @@ def logout():
 @auth.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
-    user = UserView(current_user.id)
+    response = requests.get(url_for('auth.api_view_user', id= current_user.id, _external=True))
 
-    password_change = ChangePassword()
-
-    return render_template(
-        "auth/profile.html", user=user, password_change=password_change
-    )
+    return response.headers["Content-Type"]
+    '''
+    print(">>>>>>>>>>>", response.headers["Content-Type"])
+    if response.status_code == 200:
+        password_change = ChangePassword()
+        return render_template("auth/profile.html", user=r.json(), password_change=password_change)
+    else:
+        abort(500)
+    '''

@@ -3,13 +3,10 @@ import requests
 from flask import redirect, abort, render_template, url_for, session, flash
 from flask_login import logout_user, current_user
 
-from ..auth.models import UserAccount
-from ..misc.models import SiteInformation, Address
 
 from ..auth.forms import UserAccountRegistrationForm
 
 from . import setup
-from .. import db
 from .forms import SiteRegistrationForm
 
 from ..decorators import as_kryten, setup_mode
@@ -31,13 +28,9 @@ def eula():
 @setup.route("/site_registration", methods=["GET", "POST"])
 @setup_mode
 def site_registration():
-
     form = SiteRegistrationForm()
-
     if form.validate_on_submit():
-
         hash = generate_random_hash()
-
         site = {
             "name": form.name.data,
             "url": form.url.data,
@@ -50,13 +43,9 @@ def site_registration():
                 "post_code": form.post_code.data,
             }
         }
-
-
         session[hash] = {
             "site": site
         }
-
-
         return redirect(url_for("setup.admin_registration", hash=hash))
 
     return render_template("setup/site_registration.html", form=form)
@@ -83,7 +72,7 @@ def admin_registration(hash: str):
             "password": form.password.data
         }
 
-        r = requests.post(url_for('auth.new_user', _external=True), json=user_account)
+        r = requests.post(url_for('auth.api_new_user', _external=True), json=user_account)
 
         if r.status_code == 200:
             logout_user()
