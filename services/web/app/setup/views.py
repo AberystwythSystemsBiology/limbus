@@ -1,6 +1,6 @@
 import requests
 
-from flask import redirect, abort, render_template, url_for, session, flash
+from flask import redirect, abort, render_template, url_for, session, flash, current_app
 from flask_login import logout_user, current_user
 
 
@@ -13,6 +13,8 @@ from ..decorators import as_kryten, setup_mode
 
 from ..generators import generate_random_hash
 
+from flask_login import current_user
+from ..auth.models import UserAccount, UserAccountToken
 
 @setup.route("/")
 @as_kryten
@@ -24,6 +26,11 @@ def index():
 @setup_mode
 def eula():
     return render_template("setup/eula.html")
+
+@setup.route("/test")
+def test():
+    r = requests.get(url_for('auth.api_home', _external=True), headers={"FlaskApp": current_app.config.get("SECRET_KEY")})
+    return r.json()
 
 @setup.route("/site_registration", methods=["GET", "POST"])
 @setup_mode
@@ -60,7 +67,7 @@ def admin_registration(hash: str):
     form = UserAccountRegistrationForm()
     if form.validate_on_submit():
 
-        site_information = session[hash]["site"]
+        #site_information = session[hash]["site"]
 
         user_account = {
             "title": form.title.data,

@@ -10,6 +10,7 @@ from werkzeug.exceptions import Gone
 from werkzeug.exceptions import InternalServerError
 from werkzeug.exceptions import MethodNotAllowed
 from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import Unauthorized
 import os
 from random import choice
 
@@ -75,6 +76,10 @@ def handle_error(e, code, json=False):
         code,
     )
 
+
+@errorhandler(Unauthorized.code)
+def unauthorised(e="401: Unauthorised", json=False):
+    return handle_error(e, Unauthorized.code, json)
 
 @errorhandler(NotFound.code)
 def not_found(e="404: Not Found", json=False):

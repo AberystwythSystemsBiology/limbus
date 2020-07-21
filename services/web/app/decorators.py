@@ -1,7 +1,31 @@
-from flask import abort
-from .auth.models import UserAccount
+from flask import abort, current_app, request
+from .auth.models import UserAccount, UserAccountToken
 from flask_login import login_user, logout_user, current_user
 from functools import wraps
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated_view(*args, **kwargs):
+        if request.method in ["OPTION"]:
+            return f(*args, **kwargs)
+        elif current_app.config.get('LOGIN_DISABLED'):
+            return f(*args, **kwargs)
+        elif "FlaskApp" in request.headers:
+            if current_app.config.get("SECRET_KEY") == request.headers["FlaskApp"].replace('"', ''):
+                print(current_user)
+                return f(*args, **kwargs)
+        elif "Email" in request.headers:
+            email = request.headers["Email"].replace('"', '')
+            token = request.headers["Token"].replace('"', '')
+            user = UserAccount.query.filter_by(email=email).first()
+            if user != None:
+                user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
+                if user_token != None:
+                    if user_token.verify_token(token):
+                        return f(*args, **kwargs)
+        return abort(401)
+    return decorated_view
 
 
 def as_kryten(f):
@@ -47,7 +71,6 @@ def setup_mode(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        print(">>>>>>>>>>>>>>>>>>", UserAccount.query.all().count)
         if current_user.email !=  "kryten@jupiterminingcorp.co.uk" or len(UserAccount.query.all()) > 1:
             return abort(401)
         return f(*args, **kwargs)
