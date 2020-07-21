@@ -1,9 +1,11 @@
-from functools import wraps
+import requests
 
 from flask import redirect, abort, render_template, url_for, session
 
 from ..auth.models import UserAccount
 from ..misc.models import SiteInformation, Address
+
+from ..auth.forms import UserAccountRegistrationForm
 
 from . import setup
 from .. import db
@@ -19,7 +21,6 @@ from ..generators import generate_random_hash
 def index():
     return render_template("setup/index.html")
 
-
 @setup.route("/eula")
 @check_if_user
 def eula():
@@ -31,6 +32,8 @@ def site_registration():
     form = SiteRegistrationForm()
 
     if form.validate_on_submit():
+
+        hash = generate_random_hash()
 
         site = {
             "name": form.name.data,
@@ -46,26 +49,39 @@ def site_registration():
         }
 
 
+        session[hash] = {
+            "site": site
+        }
 
 
-        return redirect(url_for("setup.complete"))
+        return redirect(url_for("setup.admin_registration", hash=hash))
 
     return render_template("setup/site_registration.html", form=form)
 
 
-# TODO: Register site first.
 
-@setup.route("/register_admin", methods=["GET", "POST"])
+@setup.route("/administrator_registration/<hash>", methods=["GET", "POST"])
 @check_if_user
-def admin_registration():
+def admin_registration(hash: str):
     # Step Three: Ask the user to register themselves as administrator.
-    form = BiobankRegistrationForm()
+    form = UserAccountRegistrationForm()
+    if form.validate_on_submit():
 
+        site_information = session[hash]["site"]
+        user_account = {
+            "title": form.title.data,
+            "first_name": form.first_name.data,
+            "middle_name": form.middle_name.data,
+            "last_name": form.last_name.data,   
+            "email": form.email.data,
+            "password": form.password.data
+        }
 
-    return render_template("setup/admin_registration.html", form=form)
+        r = requests.post(url_for('auth.new_user', _external=True), json=user_account)
+        print(r.text)
+        return user_account
 
-
-
+    return render_template("setup/admin_registration.html", form=form, hash=hash)
 
 @setup.route("/complete")
 def complete():

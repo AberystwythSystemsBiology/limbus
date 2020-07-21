@@ -14,6 +14,11 @@ function limbus-c() {
     docker-compose run web sh -c "find . -type f -name '*.pyc' -exec rm {} +"
 }
 
+function limbus-create-kryton() {
+    echo ">>>> Creating Kryton"
+    docker-compose run web sh -c "venv/bin/python manage.py create-kryton"
+}
+
 function limbus-bwd() {
     limbus-b
     python-deps
@@ -85,4 +90,5 @@ function limbus-db-nuke() {
     docker-compose down -v
     docker-compose run web sh -c 'rm -rf migrations && find . -path "*/migrations/*.pyc"  -delete'
     limbus-db-create
+    limbus-create-kryton
 }

@@ -15,7 +15,7 @@ from ..auth.enums import Title
 from ..auth.models import UserAccount
 
 
-class TemporaryRegistrationForm(FlaskForm):
+class UserAccountRegistrationForm(FlaskForm):
 
     title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
 

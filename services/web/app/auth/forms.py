@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 
 from .models import UserAccount
 
+from .enums import Title
 
 class LoginForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired(), Email()])
@@ -31,7 +32,13 @@ class ChangePassword(FlaskForm):
     submit = SubmitField("Register")
 
 
-class RegistrationForm(FlaskForm):
+class UserAccountRegistrationForm(FlaskForm):
+
+    title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
+
+    first_name = StringField("First Name", validators=[DataRequired()])
+    middle_name = StringField("Middle Name")
+    last_name = StringField("Last Name", validators=[DataRequired()])
 
     email = StringField(
         "Email Address",

@@ -9,7 +9,7 @@
 
     <p>Something about the administrator account...</p>
 
-    <form method="POST" action="{{ url_for('setup.admin_registration' ) }}" id="registration">
+    <form method="POST" action="{{ url_for('setup.admin_registration', hash=hash ) }}" id="registration">
         {{ form.csrf_token }}
 
 

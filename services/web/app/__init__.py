@@ -40,6 +40,8 @@ from .storage import storage as storage_blueprint
 from .procedure import procedure as procedure_blueprint
 '''
 
+from .commands import cmd_setup as cmd_setup_blueprint
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
@@ -87,6 +89,9 @@ def create_app():
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
     app.register_blueprint(procedure_blueprint, url_prefix="/procedures")
     '''
+
+    # Command line stuff.
+    app.register_blueprint(cmd_setup_blueprint)
 
     from app.errors import error_handlers
 
