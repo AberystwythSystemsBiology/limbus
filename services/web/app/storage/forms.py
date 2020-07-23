@@ -103,37 +103,42 @@ def LongTermColdStorageForm():
     return StaticForm()
 
 
-class ToEntityForm(FlaskForm):
-    date = DateField("Entry Date", validators=[DataRequired()])
-    time = TimeField("Entry Time", validators=[DataRequired()])
-    entered_by = StringField(
-        "Entered By", description="The initials of the person that entered the sample."
-    )
-    submit = SubmitField("Submit")
-
-
 def SampleToEntityForm(samples: list) -> FlaskForm:
 
-    StaticForm = ToEntityForm
-
     samples_choices = []
-
     for sample in samples:
         samples_choices.append(
             [str(sample.id), "LIMBSMP-%s (%s)" % (sample.id, sample.sample_type)]
         )
 
+    class StaticForm(FlaskForm):
+        date = DateField("Entry Date", validators=[DataRequired()])
+        time = TimeField("Entry Time", validators=[DataRequired()])
+        entered_by = StringField(
+            "Entered By", description="The initials of the person that entered the sample."
+        )
+        submit = SubmitField("Submit")
+
     setattr(
         StaticForm,
         "samples",
-        SelectField("Sample", choices=samples_choices, validators=[DataRequired()]),
+        SelectField("Sample", choices=samples_choices, validators=[DataRequired()])
     )
 
     return StaticForm()
 
 
+
+
+
 def BoxToShelfForm(boxes: list) -> FlaskForm:
-    StaticForm = ToEntityForm
+    class StaticForm(FlaskForm):
+        date = DateField("Entry Date", validators=[DataRequired()])
+        time = TimeField("Entry Time", validators=[DataRequired()])
+        entered_by = StringField(
+            "Entered By", description="The initials of the person that entered the sample."
+        )
+        submit = SubmitField("Submit")
 
     choices = []
 

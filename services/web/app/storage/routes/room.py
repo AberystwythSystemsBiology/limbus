@@ -55,7 +55,7 @@ def add_lts(room_id: int):
             manufacturer=form.manufacturer.data,
             temperature=form.temperature.data,
             type=form.type.data,
-            room_id=id,
+            room_id=room_id,
             author_id=current_user.id,
         )
 
