@@ -73,7 +73,8 @@ def admin_registration(hash: str):
             "password": form.password.data
         }
 
-        r = requests.post(url_for('auth.api_new_user', _external=True), json=user_account, headers=get_internal_api_header())
+        r = requests.post(
+            url_for('auth.api_new_user', _external=True), json=user_account, headers=get_internal_api_header())
 
         clear_session(hash)
 

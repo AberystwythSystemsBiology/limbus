@@ -12,10 +12,6 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     email = masql.auto_field()
 
-    is_admin = masql.auto_field()
-    is_bot = masql.auto_field()
-
-
 basic_user_account_schema = BasicUserAccountSchema()
 basic_user_accounts_schema = BasicUserAccountSchema(many=True)
 
@@ -27,8 +23,6 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     email = masql.auto_field()
 
-    is_admin = masql.auto_field()
-    is_bot = masql.auto_field()
 
 
 full_user_account_schema = FullUserAccountSchema()

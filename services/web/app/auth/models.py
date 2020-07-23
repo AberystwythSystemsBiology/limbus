@@ -4,7 +4,7 @@ import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager
 
-from .enums import Title
+from .enums import Title, AccountType, AccessControl
 
 class UserAccount(UserMixin, db.Model):
     __versioned__ = {}
@@ -34,8 +34,9 @@ class UserAccount(UserMixin, db.Model):
         nullable=False,
     )
 
-    is_admin = db.Column(db.Boolean, default=False, nullable=False)
-    is_bot = db.Column(db.Boolean, default=False, nullable=True)
+    account_type = db.Column(db.Enum(AccountType), nullable=False)
+    access_control = db.Column(db.Enum(AccessControl), nullable=False)
+
     is_locked = db.Column(db.Boolean, default=False, nullable=False)
 
     token = db.relationship("UserAccountToken", uselist=False)
@@ -46,6 +47,25 @@ class UserAccount(UserMixin, db.Model):
     @property
     def password(self) -> str:
         return "hunter2"
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password) -> bool:
+        return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_bot(self) -> bool:
+        return self.account_type == AccountType.BOT
+
+    @property
+    def is_admin(self) -> bool:
+        return self.account_type == AccountType.ADM
+
+    @property
+    def is_authenticated_and_not_bot(self) -> bool:
+        False not in [self.is_authenticated, self.is_bot]
 
     def get_gravatar(self, size: int = 100) -> str:
         """
@@ -60,18 +80,6 @@ class UserAccount(UserMixin, db.Model):
                 hashlib.md5(self.email.encode()).hexdigest(),
                 size,
             )
-
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password) -> bool:
-        return check_password_hash(self.password_hash, password)
-
-    @property
-    def is_authenticated_and_not_bot(self) -> bool:
-        False not in [self.is_authenticated, self.is_bot]
-
 
 @login_manager.user_loader
 def load_user(user_id: int) -> UserAccount:
