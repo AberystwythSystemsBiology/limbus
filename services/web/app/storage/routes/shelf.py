@@ -21,7 +21,7 @@ from ..models import (
 )
 from ...sample.models import Sample
 
-from ..forms import SampleToEntityForm, BoxToShelfForm, NewShelfForm
+from ..forms import BoxToShelfForm, NewShelfForm, SampleToEntityForm
 from ..views import ShelfView, BasicShelfView
 from ..enums import EntityToStorageTpye
 
