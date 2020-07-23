@@ -4,6 +4,8 @@ from flask_login import login_user, logout_user, current_user
 from functools import wraps
 
 
+
+
 def token_required(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
@@ -13,9 +15,8 @@ def token_required(f):
             return f(*args, **kwargs)
         elif "FlaskApp" in request.headers:
             if current_app.config.get("SECRET_KEY") == request.headers["FlaskApp"].replace('"', ''):
-                print(current_user)
                 return f(*args, **kwargs)
-        elif "Email" in request.headers:
+        elif "Token" in request.headers:
             email = request.headers["Email"].replace('"', '')
             token = request.headers["Token"].replace('"', '')
             user = UserAccount.query.filter_by(email=email).first()

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, current_app
 from flask_login import current_user
 
 misc = Blueprint("misc", __name__)
@@ -15,6 +15,9 @@ def clear_session(hash: str) -> None:
         if k.startswith(hash):
             del session[k]
 
+
+def get_internal_api_header():
+    return {"FlaskApp": current_app.config.get("SECRET_KEY"), "Email": current_user.email}
 
 def chunks(it, n):
     it = iter(it)

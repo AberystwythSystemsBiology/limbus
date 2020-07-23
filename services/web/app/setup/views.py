@@ -13,8 +13,7 @@ from ..decorators import as_kryten, setup_mode
 
 from ..generators import generate_random_hash
 
-from flask_login import current_user
-from ..auth.models import UserAccount, UserAccountToken
+from ..misc import get_internal_api_header, clear_session
 
 @setup.route("/")
 @as_kryten
@@ -27,12 +26,9 @@ def index():
 def eula():
     return render_template("setup/eula.html")
 
-@setup.route("/test")
-def test():
-    r = requests.get(url_for('auth.api_home', _external=True), headers={"FlaskApp": current_app.config.get("SECRET_KEY")})
-    return r.json()
 
 @setup.route("/site_registration", methods=["GET", "POST"])
+@as_kryten
 @setup_mode
 def site_registration():
     form = SiteRegistrationForm()
@@ -67,8 +63,6 @@ def admin_registration(hash: str):
     form = UserAccountRegistrationForm()
     if form.validate_on_submit():
 
-        #site_information = session[hash]["site"]
-
         user_account = {
             "title": form.title.data,
             "first_name": form.first_name.data,
@@ -79,15 +73,15 @@ def admin_registration(hash: str):
             "password": form.password.data
         }
 
-        r = requests.post(url_for('auth.api_new_user', _external=True), json=user_account)
+        r = requests.post(url_for('auth.api_new_user', _external=True), json=user_account, headers=get_internal_api_header())
+
+        clear_session(hash)
 
         if r.status_code == 200:
             logout_user()
             return redirect(url_for("setup.complete"))
         else:
-            flash("Something terrible has happened. Try again.")
-            return redirect(url_for("auth.site_registration"))
-        return user_account
+            return abort(r.status_code)
 
     return render_template("setup/admin_registration.html", form=form, hash=hash)
 
