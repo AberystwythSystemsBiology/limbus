@@ -18,6 +18,7 @@ def SamplesIndexView():
             "sample_type": sample.sample_type.value,
             "sample_status": sample.sample_status.value,
             "creation_date": sample.creation_date,
+            "collection_date": sample.collection_date,
             "user_information": UserView(sample.author_id),
         }
 

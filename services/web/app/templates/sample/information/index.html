@@ -31,6 +31,7 @@
                 <th>Sample Type</th>
                 <th>Sample Status</th>
                 <th>Collection Date</th>
+                <th>Creation Date</th>
                 <th>Sample Creator</th>
             </tr>
             </thead>
@@ -44,6 +45,7 @@
                     </td>
                     <td>{{ sample["sample_type"] }}</td>
                     <td>{{ sample["sample_status"] }}</td>
+                    <td>{{ sample["collection_date"].strftime('%Y-%m-%d') }}</td>
                     <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
                     <td>
                         {{ sample["user_information"]["email"] }}
