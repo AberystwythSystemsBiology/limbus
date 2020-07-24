@@ -5,7 +5,3 @@
 
 .. image:: https://github.com/AberystwythSystemsBiology/limbus/raw/dev/banner.png
    :width: 640
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Table of Contents:
