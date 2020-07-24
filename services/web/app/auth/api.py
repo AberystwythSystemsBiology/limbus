@@ -22,6 +22,11 @@ def api_view_user(id: int, tokenuser: UserAccount):
 @auth.route("/api/user/new", methods=["POST"])
 @token_required
 def api_new_user(tokenuser: UserAccount) -> dict:
+    """
+
+    :param tokenuser:
+    :return:
+    """
 
     json_data = request.get_json()
 

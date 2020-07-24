@@ -4,14 +4,6 @@ from flask_login import login_user, logout_user, current_user
 from functools import wraps
 import inspect
 
-def check_if_admin(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user.is_admin:
-            return f(*args, **kwargs)
-        return abort(401)
-    return decorated_function
-
 
 def check_if_admin(f):
     @wraps(f)
@@ -28,6 +20,11 @@ def requires_access_level(f):
     return decorated_view()
 
 def token_required(f):
+    """
+
+    :param f:
+    :return:
+    """
 
 
     def internal_request():
@@ -72,14 +69,17 @@ def token_required(f):
 
 def as_kryten(f):
     """
-    If you decorate a view with this, it will log you in to the bot
-    account and allow you to enter biobank data. If Kryten is not
-    present, it calls a 401. For example::
+    If you decorate a view with this, it will log you in to the bot account and allow you to enter biobank data.
+    If Kryten is not present, it returns a 401.
+
+    For example::
 
         @app.route("/setup")
         @as_kryten
         def setup_index():
-            pass
+            return "I am Kryten"
+
+    Would return the view as Kryten.
 
     :param f: The view function to decorate.
     :return: function
@@ -99,9 +99,11 @@ def as_kryten(f):
 
 def setup_mode(f):
     """
-    If you decorate a view with this, it will check to see if a user account
-    is present in the database before calling the actual view. If no user is
-    present, it calls a 401. For example::
+
+    This decorator should only be used within the setup context.
+
+    If you decorate a view with this, it will check to see if a user account is present in the database before calling
+    the actual view. If no user is present, it calls a 401. For example::
 
         @app.route("/setup")
         @check_if_user
