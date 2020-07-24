@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'LImBuS'
-copyright = "2020, Keiron O'Shea"
-author = "Keiron O'Shea"
+copyright = "2020, AberystwythSystemsBiology"
+author = "AberystwythSystemsBiology"
 
 # The full version, including alpha/beta/rc tags
 release = '20.08'
