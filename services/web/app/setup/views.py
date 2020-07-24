@@ -5,6 +5,7 @@ from flask_login import logout_user, current_user
 
 
 from ..auth.forms import UserAccountRegistrationForm
+from ..auth.enums import AccountType, AccessControl
 
 from . import setup
 from .forms import SiteRegistrationForm
@@ -26,15 +27,6 @@ def index():
 def eula():
     return render_template("setup/eula.html")
 
-
-@setup.route("/test")
-@as_kryten
-def test():
-    r = requests.get(
-        url_for('auth.api_home', _external=True), headers=get_internal_api_header()
-    )
-
-    return r.text
 
 @setup.route("/site_registration", methods=["GET", "POST"])
 @as_kryten
@@ -78,7 +70,7 @@ def admin_registration(hash: str):
             "middle_name": form.middle_name.data,
             "last_name": form.last_name.data,   
             "email": form.email.data,
-            "is_admin": True,
+            "account_type": "ADM",
             "password": form.password.data
         }
 
@@ -86,13 +78,17 @@ def admin_registration(hash: str):
             url_for('auth.api_new_user', _external=True), json=user_account, headers=get_internal_api_header()
         )
 
-        clear_session(hash)
-
         if r.status_code == 200:
+
             logout_user()
+            clear_session(hash)
             return redirect(url_for("setup.complete"))
+        if r.status_code == 400:
+            return abort(400)
         else:
             return abort(r.status_code)
+
+
 
     return render_template("setup/admin_registration.html", form=form, hash=hash)
 

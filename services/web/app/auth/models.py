@@ -35,7 +35,7 @@ class UserAccount(UserMixin, db.Model):
     )
 
     account_type = db.Column(db.Enum(AccountType), nullable=False)
-    access_control = db.Column(db.Enum(AccessControl), nullable=False)
+    access_control = db.Column(db.Enum(AccessControl), nullable=True)
 
     is_locked = db.Column(db.Boolean, default=False, nullable=False)
 

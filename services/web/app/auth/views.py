@@ -22,6 +22,15 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     email = masql.auto_field()
+    title = masql.auto_field()
+    first_name = masql.auto_field()
+    middle_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+    account_type = masql.auto_field()
+    access_control = masql.auto_field()
+
+    password = fields.Str(required=True)
 
 
 

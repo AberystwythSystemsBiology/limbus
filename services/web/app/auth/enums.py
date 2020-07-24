@@ -16,6 +16,7 @@ class AccountType(FormEnum):
     BOT = "Bot"
 
 class AccessControl(FormEnum):
+    ADM = "Administrator"
     MOD = "Moderator"
     PRI = "Privileged"
     VIE = "Viewer"
