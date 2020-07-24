@@ -27,6 +27,15 @@ def eula():
     return render_template("setup/eula.html")
 
 
+@setup.route("/test")
+@as_kryten
+def test():
+    r = requests.get(
+        url_for('auth.api_home', _external=True), headers=get_internal_api_header()
+    )
+
+    return r.text
+
 @setup.route("/site_registration", methods=["GET", "POST"])
 @as_kryten
 @setup_mode
@@ -74,7 +83,8 @@ def admin_registration(hash: str):
         }
 
         r = requests.post(
-            url_for('auth.api_new_user', _external=True), json=user_account, headers=get_internal_api_header())
+            url_for('auth.api_new_user', _external=True), json=user_account, headers=get_internal_api_header()
+        )
 
         clear_session(hash)
 

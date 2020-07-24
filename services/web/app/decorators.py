@@ -2,7 +2,7 @@ from flask import abort, current_app, request
 from .auth.models import UserAccount, UserAccountToken
 from flask_login import login_user, logout_user, current_user
 from functools import wraps
-
+import inspect
 
 def check_if_admin(f):
     @wraps(f)
@@ -28,26 +28,46 @@ def requires_access_level(f):
     return decorated_view()
 
 def token_required(f):
+
+
+    def internal_request():
+        email = request.headers["Email"].replace('"', '')
+        secret = request.headers["FlaskApp"].replace('"', '')
+        user = UserAccount.query.filter_by(email=email).first()
+        if current_app.config.get("SECRET_KEY") == secret and user != None:
+            return True, user
+        return False, None
+
+    def external_request():
+        email = request.headers["Email"].replace('"', '')
+        token = request.headers["Token"].replace('"', '')
+        user = UserAccount.query.filter_by(email=email).first()
+        if user != None:
+            user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
+            if user_token != None:
+                if user_token.verify_token(token):
+                    return True, user
+        return False, None
+
     @wraps(f)
-    def decorated_view(*args, **kwargs):
-        if request.method in ["OPTION"]:
-            return f(*args, **kwargs)
-        elif current_app.config.get('LOGIN_DISABLED'):
-            return f(*args, **kwargs)
-        elif "FlaskApp" in request.headers:
-            if current_app.config.get("SECRET_KEY") == request.headers["FlaskApp"].replace('"', ''):
-                return f(*args, **kwargs)
+    def decorated_function(*args, **kwargs):
+
+        # Default check values.
+        check, user = False, None
+
+        # Internal Requests
+        if "FlaskApp" in request.headers:
+            check, user = internal_request()
+        # External Requests
         elif "Token" in request.headers:
-            email = request.headers["Email"].replace('"', '')
-            token = request.headers["Token"].replace('"', '')
-            user = UserAccount.query.filter_by(email=email).first()
-            if user != None:
-                user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
-                if user_token != None:
-                    if user_token.verify_token(token):
-                        return f(*args, **kwargs)
-        return abort(401)
-    return decorated_view
+            check, user = external_request()
+        if check:
+            if "tokenuser" in inspect.getfullargspec(f).args:
+                kwargs["tokenuser"] = user
+            return f(*args, **kwargs)
+        else:
+            return abort(401)
+    return decorated_function
 
 
 def as_kryten(f):
