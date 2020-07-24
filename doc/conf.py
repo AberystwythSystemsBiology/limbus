@@ -25,6 +25,11 @@ author = "Keiron O'Shea"
 release = '20.08'
 
 
+# Annoying sphinx bug.
+# Read more: https://github.com/readthedocs/readthedocs.org/issues/2569
+master_doc = 'index'
+
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
