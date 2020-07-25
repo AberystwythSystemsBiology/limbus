@@ -22,11 +22,7 @@ Learn more about configuring or deploying LImBuS.
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Deployment
-   
-   /deployment/internal.rst
-   /deployment/external.rst
-   
+   :caption: Getting Started
    
 Step-by-Step Guides
 -------------------
