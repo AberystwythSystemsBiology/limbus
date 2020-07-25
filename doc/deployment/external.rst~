@@ -5,9 +5,6 @@ This page is intended for systems administrators who are experienced with
 installing web server applications and want to get LImBuS up and running 
 quickly.
 
-This guide makes use of the project's Dockerfile. If you are unable to make use
-of Docker, then please refer to... 
-
 Basic Requirements
 ------------------
 
