@@ -14,7 +14,7 @@ The goal of this project is to develop a Biobank Information Management System
 processed, distributed, and tracked by the biorepository at Hywel Dda University 
 Health Board's Clinical Research Centre (CRC).
 
-Deploying LImBS
+Setting things up
 ---------------
 
 Learn more about configuring or deploying LImBuS.
@@ -22,10 +22,11 @@ Learn more about configuring or deploying LImBuS.
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Deployment
+   :caption: Setting things up
    
    /deployment/internal.rst
    /deployment/external.rst
+   /deployment/environment.rst
    
    
 Step-by-Step Guides
