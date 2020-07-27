@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import os
 
-from .base import Base
+from .base import BaseModel as BM
 
 from flask import Flask, g, render_template
 
@@ -9,7 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
 
-from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import FlaskPlugin
@@ -18,7 +17,7 @@ from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 db = SQLAlchemy()
 ma = Marshmallow()
 
-Base = declarative_base(cls=Base)
+Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()
 
 login_manager = LoginManager()

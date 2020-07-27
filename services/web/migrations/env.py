@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.append(os.getcwd())
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -18,8 +22,10 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app import Base
+from flask import current_app
+print(current_app)
 target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
