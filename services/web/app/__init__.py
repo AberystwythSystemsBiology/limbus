@@ -12,13 +12,15 @@ from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 
 from sqlalchemy import orm
-#from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import FlaskPlugin
 from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 
 db = SQLAlchemy()
 ma = Marshmallow()
+
+Base = declarative_base()
 
 login_manager = LoginManager()
 
