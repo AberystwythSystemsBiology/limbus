@@ -3,14 +3,11 @@ from flask import url_for
 import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, login_manager, Base
-from ..base import BasicModel, RefAuthorMixin
 
 from .enums import Title, AccountType, AccessControl
 
-class UserAccount(BasicModel, RefAuthorMixin, db.Model, UserMixin):
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class UserAccount(Base, UserMixin):
+    __versioned__ = {}
     created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     updated_on = db.Column(
         db.DateTime,
@@ -35,7 +32,7 @@ class UserAccount(BasicModel, RefAuthorMixin, db.Model, UserMixin):
     token = db.relationship("UserAccountToken", uselist=False)
 
     site_id = db.Column(db.Integer, db.ForeignKey("sites.id"), nullable=True)
-    site = db.relationship("SiteInformation", backref="user")
+    #site = db.relationship("SiteInformation", backref="useraccounts")
 
     @property
     def password(self) -> str:
@@ -74,7 +71,7 @@ class UserAccount(BasicModel, RefAuthorMixin, db.Model, UserMixin):
 def load_user(user_id: int) -> UserAccount:
     return UserAccount.query.get(user_id)
 
-class UserAccountToken(Base, BasicModel, RefAuthorMixin):
+class UserAccountToken(Base):
 
     user_id = db.Column(db.Integer, db.ForeignKey("useraccount.id"), nullable=False)
     token_hash = db.Column(db.String(256), nullable=False)

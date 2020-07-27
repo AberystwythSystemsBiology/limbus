@@ -20,7 +20,10 @@ from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 db = SQLAlchemy()
 ma = Marshmallow()
 
-Base = declarative_base()
+from .base import Base
+
+Base = declarative_base(cls=Base)
+Base.query = db.session.query_property()
 
 login_manager = LoginManager()
 
@@ -103,5 +106,6 @@ def create_app():
         app.register_error_handler(
             error_handler["code_or_exception"], error_handler["func"]
         )
+
 
     return app

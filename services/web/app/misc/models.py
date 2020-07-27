@@ -1,7 +1,7 @@
 from app import db, Base
-from ..base import BasicModel, RefAuthorMixin
+from ..base import  RefAuthorMixin
 
-class Address(BasicModel, Base):
+class Address(Base):
 
     street_address_one = db.Column(db.String(256), nullable=False)
     street_address_two = db.Column(db.String(256))
@@ -12,7 +12,7 @@ class Address(BasicModel, Base):
 
 
 
-class SiteInformation(BasicModel, Base):
+class SiteInformation(Base):
 
     miabis_id = db.Column(db.String(128))
     acronym = db.Column(db.String(64))
