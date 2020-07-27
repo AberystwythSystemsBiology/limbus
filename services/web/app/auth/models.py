@@ -31,8 +31,8 @@ class UserAccount(Base, UserMixin):
 
     token = db.relationship("UserAccountToken", uselist=False)
 
-    site_id = db.Column(db.Integer, db.ForeignKey("sites.id"), nullable=True)
-    #site = db.relationship("SiteInformation", backref="useraccounts")
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"), nullable=True)
+    site = db.relationship("SiteInformation", backref="useraccounts")
 
     @property
     def password(self) -> str:
