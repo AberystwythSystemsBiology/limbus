@@ -21,3 +21,5 @@ class SiteInformation(Base):
     description = db.Column(db.String(128))
 
     url = db.Column(db.String(128))
+
+    #Add 

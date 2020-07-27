@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 import os
 
-from .base import BaseModel as BM
 
 from flask import Flask, g, render_template
 
@@ -16,6 +15,9 @@ from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 
 db = SQLAlchemy()
 ma = Marshmallow()
+
+from .base import BaseModel as BM
+
 
 Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()

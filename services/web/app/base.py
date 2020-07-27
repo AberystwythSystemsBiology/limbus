@@ -1,5 +1,5 @@
-from . import db
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import as_declarative, declared_attr
+from app import db
 
 class RefAuthorMixin(object):
     @declared_attr
@@ -10,7 +10,8 @@ class RefAuthorMixin(object):
     def author(cls):
         return db.relationship("UserAccount")
 
-class Base(object):
+@as_declarative()
+class BaseModel(object):
 
     @declared_attr
     def __tablename__(cls):
