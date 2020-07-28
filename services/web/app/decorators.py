@@ -26,7 +26,6 @@ def token_required(f):
     :return:
     """
 
-
     def internal_request():
         email = request.headers["Email"].replace('"', '')
         secret = request.headers["FlaskApp"].replace('"', '')

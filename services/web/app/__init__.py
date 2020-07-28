@@ -23,7 +23,8 @@ Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()
 
 login_manager = LoginManager()
-make_versioned(user_cls=None, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
+from .auth.models import UserAccount
+make_versioned(user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
 
 # Blueprint imports:
 from .misc import misc as misc_blueprint
@@ -45,6 +46,7 @@ def create_app():
 
     # Blueprint Registers
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     ## Specific to CMD.
     app.register_blueprint(cmd_setup_blueprint)

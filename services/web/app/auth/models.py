@@ -6,8 +6,12 @@ from app import db, login_manager, Base
 
 from .enums import Title, AccountType, AccessControl
 
+from ..misc.models import SiteInformation
+
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
+    __tablename__ = "useraccount"
+
     created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     updated_on = db.Column(
         db.DateTime,
@@ -31,7 +35,7 @@ class UserAccount(Base, UserMixin):
 
     token = db.relationship("UserAccountToken", uselist=False)
 
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"), nullable=True)
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True), nullable=True)
     site = db.relationship("SiteInformation", primaryjoin="UserAccount.site_id==SiteInformation.id", uselist=False)
 
     @property
@@ -72,6 +76,7 @@ def load_user(user_id: int) -> UserAccount:
     return UserAccount.query.get(user_id)
 
 class UserAccountToken(Base):
+    __tablename__ = "useraccounttoken"
 
     user_id = db.Column(db.Integer, db.ForeignKey("useraccount.id"), nullable=False)
     token_hash = db.Column(db.String(256), nullable=False)

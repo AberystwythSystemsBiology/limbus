@@ -9,11 +9,11 @@ sys.path.append(os.getcwd())
 from app import db, create_app, Base
 
 config = context.config
-
 fileConfig(config.config_file_name)
 
 app = create_app()
 config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])
+
 target_metadata = Base.metadata
 
 def run_migrations_offline():
