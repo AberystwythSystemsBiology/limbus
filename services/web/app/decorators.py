@@ -77,7 +77,7 @@ def as_kryten(f):
         @app.route("/setup")
         @as_kryten
         def setup_index():
-            return "I am Kryten"
+            return "I am %s" % current_user.first_name
 
     Would return the view as Kryten.
 

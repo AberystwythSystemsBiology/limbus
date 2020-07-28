@@ -17,6 +17,8 @@ class NewAddressSchema(masql.SQLAlchemySchema):
     country = masql.auto_field()
     author_id = masql.auto_field()
 
+new_address_schema = NewAddressSchema()
+
 class NewSiteInformationSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SiteInformation
@@ -26,26 +28,7 @@ class NewSiteInformationSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     description = masql.auto_field()
     url = masql.auto_field()
-    author = masql.auto_field()
+    author_id = masql.auto_field()
+    address_id = masql.auto_field()
 
-class SiteInformationSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SiteInformation
-    
-    miabis_id = masql.auto_field()
-    acronym = masql.auto_field()
-    name = masql.auto_field()
-    description = masql.auto_field()
-    url = masql.auto_field()
-
-class AddressSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Address
-
-    street_address_one = masql.auto_field()
-    street_address_two = masql.auto_field()
-    city = masql.auto_field()
-    county = masql.auto_field()
-    post_code = masql.auto_field()
-    country = masql.auto_field()
-    author = masql.auto_field()
+new_site_schema = NewSiteInformationSchema()

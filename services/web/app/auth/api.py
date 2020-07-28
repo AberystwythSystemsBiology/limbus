@@ -5,7 +5,12 @@ from ..decorators import token_required
 
 from marshmallow import ValidationError
 import json
-from .views import basic_user_accounts_schema, full_user_account_schema
+from .views import (
+    new_user_account_schema,
+    basic_user_accounts_schema, 
+    full_user_account_schema,
+)
+
 from .models import UserAccount
 
 @auth.route("/api")
@@ -28,27 +33,25 @@ def api_new_user(tokenuser: UserAccount) -> dict:
     :return:
     """
 
-    json_data = request.get_json()
+    values = request.get_json()
 
-    if not json_data:
+    if not values:
         return {"message": "No input data provided"}, 400
 
     try:
-        result = full_user_account_schema.load(json_data)
-
-        new_user_account = UserAccount(**result)
-        new_user_account.created_by = tokenuser.id
-        db.session.add(new_user_account)
-
-        try:
-            db.session.commit()
-            db.session.flush()
-            return {"success": True}, 200
-
-        except Exception as err:
-            return {"success": False, "message": str(err.orig.diag.message_primary)}, 400
-
+        result = new_user_account_schema.load(values)
     except ValidationError as err:
-        return {"success": False, "messages" : err.messages}, 400
+        return {"success": False, "messages" : err.messages}, 417
+
+    new_user_account = UserAccount(**result)
+    new_user_account.created_by = tokenuser.id
+
+    try:
+        db.session.add(new_user_account)
+        db.session.commit()
+        db.session.flush()
+        return {"success": True}, 200
+    except Exception as err:
+        return {"success": False, "message": str(err.orig.diag.message_primary)}, 417
 
 
