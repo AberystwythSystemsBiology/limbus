@@ -1,4 +1,4 @@
-from . import auth
+from ..api import api
 from .. import db
 from flask import request
 from ..decorators import token_required
@@ -13,20 +13,20 @@ from .views import (
 
 from .models import UserAccount
 
-@auth.route("/api")
+@api.route("/auth")
 @token_required
-def api_home(tokenuser: UserAccount):
+def auth_home(tokenuser: UserAccount):
     return {"results": basic_user_accounts_schema.dump(UserAccount.query.all())}
 
-@auth.route("/api/user/<id>", methods=["GET"])
+@api.route("/auth/user/<id>", methods=["GET"])
 @token_required
-def api_view_user(id: int, tokenuser: UserAccount):
+def auth_view_user(id: int, tokenuser: UserAccount):
     # TODO: Check if admin or if the current user id == id.
     return full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first())
 
-@auth.route("/api/user/new", methods=["POST"])
+@api.route("/auth/user/new", methods=["POST"])
 @token_required
-def api_new_user_account(tokenuser: UserAccount) -> dict:
+def auth_new_user(tokenuser: UserAccount) -> dict:
     """
     :param tokenuser:
     :return:

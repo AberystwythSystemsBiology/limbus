@@ -75,7 +75,7 @@ def admin_registration(hash: str):
         }
 
         r = requests.post(
-            url_for('auth.api_new_user_account', _external=True), json=user_account, headers=get_internal_api_header()
+            url_for('api.new_user_account', _external=True), json=user_account, headers=get_internal_api_header()
         )
 
         if r.status_code == 200:

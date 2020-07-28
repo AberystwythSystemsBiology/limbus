@@ -30,6 +30,7 @@ make_versioned(user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerP
 from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
+from .api import api as api_blueprint
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
@@ -48,6 +49,9 @@ def create_app():
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
+
+    # API blueprint
+    app.register_blueprint(api_blueprint, url_prefix="/api")
     ## Specific to CMD.
     app.register_blueprint(cmd_setup_blueprint)
 
