@@ -35,7 +35,7 @@ def api_new_user_account(tokenuser: UserAccount) -> dict:
     values = request.get_json()
 
     if not values:
-        return {"message": "No input data provided"}, 400
+        return {"success": False, "message": "No input data provided"}, 400
 
     try:
         result = new_user_account_schema.load(values)
