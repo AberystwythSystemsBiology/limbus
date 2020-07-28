@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 import os
 
-
 from flask import Flask, g, render_template
 
 from flask_sqlalchemy import SQLAlchemy
@@ -13,8 +12,22 @@ from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import FlaskPlugin
 from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 
+
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+from apispec_webframeworks.flask import FlaskPlugin
+
 db = SQLAlchemy()
 ma = Marshmallow()
+
+# Create an APISpec
+spec = APISpec(
+    title="LImBuS",
+    version="1.0.0",
+    openapi_version="3.0.2",
+    plugins=[FlaskPlugin(), MarshmallowPlugin()],
+)
+
 
 from .base import BaseModel as BM
 
@@ -61,6 +74,12 @@ def create_app():
         app.register_error_handler(
             error_handler["code_or_exception"], error_handler["func"]
         )
+
+    
+    from app.auth.api import auth_new_user
+    # Register the path and the entities within it
+    with app.test_request_context():
+        spec.path(view=auth_new_user)
 
 
     return app

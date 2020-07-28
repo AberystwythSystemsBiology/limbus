@@ -1,6 +1,6 @@
 from ..api import api
-from .. import db
-from flask import request
+from .. import db, spec
+from flask import request, current_app
 from ..decorators import token_required
 
 from marshmallow import ValidationError
@@ -27,9 +27,15 @@ def auth_view_user(id: int, tokenuser: UserAccount):
 @api.route("/auth/user/new", methods=["POST"])
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
-    """
-    :param tokenuser:
-    :return:
+    """A cute furry animal endpoint.
+    ---
+    get:
+      description: Get a random pet
+      responses:
+        200:
+          content:
+            application/json:
+              schema: FullUserAccountSchema
     """
 
     values = request.get_json()
