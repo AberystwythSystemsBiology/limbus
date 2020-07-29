@@ -40,6 +40,17 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
 
 new_user_account_schema = NewUserAccountSchema()
 
+class EditUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    title = masql.auto_field()
+    first_name = masql.auto_field()
+    middle_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+edit_user_account_schema = EditUserAccountSchema()
+
 from ..misc.views import basic_site_schema
 
 class TokenSchema(masql.SQLAlchemySchema):

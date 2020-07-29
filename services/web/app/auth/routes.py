@@ -4,7 +4,7 @@ import requests
 
 from . import auth
 
-from .forms import LoginForm, PasswordChangeForm
+from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm
 from .models import UserAccount, UserAccountToken
 
 from .. import db
@@ -39,11 +39,6 @@ def logout():
     return redirect(url_for("auth.login"))
 
 
-@auth.route("/edit", methods=["GET", "POST"])
-@login_required
-def edit():
-    # Write API handle
-    pass
 
 @auth.route("/profile", methods=["GET", "POST"])
 @login_required
@@ -54,6 +49,35 @@ def profile():
 
     if response.status_code == 200:
         return render_template("auth/profile.html", user=response.json()["content"])
+    else:
+        return abort(response.status_code)
+
+@auth.route("/edit", methods=["GET", "POST"])
+def edit():
+    response = requests.get(
+        url_for("api.auth_view_user", id=current_user.id, _external=True, headers=get_internal_api_header())
+    )
+    form = UserAccountEditForm()
+
+    if response.status_code == 200:
+        if form.validate_on_submit():
+            user_information = {
+                "title": form.title.data,
+                "first_name": form.first_name.data,
+                "middle_name": form.middle_name.data,
+                "last_name": form.last_name.data
+            }
+            edit_response = requests.put(
+                url_for("api.auth_edit_user", id=current_user.id, _external=True), headers=get_internal_api_header(), json=user_information
+            )
+            if edit_response.status_code == 200:
+                flash("User Edited")
+                return redirect(url_for("auth.profile"))
+            else:
+                return edit_response.content
+
+        form = UserAccountEditForm(data=response.json()["content"])
+        return render_template("auth/edit.html", form=form)
     else:
         return abort(response.status_code)
 

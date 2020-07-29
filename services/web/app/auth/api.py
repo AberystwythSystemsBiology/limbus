@@ -12,6 +12,7 @@ from .views import (
     basic_user_account_schema,
     basic_user_accounts_schema,
     full_user_account_schema,
+    edit_user_account_schema,
 )
 
 from .models import UserAccount
@@ -31,6 +32,35 @@ def auth_view_user(id: int):
     return success_with_content_response(
         full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first())
     )
+
+
+@api.route("/auth/user/<id>/edit", methods=["PUT"])
+@token_required
+def auth_edit_user(id: int, tokenuser: UserAccount) :
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = edit_user_account_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    user = UserAccount.query.filter_by(id = id).first()
+
+    for attr, value in values.items():
+        setattr(user, attr, value)
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(
+            basic_user_account_schema.dump(user)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/auth/user/new", methods=["POST"])

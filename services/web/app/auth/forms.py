@@ -12,7 +12,6 @@ from .models import UserAccount
 
 from .enums import Title
 
-
 class LoginForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
@@ -39,6 +38,14 @@ class PasswordChangeForm(FlaskForm):
 
     submit = SubmitField("Register")
 
+
+class UserAccountEditForm(FlaskForm):
+    title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
+
+    first_name = StringField("First Name", validators=[DataRequired()])
+    middle_name = StringField("Middle Name")
+    last_name = StringField("Last Name", validators=[DataRequired()])
+    submit = SubmitField("Register")
 
 class UserAccountRegistrationForm(FlaskForm):
 
