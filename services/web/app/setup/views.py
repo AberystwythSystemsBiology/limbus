@@ -55,6 +55,26 @@ def site_registration():
     return render_template("setup/site_registration.html", form=form)
 
 
+@setup.route("/test", methods=["GET", "POST"])
+@as_kryten
+def test():
+    
+    test_address = {
+        "street_address_one": "10 Downing Street",
+        "street_address_two": "",
+        "city": "London",
+        "country": "GB",
+        "post_code": "SW1A2AA",
+    }
+
+    r = requests.post(url_for("api.misc_new_address", _external=True), json=test_address, headers=get_internal_api_header())
+
+    if r.status_code == 200:
+        logout_user()
+        return r.content
+    else:
+        return "Fuck"
+
 @setup.route("/administrator_registration/<hash>", methods=["GET", "POST"])
 @as_kryten
 @setup_mode
@@ -74,10 +94,8 @@ def admin_registration(hash: str):
         }
 
         r = requests.post(
-            url_for("api.new_user_account", _external=True),
-            json=user_account,
-            headers=get_internal_api_header(),
-        )
+            url_for("api.auth_new_user", _external=True), json=user_account, headers=get_internal_api_header()
+            )
 
         if r.status_code == 200:
             logout_user()

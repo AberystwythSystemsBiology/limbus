@@ -19,7 +19,7 @@ from .models import Address, SiteInformation
 from ..auth.models import UserAccount
 
 
-@api.route("/mis/address/new", methods=["POST"])
+@api.route("/misc/address/new", methods=["POST"])
 @token_required
 def misc_new_address(tokenuser: UserAccount):
     values = request.get_json()
@@ -30,12 +30,13 @@ def misc_new_address(tokenuser: UserAccount):
         return validation_error_response(err)
 
     new_address = Address(**result)
-    new_address.created_by = tokenuser.id
+    new_address.author_id = tokenuser.id
 
     try:
-        db.session.add(address)
+        db.session.add(new_address)
         db.session.commit()
         db.session.flush()
         return success_with_content_response(basic_address_schema.dumps(new_address))
     except Exception as err:
+
         return sql_error_response(err)

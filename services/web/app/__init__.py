@@ -38,7 +38,7 @@ login_manager = LoginManager()
 from .auth.models import UserAccount
 
 make_versioned(
-    user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()]
+    user_cls=UserAccount, plugins=[PropertyModTrackerPlugin()]
 )
 
 # Blueprint imports:
