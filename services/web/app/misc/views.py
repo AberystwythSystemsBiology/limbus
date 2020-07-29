@@ -55,3 +55,16 @@ class NewSiteInformationSchema(masql.SQLAlchemySchema):
 
 
 new_site_schema = NewSiteInformationSchema()
+
+class BasicSiteSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SiteInformation
+    
+    id = masql.auto_field()
+    miabis_id = masql.auto_field()
+    acronym = masql.auto_field()
+    name = masql.auto_field()
+    description = masql.auto_field()
+    url = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    address = ma.Nested(BasicAddressSchema)

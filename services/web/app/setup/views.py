@@ -71,7 +71,7 @@ def test():
 
     if r.status_code == 200:
         logout_user()
-        return r.content
+        return r.json()
     else:
         return "Fuck"
 
@@ -93,15 +93,15 @@ def admin_registration(hash: str):
             "password": form.password.data,
         }
 
-        r = requests.post(
+        new_user_request = requests.post(
             url_for("api.auth_new_user", _external=True), json=user_account, headers=get_internal_api_header()
             )
 
-        if r.status_code == 200:
+        if new_user_request.status_code == 200:
             logout_user()
             clear_session(hash)
             return redirect(url_for("setup.complete"))
-        if r.status_code == 400:
+        if new_user_request.status_code == 400:
             return abort(400)
         else:
             return abort(r.status_code)
