@@ -68,3 +68,6 @@ class BasicSiteSchema(masql.SQLAlchemySchema):
     url = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     address = ma.Nested(BasicAddressSchema)
+
+basic_site_schema = BasicSiteSchema()
+basic_sites_schema = BasicSiteSchema(many=True)

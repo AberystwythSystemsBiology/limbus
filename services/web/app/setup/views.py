@@ -1,11 +1,11 @@
 import requests
+import json
 
-from flask import redirect, abort, render_template, url_for, session, flash, current_app
+from flask import redirect, abort, render_template, url_for, session, flash, current_app, jsonify
 from flask_login import logout_user, current_user
 
 
 from ..auth.forms import UserAccountRegistrationForm
-from ..auth.enums import AccountType, AccessControl
 
 from . import setup
 from .forms import SiteRegistrationForm
@@ -40,16 +40,18 @@ def site_registration():
         site = {
             "name": form.name.data,
             "url": form.url.data,
-            "description": form.description.data,
-            "address": {
+            "description": form.description.data
+        }
+
+        address = {
                 "street_address_one": form.address_line_one.data,
                 "street_address_two": form.address_line_two.data,
                 "city": form.city.data,
                 "country": form.country.data,
-                "post_code": form.post_code.data,
-            },
+                "post_code": form.post_code.data
         }
-        session[hash] = {"site": site}
+
+        session[hash] = {"site": site, "address": address}
         return redirect(url_for("setup.admin_registration", hash=hash))
 
     return render_template("setup/site_registration.html", form=form)
@@ -71,9 +73,9 @@ def test():
 
     if r.status_code == 200:
         logout_user()
-        return r.json()
+        return r.as_json()
     else:
-        return "Fuck"
+        return "It broke :("
 
 @setup.route("/administrator_registration/<hash>", methods=["GET", "POST"])
 @as_kryten
@@ -83,29 +85,52 @@ def admin_registration(hash: str):
     form = UserAccountRegistrationForm()
     if form.validate_on_submit():
 
-        user_account = {
-            "title": form.title.data,
-            "first_name": form.first_name.data,
-            "middle_name": form.middle_name.data,
-            "last_name": form.last_name.data,
-            "email": form.email.data,
-            "account_type": "ADM",
-            "password": form.password.data,
-        }
+        site_information = session[hash]["site"]
+        site_address = session[hash]["address"]
+
+        new_address_request = requests.post(
+            url_for("api.misc_new_address", _external=True), json=site_address, headers=get_internal_api_header()
+        )
+
+        if new_address_request.status_code == 200:
+            site_information["address_id"] = json.loads(new_address_request.json()["content"])["id"]
+        else:
+            return abort(new_address_request.status_code)
+
+        new_site_request = requests.post(
+            url_for("api.misc_new_site", _external=True), json=site_information, headers=get_internal_api_header()
+        )
+
+        if new_site_request.status_code == 200:
+            user_account = {
+                "title": form.title.data,
+                "first_name": form.first_name.data,
+                "middle_name": form.middle_name.data,
+                "last_name": form.last_name.data,
+                "email": form.email.data,
+                "account_type": "ADM",
+                "password": form.password.data,
+                "site_id": json.loads(new_site_request.json()["content"])["id"]
+            }
+        else:
+            return abort(new_address_request.status_code)
+
 
         new_user_request = requests.post(
             url_for("api.auth_new_user", _external=True), json=user_account, headers=get_internal_api_header()
             )
 
         if new_user_request.status_code == 200:
+
             logout_user()
             clear_session(hash)
             return redirect(url_for("setup.complete"))
         if new_user_request.status_code == 400:
             return abort(400)
         else:
-            return abort(r.status_code)
+            return abort(user_account.status_code)
 
+        return new_address_request
     return render_template("setup/admin_registration.html", form=form, hash=hash)
 
 

@@ -2,8 +2,12 @@
 
 function alembic_create_db() {
     echo "CREATING DATABASE"
-    docker-compose build
+    docker-compose up -d
     docker-compose run web sh -c "venv/bin/alembic revision --autogenerate -m 'Generating database'; venv/bin/alembic upgrade head"
+    docker-compose run web sh -c "venv/bin/alembic revision --autogenerate -m 'Generating database'; venv/bin/alembic upgrade head"
+    docker-compose run web sh -c "venv/bin/alembic revision --autogenerate -m 'Generating database'; venv/bin/alembic upgrade head"
+    docker-compose run web sh -c "venv/bin/alembic revision --autogenerate -m 'Generating database'; venv/bin/alembic upgrade head"
+    docker-compose down
 
 }
 

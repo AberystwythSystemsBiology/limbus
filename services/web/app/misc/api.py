@@ -13,12 +13,20 @@ from .views import (
     new_address_schema,
     new_site_schema,
     basic_address_schema,
+    basic_addresses_schema,
     basic_site_schema,
 )
 
 from .models import Address, SiteInformation
 from ..auth.models import UserAccount
 
+
+@api.route("/mis/address/", methods=["GET"])
+@token_required
+def address_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_addresses_schema(Address.query.all())
+    )
 
 @api.route("/misc/address/new", methods=["POST"])
 @token_required
@@ -27,10 +35,9 @@ def misc_new_address(tokenuser: UserAccount):
 
     if values is None:
         return no_values_response()
-
     try:
         result = new_address_schema.load(values)
-    except ValidationError:
+    except ValidationError as err:
         return validation_error_response(err)
 
     new_address = Address(**result)
@@ -42,8 +49,7 @@ def misc_new_address(tokenuser: UserAccount):
         db.session.flush()
         return success_with_content_response(basic_address_schema.dumps(new_address))
     except Exception as err:
-
-        return sql_error_response(err)
+       return sql_error_response(err)
 
 @api.route("/mis/site/new", methods=["GET"])
 @token_required
@@ -55,7 +61,7 @@ def misc_new_site(tokenuser: UserAccount):
 
     try:
         result = new_site_schema.load(values)
-    except:
+    except ValidationError as err:
         return validation_error_response(err)
     
     new_site = SiteInformation(**result)
