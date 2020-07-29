@@ -30,6 +30,8 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
     account_type = masql.auto_field()
     access_control = masql.auto_field()
 
+    site_id = masql.auto_field()
+
     password = fields.Str(required=True)
 
 

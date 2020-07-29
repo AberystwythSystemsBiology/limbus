@@ -100,7 +100,7 @@
 
                         {% if not current_user.is_bot %}
                             <div class="dropdown-divider"></div>
-                            {% if current_user.is_admin  %}
+                            {% if current_user.is_admin == "ASDADA"  %}
                                 <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i
                                         class="fa fa-user-secret"></i> Admin Panel</a>
                             {% endif %}

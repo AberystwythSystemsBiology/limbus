@@ -49,9 +49,9 @@ def misc_new_address(tokenuser: UserAccount):
         db.session.flush()
         return success_with_content_response(basic_address_schema.dumps(new_address))
     except Exception as err:
-       return sql_error_response(err)
+       return transaction_error_response(err)
 
-@api.route("/mis/site/new", methods=["GET"])
+@api.route("/mis/site/new", methods=["POST"])
 @token_required
 def misc_new_site(tokenuser: UserAccount):
     values = request.get_json()
@@ -73,4 +73,4 @@ def misc_new_site(tokenuser: UserAccount):
         db.session.flush()
         return success_with_content_response(basic_site_schema.dumps(new_site))
     except Exception as err:
-        return sql_error_response(err)
+        return transaction_error_response(err)

@@ -63,19 +63,24 @@ def test():
     
     test_address = {
         "street_address_one": "10 Downing Street",
-        "street_address_two": "",
         "city": "London",
         "country": "GB",
         "post_code": "SW1A2AA",
     }
 
-    r = requests.post(url_for("api.misc_new_address", _external=True), json=test_address, headers=get_internal_api_header())
+    test_site = {
+        "name": "Aberystwyyth Systems Biology",
+        "url": "http://www.aber.ac.uk/en",
+        "address_id": 1
+    }
+
+    r = requests.post(url_for("api.misc_new_site", _external=True), json=test_site, headers=get_internal_api_header())
 
     if r.status_code == 200:
         logout_user()
-        return r.as_json()
+        return r.json()
     else:
-        return "It broke :("
+        return r.content
 
 @setup.route("/administrator_registration/<hash>", methods=["GET", "POST"])
 @as_kryten
@@ -126,9 +131,9 @@ def admin_registration(hash: str):
             clear_session(hash)
             return redirect(url_for("setup.complete"))
         if new_user_request.status_code == 400:
-            return abort(400)
+            return new_user_request.content
         else:
-            return abort(user_account.status_code)
+            return new_user_request.content
 
         return new_address_request
     return render_template("setup/admin_registration.html", form=form, hash=hash)

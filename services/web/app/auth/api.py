@@ -9,6 +9,7 @@ from marshmallow import ValidationError
 import json
 from .views import (
     new_user_account_schema,
+    basic_user_account_schema,
     basic_user_accounts_schema,
     full_user_account_schema,
 )
@@ -55,7 +56,7 @@ def auth_new_user(tokenuser: UserAccount) -> dict:
         db.session.commit()
         db.session.flush()
         return success_with_content_response(
-            basic_user_accounts_schema.dump(new_user_account)
+            basic_user_account_schema.dump(new_user_account)
         )
     except Exception as err:
-        return sql_error_response(err)
+        return transaction_error_response(err)
