@@ -70,13 +70,7 @@ class UserAccount(Base, UserMixin):
 
     def get_gravatar(self, size: int = 100) -> str:
 
-        if self.is_bot:
-            return url_for("static", filename="images/misc/kryten.png")
-        else:
-            return "https://www.gravatar.com/avatar/%s?s=%i" % (
-                hashlib.md5(self.email.encode()).hexdigest(),
-                size,
-            )
+        return "#"
 
 
 @login_manager.user_loader

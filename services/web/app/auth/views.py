@@ -1,4 +1,6 @@
 from .. import db, ma
+from flask import url_for
+import hashlib
 from .models import UserAccount, UserAccountToken
 from .enums import AccountType, Title, AccessControl
 
@@ -66,6 +68,22 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     token = ma.Nested(TokenSchema())
 
     site = ma.Nested(basic_site_schema)
+
+    _links = ma.Hyperlinks({
+        'self': ma.URLFor('api.auth_view_user', id='<id>')
+    })
+
+    gravatar = fields.Method("get_gravatar")
+
+    def get_gravatar(self, user):
+        if user.account_type == "BOT":
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(user.email.encode()).hexdigest(),
+                200,
+            )
+
 
 full_user_account_schema = FullUserAccountSchema()
 full_user_accounts_schema = FullUserAccountSchema(many=True)

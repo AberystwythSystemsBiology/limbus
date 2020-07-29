@@ -33,7 +33,7 @@
             <div class="col-sm-5">
                 <h2>Gravatar</h2>
                 <img src="{{ user.gravatar }}" class="rounded-circle"
-                     style="padding-bottom: 10px;">
+                     style="padding-bottom: 10px; margin:0 auto 0;">
 
                 <h2>Account Information</h2>
 
@@ -45,7 +45,6 @@
 
                 {{ show_value(user.token.created_on, "Created On", "text") }}
                 {{ show_value(user.token.updated_on, "Updated On", "text") }}
-
 
 
             </div>
