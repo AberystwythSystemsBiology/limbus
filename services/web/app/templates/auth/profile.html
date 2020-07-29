@@ -11,10 +11,9 @@
         <div class="row">
             <div class="col col-sm-9">
                 {{ show_value(user.email, "Email Address", "text") }}
-                {{ show_value(user.profile.title, "Title", "enum") }}
-                {{ show_value(user.profile.first_name, "First Name", "text") }}
-                {{ show_value(user.profile.middle_name, "Middle Name", "text") }}
-                {{ show_value(user.profile.last_name, "Last Name", "text") }}
+                {{ show_value(user.first_name, "First Name", "text") }}
+                {{ show_value(user.middle_name, "Middle Name", "text") }}
+                {{ show_value(user.last_name, "Last Name", "text") }}
             </div>
             <div class="col text-center">
                 <img src="{{ user.gravatar }}" class="rounded-circle"

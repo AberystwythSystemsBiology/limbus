@@ -7,10 +7,8 @@ from . import auth
 from .forms import LoginForm, ChangePassword
 from .models import UserAccount
 
-from .views import full_user_account_schema
-
 from .. import db
-
+from ..misc import get_internal_api_header
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -43,15 +41,12 @@ def logout():
 @login_required
 def profile():
     response = requests.get(
-        url_for("auth.api_view_user", id=current_user.id, _external=True)
+        url_for("api.auth_view_user", id=current_user.id, _external=True, headers=get_internal_api_header())
     )
 
-    return response.headers["Content-Type"]
-    """
-    print(">>>>>>>>>>>", response.headers["Content-Type"])
     if response.status_code == 200:
         password_change = ChangePassword()
-        return render_template("auth/profile.html", user=r.json(), password_change=password_change)
+        return render_template("auth/profile.html", user=response.json()["content"], password_change=password_change)
     else:
-        abort(500)
-    """
+        return abort(response.status_code)
+

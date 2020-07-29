@@ -43,13 +43,9 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
         model = UserAccount
 
     email = masql.auto_field()
-    title = masql.auto_field()
     first_name = masql.auto_field()
     middle_name = masql.auto_field()
     last_name = masql.auto_field()
-
-    account_type = masql.auto_field()
-    access_control = masql.auto_field()
 
 
 full_user_account_schema = FullUserAccountSchema()

@@ -26,8 +26,7 @@ def auth_home(tokenuser: UserAccount):
 
 
 @api.route("/auth/user/<id>", methods=["GET"])
-@token_required
-def auth_view_user(id: int, tokenuser: UserAccount):
+def auth_view_user(id: int):
     # TODO: Check if admin or if the current user id == id.
     return success_with_content_response(
         full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first())
