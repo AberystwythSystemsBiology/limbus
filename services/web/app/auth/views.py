@@ -40,7 +40,6 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
 
 new_user_account_schema = NewUserAccountSchema()
 
-
 from ..misc.views import basic_site_schema
 
 class TokenSchema(masql.SQLAlchemySchema):

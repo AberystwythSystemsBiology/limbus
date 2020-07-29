@@ -8,6 +8,22 @@
 
         <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span>My Profile</h1>
 
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+          <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-edit"></i> Edit Details</button>
+        </div>
+        <div class="btn-group mr-2" role="group" aria-label="Second group">
+            <a href="{{ url_for('auth.generate_token') }}">
+                <button type="button" class="btn btn-outline-dark" ><i class="fa fa-code-branch"></i> Generate New Token</button>
+            </a>
+        </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('auth.change_password') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-code-branch"></i> Change Password</button>
+                </a>
+        </div>
+      </div>
+
         <div class="row">
             <div class="col col-sm-7">
                 <h2>Personal Information</h2>
@@ -45,7 +61,6 @@
 
                 {{ show_value(user.token.created_on, "Created On", "text") }}
                 {{ show_value(user.token.updated_on, "Updated On", "text") }}
-
 
             </div>
         </div>

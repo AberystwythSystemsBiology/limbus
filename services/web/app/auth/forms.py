@@ -19,7 +19,14 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log In")
 
 
-class ChangePassword(FlaskForm):
+class PasswordChangeForm(FlaskForm):
+    current_password = PasswordField(
+        "Current Password",
+        description="For security reasons, please enter your current password",
+        validators=[
+            DataRequired()
+        ]
+    )
     password = PasswordField(
         "Password",
         description="Please ensure that you provide a secure password",

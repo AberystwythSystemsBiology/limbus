@@ -4,7 +4,7 @@ import requests
 
 from . import auth
 
-from .forms import LoginForm, ChangePassword
+from .forms import LoginForm, PasswordChangeForm
 from .models import UserAccount, UserAccountToken
 
 from .. import db
@@ -47,15 +47,31 @@ def profile():
     )
 
     if response.status_code == 200:
-        password_change = ChangePassword()
-        return render_template("auth/profile.html", user=response.json()["content"], password_change=password_change)
+        return render_template("auth/profile.html", user=response.json()["content"])
     else:
         return abort(response.status_code)
+
+@auth.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    form = PasswordChangeForm()
+
+    if form.validate_on_submit():
+        if current_user.verify_password(form.current_password.data):
+            current_user.password = form.password.data
+            db.session.add(current_user)
+            db.session.commit()
+            flash("Password updated")
+            return redirect(url_for("auth.profile"))
+        else:
+            flash("You have entered in the wrong current password, try again.")
+            return redirect(url_for("auth.change_password"))
+
+    return render_template("auth/password.html", form=form)
 
 
 @auth.route("/token", methods=["GET"])
 @login_required
-def token_homepage():
+def generate_token():
     # I was going to make this API based, but I'd rather the user log in just in-case :)
     new_token = str(uuid4())
 
