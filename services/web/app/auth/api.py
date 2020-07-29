@@ -1,6 +1,14 @@
-from ..api import api
+from ..api import (
+    api,
+    no_values_response,
+    sql_error_response,
+    validation_error_response,
+    success_without_content_response,
+    success_with_content_response,
+)
+
 from .. import db, spec
-from flask import request, current_app
+from flask import request, current_app, jsonify
 from ..decorators import token_required
 
 from marshmallow import ValidationError
@@ -16,20 +24,20 @@ from .models import UserAccount
 @api.route("/auth")
 @token_required
 def auth_home(tokenuser: UserAccount):
-    return {"results": basic_user_accounts_schema.dump(UserAccount.query.all())}
+    return success_with_content_response(basic_user_accounts_schema.dump(UserAccount.query.all()))
 
 @api.route("/auth/user/<id>", methods=["GET"])
 @token_required
 def auth_view_user(id: int, tokenuser: UserAccount):
     # TODO: Check if admin or if the current user id == id.
-    return full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first())
+    return success_with_content_response(full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first()))
 
 @api.route("/auth/user/new", methods=["POST"])
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
     """A cute furry animal endpoint.
     ---
-    get:
+    post:str
       description: Get a random pet
       responses:
         200:
@@ -38,15 +46,11 @@ def auth_new_user(tokenuser: UserAccount) -> dict:
               schema: FullUserAccountSchema
     """
 
-    values = request.get_json()
-
-    if not values:
-        return {"success": False, "message": "No input data provided"}, 400
-
+    values = request.get_success_without_content
     try:
         result = new_user_account_schema.load(values)
     except ValidationError as err:
-        return {"success": False, "messages" : err.messages}, 417
+        return validation_error_response(err)
 
     new_user_account = UserAccount(**result)
     new_user_account.created_by = tokenuser.id
@@ -55,8 +59,8 @@ def auth_new_user(tokenuser: UserAccount) -> dict:
         db.session.add(new_user_account)
         db.session.commit()
         db.session.flush()
-        return {"success": True}, 200
+        return success_with_content_response(basic_user_accounts_schema.dump(UserAccount))
     except Exception as err:
-        return {"success": False, "message": str(err.orig.diag.message_primary)}, 417
+        return sql_error_response(err)
 
 
