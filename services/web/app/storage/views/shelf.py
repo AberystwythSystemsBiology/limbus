@@ -6,7 +6,6 @@ from ...sample.views import BasicSampleView
 from .cryobox import BasicCryoboxView
 
 
-
 def BasicShelfView(shelf_id: int) -> dict:
 
     shelf = (
@@ -29,8 +28,6 @@ def BasicShelfView(shelf_id: int) -> dict:
 def ShelfView(shelf_id: int) -> dict:
 
     data = BasicShelfView(shelf_id)
-
-
 
     boxes = (
         db.session.query(EntityToStorage)

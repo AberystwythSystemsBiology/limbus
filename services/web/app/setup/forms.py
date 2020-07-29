@@ -6,7 +6,14 @@ from wtforms import (
     ValidationError,
     SelectField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationError , Optional
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    URL,
+    ValidationError,
+    Optional,
+)
 from ukpostcodeutils import validation
 
 import pycountry

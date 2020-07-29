@@ -12,8 +12,10 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     email = masql.auto_field()
 
+
 basic_user_account_schema = BasicUserAccountSchema()
 basic_user_accounts_schema = BasicUserAccountSchema(many=True)
+
 
 class NewUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -33,6 +35,7 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
 
 new_user_account_schema = NewUserAccountSchema()
 
+
 class FullUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -45,6 +48,7 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
 
     account_type = masql.auto_field()
     access_control = masql.auto_field()
+
 
 full_user_account_schema = FullUserAccountSchema()
 full_user_accounts_schema = FullUserAccountSchema(many=True)

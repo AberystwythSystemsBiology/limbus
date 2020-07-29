@@ -16,6 +16,7 @@ config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])
 
 target_metadata = Base.metadata
 
+
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
@@ -46,8 +47,8 @@ def run_migrations_online():
 
     engine = engine_from_config(
         config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
     )
     connection = engine.connect()
     context.configure(connection=connection, target_metadata=target_metadata)
@@ -57,6 +58,7 @@ def run_migrations_online():
             context.run_migrations()
     finally:
         connection.close()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

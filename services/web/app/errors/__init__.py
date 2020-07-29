@@ -81,6 +81,7 @@ def handle_error(e, code, json=False):
 def unauthorised(e="401: Unauthorised", json=False):
     return handle_error(e, Unauthorized.code, json)
 
+
 @errorhandler(NotFound.code)
 def not_found(e="404: Not Found", json=False):
     return handle_error(

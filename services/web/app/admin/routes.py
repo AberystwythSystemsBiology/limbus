@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from .forms import TemporaryRegistrationForm
 from .views import UserAccountsView
 
-from ..auth.models import  User
+from ..auth.models import User
 
 from functools import wraps
 
@@ -25,7 +25,6 @@ def index():
     accounts = UserAccountsView()
 
     if form.validate_on_submit():
-
 
         user = User(
             email=form.email.data,

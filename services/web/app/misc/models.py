@@ -1,6 +1,7 @@
 from app import db, Base
 
-from ..mixins import  RefAuthorMixin
+from ..mixins import RefAuthorMixin
+
 
 class Address(Base, RefAuthorMixin):
     __tablename__ = "address"
@@ -10,6 +11,7 @@ class Address(Base, RefAuthorMixin):
     county = db.Column(db.String(128))
     post_code = db.Column(db.String(20), nullable=False)
     country = db.Column(db.String(2), nullable=False)
+
 
 class SiteInformation(Base, RefAuthorMixin):
     __tablename__ = "siteinformation"

@@ -11,13 +11,17 @@ def check_if_admin(f):
         if current_user.is_admin:
             return f(*args, **kwargs)
         return abort(401)
+
     return decorated_function
+
 
 def requires_access_level(f):
     @wraps(f)
     def decorated_view(*args, **kwargs):
         pass
+
     return decorated_view()
+
 
 def token_required(f):
     """
@@ -27,16 +31,16 @@ def token_required(f):
     """
 
     def internal_request():
-        email = request.headers["Email"].replace('"', '')
-        secret = request.headers["FlaskApp"].replace('"', '')
+        email = request.headers["Email"].replace('"', "")
+        secret = request.headers["FlaskApp"].replace('"', "")
         user = UserAccount.query.filter_by(email=email).first()
         if current_app.config.get("SECRET_KEY") == secret and user != None:
             return True, user
         return False, None
 
     def external_request():
-        email = request.headers["Email"].replace('"', '')
-        token = request.headers["Token"].replace('"', '')
+        email = request.headers["Email"].replace('"', "")
+        token = request.headers["Token"].replace('"', "")
         user = UserAccount.query.filter_by(email=email).first()
         if user != None:
             user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
@@ -63,6 +67,7 @@ def token_required(f):
             return f(*args, **kwargs)
         else:
             return abort(401)
+
     return decorated_function
 
 
@@ -86,14 +91,15 @@ def as_kryten(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        kryten = UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first()
+        kryten = UserAccount.query.filter_by(
+            email="kryten@jupiterminingcorp.co.uk"
+        ).first()
         if kryten is None:
             return abort(401)
         login_user(kryten)
         return f(*args, **kwargs)
 
     return decorated_function
-
 
 
 def setup_mode(f):
@@ -112,9 +118,13 @@ def setup_mode(f):
     :param f: The view function to decorate
     :return: function
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_user.email !=  "kryten@jupiterminingcorp.co.uk" or len(UserAccount.query.all()) > 1:
+        if (
+            current_user.email != "kryten@jupiterminingcorp.co.uk"
+            or len(UserAccount.query.all()) > 1
+        ):
             return abort(401)
         return f(*args, **kwargs)
 

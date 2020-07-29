@@ -12,6 +12,7 @@ from .models import UserAccount
 
 from .enums import Title
 
+
 class LoginForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])

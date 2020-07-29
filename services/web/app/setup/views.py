@@ -16,11 +16,13 @@ from ..generators import generate_random_hash
 
 from ..misc import get_internal_api_header, clear_session
 
+
 @setup.route("/")
 @as_kryten
 @setup_mode
 def index():
     return render_template("setup/index.html")
+
 
 @setup.route("/eula")
 @setup_mode
@@ -39,21 +41,18 @@ def site_registration():
             "name": form.name.data,
             "url": form.url.data,
             "description": form.description.data,
-            "address" : {
+            "address": {
                 "street_address_one": form.address_line_one.data,
                 "street_address_two": form.address_line_two.data,
                 "city": form.city.data,
-                "country":  form.country.data,
+                "country": form.country.data,
                 "post_code": form.post_code.data,
-            }
+            },
         }
-        session[hash] = {
-            "site": site
-        }
+        session[hash] = {"site": site}
         return redirect(url_for("setup.admin_registration", hash=hash))
 
     return render_template("setup/site_registration.html", form=form)
-
 
 
 @setup.route("/administrator_registration/<hash>", methods=["GET", "POST"])
@@ -68,14 +67,16 @@ def admin_registration(hash: str):
             "title": form.title.data,
             "first_name": form.first_name.data,
             "middle_name": form.middle_name.data,
-            "last_name": form.last_name.data,   
+            "last_name": form.last_name.data,
             "email": form.email.data,
             "account_type": "ADM",
-            "password": form.password.data
+            "password": form.password.data,
         }
 
         r = requests.post(
-            url_for('api.new_user_account', _external=True), json=user_account, headers=get_internal_api_header()
+            url_for("api.new_user_account", _external=True),
+            json=user_account,
+            headers=get_internal_api_header(),
         )
 
         if r.status_code == 200:
@@ -87,9 +88,8 @@ def admin_registration(hash: str):
         else:
             return abort(r.status_code)
 
-
-
     return render_template("setup/admin_registration.html", form=form, hash=hash)
+
 
 @setup.route("/complete")
 def complete():

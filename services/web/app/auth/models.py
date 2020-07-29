@@ -8,6 +8,7 @@ from .enums import Title, AccountType, AccessControl
 
 from ..misc.models import SiteInformation
 
+
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
     __tablename__ = "useraccount"
@@ -35,8 +36,14 @@ class UserAccount(Base, UserMixin):
 
     token = db.relationship("UserAccountToken", uselist=False)
 
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True), nullable=True)
-    site = db.relationship("SiteInformation", primaryjoin="UserAccount.site_id==SiteInformation.id", uselist=False)
+    site_id = db.Column(
+        db.Integer, db.ForeignKey("siteinformation.id", use_alter=True), nullable=True
+    )
+    site = db.relationship(
+        "SiteInformation",
+        primaryjoin="UserAccount.site_id==SiteInformation.id",
+        uselist=False,
+    )
 
     @property
     def password(self) -> str:
@@ -71,9 +78,11 @@ class UserAccount(Base, UserMixin):
                 size,
             )
 
+
 @login_manager.user_loader
 def load_user(user_id: int) -> UserAccount:
     return UserAccount.query.get(user_id)
+
 
 class UserAccountToken(Base):
     __tablename__ = "useraccounttoken"

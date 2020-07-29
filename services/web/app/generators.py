@@ -1,5 +1,6 @@
 import uuid
 
+
 def generate_random_hash() -> str:
     """
 

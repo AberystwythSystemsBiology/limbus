@@ -37,7 +37,10 @@ Base.query = db.session.query_property()
 
 login_manager = LoginManager()
 from .auth.models import UserAccount
-make_versioned(user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
+
+make_versioned(
+    user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()]
+)
 
 # Blueprint imports:
 from .misc import misc as misc_blueprint
@@ -47,6 +50,7 @@ from .api import api as api_blueprint
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
+
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -75,11 +79,10 @@ def create_app():
             error_handler["code_or_exception"], error_handler["func"]
         )
 
-    
     from app.auth.api import auth_new_user
+
     # Register the path and the entities within it
     with app.test_request_context():
         spec.path(view=auth_new_user)
-
 
     return app

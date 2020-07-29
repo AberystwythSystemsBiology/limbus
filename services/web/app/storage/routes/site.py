@@ -60,10 +60,7 @@ def add_site():
 def view_site(site_id: int):
     site = SiteView(site_id)
 
-    return render_template(
-        "storage/site/view.html",
-        site=site
-    )
+    return render_template("storage/site/view.html", site=site)
 
 
 @storage.route("/sites/view/LIMBSIT-<id>/get")

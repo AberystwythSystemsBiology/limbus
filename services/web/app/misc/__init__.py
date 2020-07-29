@@ -18,9 +18,13 @@ def clear_session(hash: str) -> None:
 
 def get_internal_api_header():
     try:
-        return {"FlaskApp": current_app.config.get("SECRET_KEY"), "Email": current_user.email}
+        return {
+            "FlaskApp": current_app.config.get("SECRET_KEY"),
+            "Email": current_user.email,
+        }
     except AttributeError:
         return {}
+
 
 def chunks(it, n):
     it = iter(it)

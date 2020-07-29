@@ -1,4 +1,13 @@
-from flask import redirect, abort, render_template, url_for, session, request, jsonify, flash
+from flask import (
+    redirect,
+    abort,
+    render_template,
+    url_for,
+    session,
+    request,
+    jsonify,
+    flash,
+)
 
 from flask_login import current_user, login_required
 from ... import db
@@ -6,13 +15,11 @@ from .. import storage
 
 from ..forms import RoomRegistrationForm, LongTermColdStorageForm
 
-from ..models import (
-    FixedColdStorage,
-    Room
-)
+from ..models import FixedColdStorage, Room
 
 
 from ..views.room import RoomView, BasicRoomView
+
 
 @storage.route("/rooms/LIMBROM-<room_id>")
 @login_required
@@ -29,7 +36,7 @@ def edit_room(room_id: int):
         r = db.session.query(Room).filter(Room.id == room_id).first_or_404()
 
         r.room_number = form.room.data
-        r.building = form.building.data,
+        r.building = (form.building.data,)
         r.author_id = current_user.id
 
         db.session.commit()
@@ -42,6 +49,7 @@ def edit_room(room_id: int):
     form.room.data = room["room_number"]
     form.building.data = room["building"]
     return render_template("storage/room/edit.html", form=form, room=room)
+
 
 @storage.route("/rooms/add_storage/LIMBROM-<room_id>", methods=["GET", "POST"])
 @login_required

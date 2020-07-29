@@ -13,14 +13,11 @@ from ..api import (
     success_with_content_response,
 )
 
-from .views import (
-    new_address_schema,
-    new_site_schema,
-    basic_address_schema
-)
+from .views import new_address_schema, new_site_schema, basic_address_schema
 
 from .models import Address, SiteInformation
 from ..auth.models import UserAccount
+
 
 @api.route("/mis/address/new", methods=["POST"])
 def misc_new_address(tokenuser: UserAccount):
@@ -30,7 +27,7 @@ def misc_new_address(tokenuser: UserAccount):
         result = new_address_schema.load(values)
     except ValidationError:
         return validation_error_response(err)
-    
+
     new_address = Address(**result)
     new_address.created_by = tokenuser.id
 
