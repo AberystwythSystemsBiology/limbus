@@ -15,10 +15,10 @@ def validation_error_response(err):
 def sql_error_response(err):
     return {"success": False, "message": str(err.orig.diag.message_primary)}, 417
 
-def success_with_content(content):
+def success_with_content_response(content):
     return {"success": True, "content": content}, 200
 
-def success_without_content():
+def success_without_content_response():
     return {"success": True}, 200
 
 @api.route("/")
