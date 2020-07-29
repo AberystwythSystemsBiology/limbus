@@ -39,6 +39,12 @@ def logout():
     return redirect(url_for("auth.login"))
 
 
+@auth.route("/edit", methods=["GET", "POST"])
+@login_required
+def edit():
+    # Write API handle
+    pass
+
 @auth.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
