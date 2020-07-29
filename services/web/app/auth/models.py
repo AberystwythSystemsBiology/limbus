@@ -95,7 +95,7 @@ class UserAccountToken(Base):
         return "*******"
 
     @token.setter
-    def token(self, token):
+    def token(self, token: str):
         self.token_hash = generate_password_hash(token)
 
     def verify_token(self, token) -> bool:

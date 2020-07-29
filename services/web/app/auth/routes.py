@@ -5,10 +5,12 @@ import requests
 from . import auth
 
 from .forms import LoginForm, ChangePassword
-from .models import UserAccount
+from .models import UserAccount, UserAccountToken
 
 from .. import db
 from ..misc import get_internal_api_header
+
+from uuid import uuid4
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
@@ -50,3 +52,23 @@ def profile():
     else:
         return abort(response.status_code)
 
+
+@auth.route("/token", methods=["GET"])
+@login_required
+def token_homepage():
+    # I was going to make this API based, but I'd rather the user log in just in-case :)
+    new_token = str(uuid4())
+
+    uat = UserAccountToken.query.filter_by(user_id = current_user.id).first()
+    if uat != None:
+        uat.token = new_token
+    else:
+        uat = UserAccountToken(
+            user_id = current_user.id,
+            token = new_token
+        )
+
+    db.session.add(uat)
+    db.session.commit()
+
+    return render_template("auth/token.html", token=new_token)

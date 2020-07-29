@@ -1,12 +1,10 @@
 from .. import db, ma
-from .models import UserAccount
+from .models import UserAccount, UserAccountToken
 from .enums import AccountType, Title, AccessControl
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-
-
 
 class BasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -43,6 +41,12 @@ new_user_account_schema = NewUserAccountSchema()
 
 from ..misc.views import basic_site_schema
 
+class TokenSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccountToken
+    created_on = fields.Date()
+    updated_on = fields.Date()
+
 class FullUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -56,7 +60,10 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     account_type = EnumField(AccountType)
     access_control = EnumField(AccessControl)
 
-    created_on = masql.auto_field()
+    created_on = fields.Date()
+    updated_on = fields.Date()
+
+    token = ma.Nested(TokenSchema())
 
     site = ma.Nested(basic_site_schema)
 

@@ -9,20 +9,45 @@
         <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span>My Profile</h1>
 
         <div class="row">
-            <div class="col col-sm-9">
-                {{ user }}
+            <div class="col col-sm-7">
+                <h2>Personal Information</h2>
+
                 {{ show_value(user.email, "Email Address", "text") }}
+                {{ show_value(user.title, "Title", "text") }}
                 {{ show_value(user.first_name, "First Name", "text") }}
                 {{ show_value(user.middle_name, "Middle Name", "text") }}
                 {{ show_value(user.last_name, "Last Name", "text") }}
+
+                <h2>Site Information</h2>
+                {{ show_value(user.site.name, "Site Name", "text") }}
+
+                <h4>Address</h4>
+                {{ show_value(user.site.address.street_address_one, "Address Line One", "text") }}
+                {{ show_value(user.site.address.street_address_two, "Address Line Two", "text") }}
+                {{ show_value(user.site.address.city, "City", "text") }}
+                {{ show_value(user.site.address.county, "County", "text") }}
+                {{ show_value(user.site.address.country, "Country", "text") }}
+                {{ show_value(user.site.address.post_code, "Post Code", "text") }}
+
             </div>
-            <div class="col text-center">
+            <div class="col-sm-5">
+                <h2>Gravatar</h2>
                 <img src="{{ user.gravatar }}" class="rounded-circle"
                      style="padding-bottom: 10px;">
 
-                <button class="btn btn-primary full-width" data-toggle="modal" data-target="#exampleModalLong">Change
-                    Password
-                </button>
+                <h2>Account Information</h2>
+
+                {{ show_value(user.created_on, "Created On", "text") }}
+                {{ show_value(user.account_type, "Account Type", "text") }}
+
+
+                <h2>Token Information</h2>
+
+                {{ show_value(user.token.created_on, "Created On", "text") }}
+                {{ show_value(user.token.updated_on, "Updated On", "text") }}
+
+
+
             </div>
         </div>
 

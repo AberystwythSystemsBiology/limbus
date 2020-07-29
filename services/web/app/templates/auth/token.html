@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+
+
+{% block title %}Your API Token Generator{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span><i class="fa fa-key"></i> Your API Token Generator</h1>
+
+        <p>This will invalidate your previous token, so please ensure that you update your scripts with the new
+        token.</p>
+
+        <div class="row">
+            <div class="col-lg-3"></div>
+            <div class="jumbotron col-lg-6" style="text-align: center">
+
+                <h2>Your new token is:</h2>
+                <code>
+                    <pre>{{ token }}</pre>
+                </code>
+            </div>
+            <div class="col-lg-3"></div>
+        </div>
+
+
+    </div>
+
+
+
+
+{% endblock %}

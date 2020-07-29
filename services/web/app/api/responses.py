@@ -12,6 +12,7 @@ def transaction_error_response(err):
     except Exception:
         return {"success": False, "message": str(err)}, 417
 
+
 def success_with_content_response(content):
     return {"success": True, "content": content}, 200
 
