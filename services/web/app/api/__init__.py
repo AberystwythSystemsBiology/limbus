@@ -6,25 +6,7 @@ api = Blueprint("api", __name__)
 from ..auth.api import *
 from ..misc.api import *
 
-
-def no_values_response():
-    return {"success": False, "message": "No input data provided"}, 400
-
-
-def validation_error_response(err):
-    return {"success": False, "messages": err.messages}, 417
-
-
-def sql_error_response(err):
-    return {"success": False, "message": str(err.orig.diag.message_primary)}, 417
-
-
-def success_with_content_response(content):
-    return {"success": True, "content": content}, 200
-
-
-def success_without_content_response():
-    return {"success": True}, 200
+from .responses import *
 
 
 @api.route("/")

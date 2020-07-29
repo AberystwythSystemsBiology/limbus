@@ -2,6 +2,9 @@ from .models import SiteInformation, Address
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
+from .. import ma
+
+from ..auth.views import BasicUserAccountSchema
 
 
 class NewAddressSchema(masql.SQLAlchemySchema):
@@ -31,7 +34,11 @@ class BasicAddressSchema(masql.SQLAlchemySchema):
     county = masql.auto_field()
     post_code = masql.auto_field()
     country = masql.auto_field()
-    author = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+
+basic_address_schema = BasicAddressSchema()
+basic_addresses_schema = BasicAddressSchema(many=True)
 
 
 class NewSiteInformationSchema(masql.SQLAlchemySchema):

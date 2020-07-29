@@ -22,15 +22,14 @@ ma = Marshmallow()
 
 # Create an APISpec
 spec = APISpec(
-    title="LImBuS",
-    version="1.0.0",
+    title="LImBuS API Documentation",
+    version="20.08",
     openapi_version="3.0.2",
     plugins=[FlaskPlugin(), MarshmallowPlugin()],
 )
 
 
 from .base import BaseModel as BM
-
 
 Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()

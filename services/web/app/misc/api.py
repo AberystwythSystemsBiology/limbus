@@ -5,21 +5,22 @@ from ..decorators import token_required
 from marshmallow import ValidationError
 import json
 
-from ..api import (
-    api,
-    sql_error_response,
-    validation_error_response,
-    success_without_content_response,
-    success_with_content_response,
-)
+from ..api import api
+from ..api.responses import *
 
-from .views import new_address_schema, new_site_schema, basic_address_schema
+
+from .views import (
+    new_address_schema,
+    new_site_schema,
+    basic_address_schema,
+)
 
 from .models import Address, SiteInformation
 from ..auth.models import UserAccount
 
 
 @api.route("/mis/address/new", methods=["POST"])
+@token_required
 def misc_new_address(tokenuser: UserAccount):
     values = request.get_json()
 

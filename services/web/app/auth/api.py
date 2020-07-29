@@ -1,15 +1,9 @@
-from ..api import (
-    api,
-    no_values_response,
-    sql_error_response,
-    validation_error_response,
-    success_without_content_response,
-    success_with_content_response,
-)
+from ..api import api
+from ..api.responses import *
 
 from .. import db, spec
 from flask import request, current_app, jsonify
-from ..decorators import tbasic_user_accounts_schemaoken_required
+from ..decorators import token_required
 
 from marshmallow import ValidationError
 import json
@@ -42,18 +36,12 @@ def auth_view_user(id: int, tokenuser: UserAccount):
 @api.route("/auth/user/new", methods=["POST"])
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
-    """A cute furry animal endpoint.
-    ---
-    post:str
-      description: Get a random pet
-      responses:
-        200:
-          content:
-            application/json:
-              schema: FullUserAccountSchema
-    """
 
     values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
     try:
         result = new_user_account_schema.load(values)
     except ValidationError as err:
