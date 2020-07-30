@@ -5,8 +5,6 @@
 {% block body %}
     <div class="container">
 
-
-        
         <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
             <h1><i class="fas fa-file"></i> Document Portal</h1>
             <div class="btn-toolbar">
@@ -42,7 +40,7 @@
                 <tr>
 
                     <td>
-                        <a href="{{ url_for('document.view', doc_id=document.id) }}">
+                        <a href="{{ url_for('document.view', id=document.id) }}">
                             <i class="fas fa-file"></i> LIMBDOC-{{ document.id }}: {{ document.name }}
                         </a>
                     </td>

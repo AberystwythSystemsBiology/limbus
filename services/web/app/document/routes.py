@@ -137,12 +137,17 @@ def document_upload(hash):
     return render_template("document/upload/upload.html", form=form, hash=hash)
 
 
-@document.route("/view/LIMBDOC-<doc_id>")
+@document.route("/view/LIMBDOC-<id>")
 @login_required
-def view(doc_id):
-    view = {}
-    return render_template("document/view.html", document=view)
-
+def view(id):
+    #     view = document_schema
+    response = requests.get(
+        url_for("api.document_view_document", id=id, _external=True), headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+        return render_template("document/view.html", document=response.json()["content"])
+    else:
+        return  abort(response.status_code)
 
 @document.route("/download/D<doc_id>F<file_id>")
 @login_required

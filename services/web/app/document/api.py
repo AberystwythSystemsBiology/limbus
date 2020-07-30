@@ -39,6 +39,13 @@ def document_home(tokenuser: UserAccount):
         basic_documents_schema.dump(Document.query.all())
     )
 
+@api.route("/document/<id>")
+@token_required
+def document_view_document(id: int, tokenuser: UserAccount):
+    return success_with_content_response(
+        document_schema.dump(Document.query.filter_by(id = id).first())
+    )
+
 @api.route("/document/new", methods=["POST"])
 @token_required
 def document_new_document(tokenuser: UserAccount):
@@ -46,7 +53,6 @@ def document_new_document(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-
 
     try:
         result = new_document_schema.load(values)

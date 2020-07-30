@@ -57,6 +57,7 @@ class DocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document
 
+    id = masql.auto_field()
     name = masql.auto_field()
     description = masql.auto_field()
     type = EnumField(DocumentType)
