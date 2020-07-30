@@ -1,28 +1,34 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from app import db, Base
-from enum import Enum
+from .enums import DocumentType
 from ..mixins import RefAuthorMixin
-
-
-class DocumentType(Enum):
-    PATHO = "Pathology Report"
-    MANUE = "Device Manual"
-    MATER = "Material Transfer Agreement"
-    PROTO = "Processing Protocol"
-    OTHER = "Other"
 
 
 class Document(Base, RefAuthorMixin):
     __tablename__ = "document"
     __versioned__ = {}
     name = db.Column(db.String, nullable=False)
-    type = db.Column(db.Enum(DocumentType))
-    other_type = db.Column(db.String(128))
     description = db.Column(db.String)
-    files = db.relationship("DocumentFile")
+    type = db.Column(db.Enum(DocumentType), nullable=False)
+    files = db.relationship("DocumentFile", backref="document")
 
 class DocumentFile(Base, RefAuthorMixin):
     __tablename__ = "documentfile"
 
-    filename = db.Column(db.String, nullable=False)
-    filepath = db.Column(db.String)
+    file_name = db.Column(db.String, nullable=False)
+    file_path = db.Column(db.String)
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"))

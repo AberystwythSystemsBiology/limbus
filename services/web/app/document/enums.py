@@ -13,8 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Blueprint
+from ..FormEnum import FormEnum
 
-auth = Blueprint("auth", __name__)
-
-from . import routes
+class DocumentType(FormEnum):
+    PATHO = "Pathology Report"
+    MANUE = "Device Manual"
+    MATER = "Material Transfer Agreement"
+    PROTO = "Processing Protocol"
+    OTHER = "Other"

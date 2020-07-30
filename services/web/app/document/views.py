@@ -1,46 +1,46 @@
-from .. import db
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from .. import db, ma
 from .models import Document, DocumentFile
-from ..auth.views import UserView
+
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
+from .enums import DocumentType
+
+from ..auth.views import BasicUserAccountSchema
+
+class DocumentFileSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DocumentFile
+
+    author = ma.Nested(BasicUserAccountSchema)
+
+class DocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Document
+
+    name = masql.auto_field()
+    description = masql.auto_field()
+    type = EnumField(DocumentType)
+    created_on = fields.Date()
+    author = ma.Nested(BasicUserAccountSchema)
+    files = ma.Nested(DocumentFileSchema)
+
+document_schema = DocumentSchema()
+documents_schema = DocumentSchema(many=True)
 
 
-def DocumentIndexView():
-    documents = db.session.query(Document).all()
-
-    data = {}
-
-    for document in documents:
-        data[document.id] = {
-            "name": document.name,
-            "type": document.type,
-            "description": document.description,
-            "upload_date": document.upload_date,
-            "user_information": UserView(document.uploader),
-        }
-
-    return data
-
-
-def DocumentView(doc_id: int) -> dict:
-    document = db.session.query(Document).filter(Document.id == doc_id).first_or_404()
-
-    files = {}
-
-    for file in (
-        db.session.query(DocumentFile).filter(DocumentFile.document_id == doc_id).all()
-    ):
-        files[file.id] = {
-            "filename": file.filename,
-            "filepath": file.filepath,
-            "upload_date": file.upload_date,
-            "user_information": UserView(file.uploader),
-        }
-
-    return {
-        "id": document.id,
-        "name": document.name,
-        "description": document.description,
-        "upload_date": document.upload_date,
-        "update_data": document.update_date,
-        "user_information": UserView(document.uploader),
-        "files": files,
-    }

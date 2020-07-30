@@ -1,5 +1,19 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from __future__ import absolute_import
-import os
 
 from flask import Flask, g, render_template
 
@@ -46,6 +60,7 @@ from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 from .api import api as api_blueprint
+from .document import document as document_blueprint
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
@@ -62,9 +77,10 @@ def create_app():
     login_manager.login_view = "auth.login"
 
     # Blueprint Registers
-    app.register_blueprint(auth_blueprint)
+    app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    app.register_blueprint(document_blueprint, url_prefix="/document")
 
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")
