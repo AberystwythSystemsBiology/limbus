@@ -23,7 +23,8 @@ from flask_marshmallow import Marshmallow
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin_sqc
+from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+from sqlalchemy_continuum.plugins import FlaskPlugin as PlaskPlugin_sqc
 
 
 from apispec import APISpec
@@ -51,7 +52,7 @@ login_manager = LoginManager()
 from .auth.models import UserAccount
 
 make_versioned(
-    user_cls=UserAccount, plugins=[FlaskPlugin_sqc(), PropertyModTrackerPlugin()]
+    user_cls=UserAccount, plugins=[PlaskPlugin_sqc(), PropertyModTrackerPlugin()]
 )
 
 # Blueprint imports:

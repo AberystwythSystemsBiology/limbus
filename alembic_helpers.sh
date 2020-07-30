@@ -15,7 +15,8 @@ function alembic_upgrade_db() {
     echo "PREPARING UPGRADE"
     echo "PLEASE ENTER UPGRADE COMMIT MESSAGE:"
     read commit
-    docker-compose run web sh -c "venv/bin/alembic revision --autogenerate -m '$commit'; venv/bin/alembic upgrade head"
+    docker-compose run web sh -c "venv/bin/alembic revision --autogenerate -m '$commit'"
+    docker-compose run web sh -c "venv/bin/alembic upgrade head"
     
 }
 
