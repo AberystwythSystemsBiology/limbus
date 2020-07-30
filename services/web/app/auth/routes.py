@@ -70,7 +70,7 @@ def profile():
 @auth.route("/edit", methods=["GET", "POST"])
 def edit():
     response = requests.get(
-        url_for("api.auth_view_user", id=current_user.id, _external=True, headers=get_internal_api_header())
+        url_for("api.auth_view_user", id=current_user.id, _external=True), headers=get_internal_api_header()
     )
     form = UserAccountEditForm()
 

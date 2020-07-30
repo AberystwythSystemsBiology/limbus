@@ -1,4 +1,4 @@
-{% from "macros.html" import render_warning, render_question, form_field, show_value, new_render_form, generate_attribute_select_form, render_success, render_progress, storage_navbar %}
+{% from "macros.html" import render_warning, render_question, form_field, show_value, new_render_form, render_author_for_table, generate_attribute_select_form, render_success, render_progress, storage_navbar %}
 
 <html lang="en">
 
@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <meta name="author" content="Keiron O'Shea">
-    <title>{% block title %} {% endblock %} : LImBuS</title>
+    <title>{% block title %} {% endblock %} : The Libre Biobank Management System</title>
 
     <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/@fortawesome/fontawesome-free/css/all.css') }}"

@@ -11,7 +11,7 @@
             <h1><i class="fas fa-file"></i> Document Portal</h1>
             <div class="btn-toolbar">
                 <div class="btn-group mr-2">
-                    <a href="{{ url_for('document.upload') }}">
+                    <a href="{{ url_for('document.new_document') }}">
                         <div class="btn btn-primary">
                             <i class="fas fa-plus"></i> Add Document
                         </div>
@@ -34,22 +34,21 @@
                 <th>Document</th>
                 <th>Document Type</th>
                 <th>Uploader</th>
-                <th>Upload Date</th>
+                <th>Created On</th>
             </tr>
             </thead>
             <tbody>
-            {% for id, document  in documents.items() %}
+            {% for document in documents %}
                 <tr>
 
                     <td>
-                        <a href="{{ url_for('document.view', doc_id=id) }}">
-                            <i class="fas fa-file"></i> LIMBDOC-{{ id }}: {{ document.name }}
+                        <a href="{{ url_for('document.view', doc_id=document.id) }}">
+                            <i class="fas fa-file"></i> LIMBDOC-{{ document.id }}: {{ document.name }}
                         </a>
                     </td>
-                    <td>{{ document.type.value }}</td>
-                    <td>{{ document.upload_date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ document.user_information.email }}</td>
-
+                    <td>{{ document.type }}</td>
+                    <td>{{ render_author_for_table(document.author) }}</td>
+                    <td>{{ document.created_on }}</td>
                 </tr>
             {% endfor %}
             </tbody>

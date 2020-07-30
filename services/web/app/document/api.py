@@ -54,7 +54,7 @@ def document_new_document(tokenuser: UserAccount):
         return validation_error_response(err)
 
     new_document = Document(**result)
-    new_document.created_by = tokenuser.id
+    new_document.author_id = tokenuser.id
 
     try:
         db.session.add(new_document)

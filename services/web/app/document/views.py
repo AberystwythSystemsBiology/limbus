@@ -37,6 +37,8 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document
 
+    id = masql.auto_field()
+    author_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     name = masql.auto_field()
     type = EnumField(DocumentType)

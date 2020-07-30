@@ -21,6 +21,7 @@ from flask import (
     current_app,
     send_file,
     session,
+    flash,
 )
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -32,39 +33,52 @@ import os
 from . import document
 from .models import Document, DocumentFile
 from .forms import (
-    DocumentUploadForm,
+    DocumentCreationForm,
     PatientConsentFormInformationForm,
     DocumentUploadFileForm,
 )
 
 from ..auth.models import UserAccount
+from ..misc import get_internal_api_header
 
 from .. import db
-
+import requests
 
 
 @login_required
 @document.route("/")
 def index():
-    documents = {}
+    response = requests.get(
+        url_for("api.document_home", _external=True), headers=get_internal_api_header()
+    )
 
-    return render_template("document/index.html", documents=documents)
+    if response.status_code == 200:
+        return render_template("document/index.html", documents=response.json()["content"])
+    else:
+        return response.content
 
 
-@document.route("/upload", methods=["GET", "POST"])
+@document.route("/new", methods=["GET", "POST"])
 @login_required
-def upload():
-    form = DocumentUploadForm()
+def new_document():
+    form = DocumentCreationForm()
     if form.validate_on_submit():
-        hash = "aadasd"
 
-        session["%s document_info" % (hash)] = {
+        document_information = {
             "name": form.name.data,
             "description": form.description.data,
             "type": form.type.data,
         }
 
-        return redirect(url_for("document.document_upload", hash=hash))
+        response = requests.post(
+            url_for("api.document_new_document", _external=True), headers=get_internal_api_header(), json=document_information
+        )
+
+        if response.status_code == 200:
+            flash("Document Successfully Created")
+            return redirect(url_for("document.index"))
+        else:
+            return abort(response.status_code)
 
     return render_template("document/upload/index.html", form=form)
 

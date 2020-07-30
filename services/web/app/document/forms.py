@@ -27,7 +27,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL
 from .models import DocumentType
 
 
-class DocumentUploadForm(FlaskForm):
+class DocumentCreationForm(FlaskForm):
     name = StringField(
         "Document Name",
         validators=[DataRequired()],

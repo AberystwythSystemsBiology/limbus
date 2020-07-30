@@ -60,8 +60,6 @@ def token_required(f):
         if user != None:
             user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
             if user_token != None:
-                print(token)
-                print(user_token.verify_token(token))
                 if user_token.verify_token(token):
                     return True, user
         return False, None
@@ -71,7 +69,7 @@ def token_required(f):
 
         # Default check values.
         check, user = False, None
-
+        print(request.headers)
         # Internal Requests
         if "FlaskApp" in request.headers:
             check, user = internal_request()

@@ -30,6 +30,20 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     email = masql.auto_field()
 
+    first_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+    gravatar = fields.Method("get_gravatar")
+
+    def get_gravatar(self, user):
+        if user.account_type == "BOT":
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(user.email.encode()).hexdigest(),
+                20,
+            )
+
 
 basic_user_account_schema = BasicUserAccountSchema()
 basic_user_accounts_schema = BasicUserAccountSchema(many=True)
