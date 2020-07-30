@@ -1,5 +1,7 @@
 # Contributing Guidelines
 
+Note: This is deprecated.
+
 ## 📝 Code Style
 
 - Remove trailing whitespaces and add an empty line at the end of each file.
