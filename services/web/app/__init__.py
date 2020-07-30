@@ -23,13 +23,12 @@ from flask_marshmallow import Marshmallow
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_continuum import make_versioned
-from sqlalchemy_continuum.plugins import FlaskPlugin
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin_sqc
 
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
-from apispec_webframeworks.flask import FlaskPlugin
+from apispec_webframeworks.flask import FlaskPlugin as FlaskPlugin_apispec
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -39,7 +38,7 @@ spec = APISpec(
     title="LImBuS API Documentation",
     version="20.08",
     openapi_version="3.0.2",
-    plugins=[FlaskPlugin(), MarshmallowPlugin()],
+    plugins=[FlaskPlugin_apispec(), MarshmallowPlugin()],
 )
 
 
@@ -52,7 +51,7 @@ login_manager = LoginManager()
 from .auth.models import UserAccount
 
 make_versioned(
-    user_cls=UserAccount, plugins=[PropertyModTrackerPlugin()]
+    user_cls=UserAccount, plugins=[FlaskPlugin_sqc(), PropertyModTrackerPlugin()]
 )
 
 # Blueprint imports:
