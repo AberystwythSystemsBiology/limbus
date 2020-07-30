@@ -16,12 +16,12 @@
 from ..api import api
 from ..api.responses import *
 
-from .. import db, spec
+from .. import db
 from flask import request, current_app, jsonify
 from ..decorators import token_required
 
 from marshmallow import ValidationError
-import json
+
 from .views import (
     new_user_account_schema,
     basic_user_account_schema,

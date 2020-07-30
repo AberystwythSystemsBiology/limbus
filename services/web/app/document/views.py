@@ -23,6 +23,28 @@ from .enums import DocumentType
 
 from ..auth.views import BasicUserAccountSchema
 
+class NewDocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Document
+
+    name = masql.auto_field()
+    description = masql.auto_field()
+    type = EnumField(DocumentType)
+
+new_document_schema = NewDocumentSchema()
+
+class BasicDocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Document
+
+    author = ma.Nested(BasicUserAccountSchema)
+    name = masql.auto_field()
+    type = EnumField(DocumentType)
+    created_on = fields.Date()
+
+basic_document_schema = BasicDocumentSchema()
+basic_documents_schema = BasicDocumentSchema(many=True)
+
 class DocumentFileSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DocumentFile

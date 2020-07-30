@@ -7,7 +7,7 @@ body {
 }
 
 .container {
-    max-width: 960px;
+    max-width: 1024px;
 }
 
 nav img {
@@ -18,6 +18,8 @@ nav img {
     margin-top:-10px;
     padding:0;
 }
+
+
 
 nav a {
     text-decoration: none;
@@ -268,3 +270,11 @@ footer {
 .present {
     background-color: #bbebdf;
 }
+
+table th {
+    text-align: center;
+    background-color: #007bff;
+    color: #ffffff;
+    font-weight: normal;
+}
+

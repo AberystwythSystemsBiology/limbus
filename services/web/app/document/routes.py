@@ -25,33 +25,28 @@ from flask import (
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
-from ..misc.generators import generate_random_hash
-
 import random
 import string
 import os
 
 from . import document
-from .models import Document, DocumentFile, PatientConsentForm, DocumentType
+from .models import Document, DocumentFile
 from .forms import (
     DocumentUploadForm,
     PatientConsentFormInformationForm,
     DocumentUploadFileForm,
 )
 
-from ..sample.models import SampleDocumentAssociation
-
-from ..auth.models import User
+from ..auth.models import UserAccount
 
 from .. import db
 
-from .views import DocumentIndexView, DocumentView
 
 
 @login_required
 @document.route("/")
 def index():
-    documents = DocumentIndexView()
+    documents = {}
 
     return render_template("document/index.html", documents=documents)
 
@@ -61,7 +56,7 @@ def index():
 def upload():
     form = DocumentUploadForm()
     if form.validate_on_submit():
-        hash = generate_random_hash()
+        hash = "aadasd"
 
         session["%s document_info" % (hash)] = {
             "name": form.name.data,
@@ -121,20 +116,6 @@ def document_upload(hash):
             current_user.id,
         )
 
-        if "%s patient_consent_info" % (hash) in session:
-            consent_info = session["%s patient_consent_info" % (hash)]
-
-            pcf = PatientConsentForm(
-                academic=consent_info["academic"],
-                commercial=consent_info["commercial"],
-                animal=consent_info["animal"],
-                genetic=consent_info["genetic"],
-                indefinite=True,
-                document_id=document_id,
-            )
-
-            db.session.add(pcf)
-
         db.session.commit()
 
         return redirect(url_for("document.index"))
@@ -145,7 +126,7 @@ def document_upload(hash):
 @document.route("/view/LIMBDOC-<doc_id>")
 @login_required
 def view(doc_id):
-    view = DocumentView(doc_id)
+    view = {}
     return render_template("document/view.html", document=view)
 
 

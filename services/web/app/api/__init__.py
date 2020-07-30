@@ -20,6 +20,7 @@ api = Blueprint("api", __name__)
 
 from ..auth.api import *
 from ..misc.api import *
+from ..document.api import *
 
 from .responses import *
 
