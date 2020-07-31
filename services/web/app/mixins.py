@@ -26,3 +26,14 @@ class RefAuthorMixin(object):
         return db.relationship(
             "UserAccount", primaryjoin="UserAccount.id==%s.author_id" % cls.__name__
         )
+
+class RedEditorMixin(object):
+    @declared_attr
+    def editor_id(cls):
+        return db.Column(db.Integer, db.ForeignKey("useraccount.id"))
+
+    @declared_attr
+    def editor(cls):
+        return db.relationship(
+            "UserAccount", primaryjoin="UserAccount.id==%s.editor_id" % cls.__name__
+        )
