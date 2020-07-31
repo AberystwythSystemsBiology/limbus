@@ -24,6 +24,8 @@ class BaseModel(object):
 
     created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
+    is_locked = db.Column(db.Boolean, default=False)
+
     updated_on = db.Column(
         db.DateTime,
         server_default=db.func.now(),

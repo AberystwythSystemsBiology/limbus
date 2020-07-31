@@ -26,6 +26,27 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL
 
 from .models import DocumentType
 
+# Custom Validators
+
+def check_document_name(id):
+
+    def _check_document_name(form, field):
+        if field.data != "LIMBDOC-%s" % (str(id)):
+            raise ValidationError("Incorrect entry")
+    return _check_document_name
+
+
+def DocumentLockForm(id):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    setattr(
+        StaticForm,
+        "name",
+        StringField("Please enter LIMBDOC-%s to continue" % (str(id)), [DataRequired(), check_document_name(id=id)])
+    )
+
+    return StaticForm()
 
 class DocumentCreationForm(FlaskForm):
     name = StringField(
@@ -40,7 +61,9 @@ class DocumentCreationForm(FlaskForm):
     )
     description = StringField("Document Description")
 
-    submit = SubmitField("Continue")
+    submit = SubmitField("Submit")
+
+
 
 
 class PatientConsentFormInformationForm(FlaskForm):

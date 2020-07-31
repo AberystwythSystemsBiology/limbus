@@ -23,7 +23,6 @@ from .enums import Title, AccountType, AccessControl
 
 from ..misc.models import SiteInformation
 
-
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
     __tablename__ = "useraccount"
@@ -46,8 +45,6 @@ class UserAccount(Base, UserMixin):
 
     account_type = db.Column(db.Enum(AccountType), nullable=False)
     access_control = db.Column(db.Enum(AccessControl), nullable=True)
-
-    is_locked = db.Column(db.Boolean, default=False, nullable=False)
 
     token = db.relationship("UserAccountToken", uselist=False)
 

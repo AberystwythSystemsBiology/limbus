@@ -48,7 +48,7 @@ def document_view_document(id: int, tokenuser: UserAccount):
     )
 
 
-@api.route("/document/<id>/lock", methods=["POST"])
+@api.route("/document/<id>/lock", methods=["PUT"])
 @token_required
 def document_lock_document(id: int, tokenuser: UserAccount):
     document = Document.query.filter_by(id=id).first()
@@ -56,7 +56,7 @@ def document_lock_document(id: int, tokenuser: UserAccount):
     if not document:
         return not_found()
 
-    document.is_locked = document.is_locked is True
+    document.is_locked = not document.is_locked
     document.editor_id = tokenuser.id
 
     db.session.add(document)

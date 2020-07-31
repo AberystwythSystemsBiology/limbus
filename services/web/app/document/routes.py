@@ -34,6 +34,7 @@ from . import document
 from .models import Document, DocumentFile
 from .forms import (
     DocumentCreationForm,
+    DocumentLockForm,
     PatientConsentFormInformationForm,
     DocumentUploadFileForm,
 )
@@ -81,6 +82,7 @@ def new_document():
             return abort(response.status_code)
 
     return render_template("document/upload/index.html", form=form)
+
 
 
 def save_document(file, name, description, type, uploader, commit=False) -> int:
@@ -140,14 +142,40 @@ def document_upload(hash):
 @document.route("/LIMBDOC-<id>")
 @login_required
 def view(id):
-    #     view = document_schema
+    #  view = document_schema
     response = requests.get(
         url_for("api.document_view_document", id=id, _external=True), headers=get_internal_api_header()
     )
     if response.status_code == 200:
-        return render_template("document/view.html", document=response.json()["content"])
+        form = DocumentLockForm(id)
+        return render_template("document/view.html", document=response.json()["content"], form=form)
     else:
         return  abort(response.status_code)
+
+
+@document.route("/LIMBDOC-<id>/lock", methods=["POST"])
+@login_required
+def lock(id):
+    form = DocumentLockForm(id)
+
+    if form.validate_on_submit():
+
+        response = requests.get(
+            url_for("api.document_view_document", id=id, _external=True), headers=get_internal_api_header()
+        )
+        if response.status_code == 200:
+            lock_response = requests.put(
+                url_for("api.document_lock_document", id=id, _external=True), headers=get_internal_api_header()
+            )
+
+            if lock_response.status_code == 200:
+                flash("Document Successfully Locked")
+            else:
+                flash("We have a problem: %s" % (lock_reponse.json()))
+            return redirect(url_for("document.view", id=id))
+
+    else:
+        return redirect(url_for("document.view", id=id))
 
 @document.route("/LIMBDOC-<id>/edit", methods=["GET", "POST"])
 @login_required

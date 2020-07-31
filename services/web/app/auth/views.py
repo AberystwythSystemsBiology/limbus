@@ -23,6 +23,7 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
+
 class BasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -88,6 +89,9 @@ class TokenSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
     updated_on = fields.Date()
 
+from ..document.views import BasicDocumentSchema
+
+
 class FullUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -107,6 +111,7 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     token = ma.Nested(TokenSchema())
 
     site = ma.Nested(basic_site_schema)
+    document = ma.Nested(BasicDocumentSchema)
 
     _links = ma.Hyperlinks({
         'self': ma.URLFor('api.auth_view_user', id='<id>')

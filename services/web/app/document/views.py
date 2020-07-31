@@ -62,6 +62,7 @@ class DocumentSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     description = masql.auto_field()
     type = EnumField(DocumentType)
+    is_locked = masql.auto_field()
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
     files = ma.Nested(DocumentFileSchema)
