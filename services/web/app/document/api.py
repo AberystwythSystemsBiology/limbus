@@ -57,6 +57,8 @@ def document_lock_document(id: int, tokenuser: UserAccount):
         return not_found()
 
     document.is_locked = document.is_locked is True
+    document.editor_id = tokenuser.id
+
     db.session.add(document)
     db.session.commit()
     db.session.flush()
@@ -87,7 +89,8 @@ def document_edit_document(id:int, tokenuser: UserAccount):
     for attr, value in values.items():
         setattr(document, attr, value)
 
-    # Need to add an editor to Base.
+
+    document.editor_id = tokenuser.id
 
     try:
         db.session.add(document)
