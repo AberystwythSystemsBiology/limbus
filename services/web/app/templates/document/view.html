@@ -1,13 +1,31 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBDOC-{{ document.id }} :: Document Portal{% endblock %}
+{% block title %}LIMBDOC-{{ document.id }}{% endblock %}
 
 {% block body %}
     <div class="container">
+        <h1><span class="secondary-heading"><i class="fas fa-file"></i> Document</span>LIMBDOC-{{ document.id }}</h1>
 
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('document.edit', id=document.id) }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
+                </a>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('auth.generate_token') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-sync"></i> Lock Document</button>
+                </a>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('auth.change_password') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-key"></i> Print</button>
+                </a>
+            </div>
+        </div>
         <div class="row">
             <div class="col-lg-8">
-                <h1><span class="secondary-heading"><i class="fas fa-file"></i> Document</span>LIMBDOC-{{ document.id }}</h1>
+                <h2>Document Information</h2>
 
                 {{ show_value(document.name, "Document Name", "text") }}
                 {{ show_value(document.description, "Document Description", "textarea") }}
@@ -15,9 +33,17 @@
                 {{ show_value(render_author_for_table(document.author), "Author", "text") }}
 
 
+                <div class="row">
+                    <div class="col-md-12 d-flex">
+                        <h2>Document Files</h2>
+                        <button type="button" class="btn btn-primary ml-auto">Upload File</button>
+                    </div>
+                </div>
+
+
             </div>
             <div class="col-lg-4">
-                <h2><i class="fa fa-download"></i> Document Files</h2>
+                {{ document.files }}
 
             </div>
         </div>

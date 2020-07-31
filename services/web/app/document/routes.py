@@ -137,7 +137,7 @@ def document_upload(hash):
     return render_template("document/upload/upload.html", form=form, hash=hash)
 
 
-@document.route("/view/LIMBDOC-<id>")
+@document.route("/LIMBDOC-<id>")
 @login_required
 def view(id):
     #     view = document_schema
@@ -146,6 +146,28 @@ def view(id):
     )
     if response.status_code == 200:
         return render_template("document/view.html", document=response.json()["content"])
+    else:
+        return  abort(response.status_code)
+
+@document.route("/LIMBDOC-<id>/edit")
+@login_required
+def edit(id):
+    response = requests.get(
+        url_for("api.document_view_document", id=id, _external=True), headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+        form = DocumentCreationForm(data=response.json()["content"])
+
+        if form.validate_on_submit():
+            form_information = {
+
+            }
+
+            edit_response = requests.put(
+
+            )
+
+        return render_template("document/edit.html", document=response.json()["content"], form=form)
     else:
         return  abort(response.status_code)
 

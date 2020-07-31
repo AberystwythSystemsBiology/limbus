@@ -69,9 +69,8 @@ def token_required(f):
 
         # Default check values.
         check, user = False, None
-        print(request.headers)
         # Internal Requests
-        if "FlaskApp" in request.headers:
+        if "Flaskapp" in request.headers:
             check, user = internal_request()
         # External Requests
         elif "Token" in request.headers:

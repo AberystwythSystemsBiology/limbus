@@ -59,7 +59,7 @@ def logout():
 @login_required
 def profile():
     response = requests.get(
-        url_for("api.auth_view_user", id=current_user.id, _external=True, headers=get_internal_api_header())
+        url_for("api.auth_view_user", id=current_user.id, _external=True), headers=get_internal_api_header()
     )
 
     if response.status_code == 200:

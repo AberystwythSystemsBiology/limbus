@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+def not_found():
+    return {"success": False, "message": "Instance not found"}, 400
+
 def no_values_response():
     return {"success": False, "message": "No input data provided"}, 400
 

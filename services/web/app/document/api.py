@@ -25,6 +25,7 @@ from marshmallow import ValidationError
 from .views import (
     document_schema,
     documents_schema,
+    basic_document_schema,
     basic_documents_schema,
     new_document_schema,
 )
@@ -45,6 +46,41 @@ def document_view_document(id: int, tokenuser: UserAccount):
     return success_with_content_response(
         document_schema.dump(Document.query.filter_by(id = id).first())
     )
+
+
+@api.route("/document/<id>/edit", methods=["PUT"])
+@token_required
+def document_edit_document(id:int, tokenuser: UserAccount):
+
+    document = Document.query.filter_by(id=id).first()
+
+    if not document:
+        return not_found()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_document_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    for attr, value in values.items():
+        setattr(document, attr, value)
+
+    try:
+        db.session.add(document)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            basic_document_schema.dump(document)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
 
 @api.route("/document/new", methods=["POST"])
 @token_required
