@@ -15,14 +15,15 @@
 
 from app import db, Base
 from .enums import DocumentType
-from ..mixins import RefAuthorMixin
+from ..mixins import RefAuthorMixin, RefEditorMixin
 
 
-class Document(Base, RefAuthorMixin):
+class Document(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "document"
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
     type = db.Column(db.Enum(DocumentType), nullable=False)
+    is_locked = db.Column(db.Boolean, nullable=False, default=False)
     files = db.relationship("DocumentFile", backref="document")
 
 class DocumentFile(Base, RefAuthorMixin):
