@@ -48,6 +48,23 @@ def document_view_document(id: int, tokenuser: UserAccount):
     )
 
 
+@api.route("/document/<id>/lock", methods=["POST"])
+@token_required
+def document_lock_document(id: int, tokenuser: UserAccount):
+    document = Document.query.filter_by(id=id).first()
+
+    if not document:
+        return not_found()
+
+    document.is_locked = document.is_locked is True
+    db.session.add(document)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(
+        basic_document_schema.dump(document)
+    )
+
 @api.route("/document/<id>/edit", methods=["PUT"])
 @token_required
 def document_edit_document(id:int, tokenuser: UserAccount):
@@ -69,6 +86,8 @@ def document_edit_document(id:int, tokenuser: UserAccount):
 
     for attr, value in values.items():
         setattr(document, attr, value)
+
+    # Need to add an editor to Base.
 
     try:
         db.session.add(document)

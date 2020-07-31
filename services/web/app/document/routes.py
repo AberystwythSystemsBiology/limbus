@@ -149,7 +149,7 @@ def view(id):
     else:
         return  abort(response.status_code)
 
-@document.route("/LIMBDOC-<id>/edit")
+@document.route("/LIMBDOC-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(id):
     response = requests.get(
@@ -160,13 +160,20 @@ def edit(id):
 
         if form.validate_on_submit():
             form_information = {
-
+                "name": form.name.data,
+                "type": form.type.data,
+                "description": form.description.data
             }
 
             edit_response = requests.put(
-
+                url_for("api.document_edit_document", id=id, _external=True), headers=get_internal_api_header(), json=form_information
             )
 
+            if edit_response.status_code == 200:
+                flash("Document Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+            return redirect(url_for("document.view", id=id))
         return render_template("document/edit.html", document=response.json()["content"], form=form)
     else:
         return  abort(response.status_code)
