@@ -137,5 +137,9 @@ from .encryption import encrypt_document
 @token_required
 def document_upload_file(id, tokenuser: UserAccount):
     encrypted_document = encrypt_document(request.data)
-    return "Hello World"
+
+    df = DocumentFile(
+
+    )
+
     # TODO: EVALUATE WHAT COMES IN VIA CURL POST

@@ -127,11 +127,17 @@ def new_file(id):
     if response.status_code == 200:
         form = UploadFileForm()
         if form.validate_on_submit():
+
+            file_information = {
+                "filename": form.file.filename
+            }
+
             response = requests.post(
                 url_for(
                     "api.document_upload_file", id=id, _external=True
                 ), headers=get_internal_api_header(),
-                data=form.file.data
+                data=form.file.data,
+                json=file_information
             )
             return str(response)
         else:
