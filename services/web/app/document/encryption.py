@@ -13,21 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db, Base
-from .enums import DocumentType
-from ..mixins import RefAuthorMixin, RefEditorMixin
+class EncryptedDocumentFile:
+    def __init__(self, _, is_encrypted: bool):
+        self._ = _
+        self.is_encrypted = is_encrypted
 
 
-class Document(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "document"
-    name = db.Column(db.String, nullable=False)
-    description = db.Column(db.String)
-    type = db.Column(db.Enum(DocumentType), nullable=False)
-    files = db.relationship("DocumentFile", backref="document")
+    def encrypt_file(self):
+        pass
 
-class DocumentFile(Base, RefAuthorMixin):
-    __tablename__ = "documentfile"
-    name = db.Column(db.String, nullable=False)
-    checksum = db.Column(db.String(256), nullable=False)
-    path = db.Column(db.String)
-    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    def decrypt_file(self):
+        pass

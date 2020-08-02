@@ -78,10 +78,9 @@ class UserAccount(Base, UserMixin):
 
     @property
     def is_authenticated_and_not_bot(self) -> bool:
-        False not in [self.is_authenticated, self.is_bot]
+        return [self.is_authenticated, self.is_bot]
 
     def get_gravatar(self, size: int = 100) -> str:
-
         return "#"
 
 

@@ -129,3 +129,10 @@ def document_new_document(tokenuser: UserAccount):
         )
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/document/LIMBDOC-<id>/file/new", methods=["POST"])
+@token_required
+def document_upload_file(id, tokenuser: UserAccount):
+    return str(type(request.data))
+    # TODO: EVALUATE WHAT COMES IN VIA CURL POST

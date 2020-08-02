@@ -23,10 +23,17 @@ from wtforms import (
     BooleanField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo, URL
+import os
 
 from .models import DocumentType
 
 # Custom Validators
+
+
+def validate_pdf(value):
+    ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
+    if not ext.lower() == ".pdf":
+        raise ValidationError('Unsupported file extension.')
 
 def check_document_name(id):
 
@@ -75,6 +82,7 @@ class PatientConsentFormInformationForm(FlaskForm):
     submit = SubmitField("Continue")
 
 
-class DocumentUploadFileForm(FlaskForm):
-    file = FileField(validators=[DataRequired()])
+
+class UploadFileForm(FlaskForm):
+    file = FileField("Document File", validators=[DataRequired()])
     submit = SubmitField("Upload")
