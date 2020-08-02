@@ -131,8 +131,11 @@ def document_new_document(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+from .encryption import encrypt_document
+
 @api.route("/document/LIMBDOC-<id>/file/new", methods=["POST"])
 @token_required
 def document_upload_file(id, tokenuser: UserAccount):
-    return str(type(request.data))
+    encrypted_document = encrypt_document(request.data)
+    return "Hello World"
     # TODO: EVALUATE WHAT COMES IN VIA CURL POST

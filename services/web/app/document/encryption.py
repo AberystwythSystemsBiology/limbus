@@ -13,14 +13,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-class EncryptedDocumentFile:
-    def __init__(self, _, is_encrypted: bool):
-        self._ = _
-        self.is_encrypted = is_encrypted
+import hashlib
+import base64
+from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+DOCUMENT_KEY = "TEST"
+DOCUMENT_SALT = "TESTSALT"
 
-    def encrypt_file(self):
-        pass
+kdf = PBKDF2HMAC(
+    algorithm=hashes.SHA256(),
+    length=32,
+    salt=bytes(DOCUMENT_SALT, "utf8"),
+    iterations=100000,
+    backend=default_backend()
+)
 
-    def decrypt_file(self):
-        pass
+key = base64.urlsafe_b64encode(kdf.derive(bytes(DOCUMENT_KEY, "utf8")))
+f = Fernet(key)
+
+def encrypt_document(b_obj: bytes) -> dict:
+    def _calculate_checksum(b_obj) -> str:
+        return hashlib.md5(b_obj).hexdigest()
+
+    token = f.encrypt(b_obj)
+
+    return {
+        "checksum": _calculate_checksum(b_obj),
+        "file": token
+    }
+
+def decrypt_document() -> dict:
+    pass

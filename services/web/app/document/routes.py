@@ -131,7 +131,7 @@ def new_file(id):
                 url_for(
                     "api.document_upload_file", id=id, _external=True
                 ), headers=get_internal_api_header(),
-                data = form.file.data
+                data=form.file.data
             )
             return str(response)
         else:
