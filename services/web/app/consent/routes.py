@@ -16,7 +16,7 @@
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
 
 from flask_login import current_user, login_required
-from . import pcf
+from . import consent
 from .. import db
 from ..auth.models import User
 from .forms import NewConsentFormTemplate
@@ -28,21 +28,21 @@ from ..misc import clear_session
 from .views import PatientConsentFormIndexView, PatientConsentFormView
 
 
-@pcf.route("/")
+@consent.route("/")
 @login_required
 def index():
     templates = PatientConsentFormIndexView()
     return render_template("patientconsentform/index.html", templates=templates)
 
 
-@pcf.route("/view/LIMBPCF-<pcf_id>")
+@consent.route("/view/LIMBPCF-<pcf_id>")
 @login_required
 def view(pcf_id):
     pcf = PatientConsentFormView(pcf_id)
     return render_template("patientconsentform/view.html", pcf=pcf)
 
 
-@pcf.route("/add", methods=["GET", "POST"])
+@consent.route("/add", methods=["GET", "POST"])
 @login_required
 def new():
     form = NewConsentFormTemplate()
@@ -59,7 +59,7 @@ def new():
     return render_template("patientconsentform/add/one.html", form=form)
 
 
-@pcf.route("/add/two/<hash>", methods=["GET", "POST"])
+@consent.route("/add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def new_two(hash):
     if request.method == "POST":

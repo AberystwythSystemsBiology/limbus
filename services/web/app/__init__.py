@@ -82,6 +82,7 @@ def create_app():
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(document_blueprint, url_prefix="/document")
 
+
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")
     ## Specific to CMD.
