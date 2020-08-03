@@ -54,7 +54,7 @@ def document_view_document(id: int, tokenuser: UserAccount):
     )
 
 
-@api.route("/document/<id>/lock", methods=["PUT"])
+@api.route("/document/LIMBDOC-<id>/lock", methods=["PUT"])
 @token_required
 def document_lock_document(id: int, tokenuser: UserAccount):
     document = Document.query.filter_by(id=id).first()
@@ -72,7 +72,7 @@ def document_lock_document(id: int, tokenuser: UserAccount):
     return success_with_content_response(basic_document_schema.dump(document))
 
 
-@api.route("/document/<id>/edit", methods=["PUT"])
+@api.route("/document/LIMBDOC-<id>/edit", methods=["PUT"])
 @token_required
 def document_edit_document(id: int, tokenuser: UserAccount):
 

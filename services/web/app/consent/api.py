@@ -101,3 +101,20 @@ def consent_edit_template(id, tokenuser: UserAccount):
         return success_with_content_response(basic_consent_form_template_schema.dump(template))
     except Exception as err:
         return transaction_error_response(err)
+
+@api.route("/consent/LIMBPCF-<id>/lock", methods=["PUT"])
+@token_required
+def document_lock_document(id: int, tokenuser: UserAccount):
+    template = ConsentFormTemplate.query.filter_by(id=id).first()
+
+    if not template:
+        return not_found()
+
+    template.is_locked = not template.is_locked
+    template.editor_id = tokenuser.id
+
+    db.session.add(template)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(basic_consent_form_template_schema.dump(template))
