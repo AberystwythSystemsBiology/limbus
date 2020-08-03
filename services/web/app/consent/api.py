@@ -150,6 +150,35 @@ def consent_add_question(id, tokenuser: UserAccount):
     except Exception as err:
         return validation_error_response(err)
 
+@api.route("/consent/LIMBPCF-<id>/question/<q_id>/edit", methods=["POST"])
+@token_required
+def consent_edit_question(id, q_id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_consent_form_question_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    question = ConsentFormTemplateQuestion.query.filter_by(id=id, question_id=q_id).first()
+
+    for attr, value in values.items():
+        setattr(question, attr, value)
+
+    question.editor_id = tokenuser.id
+
+    try:
+        db.session.add(question)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(basic_consent_form_question_schema.dump(question))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 @api.route("/consent/LIMBPCF-<id>/question/<q_id>")
 @token_required
 def consent_view_question(id, q_id, tokenuser: UserAccount):

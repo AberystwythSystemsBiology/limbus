@@ -160,3 +160,27 @@ def view_question(id, q_id):
 
     else:
         return response.content
+
+@consent.route("/LIMBPCF-<id>/question/<q_id>/edit", methods=["GET", "POST"])
+def edit_question(id, q_id):
+    response = requests.get(
+        url_for("api.consent_view_question", id=id, q_id=q_id, _external=True), headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+
+        form = NewConsentFormQuestionForm()
+        if form.validate_on_submit():
+            question_information = {}
+            '''
+            edit_response = requests.post(
+                url_for("api.consent_edit_question", id=id, q_id=q_id, _external=True), 
+                headers=get_internal_api_header(),
+                json=question_information
+            )
+            '''
+        return render_template("consent/edit_question.html", question=response.json()["content"])
+
+
+
+    else:
+        return response.content
