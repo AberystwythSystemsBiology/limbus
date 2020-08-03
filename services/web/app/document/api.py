@@ -46,7 +46,6 @@ def document_home(tokenuser: UserAccount):
         basic_documents_schema.dump(Document.query.all())
     )
 
-
 @api.route("/document/<id>")
 @token_required
 def document_view_document(id: int, tokenuser: UserAccount):
@@ -193,7 +192,7 @@ def document_file_lock(id, file_id, tokenuser: UserAccount):
 
 @api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
 @token_required
-def document_file_view(id, file_id):
+def document_file_get(id, file_id):
     file = DocumentFile.query.filter_by(id=file_id, document_id=id).first()
 
     if not file:

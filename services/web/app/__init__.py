@@ -96,11 +96,12 @@ def create_app():
             error_handler["code_or_exception"], error_handler["func"]
         )
 
-    from app.auth.api import auth_new_user
+    from app.auth.api import auth_new_user, auth_home
 
     # Register the path and the entities within it
     with app.test_request_context():
         spec.path(view=auth_new_user)
+        spec.path(view=auth_home)
 
 
     return app

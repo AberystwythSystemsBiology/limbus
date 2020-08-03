@@ -28,6 +28,7 @@ from .views import (
     basic_consent_form_templates_schema,
 )
 
+from ..auth.models import UserAccount
 from .models import ConsentFormTemplate
 
 @api.route("/consent")
