@@ -104,7 +104,7 @@ def consent_edit_template(id, tokenuser: UserAccount):
 
 @api.route("/consent/LIMBPCF-<id>/lock", methods=["PUT"])
 @token_required
-def document_lock_document(id: int, tokenuser: UserAccount):
+def consent_lock_template(id: int, tokenuser: UserAccount):
     template = ConsentFormTemplate.query.filter_by(id=id).first()
 
     if not template:
