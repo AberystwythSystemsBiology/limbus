@@ -2,13 +2,44 @@
 
 
 
-{% block title %}LIMBPCF-{{ pcf.id }}{% endblock %}
+{% block title %}LIMBPCF-{{ template.id }}{% endblock %}
 
 
 {% block body %}
     <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('consent.index') }}">
+                    <i class="fa fa-question-circle"></i> Patient Consent Form Portal
+                </a>
+            </span>
+            LIMBPCF-{{ template.id }}: {{ template.name }}
+        </h1>
 
-        <h1><span class="secondary-heading"><i class="fa fa-question-circle"></i> Patient Consent Form</span>LIMBPCF-{{ pcf.id }}: {{ pcf.name }}</h1>
+
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+            <a href="{{ url_for('consent.edit_template', id=template.id) }}">
+                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
+            </a>
+        </div>
+
+      </div>
+
+        <div class="row">
+            <div class="col-9">
+                <h2>Template Information</h2>
+
+                {{ show_value(template.description, "Description", "text") }}
+                {{ show_value(template.version, "Version", "text") }}
+                {{ show_value(render_author_for_table(template.author), "Author", "text") }}
+
+                <h2>Questions</h2>
+            </div>
+            <div class="col-3">
+                <h2>Associated Samples</h2>
+            </div>
+        </div>
     </div>
 
 {% endblock %}

@@ -28,6 +28,7 @@ from .views import (
     basic_consent_form_template_schema,
     basic_consent_form_templates_schema,
     new_consent_form_templates_schema,
+    consent_form_template_schema
 )
 
 from ..auth.models import UserAccount
@@ -38,6 +39,13 @@ from .models import ConsentFormTemplate
 def consent_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_consent_form_templates_schema.dump(ConsentFormTemplate.query.all())
+    )
+
+@api.route("/consent/LIMBPCF-<id>")
+@token_required
+def consent_view_template(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        consent_form_template_schema.dump(ConsentFormTemplate.query.filter_by(id=id).first())
     )
 
 @api.route("/consent/new_template", methods=["POST"])
@@ -63,5 +71,33 @@ def consent_new_template(tokenuser: UserAccount):
         return success_with_content_response(
             basic_consent_form_template_schema.dump(new_template)
         )
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/content/LIMBPCF-<id>/edit", methods=["PUT"])
+@token_required
+def consent_edit_template(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_consent_form_template_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    template = ConsentFormTemplate.query.filter_by(id=id).first()
+
+    for attr, value in values.items():
+        setattr(template, attr, value)
+
+    template.editor_id = tokenuser.id
+
+    try:
+        db.session.add(template)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(basic_consent_form_template_schema.dump(template))
     except Exception as err:
         return transaction_error_response(err)

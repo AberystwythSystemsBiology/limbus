@@ -104,7 +104,11 @@
             {% elif type == "datetime" %}
                 {{ attribute.strftime('%d-%m-%Y') }}
             {% else %}
-                {{ attribute }}
+                {% if attribute == "" %}
+                    Not Available
+                    {% else %}
+                    {{ attribute }}
+                    {% endif %}
             {% endif %}
         </div>
     </div>
