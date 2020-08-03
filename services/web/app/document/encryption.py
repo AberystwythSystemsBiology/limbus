@@ -20,9 +20,11 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from flask import current_app
 
-DOCUMENT_KEY = "TEST"
-DOCUMENT_SALT = "TESTSALT"
+
+DOCUMENT_KEY = current_app.config["DOCUMENT_KEY"]
+DOCUMENT_SALT = current_app.config["DOCUMENT_SALT"]
 
 kdf = PBKDF2HMAC(
     algorithm=hashes.SHA256(),

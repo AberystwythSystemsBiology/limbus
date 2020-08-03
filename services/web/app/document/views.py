@@ -56,6 +56,7 @@ class DocumentFileSchema(masql.SQLAlchemySchema):
     checksum = masql.auto_field()
     document_id = masql.auto_field()
     path = masql.auto_field()
+    created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 
 document_file_schema = DocumentFileSchema()
@@ -72,7 +73,7 @@ class DocumentSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
-    files = ma.Nested(DocumentFileSchema)
+    files = ma.Nested(DocumentFileSchema(many=True))
 
 document_schema = DocumentSchema()
 documents_schema = DocumentSchema(many=True)
