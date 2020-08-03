@@ -200,4 +200,4 @@ def document_file_get(id, file_id):
 
     f = open(file.path, "rb").read()
     document = decrypt_document(f, file.checksum)
-    return send_file(io.BytesIO(document), as_attachment=True, attachment_filename=file.name)
+    return send_file(io.BytesIO(document), as_attachment=True, attachment_filename=file.name), 200

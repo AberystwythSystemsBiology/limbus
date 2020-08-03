@@ -26,6 +26,8 @@ from flask import (
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
+import io
+
 import random
 import string
 import os
@@ -43,7 +45,7 @@ from ..misc import get_internal_api_header
 
 from .. import db
 import requests
-
+import re
 
 @login_required
 @document.route("/")
@@ -192,5 +194,20 @@ def edit(id):
             "document/edit.html", document=response.json()["content"], form=form
         )
     else:
-        return abort(response.status_code)
+        return response.content
 
+
+@document.route("/LIMBDOC-<id>/file/<file_id>")
+@login_required
+def view_file(id, file_id):
+    response = requests.get(
+        url_for("api.document_file_get", id=id, file_id=file_id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        d = response.headers['content-disposition']
+        fname = re.findall("filename=(.+)", d)[0]
+        return send_file(io.BytesIO(response.content), as_attachment=True, attachment_filename=fname), 200
+    else:
+        return response.content

@@ -47,6 +47,7 @@
             <thead>
             <tr>
                 <th>File</th>
+                <th>MD5 Checksum</th>
                 <th>Uploader</th>
                 <th>Created On</th>
             </tr>
@@ -55,10 +56,11 @@
             {% for file in document.files %}
                 <tr>
                     <td>
-                        <a href="#">
+                        <a href="{{ url_for('document.view_file', id=document.id, file_id=file.id) }}">
                             <i class="fa fa-file"></i> {{ file.name }}
                         </a>
                     </td>
+                    <td>{{ file.checksum }}</td>
                     <td>{{ render_author_for_table(file.author) }}</td>
                     <td>{{ file.created_on }}</td>
                 </tr>
