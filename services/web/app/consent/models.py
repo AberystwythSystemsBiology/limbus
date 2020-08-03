@@ -15,7 +15,7 @@
 
 from app import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin
-from .enums import ConsentType
+from .enums import QuestionType
 
 class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "consentformtemplate"

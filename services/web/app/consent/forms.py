@@ -16,7 +16,7 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
-from .enums import ConsentType
+from .enums import QuestionType
 
 class NewConsentFormTemplate(FlaskForm):
     name = StringField(
@@ -34,6 +34,6 @@ class NewConsentFormTemplate(FlaskForm):
 class NewConsentFormQuestion(FlaskForm):
 
     question = TextAreaField("Question", validators=[DataRequired()])
-    type = SelectField("Question Type", choices=ConsentType.choices())
+    type = SelectField("Question Type", choices=QuestionType.choices())
 
     submit = SubmitField("Submit")

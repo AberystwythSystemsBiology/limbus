@@ -23,7 +23,6 @@ from .enums import DocumentType
 
 from ..auth.views import BasicUserAccountSchema
 
-
 class NewDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document

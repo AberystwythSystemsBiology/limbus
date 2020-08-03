@@ -15,7 +15,7 @@
 
 from ..FormEnum import FormEnum
 
-class QuestionType(FormEnum):
+class DocumentType(FormEnum):
     PATHO = "Pathology Report"
     MANUE = "Device Manual"
     MATER = "Material Transfer Agreement"

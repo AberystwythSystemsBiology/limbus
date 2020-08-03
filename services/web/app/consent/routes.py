@@ -18,21 +18,16 @@ from flask import redirect, abort, render_template, url_for, session, request, j
 from flask_login import current_user, login_required
 from . import consent
 from .. import db
-from ..auth.models import User
 from .forms import NewConsentFormTemplate
-from ..misc.generators import generate_random_hash
 
 from .models import *
 from ..misc import clear_session
-
-from .views import PatientConsentFormIndexView, PatientConsentFormView
 
 
 @consent.route("/")
 @login_required
 def index():
-    templates = PatientConsentFormIndexView()
-    return render_template("patientconsentform/index.html", templates=templates)
+    return render_template("patientconsentform/index.html", templates={})
 
 
 @consent.route("/view/LIMBPCF-<pcf_id>")

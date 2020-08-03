@@ -15,7 +15,7 @@
 
 from ..FormEnum import FormEnum
 
-class ConsentType(FormEnum):
+class QuestionType(FormEnum):
     STND = "Standard"
     ELEC = "Electronic Storage"
     GENE = "Genetic Tests"

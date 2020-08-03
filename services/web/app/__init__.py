@@ -61,6 +61,7 @@ from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 from .api import api as api_blueprint
 from .document import document as document_blueprint
+from .consent import consent as consent_blueprint
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
@@ -81,7 +82,7 @@ def create_app():
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(document_blueprint, url_prefix="/document")
-
+    app.register_blueprint(consent_blueprint, url_prefix="/consent")
 
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")

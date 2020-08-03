@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import db
+from .. import db, ma
 from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
 from .enums import QuestionType
 
@@ -41,3 +41,13 @@ class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
     type = EnumField(QuestionType)
 
 new_consent_form_question_schema = NewConsentFormQuestionSchema()
+
+class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ConsentFormTemplate
+
+    name = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+basic_consent_form_template_schema = BasicConsentFormTemplateSchema()
+basic_consent_form_templates_schema = BasicConsentFormTemplateSchema(many=True)
