@@ -100,4 +100,5 @@ def create_app():
     with app.test_request_context():
         spec.path(view=auth_new_user)
 
+
     return app

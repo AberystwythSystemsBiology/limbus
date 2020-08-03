@@ -16,15 +16,12 @@
 import hashlib
 import base64
 from cryptography.fernet import Fernet
-from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from flask import current_app
 
-
-DOCUMENT_KEY = current_app.config["DOCUMENT_KEY"]
-DOCUMENT_SALT = current_app.config["DOCUMENT_SALT"]
+DOCUMENT_KEY = "TEST"
+DOCUMENT_SALT = "TESTSALT"
 
 kdf = PBKDF2HMAC(
     algorithm=hashes.SHA256(),
@@ -47,5 +44,13 @@ def encrypt_document(b_obj: bytes) -> dict:
     return _calculate_checksum(b_obj), token
 
 
-def decrypt_document() -> dict:
-    pass
+def decrypt_document(b_obj: bytes, checksum: str) -> dict:
+    def _validate_checksum(b_obj: bytes, checksum: str) -> bool:
+        return hashlib.md5(b_obj).hexdigest() == checksum
+
+    doc = f.decrypt(b_obj)
+
+    if _validate_checksum(doc, checksum):
+        return doc
+
+

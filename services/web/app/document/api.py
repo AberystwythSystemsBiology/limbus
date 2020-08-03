@@ -16,9 +16,10 @@
 import os
 from ..api import api
 from ..api.responses import *
+import io
 
 from .. import db
-from flask import request, current_app, jsonify
+from flask import request, current_app, jsonify, send_file
 from ..decorators import token_required
 
 from marshmallow import ValidationError
@@ -35,6 +36,7 @@ from .views import (
 
 from ..auth.models import UserAccount
 from .models import Document, DocumentFile
+from .encryption import encrypt_document, decrypt_document
 
 
 @api.route("/document")
@@ -130,8 +132,6 @@ def document_new_document(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-from .encryption import encrypt_document
-
 
 @api.route("/document/LIMBDOC-<id>/file/new", methods=["POST"])
 @token_required
@@ -173,3 +173,32 @@ def document_upload_file(id, tokenuser: UserAccount):
         return success_with_content_response(document_file_schema.dump(new_file))
     except Exception as err:
         return transaction_error_response(err)
+
+@api.route("/document/LIMBDOC-<id>/<file_id>/lock", methods=["POST"])
+@token_required
+def document_file_lock(id, file_id, tokenuser: UserAccount):
+    file = DocumentFile.query.filter_by(id=file_id, document_id=id).first()
+
+    if not file:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    file.is_locked = not file.is_locked
+    file.editor_id = tokenuser.id
+    db.session.add(file)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(document_file_schema.dump(file))
+
+
+@api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
+@token_required
+def document_file_view(id, file_id):
+    file = DocumentFile.query.filter_by(id=file_id, document_id=id).first()
+
+    if not file:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    f = open(file.path, "rb").read()
+    document = decrypt_document(f, file.checksum)
+    return send_file(io.BytesIO(document), as_attachment=True, attachment_filename=file.name)
