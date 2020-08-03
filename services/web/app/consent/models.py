@@ -13,41 +13,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from app import db, Base
+from ..mixins import RefAuthorMixin, RefEditorMixin
+from .enums import ConsentType
 
-
-class ConsentFormTemplate(db.Model):
-    __tablename__ = "consent_form_templates"
-
-    id = db.Column(db.Integer, primary_key=True)
+class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "consentformtemplate"
     name = db.Column(db.String(128), nullable=False)
-
+    description = db.Column(db.String(2048))
     version = db.Column(db.String(64))
+    questions = db.relationship("ConsentFormTemplateQuestion", backref="consentformtemplate")
 
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+class ConsentFormTemplateQuestion(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "consentformtemplatequestion"
+    question = db.Column(db.String(2048), nullable=False)
+    type = db.Column(db.Enum(QuestionType), nullable=False)
 
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-
-class ConsentFormTemplateQuestion(db.Model):
-    __tablename__ = "consent_form_template_questions"
-
-    id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.String, nullable=False)
-
-    template_id = db.Column(db.Integer, db.ForeignKey("consent_form_templates.id"))
-
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+    template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
+    template = db.relationship("ConsentFormTemplate", backref="consentformtemplatequestion")

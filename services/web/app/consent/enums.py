@@ -15,9 +15,9 @@
 
 from ..FormEnum import FormEnum
 
-class QuestionType(FormEnum):
-    PATHO = "Pathology Report"
-    MANUE = "Device Manual"
-    MATER = "Material Transfer Agreement"
-    PROTO = "Processing Protocol"
-    OTHER = "Other"
+class ConsentType(FormEnum):
+    STND = "Standard"
+    ELEC = "Electronic Storage"
+    GENE = "Genetic Tests"
+    FUTU = "Future Samples"
+    EXTE = "Available for External Sources"

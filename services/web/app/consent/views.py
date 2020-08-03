@@ -15,50 +15,29 @@
 
 from .. import db
 from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
+from .enums import QuestionType
 
-from ..auth.views import UserView
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
 
+from ..auth.views import BasicUserAccountSchema
 
-def PatientConsentFormIndexView() -> dict:
-    data = {}
+class NewConsentFormTemplateSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ConsentFormTemplate
 
-    for template in db.session.query(ConsentFormTemplate).all():
-        data[template.id] = {
-            "name": template.name,
-            "version": template.version,
-            "upload_date": template.upload_date,
-            "update_date": template.update_date,
-            "user_information": UserView(template.uploader),
-        }
+    name = masql.auto_field()
+    version = masql.auto_field()
+    description = masql.auto_field()
 
-    return data
+new_consent_form_template_schema = NewConsentFormTemplateSchema()
 
+class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ConsentFormTemplateQuestion
 
-def PatientConsentFormView(id) -> dict:
+    question = masql.auto_field()
+    type = EnumField(QuestionType)
 
-    cft = (
-        db.session.query(ConsentFormTemplate)
-        .filter(ConsentFormTemplate.id == id)
-        .first_or_404()
-    )
-
-    data = {
-        "id": id,
-        "name": cft.name,
-        "version": cft.version,
-        "upload_date": cft.upload_date,
-        "update_date": cft.update_date,
-        "user_information": UserView(cft.uploader),
-        "questions": {},
-    }
-
-    for question in (
-        db.session.query(ConsentFormTemplateQuestion)
-        .filter(ConsentFormTemplateQuestion.template_id == id)
-        .all()
-    ):
-        data["questions"][question.id] = {"question": question.question}
-
-    # TODO: Maybe get associated Samples?
-
-    return data
+new_consent_form_question_schema = NewConsentFormQuestionSchema()
