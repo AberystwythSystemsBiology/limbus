@@ -53,10 +53,13 @@
                 {{render_form_error(field) }}
 
                 {{ field(class="form-control", type="date") }}
+        {% elif field.type == "TextAreaField" %}
+        <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                {{ render_form_error(field) }}
+                {{ field(class="form-control") }}
         {% elif field.type == "TimeField" %}
                 <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
                 {{render_form_error(field) }}
-
                 {{ field(class="form-control", type="time") }}
         {% elif field.type == "RadioField" %}
                 <div class="col-form-label">

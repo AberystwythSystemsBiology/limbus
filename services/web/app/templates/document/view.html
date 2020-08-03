@@ -4,7 +4,10 @@
 
 {% block body %}
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-file"></i> Document</span>LIMBDOC-{{ document.id }}</h1>
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('document.index') }}">
+                <i class="fas fa-file"></i> Document Portal</span>
+            </a>LIMBDOC-{{ document.id }}</h1>
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             {% if not document.is_locked %}

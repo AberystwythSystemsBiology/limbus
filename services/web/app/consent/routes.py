@@ -13,21 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
+from flask import redirect, abort, render_template, url_for, session, flash, request, jsonify
 
 from flask_login import current_user, login_required
+import requests
+
 from . import consent
 from .. import db
 from .forms import NewConsentFormTemplate
 
 from .models import *
-from ..misc import clear_session
+from ..misc import get_internal_api_header
 
 
 @consent.route("/")
 @login_required
 def index():
-    return render_template("patientconsentform/index.html", templates={})
+    return render_template("consent/index.html", templates={})
 
 
 @consent.route("/view/LIMBPCF-<pcf_id>")
@@ -39,19 +41,29 @@ def view(pcf_id):
 
 @consent.route("/add", methods=["GET", "POST"])
 @login_required
-def new():
+def new_template():
     form = NewConsentFormTemplate()
-
     if form.validate_on_submit():
-        hash = generate_random_hash()
-        session["%s consent_form_info" % (hash)] = {
-            "template_name": form.name.data,
-            "template_version": form.version.data,
+        template_information = {
+            "name": form.name.data,
+            "description": form.description.data,
+            "version": form.version.data
         }
 
-        return redirect(url_for("pcf.new_two", hash=hash))
+        response = requests.post(
+            url_for("api.consent_new_template", _external=True),
+            headers=get_internal_api_header(),
+            json=template_information
+        )
 
-    return render_template("patientconsentform/add/one.html", form=form)
+        if response.status_code == 200:
+            flash("Template Added Successfully")
+            return redirect(url_for("consent.index"))
+        else:
+            return response.content
+
+
+    return render_template("consent/new_template.html", form=form)
 
 
 @consent.route("/add/two/<hash>", methods=["GET", "POST"])

@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+
+{% block title %}New Patient Consent Form Template{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('consent.index') }}">
+                    <i class="fa fa-question-circle"></i> Patient Consent Form Portal
+            </a></span> New Consent Form Template</h1>
+
+        <form method="POST" action="{{ url_for('consent.new_template' ) }}">
+            {{ form.csrf_token }}
+            {{ form_field(form.name) }}
+            {{ form_field(form.description) }}
+            {{ form_field(form.version) }}
+            {{ form_field(form.submit) }}
+
+        </form>
+
+    </div>
+{% endblock %}

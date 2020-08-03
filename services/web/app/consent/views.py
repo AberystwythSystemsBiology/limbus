@@ -32,6 +32,7 @@ class NewConsentFormTemplateSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
 
 new_consent_form_template_schema = NewConsentFormTemplateSchema()
+new_consent_form_templates_schema = NewConsentFormTemplateSchema(many=True)
 
 class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -47,6 +48,7 @@ class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
         model = ConsentFormTemplate
 
     name = masql.auto_field()
+    version = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
 
 basic_consent_form_template_schema = BasicConsentFormTemplateSchema()

@@ -26,6 +26,7 @@ from ..decorators import token_required
 from .views import (
     new_consent_form_template_schema,
     basic_consent_form_templates_schema,
+    new_consent_form_templates_schema,
 )
 
 from ..auth.models import UserAccount
@@ -38,7 +39,8 @@ def consent_home(tokenuser: UserAccount):
         basic_consent_form_templates_schema.dump(ConsentFormTemplate.query.all())
     )
 
-@api.route("/consent/new_template")
+@api.route("/consent/new_template", methods=["POST"])
+@token_required
 def consent_new_template(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -46,7 +48,7 @@ def consent_new_template(tokenuser: UserAccount):
         return no_values_response()
 
     try:
-        result = new_consent_form_template_schema(values)
+        result = new_consent_form_template_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -57,7 +59,8 @@ def consent_new_template(tokenuser: UserAccount):
         db.session.add(new_template)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(basic_consent_form_templates_schema.dump(new_template))
-
+        return success_with_content_response(
+            basic_consent_form_templates_schema.dump(new_template)
+        )
     except Exception as err:
         return transaction_error_response(err)
