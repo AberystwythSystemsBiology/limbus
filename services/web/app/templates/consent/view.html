@@ -34,7 +34,15 @@
                 {{ show_value(template.version, "Version", "text") }}
                 {{ show_value(render_author_for_table(template.author), "Author", "text") }}
 
-                <h2>Questions</h2>
+                        <h2>
+                    Questions
+                    {% if not template.is_locked  %}
+                        <a href="{{ url_for('consent.new_question', id=template.id) }}">
+                            <div class="btn btn-primary float-right"><i class="fa fa-upload"></i> New Question</div>
+                        </a>
+                    {% endif %}
+        </h2>
+            {{ template }}
             </div>
             <div class="col-3">
                 <h2>Associated Samples</h2>

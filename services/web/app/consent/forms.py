@@ -18,7 +18,7 @@ from wtforms import SelectField, StringField, SubmitField, DateField, BooleanFie
 from wtforms.validators import DataRequired
 from .enums import QuestionType
 
-class NewConsentFormTemplate(FlaskForm):
+class NewConsentFormTemplateForm(FlaskForm):
     name = StringField(
         "Consent Form Title",
         validators=[DataRequired()],
@@ -35,9 +35,8 @@ class NewConsentFormTemplate(FlaskForm):
 
     submit = SubmitField("Submit")
 
-class NewConsentFormQuestion(FlaskForm):
-
+class NewConsentFormQuestionForm(FlaskForm):
     question = TextAreaField("Question", validators=[DataRequired()])
-    type = SelectField("Question Type", choices=QuestionType.choices())
-
+    # TODO: Fill this out!!
+    type = SelectField("Question Type", description="Something here detailing what each of these does and why.", choices=QuestionType.choices())
     submit = SubmitField("Submit")

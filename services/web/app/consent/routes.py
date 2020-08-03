@@ -20,7 +20,7 @@ import requests
 
 from . import consent
 from .. import db
-from .forms import NewConsentFormTemplate
+from .forms import NewConsentFormTemplateForm, NewConsentFormQuestionForm
 
 from .models import *
 from ..misc import get_internal_api_header
@@ -55,7 +55,7 @@ def view(id):
 @consent.route("/add", methods=["GET", "POST"])
 @login_required
 def new_template():
-    form = NewConsentFormTemplate()
+    form = NewConsentFormTemplateForm()
     if form.validate_on_submit():
         template_information = {
             "name": form.name.data,
@@ -77,42 +77,14 @@ def new_template():
 
     return render_template("consent/new_template.html", form=form)
 
-'''
-form = UserAccountEditForm()
-
-    if response.status_code == 200:
-        if form.validate_on_submit():
-            user_information = {
-                "title": form.title.data,
-                "first_name": form.first_name.data,
-                "middle_name": form.middle_name.data,
-                "last_name": form.last_name.data,
-            }
-            edit_response = requests.put(
-                url_for("api.auth_edit_user", id=current_user.id, _external=True),
-                headers=get_internal_api_header(),
-                json=user_information,
-            )
-            if edit_response.status_code == 200:
-                flash("User Edited")
-                return redirect(url_for("auth.profile"))
-            else:
-                return edit_response.content
-
-        form = UserAccountEditForm(data=response.json()["content"])
-        return render_template("auth/edit.html", form=form)
-    else:
-        return abort(response.status_code)'''
-
 @consent.route("/LIMBPCF-<id>/edit", methods=["GET", "POST"])
 def edit_template(id):
     response = requests.get(
         url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
     )
 
-
     if response.status_code == 200:
-        form = NewConsentFormTemplate()
+        form = NewConsentFormTemplateForm()
 
         if form.validate_on_submit():
 
@@ -134,9 +106,39 @@ def edit_template(id):
             else:
                 return edit_response.content
 
-        form = NewConsentFormTemplate(data=response.json()["content"])
+        form = NewConsentFormTemplateForm(data=response.json()["content"])
 
         return render_template("consent/edit_template.html", form=form, template=response.json()["content"])
 
+    else:
+        return response.content
+
+@consent.route("/LIMBPCF-<id>/question/new", methods=["GET", "POST"])
+def new_question(id):
+    response = requests.get(
+        url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        form = NewConsentFormQuestionForm()
+        if form.validate_on_submit():
+            question_information = {
+                "question": form.question.data,
+                "type": form.type.data
+            }
+
+            question_response = requests.post(
+                url_for("api.consent_add_question", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=question_information
+            )
+
+            if question_response.status_code == 200:
+                flash("Question Added")
+                return redirect(url_for("consent.view", id=id))
+            else:
+                return question_response.content
+
+        return render_template("consent/new_question.html", form=form, template=response.json()["content"])
     else:
         return response.content

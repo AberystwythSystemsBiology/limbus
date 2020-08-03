@@ -27,12 +27,13 @@ from .views import (
     new_consent_form_template_schema,
     basic_consent_form_template_schema,
     basic_consent_form_templates_schema,
-    new_consent_form_templates_schema,
-    consent_form_template_schema
+    new_consent_form_question_schema,
+    consent_form_template_schema,
+    basic_consent_form_question_schema,
 )
 
 from ..auth.models import UserAccount
-from .models import ConsentFormTemplate
+from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
 @api.route("/consent")
 @token_required
@@ -118,3 +119,32 @@ def consent_lock_template(id: int, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(basic_consent_form_template_schema.dump(template))
+
+@api.route("/consent/LIMBPCF-<id>/question/new", methods=["POST"])
+@token_required
+def consent_add_question(id, tokenuser: UserAccount):
+    template = ConsentFormTemplate.query.filter_by(id=id).first()
+    values = request.get_json()
+
+    if not template:
+        return not_found()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_consent_form_question_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_question = ConsentFormTemplateQuestion(**result)
+    new_question.author_id = tokenuser.id
+    new_question.template_id = id
+
+    try:
+        db.session.add(new_question)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(basic_consent_form_question_schema.dump(new_question))
+    except Exception as err:
+        return validation_error_response(err)
