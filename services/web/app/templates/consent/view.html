@@ -56,7 +56,7 @@
             {% for question in template.questions %}
                 <tr>
                     <td>
-                        <a href="#">
+                        <a href="{{ url_for('consent.view_question', id=template.id, q_id=question.id) }}">
                             <i class="fa fa-question-circle"></i> {{ question.question }}
                         </a>
                     </td>

@@ -29,6 +29,7 @@ from .views import (
     basic_consent_form_templates_schema,
     new_consent_form_question_schema,
     consent_form_template_schema,
+    consent_form_question_schema,
     basic_consent_form_question_schema,
 )
 
@@ -148,3 +149,10 @@ def consent_add_question(id, tokenuser: UserAccount):
         return success_with_content_response(basic_consent_form_question_schema.dump(new_question))
     except Exception as err:
         return validation_error_response(err)
+
+@api.route("/consent/LIMBPCF-<id>/question/<q_id>")
+@token_required
+def consent_view_question(id, q_id, tokenuser: UserAccount):
+    return success_with_content_response(
+        consent_form_question_schema.dump(ConsentFormTemplateQuestion.query.filter_by(id=q_id, template_id=id).first())
+    )

@@ -56,6 +56,18 @@ class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
 basic_consent_form_template_schema = BasicConsentFormTemplateSchema()
 basic_consent_form_templates_schema = BasicConsentFormTemplateSchema(many=True)
 
+class ConsentFormQuestionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ConsentFormTemplateQuestion
+
+    id = masql.auto_field()
+    question = masql.auto_field()
+    type = EnumField(QuestionType)
+    created_on = fields.Date()
+    author = ma.Nested(BasicUserAccountSchema)
+
+consent_form_question_schema = ConsentFormQuestionSchema()
+consent_form_questions_schema = ConsentFormQuestionSchema(many=True)
 
 class BasicConsentFormQuestionSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -78,6 +78,7 @@ def new_template():
     return render_template("consent/new_template.html", form=form)
 
 @consent.route("/LIMBPCF-<id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_template(id):
     response = requests.get(
         url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
@@ -114,6 +115,7 @@ def edit_template(id):
         return response.content
 
 @consent.route("/LIMBPCF-<id>/question/new", methods=["GET", "POST"])
+@login_required
 def new_question(id):
     response = requests.get(
         url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
@@ -140,5 +142,21 @@ def new_question(id):
                 return question_response.content
 
         return render_template("consent/new_question.html", form=form, template=response.json()["content"])
+    else:
+        return response.content
+
+@consent.route("/LIMBPCF-<id>/question/<q_id>", methods=["GET", "POST"])
+def view_question(id, q_id):
+    response = requests.get(
+        url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+        question_response = requests.get(
+            url_for("api.consent_view_question", id=id, q_id=q_id, _external=True), headers=get_internal_api_header()
+        )
+
+        if question_response.status_code == 200:
+            return render_template("consent/view_question.html", template=response.json()["content"], question=question_response.json()["content"])
+
     else:
         return response.content
