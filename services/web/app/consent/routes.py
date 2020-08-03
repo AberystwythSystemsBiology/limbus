@@ -29,14 +29,21 @@ from ..misc import get_internal_api_header
 @consent.route("/")
 @login_required
 def index():
-    return render_template("consent/index.html", templates={})
+    response = requests.get(
+        url_for("api.consent_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("consent/index.html", templates=response.json()["content"])
+    else:
+        return response.content
 
 
-@consent.route("/view/LIMBPCF-<pcf_id>")
+@consent.route("/LIMBPCF-<id>")
 @login_required
-def view(pcf_id):
-    pcf = PatientConsentFormView(pcf_id)
-    return render_template("patientconsentform/view.html", pcf=pcf)
+def view(id):
+    pcf = {}
+    return render_template("consent/view.html", pcf=pcf)
 
 
 @consent.route("/add", methods=["GET", "POST"])

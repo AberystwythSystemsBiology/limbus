@@ -25,6 +25,7 @@ from ..decorators import token_required
 
 from .views import (
     new_consent_form_template_schema,
+    basic_consent_form_template_schema,
     basic_consent_form_templates_schema,
     new_consent_form_templates_schema,
 )
@@ -60,7 +61,7 @@ def consent_new_template(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
         return success_with_content_response(
-            basic_consent_form_templates_schema.dump(new_template)
+            basic_consent_form_template_schema.dump(new_template)
         )
     except Exception as err:
         return transaction_error_response(err)

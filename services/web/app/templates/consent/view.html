@@ -9,41 +9,6 @@
     <div class="container">
 
         <h1><span class="secondary-heading"><i class="fa fa-question-circle"></i> Patient Consent Form</span>LIMBPCF-{{ pcf.id }}: {{ pcf.name }}</h1>
-
-
-        <div class="row">
-            <div class="col-6">
-                {{ show_value(pcf.version, "Version", "text") }}
-                {{ show_value(pcf.upload_date, "Upload Date", "datetime") }}
-                {{ show_value(pcf.upload_date, "Upload Date", "datetime") }}
-            </div>
-            <div class="col-6">
-                {{ show_value(pcf.user_information.email, "Uploader", "text") }}
-            </div>
-        </div>
-
-
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h4>Template Questions:</h4>
-        </div>
-
-        {% for q_id, question in pcf.questions.items() %}
-            <div class="list-group-item flex-column align-items-start">
-                <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                  Question {{loop.index}}
-                </h5>
-
-        </div>
-            <p class="mb-1">
-                {{ question.question }}
-            </p>
-        </div>
-        {% endfor %}
-
-
     </div>
-
-
 
 {% endblock %}

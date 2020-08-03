@@ -47,8 +47,10 @@ class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ConsentFormTemplate
 
+    id = masql.auto_field()
     name = masql.auto_field()
     version = masql.auto_field()
+    created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 
 basic_consent_form_template_schema = BasicConsentFormTemplateSchema()
