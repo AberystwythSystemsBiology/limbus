@@ -70,6 +70,7 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
 
 new_user_account_schema = NewUserAccountSchema()
 
+
 class EditUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -79,15 +80,19 @@ class EditUserAccountSchema(masql.SQLAlchemySchema):
     middle_name = masql.auto_field()
     last_name = masql.auto_field()
 
+
 edit_user_account_schema = EditUserAccountSchema()
 
 from ..misc.views import basic_site_schema
 
+
 class TokenSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccountToken
+
     created_on = fields.Date()
     updated_on = fields.Date()
+
 
 from ..document.views import BasicDocumentSchema
 
@@ -95,6 +100,7 @@ from ..document.views import BasicDocumentSchema
 class FullUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
+
     title = EnumField(Title)
 
     email = masql.auto_field()
@@ -113,9 +119,7 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     site = ma.Nested(basic_site_schema)
     document = ma.Nested(BasicDocumentSchema)
 
-    _links = ma.Hyperlinks({
-        'self': ma.URLFor('api.auth_view_user', id='<id>')
-    })
+    _links = ma.Hyperlinks({"self": ma.URLFor("api.auth_view_user", id="<id>")})
 
     gravatar = fields.Method("get_gravatar")
 

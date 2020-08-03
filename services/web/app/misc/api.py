@@ -39,9 +39,8 @@ from ..auth.models import UserAccount
 @api.route("/mis/address/", methods=["GET"])
 @token_required
 def address_home(tokenuser: UserAccount):
-    return success_with_content_response(
-        basic_addresses_schema(Address.query.all())
-    )
+    return success_with_content_response(basic_addresses_schema(Address.query.all()))
+
 
 @api.route("/misc/address/new", methods=["POST"])
 @token_required
@@ -64,7 +63,8 @@ def misc_new_address(tokenuser: UserAccount):
         db.session.flush()
         return success_with_content_response(basic_address_schema.dumps(new_address))
     except Exception as err:
-       return transaction_error_response(err)
+        return transaction_error_response(err)
+
 
 @api.route("/mis/site/new", methods=["POST"])
 @token_required
@@ -78,7 +78,7 @@ def misc_new_site(tokenuser: UserAccount):
         result = new_site_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-    
+
     new_site = SiteInformation(**result)
     new_site.author_id = tokenuser.id
 

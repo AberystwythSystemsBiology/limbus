@@ -30,11 +30,12 @@ from .views import (
     basic_document_schema,
     basic_documents_schema,
     new_document_schema,
-    new_document_file_schema
+    new_document_file_schema,
 )
 
 from ..auth.models import UserAccount
 from .models import Document, DocumentFile
+
 
 @api.route("/document")
 @token_required
@@ -43,11 +44,12 @@ def document_home(tokenuser: UserAccount):
         basic_documents_schema.dump(Document.query.all())
     )
 
+
 @api.route("/document/<id>")
 @token_required
 def document_view_document(id: int, tokenuser: UserAccount):
     return success_with_content_response(
-        document_schema.dump(Document.query.filter_by(id = id).first())
+        document_schema.dump(Document.query.filter_by(id=id).first())
     )
 
 
@@ -66,13 +68,12 @@ def document_lock_document(id: int, tokenuser: UserAccount):
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(
-        basic_document_schema.dump(document)
-    )
+    return success_with_content_response(basic_document_schema.dump(document))
+
 
 @api.route("/document/<id>/edit", methods=["PUT"])
 @token_required
-def document_edit_document(id:int, tokenuser: UserAccount):
+def document_edit_document(id: int, tokenuser: UserAccount):
 
     document = Document.query.filter_by(id=id).first()
 
@@ -92,7 +93,6 @@ def document_edit_document(id:int, tokenuser: UserAccount):
     for attr, value in values.items():
         setattr(document, attr, value)
 
-
     document.editor_id = tokenuser.id
 
     try:
@@ -100,9 +100,7 @@ def document_edit_document(id:int, tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(
-            basic_document_schema.dump(document)
-        )
+        return success_with_content_response(basic_document_schema.dump(document))
     except Exception as err:
         return transaction_error_response(err)
 
@@ -127,19 +125,17 @@ def document_new_document(tokenuser: UserAccount):
         db.session.add(new_document)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(
-            basic_documents_schema.dump(new_document)
-        )
+        return success_with_content_response(basic_documents_schema.dump(new_document))
     except Exception as err:
         return transaction_error_response(err)
 
 
 from .encryption import encrypt_document
 
+
 @api.route("/document/LIMBDOC-<id>/file/new", methods=["POST"])
 @token_required
 def document_upload_file(id, tokenuser: UserAccount):
-
     def _generate_filepath(name) -> str:
         return os.path.join(current_app.config["DOCUMENT_DIRECTORY"], name)
 
@@ -159,7 +155,7 @@ def document_upload_file(id, tokenuser: UserAccount):
         "name": filename,
         "checksum": checksum,
         "document_id": id,
-        "path": _generate_filepath(filename)
+        "path": _generate_filepath(filename),
     }
 
     try:
@@ -174,9 +170,6 @@ def document_upload_file(id, tokenuser: UserAccount):
         db.session.add(new_file)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(
-            document_file_schema.dump(new_file)
-        )
+        return success_with_content_response(document_file_schema.dump(new_file))
     except Exception as err:
         return transaction_error_response(err)
-

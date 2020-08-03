@@ -33,13 +33,14 @@ from .models import DocumentType
 def validate_pdf(value):
     ext = os.path.splitext(value.name)[1]  # [0] returns path+filename
     if not ext.lower() == ".pdf":
-        raise ValidationError('Unsupported file extension.')
+        raise ValidationError("Unsupported file extension.")
+
 
 def check_document_name(id):
-
     def _check_document_name(form, field):
         if field.data != "LIMBDOC-%s" % (str(id)):
             raise ValidationError("Incorrect entry")
+
     return _check_document_name
 
 
@@ -50,10 +51,14 @@ def DocumentLockForm(id):
     setattr(
         StaticForm,
         "name",
-        StringField("Please enter LIMBDOC-%s to continue" % (str(id)), [DataRequired(), check_document_name(id=id)])
+        StringField(
+            "Please enter LIMBDOC-%s to continue" % (str(id)),
+            [DataRequired(), check_document_name(id=id)],
+        ),
     )
 
     return StaticForm()
+
 
 class DocumentCreationForm(FlaskForm):
     name = StringField(
@@ -71,8 +76,6 @@ class DocumentCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-
-
 class PatientConsentFormInformationForm(FlaskForm):
     academic = BooleanField("Academic Studies")
     commercial = BooleanField("Commercial Studies")
@@ -80,7 +83,6 @@ class PatientConsentFormInformationForm(FlaskForm):
     genetic = BooleanField("Genetic Studies")
 
     submit = SubmitField("Continue")
-
 
 
 class UploadFileForm(FlaskForm):

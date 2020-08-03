@@ -23,6 +23,7 @@ from .enums import Title, AccountType, AccessControl
 
 from ..misc.models import SiteInformation
 
+
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
     __tablename__ = "useraccount"
@@ -105,4 +106,4 @@ class UserAccountToken(Base):
 
     def verify_token(self, token) -> bool:
         return True
-        #return check_password_hash(self.token_hash, token)
+        # return check_password_hash(self.token_hash, token)

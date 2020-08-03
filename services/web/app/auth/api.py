@@ -52,7 +52,7 @@ def auth_view_user(id: int):
 
 @api.route("/auth/user/<id>/edit", methods=["PUT"])
 @token_required
-def auth_edit_user(id: int, tokenuser: UserAccount) :
+def auth_edit_user(id: int, tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
@@ -63,7 +63,7 @@ def auth_edit_user(id: int, tokenuser: UserAccount) :
     except ValidationError as err:
         return validation_error_response(err)
 
-    user = UserAccount.query.filter_by(id = id).first()
+    user = UserAccount.query.filter_by(id=id).first()
 
     for attr, value in values.items():
         setattr(user, attr, value)
@@ -72,9 +72,7 @@ def auth_edit_user(id: int, tokenuser: UserAccount) :
         db.session.add(user)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(
-            basic_user_account_schema.dump(user)
-        )
+        return success_with_content_response(basic_user_account_schema.dump(user))
     except Exception as err:
         return transaction_error_response(err)
 

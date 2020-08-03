@@ -31,11 +31,12 @@ kdf = PBKDF2HMAC(
     length=32,
     salt=bytes(DOCUMENT_SALT, "utf8"),
     iterations=100000,
-    backend=default_backend()
+    backend=default_backend(),
 )
 
 key = base64.urlsafe_b64encode(kdf.derive(bytes(DOCUMENT_KEY, "utf8")))
 f = Fernet(key)
+
 
 def encrypt_document(b_obj: bytes) -> dict:
     def _calculate_checksum(b_obj) -> str:

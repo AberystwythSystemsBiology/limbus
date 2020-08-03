@@ -23,6 +23,7 @@ from .enums import DocumentType
 
 from ..auth.views import BasicUserAccountSchema
 
+
 class NewDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document
@@ -31,7 +32,9 @@ class NewDocumentSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     type = EnumField(DocumentType)
 
+
 new_document_schema = NewDocumentSchema()
+
 
 class BasicDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -44,8 +47,10 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     created_on = fields.Date()
 
+
 basic_document_schema = BasicDocumentSchema()
 basic_documents_schema = BasicDocumentSchema(many=True)
+
 
 class DocumentFileSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -59,8 +64,10 @@ class DocumentFileSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 
+
 document_file_schema = DocumentFileSchema()
 document_files_schema = DocumentFileSchema(many=True)
+
 
 class DocumentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -75,6 +82,7 @@ class DocumentSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     files = ma.Nested(DocumentFileSchema(many=True))
 
+
 document_schema = DocumentSchema()
 documents_schema = DocumentSchema(many=True)
 
@@ -87,5 +95,6 @@ class NewDocumentFileSchema(masql.SQLAlchemySchema):
     checksum = masql.auto_field()
     document_id = masql.auto_field()
     path = masql.auto_field()
+
 
 new_document_file_schema = NewDocumentFileSchema()

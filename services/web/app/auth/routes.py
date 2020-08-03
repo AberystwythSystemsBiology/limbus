@@ -27,6 +27,7 @@ from ..misc import get_internal_api_header
 
 from uuid import uuid4
 
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -54,12 +55,12 @@ def logout():
     return redirect(url_for("auth.login"))
 
 
-
 @auth.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
     response = requests.get(
-        url_for("api.auth_view_user", id=current_user.id, _external=True), headers=get_internal_api_header()
+        url_for("api.auth_view_user", id=current_user.id, _external=True),
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -67,10 +68,12 @@ def profile():
     else:
         return abort(response.status_code)
 
+
 @auth.route("/edit", methods=["GET", "POST"])
 def edit():
     response = requests.get(
-        url_for("api.auth_view_user", id=current_user.id, _external=True), headers=get_internal_api_header()
+        url_for("api.auth_view_user", id=current_user.id, _external=True),
+        headers=get_internal_api_header(),
     )
     form = UserAccountEditForm()
 
@@ -80,10 +83,12 @@ def edit():
                 "title": form.title.data,
                 "first_name": form.first_name.data,
                 "middle_name": form.middle_name.data,
-                "last_name": form.last_name.data
+                "last_name": form.last_name.data,
             }
             edit_response = requests.put(
-                url_for("api.auth_edit_user", id=current_user.id, _external=True), headers=get_internal_api_header(), json=user_information
+                url_for("api.auth_edit_user", id=current_user.id, _external=True),
+                headers=get_internal_api_header(),
+                json=user_information,
             )
             if edit_response.status_code == 200:
                 flash("User Edited")
@@ -95,6 +100,7 @@ def edit():
         return render_template("auth/edit.html", form=form)
     else:
         return abort(response.status_code)
+
 
 @auth.route("/change_password", methods=["GET", "POST"])
 def change_password():
@@ -120,14 +126,11 @@ def generate_token():
     # I was going to make this API based, but I'd rather the user log in just in-case :)
     new_token = str(uuid4())
 
-    uat = UserAccountToken.query.filter_by(user_id = current_user.id).first()
+    uat = UserAccountToken.query.filter_by(user_id=current_user.id).first()
     if uat != None:
         uat.token = new_token
     else:
-        uat = UserAccountToken(
-            user_id = current_user.id,
-            token = new_token
-        )
+        uat = UserAccountToken(user_id=current_user.id, token=new_token)
 
     db.session.add(uat)
     db.session.commit()
