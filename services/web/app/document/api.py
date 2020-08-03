@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 from ..api import api
 from ..api.responses import *
 
@@ -25,9 +26,11 @@ from marshmallow import ValidationError
 from .views import (
     document_schema,
     documents_schema,
+    document_file_schema,
     basic_document_schema,
     basic_documents_schema,
     new_document_schema,
+    new_document_file_schema
 )
 
 from ..auth.models import UserAccount
@@ -136,10 +139,44 @@ from .encryption import encrypt_document
 @api.route("/document/LIMBDOC-<id>/file/new", methods=["POST"])
 @token_required
 def document_upload_file(id, tokenuser: UserAccount):
-    encrypted_document = encrypt_document(request.data)
 
-    df = DocumentFile(
+    def _generate_filepath(name) -> str:
+        return os.path.join(current_app.config["DOCUMENT_DIRECTORY"], name)
 
-    )
+    def _write_to_file(b_obj: bytes, path: str) -> None:
+        with open(path, "wb") as outfile:
+            outfile.write(b_obj)
+        outfile.close()
 
-    # TODO: EVALUATE WHAT COMES IN VIA CURL POST
+    filename = request.args.get("filename")
+
+    if not filename:
+        return no_values_response()
+
+    checksum, encrypted_file = encrypt_document(request.data)
+
+    values = {
+        "name": filename,
+        "checksum": checksum,
+        "document_id": id,
+        "path": _generate_filepath(filename)
+    }
+
+    try:
+        result = new_document_file_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    try:
+        new_file = DocumentFile(**result)
+        new_file.author_id = tokenuser.id
+        _write_to_file(encrypted_file, values["path"])
+        db.session.add(new_file)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(
+            document_file_schema.dump(new_file)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+

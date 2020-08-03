@@ -41,10 +41,8 @@ def encrypt_document(b_obj: bytes) -> dict:
 
     token = f.encrypt(b_obj)
 
-    return {
-        "checksum": _calculate_checksum(b_obj),
-        "file": token
-    }
+    return _calculate_checksum(b_obj), token
+
 
 def decrypt_document() -> dict:
     pass

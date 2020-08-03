@@ -39,7 +39,6 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
-    editor = ma.Nested(BasicUserAccountSchema)
     name = masql.auto_field()
     type = EnumField(DocumentType)
     is_locked = masql.auto_field()
@@ -52,7 +51,15 @@ class DocumentFileSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DocumentFile
 
+    id = masql.auto_field()
+    name = masql.auto_field()
+    checksum = masql.auto_field()
+    document_id = masql.auto_field()
+    path = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
+
+document_file_schema = DocumentFileSchema()
+document_files_schema = DocumentFileSchema(many=True)
 
 class DocumentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -71,3 +78,13 @@ document_schema = DocumentSchema()
 documents_schema = DocumentSchema(many=True)
 
 
+class NewDocumentFileSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DocumentFile
+
+    name = masql.auto_field()
+    checksum = masql.auto_field()
+    document_id = masql.auto_field()
+    path = masql.auto_field()
+
+new_document_file_schema = NewDocumentFileSchema()

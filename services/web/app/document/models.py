@@ -23,7 +23,7 @@ class Document(Base, RefAuthorMixin, RefEditorMixin):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
     type = db.Column(db.Enum(DocumentType), nullable=False)
-    files = db.relationship("DocumentFile", backref="document")
+    files = db.relationship("DocumentFile", backref="documentfile")
 
 class DocumentFile(Base, RefAuthorMixin):
     __tablename__ = "documentfile"
