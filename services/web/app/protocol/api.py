@@ -13,20 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import spec
-from flask import Blueprint
+from ..api import api
+from ..api.responses import *
+from ..decorators import token_required
+from ..auth.models import UserAccount
 
-api = Blueprint("api", __name__)
+from .views import (
+    basic_protocol_templates_schema
+)
 
-from ..auth.api import *
-from ..misc.api import *
-from ..document.api import *
-from ..consent.api import *
-from ..protocol.api import *
+from .models import ProtocolTemplate
 
-from .responses import *
-
-
-@api.route("/")
-def api_doc():
-    return spec.to_dict()
+@api.route("/protocol")
+@token_required
+def protocol_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_protocol_templates_schema.dump(ProtocolTemplate.query.all())
+    )

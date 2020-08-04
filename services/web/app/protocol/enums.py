@@ -21,7 +21,7 @@ class ProtocolSampleType(FormEnum):
     CEL = "Cell"
     MOL = "Molecular"
 
-class ProtocolTextTypes(FormEnum):
+class ProtocolTextType(FormEnum):
     MATE = "Materials and Reagents"
     EQUP = "Equipment"
     SOFT = "Software"
@@ -29,7 +29,7 @@ class ProtocolTextTypes(FormEnum):
     RECP = "Recipes"
     ANAL = "Data Analysis"
 
-class ProtocolTypes(FormEnum):
+class ProtocolType(FormEnum):
     ASS = "Experimental Assay"
     ACQ = "Sample Acquisition"
     ALD = "Sample Aliquoting / Derivation"

@@ -21,7 +21,6 @@ import requests
 from . import consent
 from .forms import NewConsentFormTemplateForm, NewConsentFormQuestionForm
 
-from .models import *
 from ..misc import get_internal_api_header
 
 

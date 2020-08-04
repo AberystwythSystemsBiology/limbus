@@ -13,5 +13,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import db
+from .. import db, ma
 
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
+from .enums import ProtocolType
+
+from .models import ProtocolTemplate
+
+from ..auth.views import BasicUserAccountSchema
+
+class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolTemplate
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    type = EnumField(ProtocolType)
+    author = ma.Nested(BasicUserAccountSchema)
+
+basic_protocol_template_schema = BasicProtocolTemplateSchema()
+basic_protocol_templates_schema = BasicProtocolTemplateSchema(many=True)

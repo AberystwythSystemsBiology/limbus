@@ -17,14 +17,14 @@
 from app import db, Base
 
 from ..mixins import RefAuthorMixin, RefEditorMixin
-from .enums import ProtocolSampleType, ProtocolTypes, ProtocolTextTypes
+from .enums import ProtocolSampleType, ProtocolType, ProtocolTextType
 
 
 class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "protocoltemplate"
 
     name = db.Column(db.String(128), nullable=False)
-    type = db.Column(db.Enum(ProtocolTypes))
+    type = db.Column(db.Enum(ProtocolType))
     sample_type = db.Column(db.Enum(ProtocolSampleType))
     doi = db.Column(db.String(64))
     texts = db.relationship("ProtocolText", uselist=True)
@@ -40,5 +40,5 @@ class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "processingtemplatematerialsandreagents"
 
     text = db.Column(db.Text(), nullable=False)
-    type = db.Column(db.Enum(ProtocolTextTypes))
+    type = db.Column(db.Enum(ProtocolTextType))
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)

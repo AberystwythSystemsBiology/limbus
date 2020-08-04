@@ -24,26 +24,17 @@ from flask import (
     flash,
 )
 from flask_login import login_required, current_user
-from werkzeug.utils import secure_filename
 
 import io
 
-import random
-import string
-import os
-
 from . import document
-from .models import Document, DocumentFile
 from .forms import (
     DocumentCreationForm,
     DocumentLockForm,
     UploadFileForm,
 )
 
-from ..auth.models import UserAccount
 from ..misc import get_internal_api_header
-
-from .. import db
 import requests
 import re
 
