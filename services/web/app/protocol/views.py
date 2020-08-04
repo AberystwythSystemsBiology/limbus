@@ -22,7 +22,18 @@ from .enums import ProtocolType, ProtocolTextType
 
 from .models import ProtocolTemplate, ProtocolText
 
+import markdown
+
 from ..auth.views import BasicUserAccountSchema
+
+class MarkdownField(fields.Field):
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        return markdown.Markdown().convert(value)
+
+    def _deserialize(self, value, attr, data, **kwargs):
+        return "Goodbye World"
+
 
 class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -55,7 +66,7 @@ class BasicProtocolTextSchema(masql.SQLAlchemySchema):
         model = ProtocolText
 
     id = masql.auto_field()
-    text = masql.auto_field()
+    text = MarkdownField()
     type = EnumField(ProtocolTextType, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()

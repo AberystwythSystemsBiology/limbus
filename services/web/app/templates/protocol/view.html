@@ -11,13 +11,18 @@
             </a></span> LIMBPROC-{{ protocol.id }}: {{ protocol.name }}</h1>
 
         <h2>Protocol Information</h2>
+
         {{ show_value(protocol.description, "Description", "textarea") }}
         {{ show_value(protocol.type, "Type", "textarea") }}
         {{ show_value(protocol.doi, "DOI", "textarea") }}
 
         {% for text in protocol.texts %}
             <h2>{{ text.type }}</h2>
-            {{ text.text }}
+            <div class="card">
+            <div class="card-body">
+            {{ text.text|safe }}
+            </div>
+            </div>
         {% endfor  %}
 
 
