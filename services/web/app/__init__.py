@@ -26,7 +26,6 @@ from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 from sqlalchemy_continuum.plugins import FlaskPlugin as PlaskPlugin_sqc
 
-
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin as FlaskPlugin_apispec
@@ -62,6 +61,7 @@ from .auth import auth as auth_blueprint
 from .api import api as api_blueprint
 from .document import document as document_blueprint
 from .consent import consent as consent_blueprint
+from .protocol import protocol as protocol_blueprint
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint

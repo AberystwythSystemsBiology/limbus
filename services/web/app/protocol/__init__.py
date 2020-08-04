@@ -15,6 +15,6 @@
 
 from flask import Blueprint
 
-protocols = Blueprint("protocols", __name__)
+protocol = Blueprint("protocol", __name__)
 
 from . import routes

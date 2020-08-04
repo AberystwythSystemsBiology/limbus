@@ -23,10 +23,8 @@ from wtforms import (
     BooleanField,
     RadioField,
 )
+
 from wtforms.validators import DataRequired, Email, EqualTo, URL
-
-from .enums import ProtocolSampleType, ProtocolTypes
-
 
 
 
