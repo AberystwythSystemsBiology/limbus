@@ -150,7 +150,7 @@ def consent_add_question(id, tokenuser: UserAccount):
     except Exception as err:
         return validation_error_response(err)
 
-@api.route("/consent/LIMBPCF-<id>/question/<q_id>/edit", methods=["POST"])
+@api.route("/consent/LIMBPCF-<id>/question/<q_id>/edit", methods=["PUT"])
 @token_required
 def consent_edit_question(id, q_id, tokenuser: UserAccount):
     values = request.get_json()
@@ -163,7 +163,7 @@ def consent_edit_question(id, q_id, tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    question = ConsentFormTemplateQuestion.query.filter_by(id=id, question_id=q_id).first()
+    question = ConsentFormTemplateQuestion.query.filter_by(id=q_id, template_id=id).first()
 
     for attr, value in values.items():
         setattr(question, attr, value)
