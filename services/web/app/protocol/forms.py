@@ -26,9 +26,10 @@ from wtforms import (
 
 
 
-from wtforms.validators import DataRequired, EqualTo, URL, Optional
+from wtforms.validators import DataRequired, EqualTo, URL, Optional, Length
+from flask_mde import Mde, MdeField
 
-from .enums import ProtocolType
+from .enums import ProtocolType, ProtocolTextType
 
 class ProtocolCreationForm(FlaskForm):
     name = StringField(
@@ -49,5 +50,15 @@ class ProtocolCreationForm(FlaskForm):
     )
 
     description = StringField("Document Description")
+
+    submit = SubmitField("Submit")
+
+class MdeForm(FlaskForm):
+    type = SelectField(
+        "Protocol Text Type",
+        choices=[(x.name, x.value) for x in ProtocolTextType],
+    )
+
+    editor = MdeField()
 
     submit = SubmitField("Submit")

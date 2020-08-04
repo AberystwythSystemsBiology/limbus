@@ -17,6 +17,8 @@ from __future__ import absolute_import
 
 from flask import Flask, g, render_template
 
+from flask_mde import Mde
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
@@ -32,6 +34,7 @@ from apispec_webframeworks.flask import FlaskPlugin as FlaskPlugin_apispec
 
 db = SQLAlchemy()
 ma = Marshmallow()
+mde = Mde()
 
 # Create an APISpec
 spec = APISpec(
@@ -69,10 +72,13 @@ from .commands import cmd_setup as cmd_setup_blueprint
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+
+
     app.config.from_pyfile("config.py")
 
     db.init_app(app)
     ma.init_app(app)
+    mde.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"

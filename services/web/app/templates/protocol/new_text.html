@@ -1,0 +1,45 @@
+{% extends "template.html" %}
+
+{% block title %}New Protocol Text{% endblock %}
+
+{% block head %}
+    {{mde.css}}
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="container">
+
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('protocol.index') }}">
+                    <i class="fa fa-project-diagram"></i> Protocol Portal
+            </a></span> New Protocol Text</h1>
+
+        <form method="POST">
+            {{ form.csrf_token }}
+            {{ form_field(form.type) }}
+
+            <div class="row">
+                <div class="col-6">
+                    <div id="wmd-button-bar"></div>
+                    {{ form.editor }}
+                    <a href="https://www.markdownguide.org/" target="_blank"><span class="text-muted"><i class="fab fa-markdown"></i> Styling with Markdown is supported</span></a>
+                </div>
+                <div class="col-6">
+                    <h3>Live Preview</h3>
+                    {{ mde.preview }}
+                </div>
+            </div>
+
+
+            {{ form_field(form.submit) }}
+
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ mde.js }}
+{% endblock %}

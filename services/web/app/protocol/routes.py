@@ -27,7 +27,7 @@ from . import protocol
 from ..misc import get_internal_api_header
 import requests
 
-from .forms import ProtocolCreationForm
+from .forms import ProtocolCreationForm, MdeForm
 
 @login_required
 @protocol.route("/")
@@ -68,7 +68,13 @@ def new():
 
     return render_template("protocol/new.html", form=form)
 
-@login_required
 @protocol.route("/LIMBPRO-<id>")
+@login_required
 def view(id):
     return "Hello World"
+
+@protocol.route("/LIMBPRO-<id>/add")
+@login_required
+def new_text(id):
+    form = MdeForm()
+    return render_template("protocol/new_text.html", form=form)
