@@ -17,7 +17,7 @@
 from app import db, Base
 
 from ..mixins import RefAuthorMixin, RefEditorMixin
-from .enums import ProtocolSampleType, ProtocolType, ProtocolTextType
+from .enums import ProtocolType, ProtocolTextType
 
 
 class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
@@ -25,7 +25,6 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
 
     name = db.Column(db.String(128), nullable=False)
     type = db.Column(db.Enum(ProtocolType))
-    sample_type = db.Column(db.Enum(ProtocolSampleType))
     doi = db.Column(db.String(64))
     texts = db.relationship("ProtocolText", uselist=True)
     documents = db.relationship("Document", uselist=True, secondary='protocoltemplatetodocument')

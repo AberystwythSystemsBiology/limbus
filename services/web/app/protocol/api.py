@@ -30,3 +30,8 @@ def protocol_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_protocol_templates_schema.dump(ProtocolTemplate.query.all())
     )
+
+@api.route("/protocol/new", methods=["POST"])
+@token_required
+def protocol_new_protocol(tokenuser: UserAccount):
+    pass

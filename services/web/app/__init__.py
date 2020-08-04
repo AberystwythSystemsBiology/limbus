@@ -83,6 +83,7 @@ def create_app():
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(document_blueprint, url_prefix="/document")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
+    app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
 
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")

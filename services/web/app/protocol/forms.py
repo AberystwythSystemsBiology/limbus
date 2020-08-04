@@ -24,7 +24,30 @@ from wtforms import (
     RadioField,
 )
 
-from wtforms.validators import DataRequired, Email, EqualTo, URL
 
 
+from wtforms.validators import DataRequired, EqualTo, URL, Optional
 
+from .enums import ProtocolType
+
+class ProtocolCreationForm(FlaskForm):
+    name = StringField(
+        "Protocol Name",
+        validators=[DataRequired()],
+        description="Textual string of letters denoting the name of the protocol in English",
+    )
+    type = SelectField(
+        "Protocol Type",
+        validators=[DataRequired()],
+        choices=[(x.name, x.value) for x in ProtocolType],
+    )
+
+    doi = StringField(
+        "Digital Object Identifier (DOI)",
+        validators=[URL(), Optional()],
+        description="The persistent identifier or handle used to identify objects uniquely."
+    )
+
+    description = StringField("Document Description")
+
+    submit = SubmitField("Submit")

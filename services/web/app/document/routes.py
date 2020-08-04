@@ -83,7 +83,7 @@ def new_document():
 @document.route("/LIMBDOC-<id>")
 @login_required
 def view(id):
-    #  view = document_schema
+
     response = requests.get(
         url_for("api.document_view_document", id=id, _external=True),
         headers=get_internal_api_header(),

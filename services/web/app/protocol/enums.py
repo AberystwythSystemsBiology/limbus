@@ -15,12 +15,6 @@
 
 from ..FormEnum import FormEnum
 
-class ProtocolSampleType(FormEnum):
-    ALL = "All"
-    FLU = "Fluid"
-    CEL = "Cell"
-    MOL = "Molecular"
-
 class ProtocolTextType(FormEnum):
     MATE = "Materials and Reagents"
     EQUP = "Equipment"
