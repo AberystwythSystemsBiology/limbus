@@ -12,8 +12,8 @@
     <div class="container">
 
         <h1><span class="secondary-heading">
-            <a href="{{ url_for('protocol.index') }}">
-                    <i class="fa fa-project-diagram"></i> Protocol Portal
+            <a href="{{ url_for('protocol.view', id=protocol.id) }}">
+                    <i class="fa fa-project-diagram"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
             </a></span> New Protocol Text</h1>
 
         <form method="POST">

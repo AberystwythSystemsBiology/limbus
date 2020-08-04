@@ -28,7 +28,8 @@ from marshmallow import ValidationError
 from .views import (
     basic_protocol_templates_schema,
     basic_protocol_template_schema,
-    new_protocol_template_schema
+    new_protocol_template_schema,
+    protocol_template_schema
 )
 
 from .models import ProtocolTemplate
@@ -65,3 +66,10 @@ def protocol_new_protocol(tokenuser: UserAccount):
         return success_with_content_response(basic_protocol_template_schema.dump(new_protocol))
     except Exception as err:
         return transaction_error_response(err)
+
+@api.route("/protocol/LIMBPRO-<id>")
+@token_required
+def protocol_view_protocol(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
+    )

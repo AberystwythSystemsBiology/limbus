@@ -71,10 +71,24 @@ def new():
 @protocol.route("/LIMBPRO-<id>")
 @login_required
 def view(id):
-    return "Hello World"
+    response = requests.get(
+        url_for("api.protocol_view_protocol", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+        return render_template("protocol/view.html", protocol=response.json()["content"])
+    else:
+        return response.content
 
 @protocol.route("/LIMBPRO-<id>/add")
 @login_required
 def new_text(id):
-    form = MdeForm()
-    return render_template("protocol/new_text.html", form=form)
+    response = requests.get(
+        url_for("api.protocol_view_protocol", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+        form = MdeForm()
+        return render_template("protocol/new_text.html", form=form, protocol=response.json()["content"])
+    else:
+        return response.content

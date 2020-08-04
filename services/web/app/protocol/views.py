@@ -48,3 +48,15 @@ class NewProtocolTemplateSchema(masql.SQLAlchemySchema):
 
 new_protocol_template_schema = NewProtocolTemplateSchema()
 new_protocol_templates_schema = NewProtocolTemplateSchema(many=True)
+
+class ProtocolTemplateSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolTemplate
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    type = EnumField(ProtocolType)
+    doi = masql.auto_field()
+
+protocol_template_schema = ProtocolTemplateSchema()
+protocol_templates_schema = ProtocolTemplateSchema(many=True)
