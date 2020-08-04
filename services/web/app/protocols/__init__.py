@@ -15,6 +15,6 @@
 
 from flask import Blueprint
 
-processing = Blueprint("processing", __name__)
+protocols = Blueprint("protocols", __name__)
 
 from . import routes

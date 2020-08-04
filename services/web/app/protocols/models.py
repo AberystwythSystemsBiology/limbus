@@ -32,6 +32,7 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
 
 class ProtocolTemplateToDocument(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "protocoltemplatetodocument"
+
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=False)
 
