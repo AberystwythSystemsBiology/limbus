@@ -15,7 +15,9 @@
 
 from flask import (
     render_template,
-    url_for
+    url_for,
+    flash,
+    redirect,
 )
 
 from flask_login import login_required
@@ -46,6 +48,27 @@ def index():
 def new():
     form = ProtocolCreationForm()
     if form.validate_on_submit():
-        pass
+        protocol_information = {
+            "name": form.name.data,
+            "doi": form.doi.data,
+            "type": form.type.data
+        }
+
+        response = requests.post(
+            url_for("api.protocol_new_protocol", _external=True),
+            headers=get_internal_api_header(),
+            json=protocol_information
+        )
+
+        if response.status_code == 200:
+            flash("Protocol Successfully Created")
+            return redirect(url_for("protocol.index"))
+        else:
+            flash("Error: %s - %s" % (response.status_code, response.json()))
 
     return render_template("protocol/new.html", form=form)
+
+@login_required
+@protocol.route("/LIMBPRO-<id>")
+def view(id):
+    return "Hello World"

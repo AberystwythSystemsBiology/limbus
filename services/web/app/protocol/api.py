@@ -13,13 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from .. import db
+
+
 from ..api import api
 from ..api.responses import *
 from ..decorators import token_required
 from ..auth.models import UserAccount
 
+from flask import request, current_app, jsonify, send_file
+from marshmallow import ValidationError
+
+
 from .views import (
-    basic_protocol_templates_schema
+    basic_protocol_templates_schema,
+    basic_protocol_template_schema,
+    new_protocol_template_schema
 )
 
 from .models import ProtocolTemplate
@@ -34,4 +43,25 @@ def protocol_home(tokenuser: UserAccount):
 @api.route("/protocol/new", methods=["POST"])
 @token_required
 def protocol_new_protocol(tokenuser: UserAccount):
-    pass
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_protocol_template_schema.load(values)
+        pass
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_protocol = ProtocolTemplate(**result)
+    new_protocol.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_protocol)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(basic_protocol_template_schema.dump(new_protocol))
+    except Exception as err:
+        return transaction_error_response(err)

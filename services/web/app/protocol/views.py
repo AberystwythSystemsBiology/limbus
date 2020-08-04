@@ -32,6 +32,19 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     type = EnumField(ProtocolType)
     author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
 
 basic_protocol_template_schema = BasicProtocolTemplateSchema()
 basic_protocol_templates_schema = BasicProtocolTemplateSchema(many=True)
+
+class NewProtocolTemplateSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolTemplate
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    type = EnumField(ProtocolType)
+    doi = masql.auto_field()
+
+new_protocol_template_schema = NewProtocolTemplateSchema()
+new_protocol_templates_schema = NewProtocolTemplateSchema(many=True)
