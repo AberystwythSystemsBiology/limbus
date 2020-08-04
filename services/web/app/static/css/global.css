@@ -19,7 +19,9 @@ nav img {
     padding:0;
 }
 
-
+#wmd-preview {
+   background-color: #999;
+}
 
 nav a {
     text-decoration: none;

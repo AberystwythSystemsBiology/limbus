@@ -66,12 +66,14 @@ class DocumentCreationForm(FlaskForm):
         validators=[DataRequired()],
         description="Textual string of letters denoting the name of the document in English",
     )
+    description = StringField("Document Description")
+
+
     type = SelectField(
         "Document Type",
         validators=[DataRequired()],
         choices=[(x.name, x.value) for x in DocumentType],
     )
-    description = StringField("Document Description")
 
     submit = SubmitField("Submit")
 

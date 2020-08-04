@@ -37,6 +37,9 @@ class ProtocolCreationForm(FlaskForm):
         validators=[DataRequired()],
         description="Textual string of letters denoting the name of the protocol in English",
     )
+
+    # TODO: Add description.
+
     type = SelectField(
         "Protocol Type",
         validators=[DataRequired()],

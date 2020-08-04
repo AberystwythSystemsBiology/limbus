@@ -51,7 +51,6 @@ def protocol_new_protocol(tokenuser: UserAccount):
 
     try:
         result = new_protocol_template_schema.load(values)
-        pass
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -64,6 +63,31 @@ def protocol_new_protocol(tokenuser: UserAccount):
         db.session.flush()
 
         return success_with_content_response(basic_protocol_template_schema.dump(new_protocol))
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/protocol/LIMBPRO-<id>/text/new", methods)
+@token_required
+def protocol_new_protocol_text(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = None
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_text = ProtocolText(**result)
+    new_text.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_text)
+        db.session.commit()
+        db.session.flush()
+
+        return None
     except Exception as err:
         return transaction_error_response(err)
 
