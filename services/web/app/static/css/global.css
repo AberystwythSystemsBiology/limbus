@@ -20,7 +20,8 @@ nav img {
 }
 
 #wmd-preview {
-   background-color: #999;
+    background-color: #f5f5f5;
+    padding:1em;
 }
 
 nav a {

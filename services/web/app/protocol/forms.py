@@ -20,6 +20,7 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
+    TextAreaField,
     BooleanField,
     RadioField,
 )
@@ -38,7 +39,10 @@ class ProtocolCreationForm(FlaskForm):
         description="Textual string of letters denoting the name of the protocol in English",
     )
 
-    # TODO: Add description.
+    description = TextAreaField(
+        "Description",
+        description="A brief description of the Protocol."
+    )
 
     type = SelectField(
         "Protocol Type",

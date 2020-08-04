@@ -51,6 +51,7 @@ def new():
         protocol_information = {
             "name": form.name.data,
             "doi": form.doi.data,
+            "description": form.description.data,
             "type": form.type.data
         }
 
@@ -80,7 +81,7 @@ def view(id):
     else:
         return response.content
 
-@protocol.route("/LIMBPRO-<id>/add")
+@protocol.route("/LIMBPRO-<id>/add", methods=["GET", "POST"])
 @login_required
 def new_text(id):
     response = requests.get(
@@ -89,6 +90,27 @@ def new_text(id):
     )
     if response.status_code == 200:
         form = MdeForm()
+        if form.validate_on_submit():
+            text_information = {
+                "type": form.type.data,
+                "text": form.editor.data
+            }
+
+            response = requests.post(
+                url_for("api.protocol_new_protocol_text", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=text_information
+            )
+
+            if response.status_code == 200:
+                flash("Protocol Text Successfully Created")
+                return redirect(url_for("protocol.view", id=id))
+            else:
+                flash("Error: %s - %s" % (response.status_code))
+
+
+
+            print(text_information)
         return render_template("protocol/new_text.html", form=form, protocol=response.json()["content"])
     else:
         return response.content

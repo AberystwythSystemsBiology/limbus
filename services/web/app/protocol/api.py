@@ -29,10 +29,12 @@ from .views import (
     basic_protocol_templates_schema,
     basic_protocol_template_schema,
     new_protocol_template_schema,
-    protocol_template_schema
+    protocol_template_schema,
+    new_protocol_text_schema,
+    basic_protocol_text_schema
 )
 
-from .models import ProtocolTemplate
+from .models import ProtocolTemplate, ProtocolText
 
 @api.route("/protocol")
 @token_required
@@ -62,11 +64,13 @@ def protocol_new_protocol(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(basic_protocol_template_schema.dump(new_protocol))
+        return success_with_content_response(
+                basic_protocol_template_schema.dump(new_protocol)
+                )
     except Exception as err:
         return transaction_error_response(err)
 
-@api.route("/protocol/LIMBPRO-<id>/text/new", methods)
+@api.route("/protocol/LIMBPRO-<id>/text/new", methods=["POST"])
 @token_required
 def protocol_new_protocol_text(id, tokenuser: UserAccount):
     values = request.get_json()
@@ -75,11 +79,13 @@ def protocol_new_protocol_text(id, tokenuser: UserAccount):
         return no_values_response()
 
     try:
-        result = None
+        result = new_protocol_text_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 
+
     new_text = ProtocolText(**result)
+    new_text.protocol_id = id
     new_text.author_id = tokenuser.id
 
     try:
@@ -87,7 +93,9 @@ def protocol_new_protocol_text(id, tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return None
+        return success_with_content_response(
+            basic_protocol_text_schema.dump(new_text)
+        )
     except Exception as err:
         return transaction_error_response(err)
 

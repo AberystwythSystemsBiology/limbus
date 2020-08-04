@@ -18,9 +18,9 @@ from .. import db, ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-from .enums import ProtocolType
+from .enums import ProtocolType, ProtocolTextType
 
-from .models import ProtocolTemplate
+from .models import ProtocolTemplate, ProtocolText
 
 from ..auth.views import BasicUserAccountSchema
 
@@ -43,11 +43,25 @@ class NewProtocolTemplateSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
+    description = masql.auto_field()
     type = EnumField(ProtocolType)
     doi = masql.auto_field()
 
 new_protocol_template_schema = NewProtocolTemplateSchema()
 new_protocol_templates_schema = NewProtocolTemplateSchema(many=True)
+
+class BasicProtocolTextSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolText
+
+    id = masql.auto_field()
+    text = masql.auto_field()
+    type = EnumField(ProtocolTextType, by_value=True)
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+
+basic_protocol_text_schema = BasicProtocolTextSchema()
+basic_protocol_texts_schema = BasicProtocolTextSchema(many=True)
 
 class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -57,6 +71,24 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     type = EnumField(ProtocolType)
     doi = masql.auto_field()
+    description = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+    texts = ma.Nested(BasicProtocolTextSchema(many=True))
+
+    created_on = ma.Date()
 
 protocol_template_schema = ProtocolTemplateSchema()
 protocol_templates_schema = ProtocolTemplateSchema(many=True)
+
+
+
+class NewProtocolTextSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolText
+
+    text = masql.auto_field()
+    type = EnumField(ProtocolTextType)
+
+new_protocol_text_schema = NewProtocolTextSchema()
+new_protocol_texts_schema = NewProtocolTextSchema(many=True)

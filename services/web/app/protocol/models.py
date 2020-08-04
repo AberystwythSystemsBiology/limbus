@@ -25,6 +25,7 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
 
     name = db.Column(db.String(128), nullable=False)
     type = db.Column(db.Enum(ProtocolType))
+    description = db.Column(db.Text())
     doi = db.Column(db.String(64))
     texts = db.relationship("ProtocolText", uselist=True)
     documents = db.relationship("Document", uselist=True, secondary='protocoltemplatetodocument')

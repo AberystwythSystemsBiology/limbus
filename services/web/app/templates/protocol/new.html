@@ -13,6 +13,7 @@
         <form method="POST" action="{{ url_for('protocol.new' ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.name) }}
+            {{ form_field(form.description) }}
             {{ form_field(form.doi) }}
             {{ form_field(form.type) }}
             {{ form_field(form.submit) }}
