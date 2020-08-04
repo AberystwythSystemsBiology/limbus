@@ -13,51 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
-from .enums import ProtocolSampleType, ProtocolUploadTypes, ProtocolTypes
+
+from app import db, Base
+
+from ..mixins import RefAuthorMixin, RefEditorMixin
+from .enums import ProtocolSampleType, ProtocolTypes, ProtocolTextTypes
 
 
-class ProcessingTemplate(db.Model):
-    __tablename__ = "processing_templates"
+class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "protocoltemplate"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    name = db.Column(db.String(128))
+    name = db.Column(db.String(128), nullable=False)
     type = db.Column(db.Enum(ProtocolTypes))
-
     sample_type = db.Column(db.Enum(ProtocolSampleType))
+    doi = db.Column(db.String(64))
+    texts = db.relationship("ProtocolText", uselist=True)
+    documents = db.relationship("Document", uselist=True, secondary='protocoltemplatetodocument')
 
-    upload_type = db.Column(db.Enum(ProtocolUploadTypes))
+class ProtocolTemplateToDocument(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "protocoltemplatetodocument"
+    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=False)
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "processingtemplatematerialsandreagents"
 
-    # has_template = db.Column(db.Boolean)
-    has_document = db.Column(db.Boolean)
-
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-
-class ProcessingTemplateToDocument(db.Model):
-    __tablename__ = "processing_templates_to_documents"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    template_id = db.Column(db.Integer, db.ForeignKey("processing_templates.id"))
-    document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    text = db.Column(db.Text(), nullable=False)
+    type = db.Column(db.Enum(ProtocolTextTypes))
+    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)

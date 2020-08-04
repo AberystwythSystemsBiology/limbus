@@ -15,68 +15,26 @@
 
 from ..FormEnum import FormEnum
 
-
 class ProtocolSampleType(FormEnum):
-    # Ideally I'd like to extend sample.enums.SampleType directly
-    # to add the all, but it turns out that you can't
-    # subclass an enumeration if an enumeration defines
-    # any members. I love you Python, but sometimes I want
-    # to strangle you.
     ALL = "All"
     FLU = "Fluid"
     CEL = "Cell"
     MOL = "Molecular"
 
+class ProtocolTextTypes(FormEnum):
+    MATE = "Materials and Reagents"
+    EQUP = "Equipment"
+    SOFT = "Software"
+    PROC = "Procedure"
+    RECP = "Recipes"
+    ANAL = "Data Analysis"
 
 class ProtocolTypes(FormEnum):
+    ASS = "Experimental Assay"
     ACQ = "Sample Acquisition"
     ALD = "Sample Aliquoting / Derivation"
     STR = "Sample Transfer"
     SDE = "Sample Destruction"
-
-
-class ProtocolUploadTypes(FormEnum):
-    # TODO: Extend this.
-    # DOC = "Document"
-    DIG = "Digital"
-    # DIC = "Digital and Document"
-
-
-# Replace this with something smarter.
-# Something like Room Temp - 2 to 10*C - 35 to 38 C etc...
-class ProcessingTemps(FormEnum):
-    A = "Room Temperature"
-    B = "2 to 10°C"
-    C = "-35 to -38°C"
-    U = "Unknown"
-    O = "Other"
-
-
-class ProcessingTimes(FormEnum):
-    A = "< 2 hours"
-    B = "2 to 4 hours"
-    C = "8 to 12 hours"
-    D = "12 to 24 hours"
-    E = "24 to 48 hours"
-    F = "> 48 hours"
-    U = "Unknown"
-    O = "Other"
-
-
-class CentrifugationTime(FormEnum):
-    A = "10 to 15 minutes"
-    B = "30 minutes"
-    U = "Unknown"
-    O = "Other"
-
-
-class CentrifugationWeights(FormEnum):
-    A = "< 3000g"
-    B = "3000g to 6000g"
-    C = "> 1000g"
-    U = "Unknown"
-    O = "Other"
-
 
 class FluidLongTermStorage(FormEnum):
     A = "PP tube 0.5-2mL @ -85 to -60°C"
