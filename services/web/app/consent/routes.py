@@ -19,7 +19,6 @@ from flask_login import current_user, login_required
 import requests
 
 from . import consent
-from .. import db
 from .forms import NewConsentFormTemplateForm, NewConsentFormQuestionForm
 
 from .models import *
