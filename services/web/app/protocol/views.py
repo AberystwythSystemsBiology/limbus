@@ -80,18 +80,15 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
-    type = EnumField(ProtocolType)
+    type = EnumField(ProtocolType, by_value=True)
     doi = masql.auto_field()
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
-
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
-
     created_on = ma.Date()
 
 protocol_template_schema = ProtocolTemplateSchema()
 protocol_templates_schema = ProtocolTemplateSchema(many=True)
-
 
 
 class NewProtocolTextSchema(masql.SQLAlchemySchema):
