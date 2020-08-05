@@ -1,0 +1,16 @@
+{% extends "template.html" %}
+
+{% block title %}Editing LIMBPRO-{{ protocol.id }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBPRO-{{ protocol.id }}</span>Edit</h1>
+        <form method="POST" action="{{ url_for('protocol.edit', id=protocol.id ) }}">
+            {{ form.csrf_token }}
+            {{ form_field(form.name) }}
+            {{ form_field(form.description) }}
+            {{ form_field(form.type) }}
+            {{ form_field(form.submit, with_label=False) }}
+        </form>
+    </div>
+{% endblock %}
