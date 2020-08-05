@@ -11,7 +11,9 @@
             </a></span> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h1>
 
         <div class="row text-muted">
-            <div class="col-6"><i class="fa fa-link"></i> DOI: {%  if protocol.doi != "" %}<a href="{{ protocol.doi }}" target="_blank">{{ protocol.doi }}</a>{% else %}None Available{% endif %}</div>
+            <div class="col-6"><i class="fa fa-link"></i> DOI: {% if protocol.doi != "" %}
+                <a href="{{ protocol.doi }}" target="_blank">{{ protocol.doi }}</a>{% else %}None Available{% endif %}
+            </div>
             <div class="col-6 text-right">
                 <i class="fa fa-calendar"></i> Created On: {{ protocol.created_on }}
                 <div class="clearfix"></div>
@@ -20,37 +22,64 @@
         </div>
 
 
-                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             {% if not protocol.is_locked %}
                 <div class="btn-group mr-2" role="group" aria-label="First group">
                     <a href="{{ url_for('protocol.edit', id=protocol.id) }}">
-                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
+                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
+                        </button>
                     </a>
                 </div>
             {% endif %}
 
             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <button type="button" data-toggle="modal" data-target="#exampleModalCenter" class="btn btn-outline-dark">
-                    <i class="fa fa-lock"></i> {% if protocol.is_locked %}Unl{% else %}L{% endif %}ock</button>
+                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                        class="btn btn-outline-dark">
+                    <i class="fa fa-lock"></i> {% if protocol.is_locked %}Unl{% else %}L{% endif %}ock
+                </button>
             </div>
         </div>
-
 
 
         <h2>Protocol Information</h2>
         {{ show_value(protocol.type, "Type", "textarea") }}
         {{ show_value(protocol.description, "Description", "textarea") }}
 
+
         {% for text in protocol.texts %}
             <h2>{{ text.type }}</h2>
-
-            <div class="card">
-            <div class="card-body">
-            {{ text.text|safe }}
-
+            <div class="row text-muted">
+                <div class="col-6">
+                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(text.author) }}
+                </div>
+                <div class="col-6 text-right">
+                    <i class="fa fa-calendar"></i> Created On: {{ text.created_on }}
+                </div>
             </div>
+
+                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            {% if not protocol.is_locked %}
+                <div class="btn-group mr-2" role="group" aria-label="First group">
+                    <a href="{{ url_for('protocol.edit', id=protocol.id) }}">
+                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
+                        </button>
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                        class="btn btn-outline-dark">
+                    <i class="fa fa-lock"></i> Remove
+                </button>
             </div>
-        {% endfor  %}
+        </div>
+
+
+            <div class="protocol-text">
+                {{ text.text|safe }}
+            </div>
+        {% endfor %}
 
     </div>
 {% endblock %}

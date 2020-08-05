@@ -81,25 +81,6 @@ def view(id):
     else:
         return response.content
 
-'''
-
-            edit_response = requests.put(
-                url_for("api.document_edit_document", id=id, _external=True),
-                headers=get_internal_api_header(),
-                json=form_information,
-            )
-
-            if edit_response.status_code == 200:
-                flash("Document Successfully Edited")
-            else:
-                flash("We have a problem: %s" % (edit_response.json()))
-            return redirect(url_for("document.view", id=id))
-        return render_template(
-            "document/edit.html", document=response.json()["content"], form=form
-        )
-    else:
-        return response.content
-'''
 
 @protocol.route("/LIMBPRO-<id>/edit", methods=["GET", "POST"])
 @login_required

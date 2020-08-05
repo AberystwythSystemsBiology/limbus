@@ -24,6 +24,17 @@ nav img {
     padding:1em;
 }
 
+.protocol-text {
+    background-color: #f5f5f5;
+    padding:1em;
+    margin:1em;
+}
+
+.row {
+    margin-top:0.5em;
+    margin-bottom: 0.5em;
+}
+
 nav a {
     text-decoration: none;
 
