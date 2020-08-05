@@ -23,7 +23,7 @@
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             {% if not protocol.is_locked %}
                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <a href="{{ url_for('document.edit', id=protocol.id) }}">
+                    <a href="{{ url_for('protocol.edit', id=protocol.id) }}">
                         <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
                     </a>
                 </div>

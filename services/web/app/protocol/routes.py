@@ -81,6 +81,12 @@ def view(id):
     else:
         return response.content
 
+@protocol.route("/LIMBPRO-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(id):
+    return "Hello World"
+
+
 @protocol.route("/LIMBPRO-<id>/add", methods=["GET", "POST"])
 @login_required
 def new_text(id):
@@ -107,10 +113,6 @@ def new_text(id):
                 return redirect(url_for("protocol.view", id=id))
             else:
                 flash("Error: %s - %s" % (response.status_code))
-
-
-
-            print(text_information)
         return render_template("protocol/new_text.html", form=form, protocol=response.json()["content"])
     else:
         return response.content
