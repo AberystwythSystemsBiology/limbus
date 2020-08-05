@@ -81,10 +81,58 @@ def view(id):
     else:
         return response.content
 
+'''
+
+            edit_response = requests.put(
+                url_for("api.document_edit_document", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Document Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+            return redirect(url_for("document.view", id=id))
+        return render_template(
+            "document/edit.html", document=response.json()["content"], form=form
+        )
+    else:
+        return response.content
+'''
+
 @protocol.route("/LIMBPRO-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(id):
-    return "Hello World"
+    response = requests.get(
+        url_for("api.protocol_view_protocol", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        form = ProtocolCreationForm(data=response.json()["content"])
+
+        if form.validate_on_submit():
+            protocol_information = {
+                "name": form.name.data,
+                "type": form.type.data,
+                "description": form.description.data,
+            }
+
+            edit_response = requests.put(
+                url_for("api.protocol_edit_protocol", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=protocol_information
+            )
+
+            if edit_response.status_code == 200:
+                flash("Protocol Successfully Edited")
+                return redirect(url_for("protocol.view", id=id))
+            else:
+                flash("Error: %s" % response.json())
+        return render_template("protocol/edit.html", protocol=response.json()["content"], form=form)
+    else:
+        return response.content
 
 
 @protocol.route("/LIMBPRO-<id>/add", methods=["GET", "POST"])

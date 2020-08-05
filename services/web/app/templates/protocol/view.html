@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBPROC-{{ protocol.id }}: {{ protocol.name }}{% endblock %}
+{% block title %}LIMBPRO-{{ protocol.id }}: {{ protocol.name }}{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -8,7 +8,7 @@
         <h1><span class="secondary-heading">
             <a href="{{ url_for('protocol.index') }}">
                     <i class="fa fa-project-diagram"></i> Protocol Portal
-            </a></span> LIMBPROC-{{ protocol.id }}: {{ protocol.name }}</h1>
+            </a></span> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h1>
 
         <div class="row text-muted">
             <div class="col-6"><i class="fa fa-link"></i> DOI: {%  if protocol.doi != "" %}<a href="{{ protocol.doi }}" target="_blank">{{ protocol.doi }}</a>{% else %}None Available{% endif %}</div>
