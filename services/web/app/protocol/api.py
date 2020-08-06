@@ -137,3 +137,10 @@ def protocol_view_protocol(id, tokenuser: UserAccount):
     return success_with_content_response(
         protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
     )
+
+@api.route("/protocol/LIMBPRO-<id>/text/<t_id>", methods=["GET"])
+@token_required
+def protocol_view_text(id, t_id, tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_protocol_text_schema.dump(ProtocolText.query.filter_by(id=t_id, protocol_id=id).first())
+    )

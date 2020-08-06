@@ -145,3 +145,4 @@ def new_text(id):
         return render_template("protocol/new_text.html", form=form, protocol=response.json()["content"])
     else:
         return response.content
+
