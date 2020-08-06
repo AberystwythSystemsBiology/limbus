@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask import url_for
+import requests
+
 from flask_wtf import FlaskForm
 from wtforms import (
     FileField,
@@ -31,6 +34,7 @@ from wtforms.validators import DataRequired, EqualTo, URL, Optional, Length
 from flask_mde import Mde, MdeField
 
 from .enums import ProtocolType, ProtocolTextType
+from ..misc import get_internal_api_header
 
 class ProtocolCreationForm(FlaskForm):
     name = StringField(
@@ -69,3 +73,28 @@ class MdeForm(FlaskForm):
     editor = MdeField()
 
     submit = SubmitField("Submit")
+
+
+def DocumentAssociationForm() -> FlaskForm:
+    class StaticForm(FlaskForm):
+        description = TextAreaField("Description")
+        submit = SubmitField("Submit")
+
+    response = requests.get(
+        url_for("api.document_home", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    documents = []
+
+    if response.status_code == 200:
+        for doc in response.json()["content"]:
+            documents.append([doc["id"], "LIMBDOC-%i: %s" % (doc["id"], doc["name"])])
+
+    setattr(
+        StaticForm,
+        "document",
+        SelectField("Document", choices=documents, coerce=int),
+    )
+
+    return StaticForm()

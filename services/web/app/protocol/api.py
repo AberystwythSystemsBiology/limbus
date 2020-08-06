@@ -31,10 +31,11 @@ from .views import (
     new_protocol_template_schema,
     protocol_template_schema,
     new_protocol_text_schema,
-    basic_protocol_text_schema
+    basic_protocol_text_schema,
+    new_protocol_template_to_document_schema
 )
 
-from .models import ProtocolTemplate, ProtocolText
+from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
 
 @api.route("/protocol")
 @token_required
@@ -137,6 +138,33 @@ def protocol_view_protocol(id, tokenuser: UserAccount):
     return success_with_content_response(
         protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
     )
+
+@api.route("/protocol/LIMBPRO-<id>/doc/assign", methods=["POST"])
+@token_required
+def protocol_associate_document(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_protocol_template_to_document_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_association = ProtocolTemplateToDocument(**result)
+    new_association.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_association)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            new_protocol_template_to_document_schema.dump(new_association)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
 
 @api.route("/protocol/LIMBPRO-<id>/text/<t_id>", methods=["GET"])
 @token_required

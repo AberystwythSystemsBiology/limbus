@@ -27,7 +27,7 @@ from . import protocol
 from ..misc import get_internal_api_header
 import requests
 
-from .forms import ProtocolCreationForm, MdeForm
+from .forms import ProtocolCreationForm, MdeForm, DocumentAssociationForm
 
 @login_required
 @protocol.route("/")
@@ -112,6 +112,39 @@ def edit(id):
             else:
                 flash("Error: %s" % response.json())
         return render_template("protocol/edit.html", protocol=response.json()["content"], form=form)
+    else:
+        return response.content
+
+
+@protocol.route("/LIMBPRO-<id>/associate_document", methods=["GET", "POST"])
+@login_required
+def associate_document(id):
+    response = requests.get(
+        url_for("api.protocol_view_protocol", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+    if response.status_code == 200:
+        form = DocumentAssociationForm()
+        if form.validate_on_submit():
+            association_information = {
+                "document_id": form.document.data,
+                "protocol_id": id,
+                "description": form.description.data
+            }
+
+            association_request = requests.post(
+                url_for("api.protocol_associate_document", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=association_information
+            )
+
+            if association_request.status_code == 200:
+                flash("Association Successfully Createed")
+                return redirect(url_for("protocol.view", id=id))
+            else:
+                flash("Error: %s" % response.json())
+
+        return render_template("protocol/document_association.html", protocol=response.json()["content"], form=form)
     else:
         return response.content
 

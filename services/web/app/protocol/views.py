@@ -20,11 +20,12 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 from .enums import ProtocolType, ProtocolTextType
 
-from .models import ProtocolTemplate, ProtocolText
+from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
 
 import markdown
 
 from ..auth.views import BasicUserAccountSchema
+from ..document.views import BasicDocumentSchema
 
 class MarkdownField(fields.Field):
 
@@ -74,6 +75,16 @@ class BasicProtocolTextSchema(masql.SQLAlchemySchema):
 basic_protocol_text_schema = BasicProtocolTextSchema()
 basic_protocol_texts_schema = BasicProtocolTextSchema(many=True)
 
+class NewProtocolTemplateToDocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolTemplateToDocument
+
+    protocol_id = masql.auto_field()
+    document_id = masql.auto_field()
+    description = masql.auto_field()
+
+new_protocol_template_to_document_schema = NewProtocolTemplateToDocumentSchema()
+
 class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ProtocolTemplate
@@ -85,6 +96,7 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
+    documents = ma.Nested(BasicDocumentSchema(many=True))
     created_on = ma.Date()
 
 protocol_template_schema = ProtocolTemplateSchema()
