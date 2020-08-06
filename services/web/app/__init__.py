@@ -65,6 +65,7 @@ from .api import api as api_blueprint
 from .document import document as document_blueprint
 from .consent import consent as consent_blueprint
 from .protocol import protocol as protocol_blueprint
+from .sample import sample as sample_blueprint
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
@@ -90,7 +91,7 @@ def create_app():
     app.register_blueprint(document_blueprint, url_prefix="/document")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
-
+    app.register_blueprint(sample_blueprint, url_prefix="/sample")
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")
     ## Specific to CMD.

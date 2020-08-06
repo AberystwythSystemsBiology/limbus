@@ -22,6 +22,7 @@ from marshmallow_enum import EnumField
 from .enums import DocumentType
 
 from ..auth.views import BasicUserAccountSchema
+from ..protocol.views import BasicProtocolTemplateSchema
 
 class NewDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -80,6 +81,7 @@ class DocumentSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
     files = ma.Nested(DocumentFileSchema(many=True))
+    protocol = ma.Nested(BasicProtocolTemplateSchema(many=True))
 
 
 document_schema = DocumentSchema()
