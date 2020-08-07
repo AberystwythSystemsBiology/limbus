@@ -15,7 +15,7 @@
 
 from app import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin
-from .enums import CustomAttributeType, CustomAttributeElementType
+from .enums import AttributeType, AttributeElementType
 
 class Attribute(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "attribute"
@@ -26,8 +26,8 @@ class Attribute(Base, RefAuthorMixin, RefEditorMixin):
     ref = db.Column(db.String(64))
     required = db.Column(db.Boolean(), default=False)
 
-    type = db.Column(db.Enum(CustomAttributeType))
-    element_type = db.Column(db.Enum(CustomAttributeElementType))
+    type = db.Column(db.Enum(AttributeType))
+    element_type = db.Column(db.Enum(AttributeElementType))
 
 
 class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import db, ma
+from .. import ma
 from flask import url_for
 import hashlib
 from .models import UserAccount, UserAccountToken

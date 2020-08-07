@@ -22,6 +22,7 @@ from wtforms import (
     DateField,
     BooleanField,
     IntegerField,
+    TextAreaField,
 )
 
 from wtforms.validators import DataRequired, Length
@@ -29,7 +30,7 @@ from wtforms.validators import DataRequired, Length
 from .enums import *
 
 from .. import db
-from .models import CustomAttributes, CustomAttributeOption, CustomAttributeTextSetting
+from .models import Attribute, AttributeOption, AttributeTextSetting
 
 
 # Pronto stuff here.
@@ -78,13 +79,14 @@ class EnumFromOntology:
         return [(term.id, term.name) for term in self.ontology_list]
 
 
-class CustomAttributeCreationForm(FlaskForm):
+
+class AttributeCreationForm(FlaskForm):
     term = StringField("Attribute Term", validators=[DataRequired()])
-    description = StringField("Attribute Description")
-    accession = StringField("Ontology Accession")
-    ref = StringField("Ontology Reference")
-    type = SelectField("Attribute Type", choices=CustomAttributeTypes.choices())
-    element = SelectField("Element", choices=CustomAttributeElementTypes.choices())
+    accession = StringField("Ontology Accession", render_kw={"disabled":""})
+    ref = StringField("Ontology Reference", render_kw={"disabled":""})
+    description = TextAreaField("Attribute Description")
+    type = SelectField("Attribute Type", choices=AttributeType.choices())
+    element = SelectField("Element", choices=AttributeElementType.choices())
     required = BooleanField("Required")
     submit = SubmitField("Submit")
 
@@ -102,6 +104,7 @@ class CustomNumericAttributionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
+'''
 def CustomAttributeSelectForm(
     element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL,
 ) -> FlaskForm:
@@ -170,3 +173,4 @@ def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
         setattr(StaticForm, str(attr.id), field)
 
     return StaticForm()
+'''

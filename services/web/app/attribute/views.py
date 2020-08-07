@@ -13,102 +13,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .models import (
-    CustomAttributes,
-    CustomAttributeOption,
-    CustomAttributeTextSetting,
-    CustomAttributeNumericSetting,
-)
-from ..auth.views import UserView
-from .. import db
+from .. import ma
+from flask import url_for
+from .models import Attribute
 
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
 
-def CustomAttributesIndexView() -> dict:
-    """
-        This method returns an dictionary of information concerning attributes, as well as their author information.
-    """
-    attributes = db.session.query(CustomAttributes).all()
+from ..auth.views import BasicUserAccountSchema
 
-    data = {}
+from .enums import AttributeType, AttributeElementType
 
-    for attribute in attributes:
+class BasicAttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
 
-        data[attribute.id] = {
-            "term": attribute.term,
-            "description": attribute.description,
-            "type": attribute.type.value,
-            "accession": attribute.accession,
-            "ref": attribute.ref,
-            "element": attribute.element.value,
-            "required": attribute.required,
-            "creation_date": attribute.creation_date,
-            "user_information": UserView(attribute.author_id),
-        }
+    id = masql.auto_field()
+    description = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = fields.Date()
+    type = EnumField(AttributeType)
+    element_type = EnumField(AttributeElementType)
 
-    return data
-
-
-def CustomAttributeView(ca_id) -> dict:
-
-    attribute = (
-        db.session.query(CustomAttributes)
-        .filter(CustomAttributes.id == ca_id)
-        .first_or_404()
-    )
-
-    data = {
-        "id": attribute.id,
-        "term": attribute.term,
-        "description": attribute.description,
-        "type": attribute.type.value,
-        "accession": attribute.accession,
-        "ref": attribute.ref,
-        "element": attribute.element.value,
-        "required": attribute.required,
-        "creation_date": attribute.creation_date,
-        "user_information": UserView(attribute.author_id),
-    }
-
-    if data["type"] == "Option":
-        options = (
-            db.session.query(CustomAttributeOption)
-            .filter(CustomAttributeOption.custom_attribute_id == attribute.id)
-            .all()
-        )
-
-        o_data = {}
-
-        for option in options:
-            o_data[option.id] = {
-                "term": option.term,
-                "accession": option.accession,
-                "ref": option.ref,
-            }
-
-        data["option_info"] = o_data
-
-    elif data["type"] == "Numeric":
-
-        settings = (
-            db.session.query(CustomAttributeNumericSetting)
-            .filter(CustomAttributeNumericSetting.custom_attribute_id == attribute.id)
-            .first_or_404()
-        )
-
-        data["numeric_settings"] = {
-            "id": settings.id,
-            "measurement": settings.measurement,
-            "prefix": settings.prefix,
-        }
-
-    else:
-
-        settings = (
-            db.session.query(CustomAttributeTextSetting)
-            .filter(CustomAttributeTextSetting.custom_attribute_id == attribute.id)
-            .first_or_404()
-        )
-
-        data["text_settings"] = {"id": settings.id, "max_length": settings.max_length}
-
-    return data
+basic_attribute_schema = BasicAttributeSchema()
+basic_attributes_schema = BasicAttributeSchema(many=True)

@@ -1,0 +1,40 @@
+{% extends "template.html" %}
+
+{% block title %}New Attribute{%endblock %}
+
+{% block body %}
+
+    <div class="container">
+
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for("attribute.index") }}">
+                    <i class="fab fa-buffer"></i> Attribute Portal
+                </a>
+            </span>
+            New Attribute
+        </h1>
+
+
+        <form action="{{ url_for('attribute.new') }}" method="POST">
+            {{ form.csrf_token() }}
+
+            {{ form_field(form.term) }}
+            {{ form_field(form.ref) }}
+            {{ form_field(form.accession) }}
+
+            {{ form_field(form.description) }}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.element) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.type) }}
+                </div>
+            </div>
+            {{ form_field(form.required) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+    </div>
+{% endblock %}

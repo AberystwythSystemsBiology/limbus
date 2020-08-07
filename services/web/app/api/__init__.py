@@ -18,11 +18,14 @@ from flask import Blueprint
 
 api = Blueprint("api", __name__)
 
+# Import API endpoints here.
+
 from ..auth.api import *
 from ..misc.api import *
 from ..document.api import *
 from ..consent.api import *
 from ..protocol.api import *
+from ..attribute.api import *
 
 from .responses import *
 

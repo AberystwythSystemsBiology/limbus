@@ -19,29 +19,42 @@ from flask_login import current_user, login_required
 from flask import render_template, session, redirect, url_for, request, jsonify
 
 from .forms import (
-    CustomAttributeCreationForm,
+    AttributeCreationForm,
     CustomNumericAttributionCreationForm,
     CustomTextAttributeCreationForm,
 )
 
-from ..misc.generators import generate_random_hash
-
-from .models import *
-
 from .. import db
 
-from ..misc import clear_session
+from ..misc import get_internal_api_header
 
-from .views import CustomAttributesIndexView, CustomAttributeView
-
+import requests
 
 @attribute.route("/")
 @login_required
 def index():
-    attributes = CustomAttributesIndexView()
-    return render_template("attribute/index.html", attributes=attributes)
+    response = requests.get(
+        url_for("api.attribute_home", _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code == 200:
+        return render_template("attribute/index.html", attributes=response.json()["content"])
+    else:
+        return response.content
 
+@attribute.route("/new")
+@login_required
+def new():
+    form = AttributeCreationForm()
+    
+    if form.validate_on_submit():
+        pass
+    
+    return render_template("attribute/new.html", form=form)
+    
+
+'''
 @attribute.route("/view/LIMBATTR-<attr_id>")
 @login_required
 def view(attr_id):
@@ -183,3 +196,4 @@ def add_textual(hash):
         return redirect(url_for("attribute.index"))
 
     return render_template("attribute/add/textual.html", form=form, hash=hash)
+'''

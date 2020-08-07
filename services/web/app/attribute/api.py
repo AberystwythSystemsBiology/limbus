@@ -12,3 +12,23 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ..api import api
+from ..api.responses import *
+from ..decorators import token_required
+
+from flask import request, current_app
+from marshmallow import ValidationError
+
+from ..auth.models import UserAccount
+from .models import Attribute
+from .views import (
+    basic_attributes_schema,
+)
+
+@api.route("/attribute")
+@token_required
+def attribute_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_attributes_schema.dumps(Attribute.query.all())
+    )
