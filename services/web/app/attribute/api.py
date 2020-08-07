@@ -32,3 +32,8 @@ def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_attributes_schema.dumps(Attribute.query.all())
     )
+
+@api.route("/attribute/new", methods=["POST"])
+@token_required
+def attribute_new_attribute(tokenuser: UserAccount):
+    pass
