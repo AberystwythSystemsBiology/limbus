@@ -92,6 +92,7 @@ def create_app():
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
     app.register_blueprint(sample_blueprint, url_prefix="/sample")
+
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")
     ## Specific to CMD.

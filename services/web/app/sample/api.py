@@ -20,7 +20,6 @@ from flask import send_file
 from . import sample
 from flask_login import login_required
 
-from .views.sample import BasicSampleView
 
 from io import StringIO, BytesIO
 
@@ -30,7 +29,7 @@ from tempfile import NamedTemporaryFile
 @sample.route("view/LIMBSMP-<sample_id>/barcode/<attr>")
 @login_required
 def get_barcode(sample_id: int, attr: str):
-    sample = BasicSampleView(sample_id)
+    sample = {"barcode": "Hello WOrld"}
 
     img = treepoem.generate_barcode(barcode_type="qrcode", data=str(sample[attr]))
 

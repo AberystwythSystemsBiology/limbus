@@ -13,59 +13,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from app import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
+
+class SampleToCustomAttributeTextValue(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletocustomattributetextvalue"
+
+    value = db.Column(db.Text)
+    attribute_id = db.Column(db.Integer, db.ForeignKey("customattribute.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
 
-class SampleToCustomAttributeTextValue(db.Model):
-    __tablename__ = "sample_to_custom_attribute_text_values"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    value = db.Column(db.String)
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-
-class SampleToCustomAttributeNumericValue(db.Model):
-    __tablename__ = "sample_to_custom_attribute_numeric_values"
-
-    id = db.Column(db.Integer, primary_key=True)
+class SampleToCustomAttributeNumericValue(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletocustomattributenumericvalue"
 
     value = db.Column(db.String)
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    attribute_id = db.Column(db.Integer, db.ForeignKey("customattribute.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
 
-class SampleToCustomAttributeOptionValue(db.Model):
-    __tablename__ = "sample_to_custom_attribute_option_values"
-    id = db.Column(db.Integer, primary_key=True)
+class SampleToCustomAttributeOptionValue(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletocustomattributeoptionvalue"
 
-    custom_option_id = db.Column(
-        db.Integer, db.ForeignKey("custom_attribute_options.id")
-    )
+    option_id = db.Column(db.Integer, db.ForeignKey("customattributeoption.id"))
+    attribute_id = db.Column(db.Integer, db.ForeignKey("customattribute.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

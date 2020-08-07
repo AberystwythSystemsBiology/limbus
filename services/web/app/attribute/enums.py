@@ -16,13 +16,13 @@
 from ..FormEnum import FormEnum
 
 
-class CustomAttributeTypes(FormEnum):
+class CustomAttributeType(FormEnum):
     TEXT = "Text"
     NUMERIC = "Numeric"
     OPTION = "Option"
 
 
-class CustomAttributeElementTypes(FormEnum):
+class CustomAttributeElementType(FormEnum):
     ALL = "All"
     SAMPLE = "Sample"
     PROTOCOL = "Protocol"

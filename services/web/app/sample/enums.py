@@ -15,7 +15,6 @@
 
 from ..FormEnum import FormEnum
 
-
 class SubSampleType(FormEnum):
     ALI = "Aliquot"
     DER = "Derivative"
@@ -28,8 +27,6 @@ class SampleType(FormEnum):
 
 
 class FluidSampleType(FormEnum):
-    # If Fluid the Quantity == ml
-
     ASC = "Ascites fluid"
     AMN = "Amniotic fluid"
     BAL = "Bronchoalveolar lavage"
@@ -60,7 +57,6 @@ class FluidSampleType(FormEnum):
 
 
 class MolecularSampleType(FormEnum):
-    # If MolecularSample Quantity ==  uberg + concentration? ug/ml
     CDN = "cDNA"
     CTD = "ctDNA"
     DNA = "DNA"
@@ -74,7 +70,6 @@ class MolecularSampleType(FormEnum):
 
 
 class CellSampleType(FormEnum):
-    # If Cell Quantity == Cells
     CYO = "Cyropreserved Cells"
     FXB = "Fixed Cell Block"
     FCB = "Frozen Cell Block"

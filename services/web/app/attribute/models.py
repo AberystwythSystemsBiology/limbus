@@ -1,87 +1,54 @@
-from .enums import CustomAttributeTypes, CustomAttributeElementTypes
-from app import db
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from app import db, Base
+from ..mixins import RefAuthorMixin, RefEditorMixin
+from .enums import CustomAttributeType, CustomAttributeElementType
 
-class CustomAttributes(db.Model):
-    __tablename__ = "custom_attributes"
+class Attribute(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "attribute"
 
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(1024))
-
+    description = db.Column(db.Text)
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
-
-    element = db.Column(db.Enum(CustomAttributeElementTypes))
-
     required = db.Column(db.Boolean(), default=False)
 
-    type = db.Column(db.Enum(CustomAttributeTypes))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    type = db.Column(db.Enum(CustomAttributeType))
+    element_type = db.Column(db.Enum(CustomAttributeElementType))
 
 
-class CustomAttributeTextSetting(db.Model):
-    __tablename__ = "custom_attribute_text_settings"
-
-    id = db.Column(db.Integer, primary_key=True)
+class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "customattributetextsetting"
     max_length = db.Column(db.Integer, nullable=False)
-
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
 
 
-class CustomAttributeNumericSetting(db.Model):
-    __tablename__ = "custom_attribute_numeric_settings"
+class AttributeNumericSetting(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "attributenumericsetting"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
     measurement = db.Column(db.String(32))
     prefix = db.Column(db.String(32))
 
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
 
-
-class CustomAttributeOption(db.Model):
-    __tablename__ = "custom_attribute_options"
-
-    id = db.Column(db.Integer, primary_key=True)
+class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "attributeoption"
 
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
 
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))

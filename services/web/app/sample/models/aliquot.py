@@ -13,22 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
-from ..enums import *
+from app import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
 
-
-class SubSampleToSample(db.Model):
+class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "subsample_to_samples"
-    id = db.Column(db.Integer, primary_key=True)
 
-    parent_sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    subsample_sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
