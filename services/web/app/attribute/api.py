@@ -48,11 +48,12 @@ def attribute_new_attribute(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    # Check for text/optional/etc values
 
+
+    # TODO: Check for text/optional/etc values
     new_attribute = Attribute(**result)
     new_attribute.created_by = tokenuser.id
-    
+
     try:
         db.session.add(new_attribute)
         db.session.commit()
