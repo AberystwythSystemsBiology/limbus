@@ -30,6 +30,7 @@ class BasicAttributeSchema(masql.SQLAlchemySchema):
         model = Attribute
 
     id = masql.auto_field()
+    term = masql.auto_field()
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     created_on = fields.Date()
@@ -38,3 +39,14 @@ class BasicAttributeSchema(masql.SQLAlchemySchema):
 
 basic_attribute_schema = BasicAttributeSchema()
 basic_attributes_schema = BasicAttributeSchema(many=True)
+
+class NewAttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
+
+    term = masql.auto_field()
+    description = masql.auto_field()
+    type = EnumField(AttributeType)
+    element_type = EnumField(AttributeElementType)
+
+new_attribute_schema = NewAttributeSchema()

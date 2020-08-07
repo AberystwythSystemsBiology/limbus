@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..api import api
+from ..api import api, db
 from ..api.responses import *
 from ..decorators import token_required
 
@@ -24,6 +24,8 @@ from ..auth.models import UserAccount
 from .models import Attribute
 from .views import (
     basic_attributes_schema,
+    basic_attribute_schema,
+    new_attribute_schema
 )
 
 @api.route("/attribute")
@@ -36,4 +38,27 @@ def attribute_home(tokenuser: UserAccount):
 @api.route("/attribute/new", methods=["POST"])
 @token_required
 def attribute_new_attribute(tokenuser: UserAccount):
-    pass
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_attribute_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    # Check for text/optional/etc values
+
+    new_attribute = Attribute(**result)
+    new_attribute.created_by = tokenuser.id
+    
+    try:
+        db.session.add(new_attribute)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(
+            basic_attribute_schema.dump(new_attribute)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
