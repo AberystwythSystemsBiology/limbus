@@ -43,14 +43,20 @@ def attribute_new_attribute(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
+    without_specifics = {k: v for (k, v) in values.items() if k in ["term", "description", "type", "element_type"]}
+
     try:
-        result = new_attribute_schema.load(values)
+        result = new_attribute_schema.load(without_specifics)
     except ValidationError as err:
         return validation_error_response(err)
 
+    if without_specifics["type"] == "TEXT":
+        pass
+    elif without_specifics["type"] == "NUMERIC":
+        pass
+    else:
+        pass
 
-
-    # TODO: Check for text/optional/etc values
     new_attribute = Attribute(**result)
     new_attribute.created_by = tokenuser.id
 

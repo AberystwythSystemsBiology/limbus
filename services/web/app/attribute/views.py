@@ -15,7 +15,7 @@
 
 from .. import ma
 from flask import url_for
-from .models import Attribute
+from .models import Attribute, AttributeTextSetting, AttributeNumericSetting, AttributeOption
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -23,7 +23,7 @@ from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
 
-from .enums import AttributeType, AttributeElementType
+from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 class BasicAttributeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -50,3 +50,30 @@ class NewAttributeSchema(masql.SQLAlchemySchema):
     element_type = EnumField(AttributeElementType)
 
 new_attribute_schema = NewAttributeSchema()
+
+class NewAttributeTextSettingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeTextSetting
+
+    max_length = masql.auto_field()
+    type = EnumField(AttributeTextSettingType)
+
+new_attribute_text_setting_schema = NewAttributeTextSettingSchema()
+
+class NewAttributeNumericSettingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeNumericSetting
+
+    symbol = masql.auto_field()
+    measurement = masql.auto_field()
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeOption
+
+    term = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+
+new_attribute_option_schema = NewAttributeOptionSchema()
+new_attribute_options_schema = NewAttributeOptionSchema(many=True)

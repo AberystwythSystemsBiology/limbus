@@ -20,6 +20,10 @@ class AttributeType(FormEnum):
     NUMERIC = "Numeric"
     OPTION = "Option"
 
+class AttributeTextSettingType(FormEnum):
+    TA = "Text Area"
+    SF = "String Field"
+
 class AttributeElementType(FormEnum):
     ALL = "All"
     SAMPLE = "Sample"
