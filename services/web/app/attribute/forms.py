@@ -97,8 +97,8 @@ class AttributeCreationForm(FlaskForm):
         choices=AttributeType.choices(),
         description="The 'type' of data this attribute should represent."
     )
-    element = SelectField(
-        "Element",
+    element_type = SelectField(
+        "Element Type",
         choices=AttributeElementType.choices(),
         description="If required, you can limit what can use this attribute."
     )
@@ -128,9 +128,9 @@ class CustomTextAttributeCreationForm(FlaskForm):
 
 class CustomNumericAttributionCreationForm(FlaskForm):
     requires_measurement = BooleanField("Measurement?")
-    requires_prefix = BooleanField("Prefix?")
+    requires_symbol = BooleanField("Symbol?")
     measurement = SelectField("Measurement", choices=EnumFromOntology(units).choices())
-    prefix = SelectField("Prefix", choices=EnumFromOntology(prefixs).choices())
+    symbol = SelectField("Symbol", choices=EnumFromOntology(prefixs).choices())
     submit = SubmitField("Submit")
 
 

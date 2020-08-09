@@ -8,12 +8,11 @@
 
     <div class="container">
 
-
         <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
             <h1><i class="fab fa-buffer"></i> Attribute Portal</h1>
             <div class="btn-toolbar">
                 <div class="btn-group mr-2">
-                    <a href="{{ url_for('misc.index') }}">
+                    <a href="{{ url_for('attribute.new') }}">
                         <div class="btn btn-primary">
                             <i class="fas fa-plus"></i> Add Attribute
                         </div>
@@ -42,6 +41,21 @@
             </tr>
             </thead>
             <tbody>
+            {% for attribute in attributes %}
+                {{ attribute }}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('protocol.view', id=attribute.id) }}">
+                            <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
+                            </a>
+                    </td>
+                    <td>{{ attribute.type }}</td>
+                    <td>{{ attribute.element_type }}</td>
+                    <td>{{ render_author_for_table(attribute.author) }}</td>
+                    <td>{{ attribute.created_on }}</td>
+
+                </tr>
+            {% endfor %}
 
             </tbody>
         </table>

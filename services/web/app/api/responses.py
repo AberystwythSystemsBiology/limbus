@@ -15,27 +15,27 @@
 
 
 def not_found():
-    return {"success": False, "message": "Instance not found"}, 400
+    return {"success": False, "message": "Instance not found"}, 404, {"ContentType": "application/json"}
 
 
 def no_values_response():
-    return {"success": False, "message": "No input data provided"}, 400
+    return {"success": False, "message": "No input data provided"}, 400, {"ContentType": "application/json"}
 
 
 def validation_error_response(err):
-    return {"success": False, "messages": err.messages, "type": "Validation Error"}, 417
+    return {"success": False, "messages": err.messages, "type": "Validation Error"}, 417, {"ContentType": "application/json"}
 
 
 def transaction_error_response(err):
     try:
-        return {"success": False, "message": str(err.orig.diag.message_primary)}, 417
+        return {"success": False, "message": str(err.orig.diag.message_primary)}, 417, {"ContentType": "application/json"}
     except Exception:
-        return {"success": False, "message": str(err), "type": "Transaction Error"}, 417
+        return {"success": False, "message": str(err), "type": "Transaction Error"}, 417, {"ContentType": "application/json"}
 
 
 def success_with_content_response(content):
-    return {"success": True, "content": content}, 200
+    return {"success": True, "content": content}, 200, {"ContentType": "application/json"}
 
 
 def success_without_content_response():
-    return {"success": True}, 200
+    return {"success": True}, 200, {"ContentType": "application/json"}

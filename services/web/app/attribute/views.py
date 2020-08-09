@@ -46,6 +46,8 @@ class NewAttributeSchema(masql.SQLAlchemySchema):
 
     term = masql.auto_field()
     description = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
     type = EnumField(AttributeType)
     element_type = EnumField(AttributeElementType)
 

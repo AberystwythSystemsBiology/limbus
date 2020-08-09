@@ -16,16 +16,35 @@
         </h1>
 
 
-        <form action="{{ url_for('attribute.new_step_two', hash=hash) }}" method="POST">
+
+        {% if attribute_type != "OPTION" %}
+                    <form action="{{ url_for('attribute.new_step_two', hash=hash) }}" method="POST">
             {{ form.csrf_token() }}
 
             {% if attribute_type == "TEXT" %}
                 {{ form_field(form.max_length) }}
                 {{ form_field(form.type) }}
             {% elif attribute_type == "NUMERIC" %}
+                <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.requires_measurement) }}
+                    {{ form_field(form.measurement) }}
+
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.requires_symbol) }}
+                    {{ form_field(form.symbol) }}
+                </div>
+            </div>
             {% endif %}
             {{ form_field(form.submit) }}
         </form>
-
+    {% endif %}
     </div>
 {% endblock %}
+
+{% if attribute_type == "NUMERIC" %}
+    {% block javascript %}
+        <script src="{{ url_for('static', filename='js/attribute/add/numeric.js') }}"></script>
+    {% endblock %}
+{% endif %}

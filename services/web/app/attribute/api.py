@@ -34,7 +34,7 @@ from .views import (
 @token_required
 def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_attributes_schema.dumps(Attribute.query.all())
+        basic_attributes_schema.dump(Attribute.query.all())
     )
 
 @api.route("/attribute/new", methods=["POST"])
@@ -50,33 +50,34 @@ def attribute_new_attribute(tokenuser: UserAccount):
         attr_result = new_attribute_schema.load(attribute_information)
     except ValidationError as err:
         return validation_error_response(err)
-    
+
+
     try:
         if attribute_information["type"] == "TEXT":
-            text_information = values["text_information"]
+            text_information = values["additional_information"]
             suppl_result = new_attribute_text_setting_schema.load(text_information)
             suppl_obj = AttributeTextSetting
-    
         elif attribute_information["type"] == "NUMERIC":
-            numeric_information = values["numeric_information"]
+            numeric_information = values["additional_information"]
             suppl_result = new_attribute_numeric_setting_schema.load(numeric_information)
             suppl_obj = AttributeNumericSetting
     except ValidationError as err:
         return validation_error_response(err)
     
     new_attribute = Attribute(**attr_result)
-    new_attribute.created_by = tokenuser.id
+    new_attribute.author_id = tokenuser.id
 
     try:
         db.session.add(new_attribute)      
         db.session.flush()
 
-        new_suppl = suppl_obj(**suppl_result)
-        new_suppl.author_id = tokenuser.id
-        new_suppl.attribute_id = new_attribute.id
-        
-        db.session.add(new_suppl)
-        db.session.flush()
+        if attribute_information["type"] != "OPTION":
+            new_suppl = suppl_obj(**suppl_result)
+            new_suppl.author_id = tokenuser.id
+            new_suppl.attribute_id = new_attribute.id
+
+            db.session.add(new_suppl)
+            db.session.flush()
 
         db.session.commit()
 
