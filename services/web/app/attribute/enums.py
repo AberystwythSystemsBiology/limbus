@@ -21,8 +21,8 @@ class AttributeType(FormEnum):
     OPTION = "Option"
 
 class AttributeTextSettingType(FormEnum):
-    TA = "Text Area"
     SF = "String Field"
+    TA = "Text Area"
 
 class AttributeElementType(FormEnum):
     ALL = "All"

@@ -67,6 +67,8 @@ class NewAttributeNumericSettingSchema(masql.SQLAlchemySchema):
     symbol = masql.auto_field()
     measurement = masql.auto_field()
 
+new_attribute_numeric_setting_schema = NewAttributeNumericSettingSchema()
+
 class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeOption

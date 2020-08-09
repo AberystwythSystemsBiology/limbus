@@ -27,7 +27,7 @@ from wtforms import (
 
 from wtforms.validators import DataRequired, Length
 
-from .enums import *
+from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 from .. import db
 from .models import Attribute, AttributeOption, AttributeTextSetting
@@ -101,6 +101,21 @@ class AttributeCreationForm(FlaskForm):
         "Element",
         choices=AttributeElementType.choices(),
         description="If required, you can limit what can use this attribute."
+    )
+
+    submit = SubmitField("Submit")
+
+
+class AttributeTextSetting(FlaskForm):
+    max_length = IntegerField(
+        "Max Length",
+        validators=[DataRequired()],
+        description="The maximum number of characters allowed in the attribute."
+    )
+    type = SelectField(
+        "Text Entry Type",
+        choices=AttributeTextSettingType.choices(),
+        description="The type of user input expected. Tip: If you expect a large input, use the Text Area option."
     )
 
     submit = SubmitField("Submit")

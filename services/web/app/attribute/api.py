@@ -21,11 +21,13 @@ from flask import request, current_app
 from marshmallow import ValidationError
 
 from ..auth.models import UserAccount
-from .models import Attribute
+from .models import Attribute, AttributeTextSetting, AttributeNumericSetting
 from .views import (
     basic_attributes_schema,
     basic_attribute_schema,
-    new_attribute_schema
+    new_attribute_schema,
+    new_attribute_text_setting_schema,
+    new_attribute_numeric_setting_schema,
 )
 
 @api.route("/attribute")
@@ -43,27 +45,41 @@ def attribute_new_attribute(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    without_specifics = {k: v for (k, v) in values.items() if k in ["term", "description", "type", "element_type"]}
-
+    attribute_information = values["attribute_information"]
     try:
-        result = new_attribute_schema.load(without_specifics)
+        attr_result = new_attribute_schema.load(attribute_information)
     except ValidationError as err:
         return validation_error_response(err)
-
-    if without_specifics["type"] == "TEXT":
-        pass
-    elif without_specifics["type"] == "NUMERIC":
-        pass
-    else:
-        pass
-
-    new_attribute = Attribute(**result)
+    
+    try:
+        if attribute_information["type"] == "TEXT":
+            text_information = values["text_information"]
+            suppl_result = new_attribute_text_setting_schema.load(text_information)
+            suppl_obj = AttributeTextSetting
+    
+        elif attribute_information["type"] == "NUMERIC":
+            numeric_information = values["numeric_information"]
+            suppl_result = new_attribute_numeric_setting_schema.load(numeric_information)
+            suppl_obj = AttributeNumericSetting
+    except ValidationError as err:
+        return validation_error_response(err)
+    
+    new_attribute = Attribute(**attr_result)
     new_attribute.created_by = tokenuser.id
 
     try:
-        db.session.add(new_attribute)
-        db.session.commit()
+        db.session.add(new_attribute)      
         db.session.flush()
+
+        new_suppl = suppl_obj(**suppl_result)
+        new_suppl.author_id = tokenuser.id
+        new_suppl.attribute_id = new_attribute.id
+        
+        db.session.add(new_suppl)
+        db.session.flush()
+
+        db.session.commit()
+
         return success_with_content_response(
             basic_attribute_schema.dump(new_attribute)
         )

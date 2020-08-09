@@ -16,15 +16,17 @@
 from ..attribute import attribute
 
 from flask_login import current_user, login_required
-from flask import render_template, session, redirect, url_for, request, jsonify
+from flask import render_template, session, redirect, url_for, request, jsonify, abort
 
 from .forms import (
     AttributeCreationForm,
     CustomNumericAttributionCreationForm,
     CustomTextAttributeCreationForm,
+    AttributeTextSetting,
 )
 
 from .. import db
+import uuid
 
 from ..misc import get_internal_api_header
 
@@ -43,16 +45,46 @@ def index():
     else:
         return response.content
 
-@attribute.route("/new")
+@attribute.route("/new", methods=["GET", "POST"])
 @login_required
 def new():
     form = AttributeCreationForm()
     
     if form.validate_on_submit():
-        pass
+        hash = uuid.uuid4().hex
+
+        session["%s attribute_information" % (hash)] = {
+            "term": form.term.data,
+            "accession": form.term.data,
+            "ref": form.ref.data,
+            "description": form.description.data,
+            "type": form.type.data,
+            "element": form.element.data
+        }
+
+        return redirect(url_for("attribute.new_step_two", hash=hash))
+
     
     return render_template("attribute/new.html", form=form)
-    
+
+@attribute.route("/new/additional_information/<hash>", methods=["GET", "POST"])
+@login_required
+def new_step_two(hash):
+    try:
+        attribute_information = session["%s attribute_information" % (hash)]
+    except KeyError:
+        return abort(500)
+
+    attribute_type = attribute_information["type"]
+
+    if attribute_type == "TEXT":
+        form = AttributeTextSetting()
+
+
+    return render_template("attribute/new/additional.html", form=form, hash=hash, attribute_type=attribute_type)
+
+
+
 
 '''
 @attribute.route("/view/LIMBATTR-<attr_id>")
