@@ -62,15 +62,14 @@ from .misc import misc as misc_blueprint
 from .setup import setup as setup_blueprint
 from .auth import auth as auth_blueprint
 from .api import api as api_blueprint
+from .attribute import attribute as attribute_blueprint
 from .document import document as document_blueprint
 from .consent import consent as consent_blueprint
 from .protocol import protocol as protocol_blueprint
-from .attribute import attribute as attribute_blueprint
 from .sample import sample as sample_attribute
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
-
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -84,18 +83,20 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
 
+    # API blueprint
+    app.register_blueprint(api_blueprint, url_prefix="/api")
+
     # Blueprint Registers
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
     app.register_blueprint(document_blueprint, url_prefix="/document")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
-    app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
     app.register_blueprint(sample_attribute, url_prefix="/sample")
 
-    # API blueprint
-    app.register_blueprint(api_blueprint, url_prefix="/api")
+
     ## Specific to CMD.
     app.register_blueprint(cmd_setup_blueprint)
 

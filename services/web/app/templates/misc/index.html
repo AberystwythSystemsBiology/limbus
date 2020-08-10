@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Free your Biobank{% endblock %}
 
 {% block body %}
 
@@ -18,7 +18,6 @@
     </div>
 
     <div class="container">
-
         <div class="row text-center">
             <div class="col-lg-4">
                 <h1 class="fa fa-handshake"></h1>
@@ -26,19 +25,20 @@
                 <p>We believe in the unique combination of academic collaboration and the power of Free and Open
                     Source Software.</p>
                 <p><a class="btn btn-primary" href="{{ url_for('misc.team') }}" role="button">Meet the Team</a></p>
-            </div><!-- /.col-lg-4 -->
+            </div>
             <div class="col-lg-4">
                 <h1 class="fa fa-box-open"></h1>
                 <h2>Free and Open Source</h2>
                 <p>This project is proudly licensed under the terms of the GPLv3+.</p>
                 <p>This means that it will be free, forever.</p>
                 <p><a class="btn btn-primary" href="{{ url_for('misc.license') }}" role="button">View License</a></p>
-            </div><!-- /.col-lg-4 -->
+            </div>
             <div class="col-lg-4">
                 <a class="twitter-timeline" data-lang="en" data-dnt="true" href="https://twitter.com/limbus_bims?ref_src=twsrc%5Etfw">
                     Tweets by limbus_bims</a>
-            </div><!-- /.col-lg-4 -->
-        </div><!-- /.row -->
+            </div>
+        </div>
+        <h2>Who uses</h2>
     </div>
 {% endblock %}
 

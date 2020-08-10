@@ -13,34 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
-from ..enums import *
+from app import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
-class SamplePatientConsentFormTemplateAssociation(db.Model):
-    __tablename__ = "sample_pcf_associations"
+class SampleToConsent(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletoconsent"
 
-    id = db.Column(db.Integer, primary_key=True)
+    consent_identifier = db.Column(db.String(128))
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    template_id = db.Column(db.Integer, db.ForeignKey("consent_form_templates.id"))
-
-    consent_id = db.Column(db.String)
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
+    template = db.relationship("ConsentFormTemplate")
 
 
-class SamplePatientConsentFormAnswersAssociation(db.Model):
-    __tablename__ = "pcf_answers"
+class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampleconsentanswer"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    sample_pcf_association_id = db.Column(
-        db.Integer, db.ForeignKey("sample_pcf_associations.id")
-    )
-
+    association_id = db.Column(db.Integer, db.ForeignKey("sampletoconsent.id"))
     checked = db.Column(db.Integer, db.ForeignKey("consent_form_template_questions.id"))
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

@@ -13,16 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from app import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
-class SampleDocumentAssociation(db.Model):
-    __tablename__ = "sample_document_associations"
+class SampleDocument(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampledocument"
 
-    id = db.Column(db.Integer, primary_key=True)
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

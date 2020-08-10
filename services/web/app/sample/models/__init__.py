@@ -21,7 +21,7 @@ from ..enums import SampleType, SampleStatus, DisposalInstruction
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sample"
     uuid = db.Column(db.String(36))
-    barcode = db.Column(db.String)
+    barcode = db.Column(db.Text)
     type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)
     status = db.Column(db.Enum(SampleStatus))
@@ -43,7 +43,7 @@ class SampleDisposalInformation(Base, RefAuthorMixin, RefEditorMixin):
 class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampletodonor"
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 
 

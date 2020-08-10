@@ -18,7 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "subsample_to_samples"
+    __tablename__ = "subsampletosample"
 
-    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))

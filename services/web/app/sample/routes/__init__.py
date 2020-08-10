@@ -21,4 +21,4 @@ from flask_login import login_required
 @sample.route("/")
 @login_required
 def index() -> str:
-    return render_template("sample/information/index.html", samples={})
+    return render_template("sample/index.html", samples={})
