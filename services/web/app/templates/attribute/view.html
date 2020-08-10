@@ -39,7 +39,7 @@
 
             <div class="btn-group mr-2" role="group" aria-label="Second group">
                 <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                        class="btn btn-outline-dark" disabled>
+                        class="btn btn-outline-dark">
                     <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
                 </button>
             </div>
@@ -101,5 +101,35 @@
             {{ show_value(attribute.text_setting.type, "Entry Type", "textarea") }}
 
         {% endif %}
+    </div>
+
+     <!-- Modal -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock Attribute
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url_for('attribute.lock', id=attribute.id) }}" method="POST">
+                    {{ form.csrf_token() }}
+                    <div class="modal-body">
+                        <div class="alert alert-warning">
+                            Warning: This is a potentially destructive action.
+                        </div>
+                        {{ form_field(form.name) }}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success full-width" type="submit">Submit</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
     </div>
 {% endblock %}

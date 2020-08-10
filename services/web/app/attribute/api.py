@@ -149,7 +149,7 @@ def attribute_new_attribute(tokenuser: UserAccount):
 
 @api.route("/attribute/LIMBATTR-<id>/lock", methods=["POST"])
 @token_required
-def attribute_lock(id, tokenuser: UserAccount):
+def attribute_lock_attribute(id, tokenuser: UserAccount):
     attribute = Attribute.query.filter_by(id=id).first()
 
     if not attribute:

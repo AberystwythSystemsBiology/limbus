@@ -181,15 +181,18 @@ def view(id):
         headers=get_internal_api_header(),
     )
     if response.status_code == 200:
+
+        form = AttributeLockForm(id)
+
         return render_template(
-            "attribute/view.html", attribute=response.json()["content"]
+            "attribute/view.html", attribute=response.json()["content"], form=form
         )
     else:
         return response.content
 
 @attribute.route("/LIMBATTR-<id>/lock", methods=["GET", "POST"])
 @login_required
-def lock_attribute(id):
+def lock(id):
     response = requests.get(
         url_for("api.attribute_view_attribute", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -207,8 +210,7 @@ def lock_attribute(id):
                 return redirect(url_for("attribute.index"))
             else:
                 flash("We have a problem :( %s" % response.json())
-        return render_template("attribute/lock.html", option=response.json()["content"], form=form,
-                               attribute_id=id)
+        return render_template(url_for("attribute.view", id=id))
 
 
 @attribute.route("/LIMBATTR-<id>/option/<option_id>/lock", methods=["GET", "POST"])
@@ -218,8 +220,6 @@ def lock_option(id, option_id):
         url_for("api.attribute_view_attribute", id=id, _external=True),
         headers=get_internal_api_header(),
     )
-
-
 
     if response.status_code == 200:
         options = [str(c["id"]) for c in response.json()["content"]["options"]]
