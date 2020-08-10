@@ -51,7 +51,7 @@ def index():
             "document/index.html", documents=response.json()["content"]
         )
     else:
-        return response.content
+        return abort(response.status_code)
 
 
 @document.route("/new", methods=["GET", "POST"])

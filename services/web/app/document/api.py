@@ -16,6 +16,7 @@
 import os
 from ..api import api
 from ..api.responses import *
+from ..api.filters import generate_base_query_filters
 import io
 
 from .. import db
@@ -42,9 +43,15 @@ from .encryption import encrypt_document, decrypt_document
 @api.route("/document")
 @token_required
 def document_home(tokenuser: UserAccount):
+    filters, allowed = generate_base_query_filters(tokenuser, "view")
+
+    if not allowed:
+        return not_allowed()
+
     return success_with_content_response(
-        basic_documents_schema.dump(Document.query.all())
+        basic_documents_schema.dump(Document.query.filter_by(**filters).all())
     )
+
 
 
 @api.route("/document/<id>")

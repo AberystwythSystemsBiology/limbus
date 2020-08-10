@@ -19,6 +19,7 @@ from wtforms import (
     StringField,
     SelectField,
     SubmitField,
+    ValidationError,
     DateField,
     BooleanField,
     IntegerField,
@@ -26,6 +27,7 @@ from wtforms import (
 )
 
 from wtforms.validators import DataRequired, Length
+
 
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
@@ -159,6 +161,31 @@ class AttributeOptionCreationForm(FlaskForm):
     accession = StringField("Ontology Accession", render_kw={"disabled": ""})
     ref = StringField("Ontology Reference", render_kw={"disabled": ""})
     submit = SubmitField("Submit")
+
+
+
+def check_attribute_name(id):
+    def _check_attribute_name(form, field):
+        if field.data != "LIMBATTR-%s" % (str(id)):
+            raise ValidationError("Incorrect entry")
+    return _check_attribute_name
+
+
+def AttributeLockForm(id):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    setattr(
+        StaticForm,
+        "name",
+        StringField(
+            "Please enter LIMBATTR-%s to continue" % (str(id)),
+            [DataRequired(), check_attribute_name(id=id)],
+        ),
+    )
+
+    return StaticForm()
+
 
 
 """

@@ -43,7 +43,7 @@ from .views import (
 @token_required
 def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_attributes_schema.dump(Attribute.query.all())
+        basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
     )
 
 
@@ -145,6 +145,41 @@ def attribute_new_attribute(tokenuser: UserAccount):
         return success_with_content_response(basic_attribute_schema.dump(new_attribute))
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/attribute/LIMBATTR-<id>/lock", methods=["POST"])
+@token_required
+def attribute_lock(id, tokenuser: UserAccount):
+    attribute = Attribute.query.filter_by(id=id).first()
+
+    if not attribute:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    attribute.is_locked = not attribute.is_locked
+    attribute.editor_id = tokenuser.id
+    db.session.add(attribute)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(attribute_schema.dump(attribute))
+
+
+@api.route("/attribute/LIMBATTR-<id>/option/<option_id>/lock", methods=["POST"])
+@token_required
+def attribute_lock_option(id, option_id, tokenuser: UserAccount):
+    option = AttributeOption.query.filter_by(id=option_id, attribute_id=id).first()
+
+    if not option:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    option.is_locked = not option.is_locked
+    option.editor_id = tokenuser.id
+    db.session.add(option)
+    db.session.commit()
+    db.session.flush()
+
+    # TODO: Replace with an actual attribute option schema.
+    return success_with_content_response(new_attribute_option_schema.dump(option))
 
 
 @api.route("/attribute/LIMBATTR-<id>/edit", methods=["PUT"])

@@ -103,6 +103,7 @@
                 {{ attribute.value }}
             {% elif type == "datetime" %}
                 {{ attribute.strftime('%d-%m-%Y') }}
+
             {% else %}
                 {% if attribute == "" %}
                     Not Available

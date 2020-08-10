@@ -34,6 +34,7 @@ from .forms import (
     AttributeTextSetting,
     AttributeOptionCreationForm,
     AttributeEditForm,
+    AttributeLockForm,
 )
 
 from .. import db
@@ -185,6 +186,35 @@ def view(id):
         )
     else:
         return response.content
+
+@attribute.route("/LIMBATTR-<id>/option/<option_id>/lock", methods=["GET", "POST"])
+def lock_option(id, option_id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        options = [str(c["id"]) for c in response.json()["content"]["options"]]
+        if option_id in options:
+            form = AttributeLockForm(option_id)
+
+            if form.validate_on_submit():
+                lock_response = requests.post(
+                    url_for("api.attribute_lock_option", id=id, option_id=option_id, _external=True),
+                    headers=get_internal_api_header()
+                )
+
+                if lock_response.status_code == 200:
+                    return redirect(url_for("attribute.view", id=id))
+                else:
+                    flash("We have a problem :( %s" % response.json())
+
+            return render_template("attribute/lock_option.html", option=response.json()["content"], form=form, attribute_id=id, option_id=option_id)
+        else:
+            abort(404)
+    else:
+        return abort(response.status_code)
 
 @attribute.route("/LIMBATTR-<id>/edit", methods=["GET", "POST"])
 @login_required

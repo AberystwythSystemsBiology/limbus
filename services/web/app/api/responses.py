@@ -53,6 +53,13 @@ def transaction_error_response(err):
         )
 
 
+def not_allowed():
+    return (
+        {"success": True, "message": "Naughty naughty, you're not supposed to be here."},
+        401,
+        {"ContentType": "application/json"},
+    )
+
 def success_with_content_response(content):
     return (
         {"success": True, "content": content},

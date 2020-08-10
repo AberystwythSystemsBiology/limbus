@@ -28,7 +28,7 @@ from ..protocol.api import *
 from ..attribute.api import *
 
 from .responses import *
-
+from .filters import *
 
 @api.route("/")
 def api_doc():

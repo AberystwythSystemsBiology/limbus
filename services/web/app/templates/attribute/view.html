@@ -26,7 +26,6 @@
                 </div>
             <div class="btn-group mr-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
-
                     <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                             class="btn btn-outline-dark">
                         <i class="fa fa-list"></i> New Option
@@ -58,6 +57,8 @@
 
         <h2>Attribute Information</h2>
         {{ show_value(attribute.description, "Description", "textarea") }}
+        {{ show_value(attribute.type, "Type", "textarea") }}
+        {{ show_value(attribute.element_type, "Elements", "textarea") }}
 
         {% if attribute.type == "NUMERIC" %}
             <h2>Numeric Information</h2>
@@ -78,14 +79,18 @@
             </thead>
             <tbody>
             {% for option in attribute.options %}
+                {% if not option.is_locked %}
                 <tr>
                     <td>{{ option.term }}</td>
                     <td>{{ render_author_for_table(option.author) }}</td>
                     <td>{{ option.created_on }}</td>
                     <td>
+                        <a href="{{ url_for('attribute.lock_option', id=attribute.id, option_id=option.id) }}">
                         <div class="btn btn-sm btn-danger"><i class="fa fa-lock"></i> Lock</div>
+                        </a>
                     </td>
                 </tr>
+                {% endif %}
             {% endfor %}
 
             </tbody>
