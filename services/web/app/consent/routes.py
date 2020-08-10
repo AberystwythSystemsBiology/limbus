@@ -13,7 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import redirect, abort, render_template, url_for, session, flash, request, jsonify
+from flask import (
+    redirect,
+    abort,
+    render_template,
+    url_for,
+    session,
+    flash,
+    request,
+    jsonify,
+)
 
 from flask_login import current_user, login_required
 import requests
@@ -32,7 +41,9 @@ def index():
     )
 
     if response.status_code == 200:
-        return render_template("consent/index.html", templates=response.json()["content"])
+        return render_template(
+            "consent/index.html", templates=response.json()["content"]
+        )
     else:
         return response.content
 
@@ -41,7 +52,8 @@ def index():
 @login_required
 def view(id):
     response = requests.get(
-        url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
+        url_for("api.consent_view_template", id=id, _external=True),
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -58,13 +70,13 @@ def new_template():
         template_information = {
             "name": form.name.data,
             "description": form.description.data,
-            "version": form.version.data
+            "version": form.version.data,
         }
 
         response = requests.post(
             url_for("api.consent_new_template", _external=True),
             headers=get_internal_api_header(),
-            json=template_information
+            json=template_information,
         )
 
         if response.status_code == 200:
@@ -75,11 +87,13 @@ def new_template():
 
     return render_template("consent/new_template.html", form=form)
 
+
 @consent.route("/LIMBPCF-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_template(id):
     response = requests.get(
-        url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
+        url_for("api.consent_view_template", id=id, _external=True),
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -90,13 +104,13 @@ def edit_template(id):
             consent_info = {
                 "name": form.name.data,
                 "description": form.description.data,
-                "version": form.version.data
+                "version": form.version.data,
             }
 
             edit_response = requests.put(
                 url_for("api.consent_edit_template", id=id, _external=True),
                 headers=get_internal_api_header(),
-                json=consent_info
+                json=consent_info,
             )
 
             if edit_response.status_code == 200:
@@ -107,16 +121,20 @@ def edit_template(id):
 
         form = NewConsentFormTemplateForm(data=response.json()["content"])
 
-        return render_template("consent/edit_template.html", form=form, template=response.json()["content"])
+        return render_template(
+            "consent/edit_template.html", form=form, template=response.json()["content"]
+        )
 
     else:
         return response.content
+
 
 @consent.route("/LIMBPCF-<id>/question/new", methods=["GET", "POST"])
 @login_required
 def new_question(id):
     response = requests.get(
-        url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
+        url_for("api.consent_view_template", id=id, _external=True),
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -124,13 +142,13 @@ def new_question(id):
         if form.validate_on_submit():
             question_information = {
                 "question": form.question.data,
-                "type": form.type.data
+                "type": form.type.data,
             }
 
             question_response = requests.post(
                 url_for("api.consent_add_question", id=id, _external=True),
                 headers=get_internal_api_header(),
-                json=question_information
+                json=question_information,
             )
 
             if question_response.status_code == 200:
@@ -139,31 +157,42 @@ def new_question(id):
             else:
                 return question_response.content
 
-        return render_template("consent/new_question.html", form=form, template=response.json()["content"])
+        return render_template(
+            "consent/new_question.html", form=form, template=response.json()["content"]
+        )
     else:
         return response.content
+
 
 @consent.route("/LIMBPCF-<id>/question/<q_id>", methods=["GET", "POST"])
 def view_question(id, q_id):
     response = requests.get(
-        url_for("api.consent_view_template", id=id, _external=True), headers=get_internal_api_header()
+        url_for("api.consent_view_template", id=id, _external=True),
+        headers=get_internal_api_header(),
     )
     if response.status_code == 200:
         question_response = requests.get(
-            url_for("api.consent_view_question", id=id, q_id=q_id, _external=True), headers=get_internal_api_header()
+            url_for("api.consent_view_question", id=id, q_id=q_id, _external=True),
+            headers=get_internal_api_header(),
         )
 
         if question_response.status_code == 200:
-            return render_template("consent/view_question.html", template=response.json()["content"], question=question_response.json()["content"])
+            return render_template(
+                "consent/view_question.html",
+                template=response.json()["content"],
+                question=question_response.json()["content"],
+            )
 
     else:
         return response.content
+
 
 @consent.route("/LIMBPCF-<id>/question/<q_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_question(id, q_id):
     response = requests.get(
-        url_for("api.consent_view_question", id=id, q_id=q_id, _external=True), headers=get_internal_api_header()
+        url_for("api.consent_view_question", id=id, q_id=q_id, _external=True),
+        headers=get_internal_api_header(),
     )
     if response.status_code == 200:
 
@@ -171,13 +200,13 @@ def edit_question(id, q_id):
         if form.validate_on_submit():
             question_information = {
                 "question": form.question.data,
-                "type": form.type.data
+                "type": form.type.data,
             }
 
             edit_response = requests.put(
-                url_for("api.consent_edit_question", id=id, q_id=q_id, _external=True), 
+                url_for("api.consent_edit_question", id=id, q_id=q_id, _external=True),
                 headers=get_internal_api_header(),
-                json=question_information
+                json=question_information,
             )
 
             if edit_response.status_code == 200:
@@ -187,7 +216,12 @@ def edit_question(id, q_id):
                 flash("%s Error" % (edit_response.status_code))
                 return edit_response.content
         form = NewConsentFormQuestionForm(data=response.json()["content"])
-        return render_template("consent/edit_question.html", form=form, template=id, question=response.json()["content"])
+        return render_template(
+            "consent/edit_question.html",
+            form=form,
+            template=id,
+            question=response.json()["content"],
+        )
 
     else:
         return response.content

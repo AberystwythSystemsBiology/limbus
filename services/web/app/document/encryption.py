@@ -52,5 +52,3 @@ def decrypt_document(b_obj: bytes, checksum: str) -> dict:
 
     if _validate_checksum(doc, checksum):
         return doc
-
-

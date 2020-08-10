@@ -29,6 +29,7 @@ import requests
 
 from .forms import ProtocolCreationForm, MdeForm, DocumentAssociationForm
 
+
 @login_required
 @protocol.route("/")
 def index():
@@ -43,6 +44,7 @@ def index():
     else:
         return response.content
 
+
 @login_required
 @protocol.route("/new", methods=["GET", "POST"])
 def new():
@@ -52,13 +54,13 @@ def new():
             "name": form.name.data,
             "doi": form.doi.data,
             "description": form.description.data,
-            "type": form.type.data
+            "type": form.type.data,
         }
 
         response = requests.post(
             url_for("api.protocol_new_protocol", _external=True),
             headers=get_internal_api_header(),
-            json=protocol_information
+            json=protocol_information,
         )
 
         if response.status_code == 200:
@@ -69,15 +71,18 @@ def new():
 
     return render_template("protocol/new.html", form=form)
 
+
 @protocol.route("/LIMBPRO-<id>")
 @login_required
 def view(id):
     response = requests.get(
         url_for("api.protocol_view_protocol", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
     if response.status_code == 200:
-        return render_template("protocol/view.html", protocol=response.json()["content"])
+        return render_template(
+            "protocol/view.html", protocol=response.json()["content"]
+        )
     else:
         return response.content
 
@@ -87,7 +92,7 @@ def view(id):
 def edit(id):
     response = requests.get(
         url_for("api.protocol_view_protocol", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -103,7 +108,7 @@ def edit(id):
             edit_response = requests.put(
                 url_for("api.protocol_edit_protocol", id=id, _external=True),
                 headers=get_internal_api_header(),
-                json=protocol_information
+                json=protocol_information,
             )
 
             if edit_response.status_code == 200:
@@ -111,7 +116,9 @@ def edit(id):
                 return redirect(url_for("protocol.view", id=id))
             else:
                 flash("Error: %s" % response.json())
-        return render_template("protocol/edit.html", protocol=response.json()["content"], form=form)
+        return render_template(
+            "protocol/edit.html", protocol=response.json()["content"], form=form
+        )
     else:
         return response.content
 
@@ -121,7 +128,7 @@ def edit(id):
 def associate_document(id):
     response = requests.get(
         url_for("api.protocol_view_protocol", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
     if response.status_code == 200:
         form = DocumentAssociationForm()
@@ -129,13 +136,13 @@ def associate_document(id):
             association_information = {
                 "document_id": form.document.data,
                 "protocol_id": id,
-                "description": form.description.data
+                "description": form.description.data,
             }
 
             association_request = requests.post(
                 url_for("api.protocol_associate_document", id=id, _external=True),
                 headers=get_internal_api_header(),
-                json=association_information
+                json=association_information,
             )
 
             if association_request.status_code == 200:
@@ -144,7 +151,11 @@ def associate_document(id):
             else:
                 flash("Error: %s" % response.json())
 
-        return render_template("protocol/document_association.html", protocol=response.json()["content"], form=form)
+        return render_template(
+            "protocol/document_association.html",
+            protocol=response.json()["content"],
+            form=form,
+        )
     else:
         return response.content
 
@@ -154,20 +165,17 @@ def associate_document(id):
 def new_text(id):
     response = requests.get(
         url_for("api.protocol_view_protocol", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
     if response.status_code == 200:
         form = MdeForm()
         if form.validate_on_submit():
-            text_information = {
-                "type": form.type.data,
-                "text": form.editor.data
-            }
+            text_information = {"type": form.type.data, "text": form.editor.data}
 
             response = requests.post(
                 url_for("api.protocol_new_protocol_text", id=id, _external=True),
                 headers=get_internal_api_header(),
-                json=text_information
+                json=text_information,
             )
 
             if response.status_code == 200:
@@ -175,7 +183,8 @@ def new_text(id):
                 return redirect(url_for("protocol.view", id=id))
             else:
                 flash("Error: %s - %s" % (response.status_code))
-        return render_template("protocol/new_text.html", form=form, protocol=response.json()["content"])
+        return render_template(
+            "protocol/new_text.html", form=form, protocol=response.json()["content"]
+        )
     else:
         return response.content
-

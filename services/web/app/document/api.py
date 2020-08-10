@@ -46,6 +46,7 @@ def document_home(tokenuser: UserAccount):
         basic_documents_schema.dump(Document.query.all())
     )
 
+
 @api.route("/document/<id>")
 @token_required
 def document_view_document(id: int, tokenuser: UserAccount):
@@ -131,7 +132,6 @@ def document_new_document(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-
 @api.route("/document/LIMBDOC-<id>/file/new", methods=["POST"])
 @token_required
 def document_upload_file(id, tokenuser: UserAccount):
@@ -173,6 +173,7 @@ def document_upload_file(id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/document/LIMBDOC-<id>/<file_id>/lock", methods=["POST"])
 @token_required
 def document_file_lock(id, file_id, tokenuser: UserAccount):
@@ -200,4 +201,9 @@ def document_file_get(id, file_id):
 
     f = open(file.path, "rb").read()
     document = decrypt_document(f, file.checksum)
-    return send_file(io.BytesIO(document), as_attachment=True, attachment_filename=file.name), 200
+    return (
+        send_file(
+            io.BytesIO(document), as_attachment=True, attachment_filename=file.name
+        ),
+        200,
+    )

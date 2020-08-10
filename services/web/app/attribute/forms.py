@@ -79,29 +79,28 @@ class EnumFromOntology:
         return [(term.id, term.name) for term in self.ontology_list]
 
 
-
 class AttributeCreationForm(FlaskForm):
-    
+
     term = StringField(
         "Attribute Term",
         validators=[DataRequired()],
-        description="A word or phrase used to describe a thing or to express a concept."
+        description="A word or phrase used to describe a thing or to express a concept.",
     )
-    accession = StringField("Ontology Accession", render_kw={"disabled":""})
-    ref = StringField("Ontology Reference", render_kw={"disabled":""})
+    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
     description = TextAreaField(
         "Attribute Description",
-        description="An optional description of the custom attribute."
+        description="An optional description of the custom attribute.",
     )
     type = SelectField(
         "Attribute Type",
         choices=AttributeType.choices(),
-        description="The 'type' of data this attribute should represent."
+        description="The 'type' of data this attribute should represent.",
     )
     element_type = SelectField(
         "Element Type",
         choices=AttributeElementType.choices(),
-        description="If required, you can limit what can use this attribute."
+        description="If required, you can limit what can use this attribute.",
     )
 
     submit = SubmitField("Submit")
@@ -111,12 +110,12 @@ class AttributeTextSetting(FlaskForm):
     max_length = IntegerField(
         "Max Length",
         validators=[DataRequired()],
-        description="The maximum number of characters allowed in the attribute."
+        description="The maximum number of characters allowed in the attribute.",
     )
     type = SelectField(
         "Text Entry Type",
         choices=AttributeTextSettingType.choices(),
-        description="The type of user input expected. Tip: If you expect a large input, use the Text Area option."
+        description="The type of user input expected. Tip: If you expect a large input, use the Text Area option.",
     )
 
     submit = SubmitField("Submit")
@@ -134,17 +133,19 @@ class CustomNumericAttributionCreationForm(FlaskForm):
     symbol = SelectField("Symbol", choices=EnumFromOntology(prefixs).choices())
     submit = SubmitField("Submit")
 
+
 class AttributeOptionCreationForm(FlaskForm):
     term = StringField(
         "Option Term",
         validators=[DataRequired()],
-        description="A word or phrase used to describe a thing or to express a concept."
+        description="A word or phrase used to describe a thing or to express a concept.",
     )
-    accession = StringField("Ontology Accession", render_kw={"disabled":""})
-    ref = StringField("Ontology Reference", render_kw={"disabled":""})
+    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
     submit = SubmitField("Submit")
 
-'''
+
+"""
 def CustomAttributeSelectForm(
     element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL,
 ) -> FlaskForm:
@@ -213,4 +214,4 @@ def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
         setattr(StaticForm, str(attr.id), field)
 
     return StaticForm()
-'''
+"""

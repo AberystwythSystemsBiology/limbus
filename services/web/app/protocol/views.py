@@ -26,8 +26,8 @@ import markdown
 
 from ..auth.views import BasicUserAccountSchema
 
-class MarkdownField(fields.Field):
 
+class MarkdownField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         return markdown.Markdown().convert(value)
 
@@ -45,8 +45,10 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
+
 basic_protocol_template_schema = BasicProtocolTemplateSchema()
 basic_protocol_templates_schema = BasicProtocolTemplateSchema(many=True)
+
 
 class NewProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -58,8 +60,10 @@ class NewProtocolTemplateSchema(masql.SQLAlchemySchema):
     type = EnumField(ProtocolType)
     doi = masql.auto_field()
 
+
 new_protocol_template_schema = NewProtocolTemplateSchema()
 new_protocol_templates_schema = NewProtocolTemplateSchema(many=True)
+
 
 class BasicProtocolTextSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -71,8 +75,10 @@ class BasicProtocolTextSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
+
 basic_protocol_text_schema = BasicProtocolTextSchema()
 basic_protocol_texts_schema = BasicProtocolTextSchema(many=True)
+
 
 class NewProtocolTemplateToDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -82,7 +88,9 @@ class NewProtocolTemplateToDocumentSchema(masql.SQLAlchemySchema):
     document_id = masql.auto_field()
     description = masql.auto_field()
 
+
 new_protocol_template_to_document_schema = NewProtocolTemplateToDocumentSchema()
+
 
 class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -97,6 +105,7 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
     created_on = ma.Date()
 
+
 protocol_template_schema = ProtocolTemplateSchema()
 protocol_templates_schema = ProtocolTemplateSchema(many=True)
 
@@ -107,6 +116,7 @@ class NewProtocolTextSchema(masql.SQLAlchemySchema):
 
     text = masql.auto_field()
     type = EnumField(ProtocolTextType)
+
 
 new_protocol_text_schema = NewProtocolTextSchema()
 new_protocol_texts_schema = NewProtocolTextSchema(many=True)

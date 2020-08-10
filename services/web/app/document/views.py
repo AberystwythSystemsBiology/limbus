@@ -24,6 +24,7 @@ from .enums import DocumentType
 from ..auth.views import BasicUserAccountSchema
 from ..protocol.views import BasicProtocolTemplateSchema
 
+
 class NewDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document

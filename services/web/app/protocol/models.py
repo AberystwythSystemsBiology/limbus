@@ -28,18 +28,26 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
     description = db.Column(db.Text())
     doi = db.Column(db.String(64))
     texts = db.relationship("ProtocolText", uselist=True)
-    documents = db.relationship("Document", uselist=True, secondary='protocoltemplatetodocument')
+    documents = db.relationship(
+        "Document", uselist=True, secondary="protocoltemplatetodocument"
+    )
+
 
 class ProtocolTemplateToDocument(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "protocoltemplatetodocument"
 
     description = db.Column(db.Text, nullable=True)
-    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)
+    protocol_id = db.Column(
+        db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
+    )
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=False)
+
 
 class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "processingtemplatematerialsandreagents"
 
     text = db.Column(db.Text(), nullable=False)
     type = db.Column(db.Enum(ProtocolTextType))
-    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)
+    protocol_id = db.Column(
+        db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
+    )

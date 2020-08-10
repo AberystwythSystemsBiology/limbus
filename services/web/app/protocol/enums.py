@@ -15,6 +15,7 @@
 
 from ..FormEnum import FormEnum
 
+
 class ProtocolTextType(FormEnum):
     MATE = "Materials and Reagents"
     EQUP = "Equipment"
@@ -23,12 +24,14 @@ class ProtocolTextType(FormEnum):
     RECP = "Recipes"
     ANAL = "Data Analysis"
 
+
 class ProtocolType(FormEnum):
     ASS = "Experimental Assay"
     ACQ = "Sample Acquisition"
     ALD = "Sample Aliquoting / Derivation"
     STR = "Sample Transfer"
     SDE = "Sample Destruction"
+
 
 class FluidLongTermStorage(FormEnum):
     A = "PP tube 0.5-2mL @ -85 to -60°C"

@@ -22,11 +22,11 @@ from marshmallow import ValidationError
 
 from ..auth.models import UserAccount
 from .models import (
-        Attribute,
-        AttributeTextSetting,
-        AttributeNumericSetting,
-        AttributeOption,
-        )
+    Attribute,
+    AttributeTextSetting,
+    AttributeNumericSetting,
+    AttributeOption,
+)
 
 from .views import (
     attribute_schema,
@@ -49,6 +49,7 @@ def attribute_home(tokenuser: UserAccount):
         basic_attributes_schema.dump(Attribute.query.all())
     )
 
+
 @api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
 @token_required
 def attribute_view_attribute(id, tokenuser: UserAccount):
@@ -56,23 +57,30 @@ def attribute_view_attribute(id, tokenuser: UserAccount):
         attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
     )
 
+
 @api.route("/attribute/LIMBATTR-<id>/option/new", methods=["POST"])
 @token_required
 def attribute_new_option(id, tokenuser: UserAccount):
-    response, status_code, application = attribute_view_attribute(id=id, tokenuser=tokenuser)   
+    response, status_code, application = attribute_view_attribute(
+        id=id, tokenuser=tokenuser
+    )
     print(status_code)
 
     if status_code != 200:
         return response.status_code
-    
+
     elif response["content"]["type"] != "OPTION":
-        return {"success": False, "messages": "Not an option value"}, 500, {"ContentType": "application/json"}
+        return (
+            {"success": False, "messages": "Not an option value"},
+            500,
+            {"ContentType": "application/json"},
+        )
 
     values = request.get_json()
 
     if not values:
         return no_values_response()
-    
+
     try:
         option_result = new_attribute_option_schema.load(values)
     except ValidationError as err:
@@ -84,13 +92,13 @@ def attribute_new_option(id, tokenuser: UserAccount):
     try:
         db.session.add(new_option)
         db.session.commit()
-        
+
         return success_with_content_response(
-                attribute_schema.dump(Attribute.query.filter_by(id=id).first())
-                )
+            attribute_schema.dump(Attribute.query.filter_by(id=id).first())
+        )
     except Exception as err:
         return transaction_error_response(err)
-    
+
 
 @api.route("/attribute/new", methods=["POST"])
 @token_required
@@ -107,7 +115,6 @@ def attribute_new_attribute(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-
     try:
         if attribute_information["type"] == "TEXT":
             text_information = values["additional_information"]
@@ -115,16 +122,18 @@ def attribute_new_attribute(tokenuser: UserAccount):
             suppl_obj = AttributeTextSetting
         elif attribute_information["type"] == "NUMERIC":
             numeric_information = values["additional_information"]
-            suppl_result = new_attribute_numeric_setting_schema.load(numeric_information)
+            suppl_result = new_attribute_numeric_setting_schema.load(
+                numeric_information
+            )
             suppl_obj = AttributeNumericSetting
     except ValidationError as err:
         return validation_error_response(err)
-    
+
     new_attribute = Attribute(**attr_result)
     new_attribute.author_id = tokenuser.id
 
     try:
-        db.session.add(new_attribute)      
+        db.session.add(new_attribute)
         db.session.flush()
 
         if attribute_information["type"] != "OPTION":
@@ -137,8 +146,6 @@ def attribute_new_attribute(tokenuser: UserAccount):
 
         db.session.commit()
 
-        return success_with_content_response(
-            basic_attribute_schema.dump(new_attribute)
-        )
+        return success_with_content_response(basic_attribute_schema.dump(new_attribute))
     except Exception as err:
         return transaction_error_response(err)

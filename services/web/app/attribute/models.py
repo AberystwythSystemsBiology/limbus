@@ -17,6 +17,7 @@ from app import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
+
 class Attribute(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "attribute"
 
@@ -32,6 +33,7 @@ class Attribute(Base, RefAuthorMixin, RefEditorMixin):
 
     type = db.Column(db.Enum(AttributeType))
     element_type = db.Column(db.Enum(AttributeElementType))
+
 
 class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "customattributetextsetting"

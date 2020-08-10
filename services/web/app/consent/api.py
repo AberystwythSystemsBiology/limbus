@@ -36,6 +36,7 @@ from .views import (
 from ..auth.models import UserAccount
 from .models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
+
 @api.route("/consent")
 @token_required
 def consent_home(tokenuser: UserAccount):
@@ -43,12 +44,16 @@ def consent_home(tokenuser: UserAccount):
         basic_consent_form_templates_schema.dump(ConsentFormTemplate.query.all())
     )
 
+
 @api.route("/consent/LIMBPCF-<id>")
 @token_required
 def consent_view_template(id, tokenuser: UserAccount):
     return success_with_content_response(
-        consent_form_template_schema.dump(ConsentFormTemplate.query.filter_by(id=id).first())
+        consent_form_template_schema.dump(
+            ConsentFormTemplate.query.filter_by(id=id).first()
+        )
     )
+
 
 @api.route("/consent/new_template", methods=["POST"])
 @token_required
@@ -76,6 +81,7 @@ def consent_new_template(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/content/LIMBPCF-<id>/edit", methods=["PUT"])
 @token_required
 def consent_edit_template(id, tokenuser: UserAccount):
@@ -100,9 +106,12 @@ def consent_edit_template(id, tokenuser: UserAccount):
         db.session.add(template)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(basic_consent_form_template_schema.dump(template))
+        return success_with_content_response(
+            basic_consent_form_template_schema.dump(template)
+        )
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/consent/LIMBPCF-<id>/lock", methods=["PUT"])
 @token_required
@@ -119,7 +128,10 @@ def consent_lock_template(id: int, tokenuser: UserAccount):
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(basic_consent_form_template_schema.dump(template))
+    return success_with_content_response(
+        basic_consent_form_template_schema.dump(template)
+    )
+
 
 @api.route("/consent/LIMBPCF-<id>/question/new", methods=["POST"])
 @token_required
@@ -146,9 +158,12 @@ def consent_add_question(id, tokenuser: UserAccount):
         db.session.add(new_question)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(basic_consent_form_question_schema.dump(new_question))
+        return success_with_content_response(
+            basic_consent_form_question_schema.dump(new_question)
+        )
     except Exception as err:
         return validation_error_response(err)
+
 
 @api.route("/consent/LIMBPCF-<id>/question/<q_id>/edit", methods=["PUT"])
 @token_required
@@ -163,7 +178,9 @@ def consent_edit_question(id, q_id, tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    question = ConsentFormTemplateQuestion.query.filter_by(id=q_id, template_id=id).first()
+    question = ConsentFormTemplateQuestion.query.filter_by(
+        id=q_id, template_id=id
+    ).first()
 
     for attr, value in values.items():
         setattr(question, attr, value)
@@ -174,7 +191,9 @@ def consent_edit_question(id, q_id, tokenuser: UserAccount):
         db.session.add(question)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(basic_consent_form_question_schema.dump(question))
+        return success_with_content_response(
+            basic_consent_form_question_schema.dump(question)
+        )
     except Exception as err:
         return transaction_error_response(err)
 
@@ -183,5 +202,7 @@ def consent_edit_question(id, q_id, tokenuser: UserAccount):
 @token_required
 def consent_view_question(id, q_id, tokenuser: UserAccount):
     return success_with_content_response(
-        consent_form_question_schema.dump(ConsentFormTemplateQuestion.query.filter_by(id=q_id, template_id=id).first())
+        consent_form_question_schema.dump(
+            ConsentFormTemplateQuestion.query.filter_by(id=q_id, template_id=id).first()
+        )
     )

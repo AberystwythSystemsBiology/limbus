@@ -15,6 +15,7 @@
 
 from ..FormEnum import FormEnum
 
+
 class SubSampleType(FormEnum):
     ALI = "Aliquot"
     DER = "Derivative"

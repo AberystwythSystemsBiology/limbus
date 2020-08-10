@@ -17,12 +17,16 @@ from app import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin
 from .enums import QuestionType
 
+
 class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "consentformtemplate"
     name = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(2048))
     version = db.Column(db.String(64))
-    questions = db.relationship("ConsentFormTemplateQuestion", backref="consentformtemplate")
+    questions = db.relationship(
+        "ConsentFormTemplateQuestion", backref="consentformtemplate"
+    )
+
 
 class ConsentFormTemplateQuestion(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "consentformtemplatequestion"
@@ -30,4 +34,6 @@ class ConsentFormTemplateQuestion(Base, RefAuthorMixin, RefEditorMixin):
     type = db.Column(db.Enum(QuestionType), nullable=False)
 
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
-    template = db.relationship("ConsentFormTemplate", backref="consentformtemplatequestion")
+    template = db.relationship(
+        "ConsentFormTemplate", backref="consentformtemplatequestion"
+    )

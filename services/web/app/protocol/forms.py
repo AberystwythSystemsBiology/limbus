@@ -29,12 +29,12 @@ from wtforms import (
 )
 
 
-
 from wtforms.validators import DataRequired, EqualTo, URL, Optional, Length
 from flask_mde import Mde, MdeField
 
 from .enums import ProtocolType, ProtocolTextType
 from ..misc import get_internal_api_header
+
 
 class ProtocolCreationForm(FlaskForm):
     name = StringField(
@@ -44,8 +44,7 @@ class ProtocolCreationForm(FlaskForm):
     )
 
     description = TextAreaField(
-        "Description",
-        description="A brief description of the Protocol."
+        "Description", description="A brief description of the Protocol."
     )
 
     type = SelectField(
@@ -57,17 +56,17 @@ class ProtocolCreationForm(FlaskForm):
     doi = StringField(
         "Digital Object Identifier (DOI)",
         validators=[URL(), Optional()],
-        description="The persistent identifier or handle used to identify objects uniquely."
+        description="The persistent identifier or handle used to identify objects uniquely.",
     )
 
     description = StringField("Document Description")
 
     submit = SubmitField("Submit")
 
+
 class MdeForm(FlaskForm):
     type = SelectField(
-        "Protocol Text Type",
-        choices=[(x.name, x.value) for x in ProtocolTextType],
+        "Protocol Text Type", choices=[(x.name, x.value) for x in ProtocolTextType],
     )
 
     editor = MdeField()
@@ -81,8 +80,7 @@ def DocumentAssociationForm() -> FlaskForm:
         submit = SubmitField("Submit")
 
     response = requests.get(
-        url_for("api.document_home", _external=True),
-        headers=get_internal_api_header()
+        url_for("api.document_home", _external=True), headers=get_internal_api_header()
     )
 
     documents = []
@@ -92,9 +90,7 @@ def DocumentAssociationForm() -> FlaskForm:
             documents.append([doc["id"], "LIMBDOC-%i: %s" % (doc["id"], doc["name"])])
 
     setattr(
-        StaticForm,
-        "document",
-        SelectField("Document", choices=documents, coerce=int),
+        StaticForm, "document", SelectField("Document", choices=documents, coerce=int),
     )
 
     return StaticForm()

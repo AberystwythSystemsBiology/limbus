@@ -16,6 +16,7 @@
 from app import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
+
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "subsample_to_samples"
 

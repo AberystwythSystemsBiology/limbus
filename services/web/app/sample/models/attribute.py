@@ -16,6 +16,7 @@
 from app import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
+
 class SampleToCustomAttributeTextValue(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampletocustomattributetextvalue"
 
@@ -38,4 +39,3 @@ class SampleToCustomAttributeOptionValue(Base, RefAuthorMixin, RefEditorMixin):
     option_id = db.Column(db.Integer, db.ForeignKey("customattributeoption.id"))
     attribute_id = db.Column(db.Integer, db.ForeignKey("customattribute.id"))
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-

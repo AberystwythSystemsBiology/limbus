@@ -18,7 +18,6 @@ from flask import render_template, wrappers
 from flask_login import login_required
 
 
-
 @sample.route("/")
 @login_required
 def index() -> str:

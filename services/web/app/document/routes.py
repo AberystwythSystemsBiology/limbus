@@ -38,6 +38,7 @@ from ..misc import get_internal_api_header
 import requests
 import re
 
+
 @login_required
 @document.route("/")
 def index():
@@ -197,8 +198,15 @@ def view_file(id, file_id):
     )
 
     if response.status_code == 200:
-        d = response.headers['content-disposition']
+        d = response.headers["content-disposition"]
         fname = re.findall("filename=(.+)", d)[0]
-        return send_file(io.BytesIO(response.content), as_attachment=True, attachment_filename=fname), 200
+        return (
+            send_file(
+                io.BytesIO(response.content),
+                as_attachment=True,
+                attachment_filename=fname,
+            ),
+            200,
+        )
     else:
         return response.content

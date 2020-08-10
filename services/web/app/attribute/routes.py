@@ -16,7 +16,16 @@
 from ..attribute import attribute
 
 from flask_login import current_user, login_required
-from flask import render_template, session, redirect, url_for, request, jsonify, abort, flash
+from flask import (
+    render_template,
+    session,
+    redirect,
+    url_for,
+    request,
+    jsonify,
+    abort,
+    flash,
+)
 
 from .forms import (
     AttributeCreationForm,
@@ -33,6 +42,7 @@ from ..misc import get_internal_api_header
 
 import requests
 
+
 @attribute.route("/")
 @login_required
 def index():
@@ -41,15 +51,18 @@ def index():
     )
 
     if response.status_code == 200:
-        return render_template("attribute/index.html", attributes=response.json()["content"])
+        return render_template(
+            "attribute/index.html", attributes=response.json()["content"]
+        )
     else:
         return response.content
+
 
 @attribute.route("/new", methods=["GET", "POST"])
 @login_required
 def new():
     form = AttributeCreationForm()
-    
+
     if form.validate_on_submit():
         hash = uuid.uuid4().hex
 
@@ -59,13 +72,13 @@ def new():
             "ref": form.ref.data,
             "description": form.description.data,
             "type": form.type.data,
-            "element_type": form.element_type.data
+            "element_type": form.element_type.data,
         }
 
         return redirect(url_for("attribute.new_step_two", hash=hash))
 
-    
     return render_template("attribute/new.html", form=form)
+
 
 @attribute.route("/new/additional_information/<hash>", methods=["GET", "POST"])
 @login_required
@@ -87,7 +100,7 @@ def new_step_two(hash):
         if form.validate_on_submit():
             additional_information = {
                 "max_length": form.max_length.data,
-                "type": form.type.data
+                "type": form.type.data,
             }
             submit = True
 
@@ -96,7 +109,7 @@ def new_step_two(hash):
         if form.validate_on_submit():
             additional_information = {
                 "measurement": form.measurement.data,
-                "symbol": form.symbol.data
+                "symbol": form.symbol.data,
             }
             submit = True
 
@@ -106,24 +119,30 @@ def new_step_two(hash):
             headers=get_internal_api_header(),
             json={
                 "attribute_information": attribute_information,
-                "additional_information": additional_information
-            }
+                "additional_information": additional_information,
+            },
         )
 
         if response.status_code == 200:
             flash("Submitted")
             return redirect(url_for("attribute.index"))
         else:
-            flash("Something has happened :( %s" % response.json() )
+            flash("Something has happened :( %s" % response.json())
 
-    return render_template("attribute/new/additional.html", form=form, hash=hash, attribute_type=attribute_type)
+    return render_template(
+        "attribute/new/additional.html",
+        form=form,
+        hash=hash,
+        attribute_type=attribute_type,
+    )
+
 
 @attribute.route("/LIMBATTR-<id>/option/new", methods=["GET", "POST"])
 @login_required
 def new_option(id):
     response = requests.get(
         url_for("api.attribute_view_attribute", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code != 200:
@@ -135,31 +154,33 @@ def new_option(id):
         option_values = {
             "ref": form.ref.data,
             "accession": form.accession.data,
-            "term": form.term.data
+            "term": form.term.data,
         }
 
         submit_response = requests.post(
             url_for("api.attribute_new_option", id=id, _external=True),
             headers=get_internal_api_header(),
-            json=option_values
+            json=option_values,
         )
-        
 
         if submit_response.status_code == 200:
             flash("Option added")
             return redirect(url_for("attribute.view", id=id))
         else:
-            flash("Something has happened :( %s" % response.json() )
+            flash("Something has happened :( %s" % response.json())
     return render_template("attribute/new/option.html", form=form, attribute_id=id)
+
 
 @attribute.route("/LIMBATTR-<id>")
 @login_required
 def view(id):
     response = requests.get(
         url_for("api.attribute_view_attribute", id=id, _external=True),
-        headers = get_internal_api_header()
+        headers=get_internal_api_header(),
     )
     if response.status_code == 200:
-        return render_template("attribute/view.html", attribute=response.json()["content"])
+        return render_template(
+            "attribute/view.html", attribute=response.json()["content"]
+        )
     else:
         return response.content

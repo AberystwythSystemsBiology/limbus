@@ -68,7 +68,6 @@ class DocumentCreationForm(FlaskForm):
     )
     description = StringField("Document Description")
 
-
     type = SelectField(
         "Document Type",
         validators=[DataRequired()],

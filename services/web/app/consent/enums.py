@@ -15,6 +15,7 @@
 
 from ..FormEnum import FormEnum
 
+
 class QuestionType(FormEnum):
     STND = "Standard"
     ELEC = "Electronic Storage"

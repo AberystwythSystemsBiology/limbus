@@ -14,9 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, DateField, BooleanField, TextAreaField
+from wtforms import (
+    SelectField,
+    StringField,
+    SubmitField,
+    DateField,
+    BooleanField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired
 from .enums import QuestionType
+
 
 class NewConsentFormTemplateForm(FlaskForm):
     name = StringField(
@@ -25,18 +33,19 @@ class NewConsentFormTemplateForm(FlaskForm):
         description="Descriptive name/title for the Consent Form Template",
     )
 
-    description = TextAreaField(
-        "Description"
-    )
+    description = TextAreaField("Description")
 
-    version = StringField(
-        "Template Version", description="Version of the Protocol"
-    )
+    version = StringField("Template Version", description="Version of the Protocol")
 
     submit = SubmitField("Submit")
+
 
 class NewConsentFormQuestionForm(FlaskForm):
     question = TextAreaField("Question", validators=[DataRequired()])
     # TODO: Fill this out!!
-    type = SelectField("Question Type", description="Something here detailing what each of these does and why.", choices=QuestionType.choices())
+    type = SelectField(
+        "Question Type",
+        description="Something here detailing what each of these does and why.",
+        choices=QuestionType.choices(),
+    )
     submit = SubmitField("Submit")

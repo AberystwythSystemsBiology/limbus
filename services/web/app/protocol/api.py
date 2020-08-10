@@ -32,10 +32,11 @@ from .views import (
     protocol_template_schema,
     new_protocol_text_schema,
     basic_protocol_text_schema,
-    new_protocol_template_to_document_schema
+    new_protocol_template_to_document_schema,
 )
 
 from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
+
 
 @api.route("/protocol")
 @token_required
@@ -44,10 +45,11 @@ def protocol_home(tokenuser: UserAccount):
         basic_protocol_templates_schema.dump(ProtocolTemplate.query.all())
     )
 
+
 @api.route("/protocol/new", methods=["POST"])
 @token_required
 def protocol_new_protocol(tokenuser: UserAccount):
-    
+
     values = request.get_json()
 
     if not values:
@@ -67,10 +69,11 @@ def protocol_new_protocol(tokenuser: UserAccount):
         db.session.flush()
 
         return success_with_content_response(
-                basic_protocol_template_schema.dump(new_protocol)
-                )
+            basic_protocol_template_schema.dump(new_protocol)
+        )
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/protocol/LIMBPRO-<id>/edit", methods=["PUT"])
 @token_required
@@ -79,29 +82,32 @@ def protocol_edit_protocol(id, tokenuser: UserAccount):
 
     if not protocol:
         return not_found()
-    
+
     values = request.get_json()
-    
+
     if not values:
         return no_values_response()
-    
+
     try:
         result = new_protocol_template_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-    
+
     for attr, value in values.items():
         setattr(protocol, attr, value)
-    
+
     protocol.editor_id = tokenuser.id
-    
+
     try:
         db.session.add(protocol)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(basic_protocol_template_schema.dump(protocol))
+        return success_with_content_response(
+            basic_protocol_template_schema.dump(protocol)
+        )
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/protocol/LIMBPRO-<id>/text/new", methods=["POST"])
 @token_required
@@ -116,7 +122,6 @@ def protocol_new_protocol_text(id, tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-
     new_text = ProtocolText(**result)
     new_text.protocol_id = id
     new_text.author_id = tokenuser.id
@@ -126,11 +131,10 @@ def protocol_new_protocol_text(id, tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(
-            basic_protocol_text_schema.dump(new_text)
-        )
+        return success_with_content_response(basic_protocol_text_schema.dump(new_text))
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/protocol/LIMBPRO-<id>")
 @token_required
@@ -138,6 +142,7 @@ def protocol_view_protocol(id, tokenuser: UserAccount):
     return success_with_content_response(
         protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
     )
+
 
 @api.route("/protocol/LIMBPRO-<id>/doc/assign", methods=["POST"])
 @token_required
@@ -166,9 +171,12 @@ def protocol_associate_document(id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/protocol/LIMBPRO-<id>/text/<t_id>", methods=["GET"])
 @token_required
 def protocol_view_text(id, t_id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_protocol_text_schema.dump(ProtocolText.query.filter_by(id=t_id, protocol_id=id).first())
+        basic_protocol_text_schema.dump(
+            ProtocolText.query.filter_by(id=t_id, protocol_id=id).first()
+        )
     )

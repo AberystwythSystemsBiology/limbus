@@ -30,6 +30,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     is_closed = db.Column(db.Boolean)
     disposal_information = db.relationship("SampleDisposalInformation")
 
+
 class SampleDisposalInformation(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampledisposalinstruction"
     id = db.Column(db.Integer, primary_key=True)

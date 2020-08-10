@@ -15,14 +15,17 @@
 
 from ..FormEnum import FormEnum
 
+
 class AttributeType(FormEnum):
     TEXT = "Text"
     NUMERIC = "Numeric"
     OPTION = "Option"
 
+
 class AttributeTextSettingType(FormEnum):
     SF = "String Field"
     TA = "Text Area"
+
 
 class AttributeElementType(FormEnum):
     ALL = "All"

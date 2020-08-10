@@ -15,6 +15,7 @@
 
 from ..FormEnum import FormEnum
 
+
 class DocumentType(FormEnum):
     PATHO = "Pathology Report"
     MANUE = "Device Manual"

@@ -15,7 +15,12 @@
 
 from .. import ma
 from flask import url_for
-from .models import Attribute, AttributeTextSetting, AttributeNumericSetting, AttributeOption
+from .models import (
+    Attribute,
+    AttributeTextSetting,
+    AttributeNumericSetting,
+    AttributeOption,
+)
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -24,6 +29,7 @@ from marshmallow_enum import EnumField
 from ..auth.views import BasicUserAccountSchema
 
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
+
 
 class BasicAttributeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -37,8 +43,10 @@ class BasicAttributeSchema(masql.SQLAlchemySchema):
     type = EnumField(AttributeType)
     element_type = EnumField(AttributeElementType)
 
+
 basic_attribute_schema = BasicAttributeSchema()
 basic_attributes_schema = BasicAttributeSchema(many=True)
+
 
 class NewAttributeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -51,7 +59,9 @@ class NewAttributeSchema(masql.SQLAlchemySchema):
     type = EnumField(AttributeType)
     element_type = EnumField(AttributeElementType)
 
+
 new_attribute_schema = NewAttributeSchema()
+
 
 class NewAttributeTextSettingSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -60,7 +70,9 @@ class NewAttributeTextSettingSchema(masql.SQLAlchemySchema):
     max_length = masql.auto_field()
     type = EnumField(AttributeTextSettingType)
 
+
 new_attribute_text_setting_schema = NewAttributeTextSettingSchema()
+
 
 class NewAttributeNumericSettingSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -69,18 +81,9 @@ class NewAttributeNumericSettingSchema(masql.SQLAlchemySchema):
     symbol = masql.auto_field()
     measurement = masql.auto_field()
 
+
 new_attribute_numeric_setting_schema = NewAttributeNumericSettingSchema()
 
-class NewAttributeOptionSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = AttributeOption
-
-    term = masql.auto_field()
-    accession = masql.auto_field()
-    ref = masql.auto_field()
-
-new_attribute_option_schema = NewAttributeOptionSchema()
-new_attribute_options_schema = NewAttributeOptionSchema(many=True)
 
 class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -90,8 +93,23 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     accession = masql.auto_field()
     ref = masql.auto_field()
 
+
 new_attribute_option_schema = NewAttributeOptionSchema()
 new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeOption
+
+    term = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+
+
+new_attribute_option_schema = NewAttributeOptionSchema()
+new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+
 
 class AttributeSchema(masql.SQLAlchemySchema):
     class Meta:

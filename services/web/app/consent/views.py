@@ -23,6 +23,7 @@ from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
 
+
 class NewConsentFormTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ConsentFormTemplate
@@ -31,8 +32,10 @@ class NewConsentFormTemplateSchema(masql.SQLAlchemySchema):
     version = masql.auto_field()
     description = masql.auto_field()
 
+
 new_consent_form_template_schema = NewConsentFormTemplateSchema()
 new_consent_form_templates_schema = NewConsentFormTemplateSchema(many=True)
+
 
 class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -41,7 +44,9 @@ class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
     question = masql.auto_field()
     type = EnumField(QuestionType)
 
+
 new_consent_form_question_schema = NewConsentFormQuestionSchema()
+
 
 class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -53,8 +58,10 @@ class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 
+
 basic_consent_form_template_schema = BasicConsentFormTemplateSchema()
 basic_consent_form_templates_schema = BasicConsentFormTemplateSchema(many=True)
+
 
 class ConsentFormQuestionSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -66,18 +73,21 @@ class ConsentFormQuestionSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 
+
 consent_form_question_schema = ConsentFormQuestionSchema()
 consent_form_questions_schema = ConsentFormQuestionSchema(many=True)
 
+
 class BasicConsentFormQuestionSchema(masql.SQLAlchemySchema):
     class Meta:
-        model= ConsentFormTemplateQuestion
+        model = ConsentFormTemplateQuestion
 
     id = masql.auto_field()
     question = masql.auto_field()
     type = EnumField(QuestionType)
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
+
 
 basic_consent_form_question_schema = BasicConsentFormQuestionSchema()
 basic_consent_form_questions_schema = BasicConsentFormQuestionSchema(many=True)
@@ -95,6 +105,6 @@ class ConsentFormTemplateSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     questions = ma.Nested(BasicConsentFormQuestionSchema(many=True))
 
+
 consent_form_template_schema = ConsentFormTemplateSchema()
 consent_form_templates_schema = ConsentFormTemplateSchema(many=True)
-
