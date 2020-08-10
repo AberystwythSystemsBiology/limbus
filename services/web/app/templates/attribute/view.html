@@ -35,7 +35,29 @@
 
         {% elif attribute.type == "OPTION" %}
             <h2>Option Information</h2>
-	    {{ attribute.options }}
+
+            <table id="option" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Term</th>
+                <th>Uploader</th>
+                <th>Created On</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for option in attribute.options %}
+                <tr>
+                    <td>{{ option.term }}</td>
+                    <td>{{ render_author_for_table(option.author) }}</td>
+                    <td>{{ option.created_on }}</td>
+                    <td>Lock?</td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
         {% endif %}
     </div>
 {% endblock %}
