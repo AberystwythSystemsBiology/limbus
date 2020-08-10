@@ -114,9 +114,9 @@ def lock(id):
             )
             if lock_response.status_code == 200:
                 flash("Document Successfully Locked")
+                return redirect(url_for("document.index"))
             else:
                 flash("We have a problem: %s" % (lock_response.json()))
-            return redirect(url_for("document.view", id=id))
 
     else:
         return redirect(url_for("document.view", id=id))
