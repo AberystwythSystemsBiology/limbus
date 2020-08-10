@@ -31,6 +31,24 @@
                         </button>
                     </a>
                 </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('protocol.new_text', id=protocol.id) }}">
+
+                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            class="btn btn-outline-dark">
+                        <i class="fa fa-list"></i> New Text
+                    </button>
+                </a>
+            </div>
+                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('protocol.associate_document', id=protocol.id) }}">
+
+                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            class="btn btn-outline-dark">
+                        <i class="fas fa-file"></i> Associate Document
+                    </button>
+                </a>
+            </div>
             {% endif %}
 
             <div class="btn-group mr-2" role="group" aria-label="Second group">
@@ -40,15 +58,9 @@
                 </button>
             </div>
 
-            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <a href="{{ url_for('protocol.associate_document', id=protocol.id) }}">
 
-                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                            class="btn btn-outline-dark">
-                        <i class="fas fa-file"></i> Associate Document
-                    </button>
-                </a>
-            </div>
+
+
         </div>
 
 

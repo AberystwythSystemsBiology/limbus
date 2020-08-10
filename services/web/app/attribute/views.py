@@ -63,6 +63,18 @@ class NewAttributeSchema(masql.SQLAlchemySchema):
 new_attribute_schema = NewAttributeSchema()
 
 
+class EditAttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
+
+    term = masql.auto_field()
+    description = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+
+edit_attribute_schema = EditAttributeSchema()
+
+
 class NewAttributeTextSettingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeTextSetting
@@ -123,6 +135,7 @@ class AttributeOptionSchema(masql.SQLAlchemySchema):
 
 attribute_option_schema = AttributeOptionSchema()
 attribute_options_schema = AttributeOptionSchema(many=True)
+
 
 class AttributeSchema(masql.SQLAlchemySchema):
     class Meta:

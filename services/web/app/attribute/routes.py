@@ -33,6 +33,7 @@ from .forms import (
     CustomTextAttributeCreationForm,
     AttributeTextSetting,
     AttributeOptionCreationForm,
+    AttributeEditForm,
 )
 
 from .. import db
@@ -181,6 +182,39 @@ def view(id):
     if response.status_code == 200:
         return render_template(
             "attribute/view.html", attribute=response.json()["content"]
+        )
+    else:
+        return response.content
+
+@attribute.route("/LIMBATTR-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        form = AttributeEditForm()
+        if form.validate_on_submit():
+            edit_response = requests.put(
+                url_for("api.attribute_edit_attribute", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "ref": form.ref.data,
+                    "term": form.term.data,
+                    "accession": form.accession.data,
+                    "description": form.description.data
+                }
+            )
+
+            if edit_response.status_code == 200:
+                return redirect(url_for("attribute.view", id=id))
+            else:
+                flash("We have encountered an error :( %s" % response.json())
+        form = AttributeEditForm(data=response.json()["content"])
+        return render_template(
+            "attribute/edit.html", attribute_id=id, form=form
         )
     else:
         return response.content

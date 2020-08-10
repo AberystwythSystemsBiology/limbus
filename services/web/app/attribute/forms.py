@@ -79,6 +79,22 @@ class EnumFromOntology:
         return [(term.id, term.name) for term in self.ontology_list]
 
 
+class AttributeEditForm(FlaskForm):
+    term = StringField(
+        "Attribute Term",
+        validators=[DataRequired()],
+        description="A word or phrase used to describe a thing or to express a concept.",
+    )
+    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+    description = TextAreaField(
+        "Attribute Description",
+        description="An optional description of the custom attribute.",
+    )
+
+
+    submit = SubmitField("Submit")
+
 class AttributeCreationForm(FlaskForm):
 
     term = StringField(

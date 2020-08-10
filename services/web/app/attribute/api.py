@@ -36,11 +36,8 @@ from .views import (
     new_attribute_text_setting_schema,
     new_attribute_numeric_setting_schema,
     new_attribute_option_schema,
+    edit_attribute_schema,
 )
-
-import requests
-from ..misc import get_internal_api_header
-
 
 @api.route("/attribute", methods=["GET"])
 @token_required
@@ -64,7 +61,6 @@ def attribute_new_option(id, tokenuser: UserAccount):
     response, status_code, application = attribute_view_attribute(
         id=id, tokenuser=tokenuser
     )
-    print(status_code)
 
     if status_code != 200:
         return response.status_code
@@ -147,5 +143,33 @@ def attribute_new_attribute(tokenuser: UserAccount):
         db.session.commit()
 
         return success_with_content_response(basic_attribute_schema.dump(new_attribute))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/attribute/LIMBATTR-<id>/edit", methods=["PUT"])
+@token_required
+def attribute_edit_attribute(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = edit_attribute_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    attribute = Attribute.query.filter_by(id=id).first_or_404()
+    attribute.editor_id = tokenuser.id
+
+    for attr, value in values.items():
+        setattr(attribute, attr, value)
+
+    try:
+        db.session.add(attribute)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(basic_attribute_schema.dump(attribute))
     except Exception as err:
         return transaction_error_response(err)
