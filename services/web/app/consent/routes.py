@@ -90,7 +90,7 @@ def new_template():
 
 @consent.route("/LIMBPCF-<id>/edit", methods=["GET", "POST"])
 @login_required
-def edit_template(id):
+def edit(id):
     response = requests.get(
         url_for("api.consent_view_template", id=id, _external=True),
         headers=get_internal_api_header(),

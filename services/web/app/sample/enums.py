@@ -20,7 +20,6 @@ class SubSampleType(FormEnum):
     ALI = "Aliquot"
     DER = "Derivative"
 
-
 class SampleType(FormEnum):
     FLU = "Fluid"
     CEL = "Cell"

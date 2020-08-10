@@ -66,6 +66,7 @@ from .document import document as document_blueprint
 from .consent import consent as consent_blueprint
 from .protocol import protocol as protocol_blueprint
 from .attribute import attribute as attribute_blueprint
+from .sample import sample as sample_attribute
 
 # Flask-manage imports:
 from .commands import cmd_setup as cmd_setup_blueprint
@@ -91,6 +92,7 @@ def create_app():
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
     app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
+    app.register_blueprint(sample_attribute, url_prefix="/sample")
 
     # API blueprint
     app.register_blueprint(api_blueprint, url_prefix="/api")
