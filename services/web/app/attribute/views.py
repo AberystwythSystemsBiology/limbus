@@ -131,6 +131,7 @@ class AttributeOptionSchema(masql.SQLAlchemySchema):
     accession = masql.auto_field()
     ref = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
+    is_locked = ma.auto_field()
     created_on = fields.Date()
 
 attribute_option_schema = AttributeOptionSchema()
