@@ -17,7 +17,6 @@
 def not_found():
     return {"success": False, "message": "Instance not found"}, 404, {"ContentType": "application/json"}
 
-
 def no_values_response():
     return {"success": False, "message": "No input data provided"}, 400, {"ContentType": "application/json"}
 

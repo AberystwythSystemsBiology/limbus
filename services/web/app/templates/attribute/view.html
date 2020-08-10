@@ -6,37 +6,36 @@
 
     <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fab fa-buffer"></i> Attribute</span>LIMBATTR-{{ attribute.id }}</h1>
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('attribute.index') }}">
+                    <i class="fab fa-buffer"></i> Attribute Portal
+                </a>
+            </span>LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
+        </h1>
 
-        
-        {{ show_value(attribute.term, "Term", "text")  }}
-        {{ show_value(attribute.description, "Description", "text")  }}
-        {{ show_value(attribute.type, "Type", "text")  }}
-        {{ show_value(attribute.accession, "Accession", "text")  }}
-        {{ show_value(attribute.required, "Required", "text")  }}
-        {{ show_value(attribute.user_information.email, "Creator", "text")  }}
-
-
-        {% if attribute.type == "Option" %}
-            <h4><i class="fab fa-buffer"></i> Option Information</h4>
-
-            {% for o_id, option in attribute.option_info.items() %}
-
-                <div class="list-group-item flex-column align-items-start">
-                <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">
-                  Attribute {{loop.index}}
-                </h5>
+            <div class="row text-muted">
+            <div class="col-6">
+            </div>
+            <div class="col-6 text-right">
+                <i class="fa fa-calendar"></i> Created On: {{ attribute.created_on }}
+                <div class="clearfix"></div>
+                <i class="fa fa-user"></i> Created By: {{ render_author_for_table(attribute.author) }}
+            </div>
 
         </div>
-            <p class="mb-1">
-                {{ option.term }}
-            </p>
-        </div>
-            {% endfor %}
+
+        <h2>Attribute Information</h2>
+        {{ show_value(attribute.description, "Description", "textarea") }}
+
+        {% if attribute.type == "NUMERIC" %}
+            <h2>Numeric Information</h2>
+            {{ show_value(attribute.numeric_setting.measurement, "Measurement", "textarea") }}
+            {{ show_value(attribute.numeric_setting.symbol, "Symbol", "textarea") }}
+
+        {% elif attribute.type == "OPTION" %}
+            <h2>Option Information</h2>
+	    {{ attribute.options }}
         {% endif %}
-
-
-
     </div>
 {% endblock %}

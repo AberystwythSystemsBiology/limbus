@@ -42,10 +42,9 @@
             </thead>
             <tbody>
             {% for attribute in attributes %}
-                {{ attribute }}
                 <tr>
                     <td>
-                        <a href="{{ url_for('protocol.view', id=attribute.id) }}">
+                        <a href="{{ url_for('attribute.view', id=attribute.id) }}">
                             <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
                             </a>
                     </td>

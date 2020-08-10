@@ -81,3 +81,33 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
 
 new_attribute_option_schema = NewAttributeOptionSchema()
 new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeOption
+
+    term = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+
+new_attribute_option_schema = NewAttributeOptionSchema()
+new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+
+class AttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
+
+    id = masql.auto_field()
+    term = masql.auto_field()
+    description = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = fields.Date()
+    type = EnumField(AttributeType)
+    element_type = EnumField(AttributeElementType)
+    numeric_setting = ma.Nested(NewAttributeNumericSettingSchema)
+    text_setting = ma.Nested(NewAttributeTextSettingSchema)
+    options = ma.Nested(NewAttributeOptionSchema(many=True))
+
+
+attribute_schema = AttributeSchema()
+attributes_schema = AttributeSchema(many=True)

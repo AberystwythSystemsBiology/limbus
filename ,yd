@@ -80,8 +80,7 @@ class EnumFromOntology:
 
 
 
-class AttributeCreationForm(FlaskForm):
-    
+class AttributeCreationForm(FlaskForm): 
     term = StringField(
         "Attribute Term",
         validators=[DataRequired()],
@@ -135,14 +134,7 @@ class CustomNumericAttributionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class AttributeOptionCreationForm(FlaskForm):
-    term = StringField(
-        "Option Term",
-        validators=[DataRequired()],
-        description="A word or phrase used to describe a thing or to express a concept."
-    )
-    accession = StringField("Ontology Accession", render_kw={"disabled":""})
-    ref = StringField("Ontology Reference", render_kw={"disabled":""})
-    submit = SubmitField("Submit")
+    term = StringField("term")
 
 '''
 def CustomAttributeSelectForm(

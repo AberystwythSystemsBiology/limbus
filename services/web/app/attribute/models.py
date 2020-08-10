@@ -26,6 +26,10 @@ class Attribute(Base, RefAuthorMixin, RefEditorMixin):
     ref = db.Column(db.String(64))
     required = db.Column(db.Boolean(), default=False)
 
+    text_setting = db.relationship("AttributeTextSetting", uselist=False)
+    numeric_setting = db.relationship("AttributeNumericSetting", uselist=False)
+    options = db.relationship("AttributeOption")
+
     type = db.Column(db.Enum(AttributeType))
     element_type = db.Column(db.Enum(AttributeElementType))
 
@@ -33,13 +37,13 @@ class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "customattributetextsetting"
     max_length = db.Column(db.Integer, nullable=False)
     type = db.Column(db.Enum(AttributeTextSettingType))
-    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
 
 
 class AttributeNumericSetting(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "attributenumericsetting"
 
-    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
     measurement = db.Column(db.String(32))
     symbol = db.Column(db.String(32))
 

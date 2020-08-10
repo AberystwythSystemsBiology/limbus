@@ -23,6 +23,7 @@ from .forms import (
     CustomNumericAttributionCreationForm,
     CustomTextAttributeCreationForm,
     AttributeTextSetting,
+    AttributeOptionCreationForm,
 )
 
 from .. import db
@@ -117,9 +118,48 @@ def new_step_two(hash):
 
     return render_template("attribute/new/additional.html", form=form, hash=hash, attribute_type=attribute_type)
 
+@attribute.route("/LIMBATTR-<id>/option/new", methods=["GET", "POST"])
+@login_required
+def new_option(id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code != 200:
+        return response.content
 
-@attribute.route("/view/LIMBATTR-<id>")
+    form = AttributeOptionCreationForm()
+
+    if form.validate_on_submit():
+        option_values = {
+            "ref": form.ref.data,
+            "accession": form.accession.data,
+            "term": form.term.data
+        }
+
+        submit_response = requests.post(
+            url_for("api.attribute_new_option", id=id, _external=True),
+            headers=get_internal_api_header(),
+            json=option_values
+        )
+        
+
+        if submit_response.status_code == 200:
+            flash("Option added")
+            return redirect(url_for("attribute.view", id=id))
+        else:
+            flash("Something has happened :( %s" % response.json() )
+    return render_template("attribute/new/option.html", form=form, attribute_id=id)
+
+@attribute.route("/LIMBATTR-<id>")
 @login_required
 def view(id):
-    return render_template("attribute/view.html", attribute={})
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers = get_internal_api_header()
+    )
+    if response.status_code == 200:
+        return render_template("attribute/view.html", attribute=response.json()["content"])
+    else:
+        return response.content

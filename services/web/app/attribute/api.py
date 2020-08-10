@@ -17,29 +17,85 @@ from ..api import api, db
 from ..api.responses import *
 from ..decorators import token_required
 
-from flask import request, current_app
+from flask import request, current_app, url_for
 from marshmallow import ValidationError
 
 from ..auth.models import UserAccount
-from .models import Attribute, AttributeTextSetting, AttributeNumericSetting
+from .models import (
+        Attribute,
+        AttributeTextSetting,
+        AttributeNumericSetting,
+        AttributeOption,
+        )
+
 from .views import (
+    attribute_schema,
     basic_attributes_schema,
     basic_attribute_schema,
     new_attribute_schema,
     new_attribute_text_setting_schema,
     new_attribute_numeric_setting_schema,
+    new_attribute_option_schema,
 )
 
-@api.route("/attribute")
+import requests
+from ..misc import get_internal_api_header
+
+
+@api.route("/attribute", methods=["GET"])
 @token_required
 def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_attributes_schema.dump(Attribute.query.all())
     )
 
+@api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
+@token_required
+def attribute_view_attribute(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
+    )
+
+@api.route("/attribute/LIMBATTR-<id>/option/new", methods=["POST"])
+@token_required
+def attribute_new_option(id, tokenuser: UserAccount):
+    response, status_code, application = attribute_view_attribute(id=id, tokenuser=tokenuser)   
+    print(status_code)
+
+    if status_code != 200:
+        return response.status_code
+    
+    elif response["content"]["type"] != "OPTION":
+        return {"success": False, "messages": "Not an option value"}, 500, {"ContentType": "application/json"}
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+    
+    try:
+        option_result = new_attribute_option_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_option = AttributeOption(**option_result)
+    new_option.author_id = tokenuser.id
+    new_option.attribute_id = id
+    try:
+        db.session.add(new_option)
+        db.session.commit()
+        
+        return success_with_content_response(
+                attribute_schema.dump(Attribute.query.filter_by(id=id).first())
+                )
+    except Exception as err:
+        return transaction_error_response(err)
+    
+
 @api.route("/attribute/new", methods=["POST"])
 @token_required
 def attribute_new_attribute(tokenuser: UserAccount):
+
     values = request.get_json()
 
     if not values:
