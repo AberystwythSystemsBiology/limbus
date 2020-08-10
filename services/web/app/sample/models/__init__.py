@@ -47,6 +47,13 @@ class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 
 
+class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "subsampletosample"
+
+    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+
+
 from .processing import *
 from .attribute import *
 from .types import *

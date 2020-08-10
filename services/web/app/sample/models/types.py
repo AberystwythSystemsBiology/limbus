@@ -13,78 +13,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from app import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
+
 from ..enums import *
 
 
-class SampleToFluidSampleType(db.Model):
-    __tablename__ = "sample_to_fluid_sample_types"
+class SampleToFluidSampleType(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletofluidsampletype"
 
-    id = db.Column(db.Integer, primary_key=True)
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    type = db.Column(db.Enum(FluidSampleType))
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    sample_type = db.Column(db.Enum(FluidSampleType))
+class SampleToMolecularSampleType(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletomolecularsampletype"
 
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    type = db.Column(db.Enum(MolecularSampleType))
 
 
-class SampleToMolecularSampleType(db.Model):
-    __tablename__ = "sample_to_molecular_sample_types"
+class SampleToCellSampleType(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletocellsampletype"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    sample_type = db.Column(db.Enum(MolecularSampleType))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    type = db.Column(db.Enum(CellSampleType))
 
 
-class SampleToCellSampleType(db.Model):
-    __tablename__ = "sample_to_cell_sample_types"
+class SampleToTissueSampleType(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletotissuesampletype"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    sample_type = db.Column(db.Enum(CellSampleType))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-
-class SampleToTissueSampleType(db.Model):
-    __tablename__ = "sample_to_tissue_sample_types"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("samples.id"))
-    sample_type = db.Column(db.Enum(TissueSampleType))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    type = db.Column(db.Enum(TissueSampleType))
