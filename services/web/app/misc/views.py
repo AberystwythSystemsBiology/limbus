@@ -21,9 +21,6 @@ from .. import ma
 
 from ..auth.views import BasicUserAccountSchema
 
-from ..sample.models import Sample
-
-
 class NewAddressSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Address
@@ -88,8 +85,3 @@ class BasicSiteSchema(masql.SQLAlchemySchema):
 
 basic_site_schema = BasicSiteSchema()
 basic_sites_schema = BasicSiteSchema(many=True)
-
-class PanelInformation():
-    sample_count = Sample.query.count()
-
-panel_information = PanelInformation()
