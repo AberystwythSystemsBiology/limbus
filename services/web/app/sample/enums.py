@@ -27,7 +27,7 @@ class Colour(FormEnum):
     RED = "Red"
     GRE = "Green"
     YEL = "Yellow"
-    GRE = "Grey"
+    GRY = "Grey"
 
 class Source(FormEnum):
     NEW = "New"

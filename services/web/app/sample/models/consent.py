@@ -32,12 +32,17 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
-    answers = db.relationship("ConsentFormTemplateQuestion", secondary="sampleconsentanswer", uselist=True)
+    answers = db.relationship(
+        "ConsentFormTemplateQuestion",
+        primaryjoin="SampleConsentAnswer.association_id == SampleConsent.id",
+        secondary="sampleconsentanswer",
+        uselist=True
+    )
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampleconsentanswer"
 
-    association_id = db.Column(db.Integer, db.ForeignKey("sampletoconsent.id"))
+    association_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
     checked = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
 

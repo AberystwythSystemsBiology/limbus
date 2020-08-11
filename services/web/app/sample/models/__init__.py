@@ -44,38 +44,11 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     comments = db.Column(db.Text, nullable=True)
     quality = db.Column(db.Enum(Quality))
 
-    site_id = db.Column(db.Integer, db.ForeignKey("site.id"))
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     is_closed = db.Column(db.Boolean, default=False)
 
-    disposal_information = db.relationship("SampleDisposal")
     #donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
-    protocols = db.relationship(
-        "SampleProtocolTemplate",
-        uselist=True
-    )
-
-    documents = db.relationship(
-        "Document",
-        uselist=True,
-        secondary="sampledocument"
-    )
-
-    consent = db.relationship("SampleConsent", uselist=False)
-
-    parent_sample = db.relationship(
-        "Sample",
-        uselist=False,
-        secondary="subsampletosample",
-        primaryjoin="Sample.id==SubSampleToSample.subsample_id"
-    )
-
-    child_samples = db.relationship(
-        "Sample",
-        uselist=True,
-        secondary="subsampletosample",
-        primaryjoin="Sample.id==SubSampleToSample.parent_id"
-    )
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
@@ -98,11 +71,11 @@ class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "subsampletosample"
 
-    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
 
-from .protocool import *
+from .protocol import *
 from .attribute import *
 from .types import *
 from .consent import *

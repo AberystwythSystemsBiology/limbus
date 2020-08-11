@@ -14,14 +14,27 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .. import sample
-from flask import render_template, wrappers
+from flask import render_template, url_for, abort
 from flask_login import login_required
 
+from ...misc import get_internal_api_header
+
+
+import requests
 
 @sample.route("/")
 @login_required
 def index() -> str:
-    return render_template("sample/index.html", samples={})
+
+    response = requests.get(
+        url_for("api.sample_home", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("sample/index.html", samples={})
+    else:
+        return abort(response.status_code)
 
 @sample.route("/biohazard")
 @login_required

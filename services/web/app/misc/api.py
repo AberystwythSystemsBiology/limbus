@@ -30,6 +30,7 @@ from .views import (
     basic_address_schema,
     basic_addresses_schema,
     basic_site_schema,
+    panel_information,
 )
 
 from .models import Address, SiteInformation
@@ -40,7 +41,6 @@ from ..auth.models import UserAccount
 @token_required
 def address_home(tokenuser: UserAccount):
     return success_with_content_response(basic_addresses_schema(Address.query.all()))
-
 
 @api.route("/misc/address/new", methods=["POST"])
 @token_required
@@ -66,7 +66,7 @@ def misc_new_address(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/mis/site/new", methods=["POST"])
+@api.route("/misc/site/new", methods=["POST"])
 @token_required
 def misc_new_site(tokenuser: UserAccount):
     values = request.get_json()
@@ -89,3 +89,7 @@ def misc_new_site(tokenuser: UserAccount):
         return success_with_content_response(basic_site_schema.dumps(new_site))
     except Exception as err:
         return transaction_error_response(err)
+
+@api.route("/misc/panel")
+def misc_panel_home():
+    return success_with_content_response(panel_information.dumps())

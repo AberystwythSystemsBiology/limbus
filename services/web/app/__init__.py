@@ -96,7 +96,6 @@ def create_app():
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
     app.register_blueprint(sample_attribute, url_prefix="/sample")
 
-
     ## Specific to CMD.
     app.register_blueprint(cmd_setup_blueprint)
 

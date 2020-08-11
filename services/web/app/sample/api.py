@@ -13,28 +13,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import treepoem
+from ..api import api
+from ..api.responses import *
+from ..decorators import token_required
+from ..auth.models import UserAccount
 
-from flask import send_file
+from .views import (
+    basic_samples_schema,
+)
 
-from . import sample
-from flask_login import login_required
-
-
-from io import StringIO, BytesIO
-
-from tempfile import NamedTemporaryFile
+from .models import Sample
 
 
-@sample.route("view/LIMBSMP-<sample_id>/barcode/<attr>")
-@login_required
-def get_barcode(sample_id: int, attr: str):
-    sample = {"barcode": "Hello WOrld"}
-
-    img = treepoem.generate_barcode(barcode_type="qrcode", data=str(sample[attr]))
-
-    img_io = BytesIO()
-    img.save(img_io, format="JPEG")
-    img_io.seek(0)
-
-    return send_file(img_io, mimetype="image/jpeg")
+@api.route("/sample", methods=["GET"])
+@token_required
+def sample_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_samples_schema.dump(Sample.query.filter_by().all())
+    )

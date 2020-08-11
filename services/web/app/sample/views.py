@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,13 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin
+from .. import db, ma
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
 
-class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampleprotocolevent"
+from ..auth.views import BasicUserAccountSchema
 
-    date = db.Column(db.Date)
-    undertaken_by = db.Column(db.String(128))
+from .models import Sample
 
-    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
+class BasicSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    id = masql.auto_field()
+
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+
+basic_sample_schema = BasicSampleSchema()
+basic_samples_schema = BasicSampleSchema(many=True)
