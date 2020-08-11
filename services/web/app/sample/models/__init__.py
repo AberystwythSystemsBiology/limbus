@@ -20,7 +20,9 @@ from ..enums import SampleType, SampleStatus, DisposalInstruction, Colour, Sourc
 
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sample"
+    # TODO: Automated population.
     uuid = db.Column(db.String(36))
+
     barcode = db.Column(db.Text)
 
     source = db.Column(db.Enum(Source))
