@@ -20,6 +20,10 @@ from app import db
 @as_declarative()
 class BaseModel(object):
 
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
     id = db.Column(db.Integer, primary_key=True)
 
     created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
@@ -32,3 +36,5 @@ class BaseModel(object):
         server_onupdate=db.func.now(),
         nullable=False,
     )
+
+Base = declartive_base(cls=BaseModel)
