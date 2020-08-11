@@ -20,7 +20,7 @@ misc = Blueprint("misc", __name__)
 
 from .models import SiteInformation
 
-from .. import db
+from ..database import db
 from itertools import islice
 
 

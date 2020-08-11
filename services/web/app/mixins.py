@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from sqlalchemy.ext.declarative import declared_attr
-from app import db
+from .database import db
 
 
 class RefAuthorMixin(object):

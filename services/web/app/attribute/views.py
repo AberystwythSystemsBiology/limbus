@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import ma
-from flask import url_for
+from ..extensions import ma
+
 from .models import (
     Attribute,
     AttributeTextSetting,

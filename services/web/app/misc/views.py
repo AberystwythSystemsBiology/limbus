@@ -17,7 +17,7 @@ from .models import SiteInformation, Address
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
-from .. import ma
+from ..extensions import ma
 
 from ..auth.views import BasicUserAccountSchema
 

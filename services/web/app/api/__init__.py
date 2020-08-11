@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import spec
+#from .. import spec
 from flask import Blueprint
 
 api = Blueprint("api", __name__)
@@ -22,14 +22,18 @@ api = Blueprint("api", __name__)
 
 from ..auth.api import *
 from ..misc.api import *
+'''
 from ..document.api import *
 from ..consent.api import *
 from ..protocol.api import *
 from ..attribute.api import *
+'''
 
 from .responses import *
 from .filters import *
 
+'''
 @api.route("/")
 def api_doc():
     return spec.to_dict()
+'''

@@ -22,7 +22,7 @@ from . import auth
 from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm
 from .models import UserAccount, UserAccountToken
 
-from .. import db
+from ..database import db
 from ..misc import get_internal_api_header
 
 from uuid import uuid4

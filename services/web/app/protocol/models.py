@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from app import db, Base
+from ..database import db, Base
 
 from ..mixins import RefAuthorMixin, RefEditorMixin
 from .enums import ProtocolType, ProtocolTextType

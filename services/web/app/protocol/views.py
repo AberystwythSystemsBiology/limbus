@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import db, ma
+from ..extensions import ma
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields

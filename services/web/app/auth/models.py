@@ -14,15 +14,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_login import UserMixin
-from flask import url_for
-import hashlib
+
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db, login_manager, Base
+from ..database import db, Base
 
 from .enums import Title, AccountType, AccessControl
-
-from ..misc.models import SiteInformation
-
 
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
@@ -83,11 +79,6 @@ class UserAccount(Base, UserMixin):
 
     def get_gravatar(self, size: int = 100) -> str:
         return "#"
-
-
-@login_manager.user_loader
-def load_user(user_id: int) -> UserAccount:
-    return UserAccount.query.get(user_id)
 
 
 class UserAccountToken(Base):
