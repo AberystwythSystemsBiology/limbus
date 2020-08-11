@@ -15,8 +15,22 @@
 
 from ..FormEnum import FormEnum
 
+class Quality(FormEnum):
+    GOO = "Good"
+    BAD = "Bad"
+    DAM = "Damaged"
+    UNU = "Unusable"
+    NOT = "Not Specified"
 
-class SubSampleType(FormEnum):
+class Colour(FormEnum):
+    BLU = "Blue"
+    RED = "Red"
+    GRE = "Green"
+    YEL = "Yellow"
+    GRE = "Grey"
+
+class Source(FormEnum):
+    NEW = "New"
     ALI = "Aliquot"
     DER = "Derivative"
 

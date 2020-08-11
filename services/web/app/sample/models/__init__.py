@@ -15,23 +15,44 @@
 
 from app import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
-from ..enums import SampleType, SampleStatus, DisposalInstruction
+from ..enums import SampleType, SampleStatus, DisposalInstruction, Colour, Source
 
 
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sample"
     uuid = db.Column(db.String(36))
     barcode = db.Column(db.Text)
+
+    source = db.Column(db.Enum(Source))
+
     type = db.Column(db.Enum(SampleType))
     collection_date = db.Column(db.DateTime)
     status = db.Column(db.Enum(SampleStatus))
+    colour = db.Column(db.Enum(Colour))
     quantity = db.Column(db.Float)
     remaining_quantity = db.Column(db.Float)
+
+    comments = db.Column(db.Text, nullable=True)
+    received_quality = db.Column(db.Enum())
+
     site_id = db.Column(db.Integer, db.ForeignKey("site.id"))
     is_closed = db.Column(db.Boolean, default=False)
 
     disposal_information = db.relationship("SampleDisposal")
     #donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
+
+    protocols = db.relationship(
+        "SampleProtocolTemplate",
+        uselist=True
+    )
+
+    documents = db.relationship(
+        "Document",
+        uselist=True,
+        secondary="sampledocument"
+    )
+
+    consent = db.relationship("SampleConsent", uselist=False)
 
     parent_sample = db.relationship(
         "Sample",

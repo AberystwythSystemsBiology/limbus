@@ -20,15 +20,24 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampleconsent"
 
-    consent_identifier = db.Column(db.String(128))
+    identifier = db.Column(db.String(128))
+    comments = db.Column(db.Text)
+    date_signed = db.Column(db.Date, nullable=False)
+
+    file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    file = db.relationship("Document")
+
+    withdrawn = db.Column(db.Boolean, default=False, nullable=False)
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
+
+    answers = db.relationship("ConsentFormTemplateQuestion", secondary="sampleconsentanswer", uselist=True)
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampleconsentanswer"
 
     association_id = db.Column(db.Integer, db.ForeignKey("sampletoconsent.id"))
-    checked = db.Column(db.Integer, db.ForeignKey("consent_form_template_questions.id"))
+    checked = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
 
