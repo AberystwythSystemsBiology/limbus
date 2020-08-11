@@ -37,7 +37,6 @@ from .forms import (
     AttributeLockForm,
 )
 
-from .. import db
 import uuid
 
 from ..misc import get_internal_api_header

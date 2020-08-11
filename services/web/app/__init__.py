@@ -43,13 +43,12 @@ def register_blueprints(app):
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
-    '''
     app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
     app.register_blueprint(document_blueprint, url_prefix="/document")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
     app.register_blueprint(sample_attribute, url_prefix="/sample")
-    '''
+
 def setup_database(app):
     with app.app_context():
         db.create_all()

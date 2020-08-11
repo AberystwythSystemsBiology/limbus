@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from . import misc
-from .. import db
+from ..database import db
 from flask import request
 from ..decorators import token_required
 from marshmallow import ValidationError

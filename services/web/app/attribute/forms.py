@@ -31,7 +31,6 @@ from wtforms.validators import DataRequired, Length
 
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
-from .. import db
 from .models import Attribute, AttributeOption, AttributeTextSetting
 
 

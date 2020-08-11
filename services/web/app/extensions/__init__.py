@@ -9,7 +9,6 @@ from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin as apispec_FlaskPlugin
 
 
-
 spec = APISpec(
     title="LImBuS API Documentation",
     version="20.08",
@@ -31,7 +30,9 @@ def register_extensions(app):
 from ..api import *
 
 def register_apispec(app):
-
+    pass
+    '''
     with app.test_request_context():
         spec.path(view=auth_new_user)
         spec.path(view=auth_home)
+    '''
