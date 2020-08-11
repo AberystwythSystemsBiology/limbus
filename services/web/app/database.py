@@ -13,22 +13,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
-from .database import db
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.declarative import declarative_base
 
+from sqlalchemy_continuum import make_versioned
+from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin
 
-@as_declarative()
-class BaseModel(object):
+db = SQLAlchemy()
 
-    id = db.Column(db.Integer, primary_key=True)
+from .base import BaseModel as BM
 
-    created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+Base = declarative_base(cls=BM)
+Base.query = db.session.query_property()
 
-    is_locked = db.Column(db.Boolean, default=False)
+from .auth.models import *
+from .attribute.models import *
+from .misc.models import *
+from .consent.models import *
+from .document.models import *
+from .protocol.models import *
+from .sample.models import *
 
-    updated_on = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+make_versioned(
+    user_cls=UserAccount, plugins=[(FlaskPlugin), PropertyModTrackerPlugin()]
+)

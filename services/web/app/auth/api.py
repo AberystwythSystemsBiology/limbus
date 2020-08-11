@@ -16,7 +16,7 @@
 from ..api import api
 from ..api.responses import *
 
-from .. import db
+from ..database import db
 from flask import request, current_app, jsonify
 from ..decorators import token_required
 
