@@ -15,7 +15,14 @@
 
 from app import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
-from ..enums import SampleType, SampleStatus, DisposalInstruction, Colour, Source
+from ..enums import (
+    SampleType,
+    SampleStatus,
+    DisposalInstruction,
+    Colour,
+    Source,
+    Quality
+)
 
 
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
@@ -35,7 +42,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     remaining_quantity = db.Column(db.Float)
 
     comments = db.Column(db.Text, nullable=True)
-    received_quality = db.Column(db.Enum())
+    quality = db.Column(db.Enum(Quality))
 
     site_id = db.Column(db.Integer, db.ForeignKey("site.id"))
     is_closed = db.Column(db.Boolean, default=False)
@@ -95,7 +102,7 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
 
-from .processing import *
+from .protocool import *
 from .attribute import *
 from .types import *
 from .consent import *
