@@ -15,9 +15,6 @@
 
 import os
 
-
-import os
-
 SUPPORTED_LANGUAGES = {"en": "English", "cy": "Cymraeg"}
 BABEL_DEFAULT_LOCALE = "en"
 
