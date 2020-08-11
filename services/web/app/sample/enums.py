@@ -25,6 +25,11 @@ class SampleType(FormEnum):
     CEL = "Cell"
     MOL = "Molecular"
 
+class BiohazardLevel(FormEnum):
+    ONE = "Level One"
+    TWO = "Level Two"
+    THR = "Level Three"
+    FOU = "Level Four"
 
 class FluidSampleType(FormEnum):
     ASC = "Ascites fluid"

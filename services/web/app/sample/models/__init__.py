@@ -26,13 +26,30 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     collection_date = db.Column(db.DateTime)
     status = db.Column(db.Enum(SampleStatus))
     quantity = db.Column(db.Float)
-    current_quantity = db.Column(db.Float)
-    is_closed = db.Column(db.Boolean)
-    disposal_information = db.relationship("SampleDisposalInformation")
+    remaining_quantity = db.Column(db.Float)
+    site_id = db.Column(db.Integer, db.ForeignKey("site.id"))
+    is_closed = db.Column(db.Boolean, default=False)
+
+    disposal_information = db.relationship("SampleDisposal")
+    #donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
+
+    parent_sample = db.relationship(
+        "Sample",
+        uselist=False,
+        secondary="subsampletosample",
+        primaryjoin="Sample.id==SubSampleToSample.subsample_id"
+    )
+
+    child_samples = db.relationship(
+        "Sample",
+        uselist=True,
+        secondary="subsampletosample",
+        primaryjoin="Sample.id==SubSampleToSample.parent_id"
+    )
 
 
-class SampleDisposalInformation(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampledisposalinstruction"
+class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampledisposal"
     id = db.Column(db.Integer, primary_key=True)
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
@@ -40,12 +57,13 @@ class SampleDisposalInformation(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
 
+'''
 class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampletodonor"
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
-
+'''
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "subsampletosample"
@@ -59,4 +77,3 @@ from .attribute import *
 from .types import *
 from .consent import *
 from .document import *
-from .aliquot import *

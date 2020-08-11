@@ -16,11 +16,13 @@
 from app import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
+class SampleProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
+    date = db.Column(db.DateTime, nullable=False)
+    freeze_thaw_cycles = db.Column(db.Integer, nullable=True)
 
-class SampleProcessingTemplateAssociation(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampleprocessingtemplateassociation"
+class SampleProtocolTemplateAssociation(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampleprotocoltemplateassociation"
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("protocol.id"))
 
-    processing_datetime = db.Column(db.DateTime, nullable=False)

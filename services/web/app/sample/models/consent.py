@@ -17,14 +17,13 @@ from app import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
-class SampleToConsent(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampletoconsent"
+class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampleconsent"
 
     consent_identifier = db.Column(db.String(128))
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
-    template = db.relationship("ConsentFormTemplate")
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
