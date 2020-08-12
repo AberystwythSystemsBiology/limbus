@@ -30,7 +30,7 @@ from .views import (
     edit_user_account_schema,
 )
 
-from .models import UserAccount
+from ..database import UserAccount
 
 
 @api.route("/auth")

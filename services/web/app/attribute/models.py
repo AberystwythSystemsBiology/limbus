@@ -17,9 +17,7 @@ from ..database import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
-
 class Attribute(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "attribute"
 
     description = db.Column(db.Text)
     term = db.Column(db.String(128))
@@ -36,25 +34,19 @@ class Attribute(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "customattributetextsetting"
     max_length = db.Column(db.Integer, nullable=False)
     type = db.Column(db.Enum(AttributeTextSettingType))
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
 
 
 class AttributeNumericSetting(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "attributenumericsetting"
-
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
     measurement = db.Column(db.String(32))
     symbol = db.Column(db.String(32))
 
 
 class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "attributeoption"
-
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
-
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))

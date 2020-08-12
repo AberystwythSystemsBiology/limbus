@@ -35,6 +35,7 @@ from .views import (
 from .models import Address, SiteInformation
 from ..auth.models import UserAccount
 
+from ..sample.models import Sample
 
 @api.route("/mis/address/", methods=["GET"])
 @token_required
@@ -63,6 +64,7 @@ def misc_new_address(tokenuser: UserAccount):
         return success_with_content_response(basic_address_schema.dumps(new_address))
     except Exception as err:
         return transaction_error_response(err)
+
 
 
 @api.route("/misc/site/new", methods=["POST"])

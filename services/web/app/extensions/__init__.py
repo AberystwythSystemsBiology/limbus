@@ -2,7 +2,7 @@ from flask_mde import Mde
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
 
-from ..database import db
+from ..database import db, UserAccount
 
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
@@ -26,6 +26,10 @@ def register_extensions(app):
     mde.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
+
+    @login_manager.user_loader
+    def load_user(user_id: int) -> UserAccount:
+        return UserAccount.query.get(user_id)
 
 from ..api import *
 

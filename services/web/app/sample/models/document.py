@@ -18,7 +18,6 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
 class SampleDocument(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampledocument"
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"))

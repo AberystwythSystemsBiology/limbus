@@ -19,7 +19,6 @@ from .enums import QuestionType
 
 
 class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "consentformtemplate"
     name = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(2048))
     version = db.Column(db.String(64))
@@ -29,7 +28,6 @@ class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class ConsentFormTemplateQuestion(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "consentformtemplatequestion"
     question = db.Column(db.String(2048), nullable=False)
     type = db.Column(db.Enum(QuestionType), nullable=False)
 

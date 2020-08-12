@@ -21,12 +21,7 @@ from flask import request, current_app, url_for
 from marshmallow import ValidationError
 
 from ..auth.models import UserAccount
-from .models import (
-    Attribute,
-    AttributeTextSetting,
-    AttributeNumericSetting,
-    AttributeOption,
-)
+from ..database import Attribute
 
 from .views import (
     attribute_schema,

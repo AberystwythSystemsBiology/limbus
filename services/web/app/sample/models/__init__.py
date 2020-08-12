@@ -26,7 +26,7 @@ from ..enums import (
 
 
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sample"
+
     # TODO: Automated population.
     uuid = db.Column(db.String(36))
 
@@ -52,7 +52,6 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampledisposal"
     id = db.Column(db.Integer, primary_key=True)
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
@@ -69,7 +68,6 @@ class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
 '''
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "subsampletosample"
 
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))

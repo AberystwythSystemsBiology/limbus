@@ -14,11 +14,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask import abort, current_app, request
-from .auth.models import UserAccount, UserAccountToken
 from flask_login import login_user, logout_user, current_user
 from functools import wraps
 import inspect
 
+from .database import UserAccount, UserAccountToken
 
 def check_if_admin(f):
     @wraps(f)

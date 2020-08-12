@@ -19,6 +19,9 @@ from .database import db
 
 @as_declarative()
 class BaseModel(object):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
 
     id = db.Column(db.Integer, primary_key=True)
 

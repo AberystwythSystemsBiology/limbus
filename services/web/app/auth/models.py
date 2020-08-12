@@ -20,9 +20,9 @@ from ..database import db, Base
 
 from .enums import Title, AccountType, AccessControl
 
+
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
-    __tablename__ = "useraccount"
 
     created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
     updated_on = db.Column(
@@ -82,7 +82,6 @@ class UserAccount(Base, UserMixin):
 
 
 class UserAccountToken(Base):
-    __tablename__ = "useraccounttoken"
 
     user_id = db.Column(db.Integer, db.ForeignKey("useraccount.id"), nullable=False)
     token_hash = db.Column(db.String(256), nullable=False)

@@ -19,7 +19,6 @@ from ..mixins import RefAuthorMixin
 
 
 class Address(Base, RefAuthorMixin):
-    __tablename__ = "address"
     street_address_one = db.Column(db.String(256), nullable=False)
     street_address_two = db.Column(db.String(256))
     city = db.Column(db.String(128), nullable=False)
@@ -29,7 +28,6 @@ class Address(Base, RefAuthorMixin):
 
 
 class SiteInformation(Base, RefAuthorMixin):
-    __tablename__ = "siteinformation"
     miabis_id = db.Column(db.String(128))
     acronym = db.Column(db.String(64))
     name = db.Column(db.String(128))

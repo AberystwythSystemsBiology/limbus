@@ -1,3 +1,19 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 from __future__ import absolute_import
 
 from .database import db
@@ -48,6 +64,7 @@ def register_blueprints(app):
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
     app.register_blueprint(sample_attribute, url_prefix="/sample")
+
 
 def setup_database(app):
     with app.app_context():
