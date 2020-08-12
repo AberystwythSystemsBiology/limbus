@@ -16,7 +16,6 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
-
 class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
     identifier = db.Column(db.String(128))
@@ -31,15 +30,7 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
-    """
-    answers = db.relationship(
-        "SampleConsentAnswer",
-        primaryjoin="SampleConsent.id==SampleConsentAnswer.consent_id",
-        secondary="ConsentFormTemplateQuestion",
-        secondaryjoin="SampleConsentAnswer.question_id==ConsentFormTemplateQuestion.id",
-        uselist=True
-    )
-    """
+    answers = db.relationship("ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer")
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):

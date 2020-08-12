@@ -17,9 +17,7 @@ from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 from ..enums import Quality
 
-
 class SampleReview(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ == "samplereview"
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
     conducted_by = db.Column(db.String(128))

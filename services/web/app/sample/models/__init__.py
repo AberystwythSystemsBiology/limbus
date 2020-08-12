@@ -47,6 +47,36 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     is_closed = db.Column(db.Boolean, default=False)
 
+    '''
+    parent = db.relationship(
+        "Sample",
+        secondary="subsampletosample",
+        secondaryjoin="Sample.id==SubSampleToSample.subsample_id",
+        uselist=False
+    )
+
+    children = db.relationship(
+        "Sample",
+        secondary="subsampletosample",
+        secondaryjoin="Sample.id==SubSampleToSample.parent_id",
+        uselist=True
+    )
+        '''
+
+    disposal_information = db.relationship(
+        "SampleDisposal",
+        primaryjoin="SampleDisposal.sample_id==Sample.id",
+        uselist=False
+    )
+
+    consent_information = db.relationship(
+        "SampleConsent",
+        uselist=False
+    )
+
+    documents = db.relationship("Document", secondary="sampledocument", uselist=True)
+    reviews = db.relationship("SampleReview", uselist=True)
+
     # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
 
@@ -78,3 +108,4 @@ from .attribute import *
 from .types import *
 from .consent import *
 from .document import *
+from .review import *

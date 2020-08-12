@@ -25,7 +25,7 @@ from ..database import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocumen
 import markdown
 
 from ..auth.views import BasicUserAccountSchema
-
+from ..document.views import BasicDocumentSchema
 
 class MarkdownField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
@@ -103,7 +103,7 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
-    documents = masql.Nested(BasicDocumentSchema(many=True))
+    documents = ma.Nested(BasicDocumentSchema(many=True))
     created_on = ma.Date()
 
 
