@@ -32,10 +32,8 @@ from .views import (
     basic_site_schema,
 )
 
-from .models import Address, SiteInformation
-from ..auth.models import UserAccount
+from ..database import Address, SiteInformation, UserAccount
 
-from ..sample.models import Sample
 
 @api.route("/mis/address/", methods=["GET"])
 @token_required

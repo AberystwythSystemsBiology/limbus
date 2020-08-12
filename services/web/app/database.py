@@ -26,19 +26,10 @@ from .base import BaseModel as BM
 Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()
 
-from .auth.models import (
-    UserAccount,
-    UserAccountToken,
-)
-'''
-from .attribute.models import (
-    Attribute,
-    AttributeTextSetting,
-    AttributeNumericSetting,
-    AttributeOption
-)
-
+from .auth.models import *
 from .misc.models import *
+'''
+from .attribute.models import *
 from .consent.models import *
 from .document.models import *
 from .protocol.models import *

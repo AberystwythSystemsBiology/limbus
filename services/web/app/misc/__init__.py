@@ -13,16 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Blueprint, render_template, session, current_app
-from flask_login import current_user
+
+from flask import Blueprint
 
 misc = Blueprint("misc", __name__)
 
-from .models import SiteInformation
-
-from ..database import db
 from itertools import islice
-
+from flask import session, current_app
+from flask_login import current_user
 
 def clear_session(hash: str) -> None:
     # Clear cookie session.
@@ -45,21 +43,3 @@ def chunks(it, n):
     it = iter(it)
     return [x for x in iter(lambda: tuple(islice(it, n)), ())]
 
-
-@misc.route("/")
-def index() -> str:
-    if current_user.is_authenticated:
-        biobank = db.session.query(SiteInformation).first()
-        return render_template("misc/panel.html", biobank=biobank)
-    else:
-        return render_template("misc/index.html")
-
-
-@misc.route("/license")
-def license() -> str:
-    return render_template("misc/license.html")
-
-
-@misc.route("/team")
-def team() -> str:
-    return render_template("misc/team.html")
