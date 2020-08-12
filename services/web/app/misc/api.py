@@ -13,14 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..database import db
-from flask import request
-from ..decorators import token_required
-from marshmallow import ValidationError
+from ..database import db, Address, SiteInformation, UserAccount, Sample
 
 from ..api import api
 from ..api.responses import *
-
 
 from .views import (
     new_address_schema,
@@ -30,13 +26,30 @@ from .views import (
     basic_site_schema,
 )
 
-from ..database import Address, SiteInformation, UserAccount, Sample
+from flask import request
+from ..decorators import token_required
+from marshmallow import ValidationError
 
 @api.route("/misc/panel_data", methods=["GET"])
-def get_panel_data():
+@token_required
+def get_panel_data(tokenuser: UserAccount):
     data = {
-        "Name": SiteInformation.query.first().name,
-        "Samples": Sample.query.count()
+        "name": SiteInformation.query.first().name,
+        "basic_statistics": {
+            "sample_count": Sample.query.count(),
+            "user_count": UserAccount.query.count(),
+            "site_count": SiteInformation.query.count(),
+            "donor_count": 0
+        },
+        "sample_statistic": {
+            "sample_type": [
+
+            ],
+            "sample_status": [
+
+            ]
+        }
+
     }
     return success_with_content_response(data)
 
