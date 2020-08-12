@@ -17,6 +17,7 @@ from ..database import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
+
 class Attribute(Base, RefAuthorMixin, RefEditorMixin):
 
     description = db.Column(db.Text)

@@ -21,4 +21,3 @@ class SampleDocument(Base, RefAuthorMixin, RefEditorMixin):
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
-

@@ -189,6 +189,7 @@ def view(id):
     else:
         return response.content
 
+
 @attribute.route("/LIMBATTR-<id>/lock", methods=["GET", "POST"])
 @login_required
 def lock(id):
@@ -202,7 +203,7 @@ def lock(id):
         if form.validate_on_submit():
             lock_response = requests.post(
                 url_for("api.attribute_lock_attribute", id=id, _external=True),
-                headers=get_internal_api_header()
+                headers=get_internal_api_header(),
             )
 
             if lock_response.status_code == 200:
@@ -227,8 +228,13 @@ def lock_option(id, option_id):
 
             if form.validate_on_submit():
                 lock_response = requests.post(
-                    url_for("api.attribute_lock_option", id=id, option_id=option_id, _external=True),
-                    headers=get_internal_api_header()
+                    url_for(
+                        "api.attribute_lock_option",
+                        id=id,
+                        option_id=option_id,
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
                 )
 
                 if lock_response.status_code == 200:
@@ -236,11 +242,18 @@ def lock_option(id, option_id):
                 else:
                     flash("We have a problem :( %s" % response.json())
 
-            return render_template("attribute/lock_option.html", option=response.json()["content"], form=form, attribute_id=id, option_id=option_id)
+            return render_template(
+                "attribute/lock_option.html",
+                option=response.json()["content"],
+                form=form,
+                attribute_id=id,
+                option_id=option_id,
+            )
         else:
             abort(404)
     else:
         return abort(response.status_code)
+
 
 @attribute.route("/LIMBATTR-<id>/edit", methods=["GET", "POST"])
 @login_required
@@ -260,8 +273,8 @@ def edit(id):
                     "ref": form.ref.data,
                     "term": form.term.data,
                     "accession": form.accession.data,
-                    "description": form.description.data
-                }
+                    "description": form.description.data,
+                },
             )
 
             if edit_response.status_code == 200:
@@ -269,8 +282,6 @@ def edit(id):
             else:
                 flash("We have encountered an error :( %s" % response.json())
         form = AttributeEditForm(data=response.json()["content"])
-        return render_template(
-            "attribute/edit.html", attribute_id=id, form=form
-        )
+        return render_template("attribute/edit.html", attribute_id=id, form=form)
     else:
         return response.content

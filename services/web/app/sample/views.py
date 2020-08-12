@@ -22,6 +22,7 @@ from ..auth.views import BasicUserAccountSchema
 
 from .models import Sample
 
+
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -30,6 +31,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
+
 
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)

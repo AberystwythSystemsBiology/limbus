@@ -26,6 +26,7 @@ import markdown
 
 from ..auth.views import BasicUserAccountSchema
 
+
 class MarkdownField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         return markdown.Markdown().convert(value)

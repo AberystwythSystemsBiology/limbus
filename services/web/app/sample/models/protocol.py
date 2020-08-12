@@ -16,6 +16,7 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
+
 class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampleprotocolevent"
 

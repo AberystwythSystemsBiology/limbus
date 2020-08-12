@@ -15,4 +15,3 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
-

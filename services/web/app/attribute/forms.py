@@ -93,8 +93,8 @@ class AttributeEditForm(FlaskForm):
         description="An optional description of the custom attribute.",
     )
 
-
     submit = SubmitField("Submit")
+
 
 class AttributeCreationForm(FlaskForm):
 
@@ -162,11 +162,11 @@ class AttributeOptionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-
 def check_attribute_name(id):
     def _check_attribute_name(form, field):
         if field.data != "LIMBATTR-%s" % (str(id)):
             raise ValidationError("Incorrect entry")
+
     return _check_attribute_name
 
 
@@ -184,7 +184,6 @@ def AttributeLockForm(id):
     )
 
     return StaticForm()
-
 
 
 """

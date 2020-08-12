@@ -34,6 +34,7 @@ from .views import (
     edit_attribute_schema,
 )
 
+
 @api.route("/attribute", methods=["GET"])
 @token_required
 def attribute_home(tokenuser: UserAccount):

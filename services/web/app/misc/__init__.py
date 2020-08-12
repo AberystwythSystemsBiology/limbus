@@ -23,6 +23,7 @@ from .routes import *
 from flask import session, current_app
 from flask_login import current_user
 
+
 def clear_session(hash: str) -> None:
     # Clear cookie session.
     for k, v in list(session.items()):
@@ -38,6 +39,3 @@ def get_internal_api_header():
         }
     except AttributeError:
         return {}
-
-
-

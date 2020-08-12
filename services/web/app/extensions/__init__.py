@@ -13,12 +13,13 @@ spec = APISpec(
     title="LImBuS API Documentation",
     version="20.08",
     openapi_version="3.0.2",
-    plugins=[apispec_FlaskPlugin(), MarshmallowPlugin()]
+    plugins=[apispec_FlaskPlugin(), MarshmallowPlugin()],
 )
 
 ma = Marshmallow()
 mde = Mde()
 login_manager = LoginManager()
+
 
 def register_extensions(app):
     db.init_app(app)
@@ -31,12 +32,14 @@ def register_extensions(app):
     def load_user(user_id: int) -> UserAccount:
         return UserAccount.query.get(user_id)
 
+
 from ..api import *
+
 
 def register_apispec(app):
     pass
-    '''
+    """
     with app.test_request_context():
         spec.path(view=auth_new_user)
         spec.path(view=auth_home)
-    '''
+    """

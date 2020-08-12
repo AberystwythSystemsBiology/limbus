@@ -20,6 +20,7 @@ import inspect
 
 from .database import UserAccount, UserAccountToken
 
+
 def check_if_admin(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

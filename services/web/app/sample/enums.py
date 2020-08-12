@@ -15,12 +15,14 @@
 
 from ..FormEnum import FormEnum
 
+
 class Quality(FormEnum):
     GOO = "Good"
     BAD = "Bad"
     DAM = "Damaged"
     UNU = "Unusable"
     NOT = "Not Specified"
+
 
 class Colour(FormEnum):
     BLU = "Blue"
@@ -29,21 +31,25 @@ class Colour(FormEnum):
     YEL = "Yellow"
     GRY = "Grey"
 
+
 class Source(FormEnum):
     NEW = "New"
     ALI = "Aliquot"
     DER = "Derivative"
+
 
 class SampleType(FormEnum):
     FLU = "Fluid"
     CEL = "Cell"
     MOL = "Molecular"
 
+
 class BiohazardLevel(FormEnum):
     ONE = "Level One"
     TWO = "Level Two"
     THR = "Level Three"
     FOU = "Level Four"
+
 
 class FluidSampleType(FormEnum):
     ASC = "Ascites fluid"

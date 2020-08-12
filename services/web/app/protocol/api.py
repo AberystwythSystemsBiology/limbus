@@ -63,7 +63,6 @@ def protocol_new_protocol(tokenuser: UserAccount):
     new_protocol = ProtocolTemplate(**result)
     new_protocol.author_id = tokenuser.id
 
-
     try:
         db.session.add(new_protocol)
         db.session.commit()

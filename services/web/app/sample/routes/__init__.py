@@ -22,19 +22,20 @@ from ...misc import get_internal_api_header
 
 import requests
 
+
 @sample.route("/")
 @login_required
 def index() -> str:
 
     response = requests.get(
-        url_for("api.sample_home", _external=True),
-        headers=get_internal_api_header()
+        url_for("api.sample_home", _external=True), headers=get_internal_api_header()
     )
 
     if response.status_code == 200:
         return render_template("sample/index.html", samples={})
     else:
         return abort(response.status_code)
+
 
 @sample.route("/biohazard")
 @login_required

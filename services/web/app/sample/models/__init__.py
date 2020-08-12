@@ -21,7 +21,7 @@ from ..enums import (
     DisposalInstruction,
     Colour,
     Source,
-    Quality
+    Quality,
 )
 
 
@@ -47,8 +47,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     is_closed = db.Column(db.Boolean, default=False)
 
-    #donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
-
+    # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
@@ -59,13 +58,14 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
 
-'''
+"""
 class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampletodonor"
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
-'''
+"""
+
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
 

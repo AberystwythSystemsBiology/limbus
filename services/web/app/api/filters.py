@@ -1,13 +1,17 @@
 from ..auth.models import UserAccount
 
+
 def _put():
     pass
+
 
 def _get():
     pass
 
+
 def _post():
     pass
+
 
 def generate_base_query_filters(tokenuser: UserAccount, type: str):
 

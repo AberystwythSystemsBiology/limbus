@@ -31,7 +31,7 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
-    '''
+    """
     answers = db.relationship(
         "SampleConsentAnswer",
         primaryjoin="SampleConsent.id==SampleConsentAnswer.consent_id",
@@ -39,11 +39,10 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
         secondaryjoin="SampleConsentAnswer.question_id==ConsentFormTemplateQuestion.id",
         uselist=True
     )
-    '''
+    """
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
 
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
     question_id = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
-

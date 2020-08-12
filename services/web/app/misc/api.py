@@ -30,6 +30,7 @@ from flask import request
 from ..decorators import token_required
 from marshmallow import ValidationError
 
+
 @api.route("/misc/panel_data", methods=["GET"])
 @token_required
 def get_panel_data(tokenuser: UserAccount):
@@ -39,24 +40,18 @@ def get_panel_data(tokenuser: UserAccount):
             "sample_count": Sample.query.count(),
             "user_count": UserAccount.query.count(),
             "site_count": SiteInformation.query.count(),
-            "donor_count": 0
+            "donor_count": 0,
         },
-        "sample_statistic": {
-            "sample_type": [
-
-            ],
-            "sample_status": [
-
-            ]
-        }
-
+        "sample_statistic": {"sample_type": [], "sample_status": []},
     }
     return success_with_content_response(data)
+
 
 @api.route("/misc/address/", methods=["GET"])
 @token_required
 def address_home(tokenuser: UserAccount):
     return success_with_content_response(basic_addresses_schema(Address.query.all()))
+
 
 @api.route("/misc/address/new", methods=["POST"])
 @token_required
@@ -80,7 +75,6 @@ def misc_new_address(tokenuser: UserAccount):
         return success_with_content_response(basic_address_schema.dumps(new_address))
     except Exception as err:
         return transaction_error_response(err)
-
 
 
 @api.route("/misc/site/new", methods=["POST"])

@@ -72,6 +72,7 @@ class EditAttributeSchema(masql.SQLAlchemySchema):
     accession = masql.auto_field()
     ref = masql.auto_field()
 
+
 edit_attribute_schema = EditAttributeSchema()
 
 
@@ -122,6 +123,7 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
 new_attribute_option_schema = NewAttributeOptionSchema()
 new_attribute_options_schema = NewAttributeOptionSchema(many=True)
 
+
 class AttributeOptionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeOption
@@ -133,6 +135,7 @@ class AttributeOptionSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     is_locked = ma.auto_field()
     created_on = fields.Date()
+
 
 attribute_option_schema = AttributeOptionSchema()
 attribute_options_schema = AttributeOptionSchema(many=True)

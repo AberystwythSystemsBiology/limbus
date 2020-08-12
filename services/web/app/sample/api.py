@@ -18,9 +18,7 @@ from ..api.responses import *
 from ..decorators import token_required
 from ..auth.models import UserAccount
 
-from .views import (
-    basic_samples_schema,
-)
+from .views import basic_samples_schema
 
 from .models import Sample
 

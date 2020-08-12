@@ -29,6 +29,7 @@ fileConfig(config.config_file_name)
 
 
 from sqlalchemy_continuum import make_versioned
+
 make_versioned()
 
 

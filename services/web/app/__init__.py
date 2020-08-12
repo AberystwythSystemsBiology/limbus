@@ -35,6 +35,7 @@ from app.errors import error_handlers
 
 from .extensions import register_extensions, register_apispec
 
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile("config.py")
@@ -45,6 +46,7 @@ def create_app():
     register_apispec(app)
 
     return app
+
 
 def register_error_handlers(app):
     for error_handler in error_handlers:

@@ -53,7 +53,6 @@ def document_home(tokenuser: UserAccount):
     )
 
 
-
 @api.route("/document/<id>")
 @token_required
 def document_view_document(id: int, tokenuser: UserAccount):
@@ -126,7 +125,6 @@ def document_new_document(tokenuser: UserAccount):
         result = new_document_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-
 
     new_document = Document(**result)
     new_document.author_id = tokenuser.id

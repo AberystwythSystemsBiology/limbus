@@ -25,6 +25,7 @@ class SampleToFluidSampleType(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     type = db.Column(db.Enum(FluidSampleType))
 
+
 class SampleToMolecularSampleType(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampletomolecularsampletype"
 

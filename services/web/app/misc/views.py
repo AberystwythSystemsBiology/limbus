@@ -20,6 +20,7 @@ from ..extensions import ma
 
 from ..auth.views import BasicUserAccountSchema
 
+
 class NewAddressSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Address

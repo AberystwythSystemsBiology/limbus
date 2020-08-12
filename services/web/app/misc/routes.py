@@ -3,6 +3,7 @@ from . import misc
 from flask import render_template, session, current_app, url_for, redirect
 from flask_login import current_user
 
+
 @misc.route("/")
 def index() -> str:
     if current_user.is_authenticated:
