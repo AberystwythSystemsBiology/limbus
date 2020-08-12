@@ -20,12 +20,11 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 from .enums import ProtocolType, ProtocolTextType
 
-from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
+from ..database import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
 
 import markdown
 
 from ..auth.views import BasicUserAccountSchema
-
 
 class MarkdownField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
@@ -103,6 +102,7 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
+    documents = masql.Nested(BasicDocumentSchema(many=True))
     created_on = ma.Date()
 
 

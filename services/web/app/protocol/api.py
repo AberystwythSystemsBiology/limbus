@@ -63,6 +63,7 @@ def protocol_new_protocol(tokenuser: UserAccount):
     new_protocol = ProtocolTemplate(**result)
     new_protocol.author_id = tokenuser.id
 
+
     try:
         db.session.add(new_protocol)
         db.session.commit()
@@ -72,6 +73,7 @@ def protocol_new_protocol(tokenuser: UserAccount):
             basic_protocol_template_schema.dump(new_protocol)
         )
     except Exception as err:
+        print(err)
         return transaction_error_response(err)
 
 

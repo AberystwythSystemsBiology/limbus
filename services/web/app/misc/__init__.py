@@ -20,7 +20,6 @@ misc = Blueprint("misc", __name__)
 
 from .routes import *
 
-from itertools import islice
 from flask import session, current_app
 from flask_login import current_user
 
@@ -41,7 +40,4 @@ def get_internal_api_header():
         return {}
 
 
-def chunks(it, n):
-    it = iter(it)
-    return [x for x in iter(lambda: tuple(islice(it, n)), ())]
 

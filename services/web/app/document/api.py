@@ -127,6 +127,7 @@ def document_new_document(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
+
     new_document = Document(**result)
     new_document.author_id = tokenuser.id
 
@@ -134,7 +135,7 @@ def document_new_document(tokenuser: UserAccount):
         db.session.add(new_document)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(basic_documents_schema.dump(new_document))
+        return success_with_content_response(basic_document_schema.dump(new_document))
     except Exception as err:
         return transaction_error_response(err)
 

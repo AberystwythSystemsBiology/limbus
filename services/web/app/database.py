@@ -28,11 +28,6 @@ Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()
 
 from .auth.models import *
-
-make_versioned(
-    user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()]
-)
-
 from .misc.models import *
 from .attribute.models import *
 from .consent.models import *

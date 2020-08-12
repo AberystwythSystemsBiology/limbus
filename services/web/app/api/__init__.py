@@ -26,7 +26,7 @@ from ..document.api import *
 from ..consent.api import *
 from ..protocol.api import *
 from ..attribute.api import *
-
+from ..sample.api import *
 
 from .responses import *
 from .filters import *

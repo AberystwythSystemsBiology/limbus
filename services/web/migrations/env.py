@@ -27,6 +27,11 @@ from app.database import db, Base
 config = context.config
 fileConfig(config.config_file_name)
 
+
+from sqlalchemy_continuum import make_versioned
+make_versioned()
+
+
 app = create_app()
 config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])
 

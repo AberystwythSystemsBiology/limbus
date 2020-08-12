@@ -13,10 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .models import SiteInformation, Address
+from ..database import SiteInformation, Address
 
 import marshmallow_sqlalchemy as masql
-from marshmallow import fields
 from ..extensions import ma
 
 from ..auth.views import BasicUserAccountSchema

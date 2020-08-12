@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ..extensions import ma
-from .models import Document, DocumentFile
+from ..database import Document, DocumentFile
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
