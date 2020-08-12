@@ -21,7 +21,8 @@ from sqlalchemy import engine_from_config, pool
 
 sys.path.append(os.getcwd())
 
-from app import db, create_app, Base
+from app import create_app
+from app.database import db, Base
 
 config = context.config
 fileConfig(config.config_file_name)

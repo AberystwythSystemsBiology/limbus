@@ -19,6 +19,7 @@ from .enums import QuestionType
 
 
 class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     name = db.Column(db.String(128), nullable=False)
     description = db.Column(db.String(2048))
     version = db.Column(db.String(64))

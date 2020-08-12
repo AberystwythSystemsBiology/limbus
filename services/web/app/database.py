@@ -18,6 +18,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin
+from sqlalchemy.orm import configure_mappers
 
 db = SQLAlchemy()
 
@@ -27,6 +28,11 @@ Base = declarative_base(cls=BM)
 Base.query = db.session.query_property()
 
 from .auth.models import *
+
+make_versioned(
+    user_cls=UserAccount, plugins=[FlaskPlugin(), PropertyModTrackerPlugin()]
+)
+
 from .misc.models import *
 from .attribute.models import *
 from .consent.models import *
@@ -34,6 +40,4 @@ from .document.models import *
 from .protocol.models import *
 from .sample.models import *
 
-make_versioned(
-    user_cls=UserAccount, plugins=[(FlaskPlugin), PropertyModTrackerPlugin()]
-)
+configure_mappers()
