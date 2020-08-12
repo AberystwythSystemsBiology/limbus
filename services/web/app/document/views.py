@@ -21,7 +21,7 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 from .enums import DocumentType
 
-from ..auth.views import BasicUserAccountSchema
+from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 
 class NewDocumentSchema(masql.SQLAlchemySchema):
@@ -77,7 +77,7 @@ class DocumentSearchSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     type = EnumField(DocumentType)
     is_locked = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
 
 
 class DocumentSchema(masql.SQLAlchemySchema):

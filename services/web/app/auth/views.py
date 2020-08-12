@@ -24,6 +24,14 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 
+class UserAccountSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    id = masql.auto_field()
+    email = masql.auto_field(required=False)
+
+
 class BasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount

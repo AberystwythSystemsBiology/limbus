@@ -16,7 +16,7 @@
 import os
 from ..api import api
 from ..api.responses import *
-from ..api.filters import generate_base_query_filters
+from ..api.filters import generate_base_query_filters, get_filters_and_joins
 import io
 
 from .. import db
@@ -70,20 +70,12 @@ def document_view_document(id: int, tokenuser: UserAccount):
 @use_args(DocumentSearchSchema(), location="json")
 @token_required
 def document_query(args, tokenuser: UserAccount):
-    filter = {}
-    for key, value in args.items():
-        if type(value) == dict:
-            join = getattr(Document, key).has(**value)
-        else:
-            filter[key] = value
+    filters, joins = get_filters_and_joins(args, Document)
 
-    if args != None:
-        return success_with_content_response(
-            basic_documents_schema.dump(
-                Document.query.filter(join, **filter).all())
-        )
-    else:
-        return no_values_response()
+    return success_with_content_response(
+        basic_documents_schema.dump(
+            Document.query.filter_by(**filters).filter(*joins).all())
+    )
 
 @api.route("/document/LIMBDOC-<id>/lock", methods=["PUT"])
 @token_required

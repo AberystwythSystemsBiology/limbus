@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask import abort
 from webargs import core
 from webargs.flaskparser import FlaskParser
 import re
@@ -45,14 +46,7 @@ def handle_request_parsing_error(err, req, schema, *, error_status_code, error_h
     """webargs error handler that uses Flask-RESTful's abort function to return
     a JSON error response to the client.
     """
-
-    print(err.messages)
-
-    return (
-        {"success": False, "message": err.messages},
-        417,
-        {"ContentType": "application/json"},
-    )
+    abort(417, {"message": err.messages})
 
 use_args = parser.use_args
 use_kwargs = parser.use_kwargs
