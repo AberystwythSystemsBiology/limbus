@@ -24,6 +24,7 @@ from flask import request, current_app, jsonify, send_file
 from ..decorators import token_required
 
 from marshmallow import ValidationError
+from webargs.flaskparser import use_args
 
 from .views import (
     document_schema,
@@ -35,9 +36,14 @@ from .views import (
     new_document_file_schema,
 )
 
+
 from ..auth.models import UserAccount
 from .models import Document, DocumentFile
 from .encryption import encrypt_document, decrypt_document
+
+from .views import DocumentSearchSchema
+
+from ..webarg_parser import use_args, use_kwargs, parser
 
 
 @api.route("/document")
@@ -60,6 +66,17 @@ def document_view_document(id: int, tokenuser: UserAccount):
         document_schema.dump(Document.query.filter_by(id=id).first())
     )
 
+@api.route("/document/query", methods=["GET"])
+@use_args(DocumentSearchSchema(), location="json")
+@token_required
+def document_query(args, tokenuser: UserAccount):
+    print(args)
+    if args != None:
+        return success_with_content_response(
+            basic_documents_schema.dump(Document.query.filter_by(**args).all())
+        )
+    else:
+        return no_values_response()
 
 @api.route("/document/LIMBDOC-<id>/lock", methods=["PUT"])
 @token_required

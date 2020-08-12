@@ -29,9 +29,7 @@ from wtforms.validators import DataRequired, Length
 
 
 from .enums import *
-from ..document.models import Document, DocumentType
-from ..auth.models import User
-from .models import SampleDocumentAssociation
+
 from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 
 from ..processing.models import ProcessingTemplate
@@ -56,6 +54,7 @@ class SampleTypeSelectForm(FlaskForm):
     fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
     cell_container = SelectField("Cell Container", choices=CellContainer.choices())
+
 
     submit = SubmitField("Submit")
 

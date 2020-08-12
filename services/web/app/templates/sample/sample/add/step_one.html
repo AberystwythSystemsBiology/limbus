@@ -13,7 +13,7 @@
 
             <p>Before we continue, you must first link the sample to a patient consent form.</p>
 
-            <p>If you are unable to find the patient consent form, it's likely that you have yet to add it. <a href="{{ url_for('pcf.new') }}">Click here</a> to add a new patient consent form.</p>
+            <p>If you are unable to find the patient consent form, it's likely that you have yet to add it. <a href="{{ url_for('consent.new') }}">Click here</a> to add a new patient consent form.</p>
 
             <form action="{{ url_for('sample.add_sample_pcf') }}" method="POST">
                 {{ form.csrf_token }}

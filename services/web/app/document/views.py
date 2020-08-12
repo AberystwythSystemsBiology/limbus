@@ -68,11 +68,23 @@ document_file_schema = DocumentFileSchema()
 document_files_schema = DocumentFileSchema(many=True)
 
 
-class DocumentSchema(masql.SQLAlchemySchema):
+class DocumentSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document
 
     id = masql.auto_field()
+    name = masql.auto_field(required=False)
+    description = masql.auto_field()
+    type = EnumField(DocumentType)
+    is_locked = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+
+class DocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Document
+
+    id = masql.auto_field(dump_only=True)
     name = masql.auto_field()
     description = masql.auto_field()
     type = EnumField(DocumentType)

@@ -29,6 +29,12 @@ def no_values_response():
         {"ContentType": "application/json"},
     )
 
+def invalid_query_response():
+    return (
+        {"success": False, "message": "No parsable query data provided"},
+        400,
+        {"ContentType": "application/json"},
+    )
 
 def validation_error_response(err):
     return (

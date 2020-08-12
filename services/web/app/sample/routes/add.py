@@ -14,34 +14,23 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask import render_template, redirect, session, url_for, flash, abort
-from flask_login import current_user, login_required
-from wtforms.csrf.core import CSRFTokenField
-
-from .. import sample
-from ... import db
-
-from ..models import *
-from ..forms import *
-
-from ...attribute.forms import CustomAttributeSelectForm, CustomAttributeGeneratedForm
-from ...attribute.enums import CustomAttributeElementTypes
-from ...processing.models import ProcessingTemplate
-
-from ...misc.generators import generate_random_hash
-from ...misc import clear_session
+from flask_login import login_required
 
 import uuid
+from .. import sample
 
+from ..forms import *
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf():
     form = PatientConsentFormSelectForm()
 
-    template_count = db.session.query(ProcessingTemplate).count()
+    #template_count = db.session.query(ProcessingTemplate).count()
 
     if form.validate_on_submit():
-        sample_add_hash = generate_random_hash()
+        sample_add_hash = uuid.uuid4()
+
         disposal_instruction = form.disposal_instruction.data
 
         if disposal_instruction != DisposalInstruction.NAP:
@@ -66,6 +55,7 @@ def add_sample_pcf():
     )
 
 
+'''
 @sample.route("add/two/<hash>", methods=["GET", "POST"])
 @login_required
 def add_sample_pcf_data(hash):
@@ -342,3 +332,4 @@ def add_sample_form(hash):
         return redirect(url_for("sample.index"))
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
+'''

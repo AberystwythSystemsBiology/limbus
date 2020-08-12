@@ -22,9 +22,9 @@ from sqlalchemy.orm import configure_mappers
 
 db = SQLAlchemy()
 
-from .base import BaseModel as BM
+from .base import BaseModel
 
-Base = declarative_base(cls=BM)
+Base = declarative_base(cls=BaseModel)
 Base.query = db.session.query_property()
 
 from .auth.models import *

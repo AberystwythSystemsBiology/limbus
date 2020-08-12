@@ -20,8 +20,7 @@ from ..decorators import token_required
 from flask import request, current_app, url_for
 from marshmallow import ValidationError
 
-from ..auth.models import UserAccount
-from ..database import Attribute
+from ..database import UserAccount, Attribute, AttributeOption, AttributeTextSetting, AttributeNumericSetting
 
 from .views import (
     attribute_schema,
