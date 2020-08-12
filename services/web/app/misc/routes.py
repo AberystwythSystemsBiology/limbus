@@ -1,13 +1,14 @@
-from ..database import import db, SiteInformation
+from ..database import db
+from .models import SiteInformation
 
 from . import misc
-from flask import , render_template, session, current_app
+from flask import render_template, session, current_app
 from flask_login import current_user
 
 @misc.route("/")
 def index() -> str:
     if current_user.is_authenticated:
-        biobank = db.session.query(SiteInformation).first()
+        biobank = SiteInformation.query.first()
         return render_template("misc/panel.html", biobank=biobank)
     else:
         return render_template("misc/index.html")
