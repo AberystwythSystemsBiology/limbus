@@ -70,10 +70,17 @@ def document_view_document(id: int, tokenuser: UserAccount):
 @use_args(DocumentSearchSchema(), location="json")
 @token_required
 def document_query(args, tokenuser: UserAccount):
-    print(args)
+    filter = {}
+    for key, value in args.items():
+        if type(value) == dict:
+            join = getattr(Document, key).has(**value)
+        else:
+            filter[key] = value
+
     if args != None:
         return success_with_content_response(
-            basic_documents_schema.dump(Document.query.filter_by(**args).all())
+            basic_documents_schema.dump(
+                Document.query.filter(join, **filter).all())
         )
     else:
         return no_values_response()
