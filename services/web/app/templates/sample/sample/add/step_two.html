@@ -1,78 +1,47 @@
 {% extends "template.html" %}
 
-{%block title%}Enter Patient Consent Form Details{% endblock %}
+{% block title %}Enter Patient Consent Form Details{% endblock %}
 
 {% block body %}
     <div class="container">
 
 
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form Details</h1>
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form
+            Details</h1>
         {{ render_progress(2, 7) }}
 
 
+        <form action="{{ url_for('sample.digital_consent_form', hash=hash) }}" method="POST">
 
-        
-
-        <form action="{{ url_for('sample.add_sample_pcf_data', hash=hash) }}" method="POST">
-            
-          {{form_field(questionnaire.consent_id)}}
-
-          <p>Please replicate what the donor has checked on the physical consent sheet and press continue.</p>
-
-          {{ questionnaire.csrf_token() }}
+            {{ questionnaire.csrf_token() }}
             <div class="card">
                 <div class="card-header">
-                    <h2>{{ pcf.name }}</h2>
+                    <div class="text-center">
+                        <h2>{{ consent_template.name }}</h2>
+                        <h3>Version: {{ consent_template.version }}</h3>
+                    </div>
+
+                    {{ form_field(questionnaire.consent_id) }}
                 </div>
                 <ul id="#questionnaire-list" class="list-group list-group-flush">
+                    {% set count = namespace(value=0) %}
                     {% for question in questionnaire %}
-                    {% if (question.type == "BooleanField") %}
-                        {{ render_question( question, loop.index0 ) }}
-                    {% endif %}
-                {% endfor %}
+                        {% if (question.type == "BooleanField") %}
+                            {% set count.value = count.value + 1 %}
+                            {{ render_question( question, count.value ) }}
+                        {% endif %}
+                    {% endfor %}
                 </ul>
-              </div>
-
-            <button type="button" class="btn btn-primary float-right top10" data-toggle="modal" data-target="#confirmModal">
-                Confirm
-            </button>
-
-            <div id="confirmModal" class="modal" tabindex="-1" role="dialog">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h3 class="modal-title">{{ pcf.name }}</h3>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                      {{ questionnaire.csrf_token() }}
-                      <div class="list-group" id="questionnaire-list">
-                          <p>Please double check what you've entered before submitting.</p>
-                          {% for question in questionnaire %}
-                              {% if (question.type == "BooleanField") %}
-                              <div id="list-question-{{loop.index0 + 1}}-m" class="list-group-item flex-column align-items-start">
-                                  <div class="d-flex w-100 justify-content-between">
-                                      <p class="mb-1">{{ question.label.text }}</p>
-                                      <i class="fa fa-check-circle"></i>
-                                  </div>
-                              </div>
-                              {% endif %}
-                          {% endfor %}
-                      </div>
-                  </div>
-                  <div class="model-footer" style="padding:10px;">
-                    {{ form_field(questionnaire.submit) }}
-
-                  </div>
+                <div class="card-footer">
+                    {{ form_field(questionnaire.comments) }}
+                    {{ form_field(questionnaire.date_signed) }}
                 </div>
-              </div>
             </div>
+
+            {{ form_field(questionnaire.submit) }}
+
         </form>
     </div>
 {% endblock %}
 
-{% block javascript %}
-    <script src="{{ url_for('static', filename='js/sample/information/add/step_two.js') }}"></script>
-{% endblock %}
+

@@ -29,7 +29,8 @@ from .attribute import attribute as attribute_blueprint
 from .document import document as document_blueprint
 from .consent import consent as consent_blueprint
 from .protocol import protocol as protocol_blueprint
-from .sample import sample as sample_attribute
+from .sample import sample as sample_blueprint
+from .tmpstore import tmpstore as tmpstore_blueprint
 
 from app.errors import error_handlers
 
@@ -65,7 +66,8 @@ def register_blueprints(app):
     app.register_blueprint(document_blueprint, url_prefix="/document")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
-    app.register_blueprint(sample_attribute, url_prefix="/sample")
+    app.register_blueprint(sample_blueprint, url_prefix="/sample")
+    app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
 
 
 def setup_database(app):

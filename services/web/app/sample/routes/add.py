@@ -21,7 +21,7 @@ from ...misc import get_internal_api_header
 import uuid
 from .. import sample
 
-from ..forms import CollectionConsentAndDisposalForm
+from ..forms import CollectionConsentAndDisposalForm, PatientConsentQuestionnaire
 
 import requests
 
@@ -32,24 +32,20 @@ def add_rerouter(hash):
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
 
     query_response = requests.get(
-        url_for("api.tmpstore_query", _external=True),
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
-        json={"uuid": hash}
     )
 
     if query_response.status_code == 200:
-        data = query_response.json()["content"]
+        data = query_response.json()["content"]["data"]
 
-    try:
-        data = data[0]
-    except IndexError:
-        abort(400)
+    if "add_collection_consent_and_barcode" not in data:
 
-    if "add_collection_consent_and_barcode" not in data["data"]:
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
-
     else:
-        return redirect(url_for("sample.digitial_consent_form"))
+        if "digital_consent_form" in data:
+            return "Hello World"
+        return redirect(url_for("sample.digital_consent_form", hash=hash))
 
 
     abort(400)
@@ -102,19 +98,19 @@ def add_collection_consent_and_barcode():
         }
 
         # This needs to be broken out to a new module then...
-        store_reponse = requests.post(
+        store_response = requests.post(
             url_for("api.tmpstore_new_tmpstore", _external=True),
             headers=get_internal_api_header(),
             json={"data": {"add_collection_consent_and_barcode": route_data}, "type": "SMP"}
         )
 
-        if store_reponse.status_code == 200:
+        if store_response.status_code == 200:
 
             return redirect(
-                url_for("sample.add_rerouter", hash=store_reponse.json()["content"]["uuid"])
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
             )
         else:
-            flash("We have a problem :( %s" % (store_reponse.json()))
+            flash("We have a problem :( %s" % (store_response.json()))
 
     return render_template(
         "sample/sample/add/step_one.html",
@@ -127,49 +123,73 @@ def add_collection_consent_and_barcode():
 
 @sample.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
 @login_required
-def digitial_consent_form(hash):
-    t_id = session["%s step_one" % (hash)]["consent_form_id"]
+def digital_consent_form(hash):
 
-    pcf = (
-        db.session.query(ConsentFormTemplate)
-        .filter(ConsentFormTemplate.id == t_id)
-        .first_or_404()
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
     )
 
-    pcf_questions = (
-        db.session.query(ConsentFormTemplateQuestion)
-        .filter(ConsentFormTemplateQuestion.template_id == t_id)
-        .all()
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+    consent_id = tmpstore_data["add_collection_consent_and_barcode"]["consent_form_id"]
+
+    consent_response = requests.get(
+        url_for("api.consent_view_template", id=consent_id, _external=True),
+        headers=get_internal_api_header()
     )
 
-    questionnaire = PatientConsentQuestionnaire(pcf_questions)
+    if consent_response.status_code != 200:
+        abort(consent_response.status_code)
+
+    consent_template = consent_response.json()["content"]
+
+    questionnaire = PatientConsentQuestionnaire(consent_template)
 
     if questionnaire.validate_on_submit():
-
-        checked = []
-        for q in questionnaire:
-            if q.type == "BooleanField":
-                if q.data:
-                    checked.append(int(q.name))
-
-        session["%s step_two" % (hash)] = {
+        consent_details = {
             "consent_id": questionnaire.consent_id.data,
-            "checked": checked,
+            "comments": questionnaire.comments.data,
+            "date_signed": str(questionnaire.date_signed.data),
+            "checked": []
         }
 
-        return redirect(url_for("sample.select_sample_type", hash=hash))
+        for question in consent_template["questions"]:
+            if getattr(questionnaire, str(question["id"])).data:
+                consent_details["checked"].append(question["id"])
+
+
+        tmpstore_data["digital_consent_form"] = consent_details
+
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data}
+        )
+        
+        if store_response.status_code == 200:
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+            )
+            
+        else:
+            flash("We have a problem :( %s" % (store_response.json()))
+
 
     return render_template(
         "sample/sample/add/step_two.html",
         hash=hash,
-        pcf=pcf,
+        consent_template=consent_template,
         questionnaire=questionnaire,
     )
 
-'''
-@sample.route("add/three/<hash>", methods=["GET", "POST"])
+
+@sample.route("add/sample_information/<hash>", methods=["GET", "POST"])
 @login_required
-def select_sample_type(hash):
+def sample_information(hash):
+    '''
     form = SampleTypeSelectForm()
 
     if form.validate_on_submit():
@@ -197,10 +217,10 @@ def select_sample_type(hash):
         session["%s step_three" % (hash)] = data
 
         return redirect(url_for("sample.select_processing_protocol", hash=hash))
+    '''
+    return render_template("sample/sample/add/step_three.html", form=None, hash=hash)
 
-    return render_template("sample/sample/add/step_three.html", form=form, hash=hash)
-
-
+''''
 @sample.route("add/four/<hash>", methods=["GET", "POST"])
 def select_processing_protocol(hash):
     templates = (

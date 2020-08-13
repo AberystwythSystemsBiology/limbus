@@ -105,8 +105,8 @@
                             <a class="dropdown-item" disabled><i class="fa fa-cog"></i> Settings</a>
                             <a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> My
                                 Profile</a>
-                            <a class="dropdown-item" href="#">
-                                <i class="fa fa-hourglass-end"></i> Temporary Store
+                            <a class="dropdown-item" href="{{ url_for('tmpstore.index') }}">
+                                <i class="fa fa-hourglass-end"></i> My TempStore
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('auth.logout') }}">

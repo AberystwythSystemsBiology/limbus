@@ -12,3 +12,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from . import tmpstore
+
+from flask import render_template
+
+from flask_login import login_required
+
+@tmpstore.route("/", methods=["GET"])
+@login_required
+def index():
+    return render_template("/tmpstore/index.html")

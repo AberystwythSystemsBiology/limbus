@@ -50,7 +50,7 @@ def tmpstore_home(tokenuser: UserAccount):
 @token_required
 def tmpstore_view_tmpstore(hash: str, tokenuser: UserAccount):
     return success_with_content_response(
-        store_schema.dump(TemporaryStore.query.filter_by(hash=hash).first())
+        store_schema.dump(TemporaryStore.query.filter_by(uuid=hash).first())
     )
 
 @api.route("/tmpstore/query", methods=["GET"])
@@ -67,7 +67,6 @@ def tmpstore_query(args, tokenuser: UserAccount):
 @token_required
 def tmpstore_new_tmpstore(tokenuser: UserAccount):
     values = request.get_json()
-
 
     if not values:
         return no_values_response()

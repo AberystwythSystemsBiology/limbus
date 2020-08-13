@@ -17,6 +17,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     SelectField,
     StringField,
+    TextAreaField,
     SubmitField,
     FloatField,
     DateField,
@@ -131,17 +132,34 @@ def ProtocolTemplateSelectForm(templates):
     return StaticForm()
 
 
-def PatientConsentQuestionnaire(questions) -> FlaskForm:
+def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
         consent_id = StringField(
             "Patient Consent Form ID/Code",
             description="The identifying code of the signed patient consent form.",
         )
 
-    for question in questions:
-        setattr(StaticForm, str(question.id), BooleanField(question.question))
+        comments = TextAreaField(
+            "Comments"
+        )
 
-    setattr(StaticForm, "submit", SubmitField("Submit"))
+        date_signed = DateField(
+            "Date of Consent",
+            default=datetime.today()
+        )
+
+        submit = SubmitField("Submit")
+
+    for question in consent_template["questions"]:
+        setattr(
+            StaticForm,
+            str(question["id"]),
+            BooleanField(
+                question["question"],
+                render_kw={"question_type": question["type"]}
+            )
+        )
+
     return StaticForm()
 
 
