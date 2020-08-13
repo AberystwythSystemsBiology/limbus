@@ -13,27 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.declarative import declarative_base
+from ..FormEnum import FormEnum
 
-from sqlalchemy_continuum import make_versioned
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin
-from sqlalchemy.orm import configure_mappers
-
-db = SQLAlchemy()
-
-from .base import BaseModel
-
-Base = declarative_base(cls=BaseModel)
-Base.query = db.session.query_property()
-
-from .auth.models import *
-from .misc.models import *
-from .attribute.models import *
-from .consent.models import *
-from .document.models import *
-from .protocol.models import *
-from .sample.models import *
-from .tmpstore.models import *
-
-configure_mappers()
+class StoreType(FormEnum):
+    SMP = "Sample"

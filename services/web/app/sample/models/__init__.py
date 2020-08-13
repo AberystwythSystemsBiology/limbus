@@ -108,4 +108,3 @@ from .types import *
 from .consent import *
 from .document import *
 from .review import *
-from .temp import *

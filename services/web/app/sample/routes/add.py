@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask import render_template, redirect, session, url_for, flash, abort
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from ...misc import get_internal_api_header
 
@@ -22,11 +22,16 @@ import uuid
 from .. import sample
 
 from ..forms import CollectionConsentAndDisposalForm
-from ..enums import DisposalInstruction
-
-from ...protocol.enums import ProtocolType
 
 import requests
+
+@sample.route("add/<hash>", methods=["GET"])
+@login_required
+def add_rerouter(hash):
+    if hash == "new":
+        return redirect(url_for("sample.add_collection_consent_and_barcode"))
+
+
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
@@ -34,7 +39,6 @@ def add_collection_consent_and_barcode():
     consent_templates = []
     collection_protocols = []
     processing_protocols = []
-
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
@@ -65,25 +69,32 @@ def add_collection_consent_and_barcode():
     if form.validate_on_submit():
         sample_add_hash = uuid.uuid4()
 
-        disposal_instruction = form.disposal_instruction.data
-
-        if disposal_instruction != DisposalInstruction.NAP:
-            disposal_date = form.disposal_date.data
-        else:
-            disposal_date = None
-
-        session["%s step_one" % (sample_add_hash)] = {
-            "consent_form_id": form.consent_select.data,
+        route_data = {
             "barcode": form.barcode.data,
+            "collection_protocol_id": form.collection_select.data,
+            "collected_by": form.collected_by.data,
+            "consent_form_id": form.consent_select.data,
             "collection_date": form.collection_date.data,
-            "disposal_instruction": disposal_instruction,
-            "disposal_date": disposal_date,
+            "disposal_instruction": form.disposal_instruction.data,
+            "disposal_date": form.disposal_date.data,
             "has_donor": form.has_donor.data,
-            "donor_select": form.donor_select.data,
         }
 
+        # This needs to be broken out to a new module then...
+
+        tss = TemporarySampleStore(
+            uuid=sample_add_hash,
+            data={
+                "add_collection_consent_and_barcode": route_data
+            },
+            author_id = current_user.id
+        )
+
+        db.session.add(tss)
+        db.session.commit()
+
         return redirect(
-            url_for("sample.fill_digital_consent_form", hash=sample_add_hash))
+            url_for("sample.add_rerouter", hash=sample_add_hash))
 
     return render_template(
         "sample/sample/add/step_one.html",

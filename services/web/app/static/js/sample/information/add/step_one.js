@@ -7,12 +7,9 @@ Date.prototype.toDateInputValue = (function() {
 function disposal_logic() {
     if ($("#disposal_instruction option:selected").val() == "NAP") {
         $("#disposal_date_div").hide();
-        $("#disposal_date").prop("required", false);
-        $("#disposal_date").val(new Date().toDateInputValue());
     }
     else {
         $("#disposal_date").val("");
-        $("#disposal_date").prop("required", true);
         $("#disposal_date_div").show();
 
     }

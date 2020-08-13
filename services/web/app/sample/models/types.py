@@ -18,7 +18,6 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 from ..enums import *
 
-
 class SampleToFluidSampleType(Base, RefAuthorMixin, RefEditorMixin):
     __tablename__ = "sampletofluidsampletype"
 

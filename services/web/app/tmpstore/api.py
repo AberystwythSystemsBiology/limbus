@@ -13,12 +13,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin
-
-class TemporarySampleStore(Base, RefAuthorMixin, RefEditorMixin):
-    """
-        This is only accessible within the LIMBUS web interface.
-    """
-    uuid = db.Column(db.String(128), unique=True)
-    data = db.Column(db.JSON, nullable=False)

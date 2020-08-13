@@ -68,6 +68,7 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
         disposal_date = DateField(
             "Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
+            default=datetime.today
         )
 
         disposal_instruction = SelectField(
@@ -82,14 +83,16 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
                 "Patient Consent Form Template",
                 validators=[DataRequired()],
                 choices=consent_templates,
-                description="The patient consent form template that reflects the consent form the sample donor signed. ",
+                description="The patient consent form template that reflects the consent form the sample donor signed.",
+                coerce=int
         )
 
         collection_select = SelectField(
             "Collection Protocol",
             validators=[DataRequired()],
             choices=collection_protocols,
-            description="The protocol that details how the sample was taken."
+            description="The protocol that details how the sample was taken.",
+            coerce=int
         )
 
         collected_by = StringField(
