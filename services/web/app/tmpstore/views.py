@@ -53,3 +53,12 @@ class StoreSearchSchema(masql.SQLAlchemySchema):
     data = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema)
     type = EnumField(StoreType)
+
+
+class StoreUpdateSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = TemporaryStore
+
+    data = masql.auto_field()
+
+store_update_schema = StoreUpdateSchema()

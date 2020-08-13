@@ -26,12 +26,14 @@ from .views import (
     stores_schema,
     store_schema,
     StoreSearchSchema,
-    new_store_schema
+    new_store_schema,
+    store_update_schema
 )
 
 from ..database import db, UserAccount, TemporaryStore
 
 from ..webarg_parser import use_args, use_kwargs, parser
+from uuid import uuid4
 
 
 @api.route("tmpstore/")
@@ -70,6 +72,8 @@ def tmpstore_new_tmpstore(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
+    values["uuid"] = uuid4()
+
     try:
         result = new_store_schema.load(values)
     except ValidationError as err:
@@ -86,7 +90,38 @@ def tmpstore_new_tmpstore(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-@api.route("/tmpstore/hash/delete", methods=["DELETE"])
+@api.route("/tmpstore/<hash>/delete", methods=["DELETE"])
 @token_required
 def tmpstore_remove_tmpstore(hash: str, tokenuser: UserAccount):
     pass
+
+@api.route("/tmpstore/<hash>/edit", methods=["PUT"])
+@token_required
+def tmpstore_edit_tmpstore(hash, tokenuser:UserAccount):
+    tmpstore = TemporaryStore.query.filter_by(uuid=hash).first()
+
+    if not tmpstore:
+        return not_found()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = store_update_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    tmpstore.data = values["data"]
+
+    tmpstore.editor_id = tokenuser.id
+
+    try:
+        db.session.add(tmpstore)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(store_schema.dump(tmpstore))
+    except ValidationError as err:
+        return validation_error_response(err)
