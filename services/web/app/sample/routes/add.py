@@ -33,6 +33,8 @@ import requests
 def add_collection_consent_and_barcode():
     consent_templates = []
     collection_protocols = []
+    processing_protocols = []
+
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
@@ -41,20 +43,22 @@ def add_collection_consent_and_barcode():
     )
 
     if consent_templates_response.status_code == 200:
-        print(consent_templates_response.json())
         for template in consent_templates_response.json()["content"]:
             consent_templates.append([template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"])])
 
-    collection_protocol_response = requests.get(
+
+    protocols_response = requests.get(
         url_for("api.protocol_query", _external=True),
         headers= get_internal_api_header(),
-        # TODO: Fix Enum issue.
         json={"is_locked": False}
     )
 
-    if collection_protocol_response.status_code == 200:
-        for protocol in collection_protocol_response.json()["content"]:
-            collection_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
+    if protocols_response.status_code == 200:
+        for protocol in protocols_response.json()["content"]:
+            if protocol["type"] == "ACQ":
+                collection_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
+            elif protocol["type"] == "SAP":
+                processing_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
 
     form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols)
 
@@ -85,7 +89,8 @@ def add_collection_consent_and_barcode():
         "sample/sample/add/step_one.html",
         form=form,
         template_count=len(consent_templates),
-        collection_protocol_count=len(collection_protocols)
+        collection_protocol_count=len(collection_protocols),
+        processing_protocols_count=len(processing_protocols)
     )
 
 

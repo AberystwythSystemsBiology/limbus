@@ -23,7 +23,6 @@ from ..enums import (
     SampleSource,
 )
 
-
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     # TODO: Automated population.

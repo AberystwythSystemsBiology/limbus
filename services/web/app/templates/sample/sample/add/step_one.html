@@ -42,37 +42,64 @@
             
         {% else %}
             <div class="row">
-                <div class="col">
+                <div class="col-4">
                     {% if template_count == 0 %}
-                    {{ render_warning(
-                    "No Suitable Patient Consent Form Found",
-                    [
-                        "There are no suitable patient consent form templates found.",
-                        "Please add one before adding a sample."
-                     ], 'consent.add', "New Patient Consent Form Template", True, True
-                ) }}
-                        {% else %}
-                        {{ render_success(
-                        "Patient Consent Forms"
-                        ) }}
-                        {% endif %}
+                        <div class="jumbotron alert-danger full-width text-center">
+                            <h1>:(</h1>
+                            <h2>No Consent Form Templates Found</h2>
+                            <p>There doesn't seem to be any form templates available.</p>
+                            <a href="{{ url_for('consent.add') }}">
+                                <div class="btn btn-danger full-width">
+                                    New Consent Form Template
+                                </div>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="jumbotron alert-success full-width text-center">
+                            <h1>:D</h1>
+                            <h2>Consent Form Template(s) Found!</h2>
+                        </div>
+                    {% endif %}
 
                 </div>
-                <div class="col">
-                    {% if template_count == 0 %}
-                    {{ render_warning(
-                    "No Suitable Processing Protocol Found",
-                    [
-                        "There are no suitable sample processing protocols found.",
-                        "Please add one before adding a sample."
-                     ], 'protocol.new', "New Sample Processing Protocol", True, True
-                ) }}
-                        {% else %}
-                        {{ render_success(
-                        "Processing Protocols"
-                        ) }}
-                        {% endif %}
+                <div class="col-4">
+                    {% if collection_protocol_count == 0 %}
+                        <div class="jumbotron alert-danger full-width text-center">
+                            <h1>:(</h1>
+                            <h2>No Collection Protocol(s) Found</h2>
+                                <p>There doesn't seem to be any collection protocols available.</p>
+                                <a href="{{ url_for('protocol.new') }}">
+                                    <div class="btn btn-danger full-width">
+                                        New Protocol
+                                    </div>
+                                </a>
+                            </div>
+                    {% else %}
+                        <div class="jumbotron alert-success full-width text-center">
+                            <h1>:D</h1>
+                            <h2>Collection Protocol(s) Found!</h2>
 
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-4">
+                    {% if processing_protocols_count == 0 %}
+                            <div class="jumbotron alert-danger full-width text-center">
+                                <h1>:(</h1>
+                            <h2>No Processing Protocol(s) Found</h2>
+                            <p>There doesn't seem to be any processing protocols available.</p>
+                                <a href="{{ url_for('protocol.new') }}">
+                                    <div class="btn btn-danger full-width">
+                                        New Protocol
+                                    </div>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="jumbotron alert-success full-width text-center">
+                                <h1>:D</h1>
+                                <h2>Processing Protocol(s) Found!</h2>
+                            </div>
+                    {% endif  %}
                 </div>
             </div>
 

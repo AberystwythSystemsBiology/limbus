@@ -28,7 +28,8 @@ class ProtocolTextType(FormEnum):
 class ProtocolType(FormEnum):
     ASS = "Experimental Assay"
     ACQ = "Sample Acquisition"
-    ALD = "Sample Aliquoting / Derivation"
+    SAP = "Sample Processing"
+    ALD = "Sample Aliquot / Derivation"
     STR = "Sample Transfer"
     SDE = "Sample Destruction"
 
