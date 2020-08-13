@@ -25,15 +25,37 @@ from ..forms import CollectionConsentAndDisposalForm
 
 import requests
 
-@sample.route("add/<hash>", methods=["GET"])
+@sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
 def add_rerouter(hash):
     if hash == "new":
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
 
+    query_response = requests.get(
+        url_for("api.tmpstore_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"uuid": hash}
+    )
+
+    if query_response.status_code == 200:
+        data = query_response.json()["content"]
+
+    try:
+        data = data[0]
+    except IndexError:
+        abort(400)
+
+    if "add_collection_consent_and_barcode" not in data["data"]:
+        return redirect(url_for("sample.add_collection_consent_and_barcode"))
+
+    else:
+        return redirect(url_for("sample.digitial_consent_form"))
 
 
-@sample.route("add/one", methods=["GET", "POST"])
+    abort(400)
+
+
+@sample.route("add/", methods=["GET", "POST"])
 @login_required
 def add_collection_consent_and_barcode():
     consent_templates = []
@@ -67,34 +89,32 @@ def add_collection_consent_and_barcode():
     form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols)
 
     if form.validate_on_submit():
-        sample_add_hash = uuid.uuid4()
 
         route_data = {
             "barcode": form.barcode.data,
             "collection_protocol_id": form.collection_select.data,
             "collected_by": form.collected_by.data,
             "consent_form_id": form.consent_select.data,
-            "collection_date": form.collection_date.data,
+            "collection_date": str(form.collection_date.data),
             "disposal_instruction": form.disposal_instruction.data,
-            "disposal_date": form.disposal_date.data,
+            "disposal_date": str(form.disposal_date.data),
             "has_donor": form.has_donor.data,
         }
 
         # This needs to be broken out to a new module then...
-
-        tss = TemporarySampleStore(
-            uuid=sample_add_hash,
-            data={
-                "add_collection_consent_and_barcode": route_data
-            },
-            author_id = current_user.id
+        store_reponse = requests.post(
+            url_for("api.tmpstore_new_tmpstore", _external=True),
+            headers=get_internal_api_header(),
+            json={"data": {"add_collection_consent_and_barcode": route_data}, "type": "SMP"}
         )
 
-        db.session.add(tss)
-        db.session.commit()
+        if store_reponse.status_code == 200:
 
-        return redirect(
-            url_for("sample.add_rerouter", hash=sample_add_hash))
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_reponse.json()["content"]["uuid"])
+            )
+        else:
+            flash("We have a problem :( %s" % (store_reponse.json()))
 
     return render_template(
         "sample/sample/add/step_one.html",
@@ -105,10 +125,9 @@ def add_collection_consent_and_barcode():
     )
 
 
-'''
-@sample.route("add/two/<hash>", methods=["GET", "POST"])
+@sample.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
 @login_required
-def fill_digital_consent_form(hash):
+def digitial_consent_form(hash):
     t_id = session["%s step_one" % (hash)]["consent_form_id"]
 
     pcf = (

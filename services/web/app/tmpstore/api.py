@@ -57,11 +57,10 @@ def tmpstore_view_tmpstore(hash: str, tokenuser: UserAccount):
 @use_args(StoreSearchSchema(), location="json")
 @token_required
 def tmpstore_query(args, tokenuser: UserAccount):
-    filters, joins = get_filters_and_joins(args, TemporaryStore)
 
     return success_with_content_response(
         stores_schema.dump(
-            TemporaryStore.query.filter_by(**filters).filter(*joins).all())
+            TemporaryStore.query.filter_by(**args).all())
     )
 
 @api.route("/tmpstore/new", methods=["POST"])
@@ -69,10 +68,12 @@ def tmpstore_query(args, tokenuser: UserAccount):
 def tmpstore_new_tmpstore(tokenuser: UserAccount):
     values = request.get_json()
 
+
     if not values:
         return no_values_response()
 
-    values["uuid"] = uuid4()
+    values["uuid"] = str(uuid4())
+    print(values)
 
     try:
         result = new_store_schema.load(values)

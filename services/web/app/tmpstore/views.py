@@ -41,7 +41,7 @@ class NewStoreSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     data = masql.auto_field()
     author_id = masql.auto_field()
-    type = EnumField(StoreType)
+    type = EnumField(StoreType, required=True)
 
 new_store_schema = NewStoreSchema()
 
@@ -50,7 +50,6 @@ class StoreSearchSchema(masql.SQLAlchemySchema):
         model = TemporaryStore
 
     uuid = masql.auto_field()
-    data = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema)
     type = EnumField(StoreType)
 
