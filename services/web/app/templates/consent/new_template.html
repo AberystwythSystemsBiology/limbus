@@ -10,7 +10,7 @@
                     <i class="fa fa-question-circle"></i> Patient Consent Form Portal
             </a></span> New Consent Form Template</h1>
 
-        <form method="POST" action="{{ url_for('consent.new_template' ) }}">
+        <form method="POST" action="{{ url_for('consent.add' ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.name) }}
             {{ form_field(form.description) }}

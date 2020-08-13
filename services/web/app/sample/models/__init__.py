@@ -35,11 +35,13 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     source = db.Column(db.Enum(Source))
 
     type = db.Column(db.Enum(SampleType))
-    collection_date = db.Column(db.DateTime)
     status = db.Column(db.Enum(SampleStatus))
     colour = db.Column(db.Enum(Colour))
     quantity = db.Column(db.Float)
     remaining_quantity = db.Column(db.Float)
+
+    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
     comments = db.Column(db.Text, nullable=True)
     quality = db.Column(db.Enum(Quality))

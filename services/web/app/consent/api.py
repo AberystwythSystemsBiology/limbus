@@ -31,6 +31,7 @@ from .views import (
     basic_consent_form_templates_schema,
     new_consent_form_question_schema,
     consent_form_template_schema,
+
     consent_form_question_schema,
     basic_consent_form_question_schema,
     ConsentFormTemplateSearchSchema,
@@ -64,7 +65,7 @@ def consent_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, ConsentFormTemplate)
 
     return success_with_content_response(
-        consent_form_template_schema.dump(
+        basic_consent_form_templates_schema.dump(
             ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all())
     )
 

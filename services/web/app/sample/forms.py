@@ -78,42 +78,29 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
 
         has_donor = BooleanField("Has Donor")
 
+        consent_select = SelectField(
+                "Patient Consent Form Template",
+                validators=[DataRequired()],
+                choices=consent_templates,
+                description="The patient consent form template that reflects the consent form the sample donor signed. ",
+        )
+
+
+
+        collection_select = SelectField(
+            "Collection Protocol",
+            validators=[DataRequired()],
+            choices=collection_protocols,
+            description="The protocol that details how the sample was taken."
+        )
+
+        collected_by = StringField(
+            "Collected By",
+            description="The initials of the individual who collected the sample"
+        )
+
         submit = SubmitField("Submit")
 
-
-    #donors = db.session.query(Donors).all()
-    donor_choices = []
-
-    '''
-    if len(donors) == 0:
-        donor_choices.append(["0", "No Suitable Donor Available"])
-
-    for donor in donors:
-        donor_choices.append([str(donor.id), "LIMBDON-%s" % (donor.id)])
-    '''
-
-    setattr(
-        StaticForm,
-        "donor_select",
-        SelectField(
-            "Sample Donor",
-            choices=donor_choices,
-            description="The patient consent form template that reflects the consent form the sample donor signed. ",
-        ),
-    )
-
-    setattr(
-        StaticForm,
-        "form_select",
-        SelectField(
-            "Patient Consent Form Template",
-            validators=[DataRequired()],
-            choices=consent_templates,
-            description="The patient consent form template that reflects the consent form the sample donor signed. ",
-        ),
-    )
-
-    setattr(StaticForm, "submit", SubmitField("Submit"))
 
     return StaticForm()
 

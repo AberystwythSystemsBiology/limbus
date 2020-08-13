@@ -36,13 +36,14 @@ def add_collection_consent_and_barcode():
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
-        headers = get_internal_api_header(),
+        headers= get_internal_api_header(),
         json={"is_locked": False}
     )
 
     if consent_templates_response.status_code == 200:
+        print(consent_templates_response.json())
         for template in consent_templates_response.json()["content"]:
-            consent_templates.append([template["id"], template["name"]])
+            consent_templates.append([template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"])])
 
     collection_protocol_response = requests.get(
         url_for("api.protocol_query", _external=True),
@@ -53,7 +54,7 @@ def add_collection_consent_and_barcode():
 
     if collection_protocol_response.status_code == 200:
         for protocol in collection_protocol_response.json()["content"]:
-            collection_protocols.append([protocol["id"], protocol["name"]])
+            collection_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
 
 
     form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols)
@@ -69,7 +70,7 @@ def add_collection_consent_and_barcode():
             disposal_date = None
 
         session["%s step_one" % (sample_add_hash)] = {
-            "consent_form_id": form.form_select.data,
+            "consent_form_id": form.consent_select.data,
             "barcode": form.barcode.data,
             "collection_date": form.collection_date.data,
             "disposal_instruction": disposal_instruction,
@@ -85,7 +86,7 @@ def add_collection_consent_and_barcode():
         "sample/sample/add/step_one.html",
         form=form,
         template_count=len(consent_templates),
-        protocol_count=len(collection_protocols)
+        collection_protocol_count=len(collection_protocols)
     )
 
 
