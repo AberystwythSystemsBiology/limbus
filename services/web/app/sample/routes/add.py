@@ -56,7 +56,6 @@ def add_collection_consent_and_barcode():
         for protocol in collection_protocol_response.json()["content"]:
             collection_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
 
-
     form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols)
 
     if form.validate_on_submit():
@@ -80,7 +79,7 @@ def add_collection_consent_and_barcode():
         }
 
         return redirect(
-            url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
+            url_for("sample.fill_digital_consent_form", hash=sample_add_hash))
 
     return render_template(
         "sample/sample/add/step_one.html",
@@ -93,7 +92,7 @@ def add_collection_consent_and_barcode():
 '''
 @sample.route("add/two/<hash>", methods=["GET", "POST"])
 @login_required
-def add_sample_pcf_data(hash):
+def fill_digital_consent_form(hash):
     t_id = session["%s step_one" % (hash)]["consent_form_id"]
 
     pcf = (

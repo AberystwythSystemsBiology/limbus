@@ -68,7 +68,6 @@ class MdeForm(FlaskForm):
     type = SelectField(
         "Protocol Text Type", choices=[(x.name, x.value) for x in ProtocolTextType],
     )
-
     editor = MdeField()
 
     submit = SubmitField("Submit")

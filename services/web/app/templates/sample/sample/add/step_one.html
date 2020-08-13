@@ -16,7 +16,7 @@
                 {{ form_field(form.barcode) }}
 
 
-                {{ form_field(form.collection_select) }}
+                {{ form_field(form.collection_select, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
 
                 <div class="alert alert-warning" role="alert">
                     <b>Notice:</b> If you are unable to find the suitable collection protocol, it's likely
@@ -26,7 +26,7 @@
                 {{ form_field(form.collected_by) }}
                 {{ form_field(form.collection_date) }}
 
-                {{ form_field(form.consent_select) }}
+                {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
 
                 <div class="alert alert-warning" role="alert">
                     <b>Notice:</b> If you are unable to find the patient consent form, it's likely that you have yet to add it.

@@ -85,8 +85,6 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
                 description="The patient consent form template that reflects the consent form the sample donor signed. ",
         )
 
-
-
         collection_select = SelectField(
             "Collection Protocol",
             validators=[DataRequired()],
@@ -96,7 +94,7 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
 
         collected_by = StringField(
             "Collected By",
-            description="The initials of the individual who collected the sample"
+            description="The initials of the individual who collected the sample."
         )
 
         submit = SubmitField("Submit")
