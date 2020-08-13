@@ -20,8 +20,7 @@ from ..enums import (
     SampleStatus,
     DisposalInstruction,
     Colour,
-    Source,
-    Quality,
+    SampleSource,
 )
 
 
@@ -32,7 +31,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     barcode = db.Column(db.Text)
 
-    source = db.Column(db.Enum(Source))
+    source = db.Column(db.Enum(SampleSource))
 
     type = db.Column(db.Enum(SampleType))
     status = db.Column(db.Enum(SampleStatus))
@@ -44,7 +43,6 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
     comments = db.Column(db.Text, nullable=True)
-    quality = db.Column(db.Enum(Quality))
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     is_closed = db.Column(db.Boolean, default=False)
@@ -111,3 +109,4 @@ from .types import *
 from .consent import *
 from .document import *
 from .review import *
+from .temp import *

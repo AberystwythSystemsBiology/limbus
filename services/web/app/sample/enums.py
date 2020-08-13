@@ -16,7 +16,7 @@
 from ..FormEnum import FormEnum
 
 
-class Quality(FormEnum):
+class SampleQuality(FormEnum):
     GOO = "Good"
     BAD = "Bad"
     DAM = "Damaged"
@@ -32,7 +32,7 @@ class Colour(FormEnum):
     GRY = "Grey"
 
 
-class Source(FormEnum):
+class SampleSource(FormEnum):
     NEW = "New"
     ALI = "Aliquot"
     DER = "Derivative"

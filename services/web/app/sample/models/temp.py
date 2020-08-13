@@ -15,12 +15,10 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
-from ..enums import SampleQuality
 
-class SampleReview(Base, RefAuthorMixin, RefEditorMixin):
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
-    conducted_by = db.Column(db.String(128))
-    date = db.Column(db.Date, nullable=False)
-    quality = db.Column(db.Enum(SampleQuality))
-    comments = db.Column(db.Text)
+class TemporarySampleStore(Base, RefAuthorMixin, RefEditorMixin):
+    """
+        This is only accessible within the LIMBUS web interface.
+    """
+    uuid = db.Column(db.String(128), unique=True)
+    data = db.Column(db.JSON, nullable=False)
