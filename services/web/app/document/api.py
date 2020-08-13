@@ -24,7 +24,6 @@ from flask import request, current_app, jsonify, send_file
 from ..decorators import token_required
 
 from marshmallow import ValidationError
-from webargs.flaskparser import use_args
 
 from .views import (
     document_schema,
@@ -98,7 +97,6 @@ def document_lock_document(id: int, tokenuser: UserAccount):
 @api.route("/document/LIMBDOC-<id>/edit", methods=["PUT"])
 @token_required
 def document_edit_document(id: int, tokenuser: UserAccount):
-
     document = Document.query.filter_by(id=id).first()
 
     if not document:

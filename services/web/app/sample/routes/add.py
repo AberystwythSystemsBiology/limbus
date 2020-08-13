@@ -16,15 +16,35 @@
 from flask import render_template, redirect, session, url_for, flash, abort
 from flask_login import login_required
 
+from ...misc import get_internal_api_header
+
 import uuid
 from .. import sample
 
-from ..forms import *
+
+from ..forms import CollectionConsentAndDisposalForm
+from ..enums import DisposalInstruction
+
+import requests
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
-def add_sample_pcf():
-    form = PatientConsentFormSelectForm()
+def add_collection_consent_and_barcode():
+    # Do the requests and pop them through.
+
+    consent_templates_response = requests.get(
+        url_for("api.consent_query", _external=True),
+        headers = get_internal_api_header(),
+        json={"is_locked": False}
+    )
+
+    collection_protocol_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers= get_internal_api_header(),
+        json= {"is_locked": False, "type": "ACQ"}
+    )
+
+    form = CollectionConsentAndDisposalForm()
 
     #template_count = db.session.query(ProcessingTemplate).count()
 
@@ -51,7 +71,7 @@ def add_sample_pcf():
         return redirect(url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
 
     return render_template(
-        "sample/sample/add/step_one.html", form=form, template_count=template_count
+        "sample/sample/add/step_one.html", form=form
     )
 
 

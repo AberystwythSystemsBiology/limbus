@@ -21,8 +21,7 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ..auth.views import BasicUserAccountSchema
-
+from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 class NewConsentFormTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -46,6 +45,17 @@ class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
 
 
 new_consent_form_question_schema = NewConsentFormQuestionSchema()
+
+class ConsentFormTemplateSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ConsentFormTemplate
+
+    id = masql.auto_field(required=False)
+    name = masql.auto_field(required=False)
+    version = masql.auto_field(required=False)
+    created_on = fields.Date(required=False)
+    is_locked = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema)
 
 
 class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):

@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import db
-
+from ..database import db, UserAccount
 
 from ..api import api
 from ..api.responses import *
+from ..api.filters import get_filters_and_joins
+
 from ..decorators import token_required
-from ..auth.models import UserAccount
 
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
@@ -33,9 +33,11 @@ from .views import (
     new_protocol_text_schema,
     basic_protocol_text_schema,
     new_protocol_template_to_document_schema,
+    ProtocolTemplateSearchSchema
 )
 
 from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
+from ..webarg_parser import use_args, use_kwargs, parser
 
 
 @api.route("/protocol")
@@ -45,6 +47,17 @@ def protocol_home(tokenuser: UserAccount):
         basic_protocol_templates_schema.dump(ProtocolTemplate.query.all())
     )
 
+
+@api.route("/document/query", methods=["GET"])
+@use_args(ProtocolTemplateSearchSchema(), location="json")
+@token_required
+def protocol_query(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, ProtocolTemplate)
+
+    return success_with_content_response(
+        basic_protocol_templates_schema.dump(
+            ProtocolTemplate.query.filter_by(**filters).filter(*joins).all())
+    )
 
 @api.route("/protocol/new", methods=["POST"])
 @token_required

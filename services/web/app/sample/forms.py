@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import (
     SelectField,
@@ -27,20 +26,13 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Length
 
+from datetime import datetime
 
 from .enums import *
 
-from ..patientconsentform.models import ConsentFormTemplate, ConsentFormTemplateQuestion
+#from ..storage.enums import CellContainer, FluidContainer, FixationType
 
-from ..processing.models import ProcessingTemplate
-from ..processing.enums import ProtocolTypes, ProtocolSampleType
-
-from ..storage.enums import CellContainer, FluidContainer, FixationType
-from ..donor.models import Donors
-
-from .. import db
-
-
+'''
 class SampleTypeSelectForm(FlaskForm):
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
     fluid_sample_type = SelectField(
@@ -55,40 +47,50 @@ class SampleTypeSelectForm(FlaskForm):
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
     cell_container = SelectField("Cell Container", choices=CellContainer.choices())
 
-
     submit = SubmitField("Submit")
+'''
 
+def CollectionConsentAndDisposalForm():
 
-def PatientConsentFormSelectForm():
     class StaticForm(FlaskForm):
-        barcode = StringField("Sample Biobank Barcode")
+        barcode = StringField(
+            "Sample Biobank Barcode",
+            description="If your sample already has a barcode/identifier, you can enter it here."
+        )
 
         collection_date = DateField(
             "Sample Collection Date",
             validators=[DataRequired()],
             description="The date in which the sample was collected.",
+            default=datetime.today
         )
 
         disposal_date = DateField(
-            "Disposal Date (*)",
-            description="The date in which the sample is required to be disposed of in accordance to the disposal instructions.",
+            "Sample Disposal Date (*)",
+            description="The date in which the sample is required to be disposed of.",
         )
 
         disposal_instruction = SelectField(
-            "Disposal Instructions",
+            "Sample Disposal Instruction",
             choices=DisposalInstruction.choices(),
             description="The method of sample disposal.",
         )
 
         has_donor = BooleanField("Has Donor")
 
-    donors = db.session.query(Donors).all()
+        submit = SubmitField("Submit")
+
+
+    #donors = db.session.query(Donors).all()
     donor_choices = []
+
+    '''
     if len(donors) == 0:
         donor_choices.append(["0", "No Suitable Donor Available"])
 
     for donor in donors:
         donor_choices.append([str(donor.id), "LIMBDON-%s" % (donor.id)])
+    '''
 
     setattr(
         StaticForm,
@@ -100,7 +102,7 @@ def PatientConsentFormSelectForm():
         ),
     )
 
-    patient_consent_forms = db.session.query(ConsentFormTemplate).all()
+    pass
 
     setattr(
         StaticForm,
@@ -108,15 +110,12 @@ def PatientConsentFormSelectForm():
         SelectField(
             "Patient Consent Form Template",
             validators=[DataRequired()],
-            choices=[
-                (str(cf.id), "LIMBPCF-%s: %s" % (cf.id, cf.name))
-                for cf in patient_consent_forms
-            ],
+            choices=[ ],
             description="The patient consent form template that reflects the consent form the sample donor signed. ",
         ),
     )
 
-    setattr(StaticForm, "submit", SubmitField())
+    setattr(StaticForm, "submit", SubmitField("Submit"))
 
     return StaticForm()
 
@@ -165,6 +164,7 @@ class FinalSampleForm:
         "submit": SubmitField("Submit"),
     }
 
+'''
 
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     class StaticForm(FlaskForm):
@@ -195,9 +195,10 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
 
     setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=_ec))
 
+
     processing_templates = (
         db.session.query(ProcessingTemplate)
-        .filter(ProcessingTemplate.type == ProtocolTypes.ALD)
+        .filter(ProcessingTemplate.type == ProtocolType.ALD)
         .filter(
             ProcessingTemplate.sample_type.in_(
                 [processsing_enum, ProtocolSampleType.ALL]
@@ -205,6 +206,9 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
         )
         .all()
     )
+   
+
+    protcessing_templates = {}
 
     setattr(
         StaticForm,
@@ -219,3 +223,4 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     )
 
     return StaticForm(), len(processing_templates)
+'''

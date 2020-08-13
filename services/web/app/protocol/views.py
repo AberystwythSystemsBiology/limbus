@@ -24,7 +24,7 @@ from ..database import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocumen
 
 import markdown
 
-from ..auth.views import BasicUserAccountSchema
+from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ..document.views import BasicDocumentSchema
 
 class MarkdownField(fields.Field):
@@ -33,6 +33,15 @@ class MarkdownField(fields.Field):
 
     def _deserialize(self, value, attr, data, **kwargs):
         return "Goodbye World"
+
+class ProtocolTemplateSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ProtocolTemplate
+
+    id = masql.auto_field(required=False)
+    name = masql.auto_field(required=False)
+    type = EnumField(ProtocolType, required=False)
+    author = ma.Nested(UserAccountSearchSchema)
 
 
 class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):

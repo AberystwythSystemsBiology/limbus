@@ -15,7 +15,9 @@
 
 from .. import db
 
-from ..api import api
+from ..webarg_parser import use_args
+
+from ..api import api, get_filters_and_joins
 from ..api.responses import *
 
 from marshmallow import ValidationError
@@ -31,6 +33,7 @@ from .views import (
     consent_form_template_schema,
     consent_form_question_schema,
     basic_consent_form_question_schema,
+    ConsentFormTemplateSearchSchema,
 )
 
 from ..auth.models import UserAccount
@@ -52,6 +55,17 @@ def consent_view_template(id, tokenuser: UserAccount):
         consent_form_template_schema.dump(
             ConsentFormTemplate.query.filter_by(id=id).first()
         )
+    )
+
+@api.route("/consent/query", methods=["GET"])
+@use_args(ConsentFormTemplateSearchSchema(), location="json")
+@token_required
+def consent_query(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, ConsentFormTemplate)
+
+    return success_with_content_response(
+        consent_form_template_schema.dump(
+            ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all())
     )
 
 

@@ -64,7 +64,7 @@ def view(id):
 
 @consent.route("/add", methods=["GET", "POST"])
 @login_required
-def new_template():
+def add():
     form = NewConsentFormTemplateForm()
     if form.validate_on_submit():
         template_information = {

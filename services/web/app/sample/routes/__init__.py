@@ -19,9 +19,7 @@ from flask_login import login_required
 
 from ...misc import get_internal_api_header
 
-
 import requests
-
 
 @sample.route("/")
 @login_required
@@ -37,7 +35,9 @@ def index() -> str:
         return abort(response.status_code)
 
 
-@sample.route("/biohazard")
+@sample.route("/biohazard_information")
 @login_required
 def biohazard_information() -> str:
     return render_template("sample/misc/biohazards.html")
+
+from .add import *
