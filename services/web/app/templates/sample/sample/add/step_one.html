@@ -37,7 +37,7 @@
         {% else %}
             <div class="row">
                 <div class="col">
-                    {% if form.form_select.choices|length == 0 %}
+                    {% if template_count == 0 %}
                     {{ render_warning(
                     "No Suitable Patient Consent Form Found",
                     [
@@ -59,7 +59,7 @@
                     [
                         "There are no suitable sample processing protocols found.",
                         "Please add one before adding a sample."
-                     ], 'processing.new_protocol', "New Sample Processing Protocol", True, True
+                     ], 'protocol.new', "New Sample Processing Protocol", True, True
                 ) }}
                         {% else %}
                         {{ render_success(

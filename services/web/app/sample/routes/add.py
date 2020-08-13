@@ -21,16 +21,18 @@ from ...misc import get_internal_api_header
 import uuid
 from .. import sample
 
-
 from ..forms import CollectionConsentAndDisposalForm
 from ..enums import DisposalInstruction
+
+from ...protocol.enums import ProtocolType
 
 import requests
 
 @sample.route("add/one", methods=["GET", "POST"])
 @login_required
 def add_collection_consent_and_barcode():
-    # Do the requests and pop them through.
+    consent_templates = []
+    collection_protocols = []
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
@@ -38,15 +40,23 @@ def add_collection_consent_and_barcode():
         json={"is_locked": False}
     )
 
+    if consent_templates_response.status_code == 200:
+        for template in consent_templates_response.json()["content"]:
+            consent_templates.append([template["id"], template["name"]])
+
     collection_protocol_response = requests.get(
         url_for("api.protocol_query", _external=True),
         headers= get_internal_api_header(),
-        json= {"is_locked": False, "type": "ACQ"}
+        # TODO: Fix Enum issue.
+        json={"is_locked": False}
     )
 
-    form = CollectionConsentAndDisposalForm()
+    if collection_protocol_response.status_code == 200:
+        for protocol in collection_protocol_response.json()["content"]:
+            collection_protocols.append([protocol["id"], protocol["name"]])
 
-    #template_count = db.session.query(ProcessingTemplate).count()
+
+    form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols)
 
     if form.validate_on_submit():
         sample_add_hash = uuid.uuid4()
@@ -68,10 +78,14 @@ def add_collection_consent_and_barcode():
             "donor_select": form.donor_select.data,
         }
 
-        return redirect(url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
+        return redirect(
+            url_for("sample.add_sample_pcf_data", hash=sample_add_hash))
 
     return render_template(
-        "sample/sample/add/step_one.html", form=form
+        "sample/sample/add/step_one.html",
+        form=form,
+        template_count=len(consent_templates),
+        protocol_count=len(collection_protocols)
     )
 
 

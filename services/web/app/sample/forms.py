@@ -50,7 +50,7 @@ class SampleTypeSelectForm(FlaskForm):
     submit = SubmitField("Submit")
 '''
 
-def CollectionConsentAndDisposalForm():
+def CollectionConsentAndDisposalForm(consent_templates: list, collection_protocols: list) -> FlaskForm:
 
     class StaticForm(FlaskForm):
         barcode = StringField(
@@ -102,15 +102,13 @@ def CollectionConsentAndDisposalForm():
         ),
     )
 
-    pass
-
     setattr(
         StaticForm,
         "form_select",
         SelectField(
             "Patient Consent Form Template",
             validators=[DataRequired()],
-            choices=[ ],
+            choices=consent_templates,
             description="The patient consent form template that reflects the consent form the sample donor signed. ",
         ),
     )
