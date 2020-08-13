@@ -166,7 +166,7 @@ def digitial_consent_form(hash):
         questionnaire=questionnaire,
     )
 
-
+'''
 @sample.route("add/three/<hash>", methods=["GET", "POST"])
 @login_required
 def select_sample_type(hash):
