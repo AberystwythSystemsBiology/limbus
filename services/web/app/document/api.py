@@ -19,7 +19,8 @@ from ..api.responses import *
 from ..api.filters import generate_base_query_filters, get_filters_and_joins
 import io
 
-from .. import db
+from ..database import db
+
 from flask import request, current_app, jsonify, send_file
 from ..decorators import token_required
 
@@ -33,15 +34,12 @@ from .views import (
     basic_documents_schema,
     new_document_schema,
     new_document_file_schema,
+    DocumentSearchSchema,
 )
 
 
-from ..auth.models import UserAccount
-from .models import Document, DocumentFile
+from ..database import UserAccount, Document, DocumentFile
 from .encryption import encrypt_document, decrypt_document
-
-from .views import DocumentSearchSchema
-
 from ..webarg_parser import use_args, use_kwargs, parser
 
 

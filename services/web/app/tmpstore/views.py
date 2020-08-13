@@ -28,7 +28,7 @@ class StoreSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     data = masql.auto_field()
-    author = ma.Nested(UserAccountSearchSchema)
+    author = ma.Nested(BasicUserAccountSchema)
     type = EnumField(StoreType)
 
 store_schema = StoreSchema()
