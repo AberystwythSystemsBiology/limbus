@@ -1,0 +1,12 @@
+{% extends "template.html" %}
+
+
+{% block title %}Sample Review{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Review</h1>
+        {{ render_progress(5, 8) }}
+
+    </div>
+{% endblock %}

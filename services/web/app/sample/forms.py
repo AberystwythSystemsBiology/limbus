@@ -33,7 +33,6 @@ from .enums import *
 
 from ..storage.enums import CellContainer, FluidContainer, FixationType
 
-
 class SampleTypeSelectForm(FlaskForm):
 
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
@@ -51,7 +50,7 @@ class SampleTypeSelectForm(FlaskForm):
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
     cell_container = SelectField("Cell Container", choices=CellContainer.choices())
 
-    submit = SubmitField("Submit")
+    submit = SubmitField("Continue")
 
 
 def CollectionConsentAndDisposalForm(consent_templates: list, collection_protocols: list) -> FlaskForm:
@@ -105,35 +104,58 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
             description="The initials of the individual who collected the sample."
         )
 
-        submit = SubmitField("Submit")
+        submit = SubmitField("Continue")
 
     return StaticForm()
 
 
-def ProtocolTemplateSelectForm(templates):
+def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
-        processing_date = DateField("Processing Date")
-        processing_time = TimeField("Processing Time")
+        sample_status = SelectField(
+            "Sample Status",
+            choices=SampleStatus.choices(),
+            description="The current status of the Sample."
+        )
 
-        submit = SubmitField("Submit")
+        processing_date = DateField(
+            "Processing Date",
+            default=datetime.today(),
+            description="The date in which the sample was processed."
+        )
+        processing_time = TimeField(
+            "Processing Time",
+            default=datetime.now(),
+            description="The time in which the sample was processed."
+        )
 
-    choices = []
+        processing_protocol_id = SelectField(
+            "Processing Protocol",
+            choices=protocol_templates,
+            coerce=int,
+            validators=[DataRequired()]
+        )
 
-    for t in templates:
-        choice = " LIMBPRO-%s: %s" % (t.id, t.name)
-        choices.append([str(t.id), choice])
+        comments = TextAreaField(
+            "Comments"
+        )
 
-    setattr(
-        StaticForm,
-        "form_select",
-        SelectField(
-            "Processing Protocol Template", validators=[DataRequired()], choices=choices
-        ),
-    )
+        undertaken_by = StringField(
+            "Processed",
+            description="The initials of the individual who processed the sample."
+        )
+
+        submit = SubmitField("Continue")
+
 
     return StaticForm()
 
+
+class SampleReviewForm(FlaskForm):
+    date = DateField("Review Date")
+    conducted_by = StringField("Review Conducted By")
+    time = TimeField("Review Time")
+    quality = SelectField("Sample Quality")
+    comments = TextAreaField("Comments")
 
 def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
@@ -151,7 +173,7 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
             default=datetime.today()
         )
 
-        submit = SubmitField("Submit")
+        submit = SubmitField("Continue")
 
     for question in consent_template["questions"]:
         setattr(

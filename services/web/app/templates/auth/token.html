@@ -1,32 +1,36 @@
 {% extends "template.html" %}
 
 
-{% block title %}Your API Token Generator{% endblock %}
+{% block title %}Token Generator{% endblock %}
 
 {% block body %}
     <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span><i class="fa fa-key"></i> Your API Token Generator</h1>
-
-        <p>This will invalidate your previous token, so please ensure that you update your scripts with the new
-        token.</p>
-
-        <div class="row">
-            <div class="col-lg-3"></div>
-            <div class="jumbotron col-lg-6" style="text-align: center">
-
-                <h2>Your new token is:</h2>
+        <h1><span class="secondary-heading">
+            <i class="fa fa-user"></i> User Account
+        </span>
+            Token Generator</h1>
+        <div class="alert alert-warning text-center">
+            <b>Notice</b> This has invalidated your token. You will be required to update all of your scripts with the
+            new token in order to continue using the BIMS from an external interface. If you don't know what this means,
+            then you're probably not affected and can continue onward with your day. If you think this has broke something
+            please contact your systems administrator.
+        </div>
+        <div class="card">
+            <div class="card-header text-center"><h2>Your new token is</h2></div>
+            <div class="card-body text-center">
                 <code>
-                    <pre>{{ token }}</pre>
+                    <pre style="font-size:2em;" id="token">{{ token }}</pre>
                 </code>
+
             </div>
-            <div class="col-lg-3"></div>
+            <div class="card-footer">
+                <div class="btn btn-success full-width disabled" id="copy">
+                    <i class="fa fa-clipboard"></i> Copy to Clipboard
+                </div>
+            </div>
         </div>
 
-
     </div>
-
-
-
 
 {% endblock %}

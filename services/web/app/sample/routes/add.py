@@ -44,15 +44,16 @@ def add_rerouter(hash):
         data = query_response.json()["content"]["data"]
 
     if "add_collection_consent_and_barcode" not in data:
-
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
     else:
-        if "digital_consent_form" in data:
-            if "sample_information" in data:
-                return redirect(url_for("sample.processing_information", hash=hash))
-            return redirect(url_for("sample.sample_information", hash=hash))
-
-        return redirect(url_for("sample.digital_consent_form", hash=hash))
+        if "add_digital_consent_form" in data:
+            print("Consent Form Data Found")
+            if "add_sample_information" in data:
+                if "add_processing_information" in data:
+                    return redirect(url_for("sample.add_sample_review", hash=hash))
+                return redirect(url_for("sample.add_processing_information", hash=hash))
+            return redirect(url_for("sample.add_sample_information", hash=hash))
+        return redirect(url_for("sample.add_digital_consent_form", hash=hash))
 
 
     abort(400)
@@ -130,7 +131,7 @@ def add_collection_consent_and_barcode():
 
 @sample.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
 @login_required
-def digital_consent_form(hash):
+def add_digital_consent_form(hash):
 
     tmpstore_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
@@ -168,19 +169,19 @@ def digital_consent_form(hash):
                 consent_details["checked"].append(question["id"])
 
 
-        tmpstore_data["digital_consent_form"] = consent_details
+        tmpstore_data["add_digital_consent_form"] = consent_details
 
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
             json={"data": tmpstore_data}
         )
-        
+
         if store_response.status_code == 200:
             return redirect(
                 url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
             )
-            
+
         flash("We have a problem :( %s" % (store_response.json()))
 
 
@@ -194,7 +195,7 @@ def digital_consent_form(hash):
 
 @sample.route("add/sample_information/<hash>", methods=["GET", "POST"])
 @login_required
-def sample_information(hash):
+def add_sample_information(hash):
     tmpstore_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
@@ -220,7 +221,7 @@ def sample_information(hash):
             "cell_container": form.cell_container.data
         }
 
-        tmpstore_data["sample_information"] = sample_information_details
+        tmpstore_data["add_sample_information"] = sample_information_details
 
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
@@ -239,25 +240,79 @@ def sample_information(hash):
 
 
 @sample.route("add/processing_information/<hash>", methods=["GET", "POST"])
-def processing_information(hash):
-    '''
-    form = ProtocolTemplateSelectForm(templates)
+def add_processing_information(hash):
+
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+
+    protocols_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False, "type": "SAP"}
+    )
+    processing_protocols = []
+
+    if protocols_response.status_code == 200:
+        for protocol in protocols_response.json()["content"]:
+            processing_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
+
+    form = ProtocolTemplateSelectForm(processing_protocols)
+
 
     if form.validate_on_submit():
-        session["%s step_four" % (hash)] = {
-            "protocol_id": form.form_select.data,
+        processing_information_details = {
+            "processing_protocol_id": form.processing_protocol_id.data,
             "sample_status": form.sample_status.data,
-            "processing_date": form.processing_date.data,
+            "processing_date": str(form.processing_date.data),
             "processing_time": form.processing_time.data.strftime("%H:%M:%S"),
+            "comments": form.comments.data,
+            "undertaken_by": form.undertaken_by.data
         }
-        return redirect(url_for("sample.add_sample_attr", hash=hash))
-    '''
 
-    form = None
+        tmpstore_data["add_processing_information"] = processing_information_details
+
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data}
+        )
+
+        if store_response.status_code == 200:
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
+        return redirect(url_for("sample.add_sample_attr", hash=hash))
+
     return render_template(
         "sample/sample/add/step_four.html",
         form=form,
         hash=hash,
+    )
+
+@sample.route("add/sample_review/<hash>", methods=["GET", "POST"])
+def add_sample_review(hash):
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+
+    return render_template(
+        "sample/sample/add/review.html",
+        hash=hash
     )
 
 '''
