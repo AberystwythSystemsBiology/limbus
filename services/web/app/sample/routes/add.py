@@ -23,7 +23,8 @@ from .. import sample
 from ..forms import (
     CollectionConsentAndDisposalForm,
     PatientConsentQuestionnaire,
-    SampleTypeSelectForm
+    SampleTypeSelectForm,
+    ProtocolTemplateSelectForm
 )
 
 import requests
@@ -47,7 +48,10 @@ def add_rerouter(hash):
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
     else:
         if "digital_consent_form" in data:
+            if "sample_information" in data:
+                return redirect(url_for("sample.processing_information", hash=hash))
             return redirect(url_for("sample.sample_information", hash=hash))
+
         return redirect(url_for("sample.digital_consent_form", hash=hash))
 
 
@@ -112,8 +116,8 @@ def add_collection_consent_and_barcode():
             return redirect(
                 url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
             )
-        else:
-            flash("We have a problem :( %s" % (store_response.json()))
+
+        flash("We have a problem :( %s" % (store_response.json()))
 
     return render_template(
         "sample/sample/add/step_one.html",
@@ -177,8 +181,7 @@ def digital_consent_form(hash):
                 url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
             )
             
-        else:
-            flash("We have a problem :( %s" % (store_response.json()))
+        flash("We have a problem :( %s" % (store_response.json()))
 
 
     return render_template(
@@ -192,45 +195,52 @@ def digital_consent_form(hash):
 @sample.route("add/sample_information/<hash>", methods=["GET", "POST"])
 @login_required
 def sample_information(hash):
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+
     form = SampleTypeSelectForm()
 
     if form.validate_on_submit():
-        a = {"sample_type": form.sample_type.data, "quantity": form.quantity.data}
 
-        if a["sample_type"] == "CEL":
-            b = {
-                "type": form.cell_sample_type.data,
-                "fixation": form.fixation_type.data,
-                "storage_type": form.cell_container.data,
-            }
-        elif a["sample_type"] == "FLU":
-            b = {
-                "type": form.fluid_sample_type.data,
-                "storage_type": form.fluid_container.data,
-            }
-        elif a["sample_type"] == "MOL":
-            b = {
-                "type": form.molecular_sample_type.data,
-                "storage_type": form.fluid_container.data,
-            }
+        sample_information_details = {
+            "sample_type": form.sample_type.data,
+            "fluid_sample_type": form.fluid_sample_type.data,
+            "molecular_sample_type": form.molecular_sample_type.data,
+            "cell_sample_type": form.cell_sample_type.data,
+            "quantity": form.quantity.data,
+            "fixation_type": form.fixation_type.data,
+            "fluid_container": form.fluid_container.data,
+            "cell_container": form.cell_container.data
+        }
 
-        data = {**a, **b}
+        tmpstore_data["sample_information"] = sample_information_details
 
-        return redirect(url_for("sample.select_processing_protocol", hash=hash))
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data}
+        )
+
+        if store_response.status_code == 200:
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
+
     return render_template("sample/sample/add/step_three.html", form=form, hash=hash)
 
-''''
-@sample.route("add/four/<hash>", methods=["GET", "POST"])
-def select_processing_protocol(hash):
-    templates = (
-        db.session.query(ProcessingTemplate)
-        .filter(
-            ProcessingTemplate.sample_type.in_(
-                [session["%s step_three" % (hash)]["sample_type"], "ALL"]
-            )
-        )
-        .all()
-    )
+
+@sample.route("add/processing_information/<hash>", methods=["GET", "POST"])
+def processing_information(hash):
+    '''
     form = ProtocolTemplateSelectForm(templates)
 
     if form.validate_on_submit():
@@ -241,14 +251,16 @@ def select_processing_protocol(hash):
             "processing_time": form.processing_time.data.strftime("%H:%M:%S"),
         }
         return redirect(url_for("sample.add_sample_attr", hash=hash))
+    '''
 
+    form = None
     return render_template(
         "sample/sample/add/step_four.html",
-        templates=len(templates),
         form=form,
         hash=hash,
     )
 
+'''
 
 @sample.route("add/five/<hash>", methods=["GET", "POST"])
 @login_required
@@ -359,7 +371,7 @@ def add_sample_form(hash):
                         ca_v = SampleToCustomAttributeTextValue(
                             value=attr.data,
                             custom_attribute_id=attr.id,
-                            sample_id=sample.id,
+                            sample_id=samplProtocolTemplateSelectForme.id,
                             author_id=current_user.id,
                         )
 
@@ -380,7 +392,7 @@ def add_sample_form(hash):
 
                     db.session.add(ca_v)
 
-        db.session.flush()
+        db.session.flush()ProtocolTemplateSelectForm
 
         spcfta = SamplePatientConsentFormTemplateAssociation(
             sample_id=sample.id,

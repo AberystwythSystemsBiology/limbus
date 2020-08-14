@@ -46,11 +46,9 @@ class SampleTypeSelectForm(FlaskForm):
     cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
 
     quantity = FloatField("Quantity", validators=[DataRequired()])
-
     fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
 
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
-
     cell_container = SelectField("Cell Container", choices=CellContainer.choices())
 
     submit = SubmitField("Submit")
@@ -108,7 +106,6 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
         )
 
         submit = SubmitField("Submit")
-
 
     return StaticForm()
 
