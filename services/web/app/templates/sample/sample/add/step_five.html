@@ -10,22 +10,15 @@
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Custom Attribute Selection</h1>
         {{ render_progress(5, 6) }}
 
-
-        {% if num_attr > 0 %}
-
-
-        {% else %}
-            {{ render_warning(
-                    "No Sample Attributes Found",
-                    [
-                        "There are no suitable sample attributes found.",
-                        "",
-                     ], 'attribute.add', "New Attribute", True, True
-                ) }}
-        {% endif %}
-        <form action="{{ url_for('sample.add_sample_attr', hash=hash) }}" method="POST">
+        <form action="{{ url_for('sample.add_custom_atributes', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
-            {{ generate_attribute_select_form(form) }}
+
+            {% for field in form %}
+                {% if field.render_kw %}
+                    {{ field.render_kw }}
+                {% endif %}
+            {% endfor %}
+
             {{ form_field(form.submit) }}
         </form>
     </div>

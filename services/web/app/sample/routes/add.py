@@ -25,7 +25,8 @@ from ..forms import (
     PatientConsentQuestionnaire,
     SampleTypeSelectForm,
     ProtocolTemplateSelectForm,
-    SampleReviewForm
+    SampleReviewForm,
+    CustomAttributeSelectForm
 )
 
 import requests
@@ -350,27 +351,43 @@ def add_sample_review(hash):
 @sample.route("add/custom_attributes/<hash>", methods=["GET", "POST"])
 @login_required
 def add_custom_atributes(hash):
-    '''
-    form = CustomAttributeSelectForm()
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+
+    # TODO: Extend the query thing to allow for .in when passed a list
+
+    attribute_response = requests.get(
+        url_for("api.attribute_query", _external=True),
+        json = {},
+        headers=get_internal_api_header()
+    )
+
+    if attribute_response.status_code != 200:
+        abort(attribute_response.status_code)
+
+
+    form = CustomAttributeSelectForm(attribute_response.json()["content"])
 
     if form.validate_on_submit():
-        attribute_ids = []
-        for e in form:
-            if e.type == "BooleanField" and e.data:
-                attribute_ids.append(str(e.id))
+        flash("Form submitted")
 
-        session["%s step_five" % (hash)] = attribute_ids
-        return redirect(url_for("sample.add_sample_form", hash=hash))
-    '''
+
 
     return render_template(
         "sample/sample/add/step_five.html",
-        form=None,
-        hash=hash,
-        num_attr=0
+        form=form,
+        hash=hash
     )
 
-''''
+
+'''
 
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required

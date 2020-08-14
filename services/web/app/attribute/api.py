@@ -15,6 +15,7 @@
 
 from ..api import api, db
 from ..api.responses import *
+from ..api.filters import generate_base_query_filters, get_filters_and_joins
 from ..decorators import token_required
 
 from flask import request, current_app, url_for
@@ -31,8 +32,10 @@ from .views import (
     new_attribute_numeric_setting_schema,
     new_attribute_option_schema,
     edit_attribute_schema,
+    AttributeSearchSchema
 )
 
+from ..webarg_parser import use_args, use_kwargs, parser
 
 @api.route("/attribute", methods=["GET"])
 @token_required
@@ -41,6 +44,16 @@ def attribute_home(tokenuser: UserAccount):
         basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
     )
 
+@api.route("/attribute/query", methods=["GET"])
+@use_args(AttributeSearchSchema(), location="json")
+@token_required
+def attribute_query(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, AttributeSearchSchema)
+
+    return success_with_content_response(
+        basic_attributes_schema.dump(
+            Attribute.query.filter_by(**filters).filter(*joins).all())
+    )
 
 @api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
 @token_required
@@ -48,7 +61,6 @@ def attribute_view_attribute(id, tokenuser: UserAccount):
     return success_with_content_response(
         attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
     )
-
 
 @api.route("/attribute/LIMBATTR-<id>/option/new", methods=["POST"])
 @token_required

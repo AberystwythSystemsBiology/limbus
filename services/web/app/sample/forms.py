@@ -33,6 +33,23 @@ from .enums import *
 
 from ..storage.enums import CellContainer, FluidContainer, FixationType
 
+def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    for attribute in custom_attributes:
+        print(attribute)
+        setattr(
+            StaticForm,
+            str(attribute["id"]),
+            BooleanField(
+                attribute["term"],
+                render_kw={"attribute":  attribute}
+            )
+        )
+
+    return StaticForm()
+
 class SampleTypeSelectForm(FlaskForm):
 
     sample_type = SelectField("Sample Type", choices=SampleType.choices())

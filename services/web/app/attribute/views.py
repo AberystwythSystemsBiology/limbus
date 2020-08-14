@@ -26,9 +26,20 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ..auth.views import BasicUserAccountSchema
+from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
+
+
+class AttributeSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
+
+    element_type = EnumField(AttributeElementType, required=False)
+    type = EnumField(AttributeType, required=False)
+    author = ma.Nested(UserAccountSearchSchema)
+
+
 
 
 class BasicAttributeSchema(masql.SQLAlchemySchema):
