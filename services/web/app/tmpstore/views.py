@@ -30,6 +30,8 @@ class StoreSchema(masql.SQLAlchemySchema):
     data = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     type = EnumField(StoreType)
+    created_on = masql.auto_field()
+    editor = ma.Nested(BasicUserAccountSchema)
 
 store_schema = StoreSchema()
 stores_schema = StoreSchema(many=True)

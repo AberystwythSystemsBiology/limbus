@@ -49,6 +49,8 @@ def tmpstore_home(tokenuser: UserAccount):
 @api.route("/tmpstore/<hash>")
 @token_required
 def tmpstore_view_tmpstore(hash: str, tokenuser: UserAccount):
+    print(hash)
+    print(TemporaryStore.query.filter_by(uuid=hash).first())
     return success_with_content_response(
         store_schema.dump(TemporaryStore.query.filter_by(uuid=hash).first())
     )
