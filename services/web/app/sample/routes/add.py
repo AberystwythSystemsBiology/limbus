@@ -52,6 +52,8 @@ def add_rerouter(hash):
             if "add_sample_information" in data:
                 if "add_processing_information" in data:
                     if "add_sample_review" in data:
+                        if "add_custom_atributes" in data:
+                            return "Hello World"
                         return redirect(url_for("sample.add_custom_atributes", hash=hash))
                     return redirect(url_for("sample.add_sample_review", hash=hash))
                 return redirect(url_for("sample.add_processing_information", hash=hash))
@@ -376,7 +378,29 @@ def add_custom_atributes(hash):
     form = CustomAttributeSelectForm(attribute_response.json()["content"])
 
     if form.validate_on_submit():
-        flash("Form submitted")
+
+        checked = []
+
+        for field in form:
+            if field.type == "BooleanField" and field.data:
+                checked.append(int(field.id))
+
+        custom_attribute_details = {"checked": checked}
+
+        tmpstore_data["add_custom_atributes"] = custom_attribute_details
+
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data}
+        )
+
+        if store_response.status_code == 200:
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
 
 
 
@@ -386,155 +410,14 @@ def add_custom_atributes(hash):
         hash=hash
     )
 
-
-'''
-
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required
-def add_sample_form(hash):
-    attributes = session["%s step_five" % (hash)]
-
-    form = CustomAttributeGeneratedForm(FinalSampleForm(), attributes)
+def add_sample_final_form(hash):
+    # TODO: Extend the query thing to allow for .in when passed a list
+    form = None
 
     # Submit if no attributes found.
-    if form.validate_on_submit() or len(attributes) == 0:
-        # consent_form_id, barcode, collection_date, disposal_instruction, disposal_date, has_donor, donor_select
-        step_one = session["%s step_one" % (hash)]
-        # checked, consent_id
-        step_two = session["%s step_two" % (hash)]
-        # sample_type, quantity, type, fixation, storage_type
-        step_three = session["%s step_three" % (hash)]
-        # protocol_id, sample_status, processing_date, processing_time
-        step_four = session["%s step_four" % (hash)]
-        # attribute_ids
-        step_five = session["%s step_five" % (hash)]
-
-        sample = Sample(
-            uuid=uuid.uuid4(),
-            biobank_barcode=step_one["barcode"],
-            sample_type=step_three["sample_type"],
-            collection_date=step_one["collection_date"],
-            quantity=step_three["quantity"],
-            current_quantity=step_three["quantity"],
-            is_closed=False,
-            author_id=current_user.id,
-            sample_status=step_four["sample_status"],
-        )
-
-        db.session.add(sample)
-        db.session.flush()
-
-        sdi = SampleDisposalInformation(
-            disposal_instruction=step_one["disposal_instruction"],
-            disposal_date=step_one["disposal_date"],
-            sample_id=sample.id,
-            author_id=current_user.id,
-        )
-
-        db.session.add(sdi)
-        db.session.flush()
-
-        if step_one["has_donor"]:
-
-            std = SampleToDonor(
-                sample_id=sample.id,
-                donor_id=step_one["donor_select"],
-                author_id=current_user.id,
-            )
-
-            db.session.add(std)
-            db.session.flush()
-
-        if step_three["sample_type"] == "FLU":
-            stot = SampleToFluidSampleType(
-                sample_id=sample.id,
-                sample_type=step_three["type"],
-                author_id=current_user.id,
-            )
-        elif step_three["sample_type"] == "CEL":
-            stot = SampleToCellSampleType(
-                sample_id=sample.id,
-                sample_type=step_three["type"],
-                author_id=current_user.id,
-            )
-        elif step_three["sample_type"] == "MOL":
-            stot = SampleToMolecularSampleType(
-                sample_id=sample.id,
-                sample_type=step_three["type"],
-                author_id=current_user.id,
-            )
-        else:
-            abort(400)
-
-        db.session.add(stot)
-        db.session.flush()
-
-        for attr in form:
-            if hasattr(attr, "render_kw") and attr.render_kw != None:
-                if "_custom_val" in attr.render_kw:
-                    if attr.type == "StringField":
-                        ca_v = SampleToCustomAttributeTextValue(
-                            value=attr.data,
-                            custom_attribute_id=attr.id,
-                            sample_id=samplProtocolTemplateSelectForme.id,
-                            author_id=current_user.id,
-                        )
-
-                    elif attr.type == "SelectField":
-                        ca_v = SampleToCustomAttributeOptionValue(
-                            custom_option_id=attr.data,
-                            custom_attribute_id=attr.id,
-                            sample_id=sample.id,
-                            author_id=current_user.id,
-                        )
-                    else:
-                        ca_v = SampleToCustomAttributeNumericValue(
-                            value=attr.data,
-                            custom_attribute_id=attr.id,
-                            sample_id=sample.id,
-                            author_id=current_user.id,
-                        )
-
-                    db.session.add(ca_v)
-
-        db.session.flush()ProtocolTemplateSelectForm
-
-        spcfta = SamplePatientConsentFormTemplateAssociation(
-            sample_id=sample.id,
-            template_id=step_one["consent_form_id"],
-            consent_id=step_two["consent_id"],
-            author_id=current_user.id,
-        )
-
-        db.session.add(spcfta)
-        db.session.flush()
-
-        for answer in step_two["checked"]:
-            spcfaa = SamplePatientConsentFormAnswersAssociation(
-                sample_pcf_association_id=spcfta.id,
-                author_id=current_user.id,
-                checked=answer,
-            )
-
-            db.session.add(spcfaa)
-
-        spta = SampleProcessingTemplateAssociation(
-            sample_id=sample.id,
-            template_id=step_four["protocol_id"],
-            processing_time=step_four["processing_time"],
-            processing_date=step_four["processing_date"],
-            author_id=current_user.id,
-        )
-
-        db.session.add(spta)
-        db.session.flush()
-
-        db.session.commit()
-
-        clear_session(hash)
-
-        flash("LIMBSMP: ? successfully submitted.")
-        return redirect(url_for("sample.index"))
+    if form.validate_on_submit():
+        flash("Hello World")
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
-'''

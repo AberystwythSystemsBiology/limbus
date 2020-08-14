@@ -38,7 +38,6 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
         submit = SubmitField("Submit")
 
     for attribute in custom_attributes:
-        print(attribute)
         setattr(
             StaticForm,
             str(attribute["id"]),

@@ -13,13 +13,41 @@
         <form action="{{ url_for('sample.add_custom_atributes', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
 
-            {% for field in form %}
-                {% if field.render_kw %}
-                    {{ field.render_kw }}
-                {% endif %}
-            {% endfor %}
+        <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Field</th>
+                <th>Creation Date</th>
+                <th>Creator</th>
+                <th>Include</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for field in form %}
+                    {% if field.render_kw %}
+                        <tr>
+                            <td>
+                                <p><a href="{{ url_for('attribute.view', id=field.render_kw.attribute.id) }}">
+                                    <i class="fab fa-buffer"></i> LIMBATTR-{{ field.render_kw.attribute.id }}: {{ field.render_kw.attribute.term }}
+                                </a>
+                                </p>
+                                <p>Description: {{ field.render_kw.attribute.description }}</p>
+                            </td>
+                            <td>
+                                {{ field.render_kw.attribute.created_on }}
+                            </td>
+                            <td>{{ render_author_for_table(field.render_kw.attribute.author) }}</td>
+                            <td>{{ field() }}</td>
+                        </tr>
 
+                    {% endif %}
+
+                {% endfor %}
+            </tbody>
+
+            </table>
             {{ form_field(form.submit) }}
+
         </form>
     </div>
 {% endblock %}
