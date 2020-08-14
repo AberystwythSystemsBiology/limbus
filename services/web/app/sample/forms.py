@@ -31,10 +31,11 @@ from datetime import datetime
 
 from .enums import *
 
-#from ..storage.enums import CellContainer, FluidContainer, FixationType
+from ..storage.enums import CellContainer, FluidContainer, FixationType
 
-'''
+
 class SampleTypeSelectForm(FlaskForm):
+
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
     fluid_sample_type = SelectField(
         "Fluid Sample Type", choices=FluidSampleType.choices()
@@ -43,17 +44,22 @@ class SampleTypeSelectForm(FlaskForm):
         "Molecular Sample Type", choices=MolecularSampleType.choices()
     )
     cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+
     quantity = FloatField("Quantity", validators=[DataRequired()])
+
     fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
+
     fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
+
     cell_container = SelectField("Cell Container", choices=CellContainer.choices())
 
     submit = SubmitField("Submit")
-'''
+
 
 def CollectionConsentAndDisposalForm(consent_templates: list, collection_protocols: list) -> FlaskForm:
 
     class StaticForm(FlaskForm):
+        # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
             "Sample Biobank Barcode",
             description="If your sample already has a barcode/identifier, you can enter it here."

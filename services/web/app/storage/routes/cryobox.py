@@ -24,36 +24,14 @@ from flask import (
     Response,
     flash,
 )
-from werkzeug.datastructures import MultiDict
 from flask_login import current_user, login_required
 
-from ... import db
 from .. import storage
 
-from ...misc.generators import generate_random_hash
-from .misc import move_entity_to_storage
-from ..enums import EntityToStorageTpye
-
-from ..views import CryoboxIndexView, CryoboxView
-
-from ...auth.views import UserView
-
-from ..models import CryovialBox, EntityToStorage
-
-from ..forms import (
-    NewCryovialBoxForm,
-    SampleToEntityForm,
-    NewCryovialBoxFileUploadForm,
-    CryoBoxFileUploadSelectForm,
-)
-
-from ...auth.models import User
-from ...sample.models import Sample
 from string import ascii_uppercase
 import itertools
 import re
 
-from ...misc import clear_session
 
 
 def iter_all_strings():
@@ -108,10 +86,10 @@ def file_to_json(form) -> dict:
 @storage.route("/cryobox")
 @login_required
 def cryobox_index():
-    boxes = CryoboxIndexView()
+    boxes = {}
     return render_template("storage/cryobox/index.html", boxes=boxes)
 
-
+'''
 @storage.route("/cryobox/new", methods=["GET", "POST"])
 @login_required
 def add_cryobox():
@@ -306,3 +284,4 @@ def add_cryobox_sample(cryo_id, row, col):
     return render_template(
         "storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col
     )
+'''

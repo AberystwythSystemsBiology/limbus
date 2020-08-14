@@ -71,6 +71,7 @@ class FluidSampleType(FormEnum):
     MIL = "Milk"
     CEL = "Ficoll mononuclear cells, viable"
     CEN = "Fresh cells from non-blood specimen type"
+    RNA = "RNALater"
     PLA = "Plasma"
     SAL = "Saliva"
     SER = "Serum"

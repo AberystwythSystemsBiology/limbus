@@ -15,7 +15,6 @@
 
 from ..FormEnum import FormEnum
 
-
 class EntityToStorageTpye(FormEnum):
     STB = "Sample to Box"
     STS = "Sample to Shelf"
@@ -71,8 +70,8 @@ class FluidContainer(FormEnum):
     ACD = "Acid citrate dextrose"
     ADD = "Additives"
     CAT = "Serum tube without clot activator"
-    CPD = "Sitrate phosphate dextrose"
-    CPT = "Cell Preperation Tube"
+    CPD = "Citrate phosphate dextrose"
+    CPT = "Cell Preparation Tube"
     EDG = "EDTA and gel"
     HEP = "Lithium heparin"
     HIR = "Hirudin"

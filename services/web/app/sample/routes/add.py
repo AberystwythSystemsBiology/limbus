@@ -18,10 +18,13 @@ from flask_login import login_required, current_user
 
 from ...misc import get_internal_api_header
 
-import uuid
 from .. import sample
 
-from ..forms import CollectionConsentAndDisposalForm, PatientConsentQuestionnaire
+from ..forms import (
+    CollectionConsentAndDisposalForm,
+    PatientConsentQuestionnaire,
+    SampleTypeSelectForm
+)
 
 import requests
 
@@ -44,7 +47,7 @@ def add_rerouter(hash):
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
     else:
         if "digital_consent_form" in data:
-            return "Hello World"
+            return redirect(url_for("sample.sample_information", hash=hash))
         return redirect(url_for("sample.digital_consent_form", hash=hash))
 
 
@@ -189,7 +192,6 @@ def digital_consent_form(hash):
 @sample.route("add/sample_information/<hash>", methods=["GET", "POST"])
 @login_required
 def sample_information(hash):
-    '''
     form = SampleTypeSelectForm()
 
     if form.validate_on_submit():
@@ -214,11 +216,8 @@ def sample_information(hash):
 
         data = {**a, **b}
 
-        session["%s step_three" % (hash)] = data
-
         return redirect(url_for("sample.select_processing_protocol", hash=hash))
-    '''
-    return render_template("sample/sample/add/step_three.html", form=None, hash=hash)
+    return render_template("sample/sample/add/step_three.html", form=form, hash=hash)
 
 ''''
 @sample.route("add/four/<hash>", methods=["GET", "POST"])
