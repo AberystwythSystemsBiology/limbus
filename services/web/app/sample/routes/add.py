@@ -24,7 +24,8 @@ from ..forms import (
     CollectionConsentAndDisposalForm,
     PatientConsentQuestionnaire,
     SampleTypeSelectForm,
-    ProtocolTemplateSelectForm
+    ProtocolTemplateSelectForm,
+    SampleReviewForm
 )
 
 import requests
@@ -47,9 +48,10 @@ def add_rerouter(hash):
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
     else:
         if "add_digital_consent_form" in data:
-            print("Consent Form Data Found")
             if "add_sample_information" in data:
                 if "add_processing_information" in data:
+                    if "add_sample_review" in data:
+                        return redirect(url_for("sample.add_custom_atributes", hash=hash))
                     return redirect(url_for("sample.add_sample_review", hash=hash))
                 return redirect(url_for("sample.add_processing_information", hash=hash))
             return redirect(url_for("sample.add_sample_information", hash=hash))
@@ -290,7 +292,7 @@ def add_processing_information(hash):
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
-        return redirect(url_for("sample.add_sample_attr", hash=hash))
+
 
     return render_template(
         "sample/sample/add/step_four.html",
@@ -310,17 +312,46 @@ def add_sample_review(hash):
 
     tmpstore_data = tmpstore_response.json()["content"]["data"]
 
+    form = SampleReviewForm()
+
+    if form.validate_on_submit():
+        sample_review_details = {
+            "quality": form.quality.data,
+            "date": str(form.date.data),
+            "time": form.time.data.strftime("%H:%M:%S"),
+            "conducted_by": form.conducted_by.data,
+            "comments": form.comments.data
+
+        }
+
+        tmpstore_data["add_sample_review"] = sample_review_details
+
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data}
+        )
+
+        if store_response.status_code == 200:
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
+
+
     return render_template(
         "sample/sample/add/review.html",
-        hash=hash
+        hash=hash,
+        form=form
     )
 
-'''
 
-@sample.route("add/five/<hash>", methods=["GET", "POST"])
+@sample.route("add/custom_attributes/<hash>", methods=["GET", "POST"])
 @login_required
-def add_sample_attr(hash):
-    form = CustomAttributeSelectForm(CustomAttributeElementTypes.SAMPLE)
+def add_custom_atributes(hash):
+    '''
+    form = CustomAttributeSelectForm()
 
     if form.validate_on_submit():
         attribute_ids = []
@@ -330,14 +361,16 @@ def add_sample_attr(hash):
 
         session["%s step_five" % (hash)] = attribute_ids
         return redirect(url_for("sample.add_sample_form", hash=hash))
+    '''
 
     return render_template(
         "sample/sample/add/step_five.html",
-        form=form,
+        form=None,
         hash=hash,
-        num_attr=len([e for e in form if e.type == "BooleanField"]),
+        num_attr=0
     )
 
+''''
 
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required

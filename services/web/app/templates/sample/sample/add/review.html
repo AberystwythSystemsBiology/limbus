@@ -8,5 +8,20 @@
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Review</h1>
         {{ render_progress(5, 8) }}
 
+        <form action="{{ url_for('sample.add_sample_review', hash=hash) }}" method="POST">
+            {{ form.csrf_token() }}
+            {{ form_field(form.quality) }}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.date) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.time) }}
+                </div>
+            </div>
+            {{ form_field(form.conducted_by) }}
+            {{ form_field(form.comments) }}
+            {{ form_field(form.submit) }}
+        </form>
     </div>
 {% endblock %}

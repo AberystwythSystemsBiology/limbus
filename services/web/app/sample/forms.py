@@ -151,11 +151,33 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
 
 
 class SampleReviewForm(FlaskForm):
-    date = DateField("Review Date")
-    conducted_by = StringField("Review Conducted By")
-    time = TimeField("Review Time")
-    quality = SelectField("Sample Quality")
-    comments = TextAreaField("Comments")
+    quality = SelectField(
+        "Sample Quality",
+        choices= SampleQuality.choices(),
+        description="The relative quality of the Sample."
+    )
+
+    date = DateField(
+        "Review Date",
+        description="The date in which the Sample Revieww was undertaken.",
+        default=datetime.today()
+    )
+    time = TimeField(
+        "Review Time",
+        description="The time in which the Sample Review was undertaken.",
+        default=datetime.now()
+    )
+    conducted_by = StringField(
+        "Review Conducted By",
+        description="Initials of the individual who undertook the Sample Review."
+    )
+
+    comments = TextAreaField(
+        "Comments",
+        description="Any relevant observations."
+    )
+    submit = SubmitField("Submit")
+
 
 def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
