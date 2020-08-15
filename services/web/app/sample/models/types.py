@@ -16,31 +16,16 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
-from ..enums import *
+from ..enums import (
+    FluidSampleType,
+    MolecularSampleType,
+    CellSampleType,
+    TissueSampleType,
+)
 
-class SampleToFluidSampleType(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampletofluidsampletype"
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    type = db.Column(db.Enum(FluidSampleType))
-
-
-class SampleToMolecularSampleType(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampletomolecularsampletype"
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    type = db.Column(db.Enum(MolecularSampleType))
-
-
-class SampleToCellSampleType(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampletocellsampletype"
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    type = db.Column(db.Enum(CellSampleType))
-
-
-class SampleToTissueSampleType(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampletotissuesampletype"
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    type = db.Column(db.Enum(TissueSampleType))
+class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    flui_type = db.Column(db.Enum(FluidSampleType))
+    mole_type = db.Column(db.Enum(MolecularSampleType))
+    cell_type = db.Column(db.Enum(CellSampleType))
+    tiss_type = db.Column(db.Enum(TissueSampleType))

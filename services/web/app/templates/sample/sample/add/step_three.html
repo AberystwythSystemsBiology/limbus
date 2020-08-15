@@ -12,6 +12,7 @@
 
         <form action="{{ url_for('sample.add_sample_information', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
+            {{ form_field(form.biohazard_level) }}
             {{ form_field(form.sample_type) }}
             {{ form_field(form.fluid_sample_type) }}
             {{ form_field(form.molecular_sample_type) }}

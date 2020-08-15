@@ -415,7 +415,7 @@ def add_custom_atributes(hash):
 @login_required
 def add_sample_final_form(hash):
     # TODO: Extend the query thing to allow for .in when passed a list
-    form = FinalSampleForm()
+    form = FinalSampleForm({})
 
     if form.validate_on_submit():
         pass

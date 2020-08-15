@@ -15,3 +15,6 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
+
+class SampleToCustomAttributeData(Base, RefAuthorMixin, RefEditorMixin):
+    pass

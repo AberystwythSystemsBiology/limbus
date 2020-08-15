@@ -46,22 +46,6 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     is_closed = db.Column(db.Boolean, default=False)
 
-    '''
-    parent = db.relationship(
-        "Sample",
-        secondary="subsampletosample",
-        secondaryjoin="Sample.id==SubSampleToSample.subsample_id",
-        uselist=False
-    )
-
-    children = db.relationship(
-        "Sample",
-        secondary="subsampletosample",
-        secondaryjoin="Sample.id==SubSampleToSample.parent_id",
-        uselist=True
-    )
-        '''
-
     disposal_information = db.relationship(
         "SampleDisposal",
         primaryjoin="SampleDisposal.sample_id==Sample.id",

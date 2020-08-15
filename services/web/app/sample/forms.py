@@ -31,8 +31,6 @@ from datetime import datetime
 
 from .enums import *
 
-from ..storage.enums import CellContainer, FluidContainer, FixationType
-
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
@@ -64,6 +62,12 @@ def FinalSampleForm(custom_attributes: dict) -> FlaskForm:
     return StaticForm()
 
 class SampleTypeSelectForm(FlaskForm):
+
+    biohazard_level = SelectField(
+        "Biohazard Level",
+        choices=BiohazardLevel.choices(),
+        description="BSL category for the sample."
+    )
 
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
     fluid_sample_type = SelectField(

@@ -51,3 +51,5 @@ class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
+
+
