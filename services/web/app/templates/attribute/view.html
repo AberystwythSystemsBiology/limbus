@@ -27,8 +27,7 @@
                 {% if attribute.type == "OPTION" %}
             <div class="btn-group mr-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
-                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                            class="btn btn-outline-dark">
+                    <button type="button" class="btn btn-outline-dark">
                         <i class="fa fa-list"></i> New Option
                     </button>
                 </a>

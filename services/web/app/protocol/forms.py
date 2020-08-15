@@ -44,7 +44,7 @@ class ProtocolCreationForm(FlaskForm):
     )
 
     description = TextAreaField(
-        "Description", description="A brief description of the Protocol."
+        "Protocol Description", description="A brief description of the Protocol."
     )
 
     type = SelectField(
@@ -59,7 +59,6 @@ class ProtocolCreationForm(FlaskForm):
         description="The persistent identifier or handle used to identify objects uniquely.",
     )
 
-    description = StringField("Document Description")
 
     submit = SubmitField("Submit")
 

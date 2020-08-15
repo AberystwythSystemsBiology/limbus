@@ -97,12 +97,12 @@ def edit(id):
 
     if response.status_code == 200:
         form = ProtocolCreationForm(data=response.json()["content"])
+        del form.type
 
         if form.validate_on_submit():
             protocol_information = {
                 "name": form.name.data,
-                "type": form.type.data,
-                "description": form.description.data,
+                "description": form.description.data
             }
 
             edit_response = requests.put(
