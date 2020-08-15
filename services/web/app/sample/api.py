@@ -130,6 +130,39 @@ def sample_add_sample(tokenuser: UserAccount):
             sample_protocol_event_schema.dump(new_processing_event)
         )
 
+    def _add_collection(collection_data):
+        add_processing_data = {
+            "datetime": datetime.strptime(
+                "%s %s" % (
+                    collection_data["collection_data"],
+                    collection_data["collection_data"]
+                ), "%Y/%m/%d %H:%M:%S"),
+            "undertaken_by": collection_data["collected_by"],
+            "comments": None,
+            "protocol_id": int(collection_data["collection_protocol_id"])
+        }
+
+        try:
+            result = new_sample_protocol_event_schema.load(add_processing_data)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        new_processing_event = SampleProtocolEvent(**result)
+        new_processing_event.author_id = tokenuser.id
+
+        try:
+            db.session.add(new_processing_event)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+        db.session.flush()
+
+        return success_with_content_response(
+            sample_protocol_event_schema.dump(new_processing_event)
+        )
+
+
     values = request.get_json()
 
     if not values:
@@ -150,19 +183,26 @@ def sample_add_sample(tokenuser: UserAccount):
             return {"success": False, "message": "Missing %s" % (step)}, 400, {"ContentType": "application/json"}
 
 
-    response, status_code, response_type = _add_consent(
+    collection_response, status_code, response_type = _add_consent(
         values["add_collection_consent_and_barcode"]["consent_form_id"],
         values["add_digital_consent_form"]
     )
 
     if status_code != 200:
-        return response, status_code, response_type
+        return collection_response, status_code, response_type
 
-    response, status_code, response_type = _add_processing_information(
+    processing_response, status_code, response_type = _add_processing_information(
         values["add_processing_information"]
     )
 
     if status_code != 200:
-        return response, status_code, response_type
+        return processing_response, status_code, response_type
+
+    collection_response, status_code, response_type = _add_collection(
+        values["add_collection_consent_and_barcode"]
+    )
+
+    if status_code != 200:
+        return collection_response, status_code, response_type
 
 
