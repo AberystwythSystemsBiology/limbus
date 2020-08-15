@@ -55,7 +55,7 @@ def add_rerouter(hash):
                     if "add_sample_review" in data:
                         if "add_custom_atributes" in data:
                             if "add_final_details" in data:
-                                return "Hello World"
+                                requests.post(url_for("api.sample_add_sample", _external=True), headers=get_internal_api_header(), json=data)
                             return redirect(url_for("sample.add_sample_final_form", hash=hash))
                         return redirect(url_for("sample.add_custom_atributes", hash=hash))
                     return redirect(url_for("sample.add_sample_review", hash=hash))
