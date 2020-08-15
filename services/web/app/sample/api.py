@@ -29,3 +29,8 @@ def sample_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_samples_schema.dump(Sample.query.filter_by().all())
     )
+
+@api.route("/sample/add", methods=["POST"])
+@token_required
+def sample_add(tokenuser: UserAccount):
+    pass

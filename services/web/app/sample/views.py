@@ -20,8 +20,15 @@ from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
 
-from .models import Sample
+from ..database import (
+    Sample,
+    SampleConsent,
+    SampleConsentAnswer,
+    SampleProtocolEvent,
+    SampleReview
+)
 
+from .enums import SampleType, SampleStatus, Colour, SampleSource, SampleQuality
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -32,6 +39,70 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
-
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
+
+
+class NewConsentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsent
+
+    identifier = masql.auto_field()
+    comments = masql.auto_field()
+    template_id = masql.auto_field()
+
+
+new_consent_schema = NewConsentSchema()
+
+
+class NewConsentAnswerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsentAnswer
+
+    consent_id = masql.auto_field()
+    question_id = masql.auto_field()
+
+
+new_consent_answer_schema = NewConsentAnswerSchema()
+new_consent_answers_schema = NewConsentAnswerSchema(many=True)
+
+
+class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleProtocolEvent
+
+    datetime = masql.auto_field()
+    undertaken_by = masql.auto_field()
+    comments = masql.auto_field()
+    protocol_id = masql.auto_field()
+
+new_sample_protocol_event_schema = masql.SQLAlchemySchema
+
+
+class NewSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    barcode = masql.auto_field()
+    source = EnumField(SampleSource)
+    type = EnumField(SampleType)
+    status = EnumField(SampleStatus)
+    colour = EnumField(Colour)
+    comments = masql.auto_field()
+    site_id = masql.auto_field()
+    consent_id = masql.auto_field()
+
+new_sample_schema = NewSampleSchema()
+
+class NewSampleReviewSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleReview
+
+    sample_id = masql.auto_field()
+    conducted_by = masql.auto_field()
+    datetime = masql.auto_field()
+    quality = EnumField(SampleQuality)
+    comments = masql.auto_field()
+
+new_sample_review_schema = NewSampleReviewSchema()
+

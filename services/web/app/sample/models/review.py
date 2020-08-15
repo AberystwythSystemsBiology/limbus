@@ -21,6 +21,6 @@ class SampleReview(Base, RefAuthorMixin, RefEditorMixin):
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
     conducted_by = db.Column(db.String(128))
-    date = db.Column(db.DateTime, nullable=False)
+    datetime = db.Column(db.DateTime, nullable=False)
     quality = db.Column(db.Enum(SampleQuality))
     comments = db.Column(db.Text)

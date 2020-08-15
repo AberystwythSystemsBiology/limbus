@@ -19,6 +19,11 @@ function limbus-create-kryten() {
     docker-compose run web sh -c "venv/bin/flask cmd_setup create-kryten"
 }
 
+function limbus-create-testing-user() {
+   limbus-create-kryten()
+   docker-compose run web sh -c "venv/bin/flask cmd_setup create-testuser"
+}
+
 function limbus-bwd() {
     limbus-b
     python-deps

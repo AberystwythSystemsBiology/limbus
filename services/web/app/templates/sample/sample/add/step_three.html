@@ -8,11 +8,12 @@
     <div class="container">
 
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample and Storage Type</h1>
-        {{ render_progress(3, 7) }}
+        {{ render_progress(3, 8) }}
 
         <form action="{{ url_for('sample.add_sample_information', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
-            {{ form_field(form.biohazard_level) }}
+
+
             {{ form_field(form.sample_type) }}
             {{ form_field(form.fluid_sample_type) }}
             {{ form_field(form.molecular_sample_type) }}
@@ -21,7 +22,12 @@
             {{ form_field(form.quantity, q=True) }}
             {{ form_field(form.fluid_container) }}
             {{ form_field(form.cell_container) }}
+            {{ form_field(form.biohazard_level) }}
 
+            <div class="alert alert-warning" role="alert">
+                <b>Notice:</b> These reference BSL standards. If you are not sure what to select, feel free to
+                refer to <a href="{{ url_for('sample.biohazard_information') }}" target="_blank">this document</a>.
+            </div>
 
             {{ form_field(form.submit) }}
         </form>

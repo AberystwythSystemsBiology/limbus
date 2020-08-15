@@ -6,10 +6,10 @@
     <div class="container">
         
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Collection and Consent Information</h1>
-        {{ render_progress(1, 7) }}
+        {{ render_progress(1, 8) }}
 
 
-        {% if collection_protocol_count > 0 and template_count > 0%}
+        {% if collection_protocol_count > 0 and template_count > 0 and processing_protocols_count >0 %}
 
             <form action="{{ url_for('sample.add_collection_consent_and_barcode') }}" method="POST">
                 {{ form.csrf_token }}

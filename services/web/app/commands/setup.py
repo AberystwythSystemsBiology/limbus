@@ -15,11 +15,15 @@
 
 from . import cmd_setup
 
-from ..auth.models import UserAccount, UserAccountToken
-from .. import db
+from ..database import (
+    db,
+    UserAccount,
+    UserAccountToken,
+    Address,
+    SiteInformation,
+)
 
 from uuid import uuid4
-
 
 @cmd_setup.cli.command("create-kryten")
 def create_kryton():
@@ -27,6 +31,35 @@ def create_kryton():
 
     :return:
     """
+
+    kryten_ascii = '''             _--~~--_
+"Smeee-     |\      /|
+ Heeee!"    | \    / |
+           i.--`..'--.i
+           \\~* || *~//  
+            |\^([])^/|
+            '.(-__-).'
+             |`.__.'|
+     .-~\____`------'____/~-.
+    / _-~MMMM`------'MMMM~-_ \
+   'T~MMMM/##--_.._--##\MMMM~T'
+   |\MMMM/%%%%%%||%%%%%%\MMMM/|
+   |=|MM|`:%%%%%||%%%%%;'|MM|=|
+   |=|MM|\ `.===!!===.' /|MM|=|
+   |=|MM||W\   _--_   /W||MM|=|   
+   |/MMM||WW|,'_--_`.|WW||MMM\|
+    |MMM||WW/.'    `.\WW||MMM|
+   |\MMM||WW||      ||WW||MMM/|
+   |=|MM||WW\`.    ,'/WW||MM|=|
+   |/MMM||WWW`.~--~,'WWW||MMM\| 
+    `:;;'\WWWWW~--~WWWWW/`:;;'
+    | U '.`------------',' U |
+    i111\J L ]|   | L ] L/|||i
+    U111 | ~--_L____--~ | |||U
+     UJJ |MMMMMM/\MMMMMM| UJJ
+        |\MM'''
+
+
     if (
         UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first()
         is None
@@ -49,6 +82,51 @@ def create_kryton():
         db.session.add(kryten_token)
         db.session.commit()
 
-        print("NOTICE: Kryton created!")
+        print("NOTICE: Kryten created!")
     else:
-        print("NOTICE: Kryton already exists...")
+        print("NOTICE: Kryten already exists...")
+
+@cmd_setup.cli.command("create-testuser")
+def create_testuser():
+
+
+    address = Address(
+        street_address_one="32 Charles Street",
+        street_address_two="Abertysswg",
+        city="Tredegar",
+        county="Rhondda Cynon Taff",
+        post_code="NP225AZ",
+        country="GB"
+    )
+
+    db.session.add(address)
+    db.session.commit()
+    db.session.flush()
+
+    site = SiteInformation(
+        name="Testing Biobank",
+        address_id=address.id,
+        author_id=1
+    )
+
+    db.session.add(site)
+    db.session.commit()
+    db.session.flush()
+
+    me = UserAccount(
+        email="testuser@aberystwythsystemsbiology.co.uk",
+        password="password",
+        title="MR",
+        first_name="Joe",
+        last_name="Bloggs",
+        account_type="ADM",
+        access_control="ADM",
+        site_id=site.id
+    )
+
+    db.session.add(me)
+    db.session.commit()
+
+    return "Done"
+
+

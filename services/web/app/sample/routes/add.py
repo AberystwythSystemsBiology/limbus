@@ -219,6 +219,7 @@ def add_sample_information(hash):
     if form.validate_on_submit():
 
         sample_information_details = {
+            "biohazard_level": form.biohazard_level.data,
             "sample_type": form.sample_type.data,
             "fluid_sample_type": form.fluid_sample_type.data,
             "molecular_sample_type": form.molecular_sample_type.data,

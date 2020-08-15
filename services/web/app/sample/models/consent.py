@@ -27,11 +27,9 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
     withdrawn = db.Column(db.Boolean, default=False, nullable=False)
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
     answers = db.relationship("ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer")
-
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))

@@ -18,10 +18,11 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
 class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampleprotocolevent"
 
     datetime = db.Column(db.DateTime)
     undertaken_by = db.Column(db.String(128))
     commments = db.Column(db.Text)
 
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
+    protocol = db.relationship("ProtocolTemplate")
+

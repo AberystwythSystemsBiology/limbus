@@ -6,7 +6,7 @@
     <div class="container">
 
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Final Information</h1>
-        {{ render_progress(6, 7) }}
+        {{ render_progress(6, 8) }}
 
         <form method="POST" action="{{ url_for('sample.add_sample_final_form', hash=hash) }}">
             {{ form.csrf_token() }}

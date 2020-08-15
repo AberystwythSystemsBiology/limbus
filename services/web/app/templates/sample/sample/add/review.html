@@ -6,7 +6,7 @@
 {% block body %}
     <div class="container">
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Review</h1>
-        {{ render_progress(5, 8) }}
+        {{ render_progress(7, 8) }}
 
         <form action="{{ url_for('sample.add_sample_review', hash=hash) }}" method="POST">
             {{ form.csrf_token() }}

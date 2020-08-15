@@ -42,7 +42,11 @@ def get_panel_data(tokenuser: UserAccount):
             "site_count": SiteInformation.query.count(),
             "donor_count": 0,
         },
-        "sample_statistic": {"sample_type": [], "sample_status": []},
+        "sample_statistics": {
+            "sample_type": [],
+            "sample_status": [],
+            "sample_source": [] #SampleSource
+        },
     }
     return success_with_content_response(data)
 
