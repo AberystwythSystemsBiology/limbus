@@ -62,6 +62,7 @@ def consent_view_template(id, tokenuser: UserAccount):
 @use_args(ConsentFormTemplateSearchSchema(), location="json")
 @token_required
 def consent_query(args, tokenuser: UserAccount):
+    print(args)
     filters, joins = get_filters_and_joins(args, ConsentFormTemplate)
 
     return success_with_content_response(

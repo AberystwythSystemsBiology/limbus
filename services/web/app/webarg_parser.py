@@ -18,10 +18,6 @@ from webargs import core
 from webargs.flaskparser import FlaskParser
 import re
 
-class NestedQueryFlaskParser(FlaskParser):
-
-    def load_querystring(self, req, schema):
-        return _structure_dict(req.args)
 
 def _structure_dict(dict_):
     def structure_dict_pair(r, key, value):
@@ -31,6 +27,7 @@ def _structure_dict(dict_):
                 r[m.group(1)] = {}
             structure_dict_pair(r[m.group(1)], m.group(2), value)
         else:
+
             r[key] = value
 
     r = {}
@@ -38,7 +35,15 @@ def _structure_dict(dict_):
         structure_dict_pair(r, k, v)
     return r
 
+class NestedQueryFlaskParser(FlaskParser):
+
+    def load_querystring(self, req, schema):
+        return _structure_dict(req.args)
+
+
 parser = NestedQueryFlaskParser()
+use_args = parser.use_args
+use_kwargs = parser.use_kwargs
 
 # This error handler is necessary for usage with Flask-RESTful
 @parser.error_handler
@@ -48,6 +53,5 @@ def handle_request_parsing_error(err, req, schema, *, error_status_code, error_h
     """
     abort(417, {"message": err.messages})
 
-use_args = parser.use_args
-use_kwargs = parser.use_kwargs
+
 error_handler = parser.error_handler

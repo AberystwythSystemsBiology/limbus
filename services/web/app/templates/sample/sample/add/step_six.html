@@ -10,6 +10,11 @@
 
         <form method="POST" action="{{ url_for('sample.add_sample_final_form', hash=hash) }}">
             {{ form_field(form.colour) }}
+            {% for field in form %}
+                {% if field.render_kw %}
+                    {{ form_field(field) }}
+                {% endif %}
+            {% endfor %}
             {{ form_field(form.submit) }}
         </form>
     </div>

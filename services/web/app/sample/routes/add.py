@@ -415,7 +415,34 @@ def add_custom_atributes(hash):
 @login_required
 def add_sample_final_form(hash):
     # TODO: Extend the query thing to allow for .in when passed a list
-    form = FinalSampleForm({})
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+
+    custom_attribute_ids = tmpstore_data["add_custom_atributes"]["checked"]
+
+
+    custom_attributes = []
+    for id in custom_attribute_ids:
+        attribute_response = requests.get(
+            url_for("api.attribute_view_attribute", hash=hash, id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if attribute_response.status_code != 200:
+            pass
+
+        else:
+            custom_attributes.append(attribute_response.json()["content"])
+
+
+    form = FinalSampleForm(custom_attributes)
 
     if form.validate_on_submit():
         pass
