@@ -86,7 +86,8 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
             description=attribute["description"],
             validators=[DataRequired()],
             choices=choices,
-            render_kw={"custom": True}
+            render_kw={"custom": True},
+            coerce=int
 
         )
     # END TODO

@@ -9,6 +9,7 @@
         {{ render_progress(6, 7) }}
 
         <form method="POST" action="{{ url_for('sample.add_sample_final_form', hash=hash) }}">
+            {{ form.csrf_token() }}
             {{ form_field(form.colour) }}
             {% for field in form %}
                 {% if field.render_kw %}

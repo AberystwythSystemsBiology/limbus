@@ -54,6 +54,8 @@ def add_rerouter(hash):
                 if "add_processing_information" in data:
                     if "add_sample_review" in data:
                         if "add_custom_atributes" in data:
+                            if "add_final_details" in data:
+                                return "Hello World"
                             return redirect(url_for("sample.add_sample_final_form", hash=hash))
                         return redirect(url_for("sample.add_custom_atributes", hash=hash))
                     return redirect(url_for("sample.add_sample_review", hash=hash))
@@ -437,7 +439,6 @@ def add_sample_final_form(hash):
 
         if attribute_response.status_code != 200:
             pass
-
         else:
             custom_attributes.append(attribute_response.json()["content"])
 
@@ -445,8 +446,31 @@ def add_sample_final_form(hash):
     form = FinalSampleForm(custom_attributes)
 
     if form.validate_on_submit():
-        pass
+        custom_field_data = []
 
+        for field in form:
+            if field.render_kw:
+                custom_field_data.append([int(field.id), field.data, field.type])
+
+        final_details = {
+            "colour": form.colour.data,
+            "custom_field_data": custom_field_data
+        }
+
+        tmpstore_data["add_final_details"] = final_details
+
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data}
+        )
+
+        if store_response.status_code == 200:
+            return redirect(
+                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
 
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
