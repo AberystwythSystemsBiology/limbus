@@ -82,7 +82,6 @@ new_consent_answer_schema = NewConsentAnswerSchema()
 new_consent_answers_schema = NewConsentAnswerSchema(many=True)
 
 
-
 class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
@@ -94,6 +93,20 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
 
 new_sample_protocol_event_schema = masql.SQLAlchemySchema
 
+
+class SampleProtocolEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleProtocolEvent
+
+    id = masql.auto_field()
+    datetime = masql.auto_field()
+    undertaken_by = masql.auto_field()
+    comments = masql.auto_field()
+    protocol_id = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+
+sample_protocol_event_schema = SampleProtocolEventSchema()
 
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -25,7 +25,8 @@ from ..database import (
     UserAccount,
     Sample,
     SampleConsent,
-    SampleConsentAnswer
+    SampleConsentAnswer,
+    SampleProtocolEvent
 )
 
 from .views import (
@@ -33,9 +34,12 @@ from .views import (
     new_consent_schema,
     consent_schema,
     new_consent_answer_schema,
+    new_sample_protocol_event_schema,
+    sample_protocol_event_schema
 
 )
 
+import datetime
 
 
 @api.route("/sample", methods=["GET"])
@@ -96,13 +100,43 @@ def sample_add_sample(tokenuser: UserAccount):
             consent_schema.dump(new_consent)
         )
 
+    def _add_processing_information(processing_data: dict):
+        add_processing_data = {
+            "datetime": datetime.strptime(
+                "%s %s" % (
+                    processing_data["processing_date"],
+                    processing_data["processing_time"]
+                ), "%Y/%m/%d %H:%M:%S"),
+            "undertaken_by": processing_data["undertaken_by"],
+            "comments": processing_data["comments"],
+            "protocol_id": int(processing_data["processing_protocol_id"])
+        }
+        try:
+            result = new_sample_protocol_event_schema.load(add_processing_data)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        new_processing_event = SampleProtocolEvent(**result)
+        new_processing_event.author_id = tokenuser.id
+
+        try:
+            db.session.add(new_processing_event)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+        db.session.flush()
+        return success_with_content_response(
+            sample_protocol_event_schema.dump(new_processing_event)
+        )
+
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
     steps = [
-        "add_processing_information",
+        "add_processing_information", # Done
         "add_sample_information",
         "add_sample_review",
         "add_collection_consent_and_barcode",
@@ -119,6 +153,13 @@ def sample_add_sample(tokenuser: UserAccount):
     response, status_code, response_type = _add_consent(
         values["add_collection_consent_and_barcode"]["consent_form_id"],
         values["add_digital_consent_form"]
+    )
+
+    if status_code != 200:
+        return response, status_code, response_type
+
+    response, status_code, response_type = _add_processing_information(
+        values["add_processing_information"]
     )
 
     if status_code != 200:
