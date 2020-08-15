@@ -246,7 +246,7 @@ class SampleReviewForm(FlaskForm):
 
     date = DateField(
         "Review Date",
-        description="The date in which the Sample Revieww was undertaken.",
+        description="The date in which the Sample Review was undertaken.",
         default=datetime.today()
     )
     time = TimeField(

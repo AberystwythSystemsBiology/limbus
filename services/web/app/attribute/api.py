@@ -21,7 +21,14 @@ from ..decorators import token_required
 from flask import request, current_app, url_for
 from marshmallow import ValidationError
 
-from ..database import UserAccount, Attribute, AttributeOption, AttributeTextSetting, AttributeNumericSetting
+from ..database import (
+    UserAccount,
+    Attribute,
+    AttributeOption,
+    AttributeTextSetting,
+    AttributeNumericSetting,
+    AttributeData,
+)
 
 from .views import (
     attribute_schema,
@@ -32,7 +39,9 @@ from .views import (
     new_attribute_numeric_setting_schema,
     new_attribute_option_schema,
     edit_attribute_schema,
-    AttributeSearchSchema
+    AttributeSearchSchema,
+    new_attribute_data_schema,
+    attribute_data_schema
 )
 
 from ..webarg_parser import use_args, use_kwargs, parser
@@ -213,5 +222,29 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
         return success_with_content_response(basic_attribute_schema.dump(attribute))
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/attribute/new_data", methods=["POST"])
+@token_required
+def attribute_new_data(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_attribute_data_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    attribute_data = AttributeData(**result)
+    attribute_data.author_id = tokenuser.id
+
+    try:
+        db.session.add(attribute_data)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(attribute_data_schema.dump(attribute_data))
     except Exception as err:
         return transaction_error_response(err)

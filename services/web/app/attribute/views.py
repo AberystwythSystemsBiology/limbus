@@ -15,11 +15,12 @@
 
 from ..extensions import ma
 
-from .models import (
+from ..database import (
     Attribute,
     AttributeTextSetting,
     AttributeNumericSetting,
     AttributeOption,
+    AttributeData
 )
 
 import marshmallow_sqlalchemy as masql
@@ -170,3 +171,27 @@ class AttributeSchema(masql.SQLAlchemySchema):
 
 attribute_schema = AttributeSchema()
 attributes_schema = AttributeSchema(many=True)
+
+class NewAttributeDataSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
+
+    attribute_id = masql.auto_field()
+    option_id = masql.auto_field()
+    data = masql.auto_field()
+
+new_attribute_data_schema = NewAttributeDataSchema()
+
+class AttributeDataSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
+
+    id = masql.auto_field()
+    attribute_id = masql.auto_field()
+    option_id = masql.auto_field()
+    data = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = fields.Date()
+
+attribute_data_schema = AttributeDataSchema()
+attribute_datum_schema = AttributeDataSchema(many=True)
