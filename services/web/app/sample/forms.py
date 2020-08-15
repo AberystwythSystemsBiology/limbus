@@ -49,6 +49,20 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
 
     return StaticForm()
 
+def FinalSampleForm(custom_attributes: dict) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        colour = SelectField(
+            "Colour",
+            choices=Colour.choices(),
+            description="Identifiable colour code for the sample."
+        )
+        submit = SubmitField("Submit")
+
+    for attribute in custom_attributes:
+        pass
+
+    return StaticForm()
+
 class SampleTypeSelectForm(FlaskForm):
 
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
@@ -225,11 +239,6 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
 
     return StaticForm()
 
-
-class FinalSampleForm:
-    elements = {
-        "submit": SubmitField("Submit"),
-    }
 
 '''
 

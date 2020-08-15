@@ -26,7 +26,8 @@ from ..forms import (
     SampleTypeSelectForm,
     ProtocolTemplateSelectForm,
     SampleReviewForm,
-    CustomAttributeSelectForm
+    CustomAttributeSelectForm,
+    FinalSampleForm
 )
 
 import requests
@@ -53,7 +54,7 @@ def add_rerouter(hash):
                 if "add_processing_information" in data:
                     if "add_sample_review" in data:
                         if "add_custom_atributes" in data:
-                            return "Hello World"
+                            return redirect(url_for("sample.add_sample_final_form", hash=hash))
                         return redirect(url_for("sample.add_custom_atributes", hash=hash))
                     return redirect(url_for("sample.add_sample_review", hash=hash))
                 return redirect(url_for("sample.add_processing_information", hash=hash))
@@ -414,10 +415,11 @@ def add_custom_atributes(hash):
 @login_required
 def add_sample_final_form(hash):
     # TODO: Extend the query thing to allow for .in when passed a list
-    form = None
+    form = FinalSampleForm()
 
-    # Submit if no attributes found.
     if form.validate_on_submit():
-        flash("Hello World")
+        pass
+
+
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
