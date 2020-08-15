@@ -35,7 +35,8 @@ from .views import (
     consent_schema,
     new_consent_answer_schema,
     new_sample_protocol_event_schema,
-    sample_protocol_event_schema
+    sample_protocol_event_schema,
+    new_sample_schema
 
 )
 
@@ -161,6 +162,9 @@ def sample_add_sample(tokenuser: UserAccount):
         return success_with_content_response(
             sample_protocol_event_schema.dump(new_processing_event)
         )
+
+    def _add_sample_information():
+        pass
 
 
     values = request.get_json()
