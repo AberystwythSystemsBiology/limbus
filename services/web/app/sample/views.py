@@ -120,6 +120,8 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     site_id = masql.auto_field()
     consent_id = masql.auto_field()
+    collection_event_id = masql.auto_field()
+    processing_event_id = masql.auto_field()
 
 new_sample_schema = NewSampleSchema()
 

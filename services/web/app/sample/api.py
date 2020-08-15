@@ -163,7 +163,7 @@ def sample_add_sample(tokenuser: UserAccount):
             sample_protocol_event_schema.dump(new_processing_event)
         )
 
-    def _add_sample_information():
+    def _add_sample_information(collection_data, site_id, consent_id,):
         pass
 
 
