@@ -183,7 +183,6 @@ def sample_add_sample(tokenuser: UserAccount):
 
     for step in steps:
         if step not in values.keys():
-            print(step)
             return {"success": False, "message": "Missing %s" % (step)}, 400, {"ContentType": "application/json"}
 
 

@@ -32,6 +32,28 @@ from ..forms import (
 
 import requests
 
+def prepare_form_data(form_data: dict) -> dict:
+    def _prepare_consent(consent_template_id: str, consent_data: dict):
+        new_consent_data = {
+            "template_id": int(consent_template_id),
+            "identifier": consent_data["consent_id"],
+            "date_signed": consent_data["date_signed"],
+            "comments": consent_data["comments"],
+            "answers": consent_data["checked"]
+        }
+
+        return new_consent_data
+
+    def _prepare_processing_protocol(processing_data: dict) -> dict:
+        # Can be used for both collection and processing.
+        pass
+
+    def _prepare_sample_object() -> dict:
+        pass
+
+    pass
+
+
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
 def add_rerouter(hash):
