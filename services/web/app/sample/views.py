@@ -25,10 +25,19 @@ from ..database import (
     SampleConsent,
     SampleConsentAnswer,
     SampleProtocolEvent,
-    SampleReview
+    SampleReview,
+    SampleDisposal,
 )
 
-from .enums import SampleType, SampleStatus, Colour, SampleSource, SampleQuality
+from .enums import (
+    SampleType,
+    SampleStatus,
+    Colour,
+    SampleSource,
+    SampleQuality,
+    DisposalInstruction,
+    BiohazardLevel
+)
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -82,6 +91,18 @@ new_consent_answer_schema = NewConsentAnswerSchema()
 new_consent_answers_schema = NewConsentAnswerSchema(many=True)
 
 
+class NewSampleDisposalSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDisposal
+
+    sample_id = masql.auto_field()
+    instruction = EnumField(DisposalInstruction)
+    comments = masql.auto_field()
+    disposal_date = masql.auto_field()
+
+new_sample_disposal_schema = NewSampleDisposalSchema()
+
+
 class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
@@ -91,7 +112,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     protocol_id = masql.auto_field()
 
-new_sample_protocol_event_schema = masql.SQLAlchemySchema
+new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
 
 
 class SampleProtocolEventSchema(masql.SQLAlchemySchema):
@@ -117,6 +138,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     type = EnumField(SampleType)
     status = EnumField(SampleStatus)
     colour = EnumField(Colour)
+    biohazard_level = EnumField(BiohazardLevel)
     comments = masql.auto_field()
     site_id = masql.auto_field()
     consent_id = masql.auto_field()

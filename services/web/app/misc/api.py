@@ -24,6 +24,7 @@ from .views import (
     basic_address_schema,
     basic_addresses_schema,
     basic_site_schema,
+    basic_sites_schema,
 )
 
 from flask import request
@@ -31,7 +32,7 @@ from ..decorators import token_required
 from marshmallow import ValidationError
 
 
-@api.route("/misc/panel_data", methods=["GET"])
+@api.route("/misc/panel", methods=["GET"])
 @token_required
 def get_panel_data(tokenuser: UserAccount):
     data = {
@@ -50,11 +51,17 @@ def get_panel_data(tokenuser: UserAccount):
     }
     return success_with_content_response(data)
 
+@api.route("/misc/site", methods=["GET"])
+@token_required
+def site_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_sites_schema.dump(SiteInformation.query.all())
+        )
 
 @api.route("/misc/address/", methods=["GET"])
 @token_required
 def address_home(tokenuser: UserAccount):
-    return success_with_content_response(basic_addresses_schema(Address.query.all()))
+    return success_with_content_response(basic_addresses_schema.dump(Address.query.all()))
 
 
 @api.route("/misc/address/new", methods=["POST"])
@@ -104,3 +111,6 @@ def misc_new_site(tokenuser: UserAccount):
         return success_with_content_response(basic_site_schema.dumps(new_site))
     except Exception as err:
         return transaction_error_response(err)
+
+
+

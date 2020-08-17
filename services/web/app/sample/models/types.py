@@ -21,11 +21,22 @@ from ..enums import (
     MolecularSampleType,
     CellSampleType,
     TissueSampleType,
+    CellContainer,
+    FixationType,
+    
 )
 
 class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
-    flui_type = db.Column(db.Enum(FluidSampleType))
-    mole_type = db.Column(db.Enum(MolecularSampleType))
-    cell_type = db.Column(db.Enum(CellSampleType))
-    tiss_type = db.Column(db.Enum(TissueSampleType))
+    flui_type = db.Column(db.Enum(FluidSampleType), nullable=True)
+    mole_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
+    cell_type = db.Column(db.Enum(CellSampleType), nullable=True)
+    tiss_type = db.Column(db.Enum(TissueSampleType), nullable=True)
+
+
+class SampleToContainer(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    flui_cont = db.Column(db.Enum(FluidSampleType), nullable=True)
+    fixa_cont = db.Column(db.Enum(FixationType), nullable=True)
+    cell_cont = db.Column(db.Enum(CellContainer), nullable=True)
+

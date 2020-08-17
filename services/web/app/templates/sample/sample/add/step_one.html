@@ -25,6 +25,7 @@
                 </div>
                 {{ form_field(form.collected_by) }}
                 {{ form_field(form.collection_date) }}
+                {{ form_field(form.collection_site) }}
 
                 {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
 

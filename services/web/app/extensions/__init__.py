@@ -37,9 +37,8 @@ from ..api import *
 
 
 def register_apispec(app):
-    pass
-    """
+
     with app.test_request_context():
-        spec.path(view=auth_new_user)
-        spec.path(view=auth_home)
-    """
+        #spec.path(view=auth_new_user)
+        pass
+    

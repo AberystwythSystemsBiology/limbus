@@ -15,7 +15,7 @@
             Edit Details
         </h1>
 
-        <form action="{{ url_for('consent.edit_template', id=template.id) }}" method="POST">
+        <form action="{{ url_for('consent.edit', id=template.id) }}" method="POST">
             {{ form.csrf_token }}
             {{ form_field(form.name) }}
             {{ form_field(form.description) }}
@@ -24,8 +24,6 @@
         </form>
 
     </div>
-
-
 
 
 {% endblock %}

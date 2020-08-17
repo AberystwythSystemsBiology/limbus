@@ -44,14 +44,71 @@ def prepare_form_data(form_data: dict) -> dict:
 
         return new_consent_data
 
-    def _prepare_processing_protocol(processing_data: dict) -> dict:
+    def _prepare_processing_protocol(
+        event_data: dict,
+        datetime_terminology: str,
+        undertaken_terminology: str,
+        protocol_id: str) -> dict:
         # Can be used for both collection and processing.
-        pass
+        new_processing_event = {
+            "datetime": datetime.strptime(
+                "%s %s" % (
+                    event_data["%s_date" % (datetime_terminology)],
+                    event_data["%s_time" % (datetime_terminology)]
+                ), "%Y/%m/%d %H:%M:%S"),
+            "undertaken_by": event_data["%s_by" % (undertaken_terminology)],
+            "comments": event_data["comments"],
+            "protocol_id": protocol_id
+        }
+        
+        return new_processing_event
 
-    def _prepare_sample_object() -> dict:
-        pass
+    def _prepare_sample_object(
+        collection_data: dict,
+        sample_information_data: dict,
+        processing_information: dict,
+        final_form_data: dict
+    ) -> dict:
+        
+        new_sample_data = {
+            "barcode": collection_data["barcode"],
+            "source": "NEW",
+            "biohazard_level": sample_information_data["biohazard_level"],
+            "type": sample_information_data["sample_type"],
+            "status": processing_information["sample_status"],
+            "colour": final_form_data["colour"],
+            "site_id": collection_data["site_id"]
+        }
 
-    pass
+        return new_sample_data
+
+
+    def _prepare_disposal_object(
+        collection_data: dict
+    ) -> dict:
+
+        new_disposal_data = {
+            "instruction": collection_data["disposal_instruction"],
+            "disposal_date": collection_data["disposal_date"]
+        }
+
+        return new_disposal_data
+
+    def _prepare_sample_type_and_container(
+        sample_information_data: dict
+    ) -> dict:
+        sample_type_and_container_data = {}
+
+        sample_type_and_container_data["type"] = sample_information_data["sample_type"]
+
+        if sample_type_and_container_data["type"] == "FLU":
+            pass
+        elif sample_type_and_container_data["type"] == "CEL":
+            pass
+        elif sample_type_and_container_data["type"] == "MOL":
+            pass
+
+        return sample_type_and_container_data
 
 
 @sample.route("add/reroute/<hash>", methods=["GET"])
@@ -97,6 +154,7 @@ def add_collection_consent_and_barcode():
     consent_templates = []
     collection_protocols = []
     processing_protocols = []
+    collection_sites = []
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
@@ -122,7 +180,18 @@ def add_collection_consent_and_barcode():
             elif protocol["type"] == "SAP":
                 processing_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
 
-    form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols)
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True),
+        headers= get_internal_api_header()
+    )
+
+
+    if sites_response.status_code == 200:
+        for site in sites_response.json()["content"]:
+            collection_sites.append([site["id"], site["name"]])
+
+    form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols, collection_sites)
 
     if form.validate_on_submit():
 
@@ -131,6 +200,7 @@ def add_collection_consent_and_barcode():
             "collection_protocol_id": form.collection_select.data,
             "collected_by": form.collected_by.data,
             "consent_form_id": form.consent_select.data,
+            "site_id": form.collection_site.data,
             "collection_date": str(form.collection_date.data),
             "disposal_instruction": form.disposal_instruction.data,
             "disposal_date": str(form.disposal_date.data),

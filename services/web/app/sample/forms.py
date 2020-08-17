@@ -126,6 +126,11 @@ class SampleTypeSelectForm(FlaskForm):
     fluid_sample_type = SelectField(
         "Fluid Sample Type", choices=FluidSampleType.choices()
     )
+
+    tissue_sample_type = SelectField(
+        "Tissue Type", choices=TissueSampleType.choices()
+        )
+    
     molecular_sample_type = SelectField(
         "Molecular Sample Type", choices=MolecularSampleType.choices()
     )
@@ -140,7 +145,7 @@ class SampleTypeSelectForm(FlaskForm):
     submit = SubmitField("Continue")
 
 
-def CollectionConsentAndDisposalForm(consent_templates: list, collection_protocols: list) -> FlaskForm:
+def CollectionConsentAndDisposalForm(consent_templates: list, collection_protocols: list, collection_sites: list) -> FlaskForm:
 
     class StaticForm(FlaskForm):
         # TODO: Write a validator to check if Sample not already in biobank.
@@ -190,8 +195,18 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
             "Collected By",
             description="The initials of the individual who collected the sample."
         )
+        
+        collection_site = SelectField(
+            "Collection Site",
+            description="The site in which the sample was taken",
+            coerce=int,
+            validators=[DataRequired()],
+            choices=collection_sites
+        )
 
         submit = SubmitField("Continue")
+
+
 
     return StaticForm()
 

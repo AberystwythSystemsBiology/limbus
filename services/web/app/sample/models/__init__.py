@@ -21,6 +21,7 @@ from ..enums import (
     DisposalInstruction,
     Colour,
     SampleSource,
+    BiohazardLevel,
 )
 
 import uuid
@@ -36,6 +37,8 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     type = db.Column(db.Enum(SampleType))
     status = db.Column(db.Enum(SampleStatus))
     colour = db.Column(db.Enum(Colour))
+
+    biohazard_level = db.Column(db.Enum(BiohazardLevel))
 
     collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
     processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
