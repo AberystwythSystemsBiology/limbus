@@ -118,9 +118,39 @@ def prepare_form_data(form_data: dict) -> dict:
     def _prepare_custom_attribute_data(
         final_form_data: dict
     ) -> dict:
-        custom_attributes = {}
+        custom_attributes = []
 
-        pass
+        for custom_attribute in final_form_data["custom_field_data"]:
+            if custom_attribute[2] != "OptionField":
+                custom_attributes.append({
+                    "attribute_id": custom_attribute[0],
+                    "option_id": custom_attribute[1]
+
+                })
+            else:
+                custom_attributes.append({
+                    "attribute_id": custom_attribute[0],
+                    "data": custom_attribute[1]
+                    })
+
+        return custom_attributes
+
+    
+    def _prepare_sample_review_data(
+        sample_review_data:dict
+    ) -> dict:
+        sample_review_data = {
+            "conducted_by": sample_review_data["conducted_by"],
+            "datetime" : datetime.strptime(
+                "%s %s" % (
+                    sample_review_data["date"],
+                    sample_review_data["time"],
+                ), "%Y/%m/%d %H:%M:%S"),
+            "quality": sample_review_data["quality"],
+            "comments": sample_review_data["comments"]
+        }
+
+        return sample_review_data
 
 
 @sample.route("add/reroute/<hash>", methods=["GET"])

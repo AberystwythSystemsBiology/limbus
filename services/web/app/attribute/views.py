@@ -41,8 +41,6 @@ class AttributeSearchSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema)
 
 
-
-
 class BasicAttributeSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Attribute
@@ -177,10 +175,19 @@ class NewAttributeDataSchema(masql.SQLAlchemySchema):
         model = AttributeData
 
     attribute_id = masql.auto_field()
-    option_id = masql.auto_field()
     data = masql.auto_field()
 
 new_attribute_data_schema = NewAttributeDataSchema()
+
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
+
+    attribute_id = masql.auto_field()
+    option_id = masql.auto_field()
+
+new_attribute_option_schema = NewAttributeDataSchema()
 
 class AttributeDataSchema(masql.SQLAlchemySchema):
     class Meta:
