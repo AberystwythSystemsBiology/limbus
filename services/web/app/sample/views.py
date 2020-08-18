@@ -79,7 +79,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
 
 consent_schema = ConsentSchema()
 
-class NewConsentAnswerSchema(masql.SQLAlchemySchema):
+class NewConsentAnswerSchema(masql.masSQLAlchemySchema):
     class Meta:
         model = SampleConsentAnswer
 
@@ -128,6 +128,23 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
+
+class NewFluidSampleSchema(ma.Schema):  
+    sample_id = fields.Integer()
+    fluid_sample_type = EnumField(FluidSampleType)
+    fluid_container = EnumField(FluidSampleType)
+
+class NewCellSampleSchema(ma.Schema):
+    sample_id = fields.Integer()
+    cell_sample_type = EnumField(CellSampleType)
+    tissue_sample_type = EnumField(TissueSampleType)
+    fixation_type = EnumField(FixationType)
+    cell_container = EnumField(CellContainer)
+
+class NewMolecularSampleSchema(ma.Schema):
+    sample_id = fields.Integer()
+    molecular_sample_type = EnumField(FluidSampleType)
+    fluid_container = EnumField(MolecularSampleType)
 
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:

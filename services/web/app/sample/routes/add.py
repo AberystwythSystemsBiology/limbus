@@ -101,14 +101,26 @@ def prepare_form_data(form_data: dict) -> dict:
 
         sample_type_and_container_data["type"] = sample_information_data["sample_type"]
 
-        if sample_type_and_container_data["type"] == "FLU":
-            pass
+        if sample_type_and_container_data["sample_type"] == "FLU":
+            sample_type_and_container_data["fluid_container"] = sample_information_data["fluid_container"]
+            sample_type_and_container_data["fluid_sample_type"] = sample_information_data["fluid_sample_type"]
         elif sample_type_and_container_data["type"] == "CEL":
-            pass
+            sample_type_and_container_data["cell_sample_type"] = sample_information_data["cell_sample_type"]
+            sample_type_and_container_data["tissue_sample_type"] = sample_information_data["tissue_sample_type"]
+            sample_type_and_container_data["fixation_type"] = sample_information_data["fixation_type"]
+            sample_type_and_container_data["cell_container"] = sample_information_data["cell_container"]
         elif sample_type_and_container_data["type"] == "MOL":
-            pass
+            sample_type_and_container_data["molecular_sample_type"] = sample_information_data["molecular_sample_type"]
+            sample_type_and_container_data["fluid_container"] = sample_information_data["fluid_container"]
 
         return sample_type_and_container_data
+
+    def _prepare_custom_attribute_data(
+        final_form_data: dict
+    ) -> dict:
+        custom_attributes = {}
+
+        pass
 
 
 @sample.route("add/reroute/<hash>", methods=["GET"])
@@ -317,6 +329,7 @@ def add_sample_information(hash):
             "sample_type": form.sample_type.data,
             "fluid_sample_type": form.fluid_sample_type.data,
             "molecular_sample_type": form.molecular_sample_type.data,
+            "tissue_sample_type": form.tissue_sample_type.data,
             "cell_sample_type": form.cell_sample_type.data,
             "quantity": form.quantity.data,
             "fixation_type": form.fixation_type.data,
