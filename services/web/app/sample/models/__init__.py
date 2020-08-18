@@ -35,50 +35,65 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     source = db.Column(db.Enum(SampleSource))
 
-    type = db.Column(db.Enum(SampleType))
     status = db.Column(db.Enum(SampleStatus))
     colour = db.Column(db.Enum(Colour))
 
     biohazard_level = db.Column(db.Enum(BiohazardLevel))
 
-    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-    processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-
     comments = db.Column(db.Text, nullable=True)
 
+    quantity = db.Column(db.Float)
+    remaining_quantity = db.Column(db.Float)
+
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    is_closed = db.Column(db.Boolean, default=False)
 
-    disposal_information = db.relationship(
-        "SampleDisposal",
-        primaryjoin="SampleDisposal.sample_id==Sample.id",
-        uselist=False,
-    )
 
-    consent_id = db.Column(
-        db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False
-    )
+    # Type and container information
+    type = db.Column(db.Enum(SampleType))
+    sample_type_id = db.Column(db.Integer, db.ForeignKey("sampletype.id"))
+    sample_container_id = db.Column(db.Integer, db.ForeignKey("sampletocontainer.id"))
 
-    consent_information = db.relationship(
-        "SampleConsent",
-        uselist=False,
-        primaryjoin="SampleConsent.id==Sample.consent_id",
-    )
+    type_informaton = db.relationship("SampleType", uselist=False)
+    container_information = db.relationship("SampleToContainer", uselist=False)
 
+    # Collection Informaiton
+    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
     collection_information = db.relationship(
         "SampleProtocolEvent",
         uselist=False,
         primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id",
     )
 
+    # Consent Information
+    consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
+    consent_information = db.relationship(
+        "SampleConsent",
+        uselist=False
+    )
+    
+    # Disposal Information
+    disposal_id = db.Column(
+        db.Integer, db.ForeignKey("sampledisposal.id")
+    )
+    disposal_information = db.relationship(
+        "SampleDisposal",
+        uselist=False
+    )
+
+    # Processing Information
+    processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
     processing_information = db.relationship(
         "SampleProtocolEvent",
         primaryjoin="SampleProtocolEvent.id==Sample.processing_event_id",
     )
 
-    quantity = db.relationship("SampleQuantity", uselist=False)
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)
+
+    is_closed = db.Column(db.Boolean, default=False)
+
+
+
 
     # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
@@ -95,15 +110,7 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     )
 
 
-class SampleQuantity(Base, RefAuthorMixin, RefEditorMixin):
-    quantity = db.Column(db.Float)
-    remaining_quantity = db.Column(db.Float)
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
-
-
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.DateTime, nullable=True)
