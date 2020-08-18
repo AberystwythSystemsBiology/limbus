@@ -35,8 +35,16 @@ from .enums import (
     Colour,
     SampleSource,
     SampleQuality,
+    MolecularSampleType,
+    TissueSampleType,
+    BiohazardLevel,
     DisposalInstruction,
-    BiohazardLevel
+    CellSampleType,
+    FixationType,
+    FluidSampleType,
+    CellContainer,
+    FluidSampleType,
+    SampleType
 )
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
@@ -79,7 +87,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
 
 consent_schema = ConsentSchema()
 
-class NewConsentAnswerSchema(masql.masSQLAlchemySchema):
+class NewConsentAnswerSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsentAnswer
 
@@ -134,6 +142,8 @@ class NewFluidSampleSchema(ma.Schema):
     fluid_sample_type = EnumField(FluidSampleType)
     fluid_container = EnumField(FluidSampleType)
 
+new_fluid_sample_schema = NewFluidSampleSchema()
+
 class NewCellSampleSchema(ma.Schema):
     sample_id = fields.Integer()
     cell_sample_type = EnumField(CellSampleType)
@@ -141,10 +151,14 @@ class NewCellSampleSchema(ma.Schema):
     fixation_type = EnumField(FixationType)
     cell_container = EnumField(CellContainer)
 
+new_cell_sample_schema = NewCellSampleSchema()
+
 class NewMolecularSampleSchema(ma.Schema):
     sample_id = fields.Integer()
     molecular_sample_type = EnumField(FluidSampleType)
     fluid_container = EnumField(MolecularSampleType)
+
+new_molecular_sample_schema = NewMolecularSampleSchema()
 
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
