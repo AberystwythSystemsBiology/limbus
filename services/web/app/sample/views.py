@@ -19,6 +19,7 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
+from ..consent.views import BasicConsentFormQuestionSchema
 
 from ..database import (
     Sample,
@@ -81,9 +82,9 @@ class ConsentSchema(masql.SQLAlchemySchema):
     identifier = masql.auto_field()
     comments = masql.auto_field()
     template_id = masql.auto_field()
-    date_signed = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
+    answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
 
 consent_schema = ConsentSchema()
 

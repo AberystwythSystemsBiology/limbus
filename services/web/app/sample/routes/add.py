@@ -30,16 +30,20 @@ from ..forms import (
     FinalSampleForm
 )
 
+from datetime import datetime
+
 import requests
 
 def prepare_form_data(form_data: dict) -> dict:
     def _prepare_consent(consent_template_id: str, consent_data: dict):
         new_consent_data = {
-            "template_id": int(consent_template_id),
-            "identifier": consent_data["consent_id"],
-            "date_signed": consent_data["date_signed"],
-            "comments": consent_data["comments"],
-            "answers": consent_data["checked"]
+            "consent_data": {
+                "template_id": int(consent_template_id),
+                "identifier": consent_data["consent_id"],
+                "date_signed": consent_data["date_signed"],
+                "comments": consent_data["comments"]
+            },            
+            "answer_data": consent_data["checked"]
         }
 
         return new_consent_data
@@ -50,14 +54,17 @@ def prepare_form_data(form_data: dict) -> dict:
         undertaken_terminology: str,
         protocol_id: str) -> dict:
         # Can be used for both collection and processing.
+        comments = None
+        if comments in event_data:
+            comments = event_data["comments"]
         new_processing_event = {
-            "datetime": datetime.strptime(
+            "datetime": str(datetime.strptime(
                 "%s %s" % (
                     event_data["%s_date" % (datetime_terminology)],
                     event_data["%s_time" % (datetime_terminology)]
-                ), "%Y/%m/%d %H:%M:%S"),
+                ), "%Y-%m-%d %H:%M:%S")),
             "undertaken_by": event_data["%s_by" % (undertaken_terminology)],
-            "comments": event_data["comments"],
+            "comments": comments,
             "protocol_id": protocol_id
         }
         
@@ -87,9 +94,15 @@ def prepare_form_data(form_data: dict) -> dict:
         collection_data: dict
     ) -> dict:
 
+        if collection_data["disposal_instruction"] == "NAP":
+            disposal_date = None
+        
+        else:
+            disposal_date = collection_data["disposal_date"]
+
         new_disposal_data = {
             "instruction": collection_data["disposal_instruction"],
-            "disposal_date": collection_data["disposal_date"]
+            "disposal_date": disposal_date
         }
 
         return new_disposal_data
@@ -101,10 +114,10 @@ def prepare_form_data(form_data: dict) -> dict:
 
         sample_type_and_container_data["type"] = sample_information_data["sample_type"]
 
-        if sample_type_and_container_data["sample_type"] == "FLU":
+        if sample_type_and_container_data["type"] == "FLU":
             sample_type_and_container_data["fluid_container"] = sample_information_data["fluid_container"]
             sample_type_and_container_data["fluid_sample_type"] = sample_information_data["fluid_sample_type"]
-        elif sample_type_and_container_data["type"] == "CEL":
+        elif sample_type_and_container_data["type"]== "CEL":
             sample_type_and_container_data["cell_sample_type"] = sample_information_data["cell_sample_type"]
             sample_type_and_container_data["tissue_sample_type"] = sample_information_data["tissue_sample_type"]
             sample_type_and_container_data["fixation_type"] = sample_information_data["fixation_type"]
@@ -152,16 +165,71 @@ def prepare_form_data(form_data: dict) -> dict:
 
         return sample_review_data
 
+
+    collection_data = _prepare_processing_protocol(
+        form_data["add_collection_consent_and_barcode"],
+        "collection",
+        "collected",
+        form_data["add_collection_consent_and_barcode"]["collection_protocol_id"]
+    )
+
+    collection_response = requests.post(url_for("api.sample_new_sample_protocol_event", _external=True),
+        headers=get_internal_api_header(),
+        json=collection_data)
+
+    if collection_response.status_code != 200:
+        return collection_response.content
+
+
+    processing_data = _prepare_processing_protocol(
+        form_data["add_processing_information"],
+        "processing",
+        "undertaken",
+        form_data["add_processing_information"]["processing_protocol_id"]
+    )
+
+    processing_response = requests.post(url_for("api.sample_new_sample_protocol_event", _external=True),
+        headers=get_internal_api_header(),
+        json=processing_data
+        )
+
+    if processing_response.status_code != 200:
+        return processing_response.content
+
     consent_data = _prepare_consent(
         form_data["add_collection_consent_and_barcode"]["consent_form_id"],
         form_data["add_digital_consent_form"]
+    )
+
+    consent_response = requests.post(url_for("api.sample_new_sample_consent", _external=True),
+        headers=get_internal_api_header(),
+        json=consent_data
         )
 
-    collection_data = _prepare_processing_protocol(
-        form_data["add_collection_consent_and_barcode"]["collection_protocol_id"],
 
+    if consent_response.status_code != 200:
+        return consent_response.content
+
+
+    disposal_data = _prepare_disposal_object(
+        form_data["add_collection_consent_and_barcode"]
     )
-        
+
+
+    sample_data = _prepare_sample_object(
+        form_data["add_collection_consent_and_barcode"],
+        form_data["add_sample_information"],
+        form_data["add_processing_information"],
+        form_data["add_final_details"]
+    )
+
+
+    type_data = _prepare_sample_type_and_container(
+        form_data["add_sample_information"]
+    )
+    
+
+    sample_review_data = form_data["add_sample_review"]
 
     return form_data
 
