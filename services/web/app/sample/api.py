@@ -28,6 +28,7 @@ from ..database import (
     SampleConsent,
     SampleConsentAnswer,
     SampleProtocolEvent,
+    SampleDisposal,
 )
 
 from .views import (
@@ -39,6 +40,8 @@ from .views import (
     new_sample_protocol_event_schema,
     sample_protocol_event_schema,
     new_sample_schema,
+    new_sample_disposal_schema,
+    basic_disposal_schema,
 )
 
 from datetime import datetime
@@ -80,6 +83,33 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
+@api.route("/sample/sample_new_disposal_instructions", methods=["POST"])
+@token_required
+def sample_new_disposal_instructions(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        disposal_instructions_values = new_sample_disposal_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_disposal_instructions = SampleDisposal(**disposal_instructions_values)
+    new_disposal_instructions.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_disposal_instructions)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            basic_disposal_schema.dump(new_disposal_instructions)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
 
 @api.route("/sample/new_sample_consent", methods=["POST"])
 @token_required

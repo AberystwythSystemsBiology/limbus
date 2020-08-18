@@ -103,6 +103,18 @@ class NewConsentAnswerSchema(masql.SQLAlchemySchema):
 new_consent_answer_schema = NewConsentAnswerSchema()
 new_consent_answers_schema = NewConsentAnswerSchema(many=True)
 
+class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDisposal
+
+    sample_id = masql.auto_field()
+    instruction = EnumField(DisposalInstruction)
+    comments = masql.auto_field()
+    disposal_date = masql.auto_field()
+
+
+basic_disposal_schema = BasicSampleDisposalSchema()
+
 
 class NewSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -96,7 +96,7 @@ def prepare_form_data(form_data: dict) -> dict:
 
         return new_sample_data
 
-    def _prepare_disposal_object(collection_data: dict) -> dict:
+    def _prepare_disposal_object(collection_data: dict, sample_id: int) -> dict:
 
         if collection_data["disposal_instruction"] == "NAP":
             disposal_date = None
@@ -107,6 +107,7 @@ def prepare_form_data(form_data: dict) -> dict:
         new_disposal_data = {
             "instruction": collection_data["disposal_instruction"],
             "disposal_date": disposal_date,
+            "sample_id": int(sample_id),
         }
 
         return new_disposal_data
@@ -223,9 +224,6 @@ def prepare_form_data(form_data: dict) -> dict:
     if consent_response.status_code != 200:
         return consent_response.content
 
-    disposal_data = _prepare_disposal_object(
-        form_data["add_collection_consent_and_barcode"]
-    )
 
     sample_data = _prepare_sample_object(
         form_data["add_collection_consent_and_barcode"],
@@ -234,7 +232,26 @@ def prepare_form_data(form_data: dict) -> dict:
         form_data["add_final_details"],
     )
 
+
+    sample_response = requests.post()
+
     type_data = _prepare_sample_type_and_container(form_data["add_sample_information"])
+
+
+    disposal_data = _prepare_disposal_object(
+        form_data["add_collection_consent_and_barcode"],
+        sample_id=None
+    )
+
+    disposal_response = requests.post(
+        url_for("api.sample_new_disposal_instructions", _external=True),
+        headers=get_internal_api_header(),
+        json=consent_data
+    )
+
+    if disposal_response.status_code != 200:
+        return disposal_response.content
+
 
     sample_review_data = form_data["add_sample_review"]
 
@@ -264,8 +281,7 @@ def add_rerouter(hash):
                     if "add_sample_review" in data:
                         if "add_custom_atributes" in data:
                             if "add_final_details" in data:
-                                prepare_form_data(data)
-                                return "Hello World"
+                                return prepare_form_data(data)
                             return redirect(
                                 url_for("sample.add_sample_final_form", hash=hash)
                             )
