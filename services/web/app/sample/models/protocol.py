@@ -25,4 +25,3 @@ class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
 
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
     protocol = db.relationship("ProtocolTemplate")
-

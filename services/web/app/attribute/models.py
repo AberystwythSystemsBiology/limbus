@@ -52,6 +52,7 @@ class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
     ref = db.Column(db.String(64))
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
 
+
 class AttributeData(Base, RefAuthorMixin, RefEditorMixin):
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), nullable=False)
     attribute = db.relationship("Attribute", uselist=False)

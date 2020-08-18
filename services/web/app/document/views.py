@@ -35,6 +35,7 @@ class NewDocumentSchema(masql.SQLAlchemySchema):
 
 new_document_schema = NewDocumentSchema()
 
+
 class BasicDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Document

@@ -31,6 +31,7 @@ from datetime import datetime
 
 from .enums import *
 
+
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
@@ -39,13 +40,11 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
         setattr(
             StaticForm,
             str(attribute["id"]),
-            BooleanField(
-                attribute["term"],
-                render_kw={"attribute":  attribute}
-            )
+            BooleanField(attribute["term"], render_kw={"attribute": attribute}),
         )
 
     return StaticForm()
+
 
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
@@ -63,17 +62,15 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
             attribute["term"],
             description=attribute["term"],
             validators=[DataRequired(), Length(text_setting["max_length"])],
-            render_kw={"custom": True}
+            render_kw={"custom": True},
         )
-
 
     def _custom_numeric_field(attribute):
         return FloatField(
             attribute["term"],
             description=attribute["description"],
             validators=[DataRequired()],
-            render_kw={"custom": True}
-
+            render_kw={"custom": True},
         )
 
     def _custom_option_field(attribute):
@@ -87,20 +84,18 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
             validators=[DataRequired()],
             choices=choices,
             render_kw={"custom": True},
-            coerce=int
-
+            coerce=int,
         )
-    # END TODO
 
+    # END TODO
 
     class StaticForm(FlaskForm):
         colour = SelectField(
             "Colour",
             choices=Colour.choices(),
-            description="Identifiable colour code for the sample."
+            description="Identifiable colour code for the sample.",
         )
         submit = SubmitField("Submit")
-
 
     for attribute in custom_attributes:
         if attribute["type"] == "TEXT":
@@ -114,12 +109,13 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
     return StaticForm()
 
+
 class SampleTypeSelectForm(FlaskForm):
 
     biohazard_level = SelectField(
         "Biohazard Level",
         choices=BiohazardLevel.choices(),
-        description="BSL category for the sample."
+        description="BSL category for the sample.",
     )
 
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
@@ -127,10 +123,8 @@ class SampleTypeSelectForm(FlaskForm):
         "Fluid Sample Type", choices=FluidSampleType.choices()
     )
 
-    tissue_sample_type = SelectField(
-        "Tissue Type", choices=TissueSampleType.choices()
-        )
-    
+    tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
+
     molecular_sample_type = SelectField(
         "Molecular Sample Type", choices=MolecularSampleType.choices()
     )
@@ -145,34 +139,34 @@ class SampleTypeSelectForm(FlaskForm):
     submit = SubmitField("Continue")
 
 
-def CollectionConsentAndDisposalForm(consent_templates: list, collection_protocols: list, collection_sites: list) -> FlaskForm:
-
+def CollectionConsentAndDisposalForm(
+    consent_templates: list, collection_protocols: list, collection_sites: list
+) -> FlaskForm:
     class StaticForm(FlaskForm):
         # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
             "Sample Biobank Barcode",
-            description="If your sample already has a barcode/identifier, you can enter it here."
+            description="If your sample already has a barcode/identifier, you can enter it here.",
         )
 
         collection_date = DateField(
             "Sample Collection Date",
             validators=[DataRequired()],
             description="The date in which the sample was collected.",
-            default=datetime.today
+            default=datetime.today,
         )
 
         collection_time = TimeField(
             "Sample Collection Time",
             default=datetime.now(),
             validators=[DataRequired()],
-            description="The time at which the sample was collected."
+            description="The time at which the sample was collected.",
         )
-
 
         disposal_date = DateField(
             "Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
-            default=datetime.today
+            default=datetime.today,
         )
 
         disposal_instruction = SelectField(
@@ -184,11 +178,11 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
         has_donor = BooleanField("Has Donor")
 
         consent_select = SelectField(
-                "Patient Consent Form Template",
-                validators=[DataRequired()],
-                choices=consent_templates,
-                description="The patient consent form template that reflects the consent form the sample donor signed.",
-                coerce=int
+            "Patient Consent Form Template",
+            validators=[DataRequired()],
+            choices=consent_templates,
+            description="The patient consent form template that reflects the consent form the sample donor signed.",
+            coerce=int,
         )
 
         collection_select = SelectField(
@@ -196,25 +190,23 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
             validators=[DataRequired()],
             choices=collection_protocols,
             description="The protocol that details how the sample was taken.",
-            coerce=int
+            coerce=int,
         )
 
         collected_by = StringField(
             "Collected By",
-            description="The initials of the individual who collected the sample."
+            description="The initials of the individual who collected the sample.",
         )
-        
+
         collection_site = SelectField(
             "Collection Site",
             description="The site in which the sample was taken",
             coerce=int,
             validators=[DataRequired()],
-            choices=collection_sites
+            choices=collection_sites,
         )
 
         submit = SubmitField("Continue")
-
-
 
     return StaticForm()
 
@@ -224,38 +216,35 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
         sample_status = SelectField(
             "Sample Status",
             choices=SampleStatus.choices(),
-            description="The current status of the Sample."
+            description="The current status of the Sample.",
         )
 
         processing_date = DateField(
             "Processing Date",
             default=datetime.today(),
-            description="The date in which the sample was processed."
+            description="The date in which the sample was processed.",
         )
         processing_time = TimeField(
             "Processing Time",
             default=datetime.now(),
-            description="The time in which the sample was processed."
+            description="The time in which the sample was processed.",
         )
 
         processing_protocol_id = SelectField(
             "Processing Protocol",
             choices=protocol_templates,
             coerce=int,
-            validators=[DataRequired()]
+            validators=[DataRequired()],
         )
 
-        comments = TextAreaField(
-            "Comments"
-        )
+        comments = TextAreaField("Comments")
 
         undertaken_by = StringField(
             "Processed",
-            description="The initials of the individual who processed the sample."
+            description="The initials of the individual who processed the sample.",
         )
 
         submit = SubmitField("Continue")
-
 
     return StaticForm()
 
@@ -263,29 +252,26 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
 class SampleReviewForm(FlaskForm):
     quality = SelectField(
         "Sample Quality",
-        choices= SampleQuality.choices(),
-        description="The relative quality of the Sample."
+        choices=SampleQuality.choices(),
+        description="The relative quality of the Sample.",
     )
 
     date = DateField(
         "Review Date",
         description="The date in which the Sample Review was undertaken.",
-        default=datetime.today()
+        default=datetime.today(),
     )
     time = TimeField(
         "Review Time",
         description="The time in which the Sample Review was undertaken.",
-        default=datetime.now()
+        default=datetime.now(),
     )
     conducted_by = StringField(
         "Review Conducted By",
-        description="Initials of the individual who undertook the Sample Review."
+        description="Initials of the individual who undertook the Sample Review.",
     )
 
-    comments = TextAreaField(
-        "Comments",
-        description="Any relevant observations."
-    )
+    comments = TextAreaField("Comments", description="Any relevant observations.")
     submit = SubmitField("Submit")
 
 
@@ -296,14 +282,9 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
             description="The identifying code of the signed patient consent form.",
         )
 
-        comments = TextAreaField(
-            "Comments"
-        )
+        comments = TextAreaField("Comments")
 
-        date_signed = DateField(
-            "Date of Consent",
-            default=datetime.today()
-        )
+        date_signed = DateField("Date of Consent", default=datetime.today())
 
         submit = SubmitField("Continue")
 
@@ -312,15 +293,14 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
             StaticForm,
             str(question["id"]),
             BooleanField(
-                question["question"],
-                render_kw={"question_type": question["type"]}
-            )
+                question["question"], render_kw={"question_type": question["type"]}
+            ),
         )
 
     return StaticForm()
 
 
-'''
+"""
 
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     class StaticForm(FlaskForm):
@@ -379,4 +359,4 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     )
 
     return StaticForm(), len(processing_templates)
-'''
+"""

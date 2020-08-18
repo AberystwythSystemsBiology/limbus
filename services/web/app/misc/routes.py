@@ -16,6 +16,7 @@ def index() -> str:
 def license() -> str:
     return render_template("misc/license.html")
 
+
 @misc.route("/privacy-policy")
 def privacy_policy() -> str:
     return render_template("misc/privacy.html")

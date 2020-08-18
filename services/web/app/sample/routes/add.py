@@ -27,12 +27,13 @@ from ..forms import (
     ProtocolTemplateSelectForm,
     SampleReviewForm,
     CustomAttributeSelectForm,
-    FinalSampleForm
+    FinalSampleForm,
 )
 
 from datetime import datetime
 
 import requests
+
 
 def prepare_form_data(form_data: dict) -> dict:
     def _prepare_consent(consent_template_id: str, consent_data: dict):
@@ -41,9 +42,9 @@ def prepare_form_data(form_data: dict) -> dict:
                 "template_id": int(consent_template_id),
                 "identifier": consent_data["consent_id"],
                 "date_signed": consent_data["date_signed"],
-                "comments": consent_data["comments"]
-            },            
-            "answer_data": consent_data["checked"]
+                "comments": consent_data["comments"],
+            },
+            "answer_data": consent_data["checked"],
         }
 
         return new_consent_data
@@ -52,31 +53,37 @@ def prepare_form_data(form_data: dict) -> dict:
         event_data: dict,
         datetime_terminology: str,
         undertaken_terminology: str,
-        protocol_id: str) -> dict:
+        protocol_id: str,
+    ) -> dict:
         # Can be used for both collection and processing.
         comments = None
         if comments in event_data:
             comments = event_data["comments"]
         new_processing_event = {
-            "datetime": str(datetime.strptime(
-                "%s %s" % (
-                    event_data["%s_date" % (datetime_terminology)],
-                    event_data["%s_time" % (datetime_terminology)]
-                ), "%Y-%m-%d %H:%M:%S")),
+            "datetime": str(
+                datetime.strptime(
+                    "%s %s"
+                    % (
+                        event_data["%s_date" % (datetime_terminology)],
+                        event_data["%s_time" % (datetime_terminology)],
+                    ),
+                    "%Y-%m-%d %H:%M:%S",
+                )
+            ),
             "undertaken_by": event_data["%s_by" % (undertaken_terminology)],
             "comments": comments,
-            "protocol_id": protocol_id
+            "protocol_id": protocol_id,
         }
-        
+
         return new_processing_event
 
     def _prepare_sample_object(
         collection_data: dict,
         sample_information_data: dict,
         processing_information: dict,
-        final_form_data: dict
+        final_form_data: dict,
     ) -> dict:
-        
+
         new_sample_data = {
             "barcode": collection_data["barcode"],
             "source": "NEW",
@@ -84,150 +91,150 @@ def prepare_form_data(form_data: dict) -> dict:
             "type": sample_information_data["sample_type"],
             "status": processing_information["sample_status"],
             "colour": final_form_data["colour"],
-            "site_id": collection_data["site_id"]
+            "site_id": collection_data["site_id"],
         }
 
         return new_sample_data
 
-
-    def _prepare_disposal_object(
-        collection_data: dict
-    ) -> dict:
+    def _prepare_disposal_object(collection_data: dict) -> dict:
 
         if collection_data["disposal_instruction"] == "NAP":
             disposal_date = None
-        
+
         else:
             disposal_date = collection_data["disposal_date"]
 
         new_disposal_data = {
             "instruction": collection_data["disposal_instruction"],
-            "disposal_date": disposal_date
+            "disposal_date": disposal_date,
         }
 
         return new_disposal_data
 
-    def _prepare_sample_type_and_container(
-        sample_information_data: dict
-    ) -> dict:
+    def _prepare_sample_type_and_container(sample_information_data: dict) -> dict:
         sample_type_and_container_data = {}
 
         sample_type_and_container_data["type"] = sample_information_data["sample_type"]
 
         if sample_type_and_container_data["type"] == "FLU":
-            sample_type_and_container_data["fluid_container"] = sample_information_data["fluid_container"]
-            sample_type_and_container_data["fluid_sample_type"] = sample_information_data["fluid_sample_type"]
-        elif sample_type_and_container_data["type"]== "CEL":
-            sample_type_and_container_data["cell_sample_type"] = sample_information_data["cell_sample_type"]
-            sample_type_and_container_data["tissue_sample_type"] = sample_information_data["tissue_sample_type"]
-            sample_type_and_container_data["fixation_type"] = sample_information_data["fixation_type"]
-            sample_type_and_container_data["cell_container"] = sample_information_data["cell_container"]
+            sample_type_and_container_data["fluid_container"] = sample_information_data[
+                "fluid_container"
+            ]
+            sample_type_and_container_data[
+                "fluid_sample_type"
+            ] = sample_information_data["fluid_sample_type"]
+        elif sample_type_and_container_data["type"] == "CEL":
+            sample_type_and_container_data[
+                "cell_sample_type"
+            ] = sample_information_data["cell_sample_type"]
+            sample_type_and_container_data[
+                "tissue_sample_type"
+            ] = sample_information_data["tissue_sample_type"]
+            sample_type_and_container_data["fixation_type"] = sample_information_data[
+                "fixation_type"
+            ]
+            sample_type_and_container_data["cell_container"] = sample_information_data[
+                "cell_container"
+            ]
         elif sample_type_and_container_data["type"] == "MOL":
-            sample_type_and_container_data["molecular_sample_type"] = sample_information_data["molecular_sample_type"]
-            sample_type_and_container_data["fluid_container"] = sample_information_data["fluid_container"]
+            sample_type_and_container_data[
+                "molecular_sample_type"
+            ] = sample_information_data["molecular_sample_type"]
+            sample_type_and_container_data["fluid_container"] = sample_information_data[
+                "fluid_container"
+            ]
 
         return sample_type_and_container_data
 
-    def _prepare_custom_attribute_data(
-        final_form_data: dict
-    ) -> dict:
+    def _prepare_custom_attribute_data(final_form_data: dict) -> dict:
         custom_attributes = []
 
         for custom_attribute in final_form_data["custom_field_data"]:
             if custom_attribute[2] != "OptionField":
-                custom_attributes.append({
-                    "attribute_id": custom_attribute[0],
-                    "option_id": custom_attribute[1]
-
-                })
+                custom_attributes.append(
+                    {
+                        "attribute_id": custom_attribute[0],
+                        "option_id": custom_attribute[1],
+                    }
+                )
             else:
-                custom_attributes.append({
-                    "attribute_id": custom_attribute[0],
-                    "data": custom_attribute[1]
-                    })
+                custom_attributes.append(
+                    {"attribute_id": custom_attribute[0], "data": custom_attribute[1]}
+                )
 
         return custom_attributes
 
-    
-    def _prepare_sample_review_data(
-        sample_review_data:dict
-    ) -> dict:
+    def _prepare_sample_review_data(sample_review_data: dict) -> dict:
         sample_review_data = {
             "conducted_by": sample_review_data["conducted_by"],
-            "datetime" : datetime.strptime(
-                "%s %s" % (
-                    sample_review_data["date"],
-                    sample_review_data["time"],
-                ), "%Y/%m/%d %H:%M:%S"),
+            "datetime": datetime.strptime(
+                "%s %s" % (sample_review_data["date"], sample_review_data["time"],),
+                "%Y/%m/%d %H:%M:%S",
+            ),
             "quality": sample_review_data["quality"],
-            "comments": sample_review_data["comments"]
+            "comments": sample_review_data["comments"],
         }
 
         return sample_review_data
-
 
     collection_data = _prepare_processing_protocol(
         form_data["add_collection_consent_and_barcode"],
         "collection",
         "collected",
-        form_data["add_collection_consent_and_barcode"]["collection_protocol_id"]
+        form_data["add_collection_consent_and_barcode"]["collection_protocol_id"],
     )
 
-    collection_response = requests.post(url_for("api.sample_new_sample_protocol_event", _external=True),
+    collection_response = requests.post(
+        url_for("api.sample_new_sample_protocol_event", _external=True),
         headers=get_internal_api_header(),
-        json=collection_data)
+        json=collection_data,
+    )
 
     if collection_response.status_code != 200:
         return collection_response.content
-
 
     processing_data = _prepare_processing_protocol(
         form_data["add_processing_information"],
         "processing",
         "undertaken",
-        form_data["add_processing_information"]["processing_protocol_id"]
+        form_data["add_processing_information"]["processing_protocol_id"],
     )
 
-    processing_response = requests.post(url_for("api.sample_new_sample_protocol_event", _external=True),
+    processing_response = requests.post(
+        url_for("api.sample_new_sample_protocol_event", _external=True),
         headers=get_internal_api_header(),
-        json=processing_data
-        )
+        json=processing_data,
+    )
 
     if processing_response.status_code != 200:
         return processing_response.content
 
     consent_data = _prepare_consent(
         form_data["add_collection_consent_and_barcode"]["consent_form_id"],
-        form_data["add_digital_consent_form"]
+        form_data["add_digital_consent_form"],
     )
 
-    consent_response = requests.post(url_for("api.sample_new_sample_consent", _external=True),
+    consent_response = requests.post(
+        url_for("api.sample_new_sample_consent", _external=True),
         headers=get_internal_api_header(),
-        json=consent_data
-        )
-
+        json=consent_data,
+    )
 
     if consent_response.status_code != 200:
         return consent_response.content
-
 
     disposal_data = _prepare_disposal_object(
         form_data["add_collection_consent_and_barcode"]
     )
 
-
     sample_data = _prepare_sample_object(
         form_data["add_collection_consent_and_barcode"],
         form_data["add_sample_information"],
         form_data["add_processing_information"],
-        form_data["add_final_details"]
+        form_data["add_final_details"],
     )
 
-
-    type_data = _prepare_sample_type_and_container(
-        form_data["add_sample_information"]
-    )
-    
+    type_data = _prepare_sample_type_and_container(form_data["add_sample_information"])
 
     sample_review_data = form_data["add_sample_review"]
 
@@ -259,13 +266,16 @@ def add_rerouter(hash):
                             if "add_final_details" in data:
                                 prepare_form_data(data)
                                 return "Hello World"
-                            return redirect(url_for("sample.add_sample_final_form", hash=hash))
-                        return redirect(url_for("sample.add_custom_atributes", hash=hash))
+                            return redirect(
+                                url_for("sample.add_sample_final_form", hash=hash)
+                            )
+                        return redirect(
+                            url_for("sample.add_custom_atributes", hash=hash)
+                        )
                     return redirect(url_for("sample.add_sample_review", hash=hash))
                 return redirect(url_for("sample.add_processing_information", hash=hash))
             return redirect(url_for("sample.add_sample_information", hash=hash))
         return redirect(url_for("sample.add_digital_consent_form", hash=hash))
-
 
     abort(400)
 
@@ -280,40 +290,50 @@ def add_collection_consent_and_barcode():
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
-        headers= get_internal_api_header(),
-        json={"is_locked": False}
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
     )
 
     if consent_templates_response.status_code == 200:
         for template in consent_templates_response.json()["content"]:
-            consent_templates.append([template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"])])
-
+            consent_templates.append(
+                [template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"])]
+            )
 
     protocols_response = requests.get(
         url_for("api.protocol_query", _external=True),
-        headers= get_internal_api_header(),
-        json={"is_locked": False}
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
     )
 
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
             if protocol["type"] == "ACQ":
-                collection_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
+                collection_protocols.append(
+                    [
+                        protocol["id"],
+                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
+                    ]
+                )
             elif protocol["type"] == "SAP":
-                processing_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
-
+                processing_protocols.append(
+                    [
+                        protocol["id"],
+                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
+                    ]
+                )
 
     sites_response = requests.get(
-        url_for("api.site_home", _external=True),
-        headers= get_internal_api_header()
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
-
 
     if sites_response.status_code == 200:
         for site in sites_response.json()["content"]:
             collection_sites.append([site["id"], site["name"]])
 
-    form = CollectionConsentAndDisposalForm(consent_templates, collection_protocols, collection_sites)
+    form = CollectionConsentAndDisposalForm(
+        consent_templates, collection_protocols, collection_sites
+    )
 
     if form.validate_on_submit():
 
@@ -334,13 +354,18 @@ def add_collection_consent_and_barcode():
         store_response = requests.post(
             url_for("api.tmpstore_new_tmpstore", _external=True),
             headers=get_internal_api_header(),
-            json={"data": {"add_collection_consent_and_barcode": route_data}, "type": "SMP"}
+            json={
+                "data": {"add_collection_consent_and_barcode": route_data},
+                "type": "SMP",
+            },
         )
 
         if store_response.status_code == 200:
 
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
@@ -350,7 +375,7 @@ def add_collection_consent_and_barcode():
         form=form,
         template_count=len(consent_templates),
         collection_protocol_count=len(collection_protocols),
-        processing_protocols_count=len(processing_protocols)
+        processing_protocols_count=len(processing_protocols),
     )
 
 
@@ -371,7 +396,7 @@ def add_digital_consent_form(hash):
 
     consent_response = requests.get(
         url_for("api.consent_view_template", id=consent_id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if consent_response.status_code != 200:
@@ -386,29 +411,29 @@ def add_digital_consent_form(hash):
             "consent_id": questionnaire.consent_id.data,
             "comments": questionnaire.comments.data,
             "date_signed": str(questionnaire.date_signed.data),
-            "checked": []
+            "checked": [],
         }
 
         for question in consent_template["questions"]:
             if getattr(questionnaire, str(question["id"])).data:
                 consent_details["checked"].append(question["id"])
 
-
         tmpstore_data["add_digital_consent_form"] = consent_details
 
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
-            json={"data": tmpstore_data}
+            json={"data": tmpstore_data},
         )
 
         if store_response.status_code == 200:
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
-
 
     return render_template(
         "sample/sample/add/step_two.html",
@@ -445,7 +470,7 @@ def add_sample_information(hash):
             "quantity": form.quantity.data,
             "fixation_type": form.fixation_type.data,
             "fluid_container": form.fluid_container.data,
-            "cell_container": form.cell_container.data
+            "cell_container": form.cell_container.data,
         }
 
         tmpstore_data["add_sample_information"] = sample_information_details
@@ -453,12 +478,14 @@ def add_sample_information(hash):
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
-            json={"data": tmpstore_data}
+            json={"data": tmpstore_data},
         )
 
         if store_response.status_code == 200:
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
@@ -482,16 +509,17 @@ def add_processing_information(hash):
     protocols_response = requests.get(
         url_for("api.protocol_query", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type": "SAP"}
+        json={"is_locked": False, "type": "SAP"},
     )
     processing_protocols = []
 
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
-            processing_protocols.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
+            processing_protocols.append(
+                [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+            )
 
     form = ProtocolTemplateSelectForm(processing_protocols)
-
 
     if form.validate_on_submit():
         processing_information_details = {
@@ -500,7 +528,7 @@ def add_processing_information(hash):
             "processing_date": str(form.processing_date.data),
             "processing_time": form.processing_time.data.strftime("%H:%M:%S"),
             "comments": form.comments.data,
-            "undertaken_by": form.undertaken_by.data
+            "undertaken_by": form.undertaken_by.data,
         }
 
         tmpstore_data["add_processing_information"] = processing_information_details
@@ -508,22 +536,20 @@ def add_processing_information(hash):
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
-            json={"data": tmpstore_data}
+            json={"data": tmpstore_data},
         )
 
         if store_response.status_code == 200:
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
 
+    return render_template("sample/sample/add/step_four.html", form=form, hash=hash,)
 
-    return render_template(
-        "sample/sample/add/step_four.html",
-        form=form,
-        hash=hash,
-    )
 
 @sample.route("add/sample_review/<hash>", methods=["GET", "POST"])
 def add_sample_review(hash):
@@ -545,8 +571,7 @@ def add_sample_review(hash):
             "date": str(form.date.data),
             "time": form.time.data.strftime("%H:%M:%S"),
             "conducted_by": form.conducted_by.data,
-            "comments": form.comments.data
-
+            "comments": form.comments.data,
         }
 
         tmpstore_data["add_sample_review"] = sample_review_details
@@ -554,22 +579,19 @@ def add_sample_review(hash):
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
-            json={"data": tmpstore_data}
+            json={"data": tmpstore_data},
         )
 
         if store_response.status_code == 200:
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-
-    return render_template(
-        "sample/sample/add/review.html",
-        hash=hash,
-        form=form
-    )
+    return render_template("sample/sample/add/review.html", hash=hash, form=form)
 
 
 @sample.route("add/custom_attributes/<hash>", methods=["GET", "POST"])
@@ -589,13 +611,12 @@ def add_custom_atributes(hash):
 
     attribute_response = requests.get(
         url_for("api.attribute_query", _external=True),
-        json = {},
-        headers=get_internal_api_header()
+        json={},
+        headers=get_internal_api_header(),
     )
 
     if attribute_response.status_code != 200:
         abort(attribute_response.status_code)
-
 
     form = CustomAttributeSelectForm(attribute_response.json()["content"])
 
@@ -614,23 +635,20 @@ def add_custom_atributes(hash):
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
-            json={"data": tmpstore_data}
+            json={"data": tmpstore_data},
         )
 
         if store_response.status_code == 200:
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
 
+    return render_template("sample/sample/add/step_five.html", form=form, hash=hash)
 
-
-    return render_template(
-        "sample/sample/add/step_five.html",
-        form=form,
-        hash=hash
-    )
 
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
 @login_required
@@ -648,7 +666,6 @@ def add_sample_final_form(hash):
 
     custom_attribute_ids = tmpstore_data["add_custom_atributes"]["checked"]
 
-
     custom_attributes = []
     for id in custom_attribute_ids:
         attribute_response = requests.get(
@@ -661,7 +678,6 @@ def add_sample_final_form(hash):
         else:
             custom_attributes.append(attribute_response.json()["content"])
 
-
     form = FinalSampleForm(custom_attributes)
 
     if form.validate_on_submit():
@@ -673,7 +689,7 @@ def add_sample_final_form(hash):
 
         final_details = {
             "colour": form.colour.data,
-            "custom_field_data": custom_field_data
+            "custom_field_data": custom_field_data,
         }
 
         tmpstore_data["add_final_details"] = final_details
@@ -681,15 +697,16 @@ def add_sample_final_form(hash):
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
             headers=get_internal_api_header(),
-            json={"data": tmpstore_data}
+            json={"data": tmpstore_data},
         )
 
         if store_response.status_code == 200:
             return redirect(
-                url_for("sample.add_rerouter", hash=store_response.json()["content"]["uuid"])
+                url_for(
+                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
+                )
             )
 
         flash("We have a problem :( %s" % (store_response.json()))
-
 
     return render_template("sample/sample/add/step_six.html", form=form, hash=hash)

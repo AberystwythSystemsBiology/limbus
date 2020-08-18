@@ -27,12 +27,14 @@ import markdown
 from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ..document.views import BasicDocumentSchema
 
+
 class MarkdownField(fields.Field):
     def _serialize(self, value, attr, obj, **kwargs):
         return markdown.Markdown().convert(value)
 
     def _deserialize(self, value, attr, data, **kwargs):
         return "Goodbye World"
+
 
 class ProtocolTemplateSearchSchema(masql.SQLAlchemySchema):
     class Meta:

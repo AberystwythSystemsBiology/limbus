@@ -26,6 +26,7 @@ from ..enums import (
 
 import uuid
 
+
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     uuid = db.Column(db.String(36), default=str(uuid.uuid4()), nullable=False)
@@ -51,26 +52,28 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     disposal_information = db.relationship(
         "SampleDisposal",
         primaryjoin="SampleDisposal.sample_id==Sample.id",
-        uselist=False
+        uselist=False,
     )
 
-    consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
+    consent_id = db.Column(
+        db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False
+    )
 
     consent_information = db.relationship(
         "SampleConsent",
         uselist=False,
-        primaryjoin="SampleConsent.id==Sample.consent_id"
+        primaryjoin="SampleConsent.id==Sample.consent_id",
     )
 
     collection_information = db.relationship(
         "SampleProtocolEvent",
         uselist=False,
-        primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id"
+        primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id",
     )
 
     processing_information = db.relationship(
         "SampleProtocolEvent",
-        primaryjoin="SampleProtocolEvent.id==Sample.processing_event_id"
+        primaryjoin="SampleProtocolEvent.id==Sample.processing_event_id",
     )
 
     quantity = db.relationship("SampleQuantity", uselist=False)
@@ -79,12 +82,18 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
+
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
 
-    parent = db.relationship("Sample", primaryjoin="SubSampleToSample.parent_id==Sample.id", uselist=False)
-    subsamples = db.relationship("Sample", primaryjoin="SubSampleToSample.subsample_id==Sample.id", uselist=True)
+    parent = db.relationship(
+        "Sample", primaryjoin="SubSampleToSample.parent_id==Sample.id", uselist=False
+    )
+    subsamples = db.relationship(
+        "Sample", primaryjoin="SubSampleToSample.subsample_id==Sample.id", uselist=True
+    )
+
 
 class SampleQuantity(Base, RefAuthorMixin, RefEditorMixin):
     quantity = db.Column(db.Float)
@@ -107,7 +116,6 @@ class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 """
-
 
 
 from .protocol import *

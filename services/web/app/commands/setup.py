@@ -25,6 +25,7 @@ from ..database import (
 
 from uuid import uuid4
 
+
 @cmd_setup.cli.command("create-kryten")
 def create_kryton():
     """
@@ -32,7 +33,7 @@ def create_kryton():
     :return:
     """
 
-    kryten_ascii = '''             _--~~--_
+    kryten_ascii = """             _--~~--_
 "Smeee-     |\      /|
  Heeee!"    | \    / |
            i.--`..'--.i
@@ -57,8 +58,7 @@ def create_kryton():
     i111\J L ]|   | L ] L/|||i
     U111 | ~--_L____--~ | |||U
      UJJ |MMMMMM/\MMMMMM| UJJ
-        |\MM'''
-
+        |\MM"""
 
     if (
         UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first()
@@ -86,9 +86,9 @@ def create_kryton():
     else:
         print("NOTICE: Kryten already exists...")
 
+
 @cmd_setup.cli.command("create-testuser")
 def create_testuser():
-
 
     address = Address(
         street_address_one="32 Charles Street",
@@ -96,18 +96,14 @@ def create_testuser():
         city="Tredegar",
         county="Rhondda Cynon Taff",
         post_code="NP225AZ",
-        country="GB"
+        country="GB",
     )
 
     db.session.add(address)
     db.session.commit()
     db.session.flush()
 
-    site = SiteInformation(
-        name="Testing Biobank",
-        address_id=address.id,
-        author_id=1
-    )
+    site = SiteInformation(name="Testing Biobank", address_id=address.id, author_id=1)
 
     db.session.add(site)
     db.session.commit()
@@ -121,12 +117,10 @@ def create_testuser():
         last_name="Bloggs",
         account_type="ADM",
         access_control="ADM",
-        site_id=site.id
+        site_id=site.id,
     )
 
     db.session.add(me)
     db.session.commit()
 
     return "Done"
-
-

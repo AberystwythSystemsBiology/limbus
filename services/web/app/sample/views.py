@@ -45,8 +45,9 @@ from .enums import (
     FluidSampleType,
     CellContainer,
     FluidSampleType,
-    SampleType
+    SampleType,
 )
+
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -56,6 +57,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
+
 
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
@@ -86,7 +88,9 @@ class ConsentSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
 
+
 consent_schema = ConsentSchema()
+
 
 class NewConsentAnswerSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -109,6 +113,7 @@ class NewSampleDisposalSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     disposal_date = masql.auto_field()
 
+
 new_sample_disposal_schema = NewSampleDisposalSchema()
 
 
@@ -120,6 +125,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
     protocol_id = masql.auto_field()
+
 
 new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
 
@@ -136,14 +142,18 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
+
 sample_protocol_event_schema = SampleProtocolEventSchema()
 
-class NewFluidSampleSchema(ma.Schema):  
+
+class NewFluidSampleSchema(ma.Schema):
     sample_id = fields.Integer()
     fluid_sample_type = EnumField(FluidSampleType)
     fluid_container = EnumField(FluidSampleType)
 
+
 new_fluid_sample_schema = NewFluidSampleSchema()
+
 
 class NewCellSampleSchema(ma.Schema):
     sample_id = fields.Integer()
@@ -152,14 +162,18 @@ class NewCellSampleSchema(ma.Schema):
     fixation_type = EnumField(FixationType)
     cell_container = EnumField(CellContainer)
 
+
 new_cell_sample_schema = NewCellSampleSchema()
+
 
 class NewMolecularSampleSchema(ma.Schema):
     sample_id = fields.Integer()
     molecular_sample_type = EnumField(FluidSampleType)
     fluid_container = EnumField(MolecularSampleType)
 
+
 new_molecular_sample_schema = NewMolecularSampleSchema()
+
 
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -177,7 +191,9 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     collection_event_id = masql.auto_field()
     processing_event_id = masql.auto_field()
 
+
 new_sample_schema = NewSampleSchema()
+
 
 class NewSampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -189,5 +205,5 @@ class NewSampleReviewSchema(masql.SQLAlchemySchema):
     quality = EnumField(SampleQuality)
     comments = masql.auto_field()
 
-new_sample_review_schema = NewSampleReviewSchema()
 
+new_sample_review_schema = NewSampleReviewSchema()

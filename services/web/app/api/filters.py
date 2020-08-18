@@ -12,6 +12,7 @@ def _get():
 def _post():
     pass
 
+
 def get_filters_and_joins(args: dict, model):
     filters = {}
     joins = []

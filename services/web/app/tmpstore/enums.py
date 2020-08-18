@@ -15,5 +15,6 @@
 
 from ..FormEnum import FormEnum
 
+
 class StoreType(FormEnum):
     SMP = "Sample"

@@ -80,6 +80,7 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/sample/new_sample_consent", methods=["POST"])
 @token_required
 def sample_new_sample_consent(tokenuser: UserAccount):
@@ -88,14 +89,12 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-
     try:
         consent_values = values["consent_data"]
         answer_values = values["answer_data"]
 
     except KeyError as err:
         return validation_error_response(err)
-
 
     try:
         consent_result = new_consent_schema.load(consent_values)
@@ -112,21 +111,19 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     except Exception as err:
         return transation_error_response(err)
 
-    
     answers_list = []
 
     for answer in answer_values:
         try:
-            answer_result = new_consent_answer_schema.load({
-                "question_id": answer,
-                "consent_id": new_consent.id
-            })
+            answer_result = new_consent_answer_schema.load(
+                {"question_id": answer, "consent_id": new_consent.id}
+            )
 
             answers_list.append(answer_result)
 
         except ValidationError as err:
             return validation_error_response(err)
-        
+
     for answer in answers_list:
         try:
             new_answer = SampleConsentAnswer(**answer)
@@ -135,7 +132,7 @@ def sample_new_sample_consent(tokenuser: UserAccount):
             db.session.commit()
         except Exception as err:
             return transaction_error_response(err)
-    
+
     return success_with_content_response(
-            consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
-        )
+        consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
+    )

@@ -33,7 +33,6 @@ import itertools
 import re
 
 
-
 def iter_all_strings():
     for size in itertools.count(1):
         for s in itertools.product(ascii_uppercase, repeat=size):
@@ -89,7 +88,8 @@ def cryobox_index():
     boxes = {}
     return render_template("storage/cryobox/index.html", boxes=boxes)
 
-'''
+
+"""
 @storage.route("/cryobox/new", methods=["GET", "POST"])
 @login_required
 def add_cryobox():
@@ -284,4 +284,4 @@ def add_cryobox_sample(cryo_id, row, col):
     return render_template(
         "storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col
     )
-'''
+"""

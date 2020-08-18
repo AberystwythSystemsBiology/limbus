@@ -33,7 +33,7 @@ from .views import (
     new_protocol_text_schema,
     basic_protocol_text_schema,
     new_protocol_template_to_document_schema,
-    ProtocolTemplateSearchSchema
+    ProtocolTemplateSearchSchema,
 )
 
 from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
@@ -55,8 +55,10 @@ def protocol_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, ProtocolTemplate)
     return success_with_content_response(
         basic_protocol_templates_schema.dump(
-            ProtocolTemplate.query.filter_by(**filters).filter(*joins).all())
+            ProtocolTemplate.query.filter_by(**filters).filter(*joins).all()
+        )
     )
+
 
 @api.route("/protocol/new", methods=["POST"])
 @token_required

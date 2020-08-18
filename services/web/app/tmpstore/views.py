@@ -22,6 +22,7 @@ from .enums import StoreType
 
 from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
+
 class StoreSchema(masql.SQLAlchemySchema):
     class Meta:
         model = TemporaryStore
@@ -33,8 +34,10 @@ class StoreSchema(masql.SQLAlchemySchema):
     created_on = masql.auto_field()
     editor = ma.Nested(BasicUserAccountSchema)
 
+
 store_schema = StoreSchema()
 stores_schema = StoreSchema(many=True)
+
 
 class NewStoreSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -45,7 +48,9 @@ class NewStoreSchema(masql.SQLAlchemySchema):
     author_id = masql.auto_field()
     type = EnumField(StoreType, required=True)
 
+
 new_store_schema = NewStoreSchema()
+
 
 class StoreSearchSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -61,5 +66,6 @@ class StoreUpdateSchema(masql.SQLAlchemySchema):
         model = TemporaryStore
 
     data = masql.auto_field()
+
 
 store_update_schema = StoreUpdateSchema()

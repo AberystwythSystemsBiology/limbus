@@ -18,6 +18,7 @@ from ..mixins import RefAuthorMixin, RefEditorMixin
 
 from .enums import StoreType
 
+
 class TemporaryStore(Base, RefAuthorMixin, RefEditorMixin):
 
     uuid = db.Column(db.String(36), unique=True)

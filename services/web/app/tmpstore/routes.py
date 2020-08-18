@@ -23,26 +23,28 @@ from ..misc import get_internal_api_header
 
 import json
 
+
 @tmpstore.route("/", methods=["GET"])
 @login_required
 def index():
     tmpstore_response = requests.get(
-        url_for("api.tmpstore_home", _external=True),
-        headers=get_internal_api_header()
+        url_for("api.tmpstore_home", _external=True), headers=get_internal_api_header()
     )
 
     if tmpstore_response.status_code != 200:
         abort(tmpstore.status_code)
 
+    return render_template(
+        "/tmpstore/index.html", tmpstores=tmpstore_response.json()["content"]
+    )
 
-    return render_template("/tmpstore/index.html", tmpstores = tmpstore_response.json()["content"])
 
 @tmpstore.route("/view/<hash>", methods=["GET"])
 @login_required
 def view(hash: str):
     tmpstore_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if tmpstore_response.status_code != 200:
@@ -51,5 +53,5 @@ def view(hash: str):
     return render_template(
         "/tmpstore/view.html",
         hash=hash,
-        tmpstore=json.dumps(tmpstore_response.json()["content"], indent=4)
+        tmpstore=json.dumps(tmpstore_response.json()["content"], indent=4),
     )

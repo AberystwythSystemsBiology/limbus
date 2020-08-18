@@ -63,6 +63,7 @@ def document_view_document(id: int, tokenuser: UserAccount):
         document_schema.dump(Document.query.filter_by(id=id).first())
     )
 
+
 @api.route("/document/query", methods=["GET"])
 @use_args(DocumentSearchSchema(), location="json")
 @token_required
@@ -71,8 +72,10 @@ def document_query(args, tokenuser: UserAccount):
 
     return success_with_content_response(
         basic_documents_schema.dump(
-            Document.query.filter_by(**filters).filter(*joins).all())
+            Document.query.filter_by(**filters).filter(*joins).all()
+        )
     )
+
 
 @api.route("/document/LIMBDOC-<id>/lock", methods=["PUT"])
 @token_required

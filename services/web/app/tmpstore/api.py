@@ -27,7 +27,7 @@ from .views import (
     store_schema,
     StoreSearchSchema,
     new_store_schema,
-    store_update_schema
+    store_update_schema,
 )
 
 from ..database import db, UserAccount, TemporaryStore
@@ -44,7 +44,10 @@ def tmpstore_home(tokenuser: UserAccount):
     if not allowed:
         return not_allowed()
 
-    return success_with_content_response(stores_schema.dump(TemporaryStore.query.filter_by(**filters).all()))
+    return success_with_content_response(
+        stores_schema.dump(TemporaryStore.query.filter_by(**filters).all())
+    )
+
 
 @api.route("/tmpstore/<hash>")
 @token_required
@@ -55,15 +58,16 @@ def tmpstore_view_tmpstore(hash: str, tokenuser: UserAccount):
         store_schema.dump(TemporaryStore.query.filter_by(uuid=hash).first())
     )
 
+
 @api.route("/tmpstore/query", methods=["GET"])
 @use_args(StoreSearchSchema(), location="json")
 @token_required
 def tmpstore_query(args, tokenuser: UserAccount):
 
     return success_with_content_response(
-        stores_schema.dump(
-            TemporaryStore.query.filter_by(**args).all())
+        stores_schema.dump(TemporaryStore.query.filter_by(**args).all())
     )
+
 
 @api.route("/tmpstore/new", methods=["POST"])
 @token_required
@@ -92,14 +96,16 @@ def tmpstore_new_tmpstore(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/tmpstore/<hash>/delete", methods=["DELETE"])
 @token_required
 def tmpstore_remove_tmpstore(hash: str, tokenuser: UserAccount):
     pass
 
+
 @api.route("/tmpstore/<hash>/edit", methods=["PUT"])
 @token_required
-def tmpstore_edit_tmpstore(hash, tokenuser:UserAccount):
+def tmpstore_edit_tmpstore(hash, tokenuser: UserAccount):
     tmpstore = TemporaryStore.query.filter_by(uuid=hash).first()
 
     if not tmpstore:

@@ -31,7 +31,6 @@ from .views import (
     basic_consent_form_templates_schema,
     new_consent_form_question_schema,
     consent_form_template_schema,
-
     consent_form_question_schema,
     basic_consent_form_question_schema,
     ConsentFormTemplateSearchSchema,
@@ -58,6 +57,7 @@ def consent_view_template(id, tokenuser: UserAccount):
         )
     )
 
+
 @api.route("/consent/query", methods=["GET"])
 @use_args(ConsentFormTemplateSearchSchema(), location="json")
 @token_required
@@ -67,7 +67,8 @@ def consent_query(args, tokenuser: UserAccount):
 
     return success_with_content_response(
         basic_consent_form_templates_schema.dump(
-            ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all())
+            ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all()
+        )
     )
 
 

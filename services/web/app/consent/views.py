@@ -23,6 +23,7 @@ from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
+
 class NewConsentFormTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ConsentFormTemplate
@@ -45,6 +46,7 @@ class NewConsentFormQuestionSchema(masql.SQLAlchemySchema):
 
 
 new_consent_form_question_schema = NewConsentFormQuestionSchema()
+
 
 class ConsentFormTemplateSearchSchema(masql.SQLAlchemySchema):
     class Meta:

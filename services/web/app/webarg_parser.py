@@ -35,8 +35,8 @@ def _structure_dict(dict_):
         structure_dict_pair(r, k, v)
     return r
 
-class NestedQueryFlaskParser(FlaskParser):
 
+class NestedQueryFlaskParser(FlaskParser):
     def load_querystring(self, req, schema):
         return _structure_dict(req.args)
 

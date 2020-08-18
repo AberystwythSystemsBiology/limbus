@@ -102,7 +102,7 @@ def edit(id):
         if form.validate_on_submit():
             protocol_information = {
                 "name": form.name.data,
-                "description": form.description.data
+                "description": form.description.data,
             }
 
             edit_response = requests.put(

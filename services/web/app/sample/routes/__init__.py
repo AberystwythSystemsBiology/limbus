@@ -21,6 +21,7 @@ from ...misc import get_internal_api_header
 
 import requests
 
+
 @sample.route("/")
 @login_required
 def index() -> str:
@@ -39,5 +40,6 @@ def index() -> str:
 @login_required
 def biohazard_information() -> str:
     return render_template("sample/misc/biohazards.html")
+
 
 from .add import *

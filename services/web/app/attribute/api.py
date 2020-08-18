@@ -41,10 +41,11 @@ from .views import (
     edit_attribute_schema,
     AttributeSearchSchema,
     new_attribute_data_schema,
-    attribute_data_schema
+    attribute_data_schema,
 )
 
 from ..webarg_parser import use_args, use_kwargs, parser
+
 
 @api.route("/attribute", methods=["GET"])
 @token_required
@@ -52,6 +53,7 @@ def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
     )
+
 
 @api.route("/attribute/query", methods=["GET"])
 @use_args(AttributeSearchSchema(), location="json")
@@ -61,8 +63,10 @@ def attribute_query(args, tokenuser: UserAccount):
 
     return success_with_content_response(
         basic_attributes_schema.dump(
-            Attribute.query.filter_by(**filters).filter(*joins).all())
+            Attribute.query.filter_by(**filters).filter(*joins).all()
+        )
     )
+
 
 @api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
 @token_required
@@ -70,6 +74,7 @@ def attribute_view_attribute(id, tokenuser: UserAccount):
     return success_with_content_response(
         attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
     )
+
 
 @api.route("/attribute/LIMBATTR-<id>/option/new", methods=["POST"])
 @token_required
@@ -224,6 +229,7 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
         return success_with_content_response(basic_attribute_schema.dump(attribute))
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/attribute/new_data", methods=["POST"])
 @token_required

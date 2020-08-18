@@ -59,7 +59,6 @@ class ProtocolCreationForm(FlaskForm):
         description="The persistent identifier or handle used to identify objects uniquely.",
     )
 
-
     submit = SubmitField("Submit")
 
 
