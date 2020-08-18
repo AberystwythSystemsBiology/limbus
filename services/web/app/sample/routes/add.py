@@ -152,6 +152,19 @@ def prepare_form_data(form_data: dict) -> dict:
 
         return sample_review_data
 
+    consent_data = _prepare_consent(
+        form_data["add_collection_consent_and_barcode"]["consent_form_id"],
+        form_data["add_digital_consent_form"]
+        )
+
+    collection_data = _prepare_processing_protocol(
+        form_data["add_collection_consent_and_barcode"]["collection_protocol_id"],
+
+    )
+        
+
+    return form_data
+
 
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
@@ -176,9 +189,8 @@ def add_rerouter(hash):
                     if "add_sample_review" in data:
                         if "add_custom_atributes" in data:
                             if "add_final_details" in data:
-                                # Maybe it would be a better idea to just process stuff and post it. That way, I can use
-                                # openapi stuff to document. Sake.
-                                requests.post(url_for("api.sample_add_sample", _external=True), headers=get_internal_api_header(), json=data)
+                                prepare_form_data(data)
+                                return "Hello World"
                             return redirect(url_for("sample.add_sample_final_form", hash=hash))
                         return redirect(url_for("sample.add_custom_atributes", hash=hash))
                     return redirect(url_for("sample.add_sample_review", hash=hash))
@@ -244,6 +256,7 @@ def add_collection_consent_and_barcode():
             "consent_form_id": form.consent_select.data,
             "site_id": form.collection_site.data,
             "collection_date": str(form.collection_date.data),
+            "collection_time": str(form.collection_time.data),
             "disposal_instruction": form.disposal_instruction.data,
             "disposal_date": str(form.disposal_date.data),
             "has_donor": form.has_donor.data,

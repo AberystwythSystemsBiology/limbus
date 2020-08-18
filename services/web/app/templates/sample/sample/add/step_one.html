@@ -23,10 +23,20 @@
                     that you have yet to add it. <a href="{{ url_for('protocol.new') }}">Click here</a> to add a new
                     collection protocol.
                 </div>
-                {{ form_field(form.collected_by) }}
-                {{ form_field(form.collection_date) }}
                 {{ form_field(form.collection_site) }}
 
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.collection_date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.collection_time) }}
+                    
+                    </div>
+                </div>
+                {{ form_field(form.collected_by) }}
+
+                
                 {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
 
                 <div class="alert alert-warning" role="alert">

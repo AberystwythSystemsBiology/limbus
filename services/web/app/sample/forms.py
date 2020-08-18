@@ -161,6 +161,14 @@ def CollectionConsentAndDisposalForm(consent_templates: list, collection_protoco
             default=datetime.today
         )
 
+        collection_time = TimeField(
+            "Sample Collection Time",
+            default=datetime.now(),
+            validators=[DataRequired()],
+            description="The time at which the sample was collected."
+        )
+
+
         disposal_date = DateField(
             "Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
