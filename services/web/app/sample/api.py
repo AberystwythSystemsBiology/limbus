@@ -84,7 +84,18 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/sample/sample_new_disposal_instructions", methods=["POST"])
+@api.route("sample/new_base_sample", methods=["POST"])
+@token_required
+def sample_new_base_sample(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    pass
+
+
+@api.route("/sample/new_disposal_instructions", methods=["POST"])
 @token_required
 def sample_new_disposal_instructions(tokenuser: UserAccount):
     values = request.get_json()
@@ -166,3 +177,4 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     )
+
