@@ -93,8 +93,11 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
         colour = SelectField(
             "Colour",
             choices=Colour.choices(),
-            description="Identifiable colour code for the sample.",
+            description=
+            "Identifiable colour code for the sample.",
         )
+        
+        comments = TextAreaField("Comments")
         submit = SubmitField("Submit")
 
     for attribute in custom_attributes:

@@ -16,6 +16,8 @@
                     {{ form_field(field) }}
                 {% endif %}
             {% endfor %}
+            {{ form_field(form.comments) }}
+
             {{ form_field(form.submit) }}
         </form>
     </div>

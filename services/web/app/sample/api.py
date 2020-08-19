@@ -29,10 +29,13 @@ from ..database import (
     SampleConsentAnswer,
     SampleProtocolEvent,
     SampleDisposal,
+    SampleToContainer,
+    SampleToType
 )
 
 from .views import (
     basic_samples_schema,
+    basic_sample_schema,
     new_consent_schema,
     consent_schema,
     new_consent_answer_schema,
@@ -42,6 +45,9 @@ from .views import (
     new_sample_schema,
     new_sample_disposal_schema,
     basic_disposal_schema,
+    new_fluid_sample_schema,
+    new_cell_sample_schema,
+    sample_type_schema
 )
 
 from datetime import datetime
@@ -84,15 +90,106 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("sample/new_base_sample", methods=["POST"])
+@api.route("sample/new_sample_type", methods=["POST"])
 @token_required
-def sample_new_base_sample(tokenuser: UserAccount):
+def sample_new_sample_type(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+    
+    try:
+        sample_type = values["type"]
+        sample_values = values["values"]
+    except KeyError as err:
+        return validation_error_response(err)
+    
+    try:
+        if sample_type == "FLU":
+            sample_schema = new_fluid_sample_schema.load(sample_values)
+
+            new_container = SampleToContainer(
+                flui_cont = sample_schema["fluid_container"],
+                author_id=tokenuser.id
+            )
+
+        elif sample_type == "CEL":
+            sample_schema = new_cell_sample_schema.load(sample_values)
+            new_container = SampleToContainer(
+                cell_cont = sample_schema["cell_container"],
+                fixa_cont = sample_schema["fixation_type"],
+                author_id=tokenuser.id
+            )
+        else:
+            sample_schema = new_molecular_sample_schema.load(sample_values)
+            new_container = SampleToContainer(
+                flui_cont = sample_schema["fluid_container"],
+                author_id = tokenuser.id
+            )
+    except ValidationError as err:
+        return validation_error_response(err)
+    
+
+    db.session.add(new_container)
+    db.session.commit()
+    db.session.flush()
+
+    if sample_type == "FLU":
+        new_sample_to_type = SampleToType(
+            flui_type = sample_schema["fluid_sample_type"],
+            author_id=tokenuser.id,
+            container_id=new_container.id
+        )
+    elif sample_type == "CEL":
+        new_sample_to_type = SampleToType(
+            cell_type = sample_schema["cell_sample_type"],
+            tiss_type = sample_schema["tissue_sample_type"],
+            author_id=tokenuser.id,
+            container_id=new_container.id
+        )
+    else:
+        new_sample_to_type = SampleToType(
+            molecular_sample_type = sample_schema["mole_type"],
+            author_id=tokenuser.id,
+            container_id=new_container.id
+        )
+
+    db.session.add(new_sample_to_type)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(
+        sample_type_schema.dump(new_sample_to_type)
+    )
+
+
+
+@api.route("sample/new_sample", methods=["POST"])
+@token_required
+def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
-    pass
+    try:
+        sample_values = new_sample_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_sample = Sample(**sample_values)
+    new_sample.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_sample)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            basic_sample_schema.dump(new_sample)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/sample/new_disposal_instructions", methods=["POST"])
@@ -107,6 +204,7 @@ def sample_new_disposal_instructions(tokenuser: UserAccount):
         disposal_instructions_values = new_sample_disposal_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
+
 
     new_disposal_instructions = SampleDisposal(**disposal_instructions_values)
     new_disposal_instructions.author_id = tokenuser.id

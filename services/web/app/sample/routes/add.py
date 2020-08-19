@@ -34,7 +34,6 @@ from datetime import datetime
 
 import requests
 
-
 def prepare_form_data(form_data: dict) -> dict:
     def _prepare_consent(consent_template_id: str, consent_data: dict):
         new_consent_data = {
@@ -82,16 +81,27 @@ def prepare_form_data(form_data: dict) -> dict:
         sample_information_data: dict,
         processing_information: dict,
         final_form_data: dict,
+        sample_to_type_id: str,
+        collection_event_id: str,
+        processing_event_id: str,
+        disposal_id: str,
+        consent_id: str
     ) -> dict:
 
         new_sample_data = {
             "barcode": collection_data["barcode"],
             "source": "NEW",
+            "comments": final_form_data["comments"],
             "biohazard_level": sample_information_data["biohazard_level"],
             "type": sample_information_data["sample_type"],
             "status": processing_information["sample_status"],
             "colour": final_form_data["colour"],
             "site_id": collection_data["site_id"],
+            "sample_to_type_id": sample_to_type_id,
+            "collection_event_id": collection_event_id,
+            "processing_event_id": processing_event_id,
+            "disposal_id": disposal_id,
+            "consent_id": consent_id
         }
 
         return new_sample_data
@@ -107,7 +117,6 @@ def prepare_form_data(form_data: dict) -> dict:
         new_disposal_data = {
             "instruction": collection_data["disposal_instruction"],
             "disposal_date": disposal_date,
-            "sample_id": int(sample_id),
         }
 
         return new_disposal_data
@@ -117,33 +126,21 @@ def prepare_form_data(form_data: dict) -> dict:
 
         sample_type_and_container_data["type"] = sample_information_data["sample_type"]
 
+        values = {}
+
         if sample_type_and_container_data["type"] == "FLU":
-            sample_type_and_container_data["fluid_container"] = sample_information_data[
-                "fluid_container"
-            ]
-            sample_type_and_container_data[
-                "fluid_sample_type"
-            ] = sample_information_data["fluid_sample_type"]
+            values["fluid_container"] = sample_information_data["fluid_container"]
+            values["fluid_sample_type"] = sample_information_data["fluid_sample_type"]
         elif sample_type_and_container_data["type"] == "CEL":
-            sample_type_and_container_data[
-                "cell_sample_type"
-            ] = sample_information_data["cell_sample_type"]
-            sample_type_and_container_data[
-                "tissue_sample_type"
-            ] = sample_information_data["tissue_sample_type"]
-            sample_type_and_container_data["fixation_type"] = sample_information_data[
-                "fixation_type"
-            ]
-            sample_type_and_container_data["cell_container"] = sample_information_data[
-                "cell_container"
-            ]
+            values["cell_sample_type"] = sample_information_data["cell_sample_type"]
+            values["tissue_sample_type"] = sample_information_data["tissue_sample_type"]
+            values["fixation_type"] = sample_information_data["fixation_type"]
+            values["cell_container"] = sample_information_data["cell_container"]
         elif sample_type_and_container_data["type"] == "MOL":
-            sample_type_and_container_data[
-                "molecular_sample_type"
-            ] = sample_information_data["molecular_sample_type"]
-            sample_type_and_container_data["fluid_container"] = sample_information_data[
-                "fluid_container"
-            ]
+            values["molecular_sample_type"] = sample_information_data["molecular_sample_type"]
+            values["fluid_container"] = sample_information_data["fluid_container"]
+
+        sample_type_and_container_data["values"] = values
 
         return sample_type_and_container_data
 
@@ -225,18 +222,16 @@ def prepare_form_data(form_data: dict) -> dict:
         return consent_response.content
 
 
-    sample_data = _prepare_sample_object(
-        form_data["add_collection_consent_and_barcode"],
-        form_data["add_sample_information"],
-        form_data["add_processing_information"],
-        form_data["add_final_details"],
-    )
-
-
-    sample_response = requests.post()
-
     type_data = _prepare_sample_type_and_container(form_data["add_sample_information"])
 
+    type_response = requests.post(
+        url_for("api.sample_new_sample_type", _external=True),
+        headers=get_internal_api_header(),
+        json=type_data
+    )
+
+    if type_response.status_code != 200:
+        return consent_response.content
 
     disposal_data = _prepare_disposal_object(
         form_data["add_collection_consent_and_barcode"],
@@ -246,12 +241,39 @@ def prepare_form_data(form_data: dict) -> dict:
     disposal_response = requests.post(
         url_for("api.sample_new_disposal_instructions", _external=True),
         headers=get_internal_api_header(),
-        json=consent_data
+        json=disposal_data
     )
 
     if disposal_response.status_code != 200:
         return disposal_response.content
 
+
+    sample_data = _prepare_sample_object(
+        form_data["add_collection_consent_and_barcode"],
+        form_data["add_sample_information"],
+        form_data["add_processing_information"],
+        form_data["add_final_details"],
+        type_response.json()["content"]["id"],
+        collection_response.json()["content"]["id"],
+        processing_response.json()["content"]["id"],
+        disposal_response.json()["content"]["id"],
+        consent_response.json()["content"]["id"]
+    )
+
+    print(sample_data)
+    
+    '''
+   
+    sample_response = requests.post(
+        url_for("api.sample_new_sample", _external=True),
+        headers=get_internal_api_header(),
+        json=sample_data
+    )
+
+    if sample_response.status_code != 200:
+        return sample_response.content
+
+    '''
 
     sample_review_data = form_data["add_sample_review"]
 
@@ -705,6 +727,7 @@ def add_sample_final_form(hash):
 
         final_details = {
             "colour": form.colour.data,
+            "comments": form.comments.data,
             "custom_field_data": custom_field_data,
         }
 

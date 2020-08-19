@@ -22,6 +22,7 @@ from ..enums import (
     CellSampleType,
     TissueSampleType,
     CellContainer,
+    FluidContainer,
     FixationType,
 )
 
@@ -32,8 +33,11 @@ class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
     cell_type = db.Column(db.Enum(CellSampleType), nullable=True)
     tiss_type = db.Column(db.Enum(TissueSampleType), nullable=True)
 
+    container_id = db.Column(db.Integer, db.ForeignKey("sampletocontainer.id"))
+    container = db.relationship("SampleToContainer")
+
 
 class SampleToContainer(Base, RefAuthorMixin, RefEditorMixin):
-    flui_cont = db.Column(db.Enum(FluidSampleType), nullable=True)
+    flui_cont = db.Column(db.Enum(FluidContainer), nullable=True)
     fixa_cont = db.Column(db.Enum(FixationType), nullable=True)
     cell_cont = db.Column(db.Enum(CellContainer), nullable=True)

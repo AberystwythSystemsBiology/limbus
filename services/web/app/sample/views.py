@@ -27,12 +27,14 @@ from ..database import (
     SampleConsentAnswer,
     SampleProtocolEvent,
     SampleReview,
+    SampleToType,
     SampleDisposal,
 )
 
 from .enums import (
     SampleType,
     SampleStatus,
+    FluidContainer,
     Colour,
     SampleSource,
     SampleQuality,
@@ -107,6 +109,7 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleDisposal
 
+    id = masql.auto_field()
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
     disposal_date = masql.auto_field()
@@ -156,9 +159,26 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 sample_protocol_event_schema = SampleProtocolEventSchema()
 
 
+
+class SampleTypeSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = SampleToType
+
+    id = masql.auto_field()
+
+    flui_type = EnumField(FluidSampleType)
+    mole_type = EnumField(MolecularSampleType)
+    cell_type = EnumField(CellSampleType)
+    tiss_type = EnumField(TissueSampleType)
+
+    author = ma.Nested(BasicUserAccountSchema)
+    container_id = masql.auto_field()
+
+sample_type_schema = SampleTypeSchema()
+
 class NewFluidSampleSchema(ma.Schema):
     fluid_sample_type = EnumField(FluidSampleType)
-    fluid_container = EnumField(FluidSampleType)
+    fluid_container = EnumField(FluidContainer)
 
 
 new_fluid_sample_schema = NewFluidSampleSchema()
@@ -194,6 +214,8 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     biohazard_level = EnumField(BiohazardLevel)
     comments = masql.auto_field()
     site_id = masql.auto_field()
+    disposal_id = masql.auto_field()
+    sample_to_type_id = masql.auto_field()
     consent_id = masql.auto_field()
     collection_event_id = masql.auto_field()
     processing_event_id = masql.auto_field()

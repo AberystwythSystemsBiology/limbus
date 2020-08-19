@@ -47,14 +47,14 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
-
     # Type and container information
     type = db.Column(db.Enum(SampleType))
-    sample_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
-    sample_container_id = db.Column(db.Integer, db.ForeignKey("sampletocontainer.id"))
+    # TODO
+    sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
 
     # Collection Informaiton
-    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    # Done -> sample_new_sample_protocol_event
+    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id")) 
     collection_information = db.relationship(
         "SampleProtocolEvent",
         uselist=False,
@@ -62,6 +62,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     )
 
     # Consent Information
+    # Done -> sample_new_sample_consent
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
     consent_information = db.relationship(
         "SampleConsent",
@@ -69,6 +70,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     )
     
     # Disposal Information
+    # Done -> sample_new_disposal_instructions
     disposal_id = db.Column(
         db.Integer, db.ForeignKey("sampledisposal.id")
     )
@@ -78,6 +80,7 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     )
 
     # Processing Information
+    # Done -> sample_new_sample_protocol_event
     processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
     processing_information = db.relationship(
         "SampleProtocolEvent",
@@ -110,4 +113,5 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
-    disposal_date = db.Column(db.DateTime, nullable=True)
+    disposal_date = db.Column(db.Date, nullable=True)
+    
