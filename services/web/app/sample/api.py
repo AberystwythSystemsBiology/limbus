@@ -57,7 +57,7 @@ from datetime import datetime
 @token_required
 def sample_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_samples_schema.dump(Sample.query.filter_by().all())
+        basic_samples_schema.dump(Sample.query.all())
     )
 
 

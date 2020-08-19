@@ -28,26 +28,25 @@
             <thead>
             <tr>
                 <th>Identifier</th>
-                <th>Sample Type</th>
-                <th>Sample Status</th>
+                <th>Type</th>
+                <th>Source</th>
+                <th>Quantity</th>
                 <th>Collection Date</th>
-                <th>Sample Creator</th>
+                <th>Creator</th>
             </tr>
             </thead>
             <tbody>
-            {% for sample_id, sample in samples.items() %}
+            {% for sample in samples %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('sample.view', sample_id=sample_id) }}">
-                            <i class="fas fa-vial"></i> LIMBSMP-{{ sample_id }}
-                        </a>
+                        <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
                     </td>
-                    <td>{{ sample["sample_type"] }}</td>
-                    <td>{{ sample["sample_status"] }}</td>
-                    <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
-                    <td>
-                        {{ sample["user_information"]["email"] }}
-                    </td>
+                    <td>{{sample.type}}</td>
+                    <td>{{sample.source}}</td>
+                    <td>{{sample.quantity }}</td>
+
+                    <td>{{sample.collection_information.datetime }}</td>
+
                 </tr>
             {% endfor %}
             </tbody>

@@ -259,10 +259,7 @@ def prepare_form_data(form_data: dict) -> dict:
         disposal_response.json()["content"]["id"],
         consent_response.json()["content"]["id"]
     )
-
-    print(sample_data)
     
-    '''
    
     sample_response = requests.post(
         url_for("api.sample_new_sample", _external=True),
@@ -273,7 +270,6 @@ def prepare_form_data(form_data: dict) -> dict:
     if sample_response.status_code != 200:
         return sample_response.content
 
-    '''
 
     sample_review_data = form_data["add_sample_review"]
 

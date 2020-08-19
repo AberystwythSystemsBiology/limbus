@@ -51,19 +51,6 @@ from .enums import (
 )
 
 
-class BasicSampleSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Sample
-
-    id = masql.auto_field()
-
-    author = ma.Nested(BasicUserAccountSchema)
-    created_on = ma.Date()
-
-
-basic_sample_schema = BasicSampleSchema()
-basic_samples_schema = BasicSampleSchema(many=True)
-
 
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -89,7 +76,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
     answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
-
+    
 
 consent_schema = ConsentSchema()
 
@@ -236,3 +223,20 @@ class NewSampleReviewSchema(masql.SQLAlchemySchema):
 
 
 new_sample_review_schema = NewSampleReviewSchema()
+
+class BasicSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    id = masql.auto_field()
+
+    type = EnumField(SampleType, by_value=True)
+    quantity = masql.auto_field()
+    colour = EnumField(Colour, by_value=True)
+    author = ma.Nested(BasicUserAccountSchema)
+    source = EnumField(SampleSource, by_value=True)
+    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
+    created_on = ma.Date()
+
+basic_sample_schema = BasicSampleSchema()
+basic_samples_schema = BasicSampleSchema(many=True)

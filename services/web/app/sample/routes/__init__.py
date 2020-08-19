@@ -31,7 +31,7 @@ def index() -> str:
     )
 
     if response.status_code == 200:
-        return render_template("sample/index.html", samples={})
+        return render_template("sample/index.html", samples=response.json()["content"])
     else:
         return abort(response.status_code)
 
