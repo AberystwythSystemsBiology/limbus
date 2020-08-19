@@ -1,26 +1,41 @@
-{% extends "template.html" %}
+{% from "macros.html" import render_warning, form_field %}
 
-{% block title %}Log In{% endblock %}
 
-{% block head %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
+    <meta name="author" content="Keiron O'Shea">
+    <title>Login : The Libre Biobank Management System</title>
+
+    <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
+
+    {% block head %}
+    {% endblock %}
+
+    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/auth/login.css') }}" rel="stylesheet">
-{% endblock %}
 
-{% block body %}
-    <div class="container">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"/>
+</head>
+
+<body>
+
+
+
+    <div class="container text-center">
         
-        <h1>Log In</h1>
+        <img src="{{url_for('static', filename='images/logos/limbus_logo.svg')}}">
 
+        <h1>Welcome to LImBuS</h1>
+
+        <h2>Log in to your account</h2>
 
         <form method="POST" action="{{ url_for('auth.login' ) }}">
             {{ form.csrf_token }}
-
             {{ form_field(form.email) }}
-
             {{ form_field(form.password) }}
-
-            {{ form_field(form.submit, with_label=False) }}
-
+            <button class="btn btn-success full-width" type="submit">Log In</button>
         </form>
 
         <h3>Problems signing in?</h3>
@@ -31,5 +46,5 @@
     </div>
 
     </div>
-{% endblock %}
 
+</body>
