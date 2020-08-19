@@ -26,6 +26,14 @@ from ..enums import (
 
 import uuid
 
+from .protocol import *
+from .attribute import *
+from .types import *
+from .consent import *
+from .document import *
+from .review import *
+
+
 
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
@@ -52,9 +60,6 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     type = db.Column(db.Enum(SampleType))
     sample_type_id = db.Column(db.Integer, db.ForeignKey("sampletype.id"))
     sample_container_id = db.Column(db.Integer, db.ForeignKey("sampletocontainer.id"))
-
-    type_informaton = db.relationship("SampleType", uselist=False)
-    container_information = db.relationship("SampleToContainer", uselist=False)
 
     # Collection Informaiton
     collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
@@ -125,9 +130,3 @@ class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
 """
 
 
-from .protocol import *
-from .attribute import *
-from .types import *
-from .consent import *
-from .document import *
-from .review import *

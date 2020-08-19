@@ -107,7 +107,6 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleDisposal
 
-    sample_id = masql.auto_field()
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
     disposal_date = masql.auto_field()
@@ -120,7 +119,6 @@ class NewSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleDisposal
 
-    sample_id = masql.auto_field()
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
     disposal_date = masql.auto_field()
@@ -159,7 +157,6 @@ sample_protocol_event_schema = SampleProtocolEventSchema()
 
 
 class NewFluidSampleSchema(ma.Schema):
-    sample_id = fields.Integer()
     fluid_sample_type = EnumField(FluidSampleType)
     fluid_container = EnumField(FluidSampleType)
 
@@ -168,7 +165,6 @@ new_fluid_sample_schema = NewFluidSampleSchema()
 
 
 class NewCellSampleSchema(ma.Schema):
-    sample_id = fields.Integer()
     cell_sample_type = EnumField(CellSampleType)
     tissue_sample_type = EnumField(TissueSampleType)
     fixation_type = EnumField(FixationType)
@@ -179,7 +175,6 @@ new_cell_sample_schema = NewCellSampleSchema()
 
 
 class NewMolecularSampleSchema(ma.Schema):
-    sample_id = fields.Integer()
     molecular_sample_type = EnumField(FluidSampleType)
     fluid_container = EnumField(MolecularSampleType)
 
