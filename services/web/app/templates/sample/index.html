@@ -39,7 +39,19 @@
             {% for sample in samples %}
                 <tr>
                     <td>
+                        {% if sample.colour == "Blue" %}
+                            <div class="btn btn-primary btn-sm full-width">
+                        {% elif sample.colour == "Red" %}
+                            <div class="btn btn-danger btn-sm full-width">
+                        {% elif sample.colour == "Green" %}
+                            <div class="btn btn-success btn-sm full-width">
+                        {% elif sample.colour == "Yellow" %}
+                            <div class="btn btn-warning btn-sm full-width">
+                        {% elif sample.colour == "Grey" %}
+                            <div class="btn btn-outline btn-sm full-width">
+                        {% endif %}
                         <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
+                        </div>
                     </td>
                     <td>{{sample.type}}</td>
                     <td>{{sample.source}}</td>
