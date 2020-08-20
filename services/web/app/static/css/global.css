@@ -33,6 +33,10 @@ nav img {
     display: inline-block;
 }
 
+.loading {
+    padding-top:5em;
+}
+
 .filter-panel {
     height: 100%;
     width: 100%;

@@ -14,15 +14,26 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .. import sample
-from flask import render_template
+import requests
+from flask import render_template, url_for
 from flask_login import login_required
 
-from ..views.sample import SampleView
+import requests
+from ...misc import get_internal_api_header
 
-
-@sample.route("view/LIMBSMP-<sample_id>")
+@sample.route("view/<uuid>", methods=["GET"])
 @login_required
-def view(sample_id: int):
-    sample = SampleView(sample_id)
+def view(uuid: str):
+    return render_template("sample/view.html", uuid=uuid)
 
-    return render_template("sample/sample/view.html", sample=sample)
+@sample.route("view/<uuid>/data", methods=["GET"])
+@login_required
+def view_data(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if sample_response.status_code == 200:
+        return sample_response.json()
+    return sample_response.content

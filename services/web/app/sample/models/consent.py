@@ -30,6 +30,8 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
+    template = db.relationship("ConsentFormTemplate", uselist=False)
+
     answers = db.relationship(
         "ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer"
     )

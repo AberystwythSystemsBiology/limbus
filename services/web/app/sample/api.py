@@ -37,6 +37,7 @@ from ..database import (
 
 from .views import (
     basic_samples_schema,
+    sample_schema,
     basic_sample_schema,
     new_consent_schema,
     consent_schema,
@@ -75,6 +76,20 @@ def sample_query(args, tokenuser: UserAccount):
             Sample.query.filter_by(**filters).filter(*joins).all()
         )
     )
+
+@api.route("/sample/<uuid>", methods=["GET"])
+@token_required
+def sample_view_sample(uuid: str, tokenuser: UserAccount):
+    sample = Sample.query.filter_by(uuid=uuid).first()
+
+    if sample:
+        return success_with_content_response(
+            sample_schema.dump(
+                sample
+            )
+        )
+    else:
+        abort(404)
 
 @api.route("/sample/new_sample_protocol_event", methods=["POST"])
 @token_required

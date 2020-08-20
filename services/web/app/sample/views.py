@@ -19,7 +19,8 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
-from ..consent.views import BasicConsentFormQuestionSchema
+from ..consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
+from ..document.views import BasicDocumentSchema
 
 from ..database import (
     Sample,
@@ -72,8 +73,8 @@ class ConsentSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     identifier = masql.auto_field()
     comments = masql.auto_field()
-    template_id = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema)
+    template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
+    author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
     answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
     
@@ -248,3 +249,32 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
+
+class SampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    uuid = masql.auto_field()
+    type = EnumField(SampleType, by_value=True)
+
+    # Need to get container stuff.
+    
+    quantity = masql.auto_field()
+    remaining_quantity = masql.auto_field()
+    comments = masql.auto_field()
+
+    colour = EnumField(Colour, by_value=True)
+    source = EnumField(SampleSource, by_value=True)
+    biohazard_level = EnumField(BiohazardLevel)
+
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    processing_information = ma.Nested(SampleProtocolEventSchema, many=False)
+    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
+    disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
+    consent_information = ma.Nested(ConsentSchema, many=False)
+
+    documents = ma.Nested(BasicDocumentSchema, many=True)
+
+    created_on = ma.Date()
+
+sample_schema = SampleSchema()
