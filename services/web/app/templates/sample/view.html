@@ -19,11 +19,41 @@
 
 
     <div id="content" class="container" style="display: none;">
+        
         <h1><span class="secondary-heading">
             <a href="{{ url_for('sample.index') }}">
                     <i class="fas fa-vial"></i> Sample Portal
             </a></span> {{ uuid }}</h1>
 
+
+        <div class="row">
+            <div class="col-9">
+                <h2>Basic Information</h2>
+                <h2>Custom Attribute Information</h2>
+                <h2>Consent Information</h2>
+                <h2>Collection Information</h2>
+                <h2>Processing Information</h2>
+                <h2>Document Information</h2>
+
+            </div>
+            <div class="col-3 text-center">
+                <h4>Barcode</h4>
+
+                <h4>Quantity Information</h4>
+
+                <canvas id="quantity-chart"></canvas>
+
+                <h4>Storage Information</h4>
+
+            </div>
+        </div>
+
     </div>
 {% endblock %}
 
+
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sample/view.js') }}"></script>
+{% endblock %}

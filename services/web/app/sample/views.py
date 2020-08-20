@@ -258,7 +258,9 @@ class SampleSchema(masql.SQLAlchemySchema):
     type = EnumField(SampleType, by_value=True)
 
     # Need to get container stuff.
-    
+
+    sample_type_information = None
+
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
     comments = masql.auto_field()
@@ -274,7 +276,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     consent_information = ma.Nested(ConsentSchema, many=False)
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
-
+    
     created_on = ma.Date()
 
 sample_schema = SampleSchema()
