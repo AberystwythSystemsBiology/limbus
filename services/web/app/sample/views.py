@@ -21,6 +21,7 @@ from marshmallow_enum import EnumField
 from ..auth.views import BasicUserAccountSchema
 from ..consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
 from ..document.views import BasicDocumentSchema
+from ..protocol.views import BasicProtocolTemplateSchema
 
 from ..database import (
     Sample,
@@ -125,6 +126,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     datetime = masql.auto_field()
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
+    
     protocol_id = masql.auto_field()
 
 
@@ -139,7 +141,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     datetime = masql.auto_field(format="%d/%m/%Y")
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
-    protocol_id = masql.auto_field()
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
@@ -264,10 +266,11 @@ class SampleSchema(masql.SQLAlchemySchema):
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
     comments = masql.auto_field()
+    barcode = masql.auto_field()
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
-    biohazard_level = EnumField(BiohazardLevel)
+    biohazard_level = EnumField(BiohazardLevel, by_value=True)
 
     author = ma.Nested(BasicUserAccountSchema, many=False)
     processing_information = ma.Nested(SampleProtocolEventSchema, many=False)
