@@ -13,6 +13,31 @@
     <img src="{{ user.gravatar }}" class="rounded-circle pull-right" style="margin-left: 10px;">
 {% endmacro %}
 
+{% macro render_colour(colour) %}
+    {% if colour == "Blue" %}
+        {% set colour_class = "bg-primary" %}
+    {% elif colour == "Red" %}
+        {% set colour_class = "bg-danger" %}
+    {% elif colour == "Green" %}
+        {% set colour_class = "bg-success" %}
+    {% elif colour == "Yellow" %}
+        {% set colour_class = "bg-warning" %}
+    {% endif %}
+    <span class="colour-circle {{ colour_class }}"></span>
+{% endmacro %}
+
+{% macro render_quantity(quantity, type) %}
+    {% if type == "Cell" %}
+        {% set denominator = " Cells" %}
+    {% elif type == "Molecular" %}
+        {% set denominator = "μg/mL" %}
+    {% elif type == "Fluid" %}
+        {% set denominator = "mL" %}
+    {% endif %}
+
+    {{ quantity }}{{ denominator }}
+{% endmacro %}
+
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}

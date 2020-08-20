@@ -19,6 +19,8 @@ from flask_login import login_required
 
 from ...misc import get_internal_api_header
 
+from ..forms import SampleFilterForm
+
 import requests
 
 
@@ -31,7 +33,8 @@ def index() -> str:
     )
 
     if response.status_code == 200:
-        return render_template("sample/index.html", samples=response.json()["content"])
+        form = SampleFilterForm()
+        return render_template("sample/index.html", samples=response.json()["content"], form=form)
     else:
         return abort(response.status_code)
 

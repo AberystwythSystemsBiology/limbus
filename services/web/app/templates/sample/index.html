@@ -7,7 +7,13 @@
 
     <div class="row">
 
-        <div class="col-3">
+        <div class="filter-panel col-3">
+            <h3>Filters</h3>
+
+            {{ form_field(form.sample_type) }}
+            {{ form_field(form.source) }}
+            {{ form_field(form.submit) }}
+
         </div>
         <div class="col-9">
             <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
@@ -30,7 +36,6 @@
                     <tr>
                         <th>Identifier</th>
                         <th>Type</th>
-                        <th>Source</th>
                         <th>Quantity</th>
                         <th>Collection Date</th>
                         <th>Creator</th>
@@ -40,24 +45,14 @@
                     {% for sample in samples %}
                     <tr>
                         <td>
-                            {% if sample.colour == "Blue" %}
-                            <div class="btn btn-primary btn-sm full-width">
-                                {% elif sample.colour == "Red" %}
-                                <div class="btn btn-danger btn-sm full-width">
-                                    {% elif sample.colour == "Green" %}
-                                    <div class="btn btn-success btn-sm full-width">
-                                        {% elif sample.colour == "Yellow" %}
-                                        <div class="btn btn-warning btn-sm full-width">
-                                            {% elif sample.colour == "Grey" %}
-                                            <div class="btn btn-outline btn-sm full-width">
-                                                {% endif %}
-                                                <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
-                                            </div>
+                            {{ render_colour(sample.colour) }}
+                            <i class="fas fa-vial"></i> {{ sample.uuid }}
                         </td>
-                        <td>{{sample.type}}</td>
-                        <td>{{sample.source}}</td>
-                        <td>{{sample.quantity }}</td>
-                        <td>{{sample.collection_information.datetime }}</td>
+                        <td>{{ sample.type }}</td>
+                        <td>{{ render_quantity(sample.quantity, sample.type) }}</td>
+                        <td>{{ sample.collection_information.datetime }}</td>
+                        <td>{{ render_author_for_table(sample.author) }}</td>
+
                     </tr>
                     {% endfor %}
                 </tbody>

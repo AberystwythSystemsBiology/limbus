@@ -19,7 +19,9 @@ from flask import request, abort
 from marshmallow import ValidationError
 
 from ..api import api
+from ..api.filters import generate_base_query_filters, get_filters_and_joins
 from ..api.responses import *
+from ..webarg_parser import use_args, use_kwargs, parser
 from ..decorators import token_required
 from ..database import (
     db,
@@ -47,7 +49,8 @@ from .views import (
     basic_disposal_schema,
     new_fluid_sample_schema,
     new_cell_sample_schema,
-    sample_type_schema
+    sample_type_schema,
+    SampleSearchSchema,
 )
 
 from datetime import datetime
@@ -60,6 +63,18 @@ def sample_home(tokenuser: UserAccount):
         basic_samples_schema.dump(Sample.query.all())
     )
 
+
+@api.route("/sample/query", methods=["GET"])
+@use_args(SampleSearchSchema(), location="json")
+@token_required
+def sample_query(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, Sample)
+
+    return success_with_content_response(
+        basic_samples_schema.dump(
+            Sample.query.filter_by(**filters).filter(*joins).all()
+        )
+    )
 
 @api.route("/sample/new_sample_protocol_event", methods=["POST"])
 @token_required
@@ -179,6 +194,7 @@ def sample_new_sample(tokenuser: UserAccount):
 
     new_sample = Sample(**sample_values)
     new_sample.author_id = tokenuser.id
+    new_sample.remaining_quantity = sample_values["quantity"]
 
     try:
         db.session.add(new_sample)

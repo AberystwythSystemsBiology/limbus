@@ -93,6 +93,7 @@ def prepare_form_data(form_data: dict) -> dict:
             "source": "NEW",
             "comments": final_form_data["comments"],
             "biohazard_level": sample_information_data["biohazard_level"],
+            "quantity": sample_information_data["quantity"],
             "type": sample_information_data["sample_type"],
             "status": processing_information["sample_status"],
             "colour": final_form_data["colour"],

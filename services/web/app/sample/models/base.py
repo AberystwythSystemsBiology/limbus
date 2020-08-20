@@ -29,7 +29,7 @@ import uuid
 
 class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
-    uuid = db.Column(db.String(36), default=str(uuid.uuid4()), nullable=False)
+    uuid = db.Column(db.String(36), default=str(uuid.uuid4()), nullable=False, unique=True)
 
     barcode = db.Column(db.Text)
 
@@ -42,8 +42,8 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     comments = db.Column(db.Text, nullable=True)
 
-    quantity = db.Column(db.Float)
-    remaining_quantity = db.Column(db.Float)
+    quantity = db.Column(db.Float, nullable=False)
+    remaining_quantity = db.Column(db.Float, nullable=False)
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
@@ -51,6 +51,8 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     type = db.Column(db.Enum(SampleType))
     # TODO
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
+    sample_type_information = db.relationship("SampleToType")
+
 
     # Collection Informaiton
     # Done -> sample_new_sample_protocol_event
@@ -114,4 +116,3 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
-    

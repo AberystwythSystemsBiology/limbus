@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask import url_for
 from flask_wtf import FlaskForm
 from wtforms import (
     SelectField,
@@ -25,12 +26,13 @@ from wtforms import (
     TimeField,
     IntegerField,
 )
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, ValidationError
 
 from datetime import datetime
 
 from .enums import *
-
+import requests
+from ..misc import get_internal_api_header
 
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
@@ -45,6 +47,19 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
 
     return StaticForm()
 
+
+class SampleFilterForm(FlaskForm):
+    biohazard_level = SelectField(
+        "Biohazard Level",
+        choices=BiohazardLevel.choices(),
+        description="BSL category for the sample.",
+    )
+
+    sample_type = SelectField("Sample Type", choices=SampleType.choices())
+
+    source = SelectField("Sample Source", choices=SampleSource.choices())
+
+    submit = SubmitField("Filter")
 
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
@@ -146,9 +161,24 @@ def CollectionConsentAndDisposalForm(
     consent_templates: list, collection_protocols: list, collection_sites: list
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
+
+        def validate_barcode(form, field):
+            if field.data != "":
+                samples_response = requests.get(
+                    url_for("api.sample_query", _external=True),
+                    headers=get_internal_api_header(),
+                    json={"barcode": field.data}
+                    )
+                
+                if samples_response.status_code == 200:
+                    if len(samples_response.json()["content"]) != 0:
+                        raise ValidationError("Biobank barcode must be unique!") 
+
+
         # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
             "Sample Biobank Barcode",
+            validators=[validate_barcode],
             description="If your sample already has a barcode/identifier, you can enter it here.",
         )
 

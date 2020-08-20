@@ -24,13 +24,27 @@
 
 
     <div class="container text-center">
-        
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning no-margin alert-dismissible fade show text-center" role="alert">
+                    <strong>Notice!</strong> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
         <img src="{{url_for('static', filename='images/logos/limbus_logo.svg')}}">
 
         <h1>Welcome to LImBuS</h1>
 
         <h2>Log in to your account</h2>
 
+    
         <form method="POST" action="{{ url_for('auth.login' ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.email) }}

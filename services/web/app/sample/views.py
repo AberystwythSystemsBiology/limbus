@@ -135,7 +135,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
         model = SampleProtocolEvent
 
     id = masql.auto_field()
-    datetime = masql.auto_field()
+    datetime = masql.auto_field(format="%d/%m/%Y")
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
     protocol_id = masql.auto_field()
@@ -201,6 +201,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     biohazard_level = EnumField(BiohazardLevel)
     comments = masql.auto_field()
     site_id = masql.auto_field()
+    quantity = masql.auto_field()
     disposal_id = masql.auto_field()
     sample_to_type_id = masql.auto_field()
     consent_id = masql.auto_field()
@@ -209,6 +210,13 @@ class NewSampleSchema(masql.SQLAlchemySchema):
 
 
 new_sample_schema = NewSampleSchema()
+
+class SampleSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    barcode = masql.auto_field()
+
 
 
 class NewSampleReviewSchema(masql.SQLAlchemySchema):
@@ -229,7 +237,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
         model = Sample
 
     id = masql.auto_field()
-
+    uuid = masql.auto_field()
     type = EnumField(SampleType, by_value=True)
     quantity = masql.auto_field()
     colour = EnumField(Colour, by_value=True)
