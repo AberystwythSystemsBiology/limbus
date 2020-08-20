@@ -55,10 +55,10 @@ class SampleFilterForm(FlaskForm):
         description="BSL category for the sample.",
     )
 
+    uuid = StringField("UUID")
+    barcode = StringField("Barcode")
     sample_type = SelectField("Sample Type", choices=SampleType.choices())
-
     source = SelectField("Sample Source", choices=SampleSource.choices())
-
     submit = SubmitField("Filter")
 
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
