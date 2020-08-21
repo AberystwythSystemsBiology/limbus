@@ -333,8 +333,6 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     return StaticForm()
 
 
-"""
-
 def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     class StaticForm(FlaskForm):
         count = IntegerField("Aliquot Count", validators=[DataRequired()])
@@ -392,4 +390,3 @@ def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
     )
 
     return StaticForm(), len(processing_templates)
-"""

@@ -30,6 +30,11 @@
                     <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i class="fa fa-question"></i> View Consent</button>
                 </div>
 
+                <div class="btn-group mr-2" role="group" aria-label="First group">
+                  <a href="{{ url_for('sample.aliquot', uuid=uuid) }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-expand-arrows-alt"></i> Derive/Aliquot</button>
+                  </a>
+                </div>
 
            </div>
         
@@ -46,8 +51,6 @@
 
             </div>
             <div class="col-3 text-center">
-
-
 
                 <div class="card">
                   <div class="card-header">
@@ -121,7 +124,6 @@
   </div>
 
 {% endblock %}
-
 
 
 {% block javascript %}
