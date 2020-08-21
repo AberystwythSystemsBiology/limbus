@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+from sqlalchemy import func
 from ..database import db, Address, SiteInformation, UserAccount, Sample
 
 from ..api import api
@@ -34,7 +36,7 @@ from marshmallow import ValidationError
 
 @api.route("/misc/panel", methods=["GET"])
 @token_required
-def get_panel_data(tokenuser: UserAccount):
+def get_panel_data():
     data = {
         "name": SiteInformation.query.first().name,
         "basic_statistics": {
@@ -44,9 +46,11 @@ def get_panel_data(tokenuser: UserAccount):
             "donor_count": 0,
         },
         "sample_statistics": {
-            "sample_type": [],
-            "sample_status": [],
-            "sample_source": [],  # SampleSource
+            "sample_type":[(type.value, count) for (type, count) in db.session.query(Sample.type, func.count(Sample.type)).group_by(Sample.type).all()],
+            "saple_biohazard": [(type.value, count) for (type, count) in db.session.query(Sample.biohazard_level, func.count(Sample.biohazard_level)).group_by(Sample.biohazard_level).all()],
+            "sample_source":  [(type.value, count) for (type, count) in db.session.query(Sample.source, func.count(Sample.source)).group_by(Sample.source).all()],  # SampleSource
+            "sample_status":  [(type.value, count) for (type, count) in db.session.query(Sample.status, func.count(Sample.status)).group_by(Sample.status).all()],  # SampleSource
+
         },
     }
     return success_with_content_response(data)
