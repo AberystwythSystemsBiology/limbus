@@ -33,6 +33,12 @@ function get_metric(type) {
 }
 
 
+function get_barcode(type) {
+    var barcode_url = encodeURI(window.location+'/barcode/'+type);
+    $("#barcode").attr("src", barcode_url);
+
+}
+
 function render_content(label, content) {
     if (content == undefined) {
         content = "Not Available."
@@ -114,14 +120,7 @@ function fill_processing_information(processing_information) {
     html += '<h1 class="align-self-start mr-3"><i class="fab fa-buffer"></i></h1>'
     html += '<div class="media-body">'
     html += '<a href="' + protocol_info["_links"]["self"] +'" target="_blank">'
-    html += '<h5 class="m    $("#loading-screen").fadeOut();
-    fill_title(sample_info["uuid"]);
-    fill_basic_information(sample_info);
-    fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
-    fill_collection_information(sample_info["collection_information"]);
-    fill_consent_information(sample_info["consent_information"]);
-    fill_processing_information(sample_info["processing_information"])
-    $("#content").delay(500).fadeIn();t-0">LIMBPRO-'+protocol_info["id"]+': '+protocol_info["name"] +'</h5>'
+    html += '<h5 class="mt-0">LIMBPRO-'+protocol_info["id"]+': '+protocol_info["name"] +'</h5>'
     html += '</a>'
     html += render_content("Processed On", processing_information["datetime"])
     html += render_content("Processed By", processing_information["undertaken_by"])
@@ -151,8 +150,7 @@ function fill_quantity_chart(type, quantity, remaining_quantity) {
               backgroundColor: ["#28a745", "#dc3545"],
               data: [remaining_quantity, quantity - remaining_quantity]
             }
-          ],
-          
+          ]
         },
         options: {
             legend: {
@@ -166,6 +164,8 @@ $(document).ready(function() {
     var sample_info = get_sample();
     
     $("#loading-screen").fadeOut();
+    get_barcode("qrcode");
+
     fill_title(sample_info["uuid"]);
     fill_basic_information(sample_info);
     fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
@@ -173,5 +173,17 @@ $(document).ready(function() {
     fill_consent_information(sample_info["consent_information"]);
     fill_processing_information(sample_info["processing_information"])
     $("#content").delay(500).fadeIn();
+
+
+    $("#qrcode").click(function() {
+        get_barcode("qrcode");
+
+    });
+
+    $("#datamatrix").click(function() {
+        get_barcode("datamatrix");
+
+    });
+
 
 });

@@ -31,7 +31,7 @@
                 </div>
 
 
-              </div>
+           </div>
         
         <div class="row">
             <div class="col-9">
@@ -48,7 +48,34 @@
             <div class="col-3 text-center">
 
 
-                <canvas id="quantity-chart"></canvas>
+
+                <div class="card">
+                  <div class="card-header">
+                      <h4>Sample Quantity</h4>
+                  </div>
+                  <div class="card-body">
+                    <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+                  </div>
+
+                </div>
+              </br>
+
+                <div class="card">
+                  <div class="card-header">
+                      <h4>Sample Barcode</h4>
+                  </div>
+                  <div class="card-body">
+                    <img id="barcode" alt="barcode" style="margin: 0 auto 0; padding: 1em;"/>
+                  </div>
+                  <div class="card-footer">
+                    <div id="qrcode" class="btn btn-outline-dark">
+                      <i class="fa fa-qrcode"></i> QRCode
+                    </div>
+                    <div id="datamatrix" class="btn btn-outline-dark">
+                      <i class="fa fa-qrcode"></i> DataMatrix
+                    </div>
+                  </div>
+                </div>
 
 
             </div>

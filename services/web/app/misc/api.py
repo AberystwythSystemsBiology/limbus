@@ -29,14 +29,29 @@ from .views import (
     basic_sites_schema,
 )
 
-from flask import request
+from flask import request, send_file
 from ..decorators import token_required
 from marshmallow import ValidationError
+
+import treepoem
+from io import BytesIO
+
+@api.route("/misc/barcode/<t>/<i>/", methods=["GET"])
+@token_required
+def misc_generate_barcode(tokenuser: UserAccount, t: str, i: str):
+    img = treepoem.generate_barcode(barcode_type=t, data=i)
+    try:
+        img_io = BytesIO()
+        img.save(img_io, format="PNG")
+        img_io.seek(0)
+        return send_file(img_io, mimetype="image/png")
+    except Exception as e:
+        abort(400)
 
 
 @api.route("/misc/panel", methods=["GET"])
 @token_required
-def get_data():
+def get_data(tokenuser: UserAccount):
     def _prepare_for_chart_js(a):
         ye = {
             "labels": [],

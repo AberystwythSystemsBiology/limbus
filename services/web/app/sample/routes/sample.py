@@ -37,3 +37,14 @@ def view_data(uuid: str):
     if sample_response.status_code == 200:
         return sample_response.json()
     return sample_response.content
+
+@sample.route("view/<uuid>/barcode/<t>")
+@login_required
+def view_barcode(uuid: str, t: str):
+    barcode_response = requests.get(
+        url_for("api.misc_generate_barcode", t=t, i=uuid, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    return barcode_response.content
+    
