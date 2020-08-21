@@ -38,12 +38,30 @@ function render_content(label, content) {
      
 }
 
+function fill_title(uuid) {
+    var html = "";
+    html += '<span class="colour-circle bg-primary"></span>'
+    html += uuid
+    $("#uuid").html(html);
+}
+
+
 function fill_collection_information(collection_information) {
+    
+    var protocol_info = collection_information["protocol"];
+    console.log(collection_information)
     var html = "";
     
-    var html =+ '<div class="row">';
+    html += '<div class="media">';
+    html += '<h1 class="align-self-start mr-3"><i class="fab fa-buffer"></i></h1>'
+    html += '<div class="media-body">'
+    html += '<h5 class="mt-0">LIMBPRO-'+protocol_info["id"]+': '+protocol_info["name"] +'</h5>'
+    html += render_content("Collected On", collection_information["datetime"])
+    html += render_content("Collected By", collection_information["undertaken_by"])
+    html += render_content("Comments", collection_information["comments"])
 
-
+    html += '</div>'
+    html += '</div>'
 
     $("#collection_information").html(html);
 }
@@ -87,6 +105,7 @@ $(document).ready(function() {
     var sample_info = get_sample();
     
     $("#loading-screen").fadeOut();
+    fill_title(sample_info["uuid"]);
     fill_basic_information(sample_info);
     fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"])
     fill_collection_information(sample_info["collection_information"])
