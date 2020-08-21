@@ -25,31 +25,75 @@
                     <i class="fas fa-vial"></i> Sample Portal
             </a></span> <span id="uuid"></span></h1>
 
+            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group mr-2" role="group" aria-label="First group">
+                    <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i class="fa fa-question"></i> View Consent</button>
+                </div>
 
+
+              </div>
+        
         <div class="row">
             <div class="col-9">
                 <h2>Sample Information</h2>
                 <div id="basic_information"></div>
                 <h2>Collection Information</h2>
                 <div id="collection_information"></div>
-                <h2>Consent Information</h2>
                 <h2>Processing Information</h2>
                 <h2>Document Information</h2>
 
             </div>
             <div class="col-3 text-center">
-                <h4>Barcode</h4>
+                <h2>Barcode</h2>
 
-                <h4>Quantity Information</h4>
+                <h2>Remaining Quantity</h2>
 
                 <canvas id="quantity-chart"></canvas>
 
-                <h4>Storage Information</h4>
+                <h2>Storage Information</h2>
 
             </div>
         </div>
 
     </div>
+
+
+
+<!-- Consent Modal -->
+<div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog" aria-labelledby="consentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Digital Consent Form</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="card">
+                <div class="card-header">
+                    <div class="text-center">
+                        <h2><span id="consent_name"></span></h2>
+                        <h3>Version: <span id="consent_version"></span></h3>
+                    </div>
+                    
+                    <label>Patient Consent Form ID/Code</label>
+                    <p><span id="consent_identifier"></span></p>
+                </div>
+                <ul id="questionnaire-list" class="list-group list-group-flush">
+                    
+                </ul>
+                <div class="card-footer">
+                    <label>Comments</label>
+                    <p><span id="consent_comments"></span></p>
+                    <label>Date Signed</label>
+                    <p><span id="consent_date_signed"></span></p>
+                </div>
+            </div>
+        
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 

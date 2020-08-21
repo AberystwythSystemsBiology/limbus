@@ -47,6 +47,10 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     created_on = fields.Date()
 
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("document.view", id="id", _external=True), "collection": ma.URLFor("document.index", _external=True)}
+    )
+
 
 basic_document_schema = BasicDocumentSchema()
 basic_documents_schema = BasicDocumentSchema(many=True)
@@ -63,6 +67,10 @@ class DocumentFileSchema(masql.SQLAlchemySchema):
     path = masql.auto_field()
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
+
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("document.view", id="<id>", _external=True), "collection": ma.URLFor("document.index", _external=True)}
+    )
 
 
 document_file_schema = DocumentFileSchema()

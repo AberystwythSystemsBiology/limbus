@@ -34,6 +34,9 @@ function get_metric(type) {
 
 
 function render_content(label, content) {
+    if (content == undefined) {
+        content = "Not Available."
+    }
     return '<div class="row"><div class="col-5">'+ label + ':</div><div class="col-7">'+content+'</div></div>';
      
 }
@@ -49,13 +52,14 @@ function fill_title(uuid) {
 function fill_collection_information(collection_information) {
     
     var protocol_info = collection_information["protocol"];
-    console.log(collection_information)
     var html = "";
     
     html += '<div class="media">';
     html += '<h1 class="align-self-start mr-3"><i class="fab fa-buffer"></i></h1>'
     html += '<div class="media-body">'
+    html += '<a href="' + protocol_info["_links"]["self"] +'" target="_blank">'
     html += '<h5 class="mt-0">LIMBPRO-'+protocol_info["id"]+': '+protocol_info["name"] +'</h5>'
+    html += '</a>'
     html += render_content("Collected On", collection_information["datetime"])
     html += render_content("Collected By", collection_information["undertaken_by"])
     html += render_content("Comments", collection_information["comments"])
@@ -64,6 +68,29 @@ function fill_collection_information(collection_information) {
     html += '</div>'
 
     $("#collection_information").html(html);
+}
+
+function fill_consent_information(consent_information) {
+    
+    $("#consent_name").html(consent_information["template"]["name"]);
+    $("#consent_version").html(consent_information["template"]["version"]);
+    $("#consent_identifier").html(consent_information["identifier"]);
+    $("#consent_comments").html(consent_information["comments"]);
+    
+
+    for (answer in consent_information["answers"]) {
+        var answer_info = consent_information["answers"][answer];
+        
+        var answer_html = '';
+        answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
+        answer_html += + (parseInt(answer)+1) + '<h5></div><p class="mb-1">'+ answer_info["question"] + '</p></li>';
+        
+        $("#questionnaire-list").append(answer_html);
+    }
+
+    $("#consent_date_signed").html(consent_information);
+
+
 }
 
 function fill_basic_information(sample_info) {
@@ -77,6 +104,8 @@ function fill_basic_information(sample_info) {
 
     $("#basic_information").html(html);
 }
+
+
 
 function fill_quantity_chart(type, quantity, remaining_quantity) {
     
@@ -107,8 +136,9 @@ $(document).ready(function() {
     $("#loading-screen").fadeOut();
     fill_title(sample_info["uuid"]);
     fill_basic_information(sample_info);
-    fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"])
-    fill_collection_information(sample_info["collection_information"])
+    fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
+    fill_collection_information(sample_info["collection_information"]);
+    fill_consent_information(sample_info["consent_information"]);
     $("#content").delay(500).fadeIn();
 
 });

@@ -57,6 +57,10 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("protocol.view", id="<id>", _external=True), "collection": ma.URLFor("protocol.index", _external=True)}
+    )
+
 
 basic_protocol_template_schema = BasicProtocolTemplateSchema()
 basic_protocol_templates_schema = BasicProtocolTemplateSchema(many=True)
@@ -116,7 +120,13 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
     documents = ma.Nested(BasicDocumentSchema(many=True))
+
     created_on = ma.Date()
+
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("protocol.view", id="id", _external=True), "collection": ma.URLFor("protocol.index", _external=True)}
+    )
+
 
 
 protocol_template_schema = ProtocolTemplateSchema()
