@@ -34,16 +34,32 @@
                     <span id="site_count" class="data large"></span>
                     <span class="data small">Sites</span>
                   </div>
-            </div>
-            
-            
-            
-
+            </div>          
         </div>
+
+        <div class="row">
+          <div class="col-6">
+            <canvas id="sample_status"></canvas>
+          </div>
+          <div class="col-6">
+            <canvas id="sample_source"></canvas>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <canvas id="sample_type"></canvas>
+          </div>
+          <div class="col-6">
+            <canvas id="sample_biohazard"></canvas>
+          </div>
+        </div>
+
     </div>
 {% endblock %}
 
 {% block javascript %}
     <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/misc/panel.js') }}"></script>
 
-    {% endblock %}
+{% endblock %}

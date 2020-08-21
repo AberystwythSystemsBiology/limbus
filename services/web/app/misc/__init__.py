@@ -18,7 +18,6 @@ from flask import Blueprint
 
 misc = Blueprint("misc", __name__)
 
-from .routes import *
 
 from flask import session, current_app
 from flask_login import current_user
@@ -39,3 +38,6 @@ def get_internal_api_header():
         }
     except AttributeError:
         return {}
+
+from .routes import *
+

@@ -36,7 +36,20 @@ from marshmallow import ValidationError
 
 @api.route("/misc/panel", methods=["GET"])
 @token_required
-def get_panel_data():
+def get_data():
+    def _prepare_for_chart_js(a):
+        ye = {
+            "labels": [],
+            "data": []
+        }
+
+        for (label, data) in a:
+            ye["labels"].append(label)
+            ye["data"].append(data)
+
+        return ye
+
+
     data = {
         "name": SiteInformation.query.first().name,
         "basic_statistics": {
@@ -46,13 +59,16 @@ def get_panel_data():
             "donor_count": 0,
         },
         "sample_statistics": {
-            "sample_type":[(type.value, count) for (type, count) in db.session.query(Sample.type, func.count(Sample.type)).group_by(Sample.type).all()],
-            "saple_biohazard": [(type.value, count) for (type, count) in db.session.query(Sample.biohazard_level, func.count(Sample.biohazard_level)).group_by(Sample.biohazard_level).all()],
-            "sample_source":  [(type.value, count) for (type, count) in db.session.query(Sample.source, func.count(Sample.source)).group_by(Sample.source).all()],  # SampleSource
-            "sample_status":  [(type.value, count) for (type, count) in db.session.query(Sample.status, func.count(Sample.status)).group_by(Sample.status).all()],  # SampleSource
+            "sample_type": _prepare_for_chart_js([(type.value, count) for (type, count) in db.session.query(Sample.type, func.count(Sample.type)).group_by(Sample.type).all()]),
+            "sample_biohazard": _prepare_for_chart_js([(type.value, count) for (type, count) in db.session.query(Sample.biohazard_level, func.count(Sample.biohazard_level)).group_by(Sample.biohazard_level).all()]),
+            "sample_source":  _prepare_for_chart_js([(type.value, count) for (type, count) in db.session.query(Sample.source, func.count(Sample.source)).group_by(Sample.source).all()]),  # SampleSource
+            "sample_status":  _prepare_for_chart_js([(type.value, count) for (type, count) in db.session.query(Sample.status, func.count(Sample.status)).group_by(Sample.status).all()])  # SampleSource
 
         },
     }
+
+    
+
     return success_with_content_response(data)
 
 

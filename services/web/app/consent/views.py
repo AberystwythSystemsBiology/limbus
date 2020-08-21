@@ -122,7 +122,7 @@ class ConsentFormTemplateSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {"self": ma.URLFor("consent.view", id="<id>", _external=True), "collection": ma.URLFor("consent.index", _external=True)}
-    )
+    , required=False)
 
 
 consent_form_template_schema = ConsentFormTemplateSchema()
