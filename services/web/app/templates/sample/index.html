@@ -48,7 +48,9 @@
                     <tr>
                         <td>
                             {{ render_colour(sample.colour) }}
-                            <i class="fas fa-vial"></i> {{ sample.uuid }}
+                            <a href="{{url_for('sample.view', uuid=sample.uuid) }}">
+                                <i class="fas fa-vial"></i> {{ sample.uuid }}
+                            </a>
                         </td>
                         <td>{{ sample.type }}</td>
                         <td>{{ render_quantity(sample.quantity, sample.type) }}</td>
