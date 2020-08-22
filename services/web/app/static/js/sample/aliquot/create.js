@@ -21,6 +21,9 @@ function get_sample() {
     return json["content"];
 }
 
+// Global because I hate myself.
+var sample = get_sample();
+
 
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
@@ -47,7 +50,7 @@ function update_graph() {
     );
 }
 
-function fill_sample_info(sample) {
+function fill_sample_info() {
     $("#uuid").html(sample["uuid"]);
     $("#sample_href").attr("href", sample["_links"]["self"])
     $("#remaining_quantity").attr("value", parseFloat(sample["remaining_quantity"]));
@@ -58,7 +61,15 @@ function fill_sample_info(sample) {
 }
 
 function subtract_quantity() {
-    $("#remaining_quantity").attr("value", $("#remaining_quantity").val() - 0.12);
+    var remaining_quantity = sample["remaining_quantity"];
+
+    var quantities = 0.0;
+
+    $('input[type="number"].aliquotted-quantity').each(function () {
+        quantities += parseFloat($(this).val());
+    });
+
+    $("#remaining_quantity").attr("value", remaining_quantity-quantities);
     update_graph();
 }
 
@@ -75,7 +86,7 @@ function make_new_form(indx) {
     row_form_html += '<td><select class="form-control" data-live-search=true></select></td>'
     row_form_html += '<td>';
     row_form_html += '<div class="input-group mb-2">'
-    row_form_html += '<input name="aliquotted_quantity" type="number" class="form-control" step="0.01" min="0.0" value="0.0"></td>'
+    row_form_html += '<input type="number" class="form-control aliquotted-quantity" step="0.01" min="0.0" value="0.0"></td>'
     row_form_html += '<div class="input-group-append">'
     row_form_html += '<div class="input-group-text"><span id="remaining_metric">ERR</span></div>'
     row_form_html += '</div></div>'
@@ -88,6 +99,24 @@ function make_new_form(indx) {
 
     $("#aliquoted_sample_table > tbody:last-child").append(row_form_html);
     update_number();
+
+    // Because Windows is trash.
+    $(".windows").click(function() {
+        var to_remove = $(this).attr("id").split("_")[1]
+        remove_row(to_remove);
+        subtract_quantity();
+    });
+
+    $(".aliquotted-quantity").change(function() {
+        subtract_quantity();
+    });
+
+    $('#aliquotted_quantity').on('change keyup', function() {
+        // Remove invalid characters
+        var sanitized = $(this).val().replace(/[^0-9]/g, '');
+        // Update value
+        $(this).val(sanitized);
+    });
 }
 
 function remove_row(indx) {
@@ -97,8 +126,7 @@ function remove_row(indx) {
 }
 
 $(document).ready(function () {
-    var sample = get_sample();
-    fill_sample_info(sample);
+    fill_sample_info();
     update_graph();
 
     var indx = 1;
@@ -110,17 +138,8 @@ $(document).ready(function () {
         make_new_form(indx);
     });
 
-    $('#aliquotted_quantity').on('change keyup', function() {
-        // Remove invalid characters
-        var sanitized = $(this).val().replace(/[^0-9]/g, '');
-        // Update value
-        $(this).val(sanitized);
-      });
 
-    // Because Windows is trash.
-    $(".windows").click(function() {
-        var to_remove = $(this).attr("id").split("_")[1]
-        remove_row(to_remove);
-    });
+
+
 });
 
