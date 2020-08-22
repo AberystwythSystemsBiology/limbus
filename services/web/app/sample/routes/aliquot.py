@@ -23,7 +23,14 @@ from ...database import db
 from ..forms import SampleAliquotingForm
 
 
-@sample.route("view/LIMBSMP-<uuid>/aliquot", methods=["GET", "POST"])
+@sample.route("view/<uuid>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(uuid: str):
+    # An aliquot creates a specimen from the same type as the parent.
+    return "Hello World"
+
+@sample.route("view/<uuid>/derive")
+@login_required
+def derive(uuid: str):
+    # A derivative creates a different specimen type from the parent.
     return "Hello World"
