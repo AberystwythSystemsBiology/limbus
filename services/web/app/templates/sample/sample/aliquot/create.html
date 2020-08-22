@@ -63,22 +63,23 @@
         </div>
     </div>
 
-    <h2>Total Aliquots: <span id="total_aliquots"></span></h2>
-
-
+    <h2 style="margin-bottom: 1em;">
+        Total Aliquots: <span id="total_aliquots"></span>
+        <div name="new" class="btn btn-primary float-right">
+            <i class="fa fa-plus"></i> Add
+        </div>
+    </h2>
     <table id="aliquoted_sample_table" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>Container</th>
-                <th>Quantity</th>
-                <th>Barcode</th>
+                <th width="20%">Quantity</th>
+                <th width="35%">Barcode</th>
                 <th width="5%">Actions</th>
         </thead>
         <tbody>
         </tbody>
     </table>
-
-
 
     {{ form_field(form.comments) }}
     {{ form_field(form.submit) }}

@@ -73,12 +73,16 @@ function make_new_form(indx) {
     row_form_html += '<tr id="row_'+indx+'">';
 
     row_form_html += '<td><select class="form-control" data-live-search=true></select></td>'
-    row_form_html += '<td><input type="number" class="form-control"></td>'
-    row_form_html += '<td><input type="text" class="form-control"></td>'
+    row_form_html += '<td>';
+    row_form_html += '<div class="input-group mb-2">'
+    row_form_html += '<input name="aliquotted_quantity" type="number" class="form-control" step="0.01" min="0.0" value="0.0"></td>'
+    row_form_html += '<div class="input-group-append">'
+    row_form_html += '<div class="input-group-text"><span id="remaining_metric">ERR</span></div>'
+    row_form_html += '</div></div>'
+    row_form_html += '<td><input type="text" class="form-control" placeholder="Sample Barcode"></td>'
     row_form_html += '<td>'
-    row_form_html += '<div name="windows" id="trash_'+indx+'" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></div>';
+    row_form_html += '<div id="trash_'+indx+'" class="btn btn-danger windows"><i class="fa fa-trash"></i></div>';
     row_form_html += '</td>'
-
     // End Row
     row_form_html += '</tr>';
 
@@ -106,10 +110,16 @@ $(document).ready(function () {
         make_new_form(indx);
     });
 
+    $('#aliquotted_quantity').on('change keyup', function() {
+        // Remove invalid characters
+        var sanitized = $(this).val().replace(/[^0-9]/g, '');
+        // Update value
+        $(this).val(sanitized);
+      });
+
     // Because Windows is trash.
-    $("[name=windows]").click(function() {
+    $(".windows").click(function() {
         var to_remove = $(this).attr("id").split("_")[1]
-        console.log(to_remove);
         remove_row(to_remove);
     });
 });
