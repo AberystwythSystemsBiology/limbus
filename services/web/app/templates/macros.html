@@ -26,7 +26,9 @@
     <span class="colour-circle {{ colour_class }}"></span>
 {% endmacro %}
 
-{% macro render_quantity(quantity, type) %}
+{% macro render_quantity(quantity, type) -%}
+    {% set span_id = kwargs.pop('span_id', "quantity") %}
+
     {% if type == "Cell" %}
         {% set denominator = " Cells" %}
     {% elif type == "Molecular" %}
@@ -35,8 +37,10 @@
         {% set denominator = "mL" %}
     {% endif %}
 
-    {{ quantity }}{{ denominator }}
-{% endmacro %}
+
+
+    <span id="{{ span_id }}">{{ quantity }}</span>{{ denominator }}
+{%- endmacro %}
 
 {% macro form_field(field) -%}
 

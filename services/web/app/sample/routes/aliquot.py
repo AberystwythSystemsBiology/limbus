@@ -28,17 +28,7 @@ from ...misc import get_internal_api_header
 @sample.route("view/<uuid>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(uuid: str):
-
-    sample_response = requests.get(
-        url_for("api.sample_view_sample", uuid=uuid, _external=True),
-        headers=get_internal_api_header()
-    )
-
-    if sample_response.status_code != 200:
-        abort(400)
-
     # An aliquot creates a specimen from the same type as the parent.
-
 
     protocol_response = requests.get(
         url_for("api.protocol_query", _external=True),
@@ -59,13 +49,12 @@ def aliquot(uuid: str):
     if user_response.status_code != 200:
         abort(400)
 
-    sample = sample_response.json()["content"]
     processing_templates = protocol_response.json()["content"]
     users = user_response.json()["content"]
 
-    form = SampleAliquotingForm(sample, processing_templates, users)
+    form = SampleAliquotingForm(processing_templates, users)
 
-    return render_template("sample/sample/aliquot/create.html", sample=sample, form=form)
+    return render_template("sample/sample/aliquot/create.html", form=form)
 
 @sample.route("view/<uuid>/derive")
 @login_required

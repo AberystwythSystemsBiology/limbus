@@ -333,10 +333,10 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     return StaticForm()
 
 
-def SampleAliquotingForm(sample: dict, processing_templates: dict, users: dict) -> FlaskForm:
+def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
-        aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
-        aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
+        aliquot_date = DateField("Aliquot Date", validators=[DataRequired()], default=datetime.today())
+        aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()], default=datetime.now())
         comments = TextAreaField("Comments")
         submit = SubmitField("Submit")
 
