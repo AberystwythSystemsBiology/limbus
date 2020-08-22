@@ -4,45 +4,66 @@
 
 {% block body %}
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> {{ sample["uuid"] }}</span><i class="fa fa-code-branch"></i> Create Aliquoted Samples</h1>
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{url_for('sample.view', uuid=sample['uuid']) }}">
+                    <i class="fas fa-vial"></i> {{ sample["uuid"] }}
+                </a>
+            </span>
+            <i class="fa fa-code-branch"></i> Create Aliquoted Samples
+        </h1>
 
 
-        <form>
+        <div class="row">
 
-            {{ form_field(form.processing_protocol) }}
-            {{ form_field(form.processed_by ) }}
+            <div class="col-8">
+            <form>
+                {{ form_field(form.processing_protocol) }}
+                {{ form_field(form.processed_by ) }}
 
-            <div class="row">
-                <div class="col-6">
-                    {{ form_field(form.aliquot_date) }}
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.aliquot_date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.aliquot_time) }}
+                    </div>               
                 </div>
-                <div class="col-6">
-                    {{ form_field(form.aliquot_time) }}
-                </div>               
-            </div>
-        
-        <h6>Total Aliquots: <span id="total-aliquots"></span></h6>
-        
-        <table id="aliquotedsampletable" class="table table-striped table-bordered" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Container</th>
-                    <th>Quantity</th>
-                    <th>Barcode</th>
-                    <th width="5%">Actions</th>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+            
+            <h6>Total Aliquots: <span id="total-aliquots"></span></h6>
+            
+            <table id="aliquotedsampletable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Container</th>
+                        <th>Quantity</th>
+                        <th>Barcode</th>
+                        <th width="5%">Actions</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
 
-        {{form_field(form.comments) }}
+            {{form_field(form.comments) }}
 
-        {{ form_field(form.submit) }}
+            {{ form_field(form.submit) }}
 
-        </form>
-       
+            </form>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Sample Quantity</h4>
+                </div>
+                <div class="card-body">
+                  <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+                </div>
+
+              </div>
+        </div>
     </div>
+</div>
 
 {% endblock %}
 
