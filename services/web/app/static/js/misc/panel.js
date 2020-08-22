@@ -132,6 +132,7 @@ function fill_panel() {
 }
 
 $(document).ready(function() {
+
     fill_panel();
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();

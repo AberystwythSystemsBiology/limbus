@@ -3,18 +3,18 @@
 {% block title %}Create Aliquot{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>
-            <span class="secondary-heading">
-                    <i class="fas fa-vial"></i> <span id="uuid"></span>
-            </span>
-            <i class="fa fa-code-branch"></i> Create Aliquoted Samples
-        </h1>
+<div class="container">
+    <h1>
+        <span class="secondary-heading">
+            <i class="fas fa-vial"></i> <span id="uuid"></span>
+        </span>
+        <i class="fa fa-code-branch"></i> Create Aliquoted Samples
+    </h1>
 
 
-        <div class="row">
+    <div class="row">
 
-            <div class="col-8">
+        <div class="col-10">
             <form>
                 <div class="row">
                     <div class="col-6">
@@ -23,9 +23,9 @@
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" id="remaining_quantity" disabled>
                                 <div class="input-group-prepend">
-                                    <div class="input-group-text"><span class="denotion">ERR</span></div>
-                                  </div>
-                              </div>
+                                    <div class="input-group-text"><span id="remaining_metric">ERR</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -35,11 +35,12 @@
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" id="original_quantity" disabled>
                                 <div class="input-group-prepend">
-                                    <div class="input-group-text"><span class="denotion">ERR</span></div>
-                                  </div>
-                              </div>                        </div>
+                                    <div class="input-group-text"><span id="original_metric">ERR</span></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>                                    
+                </div>
                 {{ form_field(form.processing_protocol) }}
                 {{ form_field(form.processed_by ) }}
 
@@ -49,48 +50,48 @@
                     </div>
                     <div class="col-6">
                         {{ form_field(form.aliquot_time) }}
-                    </div>               
+                    </div>
                 </div>
-            
-            <h6>Total Aliquots: <span id="total-aliquots"></span></h6>
-
-
-            <table id="aliquotedsampletable" class="table table-striped table-bordered" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Container</th>
-                        <th>Quantity</th>
-                        <th>Barcode</th>
-                        <th width="5%">Actions</th>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-
-            {{ form_field(form.comments) }}
-            {{ form_field(form.submit) }}
-
-            </form>
         </div>
-        <div class="col-4">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Sample Quantity</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+        <div class="col-2">
+            <canvas id="quantity-chart" width="100%" height="100%"></canvas>
 
-                </div>
 
-              </div>
-            </br>
 
         </div>
     </div>
+
+    <h6>Total Aliquots: <span id="total-aliquots"></span></h6>
+
+
+    <table id="aliquotedsampletable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Container</th>
+                <th>Quantity</th>
+                <th>Barcode</th>
+                <th width="5%">Actions</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    {{ form_field(form.comments) }}
+    {{ form_field(form.submit) }}
+
+    </form>
+
+
+    <div id="cliky" class="btn btn-primary">Click</div>
+
 </div>
+
 
 {% endblock %}
 
 
 {% block javascript %}
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>#
+<script src="{{ url_for('static', filename='js/sample/aliquot/create.js') }}"></script>
+
 {% endblock %}

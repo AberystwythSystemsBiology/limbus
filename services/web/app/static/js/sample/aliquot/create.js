@@ -1,67 +1,71 @@
-function manual_sample_per_aliquot() {
-    $("#size").prop("readonly", false);
-    update_proposed();
-}
+function get_sample() {
+    var current_url = encodeURI(window.location);
+    var split_url = current_url.split("/");
+    split_url.pop()
+    var api_url = split_url.join("/") + "/data"
 
-function automatic_sample_per_aliquot() {
-    $("#size").prop("readonly", true);
-    var current_quantity = parseFloat($("#available_quantity").text());
-    var number_aliquot = $("#count").val()
-
-    var aliquoted_amount = current_quantity / number_aliquot
-    $("#size").val(aliquoted_amount);
-
-    $("#proposed_quantity").text("0.0");
-}
-
-function update_proposed() {
-    var current_quantity = parseFloat($("#available_quantity").text());
-    var number_aliquot = $("#count").val();
-    var size = $("#size").val()
-
-    var total = number_aliquot * size;
-
-    var proposed_quantity = current_quantity - total;
-
-    $("#proposed_quantity").text(proposed_quantity);
-
-    if (proposed_quantity < 0) {
-        $("#nes_warning").show();
-        $("#submit").prop("disabled", true);
-        $("form").submit(function(e){
-            e.preventDefault();
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'dataType': "json",
+            'success': function (data) {
+                json = data;
+            }
         });
-    }
+        return json;
+    })();
 
-    else {
-        $("#nes_warning").hide();
-        $("#submit").prop("disabled", false);
+    return json["content"];
+}
 
-    }
 
+function update_graph() {
+    var remaining_quantity = $("#remaining_quantity").val();
+    var quantity = $("#original_quantity").val();
+    var metric = $("#original_metric").html();
+
+    new Chart(document.getElementById("quantity-chart"), {
+        type: 'doughnut',
+        data: {
+          labels: ["Remaining " + metric, "Used " + metric],
+          datasets: [
+            {
+              backgroundColor: ["#28a745", "#dc3545"],
+              data: [remaining_quantity, quantity - remaining_quantity]
+            }
+          ]
+        },
+        options: {
+            legend: {
+                display: false
+             }
+        }}
+        );
+}
+
+function fill_sample_info(sample) {
+    $("#uuid").html(sample["uuid"]);
+    $("#remaining_quantity").attr("value", parseFloat(sample["remaining_quantity"]));
+    $("#original_quantity").attr("value", parseFloat(sample["quantity"]));
+    $("#remaining_metric").html(get_metric(sample["type"]));
+    $("#original_metric").html(get_metric(sample["type"]));
+
+}
+
+function subtract_quantity() {
+    $("#remaining_quantity").attr("value", $("#remaining_quantity").val()-0.12);
+    update_graph();
 }
 
 $(document).ready(function() {
-    $("#use_entire").change(function() {
-        if(this.checked) {
-            automatic_sample_per_aliquot();
-        }
-        else {
-            manual_sample_per_aliquot();
-        }
+    var sample = get_sample();
+    fill_sample_info(sample);
+    update_graph();
+
+    $("#cliky").click(function() {
+        subtract_quantity();
     });
-
-    $("#count").change(function () {
-        if ($("#use_entire").is(":checked")) {
-            automatic_sample_per_aliquot();
-        }
-        else {
-            manual_sample_per_aliquot();
-        }
-
-    })
-
-    $("#size").change(function () {
-        update_proposed();
-    })
 });
