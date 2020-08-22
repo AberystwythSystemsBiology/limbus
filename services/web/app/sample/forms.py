@@ -333,60 +333,35 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     return StaticForm()
 
 
-def SampleAliquotingForm(sample_type, default_type) -> FlaskForm:
+def SampleAliquotingForm(sample: dict, processing_templates: dict, users: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
-        count = IntegerField("Aliquot Count", validators=[DataRequired()])
-        size = StringField(
-            "Sample Quantity per Aliquot", validators=[DataRequired(), Length(min=1)]
-        )
-        use_entire = BooleanField("Use all of Parent Sample?")
         aliquot_date = DateField("Aliquot Date", validators=[DataRequired()])
         aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()])
-        cell_viability = IntegerField("Cell Viability %")
-        lock_parent = BooleanField("Lock Parent?")
-
+        comments = TextAreaField("Comments")
         submit = SubmitField("Submit")
 
-    if sample_type == SampleType.FLU:
-        sample_type_enums = FluidSampleType
-        processsing_enum = ProtocolSampleType.FLU
-    elif sample_type == SampleType.CEL:
-        sample_type_enums = CellSampleType
-        processsing_enum = ProtocolSampleType.CEL
+    processing_template_choices = []
 
-    else:
-        sample_type_enums = MolecularSampleType
-        processsing_enum = ProtocolSampleType.MOL
-
-    _ec = sample_type_enums.choices()
-
-    setattr(StaticForm, "sample_type", SelectField("Sample Type", choices=_ec))
-
-
-    processing_templates = (
-        db.session.query(ProcessingTemplate)
-        .filter(ProcessingTemplate.type == ProtocolType.ALD)
-        .filter(
-            ProcessingTemplate.sample_type.in_(
-                [processsing_enum, ProtocolSampleType.ALL]
-            )
-        )
-        .all()
-    )
-   
-
-    protcessing_templates = {}
+    for protocol in processing_templates:
+        processing_template_choices.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
 
     setattr(
         StaticForm,
-        "processing_template",
-        SelectField(
-            "Processing Template (Aliquot)",
-            coerce=int,
-            choices=[
-                (x.id, "LIMBPRO-%i: %s" % (x.id, x.name)) for x in processing_templates
-            ],
-        ),
+        "processing_protocol",
+        SelectField("Processing Protocol", choices=processing_template_choices, coerce=int)
     )
 
-    return StaticForm(), len(processing_templates)
+
+    user_choices = []
+
+    for user in users:
+        user_choices.append([user["id"], "%s %s" % (user["first_name"], user["last_name"])])
+
+    setattr(
+        StaticForm,
+        "processed_by",
+        SelectField("Processed By", choices=user_choices, coerce=int)
+    )
+
+
+    return StaticForm()

@@ -4,108 +4,48 @@
 
 {% block body %}
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}</span><i class="fa fa-code-branch"></i> Create Aliquot</h1>
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> {{ sample["uuid"] }}</span><i class="fa fa-code-branch"></i> Create Aliquoted Samples</h1>
 
-        {% if num_processing_templates > 0 %}
 
-            <div id="nes_warning" class="alert alert-danger text-center" style="display: none;">
-                <i class="fa fa-exclamation-triangle"></i> <b>Notice:</b> Proposed aliquot amount greater than available sample.
-            </div>
+        <form>
+
+            {{ form_field(form.processing_protocol) }}
+            {{ form_field(form.processed_by ) }}
 
             <div class="row">
                 <div class="col-6">
-                    <div class="form-group row">
-                        <div class="col-sm-3">Parent Sample:</div>
-                        <div class="col-sm-9">LIMBSMP-{{ sample.id }}</div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-sm-3">Sample Type:</div>
-                        <div class="col-sm-9">{{ sample_type.sample_type }} ({{ sample.sample_type_info.sample_type }})</div>
-                    </div>
+                    {{ form_field(form.aliquot_date) }}
                 </div>
                 <div class="col-6">
-                    <div class="form-group row">
-                        <div class="col-sm-3">Original Quantity:</div>
-                        <div class="col-sm-9">
-                            {{ sample.quantity }}
-                            {% if sample.sample_type_info.sample_type.value == "Fluid" %}
-                                mL
-                            {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
-                                Cells
-                            {% else %}
-                                ug/ML
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-sm-3">Available Quantity:</div>
-                        <div class="col-sm-9"><span id="available_quantity">{{ sample.current_quantity }}</span>{% if sample.sample_type_info.sample_type.value == "Fluid" %}
-                            mL
-                        {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
-                            Cells
-                        {% else %}
-                            ug/ML
-                        {% endif %}</div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-sm-3">Proposed Quantity:</div>
-                        <div class="col-sm-9"><span id="proposed_quantity">{{ sample.current_quantity }}</span>{% if sample.sample_type_info.sample_type.value == "Fluid" %}
-                            mL
-                        {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
-                            Cells
-                        {% else %}
-                            ug/ML
-                        {% endif %}</div>
-                    </div>
-                </div>
+                    {{ form_field(form.aliquot_time) }}
+                </div>               
             </div>
+        
+        <h6>Total Aliquots: <span id="total-aliquots"></span></h6>
+        
+        <table id="aliquotedsampletable" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Container</th>
+                    <th>Quantity</th>
+                    <th>Barcode</th>
+                    <th width="5%">Actions</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
 
+        {{form_field(form.comments) }}
 
+        {{ form_field(form.submit) }}
 
-
-            <form action="{{ url_for('sample.aliquot', sample_id=sample.id) }}" method="POST">
-                {{ form.csrf_token() }}
-                <div class="row">
-                    <div class="col-6">
-                        {{ form_field(form.size) }}
-                    </div>
-                    <div class="col-6">
-                        {{ form_field(form.count) }}
-                    </div>
-                </div>
-                {{ form_field(form.use_entire) }}
-                {{ form_field(form.sample_type) }}
-
-                {{ form_field(form.processing_template) }}
-
-                <div class="row">
-                    <div class="col-6">
-                        {{ form_field(form.aliquot_date) }}
-                    </div>
-                    <div class="col-6">
-                        {{ form_field(form.aliquot_time) }}
-                    </div>
-                </div>
-                {% if sample.sample_type == "Cellular" %}
-                    {{ form_field(form.cell_viability) }}
-                {% endif %}
-                {{ form_field(form.lock_parent) }}
-                {{ form_field(form.submit) }}
-            </form>
-        {% else %}
-            {{ render_warning(
-                    "No Suitable Aliquoting Protocol Found",
-                    [
-                        "There are no suitable sample aliquoting protocols found.",
-                        "Please add one before attempting an aliquot."
-                     ], 'processing.new_protocol', "New Processing Protocol", True, True
-                ) }}
-        {% endif %}
+        </form>
+       
     </div>
 
 {% endblock %}
 
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/sample/aliquot/create.js') }}"></script>
 {% endblock %}
