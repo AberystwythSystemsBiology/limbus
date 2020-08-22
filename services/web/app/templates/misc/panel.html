@@ -7,22 +7,37 @@
 {% endblock %}
 
 {% block body %}
-    <div class="container">
+
+  <div id="loading-screen" class="container text-center">
+    <div class="loading">
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;" >
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+
+      <h1>Just a sec...</h1>
+      <h2>Getting the panel ready for you.</h2>
+      </div>
+  </div>
+
+    <div id="content" class="container" style="display: none;">
         <h1><span class="secondary-heading"><i class="fa fa-solar-panel"></i> <span id="biobank_name"></span></span>Data Overview Panel</h1>
 
         <div class="row">
+          <div class="col-sm-3">
+            <div class="data">
+                <span id="sample_count" class="data large"></span>
+                <span class="data small">Samples</span>
+              </div>
+        </div>
             <div class="col-sm-3">
                 <div class="data">
                     <span id="donor_count" class="data large"></span>
                     <span class="data small">Donors</span>
                   </div>
             </div>
-            <div class="col-sm-3">
-                <div class="data">
-                    <span id="sample_count" class="data large"></span>
-                    <span class="data small">Samples</span>
-                  </div>
-            </div>
+            
             <div class="col-sm-3">
                 <div class="data">
                     <span id="user_count" class="data large"></span>
@@ -37,23 +52,23 @@
             </div>          
         </div>
 
+        <h2>Samples Overview</h2>
+
         <div class="row">
-          <div class="col-6">
-            <canvas id="sample_status"></canvas>
+          <div class="col-3">
+            <canvas id="sample_status" width="100%" height="100%"></canvas>
           </div>
-          <div class="col-6">
-            <canvas id="sample_source"></canvas>
+          <div class="col-3">
+            <canvas id="sample_source" width="100%" height="100%"></canvas>
+          </div>
+          <div class="col-3">
+            <canvas id="sample_type" width="100%" height="100%"></canvas>
+          </div>
+          <div class="col-3">
+            <canvas id="sample_biohazard" width="100%" height="100%"></canvas>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-6">
-            <canvas id="sample_type"></canvas>
-          </div>
-          <div class="col-6">
-            <canvas id="sample_biohazard"></canvas>
-          </div>
-        </div>
 
     </div>
 {% endblock %}

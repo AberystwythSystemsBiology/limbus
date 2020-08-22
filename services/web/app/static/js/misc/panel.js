@@ -124,10 +124,16 @@ function fill_basic_statistics(basic_statistics) {
     $("#site_count").html(basic_statistics["site_count"]);
 }
 
-$(document).ready(function() {
+function fill_panel() {
     var panel_info = get_panel_info();
     $("#biobank_name").html(panel_info["name"]);
     fill_basic_statistics(panel_info["basic_statistics"]);
     fill_sample_statistics(panel_info["sample_statistics"]);
+}
+
+$(document).ready(function() {
+    fill_panel();
+    $("#loading-screen").fadeOut();
+    $("#content").delay(500).fadeIn();
 
 });
