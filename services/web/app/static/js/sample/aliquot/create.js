@@ -30,24 +30,26 @@ function update_graph() {
     new Chart(document.getElementById("quantity-chart"), {
         type: 'doughnut',
         data: {
-          labels: ["Remaining " + metric, "Used " + metric],
-          datasets: [
-            {
-              backgroundColor: ["#28a745", "#dc3545"],
-              data: [remaining_quantity, quantity - remaining_quantity]
-            }
-          ]
+            labels: ["Remaining " + metric, "Used " + metric],
+            datasets: [
+                {
+                    backgroundColor: ["#28a745", "#dc3545"],
+                    data: [remaining_quantity, quantity - remaining_quantity]
+                }
+            ]
         },
         options: {
             legend: {
                 display: false
-             }
-        }}
-        );
+            }
+        }
+    }
+    );
 }
 
 function fill_sample_info(sample) {
     $("#uuid").html(sample["uuid"]);
+    $("#sample_href").attr("href", sample["_links"]["self"])
     $("#remaining_quantity").attr("value", parseFloat(sample["remaining_quantity"]));
     $("#original_quantity").attr("value", parseFloat(sample["quantity"]));
     $("#remaining_metric").html(get_metric(sample["type"]));
@@ -56,16 +58,46 @@ function fill_sample_info(sample) {
 }
 
 function subtract_quantity() {
-    $("#remaining_quantity").attr("value", $("#remaining_quantity").val()-0.12);
+    $("#remaining_quantity").attr("value", $("#remaining_quantity").val() - 0.12);
     update_graph();
 }
 
-$(document).ready(function() {
+function update_number() {
+    $("#total_aliquots").html($("#aliquoted_sample_table > tbody tr").length);
+}
+
+function make_new_form(indx) {
+    var row_form_html = '';
+
+    // Start Row
+    row_form_html += '<tr row="row_"'+indx+'>';
+
+    row_form_html += '<td><select class="form-control" data-live-search=true></select></td>'
+    row_form_html += '<td><input type="number" class="form-control"></td>'
+    row_form_html += '<td><input type="text" class="form-control"></td>'
+    row_form_html += '<td>'
+    row_form_html += '<div name="remove_'+indx+'" id="trash" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></div>';
+    row_form_html += '</td>'
+
+    // End Row
+    row_form_html += '</tr>';
+
+    $("#aliquoted_sample_table > tbody:last-child").append(row_form_html);
+    update_number();
+}
+
+$(document).ready(function () {
     var sample = get_sample();
     fill_sample_info(sample);
     update_graph();
 
-    $("#cliky").click(function() {
-        subtract_quantity();
+    var indx = 1;
+
+    make_new_form(indx);
+
+    $("[name=new]").click(function(){ 
+        indx += 1;
+        make_new_form(indx);
     });
 });
+
