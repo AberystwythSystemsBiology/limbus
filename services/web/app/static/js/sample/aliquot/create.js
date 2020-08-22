@@ -70,13 +70,13 @@ function make_new_form(indx) {
     var row_form_html = '';
 
     // Start Row
-    row_form_html += '<tr row="row_"'+indx+'>';
+    row_form_html += '<tr id="row_'+indx+'">';
 
     row_form_html += '<td><select class="form-control" data-live-search=true></select></td>'
     row_form_html += '<td><input type="number" class="form-control"></td>'
     row_form_html += '<td><input type="text" class="form-control"></td>'
     row_form_html += '<td>'
-    row_form_html += '<div name="remove_'+indx+'" id="trash" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></div>';
+    row_form_html += '<div name="windows" id="trash_'+indx+'" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></div>';
     row_form_html += '</td>'
 
     // End Row
@@ -84,6 +84,12 @@ function make_new_form(indx) {
 
     $("#aliquoted_sample_table > tbody:last-child").append(row_form_html);
     update_number();
+}
+
+function remove_row(indx) {
+    $("#row_"+indx).remove();
+    update_number();
+
 }
 
 $(document).ready(function () {
@@ -98,6 +104,13 @@ $(document).ready(function () {
     $("[name=new]").click(function(){ 
         indx += 1;
         make_new_form(indx);
+    });
+
+    // Because Windows is trash.
+    $("[name=windows]").click(function() {
+        var to_remove = $(this).attr("id").split("_")[1]
+        console.log(to_remove);
+        remove_row(to_remove);
     });
 });
 
