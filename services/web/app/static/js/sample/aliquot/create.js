@@ -1,3 +1,22 @@
+
+function get_containers() {
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': "http://0.0.0.0:5000" + "/api/sample/containers",
+            'dataType': "json",
+            'success': function (data) {
+                json = data;
+            }
+        });
+        return json;
+    })();
+
+    return json["content"];}
+
 function get_sample() {
     var current_url = encodeURI(window.location);
     var split_url = current_url.split("/");
@@ -24,6 +43,7 @@ function get_sample() {
 // Global because I hate myself.
 var sample = get_sample();
 
+var container_information = get_containers();
 
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
@@ -58,6 +78,10 @@ function fill_sample_info() {
     $("#remaining_metric").html(get_metric(sample["type"]));
     $("#original_metric").html(get_metric(sample["type"]));
 
+    if (sample["type"] == "Cell") {
+        $("#fixation_type_th").show()
+    }
+
 }
 
 function subtract_quantity() {
@@ -71,10 +95,58 @@ function subtract_quantity() {
 
     $("#remaining_quantity").attr("value", remaining_quantity-quantities);
     update_graph();
+
+    if ((remaining_quantity - quantities) < 0) {
+        $("#quantityalert").show();
+        $("#submit").attr("disabled", true);
+    }
+
+    else {
+        $("#quantityalert").hide();
+        $("#submit").attr("disabled", false);
+
+    }
+
 }
 
 function update_number() {
     $("#total_aliquots").html($("#aliquoted_sample_table > tbody tr").length);
+}
+
+function generate_container_select() {
+    var containers = container_information[sample["type"]]
+
+    var containers_list = containers["container"];
+
+    // Start select
+    var select_html = '<select class="form-control" data-live-search=true>'
+
+    for (i in containers_list) { 
+        select_html += '<option value="' + containers_list[i][0] + '">'+containers_list[i][1] + '</option>'
+    }
+
+    // End html
+    select_html += '</select>'
+    return select_html;
+    
+}
+
+
+function generate_fixation_select() {
+    var containers = container_information[sample["type"]]
+    var fixation_list = containers["fixation_type"]
+
+    // Start select
+    var select_html = '<select class="form-control" data-live-search=true>'
+
+
+    for (i in fixation_list) {
+        select_html += '<option value="' + fixation_list[i][0] + '">'+fixation_list[i][1] + '</option>'
+    }
+
+    // End html
+    select_html += '</select>'
+    return select_html;
 }
 
 function make_new_form(indx) {
@@ -82,8 +154,10 @@ function make_new_form(indx) {
 
     // Start Row
     row_form_html += '<tr id="row_'+indx+'">';
-
-    row_form_html += '<td><select class="form-control" data-live-search=true></select></td>'
+    row_form_html += '<td>'+generate_container_select()+'</td>'
+    if (sample["type"] == "Cell") {
+        row_form_html += '<td>'+generate_fixation_select()+'</td>';
+    }
     row_form_html += '<td>';
     row_form_html += '<div class="input-group mb-2">'
     row_form_html += '<input type="number" class="form-control aliquotted-quantity" step="0.01" min="0.0" value="0.0"></td>'

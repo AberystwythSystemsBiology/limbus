@@ -13,6 +13,9 @@
         <i class="fa fa-code-branch"></i> Create Aliquoted Samples
     </h1>
 
+    <div id="quantityalert" class="alert alert-danger text-center" style="display:none;">
+        <b>ALERT:</b> Aliquotted sample amount is larger than remaining quantity! Unable to submit.
+    </div>
 
     <div class="row">
 
@@ -57,9 +60,6 @@
         </div>
         <div class="col-2">
             <canvas id="quantity-chart" width="100%" height="100%"></canvas>
-
-
-
         </div>
     </div>
 
@@ -73,8 +73,9 @@
         <thead>
             <tr>
                 <th>Container</th>
+                <th id="fixation_type_th" style="display:none;">Fixation Type</th>
                 <th width="20%">Quantity</th>
-                <th width="35%">Barcode</th>
+                <th width="25%">Barcode</th>
                 <th width="5%">Actions</th>
         </thead>
         <tbody>

@@ -56,6 +56,13 @@ from .views import (
 
 from datetime import datetime
 
+from .enums import (
+    CellContainer,
+    FixationType,
+    FluidContainer,
+)
+
+
 
 @api.route("/sample", methods=["GET"])
 @token_required
@@ -250,6 +257,23 @@ def sample_new_disposal_instructions(tokenuser: UserAccount):
         )
     except Exception as err:
         return transaction_error_response(err)
+
+
+
+'''
+
+    CellContainer,
+    FixationType,
+    FluidContainer,
+'''
+
+@api.route("/sample/containers", methods=["GET"])
+def sample_get_containers():
+    return success_with_content_response({
+        "Fluid": {"container": FluidContainer.choices()},
+        "Molecular": {"container": FluidContainer.choices()},
+        "Cell": {"container": CellContainer.choices(), "fixation_type": FixationType.choices()}
+    })
 
 @api.route("/sample/new_sample_consent", methods=["POST"])
 @token_required
