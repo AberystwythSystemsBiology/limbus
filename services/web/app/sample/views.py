@@ -283,7 +283,9 @@ class SampleSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True), "collection": ma.URLFor("sample.index", _external=True)}
+        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+        "collection": ma.URLFor("sample.index", _external=True),
+        "webapp_query": ma.URLFor("sample.query", _external=True)}
     )
 
 sample_schema = SampleSchema()

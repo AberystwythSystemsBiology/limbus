@@ -40,10 +40,45 @@ function get_sample() {
     return json["content"];
 }
 
+function check_barcode(entered_barcode) {
+
+    var entered_barcode = entered_barcode.replace(/\s/g,'');
+
+    if (entered_barcode == "") {
+        return false;
+    }
+
+    var json = (function () {
+        var json = null;
+        $.post({
+            'async': false,
+            'global': false,
+            'url': sample["_links"]["webapp_query"],
+            'contentType': 'application/json',
+            'data': JSON.stringify({barcode: entered_barcode}),
+            'success': function (data) {
+                json = data;
+            }
+        });
+        return json;
+    })();
+
+    
+
+    if (json["content"].length > 0) {
+        return true
+    }
+    return false;
+    
+}
+
+
 // Global because I hate myself.
 var sample = get_sample();
 
 var container_information = get_containers();
+
+
 
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
@@ -104,7 +139,6 @@ function subtract_quantity() {
     else {
         $("#quantityalert").hide();
         $("#submit").attr("disabled", false);
-
     }
 
 }
@@ -154,6 +188,7 @@ function make_new_form(indx) {
 
     // Start Row
     row_form_html += '<tr id="row_'+indx+'">';
+    row_form_html += '<td style="text-align:center;">'+indx+'</td>'
     row_form_html += '<td>'+generate_container_select()+'</td>'
     if (sample["type"] == "Cell") {
         row_form_html += '<td>'+generate_fixation_select()+'</td>';
@@ -164,7 +199,9 @@ function make_new_form(indx) {
     row_form_html += '<div class="input-group-append">'
     row_form_html += '<div class="input-group-text"><span id="remaining_metric">ERR</span></div>'
     row_form_html += '</div></div>'
-    row_form_html += '<td><input type="text" class="form-control" placeholder="Sample Barcode"></td>'
+    row_form_html += '<td>';
+    row_form_html += '<div id="barcode_alert' + indx + '" class="alert alert-danger" style="display:none;">Already in databsae</div>'
+    row_form_html += '<input type="text" class="form-control barcode" placeholder="Sample Barcode"></td>'
     row_form_html += '<td>'
     row_form_html += '<div id="trash_'+indx+'" class="btn btn-danger windows"><i class="fa fa-trash"></i></div>';
     row_form_html += '</td>'
@@ -190,6 +227,18 @@ function make_new_form(indx) {
         var sanitized = $(this).val().replace(/[^0-9]/g, '');
         // Update value
         $(this).val(sanitized);
+    });
+
+    $(".barcode").change(function() {
+        if (check_barcode($(this).val()) == true ) {
+            $("#barcode_alert"+indx).show();
+            $("#submit").attr("disabled", true);
+        }
+        else {
+            $("#barcode_alert"+indx).hide();
+            $("#submit").attr("disabled", false);
+        }
+        
     });
 }
 

@@ -72,7 +72,7 @@ def sample_home(tokenuser: UserAccount):
     )
 
 
-@api.route("/sample/query", methods=["GET"])
+@api.route("/sample/query", methods=["POST"])
 @use_args(SampleSearchSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
@@ -260,12 +260,6 @@ def sample_new_disposal_instructions(tokenuser: UserAccount):
 
 
 
-'''
-
-    CellContainer,
-    FixationType,
-    FluidContainer,
-'''
 
 @api.route("/sample/containers", methods=["GET"])
 def sample_get_containers():

@@ -56,6 +56,26 @@ def aliquot(uuid: str):
 
     return render_template("sample/sample/aliquot/create.html", form=form)
 
+@sample.route("query", methods=["POST"])
+@login_required
+def query():
+    values = request.get_json()
+
+    if not values:
+        return {"Err": "No values"}
+
+    query_response = requests.post(
+        url_for("api.sample_query", _external=True),
+        headers=get_internal_api_header(),
+        json=values
+    )
+
+    
+    if query_response.status_code == 200:
+        return query_response.json()
+    else:
+        return {"Err": query_response.status_code}
+
 @sample.route("view/<uuid>/derive")
 @login_required
 def derive(uuid: str):
