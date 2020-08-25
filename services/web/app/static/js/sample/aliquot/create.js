@@ -41,6 +41,25 @@ function get_sample() {
 }
 
 function check_barcode(entered_barcode) {
+    // Check all instances of .barcode for duplication...
+
+    var present_barcodes = []
+    var unique = true;
+
+    $(".barcode").each(function() {
+        var barcode = $(this).val();
+        if(jQuery.inArray(barcode, present_barcodes) != -1) {
+            unique = false;
+        }
+
+        present_barcodes.push(barcode);
+    });
+
+
+
+    if (unique == false) {
+        return true;
+    }
 
     var entered_barcode = entered_barcode.replace(/\s/g,'');
 
@@ -178,7 +197,7 @@ function generate_fixation_select() {
         select_html += '<option value="' + fixation_list[i][0] + '">'+fixation_list[i][1] + '</option>'
     }
 
-    // End html
+    // End select
     select_html += '</select>'
     return select_html;
 }
