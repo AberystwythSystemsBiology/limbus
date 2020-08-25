@@ -70,6 +70,11 @@ function limbus_test_entrypoint() {
     docker-compose run --service-ports web sh -c "python3 limbus/test_basic.py"
 }
 
+function limbus_create_test_user() {
+    docker-compose run web sh -c "flask cmd_setup create-testuser"
+
+}
+
 function limbus_setup_dev() {
     echo "WELCOME TO LIMBUS"
     echo "================="
@@ -99,6 +104,9 @@ function limbus_setup_dev() {
 
     echo "Creating Kryten"
     limbus_create_kryten
+
+    echo "Creating dev user"
+
 
     echo "You should now be able to start up your dev environment by running:"
     echo "$ docker-compose up"

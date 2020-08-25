@@ -26,13 +26,10 @@ from ..database import (
 from uuid import uuid4
 
 
+
+
 @cmd_setup.cli.command("create-kryten")
-def create_kryton():
-    """
-
-    :return:
-    """
-
+def create_kryten():
     kryten_ascii = """             _--~~--_
 "Smeee-     |\      /|
  Heeee!"    | \    / |
@@ -60,6 +57,7 @@ def create_kryton():
      UJJ |MMMMMM/\MMMMMM| UJJ
         |\MM"""
 
+
     if (
         UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first()
         is None
@@ -82,9 +80,9 @@ def create_kryton():
         db.session.add(kryten_token)
         db.session.commit()
 
-        print("NOTICE: Kryten created!")
+        print("NOTICE: Kryten created!\n %s" % (kryten_ascii))
     else:
-        print("NOTICE: Kryten already exists...")
+        print("NOTICE: Kryten already exists. Not going to add.")
 
 
 @cmd_setup.cli.command("create-testuser")
@@ -103,14 +101,18 @@ def create_testuser():
     db.session.commit()
     db.session.flush()
 
-    site = SiteInformation(name="Testing Biobank", address_id=address.id, author_id=1)
+    site = SiteInformation(
+        name="Testing Biobank",
+        address_id=address.id,
+        author_id=UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first().id
+        )
 
     db.session.add(site)
     db.session.commit()
     db.session.flush()
 
     me = UserAccount(
-        email="testuser@aberystwythsystemsbiology.co.uk",
+        email="me@domain.com",
         password="password",
         title="MR",
         first_name="Joe",
@@ -123,4 +125,4 @@ def create_testuser():
     db.session.add(me)
     db.session.commit()
 
-    return "Done"
+    print("Created the testing/development user.")
