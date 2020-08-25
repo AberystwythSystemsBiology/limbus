@@ -67,7 +67,7 @@ function limbus_db_upgrade() {
 function limbus_test_entrypoint() {
     docker-compose build
     limbus_yarn_install
-    docker-compose run --service-ports web sh -c "python3 limbus/test_basic.py"
+    docker-compose run --service-ports web sh -c "nose2 -v"
 }
 
 function limbus_create_test_user() {

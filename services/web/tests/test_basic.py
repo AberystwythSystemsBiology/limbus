@@ -13,9 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import unittest
+import os
+import sys
+sys.path.append(os.getcwd())
 from app import create_app
 
+import unittest
 
 class BasicTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -26,7 +29,6 @@ class BasicTests(unittest.TestCase):
     def test_main(self):
         response = self.app.get("/", follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-
 
 if __name__ == "__main__":
     unittest.main()
