@@ -17,4 +17,3 @@ WORKDIR /limbus
 ADD . /limbus
 
 RUN pip3 install wheel && pip3 install -r requirements.txt
-RUN yarn && yarn install
