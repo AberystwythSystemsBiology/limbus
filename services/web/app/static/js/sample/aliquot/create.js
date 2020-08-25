@@ -1,4 +1,3 @@
-
 function get_containers() {
 
     var json = (function () {
@@ -40,32 +39,31 @@ function get_sample() {
     return json["content"];
 }
 
-function check_barcode(entered_barcode) {
-    // Check all instances of .barcode for duplication...
-
+function check_barcode_form() {
     var present_barcodes = []
-    var unique = true;
+    var fail = false;
 
     $(".barcode").each(function() {
         var barcode = $(this).val();
-        if(jQuery.inArray(barcode, present_barcodes) != -1) {
-            unique = false;
-        }
+        if (barcode != "") {
+            if(jQuery.inArray(barcode, present_barcodes) != -1) {
+                fail = true;
+            }
 
-        present_barcodes.push(barcode);
+            present_barcodes.push(barcode);
+        }
+        
     });
 
+    return fail;
+}
 
+function remove_whitespace(v) { 
+    return v.replace(/\s/g,'');
 
-    if (unique == false) {
-        return true;
-    }
+}
 
-    var entered_barcode = entered_barcode.replace(/\s/g,'');
-
-    if (entered_barcode == "") {
-        return false;
-    }
+function check_barcode_database(entered_barcode) {
 
     var json = (function () {
         var json = null;
@@ -96,8 +94,6 @@ function check_barcode(entered_barcode) {
 var sample = get_sample();
 
 var container_information = get_containers();
-
-
 
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
@@ -181,7 +177,6 @@ function generate_container_select() {
     // End html
     select_html += '</select>'
     return select_html;
-    
 }
 
 
@@ -207,19 +202,16 @@ function make_new_form(indx) {
 
     // Start Row
     row_form_html += '<tr id="row_'+indx+'">';
-    row_form_html += '<td style="text-align:center;">'+indx+'</td>'
+    // Container
     row_form_html += '<td>'+generate_container_select()+'</td>'
     if (sample["type"] == "Cell") {
         row_form_html += '<td>'+generate_fixation_select()+'</td>';
     }
+    // Volume start
     row_form_html += '<td>';
-    row_form_html += '<div class="input-group mb-2">'
     row_form_html += '<input type="number" class="form-control aliquotted-quantity" step="0.01" min="0.0" value="0.0"></td>'
-    row_form_html += '<div class="input-group-append">'
-    row_form_html += '<div class="input-group-text"><span id="remaining_metric">ERR</span></div>'
-    row_form_html += '</div></div>'
+    // Volume end
     row_form_html += '<td>';
-    row_form_html += '<div id="barcode_alert' + indx + '" class="alert alert-danger" style="display:none;">Already in databsae</div>'
     row_form_html += '<input type="text" class="form-control barcode" placeholder="Sample Barcode"></td>'
     row_form_html += '<td>'
     row_form_html += '<div id="trash_'+indx+'" class="btn btn-danger windows"><i class="fa fa-trash"></i></div>';
@@ -249,14 +241,32 @@ function make_new_form(indx) {
     });
 
     $(".barcode").change(function() {
-        if (check_barcode($(this).val()) == true ) {
-            $("#barcode_alert"+indx).show();
+        $(this).val(remove_whitespace($(this).val()));
+        // If the barcode is in the database
+        
+        if ($(this).val() != "") {
+            if (check_barcode_database($(this).val()) == true ) {
+                $("#submit").attr("disabled", true);
+                $("#database_error").show();
+            }
+            else {
+                $("#submit").attr("disabled", false);
+                $("#database_error").hide();
+
+            }
+        }
+
+        if (check_barcode_form()) {
             $("#submit").attr("disabled", true);
+            $("#duplicate_barcode").show();
         }
+
         else {
-            $("#barcode_alert"+indx).hide();
             $("#submit").attr("disabled", false);
+            $("#duplicate_barcode").hide();
         }
+        
+
         
     });
 }
