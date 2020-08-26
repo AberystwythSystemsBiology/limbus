@@ -64,7 +64,7 @@ function render_table(query) {
                     col_data += "</a>";
                     if (data["source"] != "New") {
 
-                    col_data += '</br><small class="text-muted">Parent: ';
+                    col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
                     col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
                     col_data += '<i class="fas fa-vial"></i> ';
                     col_data += data["parent"]["uuid"],

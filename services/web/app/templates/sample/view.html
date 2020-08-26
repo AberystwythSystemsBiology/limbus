@@ -17,35 +17,50 @@
     </div>
 
 
-
     <div id="content" class="container" style="display: none;">
         
         <h1><span class="secondary-heading">
             <a href="{{ url_for('sample.index') }}">
                     <i class="fas fa-vial"></i> Sample Portal
             </a></span> <span id="uuid"></span></h1>
+            <h4 id="parent_div" style="display: none; margin-top:-5px;" class="text-muted"> Parent Sample: <span id="parent"></span></h4>
+            
 
-            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i class="fa fa-question"></i> View Consent</button>
-                </div>
-                
-                <div class="btn-btn-group mr-2" role="group">
-                <div class="dropdown">
-                  <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-vial"></i> Sample Actions
-                  </button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i class="fas fa-vial"></i>Aliquot</a>
-                    <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
-
+            <div class="row text-muted">
+              <div class="col-7">
+                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                  <div class="btn-group mr-2" role="group" aria-label="First group">
+                      <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i class="fa fa-question"></i> View Consent</button>
+                  </div>
+                  
+                  <div class="btn-btn-group mr-2" role="group">
+                  <div class="dropdown">
+                    <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-vial"></i> Sample Actions
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i class="fas fa-vial"></i>Aliquot</a>
+                      <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
+                      </div>
                   </div>
                 </div>
+  
+  
+  
+             </div>                          
               </div>
+              <div class="col-5 text-right">
+                  
+                  <div class="clearfix"></div>
+                  <i class="fa fa-calendar"></i> Created On: <span id="created_on"></span>
+                  <div class="clearfix"></div>
+                  <i class="fa fa-user"></i> Created By: <span id="created_by"></span>
+              </div>
+  
+          </div>
+  
 
 
-
-           </div>
         
         <div class="row">
             <div class="col-9">
@@ -57,6 +72,9 @@
                 <div id="processing_information"></div>
                 <h2>Document Information</h2>
                 <div id="document_information"></div>
+                <h2>Lineage</h2>
+
+                <h2>Comments</h2>
 
             </div>
             <div class="col-3 text-center">

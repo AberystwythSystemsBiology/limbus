@@ -34,11 +34,27 @@ function render_content(label, content) {
      
 }
 
-function fill_title(uuid) {
-    var html = "";
-    html += '<span class="colour-circle bg-primary"></span>'
-    html += uuid
-    $("#uuid").html(html);
+function fill_title(sample) {
+
+    var author_information = sample["author"];
+    var title_html = '<span class="colour-circle bg-primary"></span>'
+    title_html += sample["uuid"]
+    $("#uuid").html(title_html);
+    var author_html = ""+author_information["first_name"]+" "+author_information["last_name"]
+    $("#created_by").html(author_html);
+    $("#created_on").html(sample["created_on"]);
+
+    if ( sample["source"] != "New" ) {
+        var parent_html = '';
+        parent_html += '<a href="'+sample["parent"]["_links"]["self"]+'" target="_blank">'
+        parent_html += '<i class="fas fa-vial"></i> ';
+        parent_html += sample["parent"]["uuid"]
+        parent_html += '</a>'
+        $("#parent").html(parent_html);
+        $("#parent_div").show();
+    }
+
+   
 }
 
 
@@ -153,7 +169,7 @@ $(document).ready(function() {
     $("#loading-screen").fadeOut();
     get_barcode("qrcode");
 
-    fill_title(sample_info["uuid"]);
+    fill_title(sample_info);
     fill_basic_information(sample_info);
     fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
     fill_collection_information(sample_info["collection_information"]);
