@@ -287,6 +287,8 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
     
+    subsamples = ma.Nested(BasicSampleSchema, many=True)
+
     created_on = ma.Date()
 
     _links = ma.Hyperlinks({

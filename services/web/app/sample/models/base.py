@@ -97,6 +97,13 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
     is_closed = db.Column(db.Boolean, default=False)
 
+    subsamples = db.relationship(
+        "Sample",
+        secondary="subsampletosample",
+        primaryjoin="Sample.id==SubSampleToSample.parent_id",
+        secondaryjoin="Sample.id==SubSampleToSample.subsample_id"
+    )
+
 
 
 
@@ -104,15 +111,9 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
-    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
+    subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
 
-    parent = db.relationship(
-        "Sample", primaryjoin="SubSampleToSample.parent_id==Sample.id", uselist=False
-    )
-    subsamples = db.relationship(
-        "Sample", primaryjoin="SubSampleToSample.subsample_id==Sample.id", uselist=True
-    )
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
