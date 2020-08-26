@@ -73,11 +73,12 @@ def sample_home(tokenuser: UserAccount):
     )
 
 
-@api.route("/sample/query", methods=["POST"])
+@api.route("/sample/query", methods=["GET"])
 @use_args(SampleSearchSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
+
 
     return success_with_content_response(
         basic_samples_schema.dump(

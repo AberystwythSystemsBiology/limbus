@@ -7,14 +7,22 @@
 
     <div class="row">
 
-        <div class="filter-panel col-3">
+        <div class="col-3">
             <h3>Filters</h3>
-            {{ form_field(form.uuid) }}
             {{ form_field(form.barcode) }}
             {{ form_field(form.biohazard_level) }}
-            {{ form_field(form.sample_type) }}
+            {{ form_field(form.type) }}
+            {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
-            {{ form_field(form.submit) }}
+
+            <div class="row">
+                <div class="col-6">
+                    <button id="reset" class="btn btn-outline-dark full-width">Reset Table</button>
+                </div>
+                <div class="col-6">
+                    <button id="filter" class="btn btn-success full-width">Apply Filter</button>
+                </div>
+            </div>
 
         </div>
         <div class="col-9">
@@ -33,34 +41,32 @@
                 </div>
             </span>
 
+            <div id="loading" class="text-center">
+                <div class="loading">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;" >
+                      <span class="sr-only">Loading...</span>
+                    </div>
+                  </div>
+        
+                  <h1>Just a sec...</h1>
+                  </div>
+            </div>
+
+            <div id="table_view" style="display:none;">
+
             <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
                 <thead>
                     <tr>
                         <th>Identifier</th>
                         <th>Type</th>
                         <th>Quantity</th>
-                        <th>Collection Date</th>
-                        <th>Creator</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for sample in samples %}
-                    <tr>
-                        <td>
-                            {{ render_colour(sample.colour) }}
-                            <a href="{{url_for('sample.view', uuid=sample.uuid) }}">
-                                <i class="fas fa-vial"></i> {{ sample.uuid }}
-                            </a>
-                        </td>
-                        <td>{{ sample.type }}</td>
-                        <td>{{ render_quantity(sample.quantity, sample.type) }}</td>
-                        <td>{{ sample.collection_information.datetime }}</td>
-                        <td>{{ render_author_for_table(sample.author) }}</td>
-
-                    </tr>
-                    {% endfor %}
                 </tbody>
             </table>
+        </div>
         </div>
     </div>
 </div>

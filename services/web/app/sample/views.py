@@ -222,6 +222,10 @@ class SampleSearchSchema(masql.SQLAlchemySchema):
         model = Sample
 
     barcode = masql.auto_field()
+    colour = masql.auto_field()
+    type = masql.auto_field()
+    biohazard_level = masql.auto_field()
+    source = masql.auto_field()
 
 
 
@@ -239,20 +243,36 @@ class NewSampleReviewSchema(masql.SQLAlchemySchema):
 new_sample_review_schema = NewSampleReviewSchema()
 
 
+class SampleUUIDSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    uuid = masql.auto_field(required=False)
+
+    _links = ma.Hyperlinks({
+        "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)
+        }
+    )
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
 
     id = masql.auto_field()
-    uuid = masql.auto_field()
+    uuid = masql.auto_field(required=False)
     type = EnumField(SampleType, by_value=True)
     quantity = masql.auto_field()
+    remaining_quantity = masql.auto_field()
+
     colour = EnumField(Colour, by_value=True)
-    author = ma.Nested(BasicUserAccountSchema)
     source = EnumField(SampleSource, by_value=True)
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
     created_on = ma.Date()
+    parent = ma.Nested(SampleUUIDSchema, many=False)
+
+    _links = ma.Hyperlinks({
+        "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+        "collection": ma.URLFor("sample.index", _external=True)}
+    )
 
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
@@ -287,6 +307,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
     
+    parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
 
     created_on = ma.Date()

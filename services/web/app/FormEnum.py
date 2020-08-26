@@ -18,8 +18,11 @@ from enum import Enum
 
 class FormEnum(Enum):
     @classmethod
-    def choices(cls):
-        return [(choice.name, str(choice)) for choice in cls]
+    def choices(cls, with_none=False):
+        c = [(choice.name, str(choice)) for choice in cls]
+        if with_none:
+            c.insert(0, (None, "None"))
+        return c
 
     def __str__(self):
         return str(self.value)

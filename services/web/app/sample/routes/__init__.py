@@ -27,16 +27,24 @@ import requests
 @sample.route("/")
 @login_required
 def index() -> str:
+    form = SampleFilterForm()
 
+    return render_template("sample/index.html", form=form)
+
+@sample.route("/query", methods=["POST"])
+@login_required
+def query_index():
     response = requests.get(
-        url_for("api.sample_home", _external=True), headers=get_internal_api_header()
+        url_for("api.sample_query", _external=True),
+        headers=get_internal_api_header(),
+        json = request.json
     )
 
     if response.status_code == 200:
-        form = SampleFilterForm()
-        return render_template("sample/index.html", samples=response.json()["content"], form=form)
+        return response.json()
     else:
-        return abort(response.status_code)
+        abort(response.status_code)
+
 
 
 @sample.route("/biohazard_information")

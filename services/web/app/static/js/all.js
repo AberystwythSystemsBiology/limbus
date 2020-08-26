@@ -13,10 +13,16 @@ function get_metric(type) {
 }
 
 
+
+
 $(document).ready(function(){
   $('.toast').toast('show');
 
   $('#history').DataTable( {
 });
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
 
 });

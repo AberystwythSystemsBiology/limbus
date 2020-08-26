@@ -105,6 +105,14 @@ class Sample(Base, RefAuthorMixin, RefEditorMixin):
     )
 
 
+    parent = db.relationship(
+        "Sample",
+        secondary="subsampletosample",
+        primaryjoin="Sample.id==SubSampleToSample.subsample_id",
+        secondaryjoin="Sample.id==SubSampleToSample.parent_id",
+        uselist=False
+    )
+
 
 
     # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")

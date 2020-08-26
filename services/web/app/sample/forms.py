@@ -49,16 +49,16 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
 
 
 class SampleFilterForm(FlaskForm):
+
     biohazard_level = SelectField(
         "Biohazard Level",
-        choices=BiohazardLevel.choices(),
-        description="BSL category for the sample.",
-    )
+        choices=BiohazardLevel.choices(with_none=True)    )
 
     uuid = StringField("UUID")
     barcode = StringField("Barcode")
-    sample_type = SelectField("Sample Type", choices=SampleType.choices())
-    source = SelectField("Sample Source", choices=SampleSource.choices())
+    colour = SelectField("Colour", choices=Colour.choices(with_none=True))
+    type = SelectField("Sample Type", choices=SampleType.choices(with_none=True))
+    source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
     submit = SubmitField("Filter")
 
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
