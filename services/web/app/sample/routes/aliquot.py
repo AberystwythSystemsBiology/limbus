@@ -25,7 +25,7 @@ from ..forms import SampleAliquotingForm
 from ...misc import get_internal_api_header
 
 
-@sample.route("view/<uuid>/aliquot", methods=["GET", "POST"])
+@sample.route("<uuid>/aliquot", methods=["GET", "POST"])
 @login_required
 def aliquot(uuid: str):
     # An aliquot creates a specimen from the same type as the parent.
@@ -76,7 +76,26 @@ def query():
     else:
         return {"Err": query_response.status_code}
 
-@sample.route("view/<uuid>/derive")
+@sample.route("<uuid>/aliquot/endpoint", methods=["POST"])
+@login_required
+def aliquot_endpoint(uuid: str):
+    values = request.get_json()
+
+    if not values:
+        return {"Err": "No values"}
+
+    aliquot_response = requests.post(
+        url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+        json=values
+    )
+    
+    if aliquot_response.status_code == 200:
+        return aliquot_response.json()
+    else:
+        return {"Err": aliquot_response.status_code}
+
+@sample.route("<uuid>/derive")
 @login_required
 def derive(uuid: str):
     # A derivative creates a different specimen type from the parent.

@@ -15,7 +15,7 @@
 
 
 from flask import request, abort
-
+from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
 
 from ..api import api
@@ -32,7 +32,8 @@ from ..database import (
     SampleProtocolEvent,
     SampleDisposal,
     SampleToContainer,
-    SampleToType
+    SampleToType,
+    SubSampleToSample
 )
 
 from .views import (
@@ -325,3 +326,57 @@ def sample_new_sample_consent(tokenuser: UserAccount):
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     )
 
+
+@api.route("/sample/<uuid>/aliquot", methods=["POST"])
+@token_required
+def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    for i in ["aliquot_date", "aliquot_time", "aliquots", "comments", "parent_id", "processed_by", "processing_protocol_id"]:
+        try:
+            values[i]
+        except KeyError as err:
+            transaction_error_response(err)
+
+
+    to_remove = sum([abs(float(a["volume"])) for a in values["aliquots"]])
+
+    sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+
+    if sample.remaining_quantity < to_remove:
+        return "Total amount is greater than remaining", 400
+
+    for aliquot in values["aliquots"]:
+        sample_cpy = Sample.query.filter_by(uuid=uuid).first_or_404()
+        
+        make_transient(sample_cpy)
+
+        sample_cpy.uuid = None
+        sample_cpy.id = None
+        sample_cpy.barcode = aliquot["barcode"]
+        sample_cpy.quantity = aliquot["volume"]
+        sample_cpy.remaining_quantity = aliquot["volume"]
+        sample_cpy.author_id = tokenuser.id
+        sample_cpy.source = "ALI"
+
+        db.session.add(sample_cpy)
+        db.session.flush()
+
+
+        ssts = SubSampleToSample(
+            parent_id = sample.id,
+            subsample_id = sample_cpy.id
+        )
+
+        db.session.add(ssts)
+        db.session.commit()
+
+
+    sample.remaining_quantity = sample.remaining_quantity - to_remove
+    db.session.add(sample)
+    db.session.commit()
+
+    return success_with_content_response(values)

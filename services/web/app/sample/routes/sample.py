@@ -21,12 +21,12 @@ from flask_login import login_required
 import requests
 from ...misc import get_internal_api_header
 
-@sample.route("view/<uuid>", methods=["GET"])
+@sample.route("<uuid>", methods=["GET"])
 @login_required
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
-@sample.route("view/<uuid>/data", methods=["GET"])
+@sample.route("<uuid>/data", methods=["GET"])
 @login_required
 def view_data(uuid: str):
     sample_response = requests.get(
@@ -38,13 +38,14 @@ def view_data(uuid: str):
         return sample_response.json()
     return sample_response.content
 
-@sample.route("view/<uuid>/barcode/<t>")
+@sample.route("<uuid>/barcode/<t>")
 @login_required
 def view_barcode(uuid: str, t: str):
     barcode_response = requests.get(
         url_for("api.misc_generate_barcode", t=t, i=uuid, _external=True),
         headers=get_internal_api_header()
     )
+    
 
     return barcode_response.content
     

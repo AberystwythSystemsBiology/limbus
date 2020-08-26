@@ -53,6 +53,9 @@ from .enums import (
 )
 
 
+import requests
+from flask import url_for
+from ..misc import get_internal_api_header
 
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -235,6 +238,8 @@ class NewSampleReviewSchema(masql.SQLAlchemySchema):
 
 new_sample_review_schema = NewSampleReviewSchema()
 
+
+
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -255,6 +260,8 @@ basic_samples_schema = BasicSampleSchema(many=True)
 class SampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
+
+    id = masql.auto_field()
 
     uuid = masql.auto_field()
     type = EnumField(SampleType, by_value=True)
@@ -282,10 +289,11 @@ class SampleSchema(masql.SQLAlchemySchema):
     
     created_on = ma.Date()
 
-    _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+    _links = ma.Hyperlinks({
+        "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
         "collection": ma.URLFor("sample.index", _external=True),
-        "webapp_query": ma.URLFor("sample.query", _external=True)}
-    )
+        "webapp_query": ma.URLFor("sample.query", _external=True),
+        "webapp_aliquot": ma.URLFor("sample.aliquot_endpoint", uuid="<uuid>", _external=True)
+        })
 
 sample_schema = SampleSchema()

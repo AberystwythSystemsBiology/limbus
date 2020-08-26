@@ -44,12 +44,12 @@ function check_barcode_form() {
     var fail = false;
 
     $(".barcode").each(function() {
+        console.log(present_barcodes);
         var barcode = $(this).val();
         if (barcode != "") {
             if(jQuery.inArray(barcode, present_barcodes) != -1) {
                 fail = true;
             }
-
             present_barcodes.push(barcode);
         }
         
@@ -92,8 +92,8 @@ function check_barcode_database(entered_barcode) {
 
 // Global because I hate myself.
 var sample = get_sample();
-
 var container_information = get_containers();
+var indexes = [];
 
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
@@ -148,6 +148,7 @@ function subtract_quantity() {
 
     if ((remaining_quantity - quantities) < 0) {
         $("#quantityalert").show();
+
         $("#submit").attr("disabled", true);
     }
 
@@ -162,13 +163,13 @@ function update_number() {
     $("#total_aliquots").html($("#aliquoted_sample_table > tbody tr").length);
 }
 
-function generate_container_select() {
+function generate_container_select(indx) {
     var containers = container_information[sample["type"]]
 
     var containers_list = containers["container"];
 
     // Start select
-    var select_html = '<select class="form-control" data-live-search=true>'
+    var select_html = '<select class="form-control" data-live-search=true id="container_select_'+indx+'">';
 
     for (i in containers_list) { 
         select_html += '<option value="' + containers_list[i][0] + '">'+containers_list[i][1] + '</option>'
@@ -203,16 +204,17 @@ function make_new_form(indx) {
     // Start Row
     row_form_html += '<tr id="row_'+indx+'">';
     // Container
-    row_form_html += '<td>'+generate_container_select()+'</td>'
+    row_form_html += '<td>'+generate_container_select(indx)+'</td>'
     if (sample["type"] == "Cell") {
         row_form_html += '<td>'+generate_fixation_select()+'</td>';
     }
     // Volume start
     row_form_html += '<td>';
-    row_form_html += '<input type="number" class="form-control aliquotted-quantity" step="0.01" min="0.0" value="0.0"></td>'
+    row_form_html += '<input id="volume_'+indx+'" type="number" class="form-control aliquotted-quantity" step="0.05" min="0.01" value="0.01">'
+    row_form_html += '</td>';
     // Volume end
     row_form_html += '<td>';
-    row_form_html += '<input type="text" class="form-control barcode" placeholder="Sample Barcode"></td>'
+    row_form_html += '<input id="barcode_'+indx+'" type="text" class="form-control barcode" placeholder="Sample Barcode"></td>'
     row_form_html += '<td>'
     row_form_html += '<div id="trash_'+indx+'" class="btn btn-danger windows"><i class="fa fa-trash"></i></div>';
     row_form_html += '</td>'
@@ -221,6 +223,7 @@ function make_new_form(indx) {
 
     $("#aliquoted_sample_table > tbody:last-child").append(row_form_html);
     update_number();
+    indexes.push(indx);
 
     // Because Windows is trash.
     $(".windows").click(function() {
@@ -256,7 +259,7 @@ function make_new_form(indx) {
             }
         }
 
-        if (check_barcode_form()) {
+        if (check_barcode_form() == true) {
             $("#submit").attr("disabled", true);
             $("#duplicate_barcode").show();
         }
@@ -273,7 +276,56 @@ function make_new_form(indx) {
 
 function remove_row(indx) {
     $("#row_"+indx).remove();
+    indexes.splice( $.inArray(indx, indexes), 1 );
     update_number();
+
+}
+
+function preprate_data() {
+
+    var a = [];
+
+    indexes.forEach(function(i) {
+
+        var aliquot = {
+            container: $("#container_select_"+i).val(),
+            volume: $("#volume_"+i).val(),
+            barcode: $("#barcode_"+i).val()
+
+        }
+
+        a.push(aliquot);
+
+    });
+
+    var data = {
+        processing_protocol: $("#processing_protocol").val(),
+        processed_by: $("#processed_by").val(),
+        aliquot_date: $("#aliquot_date").val(),
+        aliquot_time: $("#aliquot_time").val(),
+        parent_id: sample["id"],
+        comments: $("#comments").val(),
+        aliquots: a
+
+    }
+
+
+    var json = (function () {
+        var json = null;
+        $.post({
+            'async': false,
+            'global': false,
+            'url': sample["_links"]["webapp_aliquot"],
+            'contentType': 'application/json',
+            'data': JSON.stringify(data),
+            'success': function (data) {
+                json = data;
+            }
+        });
+        return json;
+    })();
+
+    console.log(json);
 
 }
 
@@ -282,7 +334,6 @@ $(document).ready(function () {
     update_graph();
 
     var indx = 1;
-
     make_new_form(indx);
 
     $("[name=new]").click(function(){ 
@@ -290,6 +341,10 @@ $(document).ready(function () {
         make_new_form(indx);
     });
 
+
+    $("#submit").click(function() {
+        preprate_data();
+    });
 
 
 
