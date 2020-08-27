@@ -95,5 +95,4 @@ class UserAccountToken(Base):
         self.token_hash = generate_password_hash(token)
 
     def verify_token(self, token) -> bool:
-        return True
-        # return check_password_hash(self.token_hash, token)
+        return check_password_hash(self.token_hash, token)
