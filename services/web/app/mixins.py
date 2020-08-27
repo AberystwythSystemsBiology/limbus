@@ -39,3 +39,11 @@ class RefEditorMixin(object):
         return db.relationship(
             "UserAccount", primaryjoin="UserAccount.id==%s.editor_id" % cls.__name__
         )
+
+def generate_uuid() -> str:
+    return str(uuid.uuid4())
+
+class UniqueIdentifierMixin(object):
+    @declared_attr
+    def uuid(cls);
+        return db.Column(db.String(36), default=generate_uuid, nullable=False, unique=True)

@@ -31,7 +31,6 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationErro
 import pycountry
 from ..setup.forms import post_code_validator
 
-from .models import FixedColdStorageTemps, FixedColdStorageType
 
 
 class RoomRegistrationForm(FlaskForm):

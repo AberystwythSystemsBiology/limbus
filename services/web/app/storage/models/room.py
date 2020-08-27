@@ -13,25 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
 
-
-class Room(db.Model):
-    __tablename__ = "rooms"
-    id = db.Column(db.Integer, primary_key=True)
-
-    room_number = db.Column(db.String(256), nullable=False)
+class Room(Base, RefAuthorMixin, RefEditorMixin):
+    number = db.Column(db.String(5))
+    name = db.Column(db.String(5))
     building = db.Column(db.String(128))
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    site = db.relationship("SiteInformation", uselist=False)
 
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
 
-    site_id = db.Column(db.Integer, db.ForeignKey("sites.id"))
-
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))

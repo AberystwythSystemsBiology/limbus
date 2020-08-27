@@ -27,12 +27,10 @@ from ..enums import (
 import uuid
 
 
-def generate_uuid() -> str:
-    return str(uuid.uuid4())
 
-class Sample(Base, RefAuthorMixin, RefEditorMixin):
 
-    uuid = db.Column(db.String(36), default=generate_uuid, nullable=False, unique=True)
+class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+
 
     barcode = db.Column(db.Text)
 

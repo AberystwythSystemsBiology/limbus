@@ -13,27 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
-
-class CryovialBox(db.Model):
-    __tablename__ = "cryovial_boxes"
-    id = db.Column(db.Integer, primary_key=True)
-
-    serial = db.Column(db.String)
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-
-    removed = db.Column(db.Boolean)
-
+class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+    description = db.Column(db.Text)
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
-
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))

@@ -13,31 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
-
-class FixedColdStorageShelf(db.Model):
-    __versioned__ = {}
-    __tablename__ = "fixed_cold_storage_shelves"
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     name = db.Column(db.String, nullable=False)
-
-    uuid = db.Column(db.String(36))
-    description = db.Column(db.String(64))
-
-    # For ordering :)
+    description = db.Column(db.Text)
     z_index = db.Column(db.Integer)
-
-    storage_id = db.Column(db.Integer, db.ForeignKey("fixed_cold_storage.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
+    storage = db.relationship("ColdStorage")
