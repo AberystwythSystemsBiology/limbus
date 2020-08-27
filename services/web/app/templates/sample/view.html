@@ -70,11 +70,37 @@
                 <div id="collection_information"></div>
                 <h2>Processing Information</h2>
                 <div id="processing_information"></div>
-                <h2>Document Information</h2>
-                <div id="document_information"></div>
-                <h2>Lineage</h2>
+                <h2>Associated Documents</h2>
+                <table id="documentTable" class="table table-striped table-bordered" style="width:100%">
+                  <thead>
+                      <tr>
+                          <th>Document</th>
+                          <th>Type</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+              </table>
 
                 <h2>Comments</h2>
+                <blockquote class="jumbotron blockquote">
+                  <p class="mb-0" id="comments">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+                </blockquote>
+                <h2>Lineage</h2>
+
+                <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
+                  <thead>
+                      <tr>
+                          <th>Identifier</th>
+                          <th>Type</th>
+                          <th>Quantity</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+              </table>
 
             </div>
             <div class="col-3 text-center">
@@ -140,7 +166,7 @@
                 </ul>
                 <div class="card-footer">
                     <label>Comments</label>
-                    <p><span id="consent_comments"></span></p>
+
                     <label>Date Signed</label>
                     <p><span id="consent_date_signed"></span></p>
                 </div>
