@@ -56,7 +56,7 @@ def document_home(tokenuser: UserAccount):
     )
 
 
-@api.route("/document/<id>")
+@api.route("/document/LIMBDOC-<id>")
 @token_required
 def document_view_document(id: int, tokenuser: UserAccount):
     return success_with_content_response(

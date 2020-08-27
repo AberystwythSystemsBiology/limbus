@@ -15,13 +15,14 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
+from ..enums import EntityToStorageType
+
 
 from .room import *
 from .lts import *
 from .shelf import *
-from .cryobox import *
+from .rack import *
 
-from ..enums import EntityToStorageType
 
 
 class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):

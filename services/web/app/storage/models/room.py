@@ -22,5 +22,3 @@ class Room(Base, RefAuthorMixin, RefEditorMixin):
     building = db.Column(db.String(128))
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     site = db.relationship("SiteInformation", uselist=False)
-
-

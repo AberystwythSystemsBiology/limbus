@@ -13,8 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .site import *
 from .room import *
-from .lts import *
-from .shelf import *
-from .cryobox import *
+#from .lts import *
+#from .shelf import *
+#from .cryobox import *

@@ -28,6 +28,7 @@ from ..protocol.api import *
 from ..attribute.api import *
 from ..sample.api import *
 from ..tmpstore.api import *
+from ..storage.api import *
 
 
 from .responses import *
