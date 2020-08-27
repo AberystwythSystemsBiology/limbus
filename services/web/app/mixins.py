@@ -45,5 +45,5 @@ def generate_uuid() -> str:
 
 class UniqueIdentifierMixin(object):
     @declared_attr
-    def uuid(cls);
+    def uuid(cls):
         return db.Column(db.String(36), default=generate_uuid, nullable=False, unique=True)

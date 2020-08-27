@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin
+from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import (
     SampleType,
     SampleStatus,

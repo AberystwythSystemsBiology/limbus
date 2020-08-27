@@ -35,5 +35,6 @@ from .document.models import *
 from .protocol.models import *
 from .sample.models import *
 from .tmpstore.models import *
+from .storage.models import *
 
 configure_mappers()
