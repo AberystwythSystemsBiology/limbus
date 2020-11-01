@@ -25,23 +25,25 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from ... import db
+#from ... import db
 from .. import storage
 
 from ..forms import LongTermColdStorageForm, NewShelfForm
-from ..models import FixedColdStorageShelf, FixedColdStorage
+#from ..models import FixedColdStorageShelf, FixedColdStorage
 
 from uuid import uuid4
 
-from ..views import LTSView, BasicLTSView
+#from ..views import LTSView, BasicLTSView
 
 
 @storage.route("/lts/LIMBLTS-<lts_id>", methods=["GET"])
 @login_required
 def view_lts(lts_id: int):
-    lts = LTSView(lts_id)
-    return render_template("/storage/lts/view.html", lts=lts)
+    #lts = LTSView(lts_id)
+    return render_template("/storage/lts/view.html", lts=None)
 
+
+'''
 
 @storage.route("/lts/LIMBLTS-<lts_id>/add_shelf", methods=["GET", "POST"])
 @login_required
@@ -98,3 +100,5 @@ def edit_lts(lts_id):
     form.type.data = lts["type"]
 
     return render_template("storage/lts/edit.html", lts=lts, form=form)
+
+'''

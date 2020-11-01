@@ -17,7 +17,7 @@ from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 from ..enums import EntityToStorageType
 
-
+from .building import *
 from .room import *
 from .lts import *
 from .shelf import *

@@ -15,6 +15,7 @@
 
 from sqlalchemy.ext.declarative import declared_attr
 from .database import db
+from uuid import uuid4
 
 
 class RefAuthorMixin(object):
@@ -41,7 +42,7 @@ class RefEditorMixin(object):
         )
 
 def generate_uuid() -> str:
-    return str(uuid.uuid4())
+    return str(uuid4())
 
 class UniqueIdentifierMixin(object):
     @declared_attr

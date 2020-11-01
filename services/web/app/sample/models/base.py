@@ -24,11 +24,6 @@ from ..enums import (
     BiohazardLevel,
 )
 
-import uuid
-
-
-
-
 class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 

@@ -14,6 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .room import *
+from .building import *
+
 #from .lts import *
 #from .shelf import *
 #from .cryobox import *

@@ -16,7 +16,11 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
+from ...sample.enums import Colour
+
 class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+    serial_number = db.Column(db.String(256))
     description = db.Column(db.Text)
+    colour = db.Column(db.Enum(Colour))
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)

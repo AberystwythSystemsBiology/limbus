@@ -19,6 +19,6 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text)
-    z_index = db.Column(db.Integer)
+    z = db.Column(db.Integer)
     storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
     storage = db.relationship("ColdStorage")

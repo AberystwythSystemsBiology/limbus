@@ -13,11 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
+from .. import storage
+from flask_login import current_user, login_required
 
-
-class Room(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
-    name = db.Column(db.String(128))
-    building_id = db.Column(db.Integer, db.ForeignKey("building.id"))
-    building = db.relationship("Building", uselist=False)
+@storage.route("/building")
+@login_required
+def building_index():
+    pass

@@ -13,44 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-from ...database import Room
+from ...database import Building
 
 from ...auth.views import BasicUserAccountSchema
 
 
-class BasicRoomSchema(masql.SQLAlchemySchema):
+class BasicBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = Room
+        model = Building
     
     name = masql.auto_field()
 
-basic_room_schema = BasicRoomSchema()
-basic_rooms_schema = BasicRoomSchema(many=True)
+basic_building_schema = BasicBuildingSchema()
+basic_buildings_schema = BasicBuildingSchema(many=True)
 
 
-class RoomSchema(masql.SQLAlchemySchema):
+class NewBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = Room
-
-    id = masql.auto_field()
-    name = masql.auto_field()
-    building = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
-
-room_schema = RoomSchema()
-rooms_schema = RoomSchema(many=True)
-
-class NewRoomSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Room
+        model = Building
 
     name = masql.auto_field()
-    building_id = masql.auto_field()
+    site_id = masql.auto_field()
 
-new_room_schema = NewRoomSchema()
-
-
+new_building_schema = NewBuildingSchema()
