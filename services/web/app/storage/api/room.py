@@ -28,8 +28,6 @@ from ..views import (
     basic_rooms_schema
 )
 
-
-
 @api.route("/storage/room")
 @token_required
 def storage_room_home(tokenuser: UserAccount):
@@ -37,10 +35,12 @@ def storage_room_home(tokenuser: UserAccount):
         basic_rooms_schema.dump(Room.query.all())
     )
 
-@api.route("/storage/room/new")
+@api.route("/storage/room/new/LIMBUILD-<building_id>")
 @token_required
-def storage_new_room(tokenuser: UserAccount):
+def storage_new_room(building_id, tokenuser: UserAccount):
     room = request.get_json()
 
     if not values:
         return no_values_response()
+
+    

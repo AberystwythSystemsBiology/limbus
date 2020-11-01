@@ -48,7 +48,7 @@ def storage_building_view(id, tokenuser: UserAccount):
         basic_building_schema.dump(Building.query.filter_by(id=id).first_or_404())
     )
 
-@api.route("/storage/building/new/LIMBST-<site_id>", methods=["POST"])
+@api.route("/storage/building/new/LIMBSIT-<site_id>", methods=["POST"])
 @token_required
 def storage_building_new(site_id, tokenuser: UserAccount):
     values = request.get_json()
