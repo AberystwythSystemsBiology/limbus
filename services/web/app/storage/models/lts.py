@@ -23,7 +23,7 @@ class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     comments = db.Column(db.Text)
     temp = db.Column(db.Enum(FixedColdStorageTemps))
     type = db.Column(db.Enum(FixedColdStorageType))
-    room_id = db.Column(db.Integer, db.ForeignKey("rooms.id"))
+    room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
 
     documents = db.relationship("Document", secondary="documenttocoldstorage")
 

@@ -15,9 +15,6 @@
 
 from flask import request, current_app, jsonify, send_file
 
-
-from flask import request, current_app, jsonify, send_file
-
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
