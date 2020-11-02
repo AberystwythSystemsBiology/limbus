@@ -32,6 +32,7 @@ from .misc.models import *
 from .attribute.models import *
 from .consent.models import *
 from .document.models import *
+from .donor.models import *
 from .protocol.models import *
 from .sample.models import *
 from .tmpstore.models import *

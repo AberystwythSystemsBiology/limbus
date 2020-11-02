@@ -27,6 +27,7 @@ from .misc import misc as misc_blueprint
 from .auth import auth as auth_blueprint
 from .attribute import attribute as attribute_blueprint
 from .document import document as document_blueprint
+from .donor import donor as donor_blueprint
 from .consent import consent as consent_blueprint
 from .protocol import protocol as protocol_blueprint
 from .sample import sample as sample_blueprint
@@ -65,6 +66,7 @@ def register_blueprints(app):
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
     app.register_blueprint(document_blueprint, url_prefix="/document")
+    app.register_blueprint(donor_blueprint, url_prefix="/donor")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
     app.register_blueprint(sample_blueprint, url_prefix="/sample")
