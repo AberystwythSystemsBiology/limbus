@@ -31,12 +31,6 @@ from ..views import (
     new_building_schema
 )
 
-@api.route("/storage/building", methods=["GET"])
-@token_required
-def storage_building_home(tokenuser: UserAccount):
-    return success_with_content_response(
-        basic_buildings_schema.dump(Building.query.all())
-    )
 
 @api.route("/storage/building/LIMBUILD-<id>", methods=["GET"])
 @token_required

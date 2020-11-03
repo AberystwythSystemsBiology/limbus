@@ -17,6 +17,7 @@ from flask import redirect, abort, render_template, url_for, session, request, j
 from flask_login import current_user, login_required
 
 from .. import storage
+import requests
 
 
 @storage.route("/")
@@ -26,5 +27,5 @@ def index():
 
 @storage.route("/get_storage_api")
 @login_required
-def get_storage_api():
+def storage_navbar_api():
     pass
