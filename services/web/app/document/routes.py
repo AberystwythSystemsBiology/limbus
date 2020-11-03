@@ -74,6 +74,7 @@ def new_document():
 
         if response.status_code == 200:
             flash("Document Successfully Created")
+            # TODO: Revert to newly created document from response.json id.
             return redirect(url_for("document.index"))
         else:
             return abort(response.status_code)

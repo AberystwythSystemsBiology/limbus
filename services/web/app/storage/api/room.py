@@ -25,17 +25,19 @@ from ...database import db, Room, UserAccount
 from marshmallow import ValidationError
 
 from ..views import (
-    basic_rooms_schema
+    basic_room_schema,
+    basic_rooms_schema,
+    new_room_schema
 )
 
-@api.route("/storage/room")
+@api.route("/storage/room", methods=["GET"])
 @token_required
 def storage_room_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_rooms_schema.dump(Room.query.all())
     )
 
-@api.route("/storage/room/new/LIMBUILD-<building_id>")
+@api.route("/storage/room/new", methods=["POST"])
 @token_required
 def storage_new_room(building_id, tokenuser: UserAccount):
     room = request.get_json()
@@ -43,4 +45,21 @@ def storage_new_room(building_id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    
+
+    try:
+        room_result = new_room_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    room = Room(**room_result)
+    room.author_id = tokenuser.id
+
+    try:
+        db.session.add(room)
+        db.session.commit()
+
+        return success_with_content_response(
+            basic_room_schema.dump(room)
+        )
+    except Exception as err:
+        return transaction_error_response(err)

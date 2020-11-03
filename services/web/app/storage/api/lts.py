@@ -26,5 +26,12 @@ from marshmallow import ValidationError
 from ..database import db, UserAccount, ColdStorage
 
 from ..views import {
-    
+    basic_cold_storages_schema
 }
+
+@api.route("/storage/coldstorage/")
+@token_required
+def storage_coldstorage_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_cold_storages_schema.dump(ColdStorage.query.filter_by(is_locked=False).all())
+    )

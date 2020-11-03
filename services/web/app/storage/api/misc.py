@@ -12,17 +12,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-from enum import Enum
-
-
-class FormEnum(Enum):
-    @classmethod
-    def choices(cls, with_none=False):
-        c = [(choice.name, str(choice)) for choice in cls]
-        if with_none:
-            c.insert(0, (None, "None"))
-        return c
-
-    def __str__(self):
-        return str(self.value)

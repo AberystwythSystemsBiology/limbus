@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask import url_for
+import pycountry
 from flask_wtf import FlaskForm
+import requests
 from wtforms import (
     PasswordField,
     StringField,
@@ -28,9 +31,8 @@ from wtforms import (
     IntegerField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationError
-import pycountry
 from ..setup.forms import post_code_validator
-
+from ..misc import get_internal_api_header
 
 
 class RoomRegistrationForm(FlaskForm):
@@ -38,6 +40,26 @@ class RoomRegistrationForm(FlaskForm):
     building = StringField("Building")
     submit = SubmitField("Register Room")
 
+def BuildingRegistrationForm():
+    class StaticForm(FlaskForm):
+        name = StringField("Building Name", validators=[DataRequired()])
+        submit = SubmitField("Register Building")
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    sites = []
+
+    if sites_response.status_code == 200:
+        sites_json = sites_response.json()["content"]
+        for site in sites_json:
+            sites.append([site["id"], site["name"]])
+
+    setattr(StaticForm, "site", SelectField("Site", choices=sites, coerce=int))
+
+    return StaticForm()
 
 class NewShelfForm(FlaskForm):
     name = StringField(

@@ -18,6 +18,7 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 from ...database import ColdStorage
+from ..enums import FixedColdStorageTemps, FixedColdStorageType
 
 
 class BasicColdStorageView(masql.SQLAlchemySchema):
@@ -27,8 +28,8 @@ class BasicColdStorageView(masql.SQLAlchemySchema):
     serial_number = masql.auto_field()
     manufacturer = masql.auto_field()
     comments = masql.auto_field()
-    # TODO: Fix these.
-    temp = masql.auto_field()
-    type = masql.auto_field()
+    temp = EnumField(FixedColdStorageTemps)
+    type = EnumField(FixedColdStorageType)
 
-    
+basic_cold_storage_schema = BasicColdStorageView()
+basic_cold_storages_schema = BasicColdStorageView(many=True)

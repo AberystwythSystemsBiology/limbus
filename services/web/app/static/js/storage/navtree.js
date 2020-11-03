@@ -71,9 +71,6 @@ $(function() {
         $('#sidebar-collapse button').toggleClass('btn-primary');
     });
 
-    $('#add-site-button').on('click', function() {
-        location.href='/storage/sites/new'
-    });
 
     function selectSite(site) {
         var site_id = parseId(site.id);

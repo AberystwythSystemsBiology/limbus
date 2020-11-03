@@ -45,18 +45,16 @@ def storage_building_view(id, tokenuser: UserAccount):
         basic_building_schema.dump(Building.query.filter_by(id=id).first_or_404())
     )
 
-@api.route("/storage/building/new/LIMBSIT-<site_id>", methods=["POST"])
+@api.route("/storage/building/new/", methods=["POST"])
 @token_required
-def storage_building_new(site_id, tokenuser: UserAccount):
+def storage_building_new(tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
-    values["site_id"] = site_id
-
     try:
-        building_result = storage_building_new.load(values)
+        building_result = new_building_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 

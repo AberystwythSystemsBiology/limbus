@@ -14,11 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from .. import storage
 
 
 @storage.route("/")
+@login_required
 def index():
     return render_template("storage/index.html")
+
+@storage.route("/get_storage_api")
+@login_required
+def get_storage_api():
+    pass

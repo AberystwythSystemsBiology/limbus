@@ -13,10 +13,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .. import storage
-from flask_login import current_user, login_required
 
-@storage.route("/building")
+import requests
+from ...misc import get_internal_api_header
+from .. import storage
+from flask import render_template, redirect, url_for, abort, flash
+from flask_login import current_user, login_required
+from ..forms import BuildingRegistrationForm
+
+@storage.route("LIMBSIT/building/new", methods=["GET", "POST"])
 @login_required
-def building_index():
-    pass
+def new_building():
+    form = BuildingRegistrationForm()
+    if form.validate_on_submit():
+        response = requests.post(
+            url_for("api.storage_building_new", _external=True),
+            headers=get_internal_api_header(),
+            json={
+                "site_id": form.site.data,
+                "name": form.name.data
+            }
+        )
+
+        if response.status_code == 200:
+            flash("Building Successfully Created")
+            return redirect(url_for("storage.index"))
+        else:
+            return abort(response.status_code)
+        
+    return render_template("storage/building/new.html", form=form)
