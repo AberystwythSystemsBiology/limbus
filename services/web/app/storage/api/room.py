@@ -65,7 +65,7 @@ def storage_room_new(tokenuser: UserAccount):
         db.session.commit()
 
         return success_with_content_response(
-            basic_room_schema.dump(room)edit
+            basic_room_schema.dump(room)
         )
     except Exception as err:
         return transaction_error_response(err)

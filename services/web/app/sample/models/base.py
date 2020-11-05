@@ -116,7 +116,6 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
 
 
-
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
