@@ -27,7 +27,7 @@ from marshmallow import ValidationError
 
 from ..auth.models import UserAccount
 from .models import Donor
-from .views import donor_schema, donors_schema
+from .views import donor_schema, donors_schema, new_donor_schema
 
 
 @api.route("/donor")
@@ -85,7 +85,7 @@ def donor_new(tokenuser: UserAccount):
         return no_values_response()
 
     try:
-        result = new_donor_form_template_schema.load(values)
+        result = new_donor_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 

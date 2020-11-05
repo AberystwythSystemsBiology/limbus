@@ -46,7 +46,7 @@
                 <td>{{ donor.sex }}</td>
                 <td>{{ donor.status }}</td>
                 <td>{{ donor.user_information.email }}</td>
-                <td>{{ donor.creation_date.strftime("%d-%m-%Y") }}</td>
+                <td>{{ donor.created_on.strftime("%d-%m-%Y") }}</td>
             </tr>
         {% endfor %}
         </tbody>

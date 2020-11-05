@@ -14,16 +14,26 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from . import donor
-from flask import render_template, redirect, url_for, flash
+from flask import (
+    redirect,
+    render_template,
+    url_for,
+    abort,
+    current_app,
+    session,
+    flash,
+)
 from flask_login import login_required, current_user
 
 from .models import Donor
 from .forms import DonorCreationForm
-from .views import DonorIndexView, DonorView
 
 from .. import db
 
 import uuid
+
+from ..misc import get_internal_api_header
+import requests
 
 
 @donor.route("/")
@@ -71,14 +81,14 @@ def add():
             "status": form.status.data,
             "race": form.race.data,
             "death_date": death_date,
-            "weight": form.weight.data,
-            "height": form.height.data
+            "weight": float(form.weight.data),
+            "height": float(form.height.data)
         }
 
         response = requests.post(
             url_for("api.donor_new", _external=True),
             headers=get_internal_api_header(),
-            json=document_information,
+            json=donor_information,
         )
 
         if response.status_code == 200:

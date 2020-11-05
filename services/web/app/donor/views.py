@@ -13,8 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ..extensions import ma
 from .models import Donor
-from ..auth.views import UserView
+from .enums import (
+    RaceTypes,
+    BiologicalSexTypes,
+    DonorStatusTypes
+)
 
 from sqlalchemy_continuum import version_class, parent_class
 
@@ -34,30 +39,43 @@ class DonorSchema(masql.SQLAlchemySchema):
     age = masql.auto_field()
     sex = EnumField(BiologicalSexTypes)
     status = EnumField(DonorStatusTypes)
-    death_date = fields.Date
+    death_date = masql.auto_field()
 
-    weight = fields.Float()
-    height = fields.Float()
+    weight = masql.auto_field()
+    height = masql.auto_field()
 
     race = EnumField(RaceTypes)
 
     author = ma.Nested(BasicUserAccountSchema)
     updater = ma.Nested(BasicUserAccountSchema)
 
-    creation_date = fields.Date()
-    update_date = fields.Date()
-    # creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    # update_date = db.Column(
-    #     db.DateTime,
-    #     server_default=db.func.now(),
-    #     server_onupdate=db.func.now(),
-    #     nullable=False,
-    # )
+    created_on = masql.auto_field()
+    updated_on = masql.auto_field()
 
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("donor.view", id="id", _external=True), "collection": ma.URLFor("donor.index", _external=True)}
+    )
 
 donor_schema = DonorSchema()
 donors_schema = DonorSchema(many=True)
 
+
+class NewDonorSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Donor
+
+    age = masql.auto_field()
+    sex = EnumField(BiologicalSexTypes)
+    status = EnumField(DonorStatusTypes)
+    death_date = masql.auto_field()
+
+    weight = masql.auto_field()
+    height = masql.auto_field()
+
+    race = EnumField(RaceTypes)
+
+
+new_donor_schema = NewDonorSchema()
 
 # def DonorIndexView():
 #     donors = db.session.query(Donors).all()
