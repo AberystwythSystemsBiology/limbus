@@ -37,14 +37,20 @@ def storage_room_home(tokenuser: UserAccount):
         basic_rooms_schema.dump(Room.query.all())
     )
 
+@api.route("/storage/room/LIMBROOM-<id>", methods=["GET"])
+@token_required
+def storage_room_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_room_schema.dump(Room.query.filter_by(id=id),first_or_404())
+    )
+
 @api.route("/storage/room/new", methods=["POST"])
 @token_required
-def storage_new_room(building_id, tokenuser: UserAccount):
+def storage_room_new(tokenuser: UserAccount):
     room = request.get_json()
 
     if not values:
         return no_values_response()
-
 
     try:
         room_result = new_room_schema.load(values)
@@ -59,7 +65,60 @@ def storage_new_room(building_id, tokenuser: UserAccount):
         db.session.commit()
 
         return success_with_content_response(
-            basic_room_schema.dump(room)
+            basic_room_schema.dump(room)edit
         )
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/storage/room/LIMBROOM-<id>/edit", methods=["PUT"])
+@token_required
+def storage_room_edit(id, tokenuser: UserAccount):
+    
+    room = Room.query.filter_by(id=id).first()
+
+    if not room:
+        return not_found()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_room_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    for attr, value in values.items():
+        setattr(room, attr, value)
+
+    room.editor_id = tokenuser.id
+
+    try:
+        db.session.add(room)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(basic_room_schema.dump(room))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
+@token_required
+def storage_room_lock(id, tokenuser: UserAccount):
+    
+    room = Room.query.filter_by(id=id).first()
+
+    if not room:
+        return not_found()
+
+    room.is_locked = not room.is_locked
+    room.editor_id = tokenuser.id
+
+    db.session.add(room)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(basic_room_schema.dump(room))

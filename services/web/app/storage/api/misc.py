@@ -37,3 +37,4 @@ def storage_building_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_buildings_schema.dump(Building.query.all())
     )
+

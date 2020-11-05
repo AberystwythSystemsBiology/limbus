@@ -31,6 +31,12 @@ from ..views import (
     new_building_schema
 )
 
+@api.route("/storage/building/", methods=["GET"])
+@token_required
+def storage_building_view( tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_buildings_schema.dump(Building.query.all())
+    )
 
 @api.route("/storage/building/LIMBUILD-<id>", methods=["GET"])
 @token_required
@@ -60,5 +66,57 @@ def storage_building_new(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
         return success_with_content_response(basic_building_schema.dump(new_building))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/storage/building/LIMBUILD-<id>/lock", methods=["PUT"])
+@token_required
+def storage_lock_building(id: int, tokenuser: UserAccount):
+    building = Building.query.filter_by(id=id).first()
+
+    if not building:
+        return not_found()
+
+    building.is_locked = not building.is_locked
+    building.editor_id = tokenuser.id
+
+    db.session.add(building)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(basic_building_schema.dump(building))
+
+
+@api.route("/storage/building/LIMBUILD-<id>/edit", methods=["PUT"])
+@token_required
+def storage_edit_building(id: int, tokenuser: UserAccount):
+
+    building = Building.query.filter_by(id=id).first()
+
+    if not building:
+        return not_found()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_building_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    for attr, value in values.items():
+        setattr(building, attr, value)
+
+    building.editor_id = tokenuser.id
+
+    try:
+        db.session.add(building)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(basic_building_schema.dump(building))
     except Exception as err:
         return transaction_error_response(err)
