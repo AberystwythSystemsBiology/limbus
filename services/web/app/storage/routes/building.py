@@ -21,7 +21,7 @@ from flask import render_template, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
 
-@storage.route("LIMBSIT/building/new", methods=["GET", "POST"])
+@storage.route("/storage/building/new", methods=["GET", "POST"])
 @login_required
 def new_building():
     form = BuildingRegistrationForm()
@@ -42,3 +42,5 @@ def new_building():
             return abort(response.status_code)
         
     return render_template("storage/building/new.html", form=form)
+
+

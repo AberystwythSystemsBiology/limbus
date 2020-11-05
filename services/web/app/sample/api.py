@@ -348,15 +348,16 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
 
     if sample.remaining_quantity < to_remove:
-        return "Total amount is greater than remaining", 400
+        return "Total amount is greater than remaining quantity", 400
 
     for aliquot in values["aliquots"]:
         sample_cpy = Sample.query.filter_by(uuid=uuid).first_or_404()
         
+        db.session.expunge(sample_cpy)
         make_transient(sample_cpy)
 
-        sample_cpy.uuid = None
         sample_cpy.id = None
+        sample_cpy.uuid = None
         sample_cpy.barcode = aliquot["barcode"]
         sample_cpy.quantity = aliquot["volume"]
         sample_cpy.remaining_quantity = aliquot["volume"]
@@ -366,18 +367,26 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.add(sample_cpy)
         db.session.flush()
 
-
         ssts = SubSampleToSample(
+            # wtf?
+            id=1,
             parent_id = sample.id,
-            subsample_id = sample_cpy.id
+            subsample_id = sample_cpy.id,
+            author_id = tokenuser.id
         )
 
-        db.session.add(ssts)
-        db.session.commit()
 
+        db.session.add(ssts)
+
+<<<<<<< HEAD
     print(to_remove)
     print( sample.remaining_quantity - to_remove)
     sample.remaining_quantity = sample.remaining_quantity - to_remove
+=======
+
+
+    sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
+>>>>>>> 424f1d0ea1ecc0331fa4609a26d39590e6b6e559
     db.session.add(sample)
     db.session.commit()
 
