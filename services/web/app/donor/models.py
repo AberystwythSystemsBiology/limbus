@@ -20,7 +20,7 @@ from ..mixins import RefAuthorMixin, RefEditorMixin
 
 class Donor(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-
+    uuid = db.Column(db.String(36))
     age = db.Column(db.Integer)
     sex = db.Column(db.Enum(BiologicalSexTypes))
     status = db.Column(db.Enum(DonorStatusTypes))

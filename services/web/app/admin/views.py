@@ -19,7 +19,8 @@ from ..auth.views import UserView
 
 
 def UserAccountsView() -> dict:
-    users = db.session.query(User).filter().all()
+    users = db.session.query(UserAccount).filter().all()
+
 
     data = {}
 

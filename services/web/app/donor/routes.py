@@ -16,10 +16,11 @@
 from . import donor
 from flask import render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
-
+import requests
 from .models import Donor
 from .forms import DonorCreationForm
-from .views import DonorIndexView, DonorView
+#from .views import DonorIndexView, DonorView
+from ..misc import get_internal_api_header
 
 from .. import db
 
@@ -32,6 +33,7 @@ def index():
     response = requests.get(
         url_for("api.donor_home", _external=True), headers=get_internal_api_header()
     )
+    print(response.json()["content"])
 
     if response.status_code == 200:
         return render_template(
@@ -53,6 +55,36 @@ def view(id):
         return render_template("donor/view.html", template=response.json()["content"])
     else:
         return response.content
+
+@login_required
+@donor.route("/add", methods=["GET", "POST"])
+def add1():
+    form = DonorCreationForm()
+    if form.validate_on_submit():
+
+        death_date = None
+        if form.status.data == "DE":
+            death_date = form.death_date.data
+
+        donor = Donor(
+            uuid=uuid.uuid4(),
+            age=form.age.data,
+            sex=form.sex.data,
+            status=form.status.data,
+            race=form.race.data,
+            death_date=death_date,
+            weight=form.weight.data,
+            height=form.height.data,
+            author_id=current_user.id,
+        )
+
+        db.session.add(donor)
+        db.session.commit()
+
+        flash("Donor information successfully added!")
+        return redirect(url_for("donor.index"))
+
+    return render_template("donor/add.html", form=form)
 
 
 @login_required
@@ -78,7 +110,7 @@ def add():
         response = requests.post(
             url_for("api.donor_new", _external=True),
             headers=get_internal_api_header(),
-            json=document_information,
+            json=donor_information,
         )
 
         if response.status_code == 200:

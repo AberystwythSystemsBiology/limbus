@@ -14,15 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .models import Donor
-from ..auth.views import UserView
+#from ..auth.views import UserView
 
 from sqlalchemy_continuum import version_class, parent_class
-
+from ..extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
+from .enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
+
 
 
 class DonorSchema(masql.SQLAlchemySchema):
@@ -34,7 +36,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     age = masql.auto_field()
     sex = EnumField(BiologicalSexTypes)
     status = EnumField(DonorStatusTypes)
-    death_date = fields.Date
+    death_date = fields.Date()
 
     weight = fields.Float()
     height = fields.Float()
@@ -46,13 +48,6 @@ class DonorSchema(masql.SQLAlchemySchema):
 
     creation_date = fields.Date()
     update_date = fields.Date()
-    # creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    # update_date = db.Column(
-    #     db.DateTime,
-    #     server_default=db.func.now(),
-    #     server_onupdate=db.func.now(),
-    #     nullable=False,
-    # )
 
 
 donor_schema = DonorSchema()

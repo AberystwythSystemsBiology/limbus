@@ -91,6 +91,7 @@ def donor_new(tokenuser: UserAccount):
 
     new_donor = Donor(**result)
     new_donor.author_id = tokenuser.id
+    print('good', new_donor.id)
 
     try:
         db.session.add(new_donor)

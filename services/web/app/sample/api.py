@@ -342,7 +342,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         except KeyError as err:
             transaction_error_response(err)
 
-
+    print (values)
     to_remove = sum([abs(float(a["volume"])) for a in values["aliquots"]])
 
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
@@ -375,6 +375,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.add(ssts)
         db.session.commit()
 
+    print(to_remove)
+    print( sample.remaining_quantity - to_remove)
     sample.remaining_quantity = sample.remaining_quantity - to_remove
     db.session.add(sample)
     db.session.commit()
