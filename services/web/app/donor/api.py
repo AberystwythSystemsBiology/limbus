@@ -17,22 +17,29 @@ from ..database import db, UserAccount
 
 from ..api import api
 from ..api.responses import *
-from ..api.filters import get_filters_and_joins
+from ..api.filters import generate_base_query_filters, get_filters_and_joins
 
 from ..decorators import token_required
 
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
 
+from datetime import datetime
 
 from ..auth.models import UserAccount
 from .models import Donor
-from .views import donor_schema, donors_schema
+from .views import donor_schema, donors_schema, new_donor_schema
 
 
 @api.route("/donor")
 @token_required
 def donor_home(tokenuser: UserAccount):
+    filters, allowed = generate_base_query_filters(tokenuser, "view")
+
+    if not allowed:
+        return not_allowed()
+
+    print(Donor.query.all())
     return success_with_content_response(
         donors_schema.dump(Donor.query.all())
     )
@@ -55,7 +62,7 @@ def donor_edit(id, tokenuser: UserAccount):
         return no_values_response()
 
     try:
-        result = new_donor_form_template_schema.load(values)
+        result = new_donor_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -85,7 +92,7 @@ def donor_new(tokenuser: UserAccount):
         return no_values_response()
 
     try:
-        result = new_donor_form_template_schema.load(values)
+        result = new_donor_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 

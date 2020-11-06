@@ -14,13 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .routes import db
-from ..auth.models import User
+from ..auth.models import UserAccount
 from ..auth.views import UserView
 
 
 def UserAccountsView() -> dict:
     users = db.session.query(UserAccount).filter().all()
-
 
     data = {}
 

@@ -369,24 +369,17 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
         ssts = SubSampleToSample(
             # wtf?
-            id=1,
+            #id=1,
             parent_id = sample.id,
             subsample_id = sample_cpy.id,
-            author_id = tokenuser.id
+            #author_id = tokenuser.id
         )
 
 
         db.session.add(ssts)
 
-<<<<<<< HEAD
-    print(to_remove)
-    print( sample.remaining_quantity - to_remove)
-    sample.remaining_quantity = sample.remaining_quantity - to_remove
-=======
-
 
     sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
->>>>>>> 424f1d0ea1ecc0331fa4609a26d39590e6b6e559
     db.session.add(sample)
     db.session.commit()
 

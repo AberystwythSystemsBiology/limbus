@@ -14,17 +14,31 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from . import donor
-from flask import render_template, redirect, url_for, flash
+from flask import (
+    redirect,
+    render_template,
+    url_for,
+    abort,
+    current_app,
+    session,
+    flash,
+)
 from flask_login import login_required, current_user
 import requests
 from .models import Donor
 from .forms import DonorCreationForm
+<<<<<<< HEAD
 #from .views import DonorIndexView, DonorView
 from ..misc import get_internal_api_header
+=======
+>>>>>>> f726089b47464f1350c416ab0fd49075bcd2d1d5
 
 from .. import db
 
 import uuid
+
+from ..misc import get_internal_api_header
+import requests
 
 
 @donor.route("/")
@@ -37,7 +51,7 @@ def index():
 
     if response.status_code == 200:
         return render_template(
-            "donor/index.html", template=response.json()["content"]
+            "donor/index.html", donors=response.json()["content"]
         )
     else:
         return abort(response.status_code)
@@ -52,7 +66,7 @@ def view(id):
     )
 
     if response.status_code == 200:
-        return render_template("donor/view.html", template=response.json()["content"])
+        return render_template("donor/view.html", donor=response.json()["content"])
     else:
         return response.content
 
@@ -103,8 +117,8 @@ def add():
             "status": form.status.data,
             "race": form.race.data,
             "death_date": death_date,
-            "weight": form.weight.data,
-            "height": form.height.data
+            "weight": float(form.weight.data),
+            "height": float(form.height.data)
         }
 
         response = requests.post(
@@ -123,8 +137,8 @@ def add():
 
 
 @login_required
-@donor.route("/edit/LIMBDON-<donor_id>", methods=["GET", "POST"])
-def edit(donor_id):
+@donor.route("/edit/LIMBDON-<id>", methods=["GET", "POST"])
+def edit(id):
     response = requests.get(
         url_for("api.donor_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -136,11 +150,11 @@ def edit(donor_id):
         if form.validate_on_submit():
             form_information = {
                 "age": form.age.data,
-                "sex": form.type.data,
-                "status": form.description.data,
+                "sex": form.sex.data,
+                "status": form.status.data,
                 "death_date": form.death_date.data,
-                "weight": form.weight.data,
-                "height": form.height.data,
+                "weight": float(form.weight.data),
+                "height": float(form.height.data),
                 "race": form.race.data
             }
 
