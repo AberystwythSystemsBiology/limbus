@@ -33,7 +33,7 @@ from ..views import (
 
 @api.route("/storage/building/", methods=["GET"])
 @token_required
-def storage_buildings_view( tokenuser: UserAccount):
+def storage_buildings_home( tokenuser: UserAccount):
     return success_with_content_response(
         basic_buildings_schema.dump(Building.query.all())
     )

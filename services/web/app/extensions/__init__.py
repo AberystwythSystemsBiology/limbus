@@ -1,7 +1,6 @@
 from flask_mde import Mde
 from flask_login import LoginManager
 from flask_marshmallow import Marshmallow
-from flask_migrate import Migrate
 
 from ..database import db, UserAccount
 
@@ -20,12 +19,10 @@ spec = APISpec(
 ma = Marshmallow()
 mde = Mde()
 login_manager = LoginManager()
-migrate = Migrate()
 
 def register_extensions(app):
     db.init_app(app)
     
-    migrate.init_app(app, db)
     ma.init_app(app)
     mde.init_app(app)
     login_manager.init_app(app)

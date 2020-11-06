@@ -21,15 +21,28 @@ from ...database import ColdStorage
 from ..enums import FixedColdStorageTemps, FixedColdStorageType
 
 
-class BasicColdStorageView(masql.SQLAlchemySchema):
+class BasicColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorage
     
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    serial_number = masql.auto_field()
+    manufacturer = masql.auto_field()
+    temp = EnumField(FixedColdStorageTemps)
+    type = EnumField(FixedColdStorageType)
+
+basic_cold_storage_schema = BasicColdStorageSchema()
+basic_cold_storages_schema = BasicColdStorageSchema(many=True)
+
+class NewColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorage
+
     serial_number = masql.auto_field()
     manufacturer = masql.auto_field()
     comments = masql.auto_field()
     temp = EnumField(FixedColdStorageTemps)
     type = EnumField(FixedColdStorageType)
 
-basic_cold_storage_schema = BasicColdStorageView()
-basic_cold_storages_schema = BasicColdStorageView(many=True)
+new_cold_storage_schema = NewColdStorageSchema()

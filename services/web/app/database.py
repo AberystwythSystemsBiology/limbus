@@ -18,13 +18,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import configure_mappers
 
-from sqlalchemy_continuum import make_versioned
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin
-
-make_versioned(user_cls=None)
-
 db = SQLAlchemy()
-
 
 from .base import BaseModel
 

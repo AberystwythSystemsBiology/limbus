@@ -23,15 +23,99 @@ from ...webarg_parser import use_args, use_kwargs, parser
 
 from marshmallow import ValidationError
 
-from ..database import db, UserAccount, ColdStorage
+from ...database import db, UserAccount, ColdStorage
 
-from ..views import {
-    basic_cold_storages_schema
-}
+from ..views import *
 
-@api.route("/storage/coldstorage/")
+@api.route("/storage/coldstorage/", methods=["GET"])
 @token_required
 def storage_coldstorage_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_cold_storages_schema.dump(ColdStorage.query.filter_by(is_locked=False).all())
+        basic_cold_storages_schema.dump(ColdStorage.query.all())
     )
+
+
+@api.route("/storage/coldstorage/LIMBCS-<id>", methods=["GET"])
+@token_required
+def storage_coldstorage_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
+    )
+
+@api.route("/storage/coldstorage/new", methods=["POST"])
+@token_required
+def storage_coldstorage_new(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        cs_result = new_cold_storage_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    cs = ColdStorage(**cs_result)
+    cs.author_id = tokenuser.id
+
+    try:
+        db.session.add(cs)
+        db.session.commit()
+
+        return success_with_content_response(
+            basic_cold_storage_schema.dump(cs)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/storage/coldstorage/LIMBCS-<id>/edit", methods=["PUT"])
+@token_required
+def storage_coldstorage_edit(id, tokenuser: UserAccount):
+    
+    cs = ColdStorage.query.filter_by(id=id).first()
+
+    if not room:
+        return not_found()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_cold_storage_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    for attr, value in values.items():
+        setattr(cs, attr, value)
+
+    cs.editor_id = tokenuser.id
+
+    try:
+        db.session.add(cs)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(basic_cold_storage_schema.dump(cs))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
+@token_required
+def storage_coldstorage_lock(id, tokenuser: UserAccount):
+    
+    cs = ColdStorage.query.filter_by(id=id).first()
+
+    if not cs:
+        return not_found()
+
+    cs.is_locked = not cs.is_locked
+    cs.editor_id = tokenuser.id
+
+    db.session.add(cs)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(basic_cold_storage_schema.dump(cs))
