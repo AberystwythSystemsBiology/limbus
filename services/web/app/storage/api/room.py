@@ -24,25 +24,22 @@ from ...database import db, Room, UserAccount
 
 from marshmallow import ValidationError
 
-from ..views import (
-    basic_room_schema,
-    basic_rooms_schema,
-    new_room_schema
-)
+from ..views import basic_room_schema, basic_rooms_schema, new_room_schema
+
 
 @api.route("/storage/room", methods=["GET"])
 @token_required
 def storage_room_home(tokenuser: UserAccount):
-    return success_with_content_response(
-        basic_rooms_schema.dump(Room.query.all())
-    )
+    return success_with_content_response(basic_rooms_schema.dump(Room.query.all()))
+
 
 @api.route("/storage/room/LIMBROOM-<id>", methods=["GET"])
 @token_required
 def storage_room_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_room_schema.dump(Room.query.filter_by(id=id),first_or_404())
+        basic_room_schema.dump(Room.query.filter_by(id=id), first_or_404())
     )
+
 
 @api.route("/storage/room/new", methods=["POST"])
 @token_required
@@ -64,9 +61,7 @@ def storage_room_new(tokenuser: UserAccount):
         db.session.add(room)
         db.session.commit()
 
-        return success_with_content_response(
-            basic_room_schema.dump(room)
-        )
+        return success_with_content_response(basic_room_schema.dump(room))
     except Exception as err:
         return transaction_error_response(err)
 
@@ -74,7 +69,7 @@ def storage_room_new(tokenuser: UserAccount):
 @api.route("/storage/room/LIMBROOM-<id>/edit", methods=["PUT"])
 @token_required
 def storage_room_edit(id, tokenuser: UserAccount):
-    
+
     room = Room.query.filter_by(id=id).first()
 
     if not room:
@@ -108,7 +103,7 @@ def storage_room_edit(id, tokenuser: UserAccount):
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
 @token_required
 def storage_room_lock(id, tokenuser: UserAccount):
-    
+
     room = Room.query.filter_by(id=id).first()
 
     if not room:

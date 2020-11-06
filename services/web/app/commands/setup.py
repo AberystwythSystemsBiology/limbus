@@ -15,17 +15,9 @@
 
 from . import cmd_setup
 
-from ..database import (
-    db,
-    UserAccount,
-    UserAccountToken,
-    Address,
-    SiteInformation,
-)
+from ..database import db, UserAccount, UserAccountToken, Address, SiteInformation
 
 from uuid import uuid4
-
-
 
 
 @cmd_setup.cli.command("create-kryten")
@@ -56,7 +48,6 @@ def create_kryten():
     U111 | ~--_L____--~ | |||U
      UJJ |MMMMMM/\MMMMMM| UJJ
         |\MM"""
-
 
     if (
         UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first()
@@ -104,8 +95,10 @@ def create_testuser():
     site = SiteInformation(
         name="Testing Biobank",
         address_id=address.id,
-        author_id=UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk").first().id
-        )
+        author_id=UserAccount.query.filter_by(email="kryten@jupiterminingcorp.co.uk")
+        .first()
+        .id,
+    )
 
     db.session.add(site)
     db.session.commit()

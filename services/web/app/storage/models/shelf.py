@@ -16,6 +16,7 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
+
 class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text)

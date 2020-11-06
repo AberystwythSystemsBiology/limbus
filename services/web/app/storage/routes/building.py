@@ -21,6 +21,7 @@ from flask import render_template, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
 
+
 @storage.route("/storage/building/new", methods=["GET", "POST"])
 @login_required
 def new_building():
@@ -29,10 +30,7 @@ def new_building():
         response = requests.post(
             url_for("api.storage_building_new", _external=True),
             headers=get_internal_api_header(),
-            json={
-                "site_id": form.site.data,
-                "name": form.name.data
-            }
+            json={"site_id": form.site.data, "name": form.name.data},
         )
 
         if response.status_code == 200:
@@ -40,7 +38,5 @@ def new_building():
             return redirect(url_for("storage.index"))
         else:
             return abort(response.status_code)
-        
+
     return render_template("storage/building/new.html", form=form)
-
-

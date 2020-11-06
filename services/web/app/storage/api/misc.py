@@ -23,4 +23,3 @@ from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, Room, UserAccount
 
 from marshmallow import ValidationError
-

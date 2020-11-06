@@ -27,6 +27,7 @@ from ...database import db, UserAccount, ColdStorage
 
 from ..views import *
 
+
 @api.route("/storage/coldstorage/", methods=["GET"])
 @token_required
 def storage_coldstorage_home(tokenuser: UserAccount):
@@ -39,8 +40,11 @@ def storage_coldstorage_home(tokenuser: UserAccount):
 @token_required
 def storage_coldstorage_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
+        basic_cold_storage_schema.dump(
+            ColdStorage.query.filter_by(id=id).first_or_404()
+        )
     )
+
 
 @api.route("/storage/coldstorage/new", methods=["POST"])
 @token_required
@@ -62,16 +66,15 @@ def storage_coldstorage_new(tokenuser: UserAccount):
         db.session.add(cs)
         db.session.commit()
 
-        return success_with_content_response(
-            basic_cold_storage_schema.dump(cs)
-        )
+        return success_with_content_response(basic_cold_storage_schema.dump(cs))
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/edit", methods=["PUT"])
 @token_required
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
-    
+
     cs = ColdStorage.query.filter_by(id=id).first()
 
     if not room:
@@ -105,7 +108,7 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 @api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
 @token_required
 def storage_coldstorage_lock(id, tokenuser: UserAccount):
-    
+
     cs = ColdStorage.query.filter_by(id=id).first()
 
     if not cs:

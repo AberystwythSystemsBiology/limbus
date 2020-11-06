@@ -20,10 +20,11 @@ from marshmallow_enum import EnumField
 from ...database import ColdStorage
 from ..enums import FixedColdStorageTemps, FixedColdStorageType
 
+
 class BasicColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorage
-    
+
     id = masql.auto_field()
     uuid = masql.auto_field()
     serial_number = masql.auto_field()
@@ -31,8 +32,10 @@ class BasicColdStorageSchema(masql.SQLAlchemySchema):
     temp = EnumField(FixedColdStorageTemps)
     type = EnumField(FixedColdStorageType)
 
+
 basic_cold_storage_schema = BasicColdStorageSchema()
 basic_cold_storages_schema = BasicColdStorageSchema(many=True)
+
 
 class NewColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -43,5 +46,6 @@ class NewColdStorageSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     temp = EnumField(FixedColdStorageTemps)
     type = EnumField(FixedColdStorageType)
+
 
 new_cold_storage_schema = NewColdStorageSchema()

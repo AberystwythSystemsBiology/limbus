@@ -31,20 +31,20 @@ def index() -> str:
 
     return render_template("sample/index.html", form=form)
 
+
 @sample.route("/query", methods=["POST"])
 @login_required
 def query_index():
     response = requests.get(
         url_for("api.sample_query", _external=True),
         headers=get_internal_api_header(),
-        json = request.json
+        json=request.json,
     )
 
     if response.status_code == 200:
         return response.json()
     else:
         abort(response.status_code)
-
 
 
 @sample.route("/biohazard_information")

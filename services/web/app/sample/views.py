@@ -19,7 +19,10 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
-from ..consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
+from ..consent.views import (
+    BasicConsentFormQuestionSchema,
+    BasicConsentFormTemplateSchema,
+)
 from ..document.views import BasicDocumentSchema
 from ..protocol.views import BasicProtocolTemplateSchema
 
@@ -57,6 +60,7 @@ import requests
 from flask import url_for
 from ..misc import get_internal_api_header
 
+
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsent
@@ -81,7 +85,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
     answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
-    
+
 
 consent_schema = ConsentSchema()
 
@@ -96,6 +100,7 @@ class NewConsentAnswerSchema(masql.SQLAlchemySchema):
 
 new_consent_answer_schema = NewConsentAnswerSchema()
 new_consent_answers_schema = NewConsentAnswerSchema(many=True)
+
 
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -129,7 +134,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     datetime = masql.auto_field()
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
-    
+
     protocol_id = masql.auto_field()
 
 
@@ -152,7 +157,6 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 sample_protocol_event_schema = SampleProtocolEventSchema()
 
 
-
 class SampleTypeSchema(ma.SQLAlchemySchema):
     class Meta:
         model = SampleToType
@@ -167,7 +171,9 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     container_id = masql.auto_field()
 
+
 sample_type_schema = SampleTypeSchema()
+
 
 class NewFluidSampleSchema(ma.Schema):
     fluid_sample_type = EnumField(FluidSampleType)
@@ -217,6 +223,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
 
 new_sample_schema = NewSampleSchema()
 
+
 class SampleSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -226,7 +233,6 @@ class SampleSearchSchema(masql.SQLAlchemySchema):
     type = masql.auto_field()
     biohazard_level = masql.auto_field()
     source = masql.auto_field()
-
 
 
 class NewSampleReviewSchema(masql.SQLAlchemySchema):
@@ -249,10 +255,10 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field(required=False)
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)
-        }
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
     )
+
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -269,13 +275,17 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
-        "collection": ma.URLFor("sample.index", _external=True)}
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "collection": ma.URLFor("sample.index", _external=True),
+        }
     )
+
 
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
+
 
 class SampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -306,17 +316,22 @@ class SampleSchema(masql.SQLAlchemySchema):
     consent_information = ma.Nested(ConsentSchema, many=False)
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
-    
+
     parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
 
     created_on = ma.Date()
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
-        "collection": ma.URLFor("sample.index", _external=True),
-        "webapp_query": ma.URLFor("sample.query", _external=True),
-        "webapp_aliquot": ma.URLFor("sample.aliquot_endpoint", uuid="<uuid>", _external=True)
-        })
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "collection": ma.URLFor("sample.index", _external=True),
+            "webapp_query": ma.URLFor("sample.query", _external=True),
+            "webapp_aliquot": ma.URLFor(
+                "sample.aliquot_endpoint", uuid="<uuid>", _external=True
+            ),
+        }
+    )
+
 
 sample_schema = SampleSchema()

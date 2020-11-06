@@ -21,10 +21,11 @@ from marshmallow_enum import EnumField
 from ...database import SampleRack
 from ...sample.enums import Colour
 
+
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleRack
-    
+
     id = masql.auto_field()
     uuid = masql.auto_field()
     description = masql.auto_field()
@@ -33,18 +34,21 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     num_cols = masql.auto_field()
     colour = EnumField(Colour)
 
+
 basic_sample_wrack_schema = BasicSampleRackSchema()
 basic_sample_wracks_schema = BasicSampleRackSchema(many=True)
+
 
 class NewSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleRack
-    
+
     description = masql.auto_field()
     serial_number = masql.auto_field()
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
     colour = EnumField(Colour)
     cold_storage_id = masql.auto_field()
+
 
 new_sample_rack_schema = NewSampleRackSchema()

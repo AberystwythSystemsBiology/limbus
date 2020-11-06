@@ -58,9 +58,7 @@ def token_required(f):
         email = request.headers["Email"].replace('"', "")
         token = request.headers["Token"].replace('"', "")
 
-
         user = UserAccount.query.filter_by(email=email).first()
-        
 
         if user != None:
             user_token = UserAccountToken.query.filter_by(user_id=user.id).first()

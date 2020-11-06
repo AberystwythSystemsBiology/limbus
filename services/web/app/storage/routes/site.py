@@ -23,12 +23,7 @@ from ..forms import SiteRegistrationForm, RoomRegistrationForm
 
 from ..views.site import SiteView
 
-from ..models import (
-    Site,
-    Room,
-    FixedColdStorage,
-    FixedColdStorageShelf,
-)
+from ..models import Site, Room, FixedColdStorage, FixedColdStorageShelf
 
 from ...misc.models import Address
 from ...auth.models import User

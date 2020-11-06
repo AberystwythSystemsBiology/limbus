@@ -64,7 +64,7 @@ class ProtocolCreationForm(FlaskForm):
 
 class MdeForm(FlaskForm):
     type = SelectField(
-        "Protocol Text Type", choices=[(x.name, x.value) for x in ProtocolTextType],
+        "Protocol Text Type", choices=[(x.name, x.value) for x in ProtocolTextType]
     )
     editor = MdeField()
 
@@ -87,7 +87,7 @@ def DocumentAssociationForm() -> FlaskForm:
             documents.append([doc["id"], "LIMBDOC-%i: %s" % (doc["id"], doc["name"])])
 
     setattr(
-        StaticForm, "document", SelectField("Document", choices=documents, coerce=int),
+        StaticForm, "document", SelectField("Document", choices=documents, coerce=int)
     )
 
     return StaticForm()

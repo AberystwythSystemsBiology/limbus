@@ -71,6 +71,7 @@ def register_blueprints(app):
     app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
 
+
 def setup_database(app):
     with app.app_context():
         db.create_all()

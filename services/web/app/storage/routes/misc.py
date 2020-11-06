@@ -25,6 +25,7 @@ import requests
 def index():
     return render_template("storage/index.html")
 
+
 @storage.route("/get_storage_api")
 @login_required
 def storage_navbar_api():

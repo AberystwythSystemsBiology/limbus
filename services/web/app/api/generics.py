@@ -13,7 +13,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-def generic_new(db, model, new_schema, view_schema, values, tokenuser):
+import marshmallow_sqlalchemy as masql
+from ..database import UserAccount, Base
+
+
+def generic_new(
+    db,
+    model: Base,
+    new_schema: masql.SQLAlchemySchema,
+    view_schema: masql.SQLAlchemySchema,
+    values: dict,
+    tokenuser: UserAccount,
+):
     if not values:
         return no_values_response()
 
@@ -24,7 +35,7 @@ def generic_new(db, model, new_schema, view_schema, values, tokenuser):
 
     new = model(**building_result)
     new.author_id = tokenuser.id
-    
+
     try:
         db.session.add(new)
         db.session.commit()
@@ -34,7 +45,13 @@ def generic_new(db, model, new_schema, view_schema, values, tokenuser):
         return transaction_error_response(err)
 
 
-def generic_lock(db, model, id, view_schema, tokenuser):
+def generic_lock(
+    db,
+    model: Base,
+    id: int,
+    view_schema: masql.SQLAlchemySchema,
+    tokenuser: UserAccount,
+):
     existing = Model.query.filter_by(id=id).first()
 
     if not existing:
@@ -49,7 +66,16 @@ def generic_lock(db, model, id, view_schema, tokenuser):
 
     return success_with_content_response(view_schema.dump(existing))
 
-def generic_edit(db, model, id, new_schema, view_schema, values, token_user):
+
+def generic_edit(
+    db,
+    model: Base,
+    id: int,
+    new_schema: masql.SQLAlchemySchema,
+    view_schema: masql.SQLAlchemySchema,
+    values: dict,
+    token_user: UserAccount,
+):
 
     if not values:
         return no_values_response()
@@ -58,7 +84,6 @@ def generic_edit(db, model, id, new_schema, view_schema, values, token_user):
 
     if not existing:
         return not_found()
-
 
     try:
         result = new_schema.load(values)

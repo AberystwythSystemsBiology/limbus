@@ -26,6 +26,7 @@ from marshmallow import ValidationError
 
 from ..views.rack import *
 
+
 @api.route("/storage/rack", methods=["GET"])
 @token_required
 def storage_rack_home(tokenuser: UserAccount):
@@ -33,11 +34,13 @@ def storage_rack_home(tokenuser: UserAccount):
         basic_sample_wracks_schema.dump(SampleRack.query.all())
     )
 
+
 @api.route("/storage/rack/LIMBRACK-<id>", methods=["GET"])
 @token_required
 def storage_rack_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sample_wrack_schema.dumo*SampleRack.query.filter_by(id=id).first_or_404()
+        basic_sample_wrack_schema.dumo
+        * SampleRack.query.filter_by(id=id).first_or_404()
     )
 
 
@@ -45,9 +48,17 @@ def storage_rack_view(id, tokenuser: UserAccount):
 @token_required
 def storage_rack_new(tokenuser: UserAccount):
     values = request.get_json()
-    return generic_new(db, SampleRack, new_sample_rack_schema, basic_sample_wrack_schema, values, tokenuser)
+    return generic_new(
+        db,
+        SampleRack,
+        new_sample_rack_schema,
+        basic_sample_wrack_schema,
+        values,
+        tokenuser,
+    )
+
 
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])
 @token_required
-def storage_rack_lock(id, tokenuser:UserAccount):
+def storage_rack_lock(id, tokenuser: UserAccount):
     return generic_lock(db, SampleRack, id, basic_sample_wrack_schema, tokenuser)

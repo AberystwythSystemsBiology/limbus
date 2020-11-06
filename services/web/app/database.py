@@ -36,5 +36,4 @@ from .tmpstore.models import *
 from .storage.models import *
 
 
-
 configure_mappers()

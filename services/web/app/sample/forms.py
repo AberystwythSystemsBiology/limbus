@@ -34,6 +34,7 @@ from .enums import *
 import requests
 from ..misc import get_internal_api_header
 
+
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
@@ -51,8 +52,8 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
 class SampleFilterForm(FlaskForm):
 
     biohazard_level = SelectField(
-        "Biohazard Level",
-        choices=BiohazardLevel.choices(with_none=True)    )
+        "Biohazard Level", choices=BiohazardLevel.choices(with_none=True)
+    )
 
     uuid = StringField("UUID")
     barcode = StringField("Barcode")
@@ -60,6 +61,7 @@ class SampleFilterForm(FlaskForm):
     type = SelectField("Sample Type", choices=SampleType.choices(with_none=True))
     source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
     submit = SubmitField("Filter")
+
 
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
@@ -108,10 +110,9 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
         colour = SelectField(
             "Colour",
             choices=Colour.choices(),
-            description=
-            "Identifiable colour code for the sample.",
+            description="Identifiable colour code for the sample.",
         )
-        
+
         comments = TextAreaField("Comments")
         submit = SubmitField("Submit")
 
@@ -161,19 +162,17 @@ def CollectionConsentAndDisposalForm(
     consent_templates: list, collection_protocols: list, collection_sites: list
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
-
         def validate_barcode(form, field):
             if field.data != "":
                 samples_response = requests.get(
                     url_for("api.sample_query", _external=True),
                     headers=get_internal_api_header(),
-                    json={"barcode": field.data}
-                    )
-                
+                    json={"barcode": field.data},
+                )
+
                 if samples_response.status_code == 200:
                     if len(samples_response.json()["content"]) != 0:
-                        raise ValidationError("Biobank barcode must be unique!") 
-
+                        raise ValidationError("Biobank barcode must be unique!")
 
         # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
@@ -335,33 +334,41 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
 
 def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
-        aliquot_date = DateField("Aliquot Date", validators=[DataRequired()], default=datetime.today())
-        aliquot_time = TimeField("Aliquot Time", validators=[DataRequired()], default=datetime.now())
+        aliquot_date = DateField(
+            "Aliquot Date", validators=[DataRequired()], default=datetime.today()
+        )
+        aliquot_time = TimeField(
+            "Aliquot Time", validators=[DataRequired()], default=datetime.now()
+        )
         comments = TextAreaField("Comments")
         submit = SubmitField("Submit")
 
     processing_template_choices = []
 
     for protocol in processing_templates:
-        processing_template_choices.append([protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])])
+        processing_template_choices.append(
+            [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+        )
 
     setattr(
         StaticForm,
         "processing_protocol",
-        SelectField("Processing Protocol", choices=processing_template_choices, coerce=int)
+        SelectField(
+            "Processing Protocol", choices=processing_template_choices, coerce=int
+        ),
     )
-
 
     user_choices = []
 
     for user in users:
-        user_choices.append([user["id"], "%s %s" % (user["first_name"], user["last_name"])])
+        user_choices.append(
+            [user["id"], "%s %s" % (user["first_name"], user["last_name"])]
+        )
 
     setattr(
         StaticForm,
         "processed_by",
-        SelectField("Processed By", choices=user_choices, coerce=int)
+        SelectField("Processed By", choices=user_choices, coerce=int),
     )
-
 
     return StaticForm()

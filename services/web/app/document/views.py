@@ -48,7 +48,10 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
 
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("document.view", id="id", _external=True), "collection": ma.URLFor("document.index", _external=True)}
+        {
+            "self": ma.URLFor("document.view", id="id", _external=True),
+            "collection": ma.URLFor("document.index", _external=True),
+        }
     )
 
 
@@ -69,7 +72,10 @@ class DocumentFileSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
 
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("document.view", id="<id>", _external=True), "collection": ma.URLFor("document.index", _external=True)}
+        {
+            "self": ma.URLFor("document.view", id="<id>", _external=True),
+            "collection": ma.URLFor("document.index", _external=True),
+        }
     )
 
 
