@@ -60,6 +60,8 @@ def token_required(f):
 
 
         user = UserAccount.query.filter_by(email=email).first()
+        
+
         if user != None:
             user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
             if user_token != None:

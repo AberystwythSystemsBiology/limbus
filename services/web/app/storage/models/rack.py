@@ -24,3 +24,6 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     colour = db.Column(db.Enum(Colour))
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
+    cold_storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
+    cold_storage = db.relationship("ColdStorage", uselist=False)
+    

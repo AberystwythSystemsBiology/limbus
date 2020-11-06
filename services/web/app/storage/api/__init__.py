@@ -18,3 +18,4 @@ from .room import *
 from .building import *
 from .lts import *
 from .shelf import *
+from .rack import *

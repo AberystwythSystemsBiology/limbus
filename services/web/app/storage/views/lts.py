@@ -20,7 +20,6 @@ from marshmallow_enum import EnumField
 from ...database import ColdStorage
 from ..enums import FixedColdStorageTemps, FixedColdStorageType
 
-
 class BasicColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorage

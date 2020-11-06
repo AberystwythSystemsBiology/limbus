@@ -44,12 +44,12 @@
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-vial"></i> Sample Acquisition
+                            <i class="fas fa-vial"></i> Samples
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Samples</a>
-                            <a class="dropdown-item" href="#'"><i class="fas fa-boxes"></i> Sample Storage</a>
-                            <a class="dropdown-item" href="{{ url_for('consent.index') }}"><i class="fa fa-question-circle"></i> Consent Management</a>
+                            <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Sample Index</a>
+                            <a class="dropdown-item" href="{{ url_for('sample.add_collection_consent_and_barcode') }}"><i class="fas fa-plus"></i> New Sample</a>
+
                         </div>
                     </li>
 
@@ -58,12 +58,19 @@
                             <i class="fa fa-user-circle"></i> Donors
                         </a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('storage.index') }}">
+                            <i class="fas fa-boxes"></i> Storage Portal
+                        </a>
+                    </li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-vial"></i> Attributes and Protocols
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('consent.index') }}"><i class="fa fa-question-circle"></i> Consent Management</a>
                             <a class="dropdown-item" href="{{ url_for('attribute.index') }}"><i class="fab fa-buffer"></i> Attribute Portal</a>
                             <a class="dropdown-item" href="{{ url_for('protocol.index') }}"><i class="fa fa-project-diagram"></i> Protocol Portal</a>
                             <a class="dropdown-item" href="#"><i class="fa fa-stethoscope"></i> Diagnositc Procedures</a>
