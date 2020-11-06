@@ -35,18 +35,18 @@
         </thead>
         <tbody>
 
-        {% for id, donor in donors.items() %}
+        {% for donor in donors %}
             <tr>
                 <td>
-                    <a href="{{ url_for('donor.view', donor_id=id) }}">
-                        <i class="fa fa-user-circle"></i> LIMBDON-{{ id }}
+                    <a href="{{ url_for('donor.view', id=donor.id) }}">
+                        <i class="fa fa-user-circle"></i> LIMBDON-{{ donor.id }}
                     </a>
                 </td>
                 <td>{{ donor.age }}</td>
                 <td>{{ donor.sex }}</td>
                 <td>{{ donor.status }}</td>
-                <td>{{ donor.user_information.email }}</td>
-                <td>{{ donor.created_on.strftime("%d-%m-%Y") }}</td>
+                <td>{{ render_author_for_table(donor.author) }}</td>
+                <td>{{ donor.created_on }}</td>
             </tr>
         {% endfor %}
         </tbody>
