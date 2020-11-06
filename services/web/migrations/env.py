@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from sqlalchemy_continuum import make_versioned
 from logging.config import fileConfig
 import os
 import sys
@@ -28,16 +29,10 @@ config = context.config
 fileConfig(config.config_file_name)
 
 
-from sqlalchemy_continuum import make_versioned
-
-make_versioned()
-
-
 app = create_app()
 config.set_main_option("sqlalchemy.url", app.config["SQLALCHEMY_DATABASE_URI"])
 
 target_metadata = Base.metadata
-
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.

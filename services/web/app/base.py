@@ -22,7 +22,6 @@ class BaseModel(object):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)

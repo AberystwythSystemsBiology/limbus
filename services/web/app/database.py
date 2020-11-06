@@ -14,13 +14,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import configure_mappers
 
 from sqlalchemy_continuum import make_versioned
 from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin
-from sqlalchemy.orm import configure_mappers
+
+make_versioned(user_cls=None)
 
 db = SQLAlchemy()
+
 
 from .base import BaseModel
 
@@ -36,5 +40,7 @@ from .protocol.models import *
 from .sample.models import *
 from .tmpstore.models import *
 from .storage.models import *
+
+
 
 configure_mappers()

@@ -52,7 +52,9 @@ function limbus_db_create() {
         mkdir -p ./services/web/migrations/versions
     fi
 
-    docker-compose run web sh -c "alembic revision --autogenerate -m 'Generating database'; alembic upgrade head"
+    docker-compose run web sh -c "flask db upgrade"
+
+    #docker-compose run web sh -c "alembic revision --autogenerate -m 'Generating database'; alembic upgrade head"
 }
 
 function limbus_db_upgrade() {

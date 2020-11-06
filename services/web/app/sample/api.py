@@ -379,7 +379,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.add(ssts)
 
 
-
     sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
     db.session.add(sample)
     db.session.commit()
