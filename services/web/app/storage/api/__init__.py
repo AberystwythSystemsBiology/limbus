@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .misc import *
 from .room import *
 from .building import *
 from .lts import *
 from .shelf import *
 from .rack import *
+from .misc import *

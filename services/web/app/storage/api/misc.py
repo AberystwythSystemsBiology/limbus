@@ -20,6 +20,17 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, Room, UserAccount
+from ...database import db, SiteInformation, UserAccount
 
 from marshmallow import ValidationError
+
+from ..views.misc import tree_sites_schema
+
+@api.route("/storage/tree", methods=["GET"])
+@token_required
+def storage_view_tree(tokenuser: UserAccount):
+    print(SiteInformation.query.all()[0].buildings)
+    
+    return success_with_content_response(
+        tree_sites_schema.dump(SiteInformation.query.all())
+    )

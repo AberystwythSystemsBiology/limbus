@@ -17,6 +17,5 @@ from .room import *
 from .building import *
 from .lts import *
 from .rack import *
-
-# from .shelf import *
-# from .cryobox import *
+from .shelf import *
+from .misc import *
