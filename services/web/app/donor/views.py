@@ -15,15 +15,11 @@
 
 from ..extensions import ma
 from .models import Donor
-<<<<<<< HEAD
-#from ..auth.views import UserView
-=======
 from .enums import (
     RaceTypes,
     BiologicalSexTypes,
     DonorStatusTypes
 )
->>>>>>> f726089b47464f1350c416ab0fd49075bcd2d1d5
 
 from sqlalchemy_continuum import version_class, parent_class
 from ..extensions import ma
@@ -45,7 +41,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     age = masql.auto_field()
     sex = EnumField(BiologicalSexTypes)
     status = EnumField(DonorStatusTypes)
-    death_date = fields.Date()
+    death_date = ma.Date()
 
     weight = masql.auto_field()
     height = masql.auto_field()
@@ -55,13 +51,8 @@ class DonorSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     updater = ma.Nested(BasicUserAccountSchema)
 
-<<<<<<< HEAD
-    creation_date = fields.Date()
-    update_date = fields.Date()
-=======
-    created_on = fields.Date()
-    updated_on = fields.Date()
->>>>>>> f726089b47464f1350c416ab0fd49075bcd2d1d5
+    created_on = ma.Date()
+    updated_on = ma.Date()
 
     _links = ma.Hyperlinks(
         {"self": ma.URLFor("donor.view", id="id", _external=True), "collection": ma.URLFor("donor.index", _external=True)}
@@ -75,15 +66,15 @@ class NewDonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
 
-    age = masql.auto_field()
-    sex = EnumField(BiologicalSexTypes)
-    status = EnumField(DonorStatusTypes)
-    death_date = masql.auto_field()
+    age = masql.auto_field(allow_none=True)
+    sex = EnumField(BiologicalSexTypes, allow_none=True)
+    status = EnumField(DonorStatusTypes, allow_none=True)
+    death_date = ma.Date(format='%Y-%m-%d', allow_none=True) #
 
-    weight = masql.auto_field()
-    height = masql.auto_field()
+    weight = masql.auto_field(allow_none=True)
+    height = masql.auto_field(allow_none=True)
 
-    race = EnumField(RaceTypes)
+    race = EnumField(RaceTypes, allow_none=True)
 
 
 new_donor_schema = NewDonorSchema()

@@ -46,6 +46,7 @@ class RaceTypes(FormEnum):
 class BiologicalSexTypes(FormEnum):
     M = "Male"
     F = "Female"
+    UNK = "Unknown"
 
 
 class DonorStatusTypes(FormEnum):

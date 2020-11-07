@@ -38,11 +38,7 @@
         {% for donor in donors %}
             <tr>
                 <td>
-<<<<<<< HEAD
-                    <a href="{{ url_for('donor.view', donor_id=donor.id) }}">
-=======
                     <a href="{{ url_for('donor.view', id=donor.id) }}">
->>>>>>> f726089b47464f1350c416ab0fd49075bcd2d1d5
                         <i class="fa fa-user-circle"></i> LIMBDON-{{ donor.id }}
                     </a>
                 </td>
@@ -50,13 +46,8 @@
                 <td>{{ donor.age }}</td>
                 <td>{{ donor.sex }}</td>
                 <td>{{ donor.status }}</td>
-<<<<<<< HEAD
-                <td>{{ donor.author.email }}</td>
-                <td>{{ donor.created_on.strftime("%d-%m-%Y") }}</td>
-=======
                 <td>{{ render_author_for_table(donor.author) }}</td>
                 <td>{{ donor.created_on }}</td>
->>>>>>> f726089b47464f1350c416ab0fd49075bcd2d1d5
             </tr>
         {% endfor %}
         </tbody>

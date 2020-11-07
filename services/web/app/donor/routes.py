@@ -27,11 +27,7 @@ from flask_login import login_required, current_user
 import requests
 from .models import Donor
 from .forms import DonorCreationForm
-<<<<<<< HEAD
-#from .views import DonorIndexView, DonorView
 from ..misc import get_internal_api_header
-=======
->>>>>>> f726089b47464f1350c416ab0fd49075bcd2d1d5
 
 from .. import db
 
@@ -40,6 +36,7 @@ import uuid
 from ..misc import get_internal_api_header
 import requests
 
+strconv = lambda i: i or None
 
 @donor.route("/")
 @login_required
@@ -47,7 +44,6 @@ def index():
     response = requests.get(
         url_for("api.donor_home", _external=True), headers=get_internal_api_header()
     )
-    print(response.json()["content"])
 
     if response.status_code == 200:
         return render_template(
@@ -70,36 +66,6 @@ def view(id):
     else:
         return response.content
 
-@login_required
-@donor.route("/add", methods=["GET", "POST"])
-def add1():
-    form = DonorCreationForm()
-    if form.validate_on_submit():
-
-        death_date = None
-        if form.status.data == "DE":
-            death_date = form.death_date.data
-
-        donor = Donor(
-            uuid=uuid.uuid4(),
-            age=form.age.data,
-            sex=form.sex.data,
-            status=form.status.data,
-            race=form.race.data,
-            death_date=death_date,
-            weight=form.weight.data,
-            height=form.height.data,
-            author_id=current_user.id,
-        )
-
-        db.session.add(donor)
-        db.session.commit()
-
-        flash("Donor information successfully added!")
-        return redirect(url_for("donor.index"))
-
-    return render_template("donor/add.html", form=form)
-
 
 @login_required
 @donor.route("/new", methods=["GET", "POST"])
@@ -108,23 +74,28 @@ def add():
     if form.validate_on_submit():
 
         death_date = None
-        if form.status.data == "DE":
-            death_date = form.death_date.data
 
-        donor_information = {
+        if form.status.data == "DE":
+            death_date = form.death_date.data#, '%Y-%m-%d')
+
+        form_information = {
             "age": form.age.data,
             "sex": form.sex.data,
             "status": form.status.data,
             "race": form.race.data,
             "death_date": death_date,
-            "weight": float(form.weight.data),
-            "height": float(form.height.data)
+            "weight": form.weight.data,
+            "height": form.height.data
         }
+
+        # Set empty field to Null
+        for i in form_information:
+            form_information[i] = strconv(form_information[i])
 
         response = requests.post(
             url_for("api.donor_new", _external=True),
             headers=get_internal_api_header(),
-            json=donor_information,
+            json=form_information,
         )
 
         if response.status_code == 200:
@@ -134,7 +105,6 @@ def add():
             return abort(response.status_code)
 
     return render_template("donor/add.html", form=form)
-
 
 @login_required
 @donor.route("/edit/LIMBDON-<id>", methods=["GET", "POST"])
@@ -146,17 +116,24 @@ def edit(id):
 
     if response.status_code == 200:
         form = DonorCreationForm(data=response.json()["content"])
-
         if form.validate_on_submit():
+
+            death_date = None
+            if form.status.data == "DE":
+                death_date = strconv(form.death_date.data)  # , '%Y-%m-%d')
+
             form_information = {
                 "age": form.age.data,
                 "sex": form.sex.data,
                 "status": form.status.data,
-                "death_date": form.death_date.data,
-                "weight": float(form.weight.data),
-                "height": float(form.height.data),
+                "death_date": death_date, #form.death_date.data,
+                "weight": form.weight.data,
+                "height": form.height.data,
                 "race": form.race.data
             }
+            # Set empty field to Null
+            for i in form_information:
+                form_information[i] = strconv(form_information[i] )
 
             edit_response = requests.put(
                 url_for("api.donor_edit", id=id, _external=True),
