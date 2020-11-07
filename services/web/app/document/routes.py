@@ -28,11 +28,7 @@ from flask_login import login_required, current_user
 import io
 
 from . import document
-from .forms import (
-    DocumentCreationForm,
-    DocumentLockForm,
-    UploadFileForm,
-)
+from .forms import DocumentCreationForm, DocumentLockForm, UploadFileForm
 
 from ..misc import get_internal_api_header
 import requests

@@ -26,8 +26,9 @@ from ...auth.views import BasicUserAccountSchema
 class BasicBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Building
-    
+
     name = masql.auto_field()
+
 
 basic_building_schema = BasicBuildingSchema()
 basic_buildings_schema = BasicBuildingSchema(many=True)
@@ -39,5 +40,6 @@ class NewBuildingSchema(masql.SQLAlchemySchema):
 
     name = masql.auto_field()
     site_id = masql.auto_field()
+
 
 new_building_schema = NewBuildingSchema()

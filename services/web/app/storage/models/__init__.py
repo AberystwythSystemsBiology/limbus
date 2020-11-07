@@ -24,7 +24,6 @@ from .shelf import *
 from .rack import *
 
 
-
 class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     box_id = db.Column(db.Integer, db.ForeignKey("samplerack.id"))

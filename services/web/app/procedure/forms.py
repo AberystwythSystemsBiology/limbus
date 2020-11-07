@@ -14,13 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import (
-    FileField,
-    StringField,
-    SubmitField,
-    DecimalField,
-    BooleanField,
-)
+from wtforms import FileField, StringField, SubmitField, DecimalField, BooleanField
 from wtforms.validators import DataRequired
 
 

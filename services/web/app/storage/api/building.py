@@ -25,11 +25,15 @@ from ...database import db, Building, UserAccount
 
 from marshmallow import ValidationError
 
-from ..views import (
-    basic_building_schema,
-    basic_buildings_schema,
-    new_building_schema
-)
+from ..views import basic_building_schema, basic_buildings_schema, new_building_schema
+
+
+@api.route("/storage/building/", methods=["GET"])
+@token_required
+def storage_buildings_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_buildings_schema.dump(Building.query.all())
+    )
 
 @api.route("/storage/building/", methods=["GET"])
 @token_required
@@ -44,6 +48,7 @@ def storage_building_view(id, tokenuser: UserAccount):
     return success_with_content_response(
         basic_building_schema.dump(Building.query.filter_by(id=id).first_or_404())
     )
+
 
 @api.route("/storage/building/new/", methods=["POST"])
 @token_required
@@ -60,7 +65,7 @@ def storage_building_new(tokenuser: UserAccount):
 
     new_building = Building(**building_result)
     new_building.author_id = tokenuser.id
-    
+
     try:
         db.session.add(new_building)
         db.session.commit()
@@ -119,4 +124,5 @@ def storage_edit_building(id: int, tokenuser: UserAccount):
 
         return success_with_content_response(basic_building_schema.dump(building))
     except Exception as err:
+
         return transaction_error_response(err)

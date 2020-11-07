@@ -17,38 +17,33 @@ from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
+from ...database import SiteInformation, Building, ColdStorage
+from ..enums import FixedColdStorageType, FixedColdStorageTemps
 
-from ...database import SampleRack
-from ...sample.enums import Colour
-
-
-class BasicSampleRackSchema(masql.SQLAlchemySchema):
+class TreeColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleRack
+        model = ColdStorage
 
     id = masql.auto_field()
-    uuid = masql.auto_field()
-    description = masql.auto_field()
-    serial_number = masql.auto_field()
-    num_rows = masql.auto_field()
-    num_cols = masql.auto_field()
-    colour = EnumField(Colour)
+    type = EnumField(FixedColdStorageType)
+    temp = EnumField(FixedColdStorageTemps)
 
-
-basic_sample_wrack_schema = BasicSampleRackSchema()
-basic_sample_wracks_schema = BasicSampleRackSchema(many=True)
-
-
-class NewSampleRackSchema(masql.SQLAlchemySchema):
+class TreeBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleRack
+        model = Building
 
-    description = masql.auto_field()
-    serial_number = masql.auto_field()
-    num_rows = masql.auto_field()
-    num_cols = masql.auto_field()
-    colour = EnumField(Colour)
-    cold_storage_id = masql.auto_field()
+    id = masql.auto_field()
+    name = masql.auto_field()
+    cold_storage = ma.Nested(TreeColdStorageSchema, many=True)
+
+class TreeSiteSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SiteInformation
+    
+    id = masql.auto_field()
+    name = masql.auto_field()
+    buildings = ma.Nested(TreeBuildingSchema, many=True)
 
 
-new_sample_rack_schema = NewSampleRackSchema()
+
+tree_sites_schema = TreeSiteSchema(many=True)

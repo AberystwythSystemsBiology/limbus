@@ -58,7 +58,10 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("protocol.view", id="<id>", _external=True), "collection": ma.URLFor("protocol.index", _external=True)}
+        {
+            "self": ma.URLFor("protocol.view", id="<id>", _external=True),
+            "collection": ma.URLFor("protocol.index", _external=True),
+        }
     )
 
 
@@ -124,9 +127,11 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("protocol.view", id="id", _external=True), "collection": ma.URLFor("protocol.index", _external=True)}
+        {
+            "self": ma.URLFor("protocol.view", id="id", _external=True),
+            "collection": ma.URLFor("protocol.index", _external=True),
+        }
     )
-
 
 
 protocol_template_schema = ProtocolTemplateSchema()

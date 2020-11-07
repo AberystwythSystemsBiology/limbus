@@ -18,6 +18,7 @@ from flask import render_template, session, current_app, url_for, redirect
 from flask_login import current_user, login_required
 import requests
 
+
 @misc.route("/")
 def index() -> str:
     if current_user.is_authenticated:
@@ -29,14 +30,14 @@ def index() -> str:
 @login_required
 def panel_data():
     panel_response = requests.get(
-        url_for("api.get_data", _external=True),
-        headers=get_internal_api_header()
+        url_for("api.get_data", _external=True), headers=get_internal_api_header()
     )
 
     if panel_response.status_code == 200:
         return panel_response.json()
     else:
         return abort(panel_response.status_code)
+
 
 @misc.route("/license")
 def license() -> str:

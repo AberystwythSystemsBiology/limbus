@@ -69,10 +69,14 @@ class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
     version = masql.auto_field()
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
-    
+
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("consent.view", id="<id>", _external=True), "collection": ma.URLFor("consent.index", _external=True)}
+        {
+            "self": ma.URLFor("consent.view", id="<id>", _external=True),
+            "collection": ma.URLFor("consent.index", _external=True),
+        }
     )
+
 
 basic_consent_form_template_schema = BasicConsentFormTemplateSchema()
 basic_consent_form_templates_schema = BasicConsentFormTemplateSchema(many=True)
@@ -121,8 +125,12 @@ class ConsentFormTemplateSchema(masql.SQLAlchemySchema):
     questions = ma.Nested(BasicConsentFormQuestionSchema(many=True))
 
     _links = ma.Hyperlinks(
-        {"self": ma.URLFor("consent.view", id="<id>", _external=True), "collection": ma.URLFor("consent.index", _external=True)}
-    , required=False)
+        {
+            "self": ma.URLFor("consent.view", id="<id>", _external=True),
+            "collection": ma.URLFor("consent.index", _external=True),
+        },
+        required=False,
+    )
 
 
 consent_form_template_schema = ConsentFormTemplateSchema()

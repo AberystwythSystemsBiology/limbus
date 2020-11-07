@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from sqlalchemy_continuum import make_versioned
 from logging.config import fileConfig
 import os
 import sys
@@ -26,11 +27,6 @@ from app.database import db, Base
 
 config = context.config
 fileConfig(config.config_file_name)
-
-
-from sqlalchemy_continuum import make_versioned
-
-make_versioned()
 
 
 app = create_app()

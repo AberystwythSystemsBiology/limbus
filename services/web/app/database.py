@@ -14,10 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
-
-from sqlalchemy_continuum import make_versioned
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin, FlaskPlugin
 from sqlalchemy.orm import configure_mappers
 
 db = SQLAlchemy()
@@ -36,5 +34,6 @@ from .protocol.models import *
 from .sample.models import *
 from .tmpstore.models import *
 from .storage.models import *
+
 
 configure_mappers()

@@ -35,3 +35,5 @@ class SiteInformation(Base, RefAuthorMixin):
     url = db.Column(db.String(128))
     address_id = db.Column(db.Integer, db.ForeignKey("address.id"), nullable=False)
     address = db.relationship("Address", uselist=False)
+
+    buildings = db.relationship("Building", uselist=True)

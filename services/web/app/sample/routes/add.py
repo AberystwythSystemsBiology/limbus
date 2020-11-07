@@ -34,6 +34,7 @@ from datetime import datetime
 
 import requests
 
+
 def prepare_form_data(form_data: dict) -> dict:
     def _prepare_consent(consent_template_id: str, consent_data: dict):
         new_consent_data = {
@@ -85,7 +86,7 @@ def prepare_form_data(form_data: dict) -> dict:
         collection_event_id: str,
         processing_event_id: str,
         disposal_id: str,
-        consent_id: str
+        consent_id: str,
     ) -> dict:
 
         new_sample_data = {
@@ -102,7 +103,7 @@ def prepare_form_data(form_data: dict) -> dict:
             "collection_event_id": collection_event_id,
             "processing_event_id": processing_event_id,
             "disposal_id": disposal_id,
-            "consent_id": consent_id
+            "consent_id": consent_id,
         }
 
         return new_sample_data
@@ -138,7 +139,9 @@ def prepare_form_data(form_data: dict) -> dict:
             values["fixation_type"] = sample_information_data["fixation_type"]
             values["cell_container"] = sample_information_data["cell_container"]
         elif sample_type_and_container_data["type"] == "MOL":
-            values["molecular_sample_type"] = sample_information_data["molecular_sample_type"]
+            values["molecular_sample_type"] = sample_information_data[
+                "molecular_sample_type"
+            ]
             values["fluid_container"] = sample_information_data["fluid_container"]
 
         sample_type_and_container_data["values"] = values
@@ -167,7 +170,7 @@ def prepare_form_data(form_data: dict) -> dict:
         sample_review_data = {
             "conducted_by": sample_review_data["conducted_by"],
             "datetime": datetime.strptime(
-                "%s %s" % (sample_review_data["date"], sample_review_data["time"],),
+                "%s %s" % (sample_review_data["date"], sample_review_data["time"]),
                 "%Y/%m/%d %H:%M:%S",
             ),
             "quality": sample_review_data["quality"],
@@ -222,32 +225,29 @@ def prepare_form_data(form_data: dict) -> dict:
     if consent_response.status_code != 200:
         return consent_response.content
 
-
     type_data = _prepare_sample_type_and_container(form_data["add_sample_information"])
 
     type_response = requests.post(
         url_for("api.sample_new_sample_type", _external=True),
         headers=get_internal_api_header(),
-        json=type_data
+        json=type_data,
     )
 
     if type_response.status_code != 200:
         return consent_response.content
 
     disposal_data = _prepare_disposal_object(
-        form_data["add_collection_consent_and_barcode"],
-        sample_id=None
+        form_data["add_collection_consent_and_barcode"], sample_id=None
     )
 
     disposal_response = requests.post(
         url_for("api.sample_new_disposal_instructions", _external=True),
         headers=get_internal_api_header(),
-        json=disposal_data
+        json=disposal_data,
     )
 
     if disposal_response.status_code != 200:
         return disposal_response.content
-
 
     sample_data = _prepare_sample_object(
         form_data["add_collection_consent_and_barcode"],
@@ -258,19 +258,17 @@ def prepare_form_data(form_data: dict) -> dict:
         collection_response.json()["content"]["id"],
         processing_response.json()["content"]["id"],
         disposal_response.json()["content"]["id"],
-        consent_response.json()["content"]["id"]
+        consent_response.json()["content"]["id"],
     )
-    
-   
+
     sample_response = requests.post(
         url_for("api.sample_new_sample", _external=True),
         headers=get_internal_api_header(),
-        json=sample_data
+        json=sample_data,
     )
 
     if sample_response.status_code != 200:
         return sample_response.content
-
 
     sample_review_data = form_data["add_sample_review"]
 
@@ -583,7 +581,7 @@ def add_processing_information(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/sample/add/step_four.html", form=form, hash=hash,)
+    return render_template("sample/sample/add/step_four.html", form=form, hash=hash)
 
 
 @sample.route("add/sample_review/<hash>", methods=["GET", "POST"])

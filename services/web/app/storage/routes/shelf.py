@@ -30,10 +30,7 @@ from .. import storage
 
 from .misc import move_entity_to_storage
 
-from ..models import (
-    FixedColdStorageShelf,
-    CryovialBox,
-)
+from ..models import FixedColdStorageShelf, CryovialBox
 from ...sample.models import Sample
 
 from ..forms import BoxToShelfForm, NewShelfForm, SampleToEntityForm

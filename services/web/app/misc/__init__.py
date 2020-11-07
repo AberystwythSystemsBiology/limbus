@@ -39,5 +39,5 @@ def get_internal_api_header():
     except AttributeError:
         return {}
 
-from .routes import *
 
+from .routes import *

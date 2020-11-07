@@ -39,11 +39,10 @@ def aliquot(uuid: str):
     if protocol_response.status_code != 200:
         abort(400)
 
-
     user_response = requests.get(
         url_for("api.auth_home", _external=True),
         headers=get_internal_api_header(),
-        json={}
+        json={},
     )
 
     if user_response.status_code != 200:
@@ -56,6 +55,7 @@ def aliquot(uuid: str):
 
     return render_template("sample/sample/aliquot/create.html", form=form)
 
+
 @sample.route("query", methods=["POST"])
 @login_required
 def query():
@@ -67,14 +67,14 @@ def query():
     query_response = requests.post(
         url_for("api.sample_query", _external=True),
         headers=get_internal_api_header(),
-        json=values
+        json=values,
     )
 
-    
     if query_response.status_code == 200:
         return query_response.json()
     else:
         return {"Err": query_response.status_code}
+
 
 @sample.route("<uuid>/aliquot/endpoint", methods=["POST"])
 @login_required
@@ -87,13 +87,14 @@ def aliquot_endpoint(uuid: str):
     aliquot_response = requests.post(
         url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
-        json=values
+        json=values,
     )
-    
+
     if aliquot_response.status_code == 200:
         return aliquot_response.json()
     else:
         return {"Err": aliquot_response.status_code}
+
 
 @sample.route("<uuid>/derive")
 @login_required

@@ -24,8 +24,8 @@ from ..enums import (
     BiohazardLevel,
 )
 
-class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
+class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     barcode = db.Column(db.Text)
 
@@ -49,10 +49,9 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
     sample_type_information = db.relationship("SampleToType")
 
-
     # Collection Informaiton
     # Done -> sample_new_sample_protocol_event
-    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id")) 
+    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
     collection_information = db.relationship(
         "SampleProtocolEvent",
         uselist=False,
@@ -61,21 +60,15 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     # Consent Information
     # Done -> sample_new_sample_consent
-    consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
-    consent_information = db.relationship(
-        "SampleConsent",
-        uselist=False
+    consent_id = db.Column(
+        db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False
     )
-    
+    consent_information = db.relationship("SampleConsent", uselist=False)
+
     # Disposal Information
     # Done -> sample_new_disposal_instructions
-    disposal_id = db.Column(
-        db.Integer, db.ForeignKey("sampledisposal.id")
-    )
-    disposal_information = db.relationship(
-        "SampleDisposal",
-        uselist=False
-    )
+    disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
+    disposal_information = db.relationship("SampleDisposal", uselist=False)
 
     # Processing Information
     # Done -> sample_new_sample_protocol_event
@@ -94,27 +87,25 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         "Sample",
         secondary="subsampletosample",
         primaryjoin="Sample.id==SubSampleToSample.parent_id",
-        secondaryjoin="Sample.id==SubSampleToSample.subsample_id"
+        secondaryjoin="Sample.id==SubSampleToSample.subsample_id",
     )
-
 
     parent = db.relationship(
         "Sample",
         secondary="subsampletosample",
         primaryjoin="Sample.id==SubSampleToSample.subsample_id",
         secondaryjoin="Sample.id==SubSampleToSample.parent_id",
-        uselist=False
+        uselist=False,
     )
-
-
 
     # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
-    subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
-
+    subsample_id = db.Column(
+        db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
+    )
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))

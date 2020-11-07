@@ -23,6 +23,7 @@ login_manager = LoginManager()
 
 def register_extensions(app):
     db.init_app(app)
+
     ma.init_app(app)
     mde.init_app(app)
     login_manager.init_app(app)

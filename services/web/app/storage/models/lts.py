@@ -17,6 +17,7 @@ from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import FixedColdStorageTemps, FixedColdStorageType
 
+
 class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     serial_number = db.Column(db.String(128))
     manufacturer = db.Column(db.String(128))

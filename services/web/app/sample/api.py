@@ -33,7 +33,7 @@ from ..database import (
     SampleDisposal,
     SampleToContainer,
     SampleToType,
-    SubSampleToSample
+    SubSampleToSample,
 )
 
 from .views import (
@@ -57,20 +57,13 @@ from .views import (
 
 from datetime import datetime
 
-from .enums import (
-    CellContainer,
-    FixationType,
-    FluidContainer,
-)
-
+from .enums import CellContainer, FixationType, FluidContainer
 
 
 @api.route("/sample", methods=["GET"])
 @token_required
 def sample_home(tokenuser: UserAccount):
-    return success_with_content_response(
-        basic_samples_schema.dump(Sample.query.all())
-    )
+    return success_with_content_response(basic_samples_schema.dump(Sample.query.all()))
 
 
 @api.route("/sample/query", methods=["GET"])
@@ -79,12 +72,12 @@ def sample_home(tokenuser: UserAccount):
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
 
-
     return success_with_content_response(
         basic_samples_schema.dump(
             Sample.query.filter_by(**filters).filter(*joins).all()
         )
     )
+
 
 @api.route("/sample/<uuid>", methods=["GET"])
 @token_required
@@ -92,13 +85,10 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
 
     if sample:
-        return success_with_content_response(
-            sample_schema.dump(
-                sample
-            )
-        )
+        return success_with_content_response(sample_schema.dump(sample))
     else:
         abort(404)
+
 
 @api.route("/sample/new_sample_protocol_event", methods=["POST"])
 @token_required
@@ -136,38 +126,35 @@ def sample_new_sample_type(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-    
+
     try:
         sample_type = values["type"]
         sample_values = values["values"]
     except KeyError as err:
         return validation_error_response(err)
-    
+
     try:
         if sample_type == "FLU":
             sample_schema = new_fluid_sample_schema.load(sample_values)
 
             new_container = SampleToContainer(
-                flui_cont = sample_schema["fluid_container"],
-                author_id=tokenuser.id
+                flui_cont=sample_schema["fluid_container"], author_id=tokenuser.id
             )
 
         elif sample_type == "CEL":
             sample_schema = new_cell_sample_schema.load(sample_values)
             new_container = SampleToContainer(
-                cell_cont = sample_schema["cell_container"],
-                fixa_cont = sample_schema["fixation_type"],
-                author_id=tokenuser.id
+                cell_cont=sample_schema["cell_container"],
+                fixa_cont=sample_schema["fixation_type"],
+                author_id=tokenuser.id,
             )
         else:
             sample_schema = new_molecular_sample_schema.load(sample_values)
             new_container = SampleToContainer(
-                flui_cont = sample_schema["fluid_container"],
-                author_id = tokenuser.id
+                flui_cont=sample_schema["fluid_container"], author_id=tokenuser.id
             )
     except ValidationError as err:
         return validation_error_response(err)
-    
 
     db.session.add(new_container)
     db.session.commit()
@@ -175,32 +162,29 @@ def sample_new_sample_type(tokenuser: UserAccount):
 
     if sample_type == "FLU":
         new_sample_to_type = SampleToType(
-            flui_type = sample_schema["fluid_sample_type"],
+            flui_type=sample_schema["fluid_sample_type"],
             author_id=tokenuser.id,
-            container_id=new_container.id
+            container_id=new_container.id,
         )
     elif sample_type == "CEL":
         new_sample_to_type = SampleToType(
-            cell_type = sample_schema["cell_sample_type"],
-            tiss_type = sample_schema["tissue_sample_type"],
+            cell_type=sample_schema["cell_sample_type"],
+            tiss_type=sample_schema["tissue_sample_type"],
             author_id=tokenuser.id,
-            container_id=new_container.id
+            container_id=new_container.id,
         )
     else:
         new_sample_to_type = SampleToType(
-            molecular_sample_type = sample_schema["mole_type"],
+            molecular_sample_type=sample_schema["mole_type"],
             author_id=tokenuser.id,
-            container_id=new_container.id
+            container_id=new_container.id,
         )
 
     db.session.add(new_sample_to_type)
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(
-        sample_type_schema.dump(new_sample_to_type)
-    )
-
+    return success_with_content_response(sample_type_schema.dump(new_sample_to_type))
 
 
 @api.route("sample/new_sample", methods=["POST"])
@@ -225,9 +209,7 @@ def sample_new_sample(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(
-            basic_sample_schema.dump(new_sample)
-        )
+        return success_with_content_response(basic_sample_schema.dump(new_sample))
     except Exception as err:
         return transaction_error_response(err)
 
@@ -245,7 +227,6 @@ def sample_new_disposal_instructions(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-
     new_disposal_instructions = SampleDisposal(**disposal_instructions_values)
     new_disposal_instructions.author_id = tokenuser.id
 
@@ -261,15 +242,19 @@ def sample_new_disposal_instructions(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-
-
 @api.route("/sample/containers", methods=["GET"])
 def sample_get_containers():
-    return success_with_content_response({
-        "Fluid": {"container": FluidContainer.choices()},
-        "Molecular": {"container": FluidContainer.choices()},
-        "Cell": {"container": CellContainer.choices(), "fixation_type": FixationType.choices()}
-    })
+    return success_with_content_response(
+        {
+            "Fluid": {"container": FluidContainer.choices()},
+            "Molecular": {"container": FluidContainer.choices()},
+            "Cell": {
+                "container": CellContainer.choices(),
+                "fixation_type": FixationType.choices(),
+            },
+        }
+    )
+
 
 @api.route("/sample/new_sample_consent", methods=["POST"])
 @token_required
@@ -336,13 +321,20 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    for i in ["aliquot_date", "aliquot_time", "aliquots", "comments", "parent_id", "processed_by", "processing_protocol_id"]:
+    for i in [
+        "aliquot_date",
+        "aliquot_time",
+        "aliquots",
+        "comments",
+        "parent_id",
+        "processed_by",
+        "processing_protocol_id",
+    ]:
         try:
             values[i]
         except KeyError as err:
             transaction_error_response(err)
 
-    print (values)
     to_remove = sum([abs(float(a["volume"])) for a in values["aliquots"]])
 
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
@@ -352,7 +344,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
     for aliquot in values["aliquots"]:
         sample_cpy = Sample.query.filter_by(uuid=uuid).first_or_404()
-        
         db.session.expunge(sample_cpy)
         make_transient(sample_cpy)
 
@@ -372,12 +363,11 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             #id=1,
             parent_id = sample.id,
             subsample_id = sample_cpy.id,
-            #author_id = tokenuser.id
+            author_id = tokenuser.id
         )
 
 
         db.session.add(ssts)
-
 
     sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
     db.session.add(sample)
