@@ -24,7 +24,7 @@ from ..decorators import token_required
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
 
-import datetime
+from sqlalchemy.sql import func
 
 from ..auth.models import UserAccount
 from .models import Donor
@@ -52,7 +52,6 @@ def donor_view(id, tokenuser: UserAccount):
         )
     )
 
-from sqlalchemy.sql import func
 
 @api.route("/donor/LIMBDON-<id>/edit", methods=["PUT"])
 @token_required

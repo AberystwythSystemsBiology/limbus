@@ -20,6 +20,8 @@ from ..decorators import token_required
 
 from flask import request, current_app, url_for
 from marshmallow import ValidationError
+from sqlalchemy.sql import func
+
 
 from ..database import (
     UserAccount,
@@ -106,6 +108,7 @@ def attribute_new_option(id, tokenuser: UserAccount):
     new_option = AttributeOption(**option_result)
     new_option.author_id = tokenuser.id
     new_option.attribute_id = id
+
     try:
         db.session.add(new_option)
         db.session.commit()
@@ -218,6 +221,7 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
 
     attribute = Attribute.query.filter_by(id=id).first_or_404()
     attribute.editor_id = tokenuser.id
+    attribute.updated_on = func.now()
 
     for attr, value in values.items():
         setattr(attribute, attr, value)

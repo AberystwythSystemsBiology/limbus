@@ -112,26 +112,26 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeOption
 
-    term = masql.auto_field()
-    accession = masql.auto_field()
-    ref = masql.auto_field()
+    term = masql.auto_field(allow_none=False)
+    accession = masql.auto_field(allow_none=True)
+    ref = masql.auto_field(allow_none=True)
 
 
 new_attribute_option_schema = NewAttributeOptionSchema()
 new_attribute_options_schema = NewAttributeOptionSchema(many=True)
 
 
-class NewAttributeOptionSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = AttributeOption
-
-    term = masql.auto_field()
-    accession = masql.auto_field()
-    ref = masql.auto_field()
-
-
-new_attribute_option_schema = NewAttributeOptionSchema()
-new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+# class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+#     class Meta:
+#         model = AttributeOption
+#
+#     term = masql.auto_field()
+#     accession = masql.auto_field()
+#     ref = masql.auto_field()
+#
+#
+# new_attribute_option_schema = NewAttributeOptionSchema()
+# new_attribute_options_schema = NewAttributeOptionSchema(many=True)
 
 
 class AttributeOptionSchema(masql.SQLAlchemySchema):
@@ -182,15 +182,15 @@ class NewAttributeDataSchema(masql.SQLAlchemySchema):
 new_attribute_data_schema = NewAttributeDataSchema()
 
 
-class NewAttributeOptionSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = AttributeData
+# class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+#     class Meta:
+#         model = AttributeData
+#
+#     attribute_id = masql.auto_field()
+#     option_id = masql.auto_field()
 
-    attribute_id = masql.auto_field()
-    option_id = masql.auto_field()
 
-
-new_attribute_option_schema = NewAttributeDataSchema()
+# new_attribute_option_schema = NewAttributeDataSchema()
 
 
 class AttributeDataSchema(masql.SQLAlchemySchema):
