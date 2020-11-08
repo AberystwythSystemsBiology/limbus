@@ -73,7 +73,6 @@ def donor_edit(id, tokenuser: UserAccount):
     donor.editor_id = tokenuser.id
     donor.updated_on = func.now()
 
-    print ('Now : ', donor.updated_on)
     try:
         db.session.add(donor)
         db.session.commit()

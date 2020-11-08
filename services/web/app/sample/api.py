@@ -17,6 +17,7 @@
 from flask import request, abort
 from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
+from sqlalchemy.sql import func
 
 from ..api import api
 from ..api.filters import generate_base_query_filters, get_filters_and_joins
@@ -335,41 +336,39 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         except KeyError as err:
             transaction_error_response(err)
 
-    to_remove = sum([abs(float(a["volume"])) for a in values["aliquots"]])
+    to_remove = sum([float(a["volume"]) for a in values["aliquots"]])
+
 
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
-
+    parent_values = new_sample_schema.dump(sample)
+    parent_id = sample.id
+    sample_values = new_sample_schema.load(parent_values)
     if sample.remaining_quantity < to_remove:
         return "Total amount is greater than remaining quantity", 400
 
     for aliquot in values["aliquots"]:
-        sample_cpy = Sample.query.filter_by(uuid=uuid).first_or_404()
-        db.session.expunge(sample_cpy)
+        sample_cpy = Sample(**sample_values)
         make_transient(sample_cpy)
-
-        sample_cpy.id = None
-        sample_cpy.uuid = None
         sample_cpy.barcode = aliquot["barcode"]
         sample_cpy.quantity = aliquot["volume"]
         sample_cpy.remaining_quantity = aliquot["volume"]
         sample_cpy.author_id = tokenuser.id
         sample_cpy.source = "ALI"
+        sample_cpy.author_id = tokenuser.id
 
         db.session.add(sample_cpy)
         db.session.flush()
 
         ssts = SubSampleToSample(
-            # wtf?
-            #id=1,
-            parent_id = sample.id,
+            parent_id = parent_id,
             subsample_id = sample_cpy.id,
             author_id = tokenuser.id
         )
 
-
         db.session.add(ssts)
 
     sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
+    sample.updated_on = func.now()
     db.session.add(sample)
     db.session.commit()
 
