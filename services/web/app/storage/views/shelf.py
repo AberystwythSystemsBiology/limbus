@@ -12,3 +12,40 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+from ...extensions import ma
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
+
+from ...database import ColdStorageShelf
+from ...sample.enums import Colour
+
+
+class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    description = masql.auto_field()
+    z = masql.auto_field()
+
+
+basic_shelf_schema = BasicColdStorageShelfSchema()
+basic_shelves_schema = BasicColdStorageShelfSchema(many=True)
+
+
+class NewColdStorageShelfSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    description = masql.auto_field()
+    name = masql.auto_field()
+    z = masql.auto_field()
+    storage_id = masql.auto_field()
+
+
+
+new_shelf_schema = NewColdStorageShelfSchema()
