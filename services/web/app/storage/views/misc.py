@@ -17,8 +17,16 @@ from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-from ...database import SiteInformation, Building, ColdStorage
+from ...database import SiteInformation, Building,  Room, ColdStorage, ColdStorageShelf
 from ..enums import FixedColdStorageType, FixedColdStorageTemps
+
+class TreeColdStorageShelfSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+
 
 class TreeColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -28,13 +36,22 @@ class TreeColdStorageSchema(masql.SQLAlchemySchema):
     type = EnumField(FixedColdStorageType)
     temp = EnumField(FixedColdStorageTemps)
 
+    shelves = ma.Nested(TreeColdStorageShelfSchema, many=True)
+
+class TreeRoomSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Room
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+
 class TreeBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Building
 
     id = masql.auto_field()
     name = masql.auto_field()
-    cold_storage = ma.Nested(TreeColdStorageSchema, many=True)
+    rooms = ma.Nested(TreeRoomSchema, many=True)
 
 class TreeSiteSchema(masql.SQLAlchemySchema):
     class Meta:

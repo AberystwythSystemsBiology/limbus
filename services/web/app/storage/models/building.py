@@ -21,3 +21,4 @@ class Building(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     name = db.Column(db.String(128))
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     site = db.relationship("SiteInformation", uselist=False)
+    rooms = db.relationship("Room", uselist=True)

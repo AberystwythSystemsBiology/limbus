@@ -44,7 +44,7 @@ def storage_room_view(id, tokenuser: UserAccount):
 @api.route("/storage/room/new", methods=["POST"])
 @token_required
 def storage_room_new(tokenuser: UserAccount):
-    room = request.get_json()
+    values = request.get_json()
 
     if not values:
         return no_values_response()

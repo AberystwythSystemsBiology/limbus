@@ -36,7 +36,7 @@ def storage_buildings_home(tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/building/LIMBUILD-<id>", methods=["GET"])
+@api.route("/storage/building/LIMBBUILD-<id>", methods=["GET"])
 @token_required
 def storage_building_view(id, tokenuser: UserAccount):
     return success_with_content_response(
@@ -69,7 +69,7 @@ def storage_building_new(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/storage/building/LIMBUILD-<id>/lock", methods=["PUT"])
+@api.route("/storage/building/LIMBBUILD-<id>/lock", methods=["PUT"])
 @token_required
 def storage_lock_building(id: int, tokenuser: UserAccount):
     building = Building.query.filter_by(id=id).first()
@@ -87,7 +87,7 @@ def storage_lock_building(id: int, tokenuser: UserAccount):
     return success_with_content_response(basic_building_schema.dump(building))
 
 
-@api.route("/storage/building/LIMBUILD-<id>/edit", methods=["PUT"])
+@api.route("/storage/building/LIMBBUILD-<id>/edit", methods=["PUT"])
 @token_required
 def storage_edit_building(id: int, tokenuser: UserAccount):
 

@@ -22,7 +22,7 @@ from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
 
 
-@storage.route("/storage/building/new", methods=["GET", "POST"])
+@storage.route("/building/new", methods=["GET", "POST"])
 @login_required
 def new_building():
     form = BuildingRegistrationForm()
@@ -40,3 +40,8 @@ def new_building():
             return abort(response.status_code)
 
     return render_template("storage/building/new.html", form=form)
+
+@storage.route("/building/LIMBUILD-<id>", methods=["GET"])
+@login_required
+def view_building(id):
+    pass

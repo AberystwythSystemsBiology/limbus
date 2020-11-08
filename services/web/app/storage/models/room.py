@@ -21,3 +21,4 @@ class Room(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     name = db.Column(db.String(128))
     building_id = db.Column(db.Integer, db.ForeignKey("building.id"))
     building = db.relationship("Building", uselist=False)
+    storage = db.relationship("ColdStorage", uselist=True)    

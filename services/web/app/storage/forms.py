@@ -33,11 +33,11 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationError
 from ..setup.forms import post_code_validator
 from ..misc import get_internal_api_header
+from .enums import *
 
 
 class RoomRegistrationForm(FlaskForm):
-    room = StringField("Room Number", validators=[DataRequired()])
-    building = StringField("Building")
+    name = StringField("Room Name", validators=[DataRequired()])
     submit = SubmitField("Register Room")
 
 
@@ -111,7 +111,7 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-def LongTermColdStorageForm():
+def ColdStorageForm():
     class StaticForm(FlaskForm):
         serial_number = StringField(
             "Serial Number",

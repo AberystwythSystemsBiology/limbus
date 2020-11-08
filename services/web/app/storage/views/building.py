@@ -26,7 +26,7 @@ from ...auth.views import BasicUserAccountSchema
 class BasicBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Building
-
+    id = masql.auto_field()
     name = masql.auto_field()
 
 

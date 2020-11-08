@@ -23,19 +23,48 @@ from flask import (
     jsonify,
     flash,
 )
+import requests
+from ...misc import get_internal_api_header
 
 from flask_login import current_user, login_required
-from ... import db
 from .. import storage
 
-from ..forms import RoomRegistrationForm, LongTermColdStorageForm
+from ..forms import RoomRegistrationForm, RoomRegistrationForm
 
-from ..models import FixedColdStorage, Room
+@storage.route("/building/LIMBBUILD-<id>/room/new", methods=["GET", "POST"])
+@login_required
+def new_room(id):
+    
+    response = requests.get(
+        url_for("api.storage_building_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code == 200:
+        form = RoomRegistrationForm()
 
-from ..views.room import RoomView, BasicRoomView
+        if form.validate_on_submit():
 
+            new_response = requests.post(
+                url_for("api.storage_room_new", _external=True),
+                headers=get_internal_api_header(),
+                json = {
+                    "name": form.name.data,
+                    "building_id": id
+                }
+            )
 
+            if new_response.status_code == 200:
+                flash("Room Successfully Created")
+                # TODO: Replace.
+                return redirect(url_for("document.index"))
+            return abort(new_response.status_code)
+        
+        return render_template("storage/room/new.html", form=form, building=response.json()["content"])
+    
+    abort(response.status_code)
+
+'''
 @storage.route("/rooms/LIMBROM-<room_id>")
 @login_required
 def view_room(room_id: int):
@@ -87,3 +116,4 @@ def add_lts(room_id: int):
         return redirect(url_for("storage.view_room", room_id=room_id))
 
     return render_template("storage/lts/new.html", form=form, room=room)
+'''

@@ -25,20 +25,28 @@ from flask import (
 )
 
 from .. import storage
-
+import requests
+from ...misc import get_internal_api_header
 from flask_login import current_user, login_required
 
-from ..forms import LongTermColdStorageForm, NewShelfForm
+from ..forms import ColdStorageForm, NewShelfForm
 
-@storage.route("/coldstorage/new", methods=["GET", "POST"])
+@storage.route("/coldstorage/new/LIMROOM-<id>", methods=["GET"])
 @login_required
-def new_cold_storage()
+def new_cold_storage(id):
+    response = requests.get(
+        url_for("api.storage_room_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
-@storage.route("/coldstorage/LIMBCS-<id>/add_shelf", methods=["GET", "POST"])
-@login_required
-def add_shelf(id: int):
-    pass
-    #return render_template("/storage/shelf/new.html", form=form, lts=lts)
+    if response.status_code == 200:
+        form = ColdStorageForm()
+
+        return render_template("storage/lts/new.html", form=form, room=response.json()["content"])
+
+
+
+
 
 
 @storage.route("/coldstorage/LIMBLTS-<lts_id>/edit", methods=["GET", "POST"])

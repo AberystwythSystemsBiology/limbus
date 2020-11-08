@@ -26,6 +26,8 @@ class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     type = db.Column(db.Enum(FixedColdStorageType))
     room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
 
+    shelves = db.relationship("ColdStorageShelf")
+    room = db.relationship("Room")
     documents = db.relationship("Document", secondary="documenttocoldstorage")
 
 

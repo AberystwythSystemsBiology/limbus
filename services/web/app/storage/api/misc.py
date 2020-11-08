@@ -29,7 +29,6 @@ from ..views.misc import tree_sites_schema
 @api.route("/storage/tree", methods=["GET"])
 @token_required
 def storage_view_tree(tokenuser: UserAccount):
-    print(SiteInformation.query.all()[0].buildings)
     
     return success_with_content_response(
         tree_sites_schema.dump(SiteInformation.query.all())
