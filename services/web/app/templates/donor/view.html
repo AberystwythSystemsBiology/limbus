@@ -11,7 +11,7 @@
             <div class="col-sm-8">
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{url_for('donor.edit', donor_id=donor.id) }}">
+                <a href="{{url_for('donor.edit', id=donor.id) }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
                 </a>
             </div>
@@ -47,39 +47,6 @@
         
     </div>
     </div>
-
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-        <h3><i class="fa fa-history"></i> Change History</h3>
-    </div>
-
-    
-    <table id="history" class="table table-striped table-bordered" style="width:100%">
-        <thead>
-        <tr>
-            <th width="70%">Change</th>
-            <th>Contributor</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for id, change  in donor.versions.items() %}
-            <tr>
-                <td>
-                    <a data-toggle="collapse" href="#_{{id}}_collapse" aria-expanded="true" aria-controls="_{{id}}_collapse">
-                        <i class="fa fa-plus-circle"></i> {{change.items()|length}} changes ({{ change.update_date }})
-                        </a>
-                        <div class="collapse" id="_{{id}}_collapse">
-                        <ul>
-                        {% for k, v in change.items() if k not in ["updater_id"] %}
-                            <li><b>{{ k }}:</b> {{ v|join(' → ') }}</li>
-                        {% endfor %}
-                        </ul>
-                    </div>
-                </td>
-                <td>{{ change.updater_id.email }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
 </div>
 
 
