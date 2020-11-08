@@ -2,7 +2,7 @@
 
 function check_status() {
     if ($("#status").val() == "DE") {
-        $('#death_date').val("");
+        $('#death_date').val('');
         $("#death_date_div").show();
     } 
     else {
@@ -12,7 +12,7 @@ function check_status() {
 
         var day = ("0" + now.getDate()).slice(-2);
         var month = ("0" + (now.getMonth() + 1)).slice(-2);
-        
+
         var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
         
         $('#death_date').val(today);
