@@ -368,7 +368,10 @@ def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
     setattr(
         StaticForm,
         "processed_by",
-        SelectField("Processed By", choices=user_choices, coerce=int),
+        #SelectField("Processed By", choices=user_choices, coerce=int),
+        # sample processor not necessarily in the system
+        StringField("Processed By"),
     )
+
 
     return StaticForm()
