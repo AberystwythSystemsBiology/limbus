@@ -78,7 +78,7 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
         return form_type(
             attribute["term"],
             description=attribute["term"],
-            validators=[DataRequired(), Length(text_setting["max_length"])],
+            validators=[DataRequired(), Length(max=text_setting["max_length"])],
             render_kw={"custom": True},
         )
 
