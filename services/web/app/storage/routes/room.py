@@ -70,7 +70,15 @@ def new_room(id):
 @storage.route("/rooms/LIMBROOM-<id>")
 @login_required
 def view_room(id: int):
-    pass
+    response = requests.get(
+        url_for("api.storage_room_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("storage/room/view.html", room=response.json()["content"])
+
+    return abort(response.status_code)
 
 '''
 

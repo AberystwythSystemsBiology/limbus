@@ -25,7 +25,7 @@ from ...database import db, Building, UserAccount
 
 from marshmallow import ValidationError
 
-from ..views import basic_building_schema, basic_buildings_schema, new_building_schema
+from ..views import basic_building_schema, basic_buildings_schema, new_building_schema, building_schema
 
 
 @api.route("/storage/building/", methods=["GET"])
@@ -40,7 +40,7 @@ def storage_buildings_home(tokenuser: UserAccount):
 @token_required
 def storage_building_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_building_schema.dump(Building.query.filter_by(id=id).first_or_404())
+        building_schema.dump(Building.query.filter_by(id=id).first_or_404())
     )
 
 

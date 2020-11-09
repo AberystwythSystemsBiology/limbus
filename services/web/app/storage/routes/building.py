@@ -44,4 +44,12 @@ def new_building():
 @storage.route("/building/LIMBUILD-<id>", methods=["GET"])
 @login_required
 def view_building(id):
-    pass
+    response = requests.get(
+        url_for("api.storage_building_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("storage/building/view.html", building=response.json()["content"])
+
+    return abort(response.status_code)

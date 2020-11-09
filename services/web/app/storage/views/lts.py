@@ -29,8 +29,8 @@ class BasicColdStorageSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     serial_number = masql.auto_field()
     manufacturer = masql.auto_field()
-    temp = EnumField(FixedColdStorageTemps)
-    type = EnumField(FixedColdStorageType)
+    temp = EnumField(FixedColdStorageTemps, by_value=True)
+    type = EnumField(FixedColdStorageType, by_value=True)
 
 
 basic_cold_storage_schema = BasicColdStorageSchema()
