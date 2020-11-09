@@ -32,4 +32,5 @@
 {% block javascript %}
     <script src="{{ url_for('static', filename='js/storage/lts/add.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+        return render_template("storage/shelf/new.html", form=form, cs=response.json()["content"])
 {% endblock %}
