@@ -72,6 +72,11 @@ def new_cold_storage(id):
         abort(response.status_code)
 
 
+@storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])
+@login_required
+def view_cold_storage(id):
+    pass
+
 
 
 @storage.route("/coldstorage/LIMBLTS-<lts_id>/edit", methods=["GET", "POST"])

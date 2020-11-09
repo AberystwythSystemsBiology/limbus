@@ -3,7 +3,37 @@ function sap2tree(sap) {
     var sites = sap["content"];
 
 
+    for (var i = 0; i < sites.length; i++) {
+        var site = sites[i];
+        site["text"] = `LIMBSIT-${site['id']}: ${site['name']}`; 
+        site["type"] = "site";
+        site["children"] = site["buildings"];
+        
+        for (var j = 0; j < site["buildings"].length; j++) {
+            var building = site["buildings"][j];
+            building["text"] =`${building['name']}`;
+            building["type"] = "building";
+            building["children"] = building["rooms"];
+            building["id"] = building["_links"]["self"]
 
+            for (var k = 0; k < building["rooms"].length; k++) {
+                var room = building["rooms"][k];
+                room["text"] = `${room['name']}`;
+                room["type"] = "room";
+                room["id"] = room["_links"]["self"]
+                room["children"] = room["storage"];
+
+                for (var l = 0; l < room["storage"].length; l++) {
+                    var storage = room["storage"][l];
+                    storage["text"] = `${storage["manufacturer"]} (${storage["temp"]})`;
+                    storage["type"] = "fridge";
+                    storage["id"] = storage["_links"]["self"]
+                }
+            }
+            
+        }
+
+    }
 
     return {
         'types': {
@@ -20,7 +50,7 @@ function sap2tree(sap) {
         'plugins' : ['types', 'state'],
         'core': {
             'data': {
-                'text': 'Sites',
+                'text': 'Show Sites',
                 'type': 'home',
                 'children': sites
             }
@@ -38,40 +68,11 @@ $(function() {
     });
 
 
-    function selectSite(site) {
-        var site_id = parseId(site.id);
-        location.href=`/storage/sites/LIMBSIT-${site_id}`
-    }
 
-    function selectRoom(room) {
-        var room_id = parseId(room.id);
-        location.href=`/storage/rooms/LIMBROM-${room_id}`
+    function selectElement(element) {
+        location.href=element.id;
     }
-
-    function selectFridge(fridge) {
-        var fridge_id = parseId(fridge.id);
-        location.href=`/storage/lts/LIMBLTS-${fridge_id}`
-    }
-
-    function selectShelf(shelf) {
-        var shelf_id = parseId(shelf.id);
-        location.href=`/storage/shelves/LIMBSHF-${shelf_id}`
-    }
-
-    function selectBox(box) {
-        var box_id = parseId(box.id);
-        location.href=`/storage/cryobox/LIMBCRB-${box_id}`
-    }
-
-    function selectSample(sample) {
-        var sample_id = parseId(sample.id);
-        location.href=`../../../samples/LIMBSMP-${sample_id}`
-    }
-
-    function parseId(id_field) {
-        return id_field.split(':').slice(1).join(':');
-    }
-
+    
     $.get( "/storage/overview", function( data ) {
         $('#jstree').jstree(sap2tree(data));
         $('#jstree').on("changed.jstree", function(e, data) {
@@ -83,22 +84,9 @@ $(function() {
                     location.href = '/storage/';
                     break;
                 case 'site':
-                    selectSite(data.node);
                     break;
-                case 'room':
-                    selectRoom(data.node);
-                    break;
-                case 'fridge':
-                    selectFridge(data.node);
-                    break;
-                case 'shelf':
-                    selectShelf(data.node);
-                    break;
-                case 'box':
-                    selectBox(data.node);
-                    break;
-                case 'sample':
-                    selectSample(data.node);
+                default:
+                    selectElement(data.node);
                     break;
             }
         });

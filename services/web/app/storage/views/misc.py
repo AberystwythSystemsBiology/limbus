@@ -19,13 +19,9 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 from ...database import SiteInformation, Building,  Room, ColdStorage, ColdStorageShelf
 from ..enums import FixedColdStorageType, FixedColdStorageTemps
+from flask import url_for
 
-class TreeColdStorageShelfSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = ColdStorageShelf
 
-    id = masql.auto_field()
-    name = masql.auto_field()
 
 
 class TreeColdStorageSchema(masql.SQLAlchemySchema):
@@ -34,10 +30,14 @@ class TreeColdStorageSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     manufacturer = masql.auto_field()
-    temp = EnumField(FixedColdStorageTemps)
-    type = EnumField(FixedColdStorageType)
+    temp = EnumField(FixedColdStorageTemps, by_value=True)
+    type = EnumField(FixedColdStorageType, by_value=True)
 
-    shelves = ma.Nested(TreeColdStorageShelfSchema, many=True)
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_cold_storage", id="<id>", _external=True),
+        }
+    )
 
 class TreeRoomSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -47,6 +47,12 @@ class TreeRoomSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     storage = ma.Nested(TreeColdStorageSchema, many=True)
 
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_room", id="<id>", _external=True),
+        }
+    )
+
 class TreeBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Building
@@ -54,6 +60,12 @@ class TreeBuildingSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     name = masql.auto_field()
     rooms = ma.Nested(TreeRoomSchema, many=True)
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_building", id="<id>", _external=True),
+        }
+    )
 
 class TreeSiteSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -66,13 +66,13 @@ def new_room(id):
     
     return abort(response.status_code)
 
-'''
-@storage.route("/rooms/LIMBROM-<room_id>")
-@login_required
-def view_room(room_id: int):
-    room = RoomView(room_id)
-    return render_template("storage/room/view.html", room=room)
 
+@storage.route("/rooms/LIMBROOM-<id>")
+@login_required
+def view_room(id: int):
+    pass
+
+'''
 
 @storage.route("/rooms/LIMBROM-<room_id>/edit", methods=["GET", "POST"])
 @login_required
