@@ -5,21 +5,21 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %} {{ room.building }}-{{ room.room_number }}: New Long Term Cold Storage{% endblock %}
+{% block title %} LIMBROOM-{{room.id}} ({{ room.name }}) : New Cold Storage{% endblock %}
 
 {% block body %}
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
-            <h1><span class="secondary-heading"><i class="fa fa-building"></i> {{ room.building }}-{{ room.room_number }}</span>New Long Term Cold Storage</h1>
+            <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBROOM-{{room.id}} ({{ room.name }}) </span>New Cold Storage</h1>
 
-            <form method="POST" action="{{ url_for('storage.add_lts', room_id=room.id) }}">
+            <form method="POST" action="{{ url_for('storage.new_cold_storage', id=room.id) }}">
                 {{ form.csrf_token }}
-                {{ form_field(form.type) }}
-                {{ form_field(form.temperature) }}
-
                 {{ form_field(form.manufacturer) }}
+                {{ form_field(form.temperature) }}
+                {{ form_field(form.type) }}
                 {{ form_field(form.serial_number) }}
+                {{ form_field(form.comments) }}
 
                 {{ form_field(form.submit) }}
             </form>

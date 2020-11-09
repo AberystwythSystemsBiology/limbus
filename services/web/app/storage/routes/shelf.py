@@ -34,7 +34,7 @@ from ...misc import get_internal_api_header
 def new_shelf(id):
         
     response = requests.get(
-        url_for("api.storage_shelf_new", id=id, _external=True),
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
         headers=get_internal_api_header()
     )
 
@@ -44,16 +44,17 @@ def new_shelf(id):
         if form.validate_on_submit():
 
             new_response = requests.post(
-                url_for("api.storage_room_new", _external=True),
+                url_for("api.storage_shelf_new", _external=True),
                 headers=get_internal_api_header(),
                 json = {
                     "name": form.name.data,
-                    "building_id": id
+                    "description": form.description.data,
+                    "storage_id": id
                 }
             )
 
             if new_response.status_code == 200:
-                flash("Room Successfully Created")
+                flash("Shelf Successfully Created")
                 # TODO: Replace.
                 return redirect(url_for("document.index"))
             return abort(new_response.status_code)

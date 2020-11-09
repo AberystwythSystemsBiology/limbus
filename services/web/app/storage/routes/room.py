@@ -40,6 +40,8 @@ def new_room(id):
         headers=get_internal_api_header()
     )
 
+
+
     if response.status_code == 200:
         form = RoomRegistrationForm()
 
@@ -62,7 +64,7 @@ def new_room(id):
         
         return render_template("storage/room/new.html", form=form, building=response.json()["content"])
     
-    abort(response.status_code)
+    return abort(response.status_code)
 
 '''
 @storage.route("/rooms/LIMBROM-<room_id>")

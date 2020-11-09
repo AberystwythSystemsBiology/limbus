@@ -25,6 +25,7 @@ from wtforms import (
     SubmitField,
     DateField,
     TimeField,
+    TextAreaField,
     FileField,
     ValidationError,
     SelectField,
@@ -69,7 +70,7 @@ class NewShelfForm(FlaskForm):
         description="A descriptive name for the shelf, something like top shelf.",
     )
 
-    description = StringField(
+    description = TextAreaField(
         "Shelf Description", description="A brief description of the shelf."
     )
 
@@ -122,6 +123,11 @@ def ColdStorageForm():
             validators=[DataRequired()],
             description="The storage facility manufacturer.",
         )
+
+        comments = TextAreaField(
+            "Comments"
+        )
+
         temperature = SelectField(
             "Temperature",
             choices=FixedColdStorageTemps.choices(),

@@ -33,8 +33,9 @@ class TreeColdStorageSchema(masql.SQLAlchemySchema):
         model = ColdStorage
 
     id = masql.auto_field()
-    type = EnumField(FixedColdStorageType)
+    manufacturer = masql.auto_field()
     temp = EnumField(FixedColdStorageTemps)
+    type = EnumField(FixedColdStorageType)
 
     shelves = ma.Nested(TreeColdStorageShelfSchema, many=True)
 
@@ -44,6 +45,7 @@ class TreeRoomSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
+    storage = ma.Nested(TreeColdStorageSchema, many=True)
 
 class TreeBuildingSchema(masql.SQLAlchemySchema):
     class Meta:

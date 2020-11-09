@@ -15,7 +15,11 @@
 
 import marshmallow_sqlalchemy as masql
 from ..database import UserAccount, Base
+from marshmallow import ValidationError
 
+from .responses import *
+from .filters import generate_base_query_filters, get_filters_and_joins
+import io
 
 def generic_new(
     db,
@@ -31,9 +35,10 @@ def generic_new(
     try:
         result = new_schema.load(values)
     except ValidationError as err:
+        print(err)
         return validation_error_response(err)
 
-    new = model(**building_result)
+    new = model(**result)
     new.author_id = tokenuser.id
 
     try:

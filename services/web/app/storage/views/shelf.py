@@ -43,9 +43,7 @@ class NewColdStorageShelfSchema(masql.SQLAlchemySchema):
 
     description = masql.auto_field()
     name = masql.auto_field()
-    z = masql.auto_field()
     storage_id = masql.auto_field()
-
 
 
 new_shelf_schema = NewColdStorageShelfSchema()

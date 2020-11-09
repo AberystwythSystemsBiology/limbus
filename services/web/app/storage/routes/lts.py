@@ -31,20 +31,45 @@ from flask_login import current_user, login_required
 
 from ..forms import ColdStorageForm, NewShelfForm
 
-@storage.route("/coldstorage/new/LIMROOM-<id>", methods=["GET"])
+@storage.route("/coldstorage/new/LIMROOM-<id>", methods=["GET", "POST"])
 @login_required
 def new_cold_storage(id):
+    
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
         headers=get_internal_api_header()
     )
 
+
+
     if response.status_code == 200:
         form = ColdStorageForm()
+
+        if form.validate_on_submit():
+            new_response = requests.post(
+                url_for("api.storage_coldstorage_new", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "room_id": id,
+                    "serial_number": form.serial_number.data,
+                    "manufacturer": form.manufacturer.data,
+                    "comments": form.comments.data,
+                    "temp": form.temperature.data,
+                    "type": form.type.data
+                }
+            )
+
+            if new_response.status_code == 200:
+                flash("Cold Storage Successfuly Created")
+                # TODO: Replace
+                return redirect(url_for("document.index"))
+            return abort(new_response.status_code)
 
         return render_template("storage/lts/new.html", form=form, room=response.json()["content"])
 
 
+    else:
+        abort(response.status_code)
 
 
 

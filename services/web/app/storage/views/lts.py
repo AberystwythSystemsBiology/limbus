@@ -46,6 +46,7 @@ class NewColdStorageSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     temp = EnumField(FixedColdStorageTemps)
     type = EnumField(FixedColdStorageType)
+    room_id = masql.auto_field()
 
 
 new_cold_storage_schema = NewColdStorageSchema()
