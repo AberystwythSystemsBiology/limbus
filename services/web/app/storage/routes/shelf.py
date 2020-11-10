@@ -63,3 +63,15 @@ def new_shelf(id):
     
     return abort(response.status_code)
 
+@storage.route("/shelf/LIMBSHLF-<id>", methods=["GET"])
+@login_required
+def view_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("storage/shelf/view.html", shelf=response.json()["content"])
+
+    return abort(response.status_code)

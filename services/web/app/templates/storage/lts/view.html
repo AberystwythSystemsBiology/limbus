@@ -29,8 +29,16 @@
                                         </button>
                                     </a>
                                 </div>
+
+                                <div class="btn-group mr-2">
+                                    <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}"> 
+                                        <div class="btn btn-outline-dark">
+                                            <i class="fas fa-plus"></i> Add Shelf
+                                        </div>
+                                    </a>
+                                </div>
         
-        
+    
                             {% endif %}
         
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
@@ -58,20 +66,14 @@
 
             <h2><i class="fa fa-bars"></i> Shelves</h2>
             <div class="btn-toolbar">
-                <div class="btn-group mr-2">
-                    <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}">
-                        <div class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add Shelf
-                        </div>
-                    </a>
-                </div>
+                
             </div>
         </span>
 
 
-            <ul class="list-group">
+            <div class="list-group">
                 {% for shelf in cs.shelves %}
-                <li class="list-group-item">
+                <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}" class="list-group-item list-group-item-action">
                     <div class="media">
                         <span class="mr-3"><h1><i class="fa fa-bars"></i></h1></span>
                         <div class="media-body">
@@ -79,9 +81,9 @@
                           {{ show_value(shelf.description, "Description", "text") }}
                         </div>
                       </div>
-                </li>
+                </a>
                 {% endfor %}
-              </ul>
+            </div>
 
         </div>
     </div>

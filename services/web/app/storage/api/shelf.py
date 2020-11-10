@@ -38,7 +38,7 @@ def storage_shelf_home(tokenuser: UserAccount):
 @token_required
 def storage_shelf_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_shelves_schema.dump(
+        shelf_schema.dump(
             ColdStorageShelf.query.filter_by(id=id).first_or_404())
     )
 

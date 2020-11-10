@@ -26,6 +26,11 @@ from marshmallow import ValidationError
 
 from ..views.misc import tree_sites_schema
 
+@api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
+@token_required
+def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
+    pass
+
 @api.route("/storage/tree", methods=["GET"])
 @token_required
 def storage_view_tree(tokenuser: UserAccount):

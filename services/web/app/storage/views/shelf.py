@@ -21,7 +21,25 @@ from marshmallow_enum import EnumField
 
 from ...database import ColdStorageShelf
 from ...sample.enums import Colour
+from ...auth.views import BasicUserAccountSchema
 
+class ColdStorageShelfSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+    
+    id = masql.auto_field()
+    name = masql.auto_field()
+    description = masql.auto_field()
+    z = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+    updated_on = ma.Date()
+    # samples
+    # sample rack
+    is_locked = masql.auto_field()
+    storage_id = masql.auto_field()
+    
+shelf_schema = ColdStorageShelfSchema()
 
 class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:

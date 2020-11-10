@@ -13,9 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin
-from ..enums import EntityToStorageType
+
 
 from .building import *
 from .room import *
@@ -23,6 +21,9 @@ from .lts import *
 from .shelf import *
 from .rack import *
 
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
+from ..enums import EntityToStorageType
 
 class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))

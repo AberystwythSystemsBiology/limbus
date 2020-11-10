@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_login import UserMixin
-
+from flask import url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db, Base
 import hashlib
