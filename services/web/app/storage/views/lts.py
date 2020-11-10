@@ -19,6 +19,8 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 from ...database import ColdStorage
 from ..enums import FixedColdStorageTemps, FixedColdStorageType
+from ..views.shelf import ColdStorageShelfSchema
+from ...auth.views import BasicUserAccountSchema
 
 
 class BasicColdStorageSchema(masql.SQLAlchemySchema):
@@ -36,6 +38,23 @@ class BasicColdStorageSchema(masql.SQLAlchemySchema):
 basic_cold_storage_schema = BasicColdStorageSchema()
 basic_cold_storages_schema = BasicColdStorageSchema(many=True)
 
+class ColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorage
+    
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    serial_number = masql.auto_field()
+    manufacturer = masql.auto_field()
+    temp = EnumField(FixedColdStorageTemps, by_value=True)
+    type = EnumField(FixedColdStorageType, by_value=True)
+    room_id = masql.auto_field()
+    shelves = ma.Nested(ColdStorageShelfSchema, many=True)
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+    #room = ma.Nested(BasicRoomSchema, many=False)
+
+cold_storage_schema = ColdStorageSchema()
 
 class NewColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:

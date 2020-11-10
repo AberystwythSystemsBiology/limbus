@@ -40,8 +40,6 @@ def new_room(id):
         headers=get_internal_api_header()
     )
 
-
-
     if response.status_code == 200:
         form = RoomRegistrationForm()
 

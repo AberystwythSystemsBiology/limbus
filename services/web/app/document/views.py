@@ -43,7 +43,7 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     name = masql.auto_field()
-    type = EnumField(DocumentType)
+    type = EnumField(DocumentType, by_value=True)
     is_locked = masql.auto_field()
     created_on = fields.Date()
 

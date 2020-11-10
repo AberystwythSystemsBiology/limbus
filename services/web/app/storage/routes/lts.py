@@ -75,7 +75,21 @@ def new_cold_storage(id):
 @storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])
 @login_required
 def view_cold_storage(id):
-    pass
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("storage/lts/view.html", cs=response.json()["content"])
+    return abort(response.status_code)
+
+    '''
+    if response.status_code == 200:
+        return render_template("storage/room/view.html", room=response.json()["content"])
+
+    return abort(response.status_code)
+    '''
 
 
 
