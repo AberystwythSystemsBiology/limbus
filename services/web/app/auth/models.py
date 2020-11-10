@@ -17,6 +17,7 @@ from flask_login import UserMixin
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db, Base
+import hashlib
 
 from .enums import Title, AccountType, AccessControl
 
@@ -78,7 +79,13 @@ class UserAccount(Base, UserMixin):
         return [self.is_authenticated, self.is_bot]
 
     def get_gravatar(self, size: int = 100) -> str:
-        return "#"
+        if self.account_type == "BOT":
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(self.email.encode()).hexdigest(),
+                20,
+            )
 
 
 class UserAccountToken(Base):
