@@ -28,7 +28,17 @@ function sap2tree(sap) {
                     var storage = room["storage"][l];
                     storage["text"] = `${storage["manufacturer"]} (${storage["temp"]})`;
                     storage["type"] = "fridge";
-                    storage["id"] = storage["_links"]["self"]
+                    storage["id"] = storage["_links"]["self"];
+                    storage["children"] = storage["shelves"];
+
+                    for (var m = 0; m < storage["shelves"].length; m++) {
+                        var shelf = storage["shelves"][m];
+                        shelf["text"] = `${shelf['name']}`;
+                        shelf["type"] = "shelf";
+                        shelf["id"] = shelf["_links"]["self"];
+
+                    }
+                    
                 }
             }
             
@@ -45,7 +55,8 @@ function sap2tree(sap) {
             'fridge': { 'icon': 'fa fa-temperature-low' },
             'shelf': { 'icon': 'fa fa-bars' },
             'box': { 'icon': 'fa fa-box' },
-            'sample': { 'icon': 'fa fa-flask' }
+            'sample': { 'icon': 'fa fa-flask' },
+            'shelf': { 'icon': 'fa fa-bars' }
         },
         'state': { 'key': 'storage' },
         'plugins' : ['types', 'state'],

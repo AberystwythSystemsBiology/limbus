@@ -59,7 +59,30 @@
 
                 <h2><i class="fas fa-vial"></i> Stored Samples</h2>
 
-                {{ shelf.samples }}
+                {% for n in range(0, shelf.samples|length, 3) %}
+                <div class="card-deck mb-3 text-center">
+                    {% for sample in shelf.samples[n:n+ 3] %}
+                        <div class="card mb-4 box-shadow">
+                            <div class="card-header">
+                                <h4 class="my-0 font-weight-normal">{{ sample.uuid }}</h4>
+                              </div>
+                              <div class="card-body">
+                                <img src="{{ sample._links.qr_code }}">
+
+                                <ul class="list-unstyled mt-3 mb-4">
+                                    <li>{{render_colour(sample.colour)}} </li>
+                                    <li>Type: {{ sample.type }}</li>
+                                    <li>Created On: {{sample.created_on}}</li>
+                                </ul>
+                                    <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
+                                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                                    </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
 
                 </div>
                

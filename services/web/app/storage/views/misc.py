@@ -55,6 +55,19 @@ class NewSampleRackToShelfSchema(masql.SQLAlchemySchema):
 new_sample_rack_to_shelf_schema = NewSampleRackToShelfSchema()
 new_sample_racks_to_shelves_schema = NewSampleRackToShelfSchema(many=True)
 
+class TreeShelfSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+    
+    id = masql.auto_field()
+    name = masql.auto_field()
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
+        }
+    )
+
 class TreeColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorage
@@ -63,6 +76,8 @@ class TreeColdStorageSchema(masql.SQLAlchemySchema):
     manufacturer = masql.auto_field()
     temp = EnumField(FixedColdStorageTemps, by_value=True)
     type = EnumField(FixedColdStorageType, by_value=True)
+
+    shelves = ma.Nested(TreeShelfSchema, many=True)
 
     _links = ma.Hyperlinks(
         {
