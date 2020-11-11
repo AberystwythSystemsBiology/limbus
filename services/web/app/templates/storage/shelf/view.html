@@ -54,7 +54,8 @@
                         <i class="fa fa-user"></i> Created By: {{ render_author_for_table(shelf.author) }}
                     </div>
                 </div>
-                
+
+                {{ show_value(shelf.name, "Name", "text") }}
                 {{ show_value(shelf.description, "Description", "text") }}
 
                 <h2><i class="fas fa-vial"></i> Stored Samples</h2>
@@ -82,9 +83,7 @@
                     {% endfor %}
                 </div>
             {% endfor %}
-
-
-                </div>
+        </div>
                
     </div>
 {% endblock %}
