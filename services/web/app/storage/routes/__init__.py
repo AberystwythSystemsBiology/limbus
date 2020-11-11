@@ -19,6 +19,7 @@ from .building import *
 from .room import *
 from .lts import *
 from .shelf import *
+from .site import *
 
 """
 from .lts import *

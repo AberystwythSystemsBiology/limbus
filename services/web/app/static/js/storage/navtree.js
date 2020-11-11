@@ -8,7 +8,8 @@ function sap2tree(sap) {
         site["text"] = `LIMBSIT-${site['id']}: ${site['name']}`; 
         site["type"] = "site";
         site["children"] = site["buildings"];
-        
+        site["id"] = site["_links"]["self"]
+
         for (var j = 0; j < site["buildings"].length; j++) {
             var building = site["buildings"][j];
             building["text"] =`${building['name']}`;
@@ -82,8 +83,6 @@ $(function() {
             switch (data.node.type) {
                 case 'home':
                     location.href = '/storage/';
-                    break;
-                case 'site':
                     break;
                 default:
                     selectElement(data.node);

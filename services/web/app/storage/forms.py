@@ -151,8 +151,9 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = []
     for sample in samples:
         samples_choices.append(
-            [str(sample.id), "LIMBSMP-%s (%s)" % (sample.id, sample.sample_type)]
+            [sample["id"], sample["uuid"]]
         )
+
 
     class StaticForm(FlaskForm):
         date = DateField("Entry Date", validators=[DataRequired()])
@@ -166,7 +167,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     setattr(
         StaticForm,
         "samples",
-        SelectField("Sample", choices=samples_choices, validators=[DataRequired()]),
+        SelectField("Sample", choices=samples_choices, validators=[DataRequired()], coerce=int),
     )
 
     return StaticForm()

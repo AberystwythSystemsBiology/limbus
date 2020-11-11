@@ -25,9 +25,10 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from .. import storage
-from ..forms import NewShelfForm
+from ..forms import NewShelfForm, SampleToEntityForm
 import requests
 from ...misc import get_internal_api_header
+from datetime import datetime
 
 @storage.route("/coldstorage/LIMBCS-<id>/shelf/new", methods=["GET", "POST"])
 @login_required
@@ -73,5 +74,50 @@ def view_shelf(id):
 
     if response.status_code == 200:
         return render_template("storage/shelf/view.html", shelf=response.json()["content"])
+
+    return abort(response.status_code)
+
+@storage.route("/shelf/LIMBSHLF-<id>/assign_sample", methods=["GET", "POST"])
+@login_required
+def assign_sample_to_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        
+        sample_response = requests.get(
+            url_for("api.sample_home", _external=True),
+            headers=get_internal_api_header()
+        )
+
+        if sample_response.status_code == 200:
+
+            form = SampleToEntityForm(sample_response.json()["content"])
+
+            if form.validate_on_submit():
+              
+                sample_move_response = requests.post(
+                    url_for("api.storage_transfer_sample_to_shelf", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "sample_id": form.samples.data,
+                        "shelf_id": id,
+                        "entry_datetime": str(datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S"
+                        )),
+                        "entry": form.entered_by.data
+                        }
+                )
+
+                if sample_move_response.status_code == 200:
+                    return "Hello World"
+
+                else:
+                    flash(sample_move_response.json())
+
+            return render_template("storage/shelf/sample_to_shelf.html", shelf=response.json()["content"], form=form)
 
     return abort(response.status_code)

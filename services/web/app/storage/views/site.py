@@ -12,3 +12,30 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ...database import SiteInformation
+from .building import BasicBuildingSchema
+from ...database import db, Address, SiteInformation, UserAccount, Sample
+
+from ...misc.views import BasicAddressSchema
+
+from ...extensions import ma
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
+
+class SiteSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SiteInformation
+
+    id = masql.auto_field()
+    miabis_id = masql.auto_field()
+    acronym = masql.auto_field()
+    name = masql.auto_field()
+    description = masql.auto_field()
+    url = masql.auto_field()
+    address = ma.Nested(BasicAddressSchema)
+    buildings = ma.Nested(BasicBuildingSchema, many=True)
+
+site_schema = SiteSchema()
+sites_schema = SiteSchema(many=True)

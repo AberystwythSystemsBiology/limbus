@@ -23,3 +23,11 @@ class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMix
     z = db.Column(db.Integer)
     storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
     storage = db.relationship("ColdStorage")
+
+    
+    samples = db.relationship(
+        "Sample",
+        secondary="entitytostorage",
+        primaryjoin="ColdStorageShelf.id==EntityToStorage.shelf_id",
+        uselist=True
+    )

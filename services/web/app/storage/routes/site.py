@@ -13,11 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .room import *
-from .building import *
-from .lts import *
-from .rack import *
-from .shelf import *
-from .site import *
-from .misc import *
+from flask import (
+    redirect,
+    abort,
+    render_template,
+    url_for,
+    session,
+    request,
+    jsonify,
+    flash,
+)
 
+from flask_login import current_user, login_required
+from .. import storage
+import requests
+from ...misc import get_internal_api_header
+
+@storage.route("/site/LIMBSITE-<id>", methods=["GET"])
+@login_required
+def view_site(id):
+    response = requests.get(
+        url_for("api.site_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template("storage/site/view.html", site=response.json()["content"])
+
+    return abort(response.status_code)

@@ -29,8 +29,15 @@
                                         </button>
                                     </a>
                                 </div>
-        
-        
+
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
+                                        <button type="button" class="btn btn-outline-dark">
+                                            <i class="fas fa-vial"></i> Assign Sample
+                                        </button>
+                                    </a>
+                                </div>
+
                             {% endif %}
         
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
@@ -50,7 +57,9 @@
                 
                 {{ show_value(shelf.description, "Description", "text") }}
 
-                {{ shelf }}
+                <h2><i class="fas fa-vial"></i> Stored Samples</h2>
+
+                {{ shelf.samples }}
 
                 </div>
                

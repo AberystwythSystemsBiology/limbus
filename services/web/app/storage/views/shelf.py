@@ -19,8 +19,10 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
+
 from ...database import ColdStorageShelf
 from ...sample.enums import Colour
+from ...sample.views import BasicSampleSchema
 from ...auth.views import BasicUserAccountSchema
 
 class ColdStorageShelfSchema(masql.SQLAlchemySchema):
@@ -34,8 +36,7 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
     updated_on = ma.Date()
-    # samples
-    # sample rack
+    samples = ma.Nested(BasicSampleSchema, many=True)
     is_locked = masql.auto_field()
     storage_id = masql.auto_field()
     

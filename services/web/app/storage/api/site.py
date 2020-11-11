@@ -13,11 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .room import *
-from .building import *
-from .lts import *
-from .rack import *
-from .shelf import *
-from .site import *
-from .misc import *
+from ...api import api
+from ...api.responses import *
 
+from flask import request, send_file
+from ...decorators import token_required
+from marshmallow import ValidationError
+
+from ...database import SiteInformation, UserAccount
+
+from ..views import (
+    site_schema
+)
+
+@api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])
+@token_required
+def site_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
+    )

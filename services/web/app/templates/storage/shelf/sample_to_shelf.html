@@ -12,13 +12,21 @@
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
-            <h1><span class="secondary-heading"><i class="fa fa-bars"></i> {{ shelf.name }}</span>
-                <i class="fas fa-vial"></i> Assign Sample</h1>
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
+                        <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}
+                    </a>
+                </span>
+                <i class="fas fa-vial"></i> Assign Sample
+            </h1>
 
 
-            <form action="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}" method="post">
+            <form action="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}" method="post">
                 {{ form.csrf_token }}
-                {{ form_field(form.samples) }}
+                
+                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
+
                 <div class="row">
                     <div class="col-sm-6">
                         {{ form_field(form.date) }}
