@@ -114,10 +114,11 @@ def assign_rack_to_shelf(id):
                 if rack_move_response.status_code == 200:
                     return redirect(url_for("storage.view_shelf", id=id))
 
-                abort(rack_response.status_code)
+                return abort(rack_response.status_code)
 
             return render_template("storage/shelf/rack_to_shelf.html", shelf=response.json()["content"], form=form)
-
+    
+    return abort(response.status_code)
 
 
 @storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])

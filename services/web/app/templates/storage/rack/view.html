@@ -5,7 +5,7 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMCRB-{{ cryo.info.id }} : Cryovial Box{% endblock %}
+{% block title %}LIMBRACK-{{ rack.id }}{% endblock %}
 
 {% set count = namespace(value=0) %}
 {% set verbose_tube_count = namespace(value=0) %}
@@ -19,143 +19,11 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><span class="secondary-heading">Cryovial Box Container</span>
-                <i class="fa fa-cube"></i> LIMBCRB-{{ cryo.info.id }}</h1>
+            <h1><span class="secondary-heading">Sample Rack</span>
+                <i class="fa fa-cube"></i> LIMBRACK-{{ rack.id }}</h1>
+                
+                {{ rack }}
 
-            <div class="row">
-                <div class="col-sm-9">
-                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('storage.edit_cryobox', cryo_id=cryo.info.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
-                            </a>
-                        </div>
-
-                        <div class="btn-group mr-2" role="group" aria-label="Third group">
-                            <a href="{{ url_for('storage.view_history', storage_type = "CRB", id=cryo.info.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-history"></i> History
-                                </button>
-                            </a>
-                        </div>
-
-                        <div class="btn-group" role="group" aria-label="Third group">
-                            <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i> Print
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="margin-bottom: 3em">
-                <div class="card-body">
-                    <h5 class="card-title">Information</h5>
-                    <div class="row">
-                        <div class="col-6">
-                            {{ show_value(cryo.info.serial, "Serial Number", "text") }}
-                            {{ show_value(cryo.info.num_rows, "Number of Rows", "text") }}
-                            {{ show_value(cryo.info.num_cols, "Number of Columns", "text") }}
-                        </div>
-                        <div class="col-6">
-                            {{ show_value(cryo.info.serial, "Serial Number", "text") }}
-                            {{ show_value(cryo.info.num_rows * cryo.info.num_cols, "Total Slots", "text") }}
-                            {{ show_value(cryo.info.num_rows * cryo.info.num_cols, "Total Slots", "text") }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-sm-5 box">
-                    <div class="row no-gutters">
-                        <div class="col col-sm"></div>
-                        {% for i in range(cryo.info.num_cols) %}
-                            <div class="col box-heading">
-                                <div class="square">
-                                    <div class="align-middle">{{ i + 1 }}</div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% for i in range(cryo.info.num_rows) %}
-                        <div class="row no-gutters">
-                            {% for j in range(cryo.info.num_cols + 1) %}
-                                {% if j == 0 %}
-                                    <div class="col">
-                                        <div class="square">
-                                            <div class="align-middle">
-                                                {% set count.value = count.value + 1 %}
-                                                {{ count.value }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    {% set anot = namespace(value="%i_%i" % (_row.value, _col.value)) %}
-                                    <div class="col" id="{{ anot.value }}">
-                                        <a href="{{ url_for("storage.add_cryobox_sample", cryo_id=cryo.info.id, row=_row.value, col=_col.value) }}">
-
-                                            <div class="square {% if anot.value in cryo.sample_information %}present{% endif %}">
-                                                <div class="tube align-middle">
-                                                    {% set verbose_tube_count.value = verbose_tube_count.value + 1 %}
-                                                    {% if anot.value in cryo.sample_information %}
-                                                        <div class="present-tube">
-                                                            {{ verbose_tube_count.value }}
-                                                        </div>
-                                                    {% else %}
-                                                        <div class="empty-tube">
-                                                            {{ verbose_tube_count.value }}
-                                                        </div>
-                                                    {% endif %}
-
-                                                    {% set _col.value = _col.value + 1 %}
-
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            {% set _row.value = _row.value + 1 %}
-                        </div>
-                        {% set _col.value = 0 %}
-
-                    {% endfor %}
-                </div>
-                <div class="col-md-7">
-                    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
-                        <thead>
-                        <tr>
-                            <th>Position</th>
-                            <th>Identifier</th>
-                            <th>Sample Status</th>
-                            <th>Collection Date</th>
-                            <th>Sample Creator</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for _, sample in cryo.sample_information.items() %}
-                            <tr>
-                                <td>
-                                    <div class="btn btn-sm btn-primary">
-                                        View
-                                    </div>
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
-                                        <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
-                                    </a>
-                                </td>
-                                <td>{{ sample["sample_status"] }}</td>
-                                <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    {{ sample.author_information.email }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 {% endblock %}

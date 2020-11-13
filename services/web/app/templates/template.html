@@ -58,11 +58,15 @@
                             <i class="fa fa-user-circle"></i> Donors
                         </a>
                     </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('storage.index') }}">
-                            <i class="fas fa-boxes"></i> Storage Portal
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-boxes"></i> Storage
                         </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Storage Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('storage.add_rack') }}"><i class="fas fa-plus"></i> New Storage Rack</a>
+                        </div>
                     </li>
 
                     <li class="nav-item dropdown">

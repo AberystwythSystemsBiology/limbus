@@ -100,7 +100,7 @@ def rack_index():
          return render_template("storage/rack/index.html", racks=response.json()["content"])
 
 
-    abort(response.status_code)
+    return abort(response.status_code)
     
 
    
@@ -196,14 +196,21 @@ def crybox_from_file_validation(hash: str):
         session_data=session_data,
     )
 
-
-@storage.route("/cryobox/LIMBCRB-<cryo_id>")
+"""
+@storage.route("/rack/LIMBRACK-<id>")
 @login_required
-def view_cryobox(cryo_id):
-    cryo = CryoboxView(cryo_id)
-    return render_template("storage/cryobox/view.html", cryo=cryo)
+def view_rack(id):
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code == 200:
+        return render_template("storage/rack/view.html", rack=response.json()["content"])
 
+    return abort(response.status_code)
+
+"""
 # TODO: All of this needs to be given a specific view.
 from sqlalchemy_continuum import version_class
 from sqlalchemy import desc

@@ -22,6 +22,21 @@ from ...database import SampleRack
 from ...sample.enums import Colour
 from ...auth.views import BasicUserAccountSchema
 
+class SampleRackSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleRack
+    
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    serial_number = masql.auto_field()
+    num_rows = masql.auto_field()
+    num_cols = masql.auto_field()
+    colour = EnumField(Colour, by_value=True)
+    author = ma.Nested(BasicUserAccountSchema)
+
+
+rack_schema = SampleRackSchema()
+
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleRack
@@ -44,8 +59,8 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     )
 
 
-basic_sample_wrack_schema = BasicSampleRackSchema()
-basic_sample_wracks_schema = BasicSampleRackSchema(many=True)
+basic_sample_rack_schema = BasicSampleRackSchema()
+basic_sample_racks_schema = BasicSampleRackSchema(many=True)
 
 
 class NewSampleRackSchema(masql.SQLAlchemySchema):
@@ -57,7 +72,6 @@ class NewSampleRackSchema(masql.SQLAlchemySchema):
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
     colour = EnumField(Colour)
-    cold_storage_id = masql.auto_field()
 
 
 new_sample_rack_schema = NewSampleRackSchema()

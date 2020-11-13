@@ -111,14 +111,14 @@
                         <li>Dimensions: {{rack.num_rows }}x{{rack.num_cols }}</li>
                         <li>Created On: {{rack.created_on}}</li>
                     </ul>
-                    
-                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                        <a href="{{ url_for('storage.view_rack', id=rack.id) }}">
+                            <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                        </a>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% endfor %}
-
 
     </div>
 
