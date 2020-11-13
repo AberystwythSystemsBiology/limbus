@@ -6,60 +6,54 @@
 {% endblock %}
 
 
-{% block title %}LIMBSIT-{{ site.id }}{% endblock %}
+{% block title %}LIMBSITE-{{ site.id }}{% endblock %}
 
 {% block body %}
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><i class="fa fa-building"></i> LIMBSIT-{{ site.id }}</h1>
+            <h1><i class="fa fa-building"></i> LIMBSITE-{{ site.id }}</h1>
 
-            <div class="row">
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Information</h5>
-                    <div class="row">
-                        <div class="col-6">
-                            {{ show_value(site.name, "Name", "text") }}
-                            {{ show_value(site.address.street_address_one, "Address Line One", "text") }}
-                            {{ show_value(site.address.street_address_two, "Address Line Two", "text") }}
-                            {{ show_value(site.address.city, "City", "text") }}
-                            {{ show_value(site.address.county, "County", "text") }}
-                            {{ show_value(site.address.post_code, "Post Code", "text") }}
-                        </div>
-                        <div class="col-6">
 
-                        </div>
-                    </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
+                <h5 class="card-title">Site Information</h5>
+                    {{ show_value(site.name, "Name", "text") }}
+                    {{ show_value(site.address.street_address_one, "Address Line One", "text") }}
+                    {{ show_value(site.address.street_address_two, "Address Line Two", "text") }}
+                    {{ show_value(site.address.city, "City", "text") }}
+                    {{ show_value(site.address.county, "County", "text") }}
+                    {{ show_value(site.address.post_code, "Post Code", "text") }}
+                       
                     <div class="list-group">
                     <li class="list-group-item active">
-                          <h5 class="mb-1"><i class="fa fa-cube"></i> Rooms</h5>
+                          <h5 class="mb-1"><i class="fa fa-cube"></i> Buildings</h5>
                       </li>
-                        {% for room in site.rooms %}
-                            <a href="{{ url_for('storage.view_room', room_id=room.id) }}"
+                      {% if site.buildings|length > 0 %}
+                        {% for building in site.buildings %}
+                            <a href="{{ url_for('storage.view_building', id=building.id) }}"
                                class="list-group-item list-group-item-action flex-column align-items-start">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><i class="fa fa-door-closed"></i> LIMBRM-{{ room.id }}</h5>
+                                    <h5 class="mb-1"><i class="fa fa-door-closed"></i> LIMBROOM-{{ building.id }}</h5>
                                 </div>
-                                <p class="mb-1">{{ room.room_number }}: {{ room.building }}</p>
+                                <p class="mb-1">{{ building.name }}</p>
                             </a>
+                            
                         {% endfor %}
-                        <a href="{{ url_for('storage.new_room', s_id=site.id) }}"
+                        {% else %}
+                            <div class="list-group-item">
+                                No buildings available.
+                            </div>
+                        {% endif %}
+                        <a href="{{ url_for('storage.new_building') }}"
                            class="list-group-item list-group-item-action flex-column active"
                            style="text-align: center;">
-                            <i class="fa fa-plus"></i> Add Room
+                            <i class="fa fa-plus"></i> Add Building
                         </a>
+                        
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+
 {% endblock %}
 
 {% block javascript %}

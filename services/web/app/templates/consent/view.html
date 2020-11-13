@@ -1,0 +1,104 @@
+{% extends "template.html" %}
+
+
+
+{% block title %}LIMBPCF-{{ template.id }}{% endblock %}
+
+
+{% block body %}
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('consent.index') }}">
+                    <i class="fa fa-question-circle"></i> Patient Consent Form Portal
+                </a>
+            </span>
+            LIMBPCF-{{ template.id }}: {{ template.name }}
+        </h1>
+
+        <div class="row text-muted">
+            <div class="col-7">
+                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                    {% if not template.is_locked %}
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="{{ url_for('consent.edit', id=template.id) }}">
+                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                    Details
+                                </button>
+                            </a>
+                        </div>
+                        <div class="btn-group mr-2" role="group" aria-label="Second group">
+                            <a href="{{ url_for('consent.new_question', id=template.id) }}">
+
+                                <button type="button" data-toggle="modal"
+                                        class="btn btn-outline-dark">
+                                    <i class="fa fa-list"></i> New Question
+                                </button>
+                            </a>
+                        </div>
+
+                    {% endif %}
+
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                class="btn btn-outline-dark" disabled>
+                            <i class="fa fa-lock"></i> {% if template.is_locked %}Unl{% else %}L{% endif %}ock
+                        </button>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="col-5 text-right">
+                <i class="fa fa-grip-vertical"></i> Version: {{ template.version }}
+                <div class="clearfix"></div>
+                <i class="fa fa-calendar"></i> Created On: {{ template.created_on }}
+                <div class="clearfix"></div>
+                <i class="fa fa-user"></i> Created By: {{ render_author_for_table(template.author) }}
+            </div>
+
+        </div>
+
+
+
+
+
+                <h2>Template Information</h2>
+
+                {{ show_value(template.description, "Description", "text") }}
+                {{ show_value(template.version, "Version", "text") }}
+                {{ show_value(render_author_for_table(template.author), "Author", "text") }}
+
+
+        <h2>Questions</h2>
+
+        <table id="documents" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th>Question</th>
+                <th>Question Type</th>
+                <th>Uploader</th>
+                <th>Created On</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for question in template.questions %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('consent.view_question', id=template.id, q_id=question.id) }}">
+                            <i class="fa fa-question-circle"></i> {{ question.question }}
+                        </a>
+                    </td>
+                    <td>{{ question.type }}</td>
+                    <td>{{ render_author_for_table(question.author) }}</td>
+                    <td>{{ question.created_on }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Associated Samples</h2>
+
+    </div>
+
+{% endblock %}

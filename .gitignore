@@ -232,4 +232,9 @@ test/fixtures/**/.fbkpm
 yarn.lock
 
 **/node_modules
-*migrations
+
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+!**/migrations/env.py
+!**/migrations/script.py.mako

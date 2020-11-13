@@ -1,0 +1,30 @@
+{% extends "template.html" %}
+
+
+{% block title %}Edit Question{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('consent.view_question', id=template, q_id=question.id) }}">
+                    <i class="fa fa-question-circle"></i> LIMBPCF-{{ template }}: Question
+                </a>
+            </span>
+            Edit
+        </h1>
+
+        <form action="{{ url_for('consent.edit_question', id=template, q_id=question.id) }}" method="POST">
+            {{ form.csrf_token }}
+            {{ form_field(form.question) }}
+            {{ form_field(form.type) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+    </div>
+
+
+
+
+{% endblock %}

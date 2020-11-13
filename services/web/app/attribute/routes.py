@@ -1,170 +1,287 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from ..attribute import attribute
 
 from flask_login import current_user, login_required
-from flask import render_template, session, redirect, url_for, request, jsonify
-
-from .forms import (
-    CustomAttributeCreationForm,
-    CustomNumericAttributionCreationForm,
-    CustomTextAttributeCreationForm,
+from flask import (
+    render_template,
+    session,
+    redirect,
+    url_for,
+    request,
+    jsonify,
+    abort,
+    flash,
 )
 
-from ..misc.generators import generate_random_hash
+from .forms import (
+    AttributeCreationForm,
+    CustomNumericAttributionCreationForm,
+    CustomTextAttributeCreationForm,
+    AttributeTextSetting,
+    AttributeOptionCreationForm,
+    AttributeEditForm,
+    AttributeLockForm,
+)
 
-from .models import *
+import uuid
 
-from .. import db
+from ..misc import get_internal_api_header
 
-from ..misc import clear_session
-
-from .views import CustomAttributesIndexView, CustomAttributeView
+import requests
 
 
 @attribute.route("/")
 @login_required
 def index():
-    attributes = CustomAttributesIndexView()
-    return render_template("attribute/index.html", attributes=attributes)
+    response = requests.get(
+        url_for("api.attribute_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return render_template(
+            "attribute/index.html", attributes=response.json()["content"]
+        )
+    else:
+        return response.content
 
 
-@attribute.route("/view/LIMBATTR-<attr_id>")
+@attribute.route("/new", methods=["GET", "POST"])
 @login_required
-def view(attr_id):
-    cav = CustomAttributeView(attr_id)
-    return render_template("attribute/view.html", attribute=cav)
-
-
-@attribute.route("/add", methods=["GET", "POST"])
-@login_required
-def add():
-    form = CustomAttributeCreationForm()
+def new():
+    form = AttributeCreationForm()
 
     if form.validate_on_submit():
-        hash = generate_random_hash()
-        session["%s attribute_info"] = {
+        hash = uuid.uuid4().hex
+
+        session["%s attribute_information" % (hash)] = {
             "term": form.term.data,
+            "accession": form.term.data,
+            "ref": form.ref.data,
             "description": form.description.data,
-            "element": form.element.data,
-            "requried": form.required.data,
+            "type": form.type.data,
+            "element_type": form.element_type.data,
         }
 
-        if form.type.data == "TEXT":
-            return redirect(url_for("attribute.add_textual", hash=hash))
-        elif form.type.data == "NUMERIC":
-            return redirect(url_for("attribute.add_numeric", hash=hash))
-        else:
-            return redirect(url_for("attribute.add_option", hash=hash))
+        return redirect(url_for("attribute.new_step_two", hash=hash))
 
-    return render_template("attribute/add/add.html", form=form)
+    return render_template("attribute/new.html", form=form)
 
 
-@attribute.route("/add/numeric/<hash>", methods=["GET", "POST"])
+@attribute.route("/new/additional_information/<hash>", methods=["GET", "POST"])
 @login_required
-def add_numeric(hash):
-    form = CustomNumericAttributionCreationForm()
+def new_step_two(hash):
+    try:
+        attribute_information = session["%s attribute_information" % (hash)]
+    except KeyError:
+        return abort(500)
+
+    submit = False
+
+    attribute_type = attribute_information["type"]
+    if attribute_type == "OPTION":
+        form = None
+        additional_information = {}
+        submit = True
+    if attribute_type == "TEXT":
+        form = AttributeTextSetting()
+        if form.validate_on_submit():
+            additional_information = {
+                "max_length": form.max_length.data,
+                "type": form.type.data,
+            }
+            submit = True
+
+    elif attribute_type == "NUMERIC":
+        form = CustomNumericAttributionCreationForm()
+        if form.validate_on_submit():
+            additional_information = {
+                "measurement": form.measurement.data,
+                "symbol": form.symbol.data,
+            }
+            submit = True
+
+    if submit:
+        response = requests.post(
+            url_for("api.attribute_new_attribute", _external=True),
+            headers=get_internal_api_header(),
+            json={
+                "attribute_information": attribute_information,
+                "additional_information": additional_information,
+            },
+        )
+
+        if response.status_code == 200:
+            flash("Submitted")
+            return redirect(url_for("attribute.index"))
+        else:
+            flash("Something has happened :( %s" % response.json())
+
+    return render_template(
+        "attribute/new/additional.html",
+        form=form,
+        hash=hash,
+        attribute_type=attribute_type,
+    )
+
+
+@attribute.route("/LIMBATTR-<id>/option/new", methods=["GET", "POST"])
+@login_required
+def new_option(id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code != 200:
+        return response.content
+
+    form = AttributeOptionCreationForm()
 
     if form.validate_on_submit():
-        attribute_info = session["%s attribute_info"]
+        option_values = {
+            "ref": form.ref.data,
+            "accession": form.accession.data,
+            "term": form.term.data,
+        }
 
-        ca = CustomAttributes(
-            term=attribute_info["term"],
-            description=attribute_info["description"],
-            author_id=current_user.id,
-            type=CustomAttributeTypes.NUMERIC,
-            element=attribute_info["element"],
+        submit_response = requests.post(
+            url_for("api.attribute_new_option", id=id, _external=True),
+            headers=get_internal_api_header(),
+            json=option_values,
         )
 
-        db.session.add(ca)
-        db.session.flush()
-
-        measurement = form.measurement.data
-        prefix = form.prefix.data
-
-        if not form.requires_measurement.data:
-            measurement = None
-
-        if not form.requires_prefix.data:
-            prefix = None
-
-        ca_ns = CustomAttributeNumericSetting(
-            custom_attribute_id=ca.id, measurement=measurement, prefix=prefix
-        )
-
-        db.session.add(ca_ns)
-        db.session.commit()
-        clear_session(hash)
-
-        return redirect(url_for("attribute.index"))
-
-    return render_template("attribute/add/numeric.html", form=form, hash=hash)
+        if submit_response.status_code == 200:
+            flash("Option added")
+            return redirect(url_for("attribute.view", id=id))
+        else:
+            flash("Something has happened :( %s" % response.json())
+    return render_template("attribute/new/option.html", form=form, attribute_id=id)
 
 
-@attribute.route("/add/option/<hash>", methods=["GET", "POST"])
+@attribute.route("/LIMBATTR-<id>")
 @login_required
-def add_option(hash):
-    if request.method == "POST":
+def view(id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code == 200:
 
-        options = request.form.getlist("options[]")
+        form = AttributeLockForm(id)
 
-        attribute_info = session["%s attribute_info"]
-
-        ca = CustomAttributes(
-            term=attribute_info["term"],
-            description=attribute_info["description"],
-            author_id=current_user.id,
-            type=CustomAttributeTypes.OPTION,
-            element=attribute_info["element"],
+        return render_template(
+            "attribute/view.html", attribute=response.json()["content"], form=form
         )
+    else:
+        return response.content
 
-        db.session.add(ca)
-        db.session.flush()
 
-        for option in options:
-            sao = CustomAttributeOption(
-                term=option, author_id=current_user.id, custom_attribute_id=ca.id
+@attribute.route("/LIMBATTR-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock(id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        form = AttributeLockForm(id)
+        if form.validate_on_submit():
+            lock_response = requests.post(
+                url_for("api.attribute_lock_attribute", id=id, _external=True),
+                headers=get_internal_api_header(),
             )
 
-            db.session.add(sao)
-
-        db.session.commit()
-
-        resp = jsonify({"redirect": url_for("attribute.index", _external=True)})
-
-        clear_session(hash)
-        return resp, 201, {"ContentType": "application/json"}
-
-    return render_template("attribute/add/option.html", hash=hash)
+            if lock_response.status_code == 200:
+                return redirect(url_for("attribute.index"))
+            else:
+                flash("We have a problem :( %s" % response.json())
+        return render_template(url_for("attribute.view", id=id))
 
 
-@attribute.route("/add/textual/<hash>", methods=["GET", "POST"])
+@attribute.route("/LIMBATTR-<id>/option/<option_id>/lock", methods=["GET", "POST"])
 @login_required
-def add_textual(hash):
-    form = CustomTextAttributeCreationForm()
-    if form.validate_on_submit():
-        attribute_info = session["%s attribute_info"]
+def lock_option(id, option_id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
 
-        ca = CustomAttributes(
-            term=attribute_info["term"],
-            description=attribute_info["description"],
-            author_id=current_user.id,
-            type=CustomAttributeTypes.TEXT,
-            element=attribute_info["element"],
-        )
+    if response.status_code == 200:
+        options = [str(c["id"]) for c in response.json()["content"]["options"]]
+        if option_id in options:
+            form = AttributeLockForm(id)
 
-        db.session.add(ca)
-        db.session.flush()
+            if form.validate_on_submit():
+                lock_response = requests.post(
+                    url_for(
+                        "api.attribute_lock_option",
+                        id=id,
+                        option_id=option_id,
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
+                )
 
-        ca_ts = CustomAttributeTextSetting(
-            max_length=form.max_length.data,
-            author_id=current_user.id,
-            custom_attribute_id=ca.id,
-        )
+                if lock_response.status_code == 200:
+                    return redirect(url_for("attribute.view", id=id))
+                else:
+                    flash("We have a problem :( %s" % response.json())
 
-        db.session.add(ca_ts)
-        db.session.commit()
+            return render_template(
+                "attribute/lock_option.html",
+                option=response.json()["content"],
+                form=form,
+                attribute_id=id,
+                option_id=option_id,
+            )
+        else:
+            abort(404)
+    else:
+        return abort(response.status_code)
 
-        clear_session(hash)
 
-        return redirect(url_for("attribute.index"))
+@attribute.route("/LIMBATTR-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
 
-    return render_template("attribute/add/textual.html", form=form, hash=hash)
+    if response.status_code == 200:
+        form = AttributeEditForm()
+        if form.validate_on_submit():
+            edit_response = requests.put(
+                url_for("api.attribute_edit_attribute", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "ref": form.ref.data,
+                    "term": form.term.data,
+                    "accession": form.accession.data,
+                    "description": form.description.data,
+                },
+            )
+
+            if edit_response.status_code == 200:
+                return redirect(url_for("attribute.view", id=id))
+            else:
+                flash("We have encountered an error :( %s" % response.json())
+        form = AttributeEditForm(data=response.json()["content"])
+        return render_template("attribute/edit.html", attribute_id=id, form=form)
+    else:
+        return response.content

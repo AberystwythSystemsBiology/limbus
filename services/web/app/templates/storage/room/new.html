@@ -11,14 +11,12 @@
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
+            <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}</span>New Room</h1>
 
-            <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBSIT-{{ site.id }}</span>New Room</h1>
 
-
-            <form method="POST" action="{{ url_for('storage.new_room', s_id=site.id) }}">
+            <form method="POST" action="{{ url_for('storage.new_room', id=building.id) }}">
                 {{ form.csrf_token }}
-                {{ form_field(form.room) }}
-                {{ form_field(form.building) }}
+                {{ form_field(form.name) }}
                 {{ form_field(form.submit) }}
             </form>
 

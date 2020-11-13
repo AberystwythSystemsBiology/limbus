@@ -1,38 +1,71 @@
-from ... import db
-from ..models.lts import *
-from ..models.shelf import FixedColdStorageShelf
-from ...auth.views import UserView
-from .shelf import BasicShelfView
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ...extensions import ma
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
+from ...database import ColdStorage
+from ..enums import FixedColdStorageTemps, FixedColdStorageType
+from ..views.shelf import ColdStorageShelfSchema
+from ...auth.views import BasicUserAccountSchema
 
 
-def BasicLTSView(lts_id: int) -> dict:
-    lts = (
-        db.session.query(FixedColdStorage)
-        .filter(FixedColdStorage.id == lts_id)
-        .first_or_404()
-    )
+class BasicColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorage
 
-    return {
-        "id": lts_id,
-        "serial_number": lts.serial_number,
-        "manufacturer": lts.manufacturer,
-        "type": lts.type,
-        "room_id": lts.room_id,
-        "temperature": lts.temperature,
-        "creation_date": lts.creation_date,
-        "update_date": lts.update_date,
-        "author_information": UserView(lts.author_id),
-    }
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    serial_number = masql.auto_field()
+    manufacturer = masql.auto_field()
+    temp = EnumField(FixedColdStorageTemps, by_value=True)
+    type = EnumField(FixedColdStorageType, by_value=True)
 
 
-def LTSView(lts_id: int) -> dict:
-    data = BasicLTSView(lts_id)
+basic_cold_storage_schema = BasicColdStorageSchema()
+basic_cold_storages_schema = BasicColdStorageSchema(many=True)
 
-    data["shelves"] = {
-        x.id: BasicShelfView(x.id)
-        for x in db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.storage_id == lts_id)
-        .all()
-    }
+class ColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorage
+    
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    serial_number = masql.auto_field()
+    manufacturer = masql.auto_field()
+    temp = EnumField(FixedColdStorageTemps, by_value=True)
+    type = EnumField(FixedColdStorageType, by_value=True)
+    room_id = masql.auto_field()
+    shelves = ma.Nested(ColdStorageShelfSchema, many=True)
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+    #room = ma.Nested(BasicRoomSchema, many=False)
 
-    return data
+cold_storage_schema = ColdStorageSchema()
+
+class NewColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorage
+
+    serial_number = masql.auto_field()
+    manufacturer = masql.auto_field()
+    comments = masql.auto_field()
+    temp = EnumField(FixedColdStorageTemps)
+    type = EnumField(FixedColdStorageType)
+    room_id = masql.auto_field()
+
+
+new_cold_storage_schema = NewColdStorageSchema()

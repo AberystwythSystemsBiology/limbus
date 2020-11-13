@@ -1,0 +1,49 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}New Sample Rack{% endblock %}
+
+{% block body %}
+
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="storage container">
+
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('storage.index') }}">
+                        <i class="fas fa-boxes"></i> Storage Portal
+                    </a>
+                </span>
+                <i class="fa fa-grip-vertical"></i> New Sample Rack
+            </h1>
+
+
+            <form action="{{ url_for('storage.rack_manual_entry') }}" method="post">
+                {{ form.csrf_token }}
+                {{ form_field(form.serial) }}
+                <div class="row">
+                    <div class="col-sm-6">
+                        {{ form_field(form.num_rows) }}
+                    </div>
+                    <div class="col-sm-6">
+                        {{ form_field(form.num_cols) }}
+                    </div>
+                </div>
+                {{ form_field(form.colours) }}
+                {{ form_field(form.description) }}
+                {{ form_field(form.submit) }}
+            </form>
+
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

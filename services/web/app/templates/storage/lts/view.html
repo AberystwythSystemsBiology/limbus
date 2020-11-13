@@ -5,7 +5,7 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMBLTS-{{ lts.id }}{% endblock %}
+{% block title %}LIMBCS-{{ cs.id }}{% endblock %}
 
 {% block body %}
 
@@ -13,70 +13,77 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><span class="secondary-heading">
-                <a href="{{ url_for('storage.view_room', room_id=lts.room_id) }}">
-                <i class="fa fa-door-closed"></i> LIMBROM-{{ lts.room_id }}</a>
-            </span><i class="fa fa-temperature-low"></i> LIMBLTS-{{ lts.id }} ({{ lts.temperature }})</h1>
+                <h1><span class="secondary-heading">
+                    <a href="{{ url_for('storage.view_room', id=cs.room_id) }}">
+                    <i class="fa fa-door-closed"></i> LIMBROOM-{{ cs.room_id }}</a>
+                </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }} ({{ cs.type }})</h1>
 
-            <div class="row">
-                <div class="col-sm-9">
-                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('storage.edit_lts', lts_id=lts.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                </button>
-                            </a>
-                        </div>
-
-                        <div class="btn-group" role="group" aria-label="Third group">
-                            <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i>
-                                Print
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Information</h5>
-                            {{ show_value(lts.manufacturer, "Manufacturer", "text") }}
-                            {{ show_value(lts.type, "Type", "text") }}
-                            {{ show_value(lts.serial_number, "Serial Number", "text") }}
-                            {{ show_value(lts.creation_date, "Creation Date", "datetime") }}
-
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
-
-                    <div class="list-group">
-                      <li class="list-group-item active">
-                          <h5 class="mb-1"><i class="fa fa-bars"></i> Shelves</h5>
-                      </li>
-                        {% for z, shelf in lts.shelves.items() %}
-                            <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h5>
-                                    <small>{{ shelf.creation_date }}</small>
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            {% if not cs.is_locked %}
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="">
+                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                            Details
+                                        </button>
+                                    </a>
                                 </div>
-                                <p class="mb-1">Description: {{ shelf.description }}</p>
-                            </a>
-                        {% endfor %}
-                    <a href="{{ url_for('storage.add_shelf', lts_id=lts.id) }}"
-                           class="list-group-item list-group-item-action flex-column active"
-                           style="text-align: center;">
-                            <i class="fa fa-plus"></i> Add Shelf
-                        </a>
+
+                                <div class="btn-group mr-2">
+                                    <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}"> 
+                                        <div class="btn btn-outline-dark">
+                                            <i class="fas fa-plus"></i> Add Shelf
+                                        </div>
+                                    </a>
+                                </div>
+        
+    
+                            {% endif %}
+        
+                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if cs.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: {{ cs.created_on }}
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(cs.author) }}
                     </div>
                 </div>
+
+            
+            {{ show_value(cs.uuid, "UUID", "text") }}
+            {{ show_value(cs.manufacturer, "Manufacturer", "text") }}
+            {{ show_value(cs.serial_number, "Serial Number", "text") }}
+            {{ show_value(cs.temp, "Temperature", "text") }}
+
+            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+
+            <h2><i class="fa fa-bars"></i> Shelves</h2>
+            <div class="btn-toolbar">
+                
             </div>
+        </span>
 
 
-
-
+            <div class="list-group">
+                {% for shelf in cs.shelves %}
+                <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}" class="list-group-item list-group-item-action">
+                    <div class="media">
+                        <span class="mr-3"><h1><i class="fa fa-bars"></i></h1></span>
+                        <div class="media-body">
+                          <h5 class="mt-0">LIMBSHLF-{{shelf.id}}: {{shelf.name}} </h5>
+                          {{ show_value(shelf.description, "Description", "text") }}
+                        </div>
+                      </div>
+                </a>
+                {% endfor %}
+            </div>
 
         </div>
     </div>

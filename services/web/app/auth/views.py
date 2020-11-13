@@ -1,52 +1,145 @@
-from .. import db
-from .models import User, Profile
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ..extensions import ma
+from flask import url_for
+import hashlib
+from .models import UserAccount, UserAccountToken
+from .enums import AccountType, Title, AccessControl
+
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
 
 
-def UserIndexView() -> dict:
-    users = db.session.query(User).all()
+class UserAccountSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
 
-    data = {}
-
-    for user in users:
-        data[user.id] = {
-            "email": user.email,
-            "is_admin": user.is_admin,
-            "is_locked": user.is_locked,
-            "name": user.name,
-            "creation_date": user.creation_date,
-            "update_date": user.update_date,
-        }
-
-    return data
+    id = masql.auto_field()
+    email = masql.auto_field()
 
 
-def UserView(id: int, user_profile: list = None) -> dict:
+class BasicUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
 
-    if user_profile == None:
-        user, profile = (
-            db.session.query(User, Profile)
-            .filter(User.id == id)
-            .filter(Profile.id == User.profile_id)
-            .first_or_404()
-        )
-    else:
-        user, profile = user_profile
+    id = masql.auto_field()
+    email = masql.auto_field()
 
-    return {
-        "id": user.id,
-        "email": user.email,
-        "is_admin": user.is_admin,
-        "is_locked": user.is_locked,
-        "creation_date": user.creation_date,
-        "update_date": user.update_date,
-        "gravatar": user.gravatar(),
-        "profile": {
-            "id": profile.id,
-            "title": profile.title,
-            "first_name": profile.first_name,
-            "middle_name": profile.middle_name,
-            "last_name": profile.last_name,
-            "creation_date": profile.creation_date,
-            "update_date": profile.update_date,
-        },
-    }
+    first_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+    gravatar = fields.Method("get_gravatar")
+
+    def get_gravatar(self, user):
+        if user.account_type == "BOT":
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(user.email.encode()).hexdigest(),
+                20,
+            )
+
+
+basic_user_account_schema = BasicUserAccountSchema()
+basic_user_accounts_schema = BasicUserAccountSchema(many=True)
+
+
+class NewUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    email = masql.auto_field()
+    title = masql.auto_field()
+    first_name = masql.auto_field()
+    middle_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+    account_type = masql.auto_field()
+    access_control = masql.auto_field()
+
+    site_id = masql.auto_field()
+
+    password = fields.Str(required=True)
+
+
+new_user_account_schema = NewUserAccountSchema()
+
+
+class EditUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    title = masql.auto_field()
+    first_name = masql.auto_field()
+    middle_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+
+edit_user_account_schema = EditUserAccountSchema()
+
+from ..misc.views import basic_site_schema
+
+
+class TokenSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccountToken
+
+    created_on = fields.Date()
+    updated_on = fields.Date()
+
+
+from ..document.views import BasicDocumentSchema
+
+
+class FullUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    title = EnumField(Title)
+
+    email = masql.auto_field()
+    first_name = masql.auto_field()
+    middle_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+    account_type = EnumField(AccountType)
+    access_control = EnumField(AccessControl)
+
+    created_on = fields.Date()
+    updated_on = fields.Date()
+
+    token = ma.Nested(TokenSchema())
+
+    site = ma.Nested(basic_site_schema)
+    document = ma.Nested(BasicDocumentSchema)
+
+    _links = ma.Hyperlinks({"self": ma.URLFor("api.auth_view_user", id="<id>")})
+
+    gravatar = fields.Method("get_gravatar")
+
+    def get_gravatar(self, user):
+        if user.account_type == "BOT":
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(user.email.encode()).hexdigest(),
+                200,
+            )
+
+
+full_user_account_schema = FullUserAccountSchema()
+full_user_accounts_schema = FullUserAccountSchema(many=True)

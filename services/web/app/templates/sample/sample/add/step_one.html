@@ -6,67 +6,111 @@
     <div class="container">
         
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Collection and Consent Information</h1>
-        {{ render_progress(1, 7) }}
+        {{ render_progress(1, 8) }}
 
 
-        {% if form.form_select.choices|length > 0 and template_count > 0%}
+        {% if collection_protocol_count > 0 and template_count > 0 and processing_protocols_count >0 %}
 
-            <p>Before we continue, you must first link the sample to a patient consent form.</p>
-
-            <p>If you are unable to find the patient consent form, it's likely that you have yet to add it. <a href="{{ url_for('pcf.new') }}">Click here</a> to add a new patient consent form.</p>
-
-            <form action="{{ url_for('sample.add_sample_pcf') }}" method="POST">
+            <form action="{{ url_for('sample.add_collection_consent_and_barcode') }}" method="POST">
                 {{ form.csrf_token }}
                 {{ form_field(form.barcode) }}
 
-                {{ form_field(form.form_select) }}
 
-                {{ form_field(form.collection_date) }}
+                {{ form_field(form.collection_select, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
+
+                <div class="alert alert-warning" role="alert">
+                    <b>Notice:</b> If you are unable to find the suitable collection protocol, it's likely
+                    that you have yet to add it. <a href="{{ url_for('protocol.new') }}">Click here</a> to add a new
+                    collection protocol.
+                </div>
+                {{ form_field(form.collection_site) }}
+
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.collection_date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.collection_time) }}
+                    
+                    </div>
+                </div>
+                {{ form_field(form.collected_by) }}
+
+                
+                {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
+
+                <div class="alert alert-warning" role="alert">
+                    <b>Notice:</b> If you are unable to find the patient consent form, it's likely that you have yet to add it.
+                    <a href="{{ url_for('consent.add') }}">Click here</a> to add a new patient consent form.
+                </div>
+
                 {{ form_field(form.disposal_instruction) }}
                 {{ form_field(form.disposal_date) }}
 
-                {% if form.donor_select.choices|length > 0 %}
-                    {{ form_field(form.has_donor)}}
-                    {{ form_field(form.donor_select) }}
-                {% endif %}
-                
                 {{ form_field(form.submit) }}
 
             </form>
             
         {% else %}
             <div class="row">
-                <div class="col">
-                    {% if form.form_select.choices|length == 0 %}
-                    {{ render_warning(
-                    "No Suitable Patient Consent Form Found",
-                    [
-                        "There are no suitable patient consent form templates found.",
-                        "Please add one before adding a sample."
-                     ], 'pcf.new', "New Patient Consent Form Template", True, True
-                ) }}
-                        {% else %}
-                        {{ render_success(
-                        "Patient Consent Forms"
-                        ) }}
-                        {% endif %}
+                <div class="col-4">
+                    {% if template_count == 0 %}
+                        <div class="jumbotron alert-danger full-width text-center">
+                            <h1>:(</h1>
+                            <h2>No Consent Form Templates Found</h2>
+                            <p>There doesn't seem to be any form templates available.</p>
+                            <a href="{{ url_for('consent.add') }}">
+                                <div class="btn btn-danger full-width">
+                                    New Consent Form Template
+                                </div>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="jumbotron alert-success full-width text-center">
+                            <h1>:D</h1>
+                            <h2>Consent Form Template(s) Found!</h2>
+                        </div>
+                    {% endif %}
 
                 </div>
-                <div class="col">
-                    {% if template_count == 0 %}
-                    {{ render_warning(
-                    "No Suitable Processing Protocol Found",
-                    [
-                        "There are no suitable sample processing protocols found.",
-                        "Please add one before adding a sample."
-                     ], 'processing.new_protocol', "New Sample Processing Protocol", True, True
-                ) }}
-                        {% else %}
-                        {{ render_success(
-                        "Processing Protocols"
-                        ) }}
-                        {% endif %}
+                <div class="col-4">
+                    {% if collection_protocol_count == 0 %}
+                        <div class="jumbotron alert-danger full-width text-center">
+                            <h1>:(</h1>
+                            <h2>No Collection Protocol(s) Found</h2>
+                                <p>There doesn't seem to be any collection protocols available.</p>
+                                <a href="{{ url_for('protocol.new') }}">
+                                    <div class="btn btn-danger full-width">
+                                        New Protocol
+                                    </div>
+                                </a>
+                            </div>
+                    {% else %}
+                        <div class="jumbotron alert-success full-width text-center">
+                            <h1>:D</h1>
+                            <h2>Collection Protocol(s) Found!</h2>
 
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-4">
+                    {% if processing_protocols_count == 0 %}
+                            <div class="jumbotron alert-danger full-width text-center">
+                                <h1>:(</h1>
+                            <h2>No Processing Protocol(s) Found</h2>
+                            <p>There doesn't seem to be any processing protocols available.</p>
+                                <a href="{{ url_for('protocol.new') }}">
+                                    <div class="btn btn-danger full-width">
+                                        New Protocol
+                                    </div>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="jumbotron alert-success full-width text-center">
+                                <h1>:D</h1>
+                                <h2>Processing Protocol(s) Found!</h2>
+                            </div>
+                    {% endif  %}
                 </div>
             </div>
 

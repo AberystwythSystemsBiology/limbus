@@ -1,53 +1,63 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from flask_login import UserMixin
-import hashlib
+from flask import url_for
 from werkzeug.security import generate_password_hash, check_password_hash
+from ..database import db, Base
+import hashlib
 
-from app import db, login_manager
-
-from .enums import Title
+from .enums import Title, AccountType, AccessControl
 
 
-class User(UserMixin, db.Model):
+class UserAccount(Base, UserMixin):
     __versioned__ = {}
-    __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-
-    email = db.Column(db.String(128), nullable=False, unique=True)
-
-    password_hash = db.Column(db.String(128))
-
-    profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
-
-    is_admin = db.Column(db.Boolean, default=False)
-    is_locked = db.Column(db.Boolean, default=False)
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
+    created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_on = db.Column(
         db.DateTime,
         server_default=db.func.now(),
         server_onupdate=db.func.now(),
         nullable=False,
     )
 
-    @property
-    def password(self) -> AttributeError:
-        raise AttributeError("Password is not accessible.")
+    email = db.Column(db.String(320), nullable=False, unique=True)
+    password_hash = db.Column(db.String(256), nullable=False)
 
-    def gravatar(self, size: int = 200) -> str:
-        return "https://www.gravatar.com/avatar/%s?s=%i" % (
-            hashlib.md5(self.email.encode()).hexdigest(),
-            size,
-        )
+    title = db.Column(db.Enum(Title), nullable=False)
+    first_name = db.Column(db.String(128), nullable=False)
+    middle_name = db.Column(db.String(128))
+    last_name = db.Column(db.String(128), nullable=False)
+
+    account_type = db.Column(db.Enum(AccountType), nullable=False)
+    access_control = db.Column(db.Enum(AccessControl), nullable=True)
+
+    token = db.relationship("UserAccountToken", uselist=False)
+
+    site_id = db.Column(
+        db.Integer, db.ForeignKey("siteinformation.id", use_alter=True), nullable=True
+    )
+    site = db.relationship(
+        "SiteInformation",
+        primaryjoin="UserAccount.site_id==SiteInformation.id",
+        uselist=False,
+    )
 
     @property
-    def name(self) -> str:
-        profile = (
-            db.session.query(Profile)
-            .filter(Profile.id == self.profile_id)
-            .first_or_404()
-        )
-        return "%s %s" % (profile.first_name, profile.last_name)
+    def password(self) -> str:
+        return "hunter2"
 
     @password.setter
     def password(self, password):
@@ -56,44 +66,40 @@ class User(UserMixin, db.Model):
     def verify_password(self, password) -> bool:
         return check_password_hash(self.password_hash, password)
 
+    @property
+    def is_bot(self) -> bool:
+        return self.account_type == AccountType.BOT
 
-@login_manager.user_loader
-def load_user(user_id: int) -> User:
-    return User.query.get(user_id)
+    @property
+    def is_admin(self) -> bool:
+        return self.account_type == AccountType.ADM
 
+    @property
+    def is_authenticated_and_not_bot(self) -> bool:
+        return [self.is_authenticated, self.is_bot]
 
-class Profile(db.Model):
-
-    __tablename__ = "profiles"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    title = db.Column(db.Enum(Title), nullable=False)
-    first_name = db.Column(db.String(128))
-    middle_name = db.Column(db.String(128))
-    last_name = db.Column(db.String(128))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    def get_gravatar(self, size: int = 100) -> str:
+        if self.account_type == "BOT":
+            return url_for("static", filename="images/misc/kryten.png")
+        else:
+            return "https://www.gravatar.com/avatar/%s?s=%i" % (
+                hashlib.md5(self.email.encode()).hexdigest(),
+                20,
+            )
 
 
-class ProfileToAddress(db.Model):
-    __versioned__ = {}
-    __tablename__ = "profiles_to_addresses"
-    id = db.Column(db.Integer, primary_key=True)
+class UserAccountToken(Base):
 
-    profile_id = db.Column(db.Integer, db.ForeignKey("profiles.id"))
-    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("useraccount.id"), nullable=False)
+    token_hash = db.Column(db.String(256), nullable=False)
 
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    @property
+    def token(self) -> str:
+        return "*******"
+
+    @token.setter
+    def token(self, token: str):
+        self.token_hash = generate_password_hash(token)
+
+    def verify_token(self, token) -> bool:
+        return check_password_hash(self.token_hash, token)

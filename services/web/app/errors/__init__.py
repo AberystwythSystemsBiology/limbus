@@ -1,15 +1,25 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from binascii import hexlify
 from functools import wraps
 from logging import error
 from os import urandom
-from random import randint
 
 from flask import render_template
-from werkzeug.exceptions import Forbidden
-from werkzeug.exceptions import Gone
-from werkzeug.exceptions import InternalServerError
-from werkzeug.exceptions import MethodNotAllowed
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import *
 import os
 from random import choice
 
@@ -74,6 +84,11 @@ def handle_error(e, code, json=False):
         ),
         code,
     )
+
+
+@errorhandler(Unauthorized.code)
+def unauthorised(e="401: Unauthorised", json=False):
+    return handle_error(e, Unauthorized.code, json)
 
 
 @errorhandler(NotFound.code)

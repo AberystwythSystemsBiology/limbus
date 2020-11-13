@@ -7,6 +7,7 @@ function molecular_sample(){
 function cellular_sample(){
     $(".quantity-text").html("Cells");
     $("#cell_sample_type_div").show();
+    $("#tissue_sample_type_div").show();
     $("#cell_container_div").show();
     $("#fixation_type_div").show();
 
@@ -20,6 +21,8 @@ function fluid_sample(){
 }
 
 function hide_all(){
+    $("#tissue_sample_type_div").hide();
+
     $("#molecular_sample_type_div").hide();
     $("#cell_sample_type_div").hide();
     $("#fluid_sample_type_div").hide();

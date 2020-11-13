@@ -7,7 +7,7 @@
         <h1><span class="secondary-heading"><i class="fas fa-file"></i> Document Portal</span>New Document</h1>
 
 
-        <form method="POST" action="{{ url_for('document.upload' ) }}">
+        <form method="POST" action="{{ url_for('document.new_document' ) }}">
             {{ form.csrf_token }}
 
             {{ form_field(form.name) }}

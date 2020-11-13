@@ -8,21 +8,61 @@
 
         <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span>My Profile</h1>
 
-        <div class="row">
-            <div class="col col-sm-9">
-                {{ show_value(user.email, "Email Address", "text") }}
-                {{ show_value(user.profile.title, "Title", "enum") }}
-                {{ show_value(user.profile.first_name, "First Name", "text") }}
-                {{ show_value(user.profile.middle_name, "Middle Name", "text") }}
-                {{ show_value(user.profile.last_name, "Last Name", "text") }}
-            </div>
-            <div class="col text-center">
-                <img src="{{ user.gravatar }}" class="rounded-circle"
-                     style="padding-bottom: 10px;">
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+            <a href="{{ url_for('auth.edit') }}">
+                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
+            </a>
+        </div>
+        <div class="btn-group mr-2" role="group" aria-label="Second group">
+            <a href="{{ url_for('auth.generate_token') }}">
+                <button type="button" class="btn btn-outline-dark" ><i class="fa fa-sync"></i> Generate New Token</button>
+            </a>
+        </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <a href="{{ url_for('auth.change_password') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-key"></i> Change Password</button>
+                </a>
+        </div>
+      </div>
 
-                <button class="btn btn-primary full-width" data-toggle="modal" data-target="#exampleModalLong">Change
-                    Password
-                </button>
+        <div class="row">
+            <div class="col col-sm-7">
+                <h2>Personal Information</h2>
+
+                {{ show_value(user.email, "Email Address", "text") }}
+                {{ show_value(user.title, "Title", "text") }}
+                {{ show_value(user.first_name, "First Name", "text") }}
+                {{ show_value(user.middle_name, "Middle Name", "text") }}
+                {{ show_value(user.last_name, "Last Name", "text") }}
+
+                <h2>Site Information</h2>
+                {{ show_value(user.site.name, "Site Name", "text") }}
+
+                <h4>Address</h4>
+                {{ show_value(user.site.address.street_address_one, "Address Line One", "text") }}
+                {{ show_value(user.site.address.street_address_two, "Address Line Two", "text") }}
+                {{ show_value(user.site.address.city, "City", "text") }}
+                {{ show_value(user.site.address.county, "County", "text") }}
+                {{ show_value(user.site.address.country, "Country", "text") }}
+                {{ show_value(user.site.address.post_code, "Post Code", "text") }}
+
+            </div>
+            <div class="col-sm-5">
+                <img src="{{ user.gravatar }}" class="rounded-circle"
+                     style="padding-bottom: 10px; margin:0 auto 0;">
+
+                <h2>Account Information</h2>
+
+                {{ show_value(user.created_on, "Created On", "text") }}
+                {{ show_value(user.account_type, "Account Type", "text") }}
+
+
+                <h2>Token Information</h2>
+
+                {{ show_value(user.token.created_on, "Created On", "text") }}
+                {{ show_value(user.token.updated_on, "Updated On", "text") }}
+
             </div>
         </div>
 

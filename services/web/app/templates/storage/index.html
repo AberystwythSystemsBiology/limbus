@@ -14,23 +14,37 @@
         <div class="storage container">
             
             <h1><i class="fas fa-boxes"></i> Sample Storage Portal</h1>
-
-            <div class="card-deck mb-3 text-center">
-                <div class="card mb-4 box-shadow">
-                    <div class="card-body">
-                        <h3 class="card-title pricing-card-title"><i class="fa fa-cube"></i> Cryovial Boxes</h3>
-                        <ul class="list-unstyled mt-3 mb-4">
-                            <p>This is where Sample Attribute information can be found.</p>
-                        </ul>
-                        <button class="btn btn-lg btn-block btn-outline-primary"
-                                onclick="location.href='{{ url_for('storage.cryobox_index') }}'">
-                            Go
-                        </button>
+            
+            <div class="row">
+                <div class="col-sm-3">
+                  <div class="data">
+                      <span id="sample_count" class="data large"></span>
+                      <span class="data small">Sites</span>
                     </div>
-                </div>
+              </div>
+                  <div class="col-sm-3">
+                      <div class="data">
+                          <span id="donor_count" class="data large"></span>
+                          <span class="data small">Buildings</span>
+                        </div>
+                  </div>
+                  
+                  <div class="col-sm-3">
+                      <div class="data">
+                          <span id="user_count" class="data large"></span>
+                          <span class="data small">Rooms</span>
+                        </div>
+                  </div>
+                  <div class="col-sm-3">
+                      <div class="data">
+                          <span id="site_count" class="data large"></span>
+                          <span class="data small">Cold Storage</span>
+                        </div>
+                  </div>          
+              </div>
+      
 
-            </div>
-
+            <!-- Present Data Here -->
         </div>
     </div>
 {% endblock %}

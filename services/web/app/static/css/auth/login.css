@@ -1,14 +1,12 @@
-.login {
+.container {
   width:60%;
   max-width:520px;
   min-wdth:300px;
   margin: 0 auto 0;
 }
 
-.login h1 {
-  text-align: center;
-}
 
-.login .btn {
-  width:100%;
+
+img {
+  max-width: 150px;
 }

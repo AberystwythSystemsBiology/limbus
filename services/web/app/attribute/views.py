@@ -1,99 +1,209 @@
-from .models import (
-    CustomAttributes,
-    CustomAttributeOption,
-    CustomAttributeTextSetting,
-    CustomAttributeNumericSetting,
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ..extensions import ma
+
+from ..database import (
+    Attribute,
+    AttributeTextSetting,
+    AttributeNumericSetting,
+    AttributeOption,
+    AttributeData,
 )
-from ..auth.views import UserView
-from .. import db
+
+import marshmallow_sqlalchemy as masql
+from marshmallow import fields
+from marshmallow_enum import EnumField
+
+from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
+
+from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 
-def CustomAttributesIndexView() -> dict:
-    """
-        This method returns an dictionary of information concerning attributes, as well as their author information.
-    """
-    attributes = db.session.query(CustomAttributes).all()
+class AttributeSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
 
-    data = {}
-
-    for attribute in attributes:
-
-        data[attribute.id] = {
-            "term": attribute.term,
-            "description": attribute.description,
-            "type": attribute.type.value,
-            "accession": attribute.accession,
-            "ref": attribute.ref,
-            "element": attribute.element.value,
-            "required": attribute.required,
-            "creation_date": attribute.creation_date,
-            "user_information": UserView(attribute.author_id),
-        }
-
-    return data
+    element_type = EnumField(AttributeElementType, required=False)
+    type = EnumField(AttributeType, required=False)
+    author = ma.Nested(UserAccountSearchSchema)
 
 
-def CustomAttributeView(ca_id) -> dict:
+class BasicAttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
 
-    attribute = (
-        db.session.query(CustomAttributes)
-        .filter(CustomAttributes.id == ca_id)
-        .first_or_404()
-    )
+    id = masql.auto_field()
+    term = masql.auto_field()
+    description = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = fields.Date()
+    type = EnumField(AttributeType)
+    element_type = EnumField(AttributeElementType)
 
-    data = {
-        "id": attribute.id,
-        "term": attribute.term,
-        "description": attribute.description,
-        "type": attribute.type.value,
-        "accession": attribute.accession,
-        "ref": attribute.ref,
-        "element": attribute.element.value,
-        "required": attribute.required,
-        "creation_date": attribute.creation_date,
-        "user_information": UserView(attribute.author_id),
-    }
 
-    if data["type"] == "Option":
-        options = (
-            db.session.query(CustomAttributeOption)
-            .filter(CustomAttributeOption.custom_attribute_id == attribute.id)
-            .all()
-        )
+basic_attribute_schema = BasicAttributeSchema()
+basic_attributes_schema = BasicAttributeSchema(many=True)
 
-        o_data = {}
 
-        for option in options:
-            o_data[option.id] = {
-                "term": option.term,
-                "accession": option.accession,
-                "ref": option.ref,
-            }
+class NewAttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
 
-        data["option_info"] = o_data
+    term = masql.auto_field()
+    description = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+    type = EnumField(AttributeType)
+    element_type = EnumField(AttributeElementType)
 
-    elif data["type"] == "Numeric":
 
-        settings = (
-            db.session.query(CustomAttributeNumericSetting)
-            .filter(CustomAttributeNumericSetting.custom_attribute_id == attribute.id)
-            .first_or_404()
-        )
+new_attribute_schema = NewAttributeSchema()
 
-        data["numeric_settings"] = {
-            "id": settings.id,
-            "measurement": settings.measurement,
-            "prefix": settings.prefix,
-        }
 
-    else:
+class EditAttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
 
-        settings = (
-            db.session.query(CustomAttributeTextSetting)
-            .filter(CustomAttributeTextSetting.custom_attribute_id == attribute.id)
-            .first_or_404()
-        )
+    term = masql.auto_field()
+    description = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
 
-        data["text_settings"] = {"id": settings.id, "max_length": settings.max_length}
 
-    return data
+edit_attribute_schema = EditAttributeSchema()
+
+
+class NewAttributeTextSettingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeTextSetting
+
+    max_length = masql.auto_field()
+    type = EnumField(AttributeTextSettingType)
+
+
+new_attribute_text_setting_schema = NewAttributeTextSettingSchema()
+
+
+class NewAttributeNumericSettingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeNumericSetting
+
+    symbol = masql.auto_field()
+    measurement = masql.auto_field()
+
+
+new_attribute_numeric_setting_schema = NewAttributeNumericSettingSchema()
+
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeOption
+
+    term = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+
+
+new_attribute_option_schema = NewAttributeOptionSchema()
+new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeOption
+
+    term = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+
+
+new_attribute_option_schema = NewAttributeOptionSchema()
+new_attribute_options_schema = NewAttributeOptionSchema(many=True)
+
+
+class AttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeOption
+
+    id = masql.auto_field()
+    term = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    is_locked = ma.auto_field()
+    created_on = fields.Date()
+
+
+attribute_option_schema = AttributeOptionSchema()
+attribute_options_schema = AttributeOptionSchema(many=True)
+
+
+class AttributeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Attribute
+
+    id = masql.auto_field()
+    term = masql.auto_field()
+    description = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = fields.Date()
+    type = EnumField(AttributeType)
+    element_type = EnumField(AttributeElementType)
+    numeric_setting = ma.Nested(NewAttributeNumericSettingSchema)
+    text_setting = ma.Nested(NewAttributeTextSettingSchema)
+    options = ma.Nested(AttributeOptionSchema(many=True))
+
+
+attribute_schema = AttributeSchema()
+attributes_schema = AttributeSchema(many=True)
+
+
+class NewAttributeDataSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
+
+    attribute_id = masql.auto_field()
+    data = masql.auto_field()
+
+
+new_attribute_data_schema = NewAttributeDataSchema()
+
+
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
+
+    attribute_id = masql.auto_field()
+    option_id = masql.auto_field()
+
+
+new_attribute_option_schema = NewAttributeDataSchema()
+
+
+class AttributeDataSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
+
+    id = masql.auto_field()
+    attribute_id = masql.auto_field()
+    option_id = masql.auto_field()
+    data = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = fields.Date()
+
+
+attribute_data_schema = AttributeDataSchema()
+attribute_datum_schema = AttributeDataSchema(many=True)

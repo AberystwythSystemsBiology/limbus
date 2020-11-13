@@ -1,88 +1,156 @@
 {% macro render_form_error(field) -%}
     {% if field.description %}
-    <span class="form-description form-text text-muted">{{field.description}}</span>
-    {%endif%}
+        <span class="form-description form-text text-muted">{{ field.description }}</span>
+    {% endif %}
     {% if field.errors %}
-    <p class="form-error">{{ field.errors|join(', ') }}</p>
+        <p class="form-error">{{ field.errors|join(', ') }}</p>
     {% endif %}
 {%- endmacro %}
 
+
+{% macro render_author_for_table(user) %}
+    {{ user.first_name }} {{ user.last_name }}
+    <img src="{{ user.gravatar }}" class="rounded-circle pull-right" style="margin-left: 10px;">
+{% endmacro %}
+
+{% macro render_colour(colour) %}
+    {% if colour == "Blue" %}
+        {% set colour_class = "bg-primary" %}
+    {% elif colour == "Red" %}
+        {% set colour_class = "bg-danger" %}
+    {% elif colour == "Green" %}
+        {% set colour_class = "bg-success" %}
+    {% elif colour == "Yellow" %}
+        {% set colour_class = "bg-warning" %}
+    {% endif %}
+    <span class="colour-circle {{ colour_class }}"></span>
+{% endmacro %}
+
+{% macro render_quantity(quantity, type) -%}
+    {% set span_id = kwargs.pop('span_id', "quantity") %}
+
+    {% if type == "Cell" %}
+        {% set denominator = " Cells" %}
+    {% elif type == "Molecular" %}
+        {% set denominator = "μg/mL" %}
+    {% elif type == "Fluid" %}
+        {% set denominator = "mL" %}
+    {% endif %}
+
+
+
+    <span id="{{ span_id }}">{{ quantity }}</span>{{ denominator }}
+{%- endmacro %}
 
 {% macro form_field(field) -%}
 
     {% set with_label = kwargs.pop('with_label', True) %}
     {% set with_quantity = kwargs.pop('q', False) %}
-
+    {% set with_view = kwargs.pop('with_view', False) %}
+    {% set view_endpoint = kwargs.pop("view_endpoint", "#") %}
     <div class="form-group {% if field.errors %}error{% endif %}" id="{{ field.id }}_div">
-        
 
     {% if field.type == "BooleanField" %}
-    <div class="form-check">
-        
+        <div class="form-check">
+
             <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             <label class="form-check-label" for="{{ field.id }}">
                 {{ field.label.text }}
             </label>
+        </div>
+    {% elif field.type in (["StringField", "DecimalField", "FloatField"]) %}
+
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
+        {{ render_form_error(field) }}
+
+        {% if with_quantity %}
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text quantity-text"></div>
+                </div>
+                <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"
+                       {% if field.flags.required %}required{% endif %}>
             </div>
-        {% elif field.type in (["StringField", "DecimalField", "FloatField"]) %}
-
-               <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %} </label>
-                {{render_form_error(field) }}
-
-                {% if with_quantity %}
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text quantity-text"></div>
-                        </div>
-                        <input type="text" class="form-control" id="{{ field.id }}" name="{{ field.name }}"{% if field.flags.required %}required{% endif %}>
-                    </div>
-                {% else %}
-                    {{ field(class="form-control") }}
-                {% endif %}
-        {% elif field.type == "SelectField" %}
-                <label for="{{ field.id }}">{{ field.label.text }} </label>
-                {{render_form_error(field) }}
-                {{ field(class="form-control selectpicker", **{"data-live-search": "true"}) }}
-        {% elif field.type == "DateField" %}
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
-                {{render_form_error(field) }}
-
-                {{ field(class="form-control", type="date") }}
-        {% elif field.type == "TimeField" %}
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
-                {{render_form_error(field) }}
-
-                {{ field(class="form-control", type="time") }}
-        {% elif field.type == "RadioField" %}
-                <div class="col-form-label">
-                    {{ field.label.text }}:
-                </div>
-                {{render_form_error(field) }}
-            {% for key, value, bo in field.iter_choices() %}
-                <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input"  name="{{ field.id }}" value="{{ key }}" checked>
-                    <label class="form-check-label" for="{{ field.id }}">{{ value }}</label>
-                </div>
-            {% endfor %}
-        {% elif field.type == "PasswordField" %}
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
-                {{render_form_error(field) }}
-                {{ field(class="form-control", type="password") }}
-        {% elif field.type == "FileField" %}
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
-                {{render_form_error(field) }}
-                <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
-                   {% if field.flags.required %}required{% endif %}>
-        {% elif field.type == "IntegerField" %}
-                <label for="{{ field.id }}">{{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
-                {{render_form_error(field) }}
-                {{ field(class="form-control", type="number") }}
-        {% elif field.type == "SubmitField" %}
-                <button type="submit" class="btn btn-success float-right top10" id="{{ field.id }}">
-                    <i class="fa fa-check"></i> {{ field.label.text }}
-                </button>
+        {% else %}
+            {% if with_view %}
+                <div class="row">
+                <div class="col-9">
+            {% endif %}
+        {{ field(class="form-control") }}
+        {% if with_view %}
+            <div class="col-3">View</div></div>
         {% endif %}
-    </div>
+
+        {% endif %}
+    {% elif field.type == "SelectField" %}
+        <label for="{{ field.id }}">{{ field.label.text }} </label>
+
+        {{ render_form_error(field) }}
+        {% if with_view %}
+            <div class="row">
+            <div class="col-10">
+        {% endif %}
+    {{ field(class="form-control selectpicker", **{"data-live-search": "true"}) }}
+    {% if with_view %}
+        </div>
+        <div class="col-2">
+            <a href="{{ view_endpoint }}" id="{{ field.id }}_href" target="_blank">
+            <div class="btn btn-primary full-width">
+                <i class="fa fa-info-circle"></i> View
+            </div>
+            </a>
+        </div></div>
+    {% endif %}
+    {% elif field.type == "DateField" %}
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        {{ render_form_error(field) }}
+
+        {{ field(class="form-control", type="date") }}
+    {% elif field.type == "TextAreaField" %}
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        {{ render_form_error(field) }}
+        {{ field(class="form-control") }}
+    {% elif field.type == "TimeField" %}
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        {{ render_form_error(field) }}
+        {{ field(class="form-control", type="time") }}
+    {% elif field.type == "RadioField" %}
+        <div class="col-form-label">
+            {{ field.label.text }}:
+        </div>
+        {{ render_form_error(field) }}
+        {% for key, value, bo in field.iter_choices() %}
+            <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="{{ field.id }}" value="{{ key }}" checked>
+                <label class="form-check-label" for="{{ field.id }}">{{ value }}</label>
+            </div>
+        {% endfor %}
+    {% elif field.type == "PasswordField" %}
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        {{ render_form_error(field) }}
+        {{ field(class="form-control", type="password") }}
+    {% elif field.type == "FileField" %}
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        {{ render_form_error(field) }}
+        <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
+               {% if field.flags.required %}required{% endif %}>
+    {% elif field.type == "IntegerField" %}
+        <label for="{{ field.id }}">
+            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        {{ render_form_error(field) }}
+        {{ field(class="form-control", type="number") }}
+    {% elif field.type == "SubmitField" %}
+        <button type="submit" class="btn btn-success float-right top10" id="{{ field.id }}">
+            <i class="fa fa-check"></i> {{ field.label.text }}
+        </button>
+    {% endif %}
+</div>
 
 {%- endmacro %}
 
@@ -95,8 +163,13 @@
                 {{ attribute.value }}
             {% elif type == "datetime" %}
                 {{ attribute.strftime('%d-%m-%Y') }}
+
             {% else %}
-                {{ attribute }}
+                {% if attribute == "" %}
+                    Not Available
+                {% else %}
+                    {{ attribute }}
+                {% endif %}
             {% endif %}
         </div>
     </div>
@@ -112,27 +185,28 @@
 {%- endmacro %}
 
 {% macro render_warning(title, description, button_url, button_text, add, refresh) -%}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container text-center">
-    <h2><i class="fa fa-exclamation-triangle"></i> {{ title }}</h2>
-      {% for line in description %}
-          <p>{{ line }}</p>
-      {% endfor %}
-        <a href="{{ url_for( button_url )}}" {% if refresh %}target="_blank"{% endif %}>
-            <div class="btn btn-primary">
-                {% if add %}<i class="fa fa-plus"></i>{% endif %} {{ button_text }}
-            </div>
-        </a>
-        {% if refresh %}
-            <p><i class="fa fa-sync top10"></i> Please refresh this page when completed</p>
-        {% endif %}
-  </div>
-</div>
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container text-center">
+            <h2><i class="fa fa-exclamation-triangle"></i> {{ title }}</h2>
+            {% for line in description %}
+                <p>{{ line }}</p>
+            {% endfor %}
+            <a href="{{ url_for( button_url ) }}" {% if refresh %}target="_blank"{% endif %}>
+                <div class="btn btn-primary">
+                    {% if add %}<i class="fa fa-plus"></i>{% endif %} {{ button_text }}
+                </div>
+            </a>
+            {% if refresh %}
+                <p><i class="fa fa-sync top10"></i> Please refresh this page when completed</p>
+            {% endif %}
+        </div>
+    </div>
 {%- endmacro %}
 
 {% macro render_progress(now, max) -%}
     <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}" aria-valuemin="0" aria-valuemax="{{ max }}"></div>
+        <div class="progress-bar" role="progressbar" style="width: {{ (now/max)*100 }}%" aria-valuenow="{{ now }}"
+             aria-valuemin="0" aria-valuemax="{{ max }}"></div>
     </div>
 {%- endmacro %}
 
@@ -141,20 +215,16 @@
         <div class="container text-center">
             <h4><i class="fa fa-check-circle"></i></h4>
             <h4>{{ title }}</h4>
-              <p>{{ description }}</p>
+            <p>{{ description }}</p>
 
         </div>
     </div>
 {%- endmacro %}
 
 {% macro render_question(field, count) -%}
-    <div id="list-question-{{ count+1 }}" class="list-group-item list-group-item-warning flex-column align-items-start">
+    <div class="list-group-item flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between">
-            <h5 class="mb-1">
-              Question {{ count+1 }}
-              <i class="fa fa-exclamation-triangle question-warning"
-                 title="Ensure correct consent is given, ignore this if you're sure this is an acceptable answer"></i>
-            </h5>
+            <h5 class="mb-1">Question {{ count }}</h5>
             <small>
                 <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
             </small>
@@ -199,17 +269,13 @@
 {%- endmacro %}
 
 {% macro storage_navbar() %}
-<div id="sidebar" class="border-right border-bottom text-white bg-primary">
-    <button id="add-site-button" class="btn btn-block btn-secondary">
-        <i class="fa fa-plus"></i>
-        Add site
-    </button>
-    <div id="jstree">
+    <div id="sidebar" class="text-white bg-primary">
+        <div id="jstree">
+        </div>
+        <div id="sidebar-collapse" class="align-self-center">
+            <button class="btn btn-lg btn-block btn-light">
+                <i id="sidebar-collapse-icon" class="fa fa-chevron-left"></i>
+            </button>
+        </div>
     </div>
-    <div id="sidebar-collapse" class="align-self-center">
-        <button class="btn btn-lg btn-block btn-light">
-            <i id="sidebar-collapse-icon" class="fa fa-chevron-left"></i>
-        </button>
-    </div>
-</div>
 {% endmacro %}

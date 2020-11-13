@@ -1,0 +1,21 @@
+{% extends "template.html" %}
+
+{% block title %}New Consent Form Question{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('consent.view', id=template.id) }}">
+                    <i class="fa fa-question-circle"></i> LIMBPCF-{{ template.id }}
+            </a></span> New Consent Form Question</h1>
+
+        <form method="POST" action="{{ url_for('consent.new_question', id=template.id ) }}">
+            {{ form.csrf_token }}
+            {{ form_field(form.question) }}
+            {{ form_field(form.type) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+    </div>
+{% endblock %}

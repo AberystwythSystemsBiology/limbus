@@ -1,20 +1,37 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from flask_wtf import FlaskForm
 
 from wtforms import (
     StringField,
     SelectField,
     SubmitField,
+    ValidationError,
     DateField,
     BooleanField,
     IntegerField,
+    TextAreaField,
 )
 
 from wtforms.validators import DataRequired, Length
 
-from .enums import *
 
-from .. import db
-from .models import CustomAttributes, CustomAttributeOption, CustomAttributeTextSetting
+from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
+
+from .models import Attribute, AttributeOption, AttributeTextSetting
 
 
 # Pronto stuff here.
@@ -63,14 +80,61 @@ class EnumFromOntology:
         return [(term.id, term.name) for term in self.ontology_list]
 
 
-class CustomAttributeCreationForm(FlaskForm):
-    term = StringField("Attribute Term", validators=[DataRequired()])
-    description = StringField("Attribute Description")
-    accession = StringField("Ontology Accession")
-    ref = StringField("Ontology Reference")
-    type = SelectField("Attribute Type", choices=CustomAttributeTypes.choices())
-    element = SelectField("Element", choices=CustomAttributeElementTypes.choices())
-    required = BooleanField("Required")
+class AttributeEditForm(FlaskForm):
+    term = StringField(
+        "Attribute Term",
+        validators=[DataRequired()],
+        description="A word or phrase used to describe a thing or to express a concept.",
+    )
+    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+    description = TextAreaField(
+        "Attribute Description",
+        description="An optional description of the custom attribute.",
+    )
+
+    submit = SubmitField("Submit")
+
+
+class AttributeCreationForm(FlaskForm):
+
+    term = StringField(
+        "Attribute Term",
+        validators=[DataRequired()],
+        description="A word or phrase used to describe a thing or to express a concept.",
+    )
+    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+    description = TextAreaField(
+        "Attribute Description",
+        description="An optional description of the custom attribute.",
+    )
+    type = SelectField(
+        "Attribute Type",
+        choices=AttributeType.choices(),
+        description="The 'type' of data this attribute should represent.",
+    )
+    element_type = SelectField(
+        "Element Type",
+        choices=AttributeElementType.choices(),
+        description="If required, you can limit what can use this attribute.",
+    )
+
+    submit = SubmitField("Submit")
+
+
+class AttributeTextSetting(FlaskForm):
+    max_length = IntegerField(
+        "Max Length",
+        validators=[DataRequired()],
+        description="The maximum number of characters allowed in the attribute.",
+    )
+    type = SelectField(
+        "Text Entry Type",
+        choices=AttributeTextSettingType.choices(),
+        description="The type of user input expected. Tip: If you expect a large input, use the Text Area option.",
+    )
+
     submit = SubmitField("Submit")
 
 
@@ -81,12 +145,48 @@ class CustomTextAttributeCreationForm(FlaskForm):
 
 class CustomNumericAttributionCreationForm(FlaskForm):
     requires_measurement = BooleanField("Measurement?")
-    requires_prefix = BooleanField("Prefix?")
+    requires_symbol = BooleanField("Symbol?")
     measurement = SelectField("Measurement", choices=EnumFromOntology(units).choices())
-    prefix = SelectField("Prefix", choices=EnumFromOntology(prefixs).choices())
+    symbol = SelectField("Symbol", choices=EnumFromOntology(prefixs).choices())
     submit = SubmitField("Submit")
 
 
+class AttributeOptionCreationForm(FlaskForm):
+    term = StringField(
+        "Option Term",
+        validators=[DataRequired()],
+        description="A word or phrase used to describe a thing or to express a concept.",
+    )
+    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+    submit = SubmitField("Submit")
+
+
+def check_attribute_name(id):
+    def _check_attribute_name(form, field):
+        if field.data != "LIMBATTR-%s" % (str(id)):
+            raise ValidationError("Incorrect entry")
+
+    return _check_attribute_name
+
+
+def AttributeLockForm(id):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    setattr(
+        StaticForm,
+        "name",
+        StringField(
+            "Please enter LIMBATTR-%s to continue" % (str(id)),
+            [DataRequired(), check_attribute_name(id=id)],
+        ),
+    )
+
+    return StaticForm()
+
+
+"""
 def CustomAttributeSelectForm(
     element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL,
 ) -> FlaskForm:
@@ -155,3 +255,4 @@ def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
         setattr(StaticForm, str(attr.id), field)
 
     return StaticForm()
+"""

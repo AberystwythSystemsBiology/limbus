@@ -1,87 +1,61 @@
-from .enums import CustomAttributeTypes, CustomAttributeElementTypes
-from app import db
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ..database import db, Base
+from ..mixins import RefAuthorMixin, RefEditorMixin
+from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 
-class CustomAttributes(db.Model):
-    __tablename__ = "custom_attributes"
+class Attribute(Base, RefAuthorMixin, RefEditorMixin):
 
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(1024))
-
+    description = db.Column(db.Text)
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
-
-    element = db.Column(db.Enum(CustomAttributeElementTypes))
-
     required = db.Column(db.Boolean(), default=False)
 
-    type = db.Column(db.Enum(CustomAttributeTypes))
+    text_setting = db.relationship("AttributeTextSetting", uselist=False)
+    numeric_setting = db.relationship("AttributeNumericSetting", uselist=False)
+    options = db.relationship("AttributeOption")
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    type = db.Column(db.Enum(AttributeType))
+    element_type = db.Column(db.Enum(AttributeElementType))
 
 
-class CustomAttributeTextSetting(db.Model):
-    __tablename__ = "custom_attribute_text_settings"
-
-    id = db.Column(db.Integer, primary_key=True)
+class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):
     max_length = db.Column(db.Integer, nullable=False)
-
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    type = db.Column(db.Enum(AttributeTextSettingType))
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
 
 
-class CustomAttributeNumericSetting(db.Model):
-    __tablename__ = "custom_attribute_numeric_settings"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
-
+class AttributeNumericSetting(Base, RefAuthorMixin, RefEditorMixin):
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
     measurement = db.Column(db.String(32))
-    prefix = db.Column(db.String(32))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    symbol = db.Column(db.String(32))
 
 
-class CustomAttributeOption(db.Model):
-    __tablename__ = "custom_attribute_options"
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
 
-    custom_attribute_id = db.Column(db.Integer, db.ForeignKey("custom_attributes.id"))
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+class AttributeData(Base, RefAuthorMixin, RefEditorMixin):
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), nullable=False)
+    attribute = db.relationship("Attribute", uselist=False)
+    option_id = db.Column(db.Integer, db.ForeignKey("attributeoption.id"))
+    option = db.relationship("AttributeOption", uselist=False)
+    data = db.Column(db.Text)

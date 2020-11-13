@@ -1,0 +1,65 @@
+{% extends "template.html" %}
+
+{% block title %}New Cryovial Box{% endblock %}
+
+{% block head %}
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
+{% endblock %}
+
+
+{% block body %}
+
+<div id="sidebar-wrapper">
+  {{ storage_navbar() }}
+
+    <div class="storage container">
+
+  <h1>
+    
+    <div class="secondary-heading">
+      <a href="{{ url_for('storage.index') }}">
+        <i class="fas fa-boxes"></i> Sample Storage
+      </a>
+    </div>
+    <i class="fa fa-grip-vertical"></i> New Sample Rack
+  </h1>
+
+  </br>
+
+  <div class="row">
+    <div class="col">
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container text-center">
+          <h1><i class="fa fa-exclamation-triangle"></i></h1>
+          <h2>Manual Entry</h2>
+          <p>Enter the Sample Rack information manually.</p>
+          <a href="{{ url_for('storage.rack_manual_entry') }}">
+            <div class="btn btn-primary">Go</div>
+          </a>
+
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container text-center">
+          <h1><i class="fa fa-upload"></i></h1>
+          <h2>From File</h2>
+          <p>Create a Cryovial Box from a plaintext file.</p>
+          <a href="#">
+            <div class="btn btn-primary">Go</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+</div>
+
+
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

@@ -1,5 +1,7 @@
 # Contributing Guidelines
 
+Note: This is deprecated.
+
 ## 📝 Code Style
 
 - Remove trailing whitespaces and add an empty line at the end of each file.
@@ -11,6 +13,10 @@
 - I don't care about tabs or spaces, I personally use four spaces - but do whatever feels right to you.
 - I try to keep to a limit of 80 characters, but don't care that much.
 - If you can, run it through yapf before committing your code. I don't do this as much as I should.
+
+#### Forms
+
+
 
 ### 🌐 HTML
 

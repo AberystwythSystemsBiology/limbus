@@ -1,0 +1,14 @@
+{% extends "template.html" %}
+
+{% block title %}{{ hash }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1><i class="fa fa-hourglass-end"></i> {{ hash }}</h1>
+
+        <pre>{{ tmpstore|safe }}</pre>
+    </div>
+
+{% endblock %}
+

@@ -7,45 +7,30 @@
     <div class="container">
 
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Processing Information</h1>
-        {{ render_progress(4, 7) }}
+        {{ render_progress(4, 8) }}
 
         <p>Before we continue, you must first link the sample to processing protocol template.</p>
 
         
-        {% if form.form_select.choices|length > 0 %}
-            <form action="{{ url_for('sample.select_processing_protocol', hash=hash) }}" method="POST">
-                {{ form.csrf_token }}
-                <div class="row">
-                <div class="col-sm-10">
-                    {{ form_field(form.form_select) }}
-                </div>
-                    <div class="col-sm-2">
-                        <div style="margin-top:32px;"></div>
-                        <a href="{{ url_for('processing.new_protocol') }}" target="_blank">
-                        <div class="btn btn-primary full-width">
-                            <i class="fa fa-plus"></i> Add Protocol
-                        </div>
-                            </a>
-                    </div>
-                </div>
-                {{ form_field(form.sample_status) }}
+        <form action="{{ url_for('sample.add_processing_information', hash=hash) }}" method="POST">
+            {{ form.csrf_token }}
+            {{ form_field(form.processing_protocol_id) }}
+            {{ form_field(form.sample_status) }}
 
-                <div class="row">
-                    <div class="col-6">
-                        {{ form_field(form.processing_date) }}
-                    </div>
-                    <div class="col-6">
-                        {{ form_field(form.processing_time) }}
-                    </div>
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.processing_date) }}
                 </div>
-                {{ form_field(form.submit) }}
-            </form>
-        {% else %}
-            <h1>Naughty Naughty!</h1>
-        {% endif %}
+                <div class="col-6">
+                    {{ form_field(form.processing_time) }}
+                </div>
+
+            </div>
+            {{ form_field(form.comments) }}
+            {{ form_field(form.undertaken_by) }}
+            {{ form_field(form.submit) }}
+        </form>
+
     </div>
 {% endblock %}
 
-{% block javascript %}
-    <script src="{{ url_for('static', filename='js/sample/information/add/step_four.js') }}"></script>
-{% endblock %}

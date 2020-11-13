@@ -1,13 +1,13 @@
 {% extends "template.html" %}
 
-{% block title %}Editing LIMBDON-{{donor_id}}{% endblock %}
+{% block title %}Editing LIMBDON-{{donor.id}}{% endblock %}
 
 {% block body %}
 <div class="container">
 
-    <h1><span class="secondary-heading"><i class="fa fa-user-circle"></i> LIMBDON-{{donor_id}}</span>Edit</h1>
+    <h1><span class="secondary-heading"><i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}</span>Edit</h1>
 
-        <form method="POST" action="{{ url_for('donor.edit', donor_id=donor_id ) }}">
+        <form method="POST" action="{{ url_for('donor.edit', id=donor.id ) }}">
             
             {{ form.csrf_token() }}
             {{ form_field(form.age)}}

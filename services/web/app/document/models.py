@@ -1,72 +1,32 @@
-from app import db
-from enum import Enum
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ..database import db, Base
+from .enums import DocumentType
+from ..mixins import RefAuthorMixin, RefEditorMixin
 
 
-class DocumentType(Enum):
-    PATHO = "Pathology Report"
-    MANUE = "Device Manual"
-    MATER = "Material Transfer Agreement"
-    PROTO = "Processing Protocol"
-    OTHER = "Other"
-
-
-class Document(db.Model):
-    __tablename__ = "documents"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    type = db.Column(db.Enum(DocumentType))
-    other_type = db.Column(db.String(128))
+class Document(Base, RefAuthorMixin, RefEditorMixin):    
+    name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
-    # Relationship to User
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
+    type = db.Column(db.Enum(DocumentType), nullable=False)
+    files = db.relationship("DocumentFile", backref="documentfile")
 
 
-class DocumentFile(db.Model):
-    __tablename__ = "document_files"
-    id = db.Column(db.Integer, primary_key=True)
-
-    filename = db.Column(db.String)
-    filepath = db.Column(db.String)
-
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
-
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-
-class PatientConsentForm(db.Model):
-    __tablename__ = "patient_consent_forms"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    academic = db.Column(db.Boolean)
-    commercial = db.Column(db.Boolean)
-    animal = db.Column(db.Boolean)
-    genetic = db.Column(db.Boolean)
-
-    indefinite = db.Column(db.Boolean)
-
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
-
-    uploader = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-
-class PatientConsentWithdrawalDate(db.Model):
-    __tablename__ = "patitent_consent_withdrawal_date"
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    withdrawal_date = db.Column(db.DateTime, nullable=False)
-
-    upload_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    patient_consent_id = db.Column(
-        db.Integer, db.ForeignKey("patient_consent_forms.id")
-    )
+class DocumentFile(Base, RefAuthorMixin):
+    name = db.Column(db.String, nullable=False)
+    checksum = db.Column(db.String(256), nullable=False)
+    path = db.Column(db.String)
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))

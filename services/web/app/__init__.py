@@ -1,81 +1,79 @@
-import os
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Flask, g, render_template
-from config import app_config
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from flask_migrate import Migrate
 
-from sqlalchemy import orm
+from __future__ import absolute_import
 
-from sqlalchemy_continuum import make_versioned
-from sqlalchemy_continuum.plugins import FlaskPlugin
-from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
+from .database import db
 
-db = SQLAlchemy()
-login_manager = LoginManager()
+from flask import Flask
 
-make_versioned(plugins=[FlaskPlugin(), PropertyModTrackerPlugin()])
-
-# blueprint imports
-from .admin import admin as admin_blueprint
-from .misc import misc as misc_blueprint
-from .attribute import attribute as attribute_blueprint
+from .commands import cmd_setup as cmd_setup_blueprint
+from .api import api as api_blueprint
 from .setup import setup as setup_blueprint
+from .misc import misc as misc_blueprint
 from .auth import auth as auth_blueprint
-from .document import document as doc_blueprint
-from .sample import sample as sample_blueprint
+from .attribute import attribute as attribute_blueprint
+from .document import document as document_blueprint
 from .donor import donor as donor_blueprint
-from .patientconsentform import pcf as pcf_blueprint
-from .processing import processing as processing_blueprint
+from .consent import consent as consent_blueprint
+from .protocol import protocol as protocol_blueprint
+from .sample import sample as sample_blueprint
+from .tmpstore import tmpstore as tmpstore_blueprint
 from .storage import storage as storage_blueprint
-from .procedure import procedure as procedure_blueprint
+
+from app.errors import error_handlers
+
+from .extensions import register_extensions, register_apispec
 
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-
-    app.config.from_object(app_config[os.environ["FLASK_CONFIG"]])
     app.config.from_pyfile("config.py")
 
-    db.init_app(app)
-    migrate = Migrate(app, db)
+    register_extensions(app)
+    register_blueprints(app)
+    register_error_handlers(app)
+    register_apispec(app)
 
-    orm.configure_mappers()
+    return app
 
-    login_manager.init_app(app)
-    login_manager.login_view = "auth.login"
 
-    # Load in models here
-    from app.auth import models as auth_models
-    from app.misc import models as misc_models
-    from app.document import models as doc_models
-    from app.sample import models as sample_models
-    from app.patientconsentform import models as pcf_models
-    from app.processing import models as processing_models
-    from app.storage import models as storage_models
-    from app.attribute import models as attribute_models
-    from app.donor import models as donor_models
-    from app.procedure import models as procedure_models
-
-    app.register_blueprint(misc_blueprint)
-    app.register_blueprint(auth_blueprint)
-    app.register_blueprint(setup_blueprint, url_prefix="/setup")
-    app.register_blueprint(admin_blueprint, url_prefix="/admin")
-    app.register_blueprint(attribute_blueprint, url_prefix="/attributes")
-    app.register_blueprint(processing_blueprint, url_prefix="/processing")
-    app.register_blueprint(doc_blueprint, url_prefix="/documents")
-    app.register_blueprint(sample_blueprint, url_prefix="/samples")
-    app.register_blueprint(donor_blueprint, url_prefix="/donors")
-    app.register_blueprint(pcf_blueprint, url_prefix="/pcf")
-    app.register_blueprint(storage_blueprint, url_prefix="/storage")
-    app.register_blueprint(procedure_blueprint, url_prefix="/procedures")
-
-    from app.errors import error_handlers
-
+def register_error_handlers(app):
     for error_handler in error_handlers:
         app.register_error_handler(
             error_handler["code_or_exception"], error_handler["func"]
         )
 
-    return app
+
+def register_blueprints(app):
+    app.register_blueprint(cmd_setup_blueprint)
+    app.register_blueprint(api_blueprint, url_prefix="/api")
+    app.register_blueprint(setup_blueprint, url_prefix="/setup")
+    app.register_blueprint(misc_blueprint)
+    app.register_blueprint(auth_blueprint, url_prefix="/auth")
+    app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
+    app.register_blueprint(document_blueprint, url_prefix="/document")
+    app.register_blueprint(donor_blueprint, url_prefix="/donor")
+    app.register_blueprint(consent_blueprint, url_prefix="/consent")
+    app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
+    app.register_blueprint(sample_blueprint, url_prefix="/sample")
+    app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
+    app.register_blueprint(storage_blueprint, url_prefix="/storage")
+
+
+def setup_database(app):
+    with app.app_context():
+        db.create_all()

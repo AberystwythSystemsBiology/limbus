@@ -1,3 +1,18 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from flask_wtf import FlaskForm
 from wtforms import (
     PasswordField,
@@ -8,7 +23,9 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 
-from .models import User
+from .models import UserAccount
+
+from .enums import Title
 
 
 class LoginForm(FlaskForm):
@@ -17,7 +34,12 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log In")
 
 
-class ChangePassword(FlaskForm):
+class PasswordChangeForm(FlaskForm):
+    current_password = PasswordField(
+        "Current Password",
+        description="For security reasons, please enter your current password",
+        validators=[DataRequired()],
+    )
     password = PasswordField(
         "Password",
         description="Please ensure that you provide a secure password",
@@ -31,7 +53,22 @@ class ChangePassword(FlaskForm):
     submit = SubmitField("Register")
 
 
-class RegistrationForm(FlaskForm):
+class UserAccountEditForm(FlaskForm):
+    title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
+
+    first_name = StringField("First Name", validators=[DataRequired()])
+    middle_name = StringField("Middle Name")
+    last_name = StringField("Last Name", validators=[DataRequired()])
+    submit = SubmitField("Register")
+
+
+class UserAccountRegistrationForm(FlaskForm):
+
+    title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
+
+    first_name = StringField("First Name", validators=[DataRequired()])
+    middle_name = StringField("Middle Name")
+    last_name = StringField("Last Name", validators=[DataRequired()])
 
     email = StringField(
         "Email Address",
@@ -52,5 +89,5 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField("Register")
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        if UserAccount.query.filter_by(email=field.data).first():
             raise ValidationError("Email address already in use.")

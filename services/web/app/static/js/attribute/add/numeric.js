@@ -8,22 +8,22 @@ function measurement() {
     }
 }
 
-function prefix() {
-    if ($("#requires_prefix").is(":checked")) {
-        $("#prefix_div").show();
+function symbol() {
+    if ($("#requires_symbol").is(":checked")) {
+        $("#symbol_div").show();
     }
 
     else {
-        $("#prefix_div").hide();
+        $("#symbol_div").hide();
     }
 }
 
 $(document).ready(function () {
     measurement();
-    prefix();
+    symbol();
 
-    $("#requires_prefix, #requires_measurement").change(function () {
+    $("#requires_symbol, #requires_measurement").change(function () {
         measurement();
-        prefix();
+        symbol();
     });
 });

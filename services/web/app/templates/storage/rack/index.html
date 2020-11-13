@@ -1,0 +1,72 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}Cryovial Boxes{% endblock %}
+
+{% block body %}
+
+    <div id="sidebar-wrapper">
+        {{ storage_navbar() }}
+        <div class="storage container">
+
+            
+
+            <h1><span class="secondary-heading">
+                
+                <a href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Storage Portal</span></a>
+                <i class="fa fa-grip-vertical"></i> Sample Racks</h1>
+
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                                <a href="{{ url_for('storage.add_rack') }}">
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                        <button type="button" class="btn btn-outline-dark">
+                                            <i class="fas fa-plus"></i> New Rack
+                                        </button>
+                                </div>
+                            </a>                        
+                        </div>
+                    </div>
+                    
+                </div>
+
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Rack</th>
+                    <th>Dimensions</th>
+                    <th>Author</th>
+                    <th>Created On</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for rack in racks %}
+                <tr>
+                    <td>
+                        {{render_colour( rack.colour ) }}
+                        <a href="#">
+                            <i class="fa fa-grip-vertical"></i> LIMBRACK-{{ rack.id }}
+                        </a>
+                    </td>
+                    <td>{{ rack.num_rows }}x{{ rack.num_cols }}</td>
+                    <td>{{ render_author_for_table(rack.author) }}</td>
+                    <td>{{ rack.created_on }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

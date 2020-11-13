@@ -1,3 +1,18 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from flask import (
     redirect,
     render_template,
@@ -6,139 +21,189 @@ from flask import (
     current_app,
     send_file,
     session,
+    flash,
 )
 from flask_login import login_required, current_user
-from werkzeug.utils import secure_filename
 
-from ..misc.generators import generate_random_hash
-
-import random
-import string
-import os
+import io
 
 from . import document
-from .models import Document, DocumentFile, PatientConsentForm, DocumentType
-from .forms import (
-    DocumentUploadForm,
-    PatientConsentFormInformationForm,
-    DocumentUploadFileForm,
-)
+from .forms import DocumentCreationForm, DocumentLockForm, UploadFileForm
 
-from ..sample.models import SampleDocumentAssociation
-
-from ..auth.models import User
-
-from .. import db
-
-from .views import DocumentIndexView, DocumentView
+from ..misc import get_internal_api_header
+import requests
+import re
 
 
 @login_required
 @document.route("/")
 def index():
-    documents = DocumentIndexView()
+    response = requests.get(
+        url_for("api.document_home", _external=True), headers=get_internal_api_header()
+    )
 
-    return render_template("document/index.html", documents=documents)
+    if response.status_code == 200:
+        return render_template(
+            "document/index.html", documents=response.json()["content"]
+        )
+    else:
+        return abort(response.status_code)
 
 
-@document.route("/upload", methods=["GET", "POST"])
+@document.route("/new", methods=["GET", "POST"])
 @login_required
-def upload():
-    form = DocumentUploadForm()
+def new_document():
+    form = DocumentCreationForm()
     if form.validate_on_submit():
-        hash = generate_random_hash()
 
-        session["%s document_info" % (hash)] = {
+        document_information = {
             "name": form.name.data,
             "description": form.description.data,
             "type": form.type.data,
         }
 
-        return redirect(url_for("document.document_upload", hash=hash))
+        response = requests.post(
+            url_for("api.document_new_document", _external=True),
+            headers=get_internal_api_header(),
+            json=document_information,
+        )
+
+        if response.status_code == 200:
+            flash("Document Successfully Created")
+            # TODO: Revert to newly created document from response.json id.
+            return redirect(url_for("document.index"))
+        else:
+            return abort(response.status_code)
 
     return render_template("document/upload/index.html", form=form)
 
 
-def save_document(file, name, description, type, uploader, commit=False) -> int:
-    filename = file.data.filename
-    folder_name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
-    document_dir = current_app.config["DOCUMENT_DIRECTORY"]
-    rel_path = os.path.join(document_dir, folder_name)
-    os.makedirs(rel_path)
-    sfn = secure_filename(filename)
-    filepath = os.path.join(rel_path, sfn)
-
-    document = Document(
-        name=name, description=description, type=type, uploader=uploader
-    )
-
-    db.session.add(document)
-    db.session.flush()
-
-    document_file = DocumentFile(
-        filename=sfn,
-        filepath=filepath,
-        uploader=current_user.id,
-        document_id=document.id,
-    )
-
-    file.data.save(filepath)
-    db.session.add(document_file)
-
-    if commit:
-        db.session.commit()
-
-    return document.id
-
-
-@document.route("/upload/file/<hash>", methods=["GET", "POST"])
+@document.route("/LIMBDOC-<id>")
 @login_required
-def document_upload(hash):
-    form = DocumentUploadFileForm()
+def view(id):
 
-    if form.validate_on_submit():
-        document_info = session["%s document_info" % (hash)]
-        document_id = save_document(
-            form.file,
-            document_info["name"],
-            document_info["description"],
-            document_info["type"],
-            current_user.id,
+    response = requests.get(
+        url_for("api.document_view_document", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code == 200:
+        form = DocumentLockForm(id)
+        return render_template(
+            "document/view.html", document=response.json()["content"], form=form
         )
+    else:
+        return abort(response.status_code)
 
-        if "%s patient_consent_info" % (hash) in session:
-            consent_info = session["%s patient_consent_info" % (hash)]
 
-            pcf = PatientConsentForm(
-                academic=consent_info["academic"],
-                commercial=consent_info["commercial"],
-                animal=consent_info["animal"],
-                genetic=consent_info["genetic"],
-                indefinite=True,
-                document_id=document_id,
+@document.route("/LIMBDOC-<id>/lock", methods=["POST"])
+@login_required
+def lock(id):
+    form = DocumentLockForm(id)
+    if form.validate_on_submit():
+        response = requests.get(
+            url_for("api.document_view_document", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+        if response.status_code == 200:
+            lock_response = requests.put(
+                url_for("api.document_lock_document", id=id, _external=True),
+                headers=get_internal_api_header(),
+            )
+            if lock_response.status_code == 200:
+                flash("Document Successfully Locked")
+                return redirect(url_for("document.index"))
+            else:
+                flash("We have a problem: %s" % (lock_response.json()))
+
+    else:
+        return redirect(url_for("document.view", id=id))
+
+
+@document.route("/LIMBDOC-<id>/file/new", methods=["GET", "POST"])
+@login_required
+def new_file(id):
+    response = requests.get(
+        url_for("api.document_view_document", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code == 200:
+        form = UploadFileForm()
+        if form.validate_on_submit():
+
+            response = requests.post(
+                url_for("api.document_upload_file", id=id, _external=True),
+                headers=get_internal_api_header(),
+                params={"filename": form.file.data.filename},
+                data=form.file.data,
             )
 
-            db.session.add(pcf)
-
-        db.session.commit()
-
-        return redirect(url_for("document.index"))
-
-    return render_template("document/upload/upload.html", form=form, hash=hash)
-
-
-@document.route("/view/LIMBDOC-<doc_id>")
-@login_required
-def view(doc_id):
-    view = DocumentView(doc_id)
-    return render_template("document/view.html", document=view)
-
-
-@document.route("/download/D<doc_id>F<file_id>")
-@login_required
-def get_file(doc_id, file_id):
-    file = DocumentFile.query.filter(DocumentFile.id == file_id).first()
-    if current_user.is_admin or file.uploader == current_user.id:
-        return send_file(file.filepath)
+            if response.status_code == 200:
+                return redirect(url_for("document.view", id=id))
+            else:
+                return response.content
+        else:
+            return render_template(
+                "document/upload/upload.html",
+                document=response.json()["content"],
+                form=form,
+            )
     else:
-        return abort(401)
+        return abort(response.status_code)
+
+
+@document.route("/LIMBDOC-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(id):
+    response = requests.get(
+        url_for("api.document_view_document", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code == 200:
+        form = DocumentCreationForm(data=response.json()["content"])
+
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+                "type": form.type.data,
+                "description": form.description.data,
+            }
+
+            edit_response = requests.put(
+                url_for("api.document_edit_document", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Document Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+            return redirect(url_for("document.view", id=id))
+        return render_template(
+            "document/edit.html", document=response.json()["content"], form=form
+        )
+    else:
+        return response.content
+
+
+@document.route("/LIMBDOC-<id>/file/<file_id>")
+@login_required
+def view_file(id, file_id):
+    response = requests.get(
+        url_for("api.document_file_get", id=id, file_id=file_id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        d = response.headers["content-disposition"]
+        fname = re.findall("filename=(.+)", d)[0]
+        return (
+            send_file(
+                io.BytesIO(response.content),
+                as_attachment=True,
+                attachment_filename=fname,
+            ),
+            200,
+        )
+    else:
+        return response.content

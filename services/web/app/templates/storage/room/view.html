@@ -13,71 +13,85 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1>
+            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('storage.view_building', id=room.building_id) }}">
+                            <i class="fa fa-building"></i> LIMBSIT-{{ room.building_id }}
+                                        </a>
+                    </span>
+                    <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
+                </h1>
 
-                <span class="secondary-heading">
-                    <a href="{{ url_for('storage.view_site', site_id=room.site_id) }}">
-                        <i class="fa fa-building"></i> LIMBSIT-{{ room.site_id }}
-                                    </a>
-                </span>
-                <i class="fa fa-door-closed"></i> LIMBROM-{{ room.id }}
-            </h1>
-
-            <div class="row">
-                <div class="col-sm-9">
+            </span>
+            
+            
+            <div class="row text-muted">
+                <div class="col-7">
                     <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                        {% if not room.is_locked %}
+
                         <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('storage.edit_room', room_id=room.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                            <a href="{{ url_for('storage.new_cold_storage', id=room.id) }}">
+                                <button type="button" class="btn btn-outline-dark"><i class="fas fa-plus"></i>
+                                    Add Cold Storage
                                 </button>
                             </a>
                         </div>
 
-                        <div class="btn-group" role="group" aria-label="Third group">
-                            <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i>
-                                Print
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                        Details
+                                    </button>
+                                </a>
+                            </div>
+
+    
+                        {% endif %}
+    
+                        <div class="btn-group mr-2" role="group" aria-label="Second group">
+                            <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
+                                Unl{% else %}L{% endif %}ock
                             </button>
                         </div>
                     </div>
                 </div>
+                <div class="col-5 text-right">
+                    <i class="fa fa-calendar"></i> Created On: {{ room.created_on }}
+                    <div class="clearfix"></div>
+                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(room.author) }}
+                </div>
             </div>
 
 
-            <div class="row">
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Information</h5>
-                            {{ show_value(room.room_number, "Room Number", "text") }}
-                            {{ show_value(room.building, "Building", "text") }}
-                            {{ show_value(room.creation_date, "Creation Date", "datetime") }}
+            <h2>Room Information</h2>
 
+            {{ show_value(room.name, "Room Name", "text") }}
+
+            <h2><i class="fa fa-temperature-low"></i> Cold Storage</h2>
+
+            {% for n in range(0, room.storage|length, 3) %}
+                <div class="card-deck mb-3 text-center">
+                    {% for storage in room.storage[n:n+ 3] %}
+                        <div class="card mb-4 box-shadow">
+                            <div class="card-header">
+                                <h4 class="my-0 font-weight-normal">{{ storage.type }}</h4>
+                              </div>
+                              <div class="card-body">
+                                <h2 class="card-title pricing-card-title">{{storage.temp}}</h2>
+                                <ul class="list-unstyled mt-3 mb-4">
+                                  <li>{{ storage.manufacturer }}</li>
+                                </ul>
+                                    <a href="{{ url_for('storage.view_cold_storage', id=storage.id) }}">
+                                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                                    </a>
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
-                <div class="col-6">
-                    <div class="list-group">
-                        <li class="list-group-item active">
-                            <h5 class="mb-1"><i class="fa fa-temperature-low"></i> Cold Storage</h5>
-                        </li>
-                        {% for storage in room.storage %}
-
-                            <a href="{{ url_for('storage.view_lts', lts_id=storage.id) }}" class="list-group-item list-group-item-action flex-column align-items-start">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><i class="fa fa-temperature-low"></i> LIMBLTS-{{ storage.id }}</h5>
-                                    <small>{{ storage.creation_date }}</small>
-                                </div>
-                            </a>
-                        {% endfor  %}
-                            <a href="{{ url_for('storage.add_lts', room_id=room.id) }}"
-                           class="list-group-item list-group-item-action flex-column active"
-                           style="text-align: center;">
-                            <i class="fa fa-plus"></i> Add Cold Storage
-                        </a>
-                    </div>
-                </div>
-            </div>
-
+            {% endfor %}
 
         </div>
     </div>

@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+
+
+{% block title %}Edit Consent Template{% endblock %}
+
+{% block body %}
+    <div class="container">
+
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('consent.view', id=template.id) }}">
+                    <i class="fa fa-question-circle"></i> LIMBPCF-{{ template.id }}
+                </a>
+            </span>
+            Edit Details
+        </h1>
+
+        <form action="{{ url_for('consent.edit', id=template.id) }}" method="POST">
+            {{ form.csrf_token }}
+            {{ form_field(form.name) }}
+            {{ form_field(form.description) }}
+            {{ form_field(form.version) }}
+            {{ form_field(form.submit, with_label=False) }}
+        </form>
+
+    </div>
+
+
+{% endblock %}

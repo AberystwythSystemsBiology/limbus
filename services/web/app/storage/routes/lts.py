@@ -1,3 +1,18 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from flask import (
     redirect,
     abort,
@@ -8,78 +23,77 @@ from flask import (
     jsonify,
     flash,
 )
+
+from .. import storage
+import requests
+from ...misc import get_internal_api_header
 from flask_login import current_user, login_required
 
-from ... import db
-from .. import storage
+from ..forms import ColdStorageForm, NewShelfForm
 
-from ..forms import LongTermColdStorageForm, NewShelfForm
-from ..models import FixedColdStorageShelf, FixedColdStorage
-
-from uuid import uuid4
-
-from ..views import LTSView, BasicLTSView
-
-
-@storage.route("/lts/LIMBLTS-<lts_id>", methods=["GET"])
+@storage.route("/coldstorage/new/LIMROOM-<id>", methods=["GET", "POST"])
 @login_required
-def view_lts(lts_id: int):
-    lts = LTSView(lts_id)
-    return render_template("/storage/lts/view.html", lts=lts)
+def new_cold_storage(id):
+    
+    response = requests.get(
+        url_for("api.storage_room_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
 
-@storage.route("/lts/LIMBLTS-<lts_id>/add_shelf", methods=["GET", "POST"])
+
+    if response.status_code == 200:
+        form = ColdStorageForm()
+
+        if form.validate_on_submit():
+            new_response = requests.post(
+                url_for("api.storage_coldstorage_new", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "room_id": id,
+                    "serial_number": form.serial_number.data,
+                    "manufacturer": form.manufacturer.data,
+                    "comments": form.comments.data,
+                    "temp": form.temperature.data,
+                    "type": form.type.data
+                }
+            )
+
+            if new_response.status_code == 200:
+                flash("Cold Storage Successfuly Created")
+                # TODO: Replace
+                return redirect(url_for("document.index"))
+            return abort(new_response.status_code)
+
+        return render_template("storage/lts/new.html", form=form, room=response.json()["content"])
+
+
+    else:
+        abort(response.status_code)
+
+
+@storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])
 @login_required
-def add_shelf(lts_id: int):
-    lts = BasicLTSView(lts_id)
+def view_cold_storage(id):
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
-    form = NewShelfForm()
+    if response.status_code == 200:
+        return render_template("storage/lts/view.html", cs=response.json()["content"])
+    return abort(response.status_code)
 
-    if form.validate_on_submit():
-        shelf = FixedColdStorageShelf(
-            name=form.name.data,
-            # Generate an UUID :)
-            uuid=uuid4(),
-            description=form.description.data,
-            storage_id=lts_id,
-            author_id=current_user.id,
-        )
+    '''
+    if response.status_code == 200:
+        return render_template("storage/room/view.html", room=response.json()["content"])
 
-        db.session.add(shelf)
-        db.session.commit()
-
-        return redirect(url_for("storage.view_lts", lts_id=lts_id))
-
-    return render_template("/storage/shelf/new.html", form=form, lts=lts)
+    return abort(response.status_code)
+    '''
 
 
-@storage.route("/lts/LIMBLTS-<lts_id>/edit", methods=["GET", "POST"])
+
+@storage.route("/coldstorage/LIMBLTS-<lts_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_lts(lts_id):
-    lts = LTSView(lts_id)
-    form = LongTermColdStorageForm()
-
-    if form.validate_on_submit():
-        s = (
-            db.session.query(FixedColdStorage)
-            .filter(FixedColdStorage.id == lts_id)
-            .first_or_404()
-        )
-        s.manufacturer = form.manufacturer.data
-        # TODO: Fix this annoying issue wherein forms aren't being validated against enumerated types properly.
-        # s.temperature = form.temperature.data,
-        s.serial_number = (form.serial_number.data,)
-        s.type = form.type.data
-
-        s.author_id = current_user.id
-
-        db.session.commit()
-        flash("Successfully edited!")
-        return redirect(url_for("storage.view_lts", lts_id=lts_id))
-
-    form.manufacturer.data = lts["manufacturer"]
-    form.temperature.data = lts["temperature"]
-    form.serial_number.data = lts["serial_number"]
-    form.type.data = lts["type"]
-
-    return render_template("storage/lts/edit.html", lts=lts, form=form)
+    pass

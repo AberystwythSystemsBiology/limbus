@@ -3,80 +3,61 @@
 {% block title %}Create Aliquot{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}</span><i class="fa fa-code-branch"></i> Create Aliquot</h1>
+<div class="container">
+    <h1>
+        <span class="secondary-heading">
+            <a id="sample_href">
+                <i class="fas fa-vial"></i> <span id="uuid"></span>
+            </a>
+        </span>
+        <i class="fa fa-code-branch"></i> Create Aliquoted Samples
+    </h1>
 
-        {% if num_processing_templates > 0 %}
+    <div id="database_error" class="alert alert-danger" style="display:none;">
+        <b>ALERT:</b> It looks like one of your Sample Barcodes is already in the database. You must correct this
+        before you can submit.
+    </div>
 
-            <div id="nes_warning" class="alert alert-danger text-center" style="display: none;">
-                <i class="fa fa-exclamation-triangle"></i> <b>Notice:</b> Proposed aliquot amount greater than available sample.
-            </div>
-
-            <div class="row">
-                <div class="col-6">
-                    <div class="form-group row">
-                        <div class="col-sm-3">Parent Sample:</div>
-                        <div class="col-sm-9">LIMBSMP-{{ sample.id }}</div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-sm-3">Sample Type:</div>
-                        <div class="col-sm-9">{{ sample_type.sample_type }} ({{ sample.sample_type_info.sample_type }})</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="form-group row">
-                        <div class="col-sm-3">Original Quantity:</div>
-                        <div class="col-sm-9">
-                            {{ sample.quantity }}
-                            {% if sample.sample_type_info.sample_type.value == "Fluid" %}
-                                mL
-                            {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
-                                Cells
-                            {% else %}
-                                ug/ML
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-sm-3">Available Quantity:</div>
-                        <div class="col-sm-9"><span id="available_quantity">{{ sample.current_quantity }}</span>{% if sample.sample_type_info.sample_type.value == "Fluid" %}
-                            mL
-                        {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
-                            Cells
-                        {% else %}
-                            ug/ML
-                        {% endif %}</div>
-                    </div>
-                    <div class="form-group row">
-                        <div class="col-sm-3">Proposed Quantity:</div>
-                        <div class="col-sm-9"><span id="proposed_quantity">{{ sample.current_quantity }}</span>{% if sample.sample_type_info.sample_type.value == "Fluid" %}
-                            mL
-                        {% elif sample.sample_type_info.sample_type.value == "Cellular" %}
-                            Cells
-                        {% else %}
-                            ug/ML
-                        {% endif %}</div>
-                    </div>
-                </div>
-            </div>
+    <div id="duplicate_barcode" class="alert alert-danger"  style="display:none;">
+        <b>ALERT:</b> It looks like you've accidentally entered duplicate barcodes. You must correct this
+    before you can sbmit.
+</div>
 
 
+    <div id="quantityalert" class="alert alert-danger text-center" style="display:none;">
+        <b>ALERT:</b> Aliquotted sample amount is larger than remaining quantity! Unable to submit.
+    </div>
 
+    <div class="row">
 
-            <form action="{{ url_for('sample.aliquot', sample_id=sample.id) }}" method="POST">
-                {{ form.csrf_token() }}
+        <div class="col-10">
                 <div class="row">
                     <div class="col-6">
-                        {{ form_field(form.size) }}
+                        <div class="form-group">
+                            <label for="processing_protocol">Remaining Parent Quantity</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" id="remaining_quantity" disabled>
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><span id="remaining_metric">ERR</span></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="col-6">
-                        {{ form_field(form.count) }}
+                        <div class="form-group">
+                            <label for="processing_protocol">Original Parent Quantity</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" id="original_quantity" disabled>
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><span id="original_metric">ERR</span></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                {{ form_field(form.use_entire) }}
-                {{ form_field(form.sample_type) }}
-
-                {{ form_field(form.processing_template) }}
+                {{ form_field(form.processing_protocol) }}
+                {{ form_field(form.processed_by ) }}
 
                 <div class="row">
                     <div class="col-6">
@@ -86,26 +67,44 @@
                         {{ form_field(form.aliquot_time) }}
                     </div>
                 </div>
-                {% if sample.sample_type == "Cellular" %}
-                    {{ form_field(form.cell_viability) }}
-                {% endif %}
-                {{ form_field(form.lock_parent) }}
-                {{ form_field(form.submit) }}
-            </form>
-        {% else %}
-            {{ render_warning(
-                    "No Suitable Aliquoting Protocol Found",
-                    [
-                        "There are no suitable sample aliquoting protocols found.",
-                        "Please add one before attempting an aliquot."
-                     ], 'processing.new_protocol', "New Processing Protocol", True, True
-                ) }}
-        {% endif %}
+        </div>
+        <div class="col-2">
+            <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+        </div>
     </div>
+
+    <h2 style="margin-bottom: 1em;">
+        Total Aliquots: <span id="total_aliquots"></span>
+        <div name="new" class="btn btn-primary float-right">
+            <i class="fa fa-plus"></i> Add
+        </div>
+    </h2>
+
+    <table id="aliquoted_sample_table" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Container</th>
+                <th id="fixation_type_th" style="display:none;">Fixation Type</th>
+                <th width="20%">Volume</th>
+                <th width="25%">Barcode</th>
+                <th width="5%">Actions</th>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    {{ form_field(form.comments) }}
+    <button id="submit" class="btn btn-primary float-right">Submit</button>
+
+
+</div>
+
 
 {% endblock %}
 
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/sample/aliquot/create.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>#
+<script src="{{ url_for('static', filename='js/sample/aliquot/create.js') }}"></script>
+
 {% endblock %}

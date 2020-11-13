@@ -1,3 +1,18 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from . import admin
 from .. import db
 
@@ -8,19 +23,12 @@ from flask_login import current_user, login_required
 from .forms import TemporaryRegistrationForm
 from .views import UserAccountsView
 
-from ..auth.models import Profile, User
+from ..auth.models import User
 
 from functools import wraps
 
 
-def check_if_admin(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if current_user.is_admin:
-            return f(*args, **kwargs)
-        return abort(401)
-
-    return decorated_function
+from ..decorators import check_if_admin
 
 
 @admin.route("/", methods=["GET", "POST"])
@@ -33,21 +41,10 @@ def index():
 
     if form.validate_on_submit():
 
-        profile = Profile(
-            title=form.title.data,
-            first_name=form.first_name.data,
-            middle_name=form.middle_name.data,
-            last_name=form.last_name.data,
-        )
-
-        db.session.add(profile)
-        db.session.flush()
-
         user = User(
             email=form.email.data,
             password=form.password.data,
             is_admin=form.is_admin.data,
-            profile_id=profile.id,
         )
         db.session.add(user)
         db.session.commit()

@@ -1,0 +1,41 @@
+{% extends "template.html" %}
+
+
+
+{% block title %}Question from LIMBPCF-{{ template.id }}{% endblock %}
+
+
+{% block body %}
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('consent.view', id=template.id) }}">
+                    <i class="fa fa-question-circle"></i> LIMBPCF-{{ template.id }}
+                </a>
+            </span>
+        </h1>
+
+        <div class="alert alert-primary">
+            <h3>{{ question.question }}</h3>
+        </div>
+
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('consent.edit_question', id=template.id, q_id=question.id) }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
+                </a>
+            </div>
+
+        </div>
+
+        <h2>Question Information</h2>
+
+        {{ show_value(question.type, "Type", "text") }}
+        {{ show_value(render_author_for_table(template.author), "Author", "text") }}
+
+
+        <h2>Associated Samples</h2>
+
+    </div>
+
+{% endblock %}

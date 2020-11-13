@@ -1,3 +1,18 @@
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 from flask_wtf import FlaskForm
 from wtforms import (
     PasswordField,
@@ -6,9 +21,16 @@ from wtforms import (
     ValidationError,
     SelectField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationError
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    URL,
+    ValidationError,
+    Optional,
+)
 from ukpostcodeutils import validation
-from ..auth.enums import Title
+
 import pycountry
 
 
@@ -17,20 +39,20 @@ def post_code_validator(form, field):
         raise ValidationError("Invalid UK Post Code")
 
 
-class BiobankRegistrationForm(FlaskForm):
+class SiteRegistrationForm(FlaskForm):
     name = StringField(
-        "Biobank Name",
+        "Site Name",
         validators=[DataRequired()],
-        description="Textual string of letters denoting the name of the biobank in English",
+        description="Textual string of letters denoting the name of the site in English",
     )
     url = StringField(
-        "Biobank Website",
-        validators=[URL()],
-        description="Textual string of letters with the complete http-address for the biobank",
+        "Site Website",
+        validators=[URL(), Optional()],
+        description="Textual string of letters with the complete http-address for the site",
     )
     description = StringField(
-        "Biobank Description",
-        description="Textual string of letters with a description about the biobank in English.",
+        "Site Description",
+        description="Textual string of letters with a description about the site in English.",
     )
 
     address_line_one = StringField("Address Line1", validators=[DataRequired()])
@@ -51,15 +73,4 @@ class BiobankRegistrationForm(FlaskForm):
         validators=[DataRequired(), post_code_validator],
     )
 
-    submit = SubmitField("Register Biobank")
-
-
-from ..auth.forms import RegistrationForm
-
-
-class AdministratorRegistrationForm(RegistrationForm):
-    title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
-
-    first_name = StringField("First Name", validators=[DataRequired()])
-    middle_name = StringField("Middle Name")
-    last_name = StringField("Last Name", validators=[DataRequired()])
+    submit = SubmitField("Register")
