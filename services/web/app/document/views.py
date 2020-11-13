@@ -102,7 +102,7 @@ class DocumentSchema(masql.SQLAlchemySchema):
     id = masql.auto_field(dump_only=True)
     name = masql.auto_field()
     description = masql.auto_field()
-    type = EnumField(DocumentType)
+    type = EnumField(DocumentType, by_value=True)
     is_locked = masql.auto_field()
     created_on = fields.Date()
     updated_on = fields.DateTime()

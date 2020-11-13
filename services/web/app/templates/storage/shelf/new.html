@@ -13,7 +13,13 @@
         {{ storage_navbar() }}
         <div class="storage container">
             
-            <h1><span class="secondary-heading"><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}</span>New Shelf</h1>
+            <h1><span class="secondary-heading">
+                <a href="{{url_for('storage.view_cold_storage', id=cs.id) }}">
+                    <i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}
+                </a>
+            </span>
+                New Shelf
+            </h1>
 
 
             <form action="{{ url_for('storage.new_shelf', id=cs.id) }}" method="post">
