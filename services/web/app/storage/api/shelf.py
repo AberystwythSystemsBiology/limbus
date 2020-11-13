@@ -26,7 +26,7 @@ from marshmallow import ValidationError
 from ..views.shelf import *
 
 
-@api.route("/storage/rack", methods=["GET"])
+@api.route("/storage/shelf", methods=["GET"])
 @token_required
 def storage_shelf_home(tokenuser: UserAccount):
     return success_with_content_response(
@@ -58,7 +58,7 @@ def storage_shelf_new(tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/rack/LIMBSHELF-<id>/lock", methods=["POST"])
+@api.route("/storage/LIMBSHELF-<id>/lock", methods=["POST"])
 @token_required
 def storage_shelf_lock(id, tokenuser: UserAccount):
     return generic_lock(db, ColdStorageShelf, id, basic_shelf_schema, tokenuser)

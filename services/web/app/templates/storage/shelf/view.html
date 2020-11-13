@@ -33,7 +33,15 @@
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
                                     <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
                                         <button type="button" class="btn btn-outline-dark">
-                                            <i class="fas fa-vial"></i> Assign Sample
+                                            <i class="fas fa-vial"></i> Add Sample
+                                        </button>
+                                    </a>
+                                </div>
+
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
+                                        <button type="button" class="btn btn-outline-dark">
+                                            <i class="fa fa-grip-vertical"></i> Add Rack
                                         </button>
                                     </a>
                                 </div>

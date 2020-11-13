@@ -20,7 +20,7 @@ from marshmallow_enum import EnumField
 
 from ...database import SampleRack
 from ...sample.enums import Colour
-
+from ...auth.views import BasicUserAccountSchema
 
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -28,11 +28,20 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
-    description = masql.auto_field()
     serial_number = masql.auto_field()
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
-    colour = EnumField(Colour)
+    colour = EnumField(Colour, by_value=True)
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+
+    _links = ma.Hyperlinks(
+        {
+            # "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "collection": ma.URLFor("storage.rack_index", _external=True),
+            "qr_code": ma.URLFor("sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True)
+        }
+    )
 
 
 basic_sample_wrack_schema = BasicSampleRackSchema()

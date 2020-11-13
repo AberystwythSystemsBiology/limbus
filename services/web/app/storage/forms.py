@@ -35,6 +35,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationErro
 from ..setup.forms import post_code_validator
 from ..misc import get_internal_api_header
 from .enums import *
+from ..sample.forms import Colour
 
 
 class RoomRegistrationForm(FlaskForm):
@@ -77,15 +78,13 @@ class NewShelfForm(FlaskForm):
     submit = SubmitField("Register Shelf")
 
 
-def NewCryovialBoxForm():
-    class StaticForm(FlaskForm):
-        serial = StringField("Serial Number", validators=[DataRequired()])
-        num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
-        num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
-
-    setattr(StaticForm, "submit", SubmitField("Register Cryovial Box"))
-
-    return StaticForm()
+class NewSampleRackForm(FlaskForm):
+    serial = StringField("Serial Number", validators=[DataRequired()])
+    num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
+    num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
+    description = TextAreaField("Description")
+    colours = SelectField("Colours", choices=Colour.choices())
+    submit = SubmitField("Register")
 
 
 class NewCryovialBoxFileUploadForm(FlaskForm):
