@@ -172,7 +172,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     return StaticForm()
 
 
-def BoxToShelfForm(boxes: list) -> FlaskForm:
+def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         date = DateField("Entry Date", validators=[DataRequired()])
         time = TimeField("Entry Time", validators=[DataRequired()])
@@ -184,11 +184,12 @@ def BoxToShelfForm(boxes: list) -> FlaskForm:
 
     choices = []
 
-    for box in boxes:
-        choices.append([box.id, "LIMCRB-%s (Serial: %s)" % (box.id, box.serial)])
+
+    for rack in racks:
+        choices.append([rack["id"], "LIMBRACK-%s: %s (%i x %i)" % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]) ])
 
     setattr(
-        StaticForm, "boxes", SelectField("Cryovial Box", choices=choices, coerce=int)
+        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int)
     )
 
     return StaticForm()

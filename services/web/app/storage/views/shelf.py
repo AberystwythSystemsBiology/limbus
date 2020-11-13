@@ -24,6 +24,7 @@ from ...database import ColdStorageShelf
 from ...sample.enums import Colour
 from ...sample.views import BasicSampleSchema
 from ...auth.views import BasicUserAccountSchema
+from ..views.rack import BasicSampleRackSchema
 
 class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -37,6 +38,7 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     updated_on = ma.Date()
     samples = ma.Nested(BasicSampleSchema, many=True)
+    racks = ma.Nested(BasicSampleRackSchema, many=True)
     is_locked = masql.auto_field()
     storage_id = masql.auto_field()
     

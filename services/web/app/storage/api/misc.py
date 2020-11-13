@@ -28,7 +28,49 @@ from ..views.misc import (
     tree_sites_schema,
     new_sample_to_sample_rack_schema,
     new_sample_to_shelf_schema,
+    new_sample_rack_to_shelf_schema,
 )
+
+
+@api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
+@token_required
+def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
+    # TODO: Need to check if Rack in table, and if it is - move.
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    
+    try:
+        rack_to_shelf_result = new_sample_rack_to_shelf_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+    
+    ets = EntityToStorage.query.filter_by(rack_id = values["rack_id"]).first()
+
+    print(ets)
+
+    if ets != None:
+        ets.box_id = None
+        ets.shelf_id = values["shelf_id"]
+        ets.editor_id = tokenuser.id
+        ets.storage_type = "BTS"
+
+    else:
+        ets = EntityToStorage(**rack_to_shelf_result)
+        ets.author_id = tokenuser.id
+        ets.storage_type = "BTS"
+
+    try:
+        db.session.add(ets)
+        db.session.commit()
+        return success_with_content_response(
+            {"success": True}
+        )
+    except Exception as err:
+        return transaction_error_response(err)
 
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
 @token_required

@@ -5,19 +5,24 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMSHF-{{ shelf.id }}: Cryovial Box to Shelf{% endblock %}
+{% block title %}LIMSHF-{{ shelf.id }}: Sample Rack to Shelf{% endblock %}
 
 {% block body %}
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
-            <h1><span class="secondary-heading"><i class="fa fa-temperature-low"></i> LIMSHF-{{ shelf.id }}</span>Cryovial Box to Shelf</h1>
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
+                    <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</span>
+                </a>
+                <i class="fa fa-grip-vertical"></i> Assign Rack
+            </h1>
 
-            <p>Something here.</p>
-            <form method="POST" action="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id ) }}">
+            <form method="POST" action="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id ) }}">
                 {{ form.csrf_token }}
-                {{ form_field(form.boxes) }}
+
+                {{ form_field(form.racks) }}
                 <div class="row">
                     <div class="col-sm-6">
                         {{ form_field(form.date) }}
@@ -27,6 +32,7 @@
                     </div>
                 </div>
                 {{ form_field(form.entered_by) }}
+
                 {{ form_field(form.submit) }}
             </form>
         </div>

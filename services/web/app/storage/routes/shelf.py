@@ -25,7 +25,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from .. import storage
-from ..forms import NewShelfForm, SampleToEntityForm
+from ..forms import NewShelfForm, SampleToEntityForm, RackToShelfForm
 import requests
 from ...misc import get_internal_api_header
 from datetime import datetime
@@ -64,7 +64,7 @@ def new_shelf(id):
     
     return abort(response.status_code)
 
-@storage.route("/shelf/LIMBSHLF-<id>", methods=["GET"])
+@storage.route("/shelf/LIMBSHF-<id>", methods=["GET"])
 @login_required
 def view_shelf(id):
     response = requests.get(
@@ -77,7 +77,50 @@ def view_shelf(id):
 
     return abort(response.status_code)
 
-@storage.route("/shelf/LIMBSHLF-<id>/assign_sample", methods=["GET", "POST"])
+@storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
+@login_required
+def assign_rack_to_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        
+        rack_response = requests.get(
+            url_for("api.storage_rack_home", _external=True),
+            headers=get_internal_api_header()
+        )
+
+        if rack_response.status_code == 200:
+            
+            form = RackToShelfForm(rack_response.json()["content"])
+
+            if form.validate_on_submit():
+                rack_move_response = requests.post(
+                    url_for("api.storage_transfer_rack_to_shelf", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "rack_id": form.racks.data,
+                        "shelf_id": id,
+                        "entry_datetime": str(datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S"
+                        )),
+                        "entry": form.entered_by.data
+                        }
+                )
+
+                if rack_move_response.status_code == 200:
+                    return redirect(url_for("storage.view_shelf", id=id))
+
+                abort(rack_response.status_code)
+
+            return render_template("storage/shelf/rack_to_shelf.html", shelf=response.json()["content"], form=form)
+
+
+
+@storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])
 @login_required
 def assign_sample_to_shelf(id):
     response = requests.get(

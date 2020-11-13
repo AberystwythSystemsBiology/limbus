@@ -1,101 +1,130 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 
 {% block title %}LIMBSHF-{{ shelf.id }}{% endblock %}
 
 {% block body %}
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage container">
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
 
-            <h1><span class="secondary-heading">
-                
-                <a href="{{ url_for('storage.view_cold_storage', id=shelf.storage_id) }}"><i class="fa fa-temperature-low"></i> LIMBCS-{{ shelf.storage_id }}</span></a>
-                <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</h1>
+        <h1><span class="secondary-heading">
 
-                <div class="row text-muted">
-                    <div class="col-7">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                            {% if not shelf.is_locked %}
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="">
-                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                            Details
-                                        </button>
-                                    </a>
-                                </div>
+                <a href="{{ url_for('storage.view_cold_storage', id=shelf.storage_id) }}"><i
+                        class="fa fa-temperature-low"></i> LIMBCS-{{ shelf.storage_id }}</span></a>
+            <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</h1>
 
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
-                                        <button type="button" class="btn btn-outline-dark">
-                                            <i class="fas fa-vial"></i> Add Sample
-                                        </button>
-                                    </a>
-                                </div>
 
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
-                                        <button type="button" class="btn btn-outline-dark">
-                                            <i class="fa fa-grip-vertical"></i> Add Rack
-                                        </button>
-                                    </a>
-                                </div>
-
-                            {% endif %}
-        
-                            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if shelf.is_locked %}
-                                    Unl{% else %}L{% endif %}ock
-                                </button>
-                            </div>
-                        </div>
+        <div class="row text-muted">
+            <div class="col-7">
+                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                    {% if not shelf.is_locked %}
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="">
+                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                Details
+                            </button>
+                        </a>
                     </div>
-                    <div class="col-5 text-right">
-                        <i class="fa fa-calendar"></i> Created On: {{ shelf.created_on }}
-                        <div class="clearfix"></div>
-                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(shelf.author) }}
+
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
+                            <button type="button" class="btn btn-outline-dark">
+                                <i class="fas fa-vial"></i> Add Sample
+                            </button>
+                        </a>
+                    </div>
+
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id) }}">
+                            <button type="button" class="btn btn-outline-dark">
+                                <i class="fa fa-grip-vertical"></i> Add Rack
+                            </button>
+                        </a>
+                    </div>
+
+                    {% endif %}
+
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if shelf.is_locked %}
+                            Unl{% else %}L{% endif %}ock
+                        </button>
                     </div>
                 </div>
+            </div>
+            <div class="col-5 text-right">
+                <i class="fa fa-calendar"></i> Created On: {{ shelf.created_on }}
+                <div class="clearfix"></div>
+                <i class="fa fa-user"></i> Created By: {{ render_author_for_table(shelf.author) }}
+            </div>
+        </div>
 
-                {{ show_value(shelf.name, "Name", "text") }}
-                {{ show_value(shelf.description, "Description", "text") }}
+        {{ show_value(shelf.name, "Name", "text") }}
+        {{ show_value(shelf.description, "Description", "text") }}
 
-                <h2><i class="fas fa-vial"></i> Stored Samples</h2>
+        <h2><i class="fas fa-vial"></i> Stored Samples</h2>
 
-                {% for n in range(0, shelf.samples|length, 3) %}
-                <div class="card-deck mb-3 text-center">
-                    {% for sample in shelf.samples[n:n+ 3] %}
-                        <div class="card mb-4 box-shadow">
-                            <div class="card-header">
-                                <h4 class="my-0 font-weight-normal">{{ sample.uuid }}</h4>
-                              </div>
-                              <div class="card-body">
-                                <img src="{{ sample._links.qr_code }}">
-
-                                <ul class="list-unstyled mt-3 mb-4">
-                                    <li>{{render_colour(sample.colour)}} </li>
-                                    <li>Type: {{ sample.type }}</li>
-                                    <li>Created On: {{sample.created_on}}</li>
-                                </ul>
-                                    <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
-                                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
-                                    </a>
-                            </div>
-                        </div>
-                    {% endfor %}
+        {% for n in range(0, shelf.samples|length, 5) %}
+        <div class="card-deck mb-3 text-center">
+            {% for sample in shelf.samples[n:n+ 5] %}
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ sample.uuid }}</h4>
                 </div>
+                <div class="card-body">
+                    <img src="{{ sample._links.qr_code }}">
+
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>{{render_colour(sample.colour)}} </li>
+                        <li>Type: {{ sample.type }}</li>
+                        <li>Created On: {{sample.created_on}}</li>
+                    </ul>
+                    <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
+                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                    </a>
+                </div>
+            </div>
             {% endfor %}
         </div>
-               
+        {% endfor %}
+
+        <h2><i class="fa fa-grip-vertical"></i> Stored Sample Racks</h2>
+
+
+        {% for i in range(0, shelf.racks|length, 5) %}
+        <div class="card-deck mb-3 text-center">
+            {% for rack in shelf.racks[i:i+ 5] %}
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ rack.uuid }}</h4>
+                </div>
+                <div class="card-body">
+
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>{{render_colour(rack.colour)}} </li>
+                        <li>Serial Number: {{rack.serial_number }}</li>
+                        <li>Dimensions: {{rack.num_rows }}x{{rack.num_cols }}</li>
+                        <li>Created On: {{rack.created_on}}</li>
+                    </ul>
+                    
+                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+
     </div>
+
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

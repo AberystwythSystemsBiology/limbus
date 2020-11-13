@@ -39,7 +39,9 @@ class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
         model = EntityToStorage
 
     sample_id = masql.auto_field()
-    box_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    entry_datetime = masql.auto_field()
+    entry = masql.auto_field()
 
 new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
 new_samples_to_sample_racks_schema = NewSampleToSampleRackSchema(many=True)
@@ -48,9 +50,10 @@ class NewSampleRackToShelfSchema(masql.SQLAlchemySchema):
     class Meta:
         model = EntityToStorage
     
-    box_id = masql.auto_field()
+    rack_id = masql.auto_field()
     shelf_id = masql.auto_field()
-
+    entry_datetime = masql.auto_field()
+    entry = masql.auto_field()
 
 new_sample_rack_to_shelf_schema = NewSampleRackToShelfSchema()
 new_sample_racks_to_shelves_schema = NewSampleRackToShelfSchema(many=True)
