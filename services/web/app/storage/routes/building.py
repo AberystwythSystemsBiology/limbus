@@ -22,24 +22,37 @@ from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
 
 
-@storage.route("/building/new", methods=["GET", "POST"])
+@storage.route("site/LIMBSITE-<id>/new_building", methods=["GET", "POST"])
 @login_required
-def new_building():
-    form = BuildingRegistrationForm()
-    if form.validate_on_submit():
-        response = requests.post(
-            url_for("api.storage_building_new", _external=True),
-            headers=get_internal_api_header(),
-            json={"site_id": form.site.data, "name": form.name.data},
-        )
+def new_building(id):
+    
 
-        if response.status_code == 200:
-            flash("Building Successfully Created")
-            return redirect(url_for("storage.index"))
-        else:
-            return abort(response.status_code)
+    response = requests.get(
+        url_for("api.site_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
-    return render_template("storage/building/new.html", form=form)
+
+    if response.status_code == 200:
+        form = BuildingRegistrationForm()
+
+        if form.validate_on_submit():
+            post_response = requests.post(
+                url_for("api.storage_building_new", _external=True),
+                headers=get_internal_api_header(),
+                json={"site_id": id, "name": form.name.data},
+            )
+
+            if post_response.status_code == 200:
+                flash("Building Successfully Created")
+                return redirect(url_for("storage.view_building", id=post_response.json()["content"]["id"]))
+            else:
+                return abort(response.status_code)
+
+        return render_template("storage/building/new.html", form=form, site=response.json()["content"])
+
+    abort(response.status_code)
+    
 
 @storage.route("/building/LIMBUILD-<id>", methods=["GET"])
 @login_required

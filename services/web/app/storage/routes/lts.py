@@ -62,7 +62,7 @@ def new_cold_storage(id):
             if new_response.status_code == 200:
                 flash("Cold Storage Successfuly Created")
                 # TODO: Replace
-                return redirect(url_for("document.index"))
+                return redirect(url_for("storage.view_cold_storage", id=new_response.json()["content"]["id"]))
             return abort(new_response.status_code)
 
         return render_template("storage/lts/new.html", form=form, room=response.json()["content"])

@@ -21,7 +21,6 @@
                 New Shelf
             </h1>
 
-
             <form action="{{ url_for('storage.new_shelf', id=cs.id) }}" method="post">
                     {{ form.csrf_token() }}
                     {{ form_field(form.name) }}

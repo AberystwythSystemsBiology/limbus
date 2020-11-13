@@ -44,7 +44,7 @@
                                 No buildings available.
                             </div>
                         {% endif %}
-                        <a href="{{ url_for('storage.new_building') }}"
+                        <a href="{{ url_for('storage.new_building', id=site.id) }}"
                            class="list-group-item list-group-item-action flex-column active"
                            style="text-align: center;">
                             <i class="fa fa-plus"></i> Add Building

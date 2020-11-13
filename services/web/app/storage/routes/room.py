@@ -56,8 +56,7 @@ def new_room(id):
 
             if new_response.status_code == 200:
                 flash("Room Successfully Created")
-                # TODO: Replace.
-                return redirect(url_for("document.index"))
+                return redirect(url_for("storage.view_room", id=new_response.json()["content"]["id"]))
             return abort(new_response.status_code)
         
         return render_template("storage/room/new.html", form=form, building=response.json()["content"])

@@ -57,7 +57,7 @@ def new_shelf(id):
             if new_response.status_code == 200:
                 flash("Shelf Successfully Created")
                 # TODO: Replace.
-                return redirect(url_for("document.index"))
+                return redirect(url_for("storage.view_shelf", id=new_response.json()["content"]["id"]))
             return abort(new_response.status_code)
         
         return render_template("storage/shelf/new.html", form=form, cs=response.json()["content"])

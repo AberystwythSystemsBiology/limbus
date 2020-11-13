@@ -43,25 +43,10 @@ class RoomRegistrationForm(FlaskForm):
     submit = SubmitField("Register Room")
 
 
-def BuildingRegistrationForm():
-    class StaticForm(FlaskForm):
-        name = StringField("Building Name", validators=[DataRequired()])
-        submit = SubmitField("Register Building")
+class BuildingRegistrationForm(FlaskForm):
+    name = StringField("Building Name", validators=[DataRequired()])
+    submit = SubmitField("Register Building")
 
-    sites_response = requests.get(
-        url_for("api.site_home", _external=True), headers=get_internal_api_header()
-    )
-
-    sites = []
-
-    if sites_response.status_code == 200:
-        sites_json = sites_response.json()["content"]
-        for site in sites_json:
-            sites.append([site["id"], site["name"]])
-
-    setattr(StaticForm, "site", SelectField("Site", choices=sites, coerce=int))
-
-    return StaticForm()
 
 
 class NewShelfForm(FlaskForm):
