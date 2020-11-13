@@ -26,16 +26,15 @@
                        
                     <div class="list-group">
                     <li class="list-group-item active">
-                          <h5 class="mb-1"><i class="fa fa-cube"></i> Buildings</h5>
+                          <h5 class="mb-1"><i class="fa fa-home"></i> Buildings</h5>
                       </li>
                       {% if site.buildings|length > 0 %}
                         {% for building in site.buildings %}
                             <a href="{{ url_for('storage.view_building', id=building.id) }}"
                                class="list-group-item list-group-item-action flex-column align-items-start">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><i class="fa fa-door-closed"></i> LIMBROOM-{{ building.id }}</h5>
+                                    <h5 class="mb-1"><i class="fa fa-home"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}</h5>
                                 </div>
-                                <p class="mb-1">{{ building.name }}</p>
                             </a>
                             
                         {% endfor %}
