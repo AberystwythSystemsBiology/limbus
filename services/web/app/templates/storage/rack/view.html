@@ -20,8 +20,41 @@
         <div class="storage container">
 
             <h1><span class="secondary-heading">Sample Rack</span>
-                <i class="fa fa-cube"></i> LIMBRACK-{{ rack.id }}</h1>
+                <i class="fa fa-cube"></i> LIMBRACK-{{ rack.id }}
+            </h1>
+
+            <div class="row text-muted">
+                <div class="col-7">
+                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                        {% if not rack.is_locked %}
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="">
+                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                    Details
+                                </button>
+                            </a>
+                        </div>
+        
+                        {% endif %}
+    
+                        <div class="btn-group mr-2" role="group" aria-label="Second group">
+                            <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if rack.is_locked %}
+                                Unl{% else %}L{% endif %}ock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5 text-right">
+                    <i class="fa fa-calendar"></i> Created On: {{ rack.created_on }}
+                    <div class="clearfix"></div>
+                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(rack.author) }}
+                </div>
+            </div>
                 
+                {{ show_value(rack.uuid, "UUID", "text") }}
+                {{ show_value(rack.serial_number, "Serial Number", "text") }}
+
                 {{ rack }}
 
         </div>
