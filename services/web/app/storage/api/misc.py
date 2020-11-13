@@ -32,7 +32,7 @@ from ..views.misc import (
 )
 
 
-@api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
+@api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     # TODO: Need to check if Rack in table, and if it is - move.
@@ -81,8 +81,8 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-
     
+
     try:
         sample_to_shelf_result = new_sample_to_shelf_schema.load(values)
     except ValidationError as err:

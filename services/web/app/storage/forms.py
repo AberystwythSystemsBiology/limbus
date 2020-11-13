@@ -135,7 +135,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = []
     for sample in samples:
         samples_choices.append(
-            [sample["id"], sample["uuid"]]
+            [int(sample["id"]), sample["uuid"]]
         )
 
 

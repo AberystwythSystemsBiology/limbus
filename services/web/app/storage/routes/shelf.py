@@ -157,7 +157,7 @@ def assign_sample_to_shelf(id):
                 )
 
                 if sample_move_response.status_code == 200:
-                    return "Hello World"
+                    return redirect(url_for("storage.view_shelf", id=id))
 
                 else:
                     flash(sample_move_response.json())
