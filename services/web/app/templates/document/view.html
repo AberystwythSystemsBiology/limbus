@@ -55,31 +55,39 @@
 
 
         <h2>
-            Document Files
+            <i class="fa fa-paperclip"></i> Document Files
         </h2>
 
         <table id="documents" class="table table-striped table-bordered" style="width:100%">
             <thead>
             <tr>
                 <th>File</th>
-                <th>MD5 Checksum</th>
+                <th>
+                    MD5 Checksum <i class="fa fa-question" data-toggle="tooltip" data-toggle="tooltip" data-placement="top" title="This is used to ensure that the encrypted file is decrypted properly!"></i>
+                </th>
                 <th>Uploader</th>
                 <th>Created On</th>
             </tr>
             </thead>
             <tbody>
-            {% for file in document.files %}
+                {% if document.files|length > 0 %}
+                {% for file in document.files %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('document.view_file', id=document.id, file_id=file.id) }}">
+                                <i class="fa fa-paperclip"></i> {{ file.name }}
+                            </a>
+                        </td>
+                        <td><code>{{ file.checksum }}</code></td>
+                        <td>{{ render_author_for_table(file.author) }}</td>
+                        <td>{{ file.created_on }}</td>
+                    </tr>
+                {% endfor %}
+                {% else %}
                 <tr>
-                    <td>
-                        <a href="{{ url_for('document.view_file', id=document.id, file_id=file.id) }}">
-                            <i class="fa fa-file"></i> {{ file.name }}
-                        </a>
-                    </td>
-                    <td>{{ file.checksum }}</td>
-                    <td>{{ render_author_for_table(file.author) }}</td>
-                    <td>{{ file.created_on }}</td>
+                    <td class="full-width" style="text-align: center;" colspan="4">No Data Available.</td>
                 </tr>
-            {% endfor %}
+                {% endif %}
             </tbody>
         </table>
 

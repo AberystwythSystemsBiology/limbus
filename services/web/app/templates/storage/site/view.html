@@ -13,7 +13,11 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><i class="fa fa-building"></i> LIMBSITE-{{ site.id }}</h1>
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('storage.index') }}">
+                    <i class="fas fa-boxes"></i> Storage Portal</span>
+                </a>
+                <i class="fa fa-building"></i> LIMBSITE-{{ site.id }}</h1>
 
 
                 <h5 class="card-title">Site Information</h5>

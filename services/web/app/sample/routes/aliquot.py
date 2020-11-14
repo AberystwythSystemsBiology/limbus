@@ -30,31 +30,39 @@ from ...misc import get_internal_api_header
 def aliquot(uuid: str):
     # An aliquot creates a specimen from the same type as the parent.
 
-    protocol_response = requests.get(
-        url_for("api.protocol_query", _external=True),
-        headers=get_internal_api_header(),
-        json={"is_locked": False},
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header()
     )
 
-    if protocol_response.status_code != 200:
-        abort(400)
+    if sample_response.status_code == 200:
 
-    user_response = requests.get(
-        url_for("api.auth_home", _external=True),
-        headers=get_internal_api_header(),
-        json={},
-    )
+        protocol_response = requests.get(
+            url_for("api.protocol_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"is_locked": False},
+        )
 
-    if user_response.status_code != 200:
-        abort(400)
+        if protocol_response.status_code != 200:
+            abort(protocol_response.status_code)
 
-    processing_templates = protocol_response.json()["content"]
-    users = user_response.json()["content"]
+        user_response = requests.get(
+            url_for("api.auth_home", _external=True),
+            headers=get_internal_api_header(),
+            json={},
+        )
 
-    form = SampleAliquotingForm(processing_templates, users)
+        if user_response.status_code != 200:
+            abort(user_response.status_code)
 
-    return render_template("sample/sample/aliquot/create.html", form=form)
+        processing_templates = protocol_response.json()["content"]
+        users = user_response.json()["content"]
 
+        form = SampleAliquotingForm(processing_templates, users)
+
+        return render_template("sample/sample/aliquot/create.html", form=form, sample=sample_response.json()["content"])
+    
+    abort(sample_response.status_code)
 
 @sample.route("query", methods=["POST"])
 @login_required
@@ -82,7 +90,7 @@ def aliquot_endpoint(uuid: str):
     values = request.get_json()
 
     if not values:
-        return {"Err": "No values"}
+        return {"Err": "No values provided."}
 
     aliquot_response = requests.post(
         url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
@@ -94,6 +102,7 @@ def aliquot_endpoint(uuid: str):
         return aliquot_response.json()
     else:
         return {"Err": aliquot_response.status_code}
+    
 
 
 @sample.route("<uuid>/derive")

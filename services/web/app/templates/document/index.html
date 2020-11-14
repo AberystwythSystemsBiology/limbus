@@ -36,18 +36,18 @@
             </tr>
             </thead>
             <tbody>
-            {% for document in documents %}
-                <tr>
-                    <td>
-                        <a href="{{ url_for('document.view', id=document.id) }}">
-                            <i class="fas fa-file"></i> LIMBDOC-{{ document.id }}: {{ document.name }}
-                        </a>
-                    </td>
-                    <td>{{ document.type }}</td>
-                    <td>{{ render_author_for_table(document.author) }}</td>
-                    <td>{{ document.created_on }}</td>
-                </tr>
-            {% endfor %}
+                {% for document in documents %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('document.view', id=document.id) }}">
+                                <i class="fas fa-file"></i> LIMBDOC-{{ document.id }}: {{ document.name }}
+                            </a>
+                        </td>
+                        <td>{{ document.type }}</td>
+                        <td>{{ render_author_for_table(document.author) }}</td>
+                        <td>{{ document.created_on }}</td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
 
