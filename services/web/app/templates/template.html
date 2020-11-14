@@ -105,9 +105,9 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right position-absolute"
                          aria-labelledby="navbarDropdown" style="width:300px">
-                            <span class="dropdown-item">
-                                <h6>Ey up mi duck!</h6>
-                                <p class="small">Now you know how to say hello in Staffordshire!</p>
+                            <span class="dropdown-item user-item">
+                                <h3><span id="greeting"></span>, {{current_user.first_name}}!</h3>
+                                <p class="text-muted">Now you know how to greet people in <span id="greet_language"></span>!</p>
                             </span>
 
                         {% if not current_user.is_bot %}
@@ -125,7 +125,7 @@
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
                                 <div class="btn btn-danger full-width">
-                                    Log Out
+                                    <i class="fa fa-sign-out-alt"></i> Log Out
                                 </div>
                             </a>
                             </div>

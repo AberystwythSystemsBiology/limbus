@@ -29,13 +29,13 @@ from .views import (
     basic_sites_schema,
 )
 
-from flask import request, send_file
+from flask import request, send_file, jsonify
 from ..decorators import token_required
 from marshmallow import ValidationError
 
 import treepoem
 from io import BytesIO
-
+from random import choice
 
 @api.route("/misc/barcode/<t>/<i>/", methods=["GET"])
 @token_required
@@ -49,6 +49,41 @@ def misc_generate_barcode(tokenuser: UserAccount, t: str, i: str):
     except Exception as e:
         abort(400)
 
+
+@api.route("/misc/greeting", methods=["GET"])
+def get_greeting():
+
+    dictionary = {
+        "Hello": "English",
+        "Rite butt?": "the Welsh Valleys",
+        "ghaH 'ej Duvan": "Klingon",
+        "Ay 'up mi duck?": "Staffordshire",
+        "'Allo, 'Allo": "London Policeman",
+        "Witaj": "Polish",
+        "Salaam": "Arabic",
+        "Bonjour": "French",
+        "God dag": "Danish",
+        "Yasou": "Greek",
+        "Shalom": "Hebrew",
+        "Namaste": "Hindi",
+        "Salve": "Italian",
+        "Konnichiwa": "Japanese",
+        "Hola": "Spanish",
+        "Selamat datang": "Malaysian",
+        "Guten Tag": "German",
+        "Merhaba": "Turkish",
+        "Helo": "Welsh",
+        "Hala": "Arabic",
+        "Zdravo": "Serbian",
+        "Nei ho": "Cantonese",
+        "Dobrý den": "Czech",
+        "Mingalaba": "Burmese",
+        "Labdien": "Latvian",
+    }
+
+    c = choice(list(dictionary.keys()))
+
+    return jsonify({"language": dictionary[c], "greeting": c})
 
 @api.route("/misc/panel", methods=["GET"])
 @token_required

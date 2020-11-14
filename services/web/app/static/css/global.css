@@ -24,6 +24,11 @@ nav img {
     padding:1em;
 }
 
+.user-item {
+    white-space: normal;
+  }
+  
+
 .colour-circle {
     height: 15px;
     width: 15px;
