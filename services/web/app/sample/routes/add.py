@@ -366,6 +366,27 @@ def prepare_form_data(form_data: dict) -> dict:
         if review_response.status_code != 200:
             return review_response.content
 
+    """
+    # Start add customised attributes
+    print('add customised attribute data!!')
+    print(sample_response.json()["content"])
+    form_data["add_custom_atributes"]#["sample_id"] = sample_response.json()["content"]["id"]
+
+    custom_attribute_data, event_flag = _prepare_custom_attribute_data(
+        form_data["add_custom_atributes"],
+    )
+    print('add_custom_atributes, ', custom_attribute_data)
+
+    if event_flag:
+        review_response = requests.post(
+            url_for("api.sample_new_sample_custom_attribute_data", _external=True),
+            headers=get_internal_api_header(),
+            json=sample_custom_attribute_data,
+        )
+
+        if review_response.status_code != 200:
+            return review_response.content
+    """
     return form_data
 
 
