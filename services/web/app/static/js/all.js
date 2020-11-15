@@ -34,13 +34,45 @@ function render_colour(colour) {
 
 }
 
+function get_greeting() {
+  var api_url = encodeURI(window.location+'api/misc/greeting');
 
+
+  var json = (function () {
+      var json = null;
+      $.ajax({
+          'async': false,
+          'global': false,
+          'url': api_url,
+          'dataType': "json",
+          'success': function (data) {
+              json = data;
+          }
+      });
+      return json;
+  })();
+
+  return json;
+}
+
+
+function fill_greeting(greeting) {
+  $("#greeting").html(greeting["greeting"]);
+  $("#greet_language").html(greeting["language"]);
+}
 
 $(document).ready(function(){
   $('.toast').toast('show');
 
-  $('#history').DataTable( {
-});
+  $('#history').DataTable( {} );
+
+
+
+  $("#navbarDropdown").click(function() {
+    var greeting = get_greeting()
+    fill_greeting(greeting);
+  });
+
 
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()

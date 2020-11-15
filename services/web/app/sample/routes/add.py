@@ -409,7 +409,9 @@ def add_rerouter(hash):
                     if "add_sample_review" in data:
                         if "add_custom_atributes" in data:
                             if "add_final_details" in data:
-                                return prepare_form_data(data)
+                                sample_info = prepare_form_data(data)
+                                # Take the UUID of the sample and redirect.
+                                return redirect(url_for("sample.index"))
                             return redirect(
                                 url_for("sample.add_sample_final_form", hash=hash)
                             )

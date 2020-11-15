@@ -5,38 +5,37 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}{{ shelf.name }}: Assign sample{% endblock %}
+{% block title %}New Sample Rack{% endblock %}
 
 {% block body %}
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
+
             <h1>
                 <span class="secondary-heading">
-                    <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
-                        <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}
+                    <a href="{{ url_for('storage.index') }}">
+                        <i class="fas fa-boxes"></i> Storage Portal
                     </a>
                 </span>
-                <i class="fas fa-vial"></i> Assign Sample
+                <i class="fa fa-grip-vertical"></i> New Sample Rack
             </h1>
 
 
-            <form action="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}" method="post">
+            <form action="{{ url_for('storage.rack_manual_entry') }}" method="post">
                 {{ form.csrf_token }}
-                
-                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
-
+                {{ form_field(form.serial) }}
                 <div class="row">
                     <div class="col-sm-6">
-                        {{ form_field(form.date) }}
+                        {{ form_field(form.num_rows) }}
                     </div>
                     <div class="col-sm-6">
-                        {{ form_field(form.time) }}
+                        {{ form_field(form.num_cols) }}
                     </div>
                 </div>
-                {{ form_field(form.entered_by) }}
-
+                {{ form_field(form.colours) }}
+                {{ form_field(form.description) }}
                 {{ form_field(form.submit) }}
             </form>
 

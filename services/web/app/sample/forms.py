@@ -357,7 +357,7 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     return StaticForm()
 
 
-def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
+def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
         aliquot_date = DateField(
             "Aliquot Date", validators=[DataRequired()], default=datetime.today()
@@ -366,6 +366,7 @@ def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
             "Aliquot Time", validators=[DataRequired()], default=datetime.now()
         )
         comments = TextAreaField("Comments")
+        processed_by = StringField("Processed By", description="The initials of the individual who collected the sample.")
         submit = SubmitField("Submit")
 
     processing_template_choices = []
@@ -383,6 +384,7 @@ def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
         ),
     )
 
+
     user_choices = []
 
     for user in users:
@@ -397,6 +399,5 @@ def SampleAliquotingForm(processing_templates: dict, users: dict) -> FlaskForm:
         # sample processor not necessarily in the system
         StringField("Processed By"),
     )
-
 
     return StaticForm()

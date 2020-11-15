@@ -24,7 +24,7 @@ from ...database import db, Room, UserAccount
 
 from marshmallow import ValidationError
 
-from ..views import basic_room_schema, basic_rooms_schema, new_room_schema
+from ..views import basic_room_schema, basic_rooms_schema, new_room_schema, room_schema
 
 
 @api.route("/storage/room", methods=["GET"])
@@ -37,14 +37,14 @@ def storage_room_home(tokenuser: UserAccount):
 @token_required
 def storage_room_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_room_schema.dump(Room.query.filter_by(id=id), first_or_404())
+        room_schema.dump(Room.query.filter_by(id=id).first_or_404())
     )
 
 
 @api.route("/storage/room/new", methods=["POST"])
 @token_required
 def storage_room_new(tokenuser: UserAccount):
-    room = request.get_json()
+    values = request.get_json()
 
     if not values:
         return no_values_response()

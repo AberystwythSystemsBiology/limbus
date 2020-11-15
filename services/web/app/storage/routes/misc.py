@@ -15,6 +15,7 @@
 
 from flask import redirect, abort, render_template, url_for, session, request, jsonify
 from flask_login import current_user, login_required
+from ...misc import get_internal_api_header
 
 from .. import storage
 import requests
@@ -26,7 +27,15 @@ def index():
     return render_template("storage/index.html")
 
 
-@storage.route("/get_storage_api")
+@storage.route("/overview")
 @login_required
 def storage_navbar_api():
-    pass
+    response = requests.get(
+        url_for("api.storage_view_tree", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    # storage_view_tree
+    abort(response.status_code)

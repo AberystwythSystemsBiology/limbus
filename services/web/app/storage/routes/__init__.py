@@ -16,11 +16,13 @@
 
 from .misc import *
 from .building import *
-
+from .room import *
+from .lts import *
+from .shelf import *
+from .site import *
+from .rack import *
 
 """
 from .lts import *
 from .rack import *
-from .room import *
-from .shelf import *
 """

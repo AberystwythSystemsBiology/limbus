@@ -30,8 +30,9 @@ from ..views.rack import *
 @api.route("/storage/rack", methods=["GET"])
 @token_required
 def storage_rack_home(tokenuser: UserAccount):
+
     return success_with_content_response(
-        basic_sample_wracks_schema.dump(SampleRack.query.all())
+        basic_sample_racks_schema.dump(SampleRack.query.all())
     )
 
 
@@ -39,8 +40,7 @@ def storage_rack_home(tokenuser: UserAccount):
 @token_required
 def storage_rack_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sample_wrack_schema.dumo
-        * SampleRack.query.filter_by(id=id).first_or_404()
+        rack_schema.dump(SampleRack.query.filter_by(id=id).first_or_404())
     )
 
 
@@ -52,7 +52,7 @@ def storage_rack_new(tokenuser: UserAccount):
         db,
         SampleRack,
         new_sample_rack_schema,
-        basic_sample_wrack_schema,
+        basic_sample_rack_schema,
         values,
         tokenuser,
     )

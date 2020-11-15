@@ -20,6 +20,9 @@
           rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/bootstrap-select/dist/css/bootstrap-select.min.css') }}"
           rel="stylesheet">
+    <link href="{{ url_for('static', filename='node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}"
+          rel="stylesheet">
+
     {% block head %}
     {% endblock %}
 
@@ -58,11 +61,15 @@
                             <i class="fa fa-user-circle"></i> Donors
                         </a>
                     </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('storage.index') }}">
-                            <i class="fas fa-boxes"></i> Storage Portal
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-boxes"></i> Storage
                         </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Storage Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('storage.add_rack') }}"><i class="fas fa-plus"></i> New Storage Rack</a>
+                        </div>
                     </li>
 
                     <li class="nav-item dropdown">
@@ -98,9 +105,9 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right position-absolute"
                          aria-labelledby="navbarDropdown" style="width:300px">
-                            <span class="dropdown-item">
-                                <h6>Ey up mi duck!</h6>
-                                <p class="small">Now you know how to say hello in Staffordshire!</p>
+                            <span class="dropdown-item user-item">
+                                <h3><span id="greeting"></span>, {{current_user.first_name}}!</h3>
+                                <p class="text-muted">Now you know how to greet people in <span id="greet_language"></span>!</p>
                             </span>
 
                         {% if not current_user.is_bot %}
@@ -118,7 +125,7 @@
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
                                 <div class="btn btn-danger full-width">
-                                    Log Out
+                                    <i class="fa fa-sign-out-alt"></i> Log Out
                                 </div>
                             </a>
                             </div>
@@ -210,6 +217,10 @@
 <script src="{{ url_for('static', filename='node_modules/datatables.net/js/jquery.dataTables.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/datatables.net-bs4/js/dataTables.bootstrap4.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/datatables.net-searchpanes/js/dataTables.searchPanes.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/datatables.net-select/js/dataTables.select.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/d3/dist/d3.js') }}"></script>
 <script src="{{ url_for('static', filename='node_modules/jstree/dist/jstree.min.js') }}"></script>

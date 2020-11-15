@@ -25,6 +25,7 @@ from wtforms import (
     SubmitField,
     DateField,
     TimeField,
+    TextAreaField,
     FileField,
     ValidationError,
     SelectField,
@@ -33,33 +34,19 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationError
 from ..setup.forms import post_code_validator
 from ..misc import get_internal_api_header
+from .enums import *
+from ..sample.forms import Colour
 
 
 class RoomRegistrationForm(FlaskForm):
-    room = StringField("Room Number", validators=[DataRequired()])
-    building = StringField("Building")
+    name = StringField("Room Name", validators=[DataRequired()])
     submit = SubmitField("Register Room")
 
 
-def BuildingRegistrationForm():
-    class StaticForm(FlaskForm):
-        name = StringField("Building Name", validators=[DataRequired()])
-        submit = SubmitField("Register Building")
+class BuildingRegistrationForm(FlaskForm):
+    name = StringField("Building Name", validators=[DataRequired()])
+    submit = SubmitField("Register Building")
 
-    sites_response = requests.get(
-        url_for("api.site_home", _external=True), headers=get_internal_api_header()
-    )
-
-    sites = []
-
-    if sites_response.status_code == 200:
-        sites_json = sites_response.json()["content"]
-        for site in sites_json:
-            sites.append([site["id"], site["name"]])
-
-    setattr(StaticForm, "site", SelectField("Site", choices=sites, coerce=int))
-
-    return StaticForm()
 
 
 class NewShelfForm(FlaskForm):
@@ -69,22 +56,20 @@ class NewShelfForm(FlaskForm):
         description="A descriptive name for the shelf, something like top shelf.",
     )
 
-    description = StringField(
+    description = TextAreaField(
         "Shelf Description", description="A brief description of the shelf."
     )
 
     submit = SubmitField("Register Shelf")
 
 
-def NewCryovialBoxForm():
-    class StaticForm(FlaskForm):
-        serial = StringField("Serial Number", validators=[DataRequired()])
-        num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
-        num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
-
-    setattr(StaticForm, "submit", SubmitField("Register Cryovial Box"))
-
-    return StaticForm()
+class NewSampleRackForm(FlaskForm):
+    serial = StringField("Serial Number", validators=[DataRequired()])
+    num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
+    num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
+    description = TextAreaField("Description")
+    colours = SelectField("Colours", choices=Colour.choices())
+    submit = SubmitField("Register")
 
 
 class NewCryovialBoxFileUploadForm(FlaskForm):
@@ -111,7 +96,7 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-def LongTermColdStorageForm():
+def ColdStorageForm():
     class StaticForm(FlaskForm):
         serial_number = StringField(
             "Serial Number",
@@ -122,6 +107,11 @@ def LongTermColdStorageForm():
             validators=[DataRequired()],
             description="The storage facility manufacturer.",
         )
+
+        comments = TextAreaField(
+            "Comments"
+        )
+
         temperature = SelectField(
             "Temperature",
             choices=FixedColdStorageTemps.choices(),
@@ -145,8 +135,9 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = []
     for sample in samples:
         samples_choices.append(
-            [str(sample.id), "LIMBSMP-%s (%s)" % (sample.id, sample.sample_type)]
+            [int(sample["id"]), sample["uuid"]]
         )
+
 
     class StaticForm(FlaskForm):
         date = DateField("Entry Date", validators=[DataRequired()])
@@ -160,13 +151,13 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     setattr(
         StaticForm,
         "samples",
-        SelectField("Sample", choices=samples_choices, validators=[DataRequired()]),
+        SelectField("Sample", choices=samples_choices, validators=[DataRequired()], coerce=int),
     )
 
     return StaticForm()
 
 
-def BoxToShelfForm(boxes: list) -> FlaskForm:
+def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         date = DateField("Entry Date", validators=[DataRequired()])
         time = TimeField("Entry Time", validators=[DataRequired()])
@@ -178,11 +169,12 @@ def BoxToShelfForm(boxes: list) -> FlaskForm:
 
     choices = []
 
-    for box in boxes:
-        choices.append([box.id, "LIMCRB-%s (Serial: %s)" % (box.id, box.serial)])
+
+    for rack in racks:
+        choices.append([rack["id"], "LIMBRACK-%s: %s (%i x %i)" % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]) ])
 
     setattr(
-        StaticForm, "boxes", SelectField("Cryovial Box", choices=choices, coerce=int)
+        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int)
     )
 
     return StaticForm()

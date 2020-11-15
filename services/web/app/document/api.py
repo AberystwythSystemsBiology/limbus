@@ -59,7 +59,6 @@ def document_home(tokenuser: UserAccount):
 @api.route("/document/LIMBDOC-<id>")
 @token_required
 def document_view_document(id: int, tokenuser: UserAccount):
-    document = Document.query.filter_by(id=id).first()
 
     return success_with_content_response(
         document_schema.dump(Document.query.filter_by(id=id).first())

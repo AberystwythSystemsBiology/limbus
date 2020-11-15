@@ -20,7 +20,6 @@ from ..extensions import ma
 
 from ..auth.views import BasicUserAccountSchema
 
-
 class NewAddressSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Address
@@ -68,6 +67,7 @@ class NewSiteInformationSchema(masql.SQLAlchemySchema):
 
 
 new_site_schema = NewSiteInformationSchema()
+
 
 
 class BasicSiteSchema(masql.SQLAlchemySchema):

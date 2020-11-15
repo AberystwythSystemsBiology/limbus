@@ -20,6 +20,7 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
+    TextAreaField,
     BooleanField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo, URL
@@ -66,7 +67,7 @@ class DocumentCreationForm(FlaskForm):
         validators=[DataRequired()],
         description="Textual string of letters denoting the name of the document in English",
     )
-    description = StringField("Document Description")
+    description = TextAreaField("Document Description")
 
     type = SelectField(
         "Document Type",

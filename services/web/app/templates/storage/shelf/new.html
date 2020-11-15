@@ -5,7 +5,7 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}{{ lts.manufacturer }}-{{ lts.serial_number }}: New Shelf{% endblock %}
+{% block title %}LIMBCS-{{ cs.id }}: New Shelf{% endblock %}
 
 {% block body %}
 
@@ -13,10 +13,15 @@
         {{ storage_navbar() }}
         <div class="storage container">
             
-            <h1><span class="secondary-heading"><i class="fa fa-temperature-low"></i> {{ lts.manufacturer }}-{{ lts.serial_number }}</span>New Shelf</h1>
+            <h1><span class="secondary-heading">
+                <a href="{{url_for('storage.view_cold_storage', id=cs.id) }}">
+                    <i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}
+                </a>
+            </span>
+                New Shelf
+            </h1>
 
-
-            <form action="{{ url_for('storage.add_shelf', lts_id=lts.id) }}" method="post">
+            <form action="{{ url_for('storage.new_shelf', id=cs.id) }}" method="post">
                     {{ form.csrf_token() }}
                     {{ form_field(form.name) }}
                     {{ form_field(form.description) }}

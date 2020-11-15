@@ -269,13 +269,7 @@
 {%- endmacro %}
 
 {% macro storage_navbar() %}
-    <div id="sidebar" class="border-right border-bottom text-white bg-primary">
-        <a href="{{ url_for('storage.new_building') }}">
-            <button id="add-site-button" class="btn btn-block btn-secondary">
-                <i class="fa fa-plus"></i>
-                Add Building
-            </button>
-        </a>
+    <div id="sidebar" class="text-white bg-primary">
         <div id="jstree">
         </div>
         <div id="sidebar-collapse" class="align-self-center">

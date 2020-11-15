@@ -1,61 +1,68 @@
+
 function sap2tree(sap) {
-    var sites = sap['sites'];
+    var sites = sap["content"];
+
+
     for (var i = 0; i < sites.length; i++) {
         var site = sites[i];
-        site['text'] = site['name'];
-        site['type'] = 'site';
-        site['children'] = site['rooms'];
-        site['id'] = `site:${site["id"]}`
-        for (var j = 0; j < site['rooms'].length; j++) {
-            var room = site['rooms'][j];
-            room['text'] = `${room['building']}: ${room['number']}`;
-            room['type'] = 'room';
-            room['children'] = room['fridges'];
-            room['id'] = `room:${room["id"]}`
-            for (var k = 0; k < room['fridges'].length; k++) {
-                var fridge = room['fridges'][k];
-                fridge['text'] = `${fridge['manufacturer']}: ${fridge['serial']}`;
-                fridge['type'] = 'fridge';
-                fridge['children'] = fridge['shelves'];
-                fridge['id'] = `fridge:${fridge["id"]}`
-                for (var l = 0; l < fridge['shelves'].length; l++) {
-                    var shelf = fridge['shelves'][l];
-                    shelf['text'] = shelf['name'];
-                    shelf['type'] = 'shelf';
-                    shelf['children'] = shelf['cryoboxes'].concat(shelf['samples']);
-                    shelf['id'] = `shelf:${shelf["id"]}`
-                    for (var m = 0; m < shelf['cryoboxes'].length; m++) {
-                        var box = shelf['cryoboxes'][m];
-                        box['text'] = `Box ${box["id"]}`;
-                        box['type'] = 'box';
-                        box['id'] = `box:${box["id"]}`
+        site["text"] = `LIMBSIT-${site['id']}: ${site['name']}`; 
+        site["type"] = "site";
+        site["children"] = site["buildings"];
+        site["id"] = site["_links"]["self"]
+
+        for (var j = 0; j < site["buildings"].length; j++) {
+            var building = site["buildings"][j];
+            building["text"] =`${building['name']}`;
+            building["type"] = "building";
+            building["children"] = building["rooms"];
+            building["id"] = building["_links"]["self"]
+
+            for (var k = 0; k < building["rooms"].length; k++) {
+                var room = building["rooms"][k];
+                room["text"] = `${room['name']}`;
+                room["type"] = "room";
+                room["id"] = room["_links"]["self"]
+                room["children"] = room["storage"];
+
+                for (var l = 0; l < room["storage"].length; l++) {
+                    var storage = room["storage"][l];
+                    storage["text"] = `${storage["manufacturer"]} (${storage["temp"]})`;
+                    storage["type"] = "fridge";
+                    storage["id"] = storage["_links"]["self"];
+                    storage["children"] = storage["shelves"];
+
+                    for (var m = 0; m < storage["shelves"].length; m++) {
+                        var shelf = storage["shelves"][m];
+                        shelf["text"] = `${shelf['name']}`;
+                        shelf["type"] = "shelf";
+                        shelf["id"] = shelf["_links"]["self"];
+
                     }
-                    for (var m = 0; m < shelf['samples'].length; m++) {
-                        var sample = shelf['samples'][m];
-                        sample['text'] = `Sample ${sample['id']}`;
-                        sample['type'] = 'sample';
-                        sample['id'] = `sample:${sample["id"]}`
-                    }
+                    
                 }
             }
+            
         }
+
     }
 
     return {
         'types': {
             'home': { 'icon': 'fa fa-home' },
+            'building': { 'icon': 'fa fa-home'},
             'site': { 'icon': 'fa fa-hospital' },
             'room': { 'icon': 'fa fa-door-closed' },
             'fridge': { 'icon': 'fa fa-temperature-low' },
             'shelf': { 'icon': 'fa fa-bars' },
             'box': { 'icon': 'fa fa-box' },
-            'sample': { 'icon': 'fa fa-flask' }
+            'sample': { 'icon': 'fa fa-flask' },
+            'shelf': { 'icon': 'fa fa-bars' }
         },
         'state': { 'key': 'storage' },
         'plugins' : ['types', 'state'],
         'core': {
             'data': {
-                'text': 'Sites',
+                'text': 'Show Sites',
                 'type': 'home',
                 'children': sites
             }
@@ -63,6 +70,7 @@ function sap2tree(sap) {
     }
 }
 $(function() {
+
     $('#sidebar-collapse').on('click', function () {
         $('#sidebar').toggleClass('active');
         $('#sidebar-collapse-icon').toggleClass('fa-chevron-left');
@@ -72,40 +80,11 @@ $(function() {
     });
 
 
-    function selectSite(site) {
-        var site_id = parseId(site.id);
-        location.href=`/storage/sites/LIMBSIT-${site_id}`
-    }
 
-    function selectRoom(room) {
-        var room_id = parseId(room.id);
-        location.href=`/storage/rooms/LIMBROM-${room_id}`
+    function selectElement(element) {
+        location.href=element.id;
     }
-
-    function selectFridge(fridge) {
-        var fridge_id = parseId(fridge.id);
-        location.href=`/storage/lts/LIMBLTS-${fridge_id}`
-    }
-
-    function selectShelf(shelf) {
-        var shelf_id = parseId(shelf.id);
-        location.href=`/storage/shelves/LIMBSHF-${shelf_id}`
-    }
-
-    function selectBox(box) {
-        var box_id = parseId(box.id);
-        location.href=`/storage/cryobox/LIMBCRB-${box_id}`
-    }
-
-    function selectSample(sample) {
-        var sample_id = parseId(sample.id);
-        location.href=`../../../samples/LIMBSMP-${sample_id}`
-    }
-
-    function parseId(id_field) {
-        return id_field.split(':').slice(1).join(':');
-    }
-
+    
     $.get( "/storage/overview", function( data ) {
         $('#jstree').jstree(sap2tree(data));
         $('#jstree').on("changed.jstree", function(e, data) {
@@ -116,23 +95,8 @@ $(function() {
                 case 'home':
                     location.href = '/storage/';
                     break;
-                case 'site':
-                    selectSite(data.node);
-                    break;
-                case 'room':
-                    selectRoom(data.node);
-                    break;
-                case 'fridge':
-                    selectFridge(data.node);
-                    break;
-                case 'shelf':
-                    selectShelf(data.node);
-                    break;
-                case 'box':
-                    selectBox(data.node);
-                    break;
-                case 'sample':
-                    selectSample(data.node);
+                default:
+                    selectElement(data.node);
                     break;
             }
         });

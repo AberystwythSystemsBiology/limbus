@@ -21,18 +21,31 @@ from marshmallow_enum import EnumField
 from ...database import Building
 
 from ...auth.views import BasicUserAccountSchema
+from ...misc.views import BasicSiteSchema
+from .room import BasicRoomSchema
 
 
 class BasicBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Building
-
+    id = masql.auto_field()
     name = masql.auto_field()
+    site_id = masql.auto_field()
 
 
 basic_building_schema = BasicBuildingSchema()
 basic_buildings_schema = BasicBuildingSchema(many=True)
 
+class BuildingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Building
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    site = ma.Nested(BasicSiteSchema)
+    rooms = ma.Nested(BasicRoomSchema, many=True)
+
+building_schema = BuildingSchema()
 
 class NewBuildingSchema(masql.SQLAlchemySchema):
     class Meta:

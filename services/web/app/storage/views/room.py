@@ -20,14 +20,16 @@ from marshmallow_enum import EnumField
 from ...database import Room
 
 from ...auth.views import BasicUserAccountSchema
+from .lts import BasicColdStorageSchema 
 
 
 class BasicRoomSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Room
-
+    id = masql.auto_field()
     name = masql.auto_field()
-
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
 
 basic_room_schema = BasicRoomSchema()
 basic_rooms_schema = BasicRoomSchema(many=True)
@@ -39,9 +41,9 @@ class RoomSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
-    building = masql.auto_field()
+    building_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
-
+    storage = ma.Nested(BasicColdStorageSchema, many=True)
 
 room_schema = RoomSchema()
 rooms_schema = RoomSchema(many=True)

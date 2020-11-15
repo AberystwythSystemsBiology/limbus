@@ -1,137 +1,130 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 
-{% block title %}LIMBSHF-{{ shelf.id }}: {{ shelf.name }}{% endblock %}
+{% block title %}LIMBSHF-{{ shelf.id }}{% endblock %}
 
 {% block body %}
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage container">
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
 
-            <h1><span class="secondary-heading">
-                <a href="{{ url_for('storage.view_lts', lts_id=shelf.storage_id) }}">
-                    <i class="fa fa-temperature-low"></i> LIMBLTS-{{ shelf.storage_id }}</span>
-                </a>
-                <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}: {{ shelf.name }}</h1>
+        <h1><span class="secondary-heading">
 
-            <div class="row">
-                <div class="col-sm-9">
-                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('storage.edit_shelf', id=shelf.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                </button>
-                            </a>
-                        </div>
-
-                        <div class="btn-group mr-2" role="group" aria-label="Third group">
-                            <a href="{{ url_for('storage.view_history', storage_type = "SHF", id=shelf.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-history"></i> History
-                                </button>
-                            </a>
-                        </div>
-
-                        <div class="btn-group" role="group" aria-label="Third group">
-                            <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i>
-                                Print
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <a href="{{ url_for('storage.view_cold_storage', id=shelf.storage_id) }}"><i
+                        class="fa fa-temperature-low"></i> LIMBCS-{{ shelf.storage_id }}</span></a>
+            <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</h1>
 
 
-            <div class="card" style="margin-bottom: 3em">
-                <div class="card-body">
-                    <h5 class="card-title">Information</h5>
-                    <div class="row">
-                        <div class="col-6">
-                            {{ show_value(shelf.description, "Description", "text") }}
-                        </div>
-                        <div class="col-6">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-sm-6">
-
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-                        <h2><i class="fas fa-vial"></i> Samples</h2>
-                        <a href="{{ url_for('storage.assign_sample_to_shelf', shelf_id=shelf.id) }}">
-                            <button class="btn btn-primary"
-                            ">
-                            <i class="fa fa-plus"></i>
-                            Assign Sample
+        <div class="row text-muted">
+            <div class="col-7">
+                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                    {% if not shelf.is_locked %}
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="">
+                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                Details
                             </button>
                         </a>
                     </div>
 
-                    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
-                        <thead>
-                        <tr>
-                            <th>Identifier</th>
-                            <th>Sample Status</th>
-                            <th>Collection Date</th>
-                            <th>Sample Creator</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for count, sample in shelf.samples.items() %}
-                            <tr>
-                                <td>
-                                    <a href="{{ url_for('sample.view', sample_id=sample.id) }}">
-                                        <i class="fas fa-vial"></i> LIMBSMP-{{ sample.id }}
-                                    </a>
-                                </td>
-                                <td>{{ sample["sample_status"] }}</td>
-                                <td>{{ sample["creation_date"].strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    {{ sample["author_information"]["email"] }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-sm-6">
-
-
-                    <div class="list-group">
-                    <li class="list-group-item active">
-                          <h5 class="mb-1"><i class="fa fa-cube"></i> Cryovial Boxes</h5>
-                      </li>
-                        {% for id, cryobox in shelf.cryoboxes.items() %}
-                            <a href="{{ url_for('storage.view_cryobox', cryo_id=cryobox.id) }}"
-                               class="list-group-item list-group-item-action flex-column align-items-start">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><i class="fa fa-cube"></i> LIMBCRB-{{ cryobox.id }}</h5>
-                                    <small>{{ cryobox.num_rows }} x {{ cryobox.num_cols }}</small>
-                                </div>
-                                <p class="mb-1">Serial Number: {{ cryobox.serial }}</p>
-                            </a>
-                        {% endfor %}
-                        <a href="{{ url_for('storage.assign_box_to_shelf', shelf_id=shelf.id) }}"
-                           class="list-group-item list-group-item-action flex-column active"
-                           style="text-align: center;">
-                            <i class="fa fa-plus"></i> Add Cryovial Box
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}">
+                            <button type="button" class="btn btn-outline-dark">
+                                <i class="fas fa-vial"></i> Add Sample
+                            </button>
                         </a>
+                    </div>
+
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id) }}">
+                            <button type="button" class="btn btn-outline-dark">
+                                <i class="fa fa-grip-vertical"></i> Add Rack
+                            </button>
+                        </a>
+                    </div>
+
+                    {% endif %}
+
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if shelf.is_locked %}
+                            Unl{% else %}L{% endif %}ock
+                        </button>
                     </div>
                 </div>
             </div>
-
+            <div class="col-5 text-right">
+                <i class="fa fa-calendar"></i> Created On: {{ shelf.created_on }}
+                <div class="clearfix"></div>
+                <i class="fa fa-user"></i> Created By: {{ render_author_for_table(shelf.author) }}
+            </div>
         </div>
+
+        {{ show_value(shelf.name, "Name", "text") }}
+        {{ show_value(shelf.description, "Description", "text") }}
+
+        <h2><i class="fas fa-vial"></i> Stored Samples</h2>
+
+        {% for n in range(0, shelf.samples|length, 5) %}
+        <div class="card-deck mb-3 text-center">
+            {% for sample in shelf.samples[n:n+ 5] %}
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ sample.uuid }}</h4>
+                </div>
+                <div class="card-body">
+                    <img src="{{ sample._links.qr_code }}">
+
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>{{render_colour(sample.colour)}} </li>
+                        <li>Type: {{ sample.type }}</li>
+                        <li>Created On: {{sample.created_on}}</li>
+                    </ul>
+                    <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
+                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <h2><i class="fa fa-grip-vertical"></i> Stored Sample Racks</h2>
+
+
+        {% for i in range(0, shelf.racks|length, 5) %}
+        <div class="card-deck mb-3 text-center">
+            {% for rack in shelf.racks[i:i+ 5] %}
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">{{ rack.uuid }}</h4>
+                </div>
+                <div class="card-body">
+
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>{{render_colour(rack.colour)}} </li>
+                        <li>Serial Number: {{rack.serial_number }}</li>
+                        <li>Dimensions: {{rack.num_rows }}x{{rack.num_cols }}</li>
+                        <li>Created On: {{rack.created_on}}</li>
+                    </ul>
+                        <a href="{{ url_for('storage.view_rack', id=rack.id) }}">
+                            <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                        </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
     </div>
+
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

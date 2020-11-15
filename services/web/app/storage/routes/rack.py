@@ -31,7 +31,12 @@ from .. import storage
 from string import ascii_uppercase
 import itertools
 import re
+import requests
+from ...misc import get_internal_api_header
 
+from ..forms import NewSampleRackForm
+
+'''
 
 def iter_all_strings():
     for size in itertools.count(1):
@@ -81,42 +86,58 @@ def file_to_json(form) -> dict:
 
     return data
 
+'''
 
-@storage.route("/cryobox")
+@storage.route("/rack")
 @login_required
-def cryobox_index():
-    boxes = {}
-    return render_template("storage/cryobox/index.html", boxes=boxes)
+def rack_index():
+    response = requests.get(
+        url_for("api.storage_rack_home", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+         return render_template("storage/rack/index.html", racks=response.json()["content"])
+
+
+    return abort(response.status_code)
+    
+
+   
+
+
+@storage.route("/rack/new", methods=["GET", "POST"])
+@login_required
+def add_rack():
+    return render_template("storage/rack/new/option.html")
+
+
+@storage.route("/rack/new/manual", methods=["GET", "POST"])
+@login_required
+def rack_manual_entry():
+    form = NewSampleRackForm()
+    if form.validate_on_submit():
+
+        response = requests.post(
+            url_for("api.storage_rack_new", _external=True),
+            headers=get_internal_api_header(),
+            json={
+                "serial_number": form.serial.data,
+                "num_rows": form.num_rows.data,
+                "num_cols": form.num_cols.data,
+                "colour": form.colours.data,
+                "description": form.description.data
+            }
+        )
+
+        if response.status_code == 200:
+            flash("Sample Rack Added")
+            return redirect(url_for("storage.rack_index"))
+
+    return render_template("storage/rack/new/manual/new.html", form=form)
 
 
 """
-@storage.route("/cryobox/new", methods=["GET", "POST"])
-@login_required
-def add_cryobox():
-    return render_template("storage/cryobox/new/option.html")
-
-
-@storage.route("/cryobox/new/manual", methods=["GET", "POST"])
-@login_required
-def cryobox_manual_entry():
-    form = NewCryovialBoxForm()
-    if form.validate_on_submit():
-        cb = CryovialBox(
-            serial=form.serial.data,
-            num_rows=form.num_rows.data,
-            num_cols=form.num_cols.data,
-            removed=False,
-            author_id=current_user.id,
-        )
-
-        db.session.add(cb)
-        db.session.commit()
-
-        flash("Cryovial Box Added")
-        return redirect(url_for("storage.cryobox_index"))
-
-    return render_template("storage/cryobox/new/manual/new.html", form=form)
-
 
 @storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
 @login_required
@@ -175,14 +196,21 @@ def crybox_from_file_validation(hash: str):
         session_data=session_data,
     )
 
-
-@storage.route("/cryobox/LIMBCRB-<cryo_id>")
+"""
+@storage.route("/rack/LIMBRACK-<id>")
 @login_required
-def view_cryobox(cryo_id):
-    cryo = CryoboxView(cryo_id)
-    return render_template("storage/cryobox/view.html", cryo=cryo)
+def view_rack(id):
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code == 200:
+        return render_template("storage/rack/view.html", rack=response.json()["content"])
 
+    return abort(response.status_code)
+
+"""
 # TODO: All of this needs to be given a specific view.
 from sqlalchemy_continuum import version_class
 from sqlalchemy import desc

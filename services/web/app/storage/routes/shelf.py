@@ -24,109 +24,144 @@ from flask import (
     flash,
 )
 from flask_login import current_user, login_required
-
-from ... import db
 from .. import storage
+from ..forms import NewShelfForm, SampleToEntityForm, RackToShelfForm
+import requests
+from ...misc import get_internal_api_header
+from datetime import datetime
 
-from .misc import move_entity_to_storage
+@storage.route("/coldstorage/LIMBCS-<id>/shelf/new", methods=["GET", "POST"])
+@login_required
+def new_shelf(id):
+        
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
-from ..models import FixedColdStorageShelf, CryovialBox
-from ...sample.models import Sample
+    if response.status_code == 200:
+        form = NewShelfForm()
 
-from ..forms import BoxToShelfForm, NewShelfForm, SampleToEntityForm
-from ..views import ShelfView, BasicShelfView
-from ..enums import EntityToStorageTpye
+        if form.validate_on_submit():
 
+            new_response = requests.post(
+                url_for("api.storage_shelf_new", _external=True),
+                headers=get_internal_api_header(),
+                json = {
+                    "name": form.name.data,
+                    "description": form.description.data,
+                    "storage_id": id
+                }
+            )
 
-@storage.route("/shelves/LIMBSHF-<id>")
+            if new_response.status_code == 200:
+                flash("Shelf Successfully Created")
+                # TODO: Replace.
+                return redirect(url_for("storage.view_shelf", id=new_response.json()["content"]["id"]))
+            return abort(new_response.status_code)
+        
+        return render_template("storage/shelf/new.html", form=form, cs=response.json()["content"])
+    
+    return abort(response.status_code)
+
+@storage.route("/shelf/LIMBSHF-<id>", methods=["GET"])
 @login_required
 def view_shelf(id):
-    shelf = ShelfView(id)
-    return render_template("storage/shelf/view.html", shelf=shelf)
-
-
-@storage.route("/shelves/LIMBSHF-<id>/edit", methods=["GET", "POST"])
-@login_required
-def edit_shelf(id):
-    shelf = BasicShelfView(id)
-
-    form = NewShelfForm()
-
-    if form.validate_on_submit():
-        s = (
-            db.session.query(FixedColdStorageShelf)
-            .filter(FixedColdStorageShelf.id == id)
-            .first_or_404()
-        )
-
-        s.name = form.name.data
-        s.description = form.description.data
-        s.author_id = current_user.id
-        db.session.commit()
-        flash("Shelf successfully updated.")
-
-        return redirect(url_for("storage.view_shelf", id=id))
-
-    form.name.data = shelf["name"]
-    form.description.data = shelf["description"]
-
-    return render_template("storage/shelf/edit.html", shelf=shelf, form=form)
-
-
-@storage.route("/shelves/LIMBSHF-<shelf_id>/assign_box", methods=["GET", "POST"])
-@login_required
-def assign_box_to_shelf(shelf_id):
-    shelf = ShelfView(shelf_id)
-
-    form = BoxToShelfForm(db.session.query(CryovialBox).all())
-
-    if form.validate_on_submit():
-        move_entity_to_storage(
-            box_id=form.boxes.data,
-            shelf_id=shelf_id,
-            entered=form.date.data.strftime("%Y-%m-%d, %H:%M:%S"),
-            entered_by=form.entered_by.data,
-            author_id=current_user.id,
-            storage_type=EntityToStorageTpye.BTS,
-        )
-
-        flash("LIMBCRB-%i successfully moved!" % (form.boxes.data))
-        return redirect(url_for("storage.view_shelf", id=shelf_id))
-
-    return render_template("/storage/shelf/box_to_shelf.html", shelf=shelf, form=form)
-
-
-@storage.route("/shelves/LIMBSHF-<shelf_id>/assign_sample", methods=["GET", "POST"])
-@login_required
-def assign_sample_to_shelf(shelf_id):
-    shelf = (
-        db.session.query(FixedColdStorageShelf)
-        .filter(FixedColdStorageShelf.id == shelf_id)
-        .first_or_404()
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
     )
-    samples = db.session.query(Sample).all()
 
-    form = SampleToEntityForm(samples)
+    if response.status_code == 200:
+        return render_template("storage/shelf/view.html", shelf=response.json()["content"])
 
-    if form.validate_on_submit():
+    return abort(response.status_code)
 
-        sample = (
-            db.session.query(Sample)
-            .filter(Sample.id == form.samples.data)
-            .first_or_404()
+@storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
+@login_required
+def assign_rack_to_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        
+        rack_response = requests.get(
+            url_for("api.storage_rack_home", _external=True),
+            headers=get_internal_api_header()
         )
 
-        move_entity_to_storage(
-            sample_id=sample.id,
-            shelf_id=shelf_id,
-            entered=form.date.data.strftime("%Y-%m-%d, %H:%M:%S"),
-            entered_by=form.entered_by.data,
-            author_id=current_user.id,
-            storage_type=EntityToStorageTpye.STS,
+        if rack_response.status_code == 200:
+            
+            form = RackToShelfForm(rack_response.json()["content"])
+
+            if form.validate_on_submit():
+                rack_move_response = requests.post(
+                    url_for("api.storage_transfer_rack_to_shelf", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "rack_id": form.racks.data,
+                        "shelf_id": id,
+                        "entry_datetime": str(datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S"
+                        )),
+                        "entry": form.entered_by.data
+                        }
+                )
+
+                if rack_move_response.status_code == 200:
+                    return redirect(url_for("storage.view_shelf", id=id))
+
+                return abort(rack_response.status_code)
+
+            return render_template("storage/shelf/rack_to_shelf.html", shelf=response.json()["content"], form=form)
+    
+    return abort(response.status_code)
+
+
+@storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])
+@login_required
+def assign_sample_to_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        
+        sample_response = requests.get(
+            url_for("api.sample_home", _external=True),
+            headers=get_internal_api_header()
         )
 
-        flash("Sample assigned to shelf!")
+        if sample_response.status_code == 200:
 
-        return redirect(url_for("storage.view_shelf", id=shelf.id))
+            form = SampleToEntityForm(sample_response.json()["content"])
 
-    return render_template("storage/shelf/sample_to_shelf.html", form=form, shelf=shelf)
+            if form.validate_on_submit():
+              
+                sample_move_response = requests.post(
+                    url_for("api.storage_transfer_sample_to_shelf", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "sample_id": form.samples.data,
+                        "shelf_id": id,
+                        "entry_datetime": str(datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S"
+                        )),
+                        "entry": form.entered_by.data
+                        }
+                )
+
+                if sample_move_response.status_code == 200:
+                    return redirect(url_for("storage.view_shelf", id=id))
+
+                else:
+                    flash(sample_move_response.json())
+
+            return render_template("storage/shelf/sample_to_shelf.html", shelf=response.json()["content"], form=form)
+
+    return abort(response.status_code)

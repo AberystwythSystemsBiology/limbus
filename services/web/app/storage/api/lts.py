@@ -28,7 +28,7 @@ from ...database import db, UserAccount, ColdStorage
 from ..views import *
 
 
-@api.route("/storage/coldstorage/", methods=["GET"])
+@api.route("/storage/coldstorage", methods=["GET"])
 @token_required
 def storage_coldstorage_home(tokenuser: UserAccount):
     return success_with_content_response(
@@ -40,7 +40,7 @@ def storage_coldstorage_home(tokenuser: UserAccount):
 @token_required
 def storage_coldstorage_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_cold_storage_schema.dump(
+        cold_storage_schema.dump(
             ColdStorage.query.filter_by(id=id).first_or_404()
         )
     )

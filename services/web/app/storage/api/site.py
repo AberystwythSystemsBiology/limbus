@@ -13,12 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
+from ...api import api
+from ...api.responses import *
 
+from flask import request, send_file
+from ...decorators import token_required
+from marshmallow import ValidationError
 
-class Building(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
-    name = db.Column(db.String(128))
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    site = db.relationship("SiteInformation", uselist=False)
-    rooms = db.relationship("Room", uselist=True)
+from ...database import SiteInformation, UserAccount
+
+from ..views import (
+    site_schema
+)
+
+@api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])
+@token_required
+def site_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
+    )

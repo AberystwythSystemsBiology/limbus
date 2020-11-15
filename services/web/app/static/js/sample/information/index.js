@@ -31,8 +31,11 @@ function render_table(query) {
     $("#loading").fadeIn();
 
 
+
     $('#sampleTable').DataTable( {
         data: d,
+        dom: 'Bfrtip',
+        buttons: [ 'print', 'csv' ],
         columns: [
             {
                 "mData": {},
@@ -67,6 +70,7 @@ function render_table(query) {
                     return col_data
                 }
         },
+        
 
         ],
         
