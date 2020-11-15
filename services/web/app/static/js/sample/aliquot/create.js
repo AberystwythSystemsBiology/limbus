@@ -327,6 +327,11 @@ function preprate_data() {
 
     console.log(json);
 
+    if (json.success) {
+        var redirect_url = sample["_links"]["self"];
+        window.location = redirect_url;
+    }
+
 }
 
 $(document).ready(function () {

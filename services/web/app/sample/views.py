@@ -121,7 +121,7 @@ class NewSampleDisposalSchema(masql.SQLAlchemySchema):
 
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
-    disposal_date = masql.auto_field()
+    disposal_date = masql.auto_field(allow_none=True)
 
 
 new_sample_disposal_schema = NewSampleDisposalSchema()
@@ -205,20 +205,20 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
 
-    barcode = masql.auto_field()
+    barcode = masql.auto_field(allow_none=True)
     source = EnumField(SampleSource)
     type = EnumField(SampleType)
     status = EnumField(SampleStatus)
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
     comments = masql.auto_field()
-    site_id = masql.auto_field()
+    site_id = masql.auto_field(allow_none=True)
     quantity = masql.auto_field()
-    disposal_id = masql.auto_field()
+    disposal_id = masql.auto_field(allow_none=True)
     sample_to_type_id = masql.auto_field()
     consent_id = masql.auto_field()
-    collection_event_id = masql.auto_field()
-    processing_event_id = masql.auto_field()
+    collection_event_id = masql.auto_field(allow_none=True)
+    processing_event_id = masql.auto_field(allow_none=True)
 
 
 new_sample_schema = NewSampleSchema()
@@ -233,6 +233,7 @@ class SampleSearchSchema(masql.SQLAlchemySchema):
     type = masql.auto_field()
     biohazard_level = masql.auto_field()
     source = masql.auto_field()
+    status = masql.auto_field()
 
 
 class NewSampleReviewSchema(masql.SQLAlchemySchema):
@@ -269,6 +270,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     type = EnumField(SampleType, by_value=True)
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
+    status = EnumField(SampleType, by_value=True)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
@@ -295,7 +297,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     type = EnumField(SampleType, by_value=True)
-
+    is_locked = masql.auto_field()
     # Need to get container stuff.
 
     sample_type_information = None
@@ -308,17 +310,18 @@ class SampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
     biohazard_level = EnumField(BiohazardLevel, by_value=True)
-
+    status = EnumField(SampleSource, by_value=True)
+    site_id = masql.auto_field(allow_none=True)
     author = ma.Nested(BasicUserAccountSchema, many=False)
-    processing_information = ma.Nested(SampleProtocolEventSchema, many=False)
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
-    disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
+    processing_information = ma.Nested(SampleProtocolEventSchema, many=False, allow_none=True)
+    collection_information = ma.Nested(SampleProtocolEventSchema, many=False, allow_none=True)
+    disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False, allow_none=True)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
-    documents = ma.Nested(BasicDocumentSchema, many=True)
+    documents = ma.Nested(BasicDocumentSchema, many=True, allow_none=True)
 
-    parent = ma.Nested(BasicSampleSchema, many=False)
-    subsamples = ma.Nested(BasicSampleSchema, many=True)
+    parent = ma.Nested(BasicSampleSchema, many=False, allow_none=True)
+    subsamples = ma.Nested(BasicSampleSchema, many=True, allow_none=True)
 
     created_on = ma.Date()
 

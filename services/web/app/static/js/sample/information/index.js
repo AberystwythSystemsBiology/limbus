@@ -84,7 +84,7 @@ function get_filters() {
 
     }
 
-    var f = ["barcode", "type", "colour", "source"];
+    var f = ["barcode", "type", "colour", "source", "status"];
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
@@ -98,12 +98,13 @@ function get_filters() {
 
 }
 
+
 $(document).ready(function() {
 
     render_table({});
     
     $("#reset").click(function() {
-        
+
         $('#sampleTable').DataTable().destroy()
         render_table({});
     });
@@ -114,5 +115,14 @@ $(document).ready(function() {
         var filters = get_filters();
         render_table(filters);
     });
+
+    // $("#export").click(function() {
+    //     //$("#table_view").fadeOut();
+    //     //$('#sampleTable').DataTable().destroy()
+    //     var filters = get_filters();
+    //     render_table(filters);
+    //
+    // });
+
 
 });

@@ -17,11 +17,11 @@ from ..FormEnum import FormEnum
 
 
 class SampleQuality(FormEnum):
+    NOT = "Not Specified"
     GOO = "Good"
     BAD = "Bad"
     DAM = "Damaged"
     UNU = "Unusable"
-    NOT = "Not Specified"
 
 
 class Colour(FormEnum):
@@ -123,6 +123,7 @@ class DisposalInstruction(FormEnum):
     PRE = "Preserve"
 
 
+
 class CellContainer(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"
@@ -184,8 +185,12 @@ class FluidContainer(FormEnum):
 
 
 class SampleStatus(FormEnum):
+    NCO = "Not Collected"
+    NPR = "Not Processed"
+    NRE = "Pending Review"
     AVA = "Available"
     DES = "Destroyed"
+    UNU = "Unusable"
     TRA = "Transferred"
     MIS = "Missing"
-    NPR = "Not Processed"
+    TMP = "Temporary storage"

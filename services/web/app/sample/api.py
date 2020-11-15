@@ -35,6 +35,7 @@ from ..database import (
     SampleToContainer,
     SampleToType,
     SubSampleToSample,
+    SampleReview,
 )
 
 from .views import (
@@ -48,6 +49,7 @@ from .views import (
     new_sample_protocol_event_schema,
     sample_protocol_event_schema,
     new_sample_schema,
+    new_sample_review_schema,
     new_sample_disposal_schema,
     basic_disposal_schema,
     new_fluid_sample_schema,
@@ -72,7 +74,8 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-
+    print('filters: ', filters)
+    print('joins: ', joins)
     return success_with_content_response(
         basic_samples_schema.dump(
             Sample.query.filter_by(**filters).filter(*joins).all()
@@ -215,6 +218,57 @@ def sample_new_sample(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+@api.route("/sample/new_sample_review", methods=["POST"])
+@token_required
+def sample_new_sample_review(tokenuser: UserAccount):
+    values = request.get_json()
+    print(values)
+    if not values:
+        return no_values_response()
+
+    try:
+       sample_review_values = new_sample_review_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_sample_review = SampleReview(**sample_review_values)
+    new_sample_review.author_id = tokenuser.id
+
+    # modify sample status according to review results
+    print('sample_id: ', values["sample_id"])
+    sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
+    print(sample.id)
+    #db.session.add(sample)
+    if sample.status not in ['TMP', 'NCO', 'NPR']:
+        if sample.remaining_quantity == 0:
+            sample.status = 'UNU'
+        elif values['datetime'] is None or values['quality'] is None:
+            sample.status = 'NRE'
+        elif values['quality'] in ['DAM', 'UNU', 'BAD']:
+            sample.status = 'UNU'
+        elif values['quality'] == 'DES':
+            sample.status = 'DES'
+        elif values['quality'] in ['GOO', 'UNS']:
+            sample.status = 'AVA'
+
+        sample.updated_on = func.now()
+        sample.editor_id = tokenuser.id
+
+    try:
+        db.session.add(new_sample_review)
+        db.session.add(sample)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            {'sample_review': new_sample_review.dump(new_sample_review),
+             'sample_details': new_sample_schema.dump(sample),
+             }
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 @api.route("/sample/new_disposal_instructions", methods=["POST"])
 @token_required
 def sample_new_disposal_instructions(tokenuser: UserAccount):
@@ -312,6 +366,108 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     )
+
+
+
+
+@api.route("/sample/edit_sample_consent/id", methods=["POST"])
+@token_required
+def sample_edit_sample_consent(id, tokenuser: UserAccount):
+
+    values = request.get_json()
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_donor_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    donor = Donor.query.filter_by(id=id).first()
+
+    for attr, value in values.items():
+        setattr(donor, attr, value)
+
+    donor.editor_id = tokenuser.id
+    donor.updated_on = func.now()
+
+    try:
+        db.session.add(conset)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(
+            donor_schema.dump(consent)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
+    #--- start
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        consent_values = values["consent_data"]
+        answer_values = values["answer_data"]
+
+    except KeyError as err:
+        return validation_error_response(err)
+
+    try:
+        consent_result = new_consent_schema.load(consent_values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_consent = SampleConsent(**consent_result)
+    new_consent.author_id = tokenuser.id
+
+    consent_values = Consent.query.filter_by(id=id).first()
+    try:
+        db.session.add(new_consent)
+        db.session.commit()
+        db.session.flush()
+    except Exception as err:
+        return transation_error_response(err)
+
+    answers_list = []
+
+    for answer in answer_values:
+        try:
+            answer_result = new_consent_answer_schema.load(
+                {"question_id": answer, "consent_id": new_consent.id}
+            )
+
+            answers_list.append(answer_result)
+
+        except ValidationError as err:
+            return validation_error_response(err)
+
+    for answer in answers_list:
+        try:
+            new_answer = SampleConsentAnswer(**answer)
+            new_answer.author_id = tokenuser.id
+            db.session.add(new_answer)
+            db.session.commit()
+        except Exception as err:
+            return transaction_error_response(err)
+
+    return success_with_content_response(
+        consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
+    )
+
+    try:
+        db.session.add(consent)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(
+            consent_schema.dump(consent)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
 
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
