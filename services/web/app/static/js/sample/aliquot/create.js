@@ -320,18 +320,16 @@ function preprate_data() {
             'data': JSON.stringify(data),
             'success': function (data) {
                 json = data;
+                window.location.href = json["content"]["_links"]["self"];
+                
+            },
+            'error': function (data) {
+                $("#error_code").html(data.status);
+                $("#aliquot_error").show();
             }
         });
         return json;
     })();
-
-    console.log(json);
-
-    if (json.success) {
-        var redirect_url = sample["_links"]["self"];
-        window.location = redirect_url;
-    }
-
 }
 
 $(document).ready(function () {
@@ -348,10 +346,12 @@ $(document).ready(function () {
 
 
     $("#submit").click(function() {
-        preprate_data();
+        $('#confirmationModal').modal("toggle");
     });
 
-
+    $("#modalSubmit").click(function() {
+        preprate_data();
+    })
 
 });
 

@@ -23,9 +23,13 @@
     before you can sbmit.
 </div>
 
-
     <div id="quantityalert" class="alert alert-danger text-center" style="display:none;">
         <b>ALERT:</b> Aliquotted sample amount is larger than remaining quantity! Unable to submit.
+    </div>
+
+
+    <div id="aliquot_error" class="alert alert-danger text-center" style="display:none;">
+        <b>ERROR <span id="error_code"></span>:</b> Error submitting aliquot (<span id="error_message"></span>)
     </div>
 
     <div class="row">
@@ -96,8 +100,30 @@
     {{ form_field(form.comments) }}
     <button id="submit" class="btn btn-primary float-right">Submit</button>
 
-
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Submit Aliquotting</h5>
+
+        </div>
+        <div class="modal-body">
+          <p>Please ensure that the following aliquots are correct.</p>
+
+          <p>To do. Table here.</p>
+
+          <p>If successful, you will be returned to the Sample view page of the Parent Sample. Scroll down to see newly aliquotted samples :)</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-success"  id="modalSubmit" >Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 {% endblock %}

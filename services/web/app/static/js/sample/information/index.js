@@ -70,6 +70,21 @@ function render_table(query) {
                     return col_data
                 }
         },
+        {
+            "mData": {},
+            "mRender": function (data, type, row) {
+                var col_data = data["collection_information"]["datetime"]
+                // Site too
+                console.log(data["collection_information"]);
+                return col_data;
+            }
+        },
+        {
+            "mData" : {},
+            "mRender": function (data, type, row) {
+                console.log(data);
+            }
+        }
         
 
         ],
