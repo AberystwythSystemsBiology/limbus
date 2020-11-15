@@ -478,7 +478,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    '''
     for i in [
         "aliquot_date",
         "aliquot_time",
@@ -525,8 +524,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.add(ssts)
 
     sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
-    sample.updated_on = func.now()
+    sample.updated_on = datetime.now()
     db.session.add(sample)
     db.session.commit()
-    '''
     return success_with_content_response(values)

@@ -193,4 +193,4 @@ class SampleStatus(FormEnum):
     UNU = "Unusable"
     TRA = "Transferred"
     MIS = "Missing"
-    TMP = "Temporary storage"
+    TMP = "Temporary Storage"
