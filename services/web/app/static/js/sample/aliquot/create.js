@@ -1,11 +1,14 @@
 function get_containers() {
-
+    var current_url = encodeURI(window.location);
+    var split_url = current_url.split("/");
+    var url_stub = split_url.slice(0, 3); // url scheme, "://", domain+port
+    var api_url = url_stub.concat(['api', 'sample', 'containers']).join('/')
     var json = (function () {
         var json = null;
         $.ajax({
             'async': false,
             'global': false,
-            'url': "http://0.0.0.0:5000" + "/api/sample/containers",
+            'url': api_url,
             'dataType': "json",
             'success': function (data) {
                 json = data;
