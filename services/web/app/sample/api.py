@@ -14,9 +14,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from flask import request, abort
+from flask import request, abort, url_for
 from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
+import requests
 
 from ..api import api
 from ..api.filters import generate_base_query_filters, get_filters_and_joins
@@ -58,6 +59,7 @@ from .views import (
 from datetime import datetime
 
 from .enums import CellContainer, FixationType, FluidContainer
+from ..misc import get_internal_api_header
 
 
 @api.route("/sample", methods=["GET"])
@@ -316,62 +318,81 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
+
+    def _validate_values(values: dict) -> bool:
+        valid = True
+        for key in ["aliquot_date", "aliquot_time", "aliquots", "comments", "parent_id", "processed_by", "processing_protocol"]:
+            try: 
+                values[key]
+            except KeyError:
+                valid = False
+        return valid
+
+    def _validate_aliquots(aliquots: list) -> bool:
+        valid = True
+        for aliquot in aliquots:
+            for key in ["container", "volume", "barcode"]:
+                try:
+                    aliquot[key]
+                except KeyError:
+                    valid = False
+        return valid
+
+    sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+    parent_id = sample.id
+
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
-    '''
-    for i in [
-        "aliquot_date",
-        "aliquot_time",
-        "aliquots",
-        "comments",
-        "parent_id",
-        "processed_by",
-        "processing_protocol_id",
-    ]:
-        try:
-            values[i]
-        except KeyError as err:
-            transaction_error_response(err)
+    if not _validate_values(values):
+        return validation_error_response({"messages": "Values failed to validate."})
+
+    if not _validate_aliquots(values["aliquots"]):
+        return validation_error_response({"messages": "Failed to load aliquot, sorry."})
 
     to_remove = sum([abs(float(a["volume"])) for a in values["aliquots"]])
 
-    sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+    remaining_quantity = sample.remaining_quantity
 
     if sample.remaining_quantity < to_remove:
-        return "Total amount is greater than remaining quantity", 400
+        return validation_error_response({"messages": "Total sum not equal or less than remaining quantity."})
+
 
     for aliquot in values["aliquots"]:
-        sample_cpy = Sample.query.filter_by(uuid=uuid).first_or_404()
+        ali_sample = Sample.query.filter_by(uuid=uuid).first_or_404()
 
-        db.session.expunge(sample_cpy)
-        make_transient(sample_cpy)
+        db.session.expunge(ali_sample)
+        make_transient(ali_sample)
 
-        sample_cpy.id = None
-        sample_cpy.uuid = None
-        sample_cpy.barcode = aliquot["barcode"]
-        sample_cpy.quantity = aliquot["volume"]
-        sample_cpy.remaining_quantity = aliquot["volume"]
-        sample_cpy.author_id = tokenuser.id
-        sample_cpy.source = "ALI"
+        ali_sample.id = None
+        ali_sample.uuid = None
+        ali_sample.barcode = aliquot["barcode"]
+        ali_sample.quantity = float(aliquot["volume"])
+        ali_sample.remaining_quantity = float(aliquot["volume"])
+        ali_sample.author_id = tokenuser.id
+        ali_sample.source = "ALI"
 
-        db.session.add(sample_cpy)
+        db.session.add(ali_sample)
         db.session.flush()
 
         ssts = SubSampleToSample(
-            # wtf?
-            id=1,
-            parent_id=sample.id,
-            subsample_id=sample_cpy.id,
+            parent_id=parent_id,
+            subsample_id=ali_sample.id,
             author_id=tokenuser.id,
         )
 
         db.session.add(ssts)
+        
+        remaining_quantity = remaining_quantity - float(aliquot["volume"])
+        sample.remaining_quantity = remaining_quantity
 
-    sample.remaining_quantity = float(sample.remaining_quantity) - to_remove
     db.session.add(sample)
     db.session.commit()
-    '''
-    return success_with_content_response(values)
+
+    return success_with_content_response(
+            basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
+    )
+
+

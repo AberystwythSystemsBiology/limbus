@@ -76,26 +76,24 @@ def query():
 @login_required
 def aliquot_endpoint(uuid: str):
     values = request.get_json()
-    '''
+
     if not values:
         return {"Err": "No values provided."}
     
+
     aliquot_response = requests.post(
         url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
         json=values,
     )
 
+    print(aliquot_response.content)
+
+
     if aliquot_response.status_code == 200:
-        return aliquot_response.json()
-    else:
-        return {"Err": aliquot_response.status_code}
-    '''
-
-    pass
-
-
+        return aliquot_response.json(), aliquot_response.status_code
     
+    return aliquot_response.content, aliquot_response.status_code
 
 
 @sample.route("<uuid>/derive")

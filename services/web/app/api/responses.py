@@ -39,11 +39,18 @@ def invalid_query_response():
 
 
 def validation_error_response(err):
+    try:
+        messages = err.messages
+
+    except AttributeError:
+        messages = err["messages"]
+
     return (
-        {"success": False, "messages": err.messages, "type": "Validation Error"},
+        {"success": False, "messages": messages, "type": "Validation Error"},
         417,
         {"ContentType": "application/json"},
     )
+
 
 
 def transaction_error_response(err):

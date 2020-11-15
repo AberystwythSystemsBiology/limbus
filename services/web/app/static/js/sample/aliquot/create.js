@@ -320,12 +320,15 @@ function preprate_data() {
             'data': JSON.stringify(data),
             'success': function (data) {
                 json = data;
+                console.log(json);
+            },
+            'error': function (data) {
+                $("#error_code").html(data.status);
+                $("#aliquot_error").show();
             }
         });
         return json;
     })();
-
-    console.log(json);
 
 }
 
