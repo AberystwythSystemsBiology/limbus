@@ -25,7 +25,6 @@
             <thead>
             <tr>
                 <th>Template</th>
-                <th>Version</th>
                 <th>Uploader</th>
                 <th>Created On</th>
             </tr>
@@ -35,10 +34,9 @@
                 <tr>
                     <td>
                         <a href="{{ url_for('consent.view', id=template.id) }}">
-                            <i class="fa fa-question-circle"></i> LIMBPCF-{{ template.id }}: {{ template.name }}
+                            <i class="fa fa-question-circle"></i> LIMBPCF-{{ template.id }}: {{ template.name }} {% if template.version != "" %}(Version: {{ template.version }}){%endif%}
                             </a>
                     </td>
-                    <td>{{ template.version }}</td>
                     <td>{{ render_author_for_table(template.author) }}</td>
                     <td>{{ template.created_on }}</td>
                 </tr>

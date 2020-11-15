@@ -46,25 +46,13 @@ def aliquot(uuid: str):
         if protocol_response.status_code != 200:
             abort(protocol_response.status_code)
 
-        user_response = requests.get(
-            url_for("api.auth_home", _external=True),
-            headers=get_internal_api_header(),
-            json={},
-        )
-
-        if user_response.status_code != 200:
-            abort(user_response.status_code)
-
-        processing_templates = protocol_response.json()["content"]
-        users = user_response.json()["content"]
-
-        form = SampleAliquotingForm(processing_templates, users)
+        form = SampleAliquotingForm(protocol_response.json()["content"])
 
         return render_template("sample/sample/aliquot/create.html", form=form, sample=sample_response.json()["content"])
     
     abort(sample_response.status_code)
 
-@sample.route("query", methods=["POST"])
+@sample.route("query/", methods=["POST"])
 @login_required
 def query():
     values = request.get_json()
@@ -88,10 +76,10 @@ def query():
 @login_required
 def aliquot_endpoint(uuid: str):
     values = request.get_json()
-
+    '''
     if not values:
         return {"Err": "No values provided."}
-
+    
     aliquot_response = requests.post(
         url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -102,6 +90,11 @@ def aliquot_endpoint(uuid: str):
         return aliquot_response.json()
     else:
         return {"Err": aliquot_response.status_code}
+    '''
+
+    pass
+
+
     
 
 
