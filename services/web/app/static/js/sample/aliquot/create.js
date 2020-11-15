@@ -320,7 +320,8 @@ function preprate_data() {
             'data': JSON.stringify(data),
             'success': function (data) {
                 json = data;
-                console.log(json);
+                window.location.href = json["content"]["_links"]["self"];
+                
             },
             'error': function (data) {
                 $("#error_code").html(data.status);
@@ -346,10 +347,12 @@ $(document).ready(function () {
 
 
     $("#submit").click(function() {
-        preprate_data();
+        $('#confirmationModal').modal("toggle");
     });
 
-
+    $("#modalSubmit").click(function() {
+        preprate_data();
+    })
 
 });
 

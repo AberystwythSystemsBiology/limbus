@@ -356,7 +356,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
     remaining_quantity = sample.remaining_quantity
 
-    if sample.remaining_quantity < to_remove:
+    if remaining_quantity < to_remove:
         return validation_error_response({"messages": "Total sum not equal or less than remaining quantity."})
 
 
@@ -386,8 +386,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.add(ssts)
         
         remaining_quantity = remaining_quantity - float(aliquot["volume"])
-        sample.remaining_quantity = remaining_quantity
-
+    
+    sample.remaining_quantity = remaining_quantity
+    # Submit quantity changes.
     db.session.add(sample)
     db.session.commit()
 
