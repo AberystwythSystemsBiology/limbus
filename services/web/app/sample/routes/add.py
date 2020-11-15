@@ -121,7 +121,7 @@ def prepare_form_data(form_data: dict) -> dict:
             "disposal_id": disposal_id,
             "consent_id": consent_id,
         }
-        #      datetime.strptime(collection_data['collection_date'],"%d/%m/%Y").date()\
+
         if collection_data["sample_status"] == 'TMP':
             new_sample_data["status"] = 'TMP'
         elif collection_event_id is None or collection_data['collection_date'] is None or \
@@ -337,18 +337,6 @@ def prepare_form_data(form_data: dict) -> dict:
         consent_id,
     )
 
-    # sample_data = _prepare_sample_object(
-    #     form_data["add_collection_consent_and_barcode"],
-    #     form_data["add_sample_information"],
-    #     form_data["add_processing_information"],
-    #     form_data["add_final_details"],
-    #     type_response.json()["content"]["id"],
-    #     collection_response.json()["content"]["id"],
-    #     processing_response.json()["content"]["id"],
-    #     disposal_response.json()["content"]["id"],
-    #     consent_response.json()["content"]["id"],
-    # )
-
     sample_response = requests.post(
         url_for("api.sample_new_sample", _external=True),
         headers=get_internal_api_header(),
@@ -377,10 +365,6 @@ def prepare_form_data(form_data: dict) -> dict:
 
         if review_response.status_code != 200:
             return review_response.content
-
-        #review_id = review_response.json()["content"]["id"]
-
-    # End review
 
     return form_data
 
@@ -505,8 +489,6 @@ def add_collection_consent_and_barcode():
         if route_data["collection_protocol_id"] == 0:
             route_data["collection_protocol_id"] = None
 
-        print('route: ', route_data)
-
         # This needs to be broken out to a new module then...
         store_response = requests.post(
             url_for("api.tmpstore_new_tmpstore", _external=True),
@@ -516,7 +498,7 @@ def add_collection_consent_and_barcode():
                 "type": "SMP",
             },
         )
-        print('store_response: ', store_response.json()['content'])
+
         if store_response.status_code == 200:
 
             return redirect(
