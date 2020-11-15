@@ -275,6 +275,9 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
+    barcode = masql.auto_field()
+    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
+
     _links = ma.Hyperlinks(
         {
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),

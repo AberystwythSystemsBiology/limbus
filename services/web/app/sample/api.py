@@ -384,10 +384,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         )
 
         db.session.add(ssts)
-        
-        remaining_quantity = remaining_quantity - float(aliquot["volume"])
-    
-    sample.remaining_quantity = remaining_quantity
+            
+    sample.remaining_quantity = sample.remaining_quantity - to_remove
     # Submit quantity changes.
     db.session.add(sample)
     db.session.commit()
