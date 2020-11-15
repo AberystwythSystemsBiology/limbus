@@ -385,12 +385,12 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
     )
 
 
-    user_choices = []
-
-    for user in users:
-        user_choices.append(
-            [user["id"], "%s %s" % (user["first_name"], user["last_name"])]
-        )
+    # user_choices = []
+    #
+    # for user in users:
+    #     user_choices.append(
+    #         [user["id"], "%s %s" % (user["first_name"], user["last_name"])]
+    #     )
 
     setattr(
         StaticForm,
