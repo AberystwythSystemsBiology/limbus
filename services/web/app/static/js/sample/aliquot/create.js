@@ -100,6 +100,8 @@ function update_graph() {
     var quantity = $("#original_quantity").val();
     var metric = $("#original_metric").html();
 
+
+
     new Chart(document.getElementById("quantity-chart"), {
         type: 'doughnut',
         data: {
@@ -107,7 +109,7 @@ function update_graph() {
             datasets: [
                 {
                     backgroundColor: ["#28a745", "#dc3545"],
-                    data: [remaining_quantity, quantity - remaining_quantity]
+                    data: [remaining_quantity, quantity-remaining_quantity ]
                 }
             ]
         },
@@ -118,6 +120,7 @@ function update_graph() {
         }
     }
     );
+
 }
 
 function fill_sample_info() {
@@ -217,12 +220,16 @@ function make_new_form(indx) {
     row_form_html += '<input id="barcode_'+indx+'" type="text" class="form-control barcode" placeholder="Sample Barcode"></td>'
     row_form_html += '<td>'
     row_form_html += '<div id="trash_'+indx+'" class="btn btn-danger windows"><i class="fa fa-trash"></i></div>';
+    row_form_html += '<div id="cpy_'+indx+'" class="btn btn-primary copy"><i class="fa fa-copy"></i></div>';
+
     row_form_html += '</td>'
     // End Row
     row_form_html += '</tr>';
 
+
     $("#aliquoted_sample_table > tbody:last-child").append(row_form_html);
     update_number();
+    subtract_quantity();
     indexes.push(indx);
 
     // Because Windows is trash.
@@ -231,6 +238,8 @@ function make_new_form(indx) {
         remove_row(to_remove);
         subtract_quantity();
     });
+
+
 
     $(".aliquotted-quantity").change(function() {
         subtract_quantity();

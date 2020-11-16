@@ -38,7 +38,7 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="form-group">
-                            <label for="processing_protocol">Remaining Parent Quantity</label>
+                            <label for="processing_protocol">Remaining Quantity</label>
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" id="remaining_quantity" disabled>
                                 <div class="input-group-prepend">
@@ -50,7 +50,7 @@
 
                     <div class="col-6">
                         <div class="form-group">
-                            <label for="processing_protocol">Original Parent Quantity</label>
+                            <label for="processing_protocol">Original Quantity</label>
                             <div class="input-group mb-2">
                                 <input type="text" class="form-control" id="original_quantity" disabled>
                                 <div class="input-group-prepend">
@@ -61,7 +61,6 @@
                     </div>
                 </div>
                 {{ form_field(form.processing_protocol) }}
-                {{ form_field(form.processed_by ) }}
 
                 <div class="row">
                     <div class="col-6">
@@ -71,6 +70,10 @@
                         {{ form_field(form.aliquot_time) }}
                     </div>
                 </div>
+                {{ form_field(form.processed_by ) }}
+
+                {{ form_field(form.comments) }}
+
         </div>
         <div class="col-2">
             <canvas id="quantity-chart" width="100%" height="100%"></canvas>
@@ -91,13 +94,12 @@
                 <th id="fixation_type_th" style="display:none;">Fixation Type</th>
                 <th width="20%">Volume</th>
                 <th width="25%">Barcode</th>
-                <th width="5%">Actions</th>
+                <th width="10%">Actions</th>
         </thead>
         <tbody>
         </tbody>
     </table>
 
-    {{ form_field(form.comments) }}
     <button id="submit" class="btn btn-primary float-right">Submit</button>
 
 </div>
