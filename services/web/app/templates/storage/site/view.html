@@ -12,12 +12,54 @@
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
         <div class="storage container">
+            
+
+            
 
             <h1><span class="secondary-heading">
                 <a href="{{ url_for('storage.index') }}">
                     <i class="fas fa-boxes"></i> Storage Portal</span>
                 </a>
                 <i class="fa fa-building"></i> LIMBSITE-{{ site.id }}</h1>
+
+
+    
+            <div class="row text-muted">
+                <div class="col-7">
+                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                        {% if not site.is_locked %}
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="">
+                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                    Details
+                                </button>
+                            </a>
+                        </div>
+
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="{{ url_for('storage.new_building', id=site.id) }}">
+                                <button type="button" class="btn btn-outline-dark">
+                                    <i class="fas fa-vial"></i> Add Building
+                                </button>
+                            </a>
+                        </div>
+        
+                        {% endif %}
+    
+                        <div class="btn-group mr-2" role="group" aria-label="Second group">
+                            <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if site.is_locked %}
+                                Unl{% else %}L{% endif %}ock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5 text-right">
+                    <i class="fa fa-calendar"></i> Created On: {{ site.created_on }}
+                    <div class="clearfix"></div>
+                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(site.author) }}
+                </div>
+            </div>
 
 
                 <h5 class="card-title">Site Information</h5>
@@ -47,11 +89,6 @@
                                 No buildings available.
                             </div>
                         {% endif %}
-                        <a href="{{ url_for('storage.new_building', id=site.id) }}"
-                           class="list-group-item list-group-item-action flex-column active"
-                           style="text-align: center;">
-                            <i class="fa fa-plus"></i> Add Building
-                        </a>
                         
                     </div>
                 </div>
