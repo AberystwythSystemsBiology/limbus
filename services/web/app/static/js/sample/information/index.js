@@ -35,7 +35,11 @@ function render_table(query) {
     $('#sampleTable').DataTable( {
         data: d,
         dom: 'Bfrtip',
-        buttons: [ 'print', 'csv' ],
+        buttons: [ 'print', 'csv', 'colvis' ],
+        columnDefs: [
+            { targets: -3,
+            visible:false}, { targets: -2, visible: false}
+        ],
         columns: [
             {
                 "mData": {},
@@ -58,7 +62,31 @@ function render_table(query) {
                     return col_data
                 }
             },
+            
             {data: "type"},
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+                    
+    
+                    if (data["type"] == "Fluid") {
+                        return sample_type_information["flui_type"];
+                    }
+                    else if (data["type"] == "Cell") {
+                        return sample_type_information["cell_type"] + " > " + sample_type_information["tiss_type"];
+                    }
+                    
+    
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var col_data = data["collection_information"]["datetime"]
+                    return col_data;
+                }
+            },
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -69,22 +97,8 @@ function render_table(query) {
                     col_data += '</span>';
                     return col_data
                 }
-        },
-        {
-            "mData": {},
-            "mRender": function (data, type, row) {
-                var col_data = data["collection_information"]["datetime"]
-                // Site too
-                console.log(data["collection_information"]);
-                return col_data;
-            }
-        },
-        {
-            "mData" : {},
-            "mRender": function (data, type, row) {
-                console.log(data);
-            }
         }
+
         
 
         ],

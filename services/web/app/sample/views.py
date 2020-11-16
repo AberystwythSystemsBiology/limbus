@@ -259,6 +259,14 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
         {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
     )
 
+class SampleToTypeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleToType
+    
+    flui_type = EnumField(FluidSampleType, by_value=True)
+    mole_type = EnumField(MolecularSampleType, by_value=True)
+    cell_type = EnumField(CellSampleType, by_value=True)
+    tiss_type = EnumField(TissueSampleType, by_value=True)
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -274,6 +282,8 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     source = EnumField(SampleSource, by_value=True)
     created_on = ma.Date()
     parent = ma.Nested(SampleUUIDSchema, many=False)
+
+    sample_type_information = ma.Nested(SampleToTypeSchema)
 
     barcode = masql.auto_field()
     collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
