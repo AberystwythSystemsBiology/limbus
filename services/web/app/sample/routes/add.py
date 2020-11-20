@@ -343,14 +343,14 @@ def add_collection_consent_and_barcode():
 
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
-            if protocol["type"] == "ACQ":
+            if protocol["type"] == "Sample Acquisition":
                 collection_protocols.append(
                     [
                         protocol["id"],
                         "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
                     ]
                 )
-            elif protocol["type"] == "SAP":
+            elif protocol["type"] == "Sample Processing":
                 processing_protocols.append(
                     [
                         protocol["id"],
