@@ -4,12 +4,17 @@
 
 {% block body %}
     <div class="container">
-        <h1><i class="fa fa-exclamation-triangle"></i> Biohazard Information</h1>
+        <h1>
+            
+            <span class="secondary-heading"><a href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Samples Index </a></span>
+            <i class="fa fa-exclamation-triangle"></i> Biohazard Information
+        </h1>
 
         <h2 class="text-center">Level One</h2>
 
         <p>This is considered to be the lowest risk of the four levels. It is suitable for work with the presence of low-risk
             microbes and agents. These will carry little to no threat of infection to healthy adults.</p>
+        
         <div class="row">
             <div class="col-6">
                 <h3>Procedures and Practices</h3>
@@ -26,7 +31,7 @@
                 </ol>
             </div>
             <div class="col-6">
-                <h2>Safety Equipment</h2>
+                <h3>Safety Equipment</h3>
                 <ol>
                     <li>Laboratory coats are strongly recommended.</li>
                     <li>You must use protective eyewear when undertaking procedures that may create aerosols and
@@ -34,7 +39,7 @@
                     <li>Gloves should be worn when handling materials. Gloves should be changed if contaminated or
                     damaged. Gloves should not be reused, and alternatives to latex should be available.</li>
                 </ol>
-                <h2>Facilities</h2>
+                <h3>Facilities</h3>
                 <ol>
                     <li>Sink.</li>
                     <li>Acids-bases-heat-and water resistant laboratory benches should be used.</li>
@@ -42,10 +47,7 @@
             </div>
         </div>
 
-
-
-
-        <h2>Level Two</h2>
+        <h2 class="text-center">Level Two</h2>
 
         <h2>Level Three</h2>
         <h2>Level Four</h2>

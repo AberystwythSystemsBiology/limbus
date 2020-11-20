@@ -50,8 +50,8 @@ class BasicAttributeSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     created_on = fields.Date()
-    type = EnumField(AttributeType)
-    element_type = EnumField(AttributeElementType)
+    type = EnumField(AttributeType, by_value=True)
+    element_type = EnumField(AttributeElementType, by_value=True)
 
 
 basic_attribute_schema = BasicAttributeSchema()
@@ -160,8 +160,8 @@ class AttributeSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     created_on = fields.Date()
-    type = EnumField(AttributeType)
-    element_type = EnumField(AttributeElementType)
+    type = EnumField(AttributeType, by_value=True)
+    element_type = EnumField(AttributeElementType, by_value=True)
     numeric_setting = ma.Nested(NewAttributeNumericSettingSchema)
     text_setting = ma.Nested(NewAttributeTextSettingSchema)
     options = ma.Nested(AttributeOptionSchema(many=True))

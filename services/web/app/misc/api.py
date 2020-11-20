@@ -15,7 +15,7 @@
 
 
 from sqlalchemy import func
-from ..database import db, Address, SiteInformation, UserAccount, Sample
+from ..database import db, Address, SiteInformation, UserAccount, Sample, Document, Attribute, ProtocolTemplate
 
 from ..api import api
 from ..api.responses import *
@@ -147,6 +147,43 @@ def get_data(tokenuser: UserAccount):
                 ]
             ),  # SampleSource
         },
+        "storage_statistics": {
+            
+
+        },
+        "attribute_statistics": {
+            "attribute_type": _prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Attribute.type, func.count(Attribute.type)
+                    )
+                    .group_by(Attribute.type).all()
+                ]
+            )
+        },
+        "protocol_statistics": {
+            "protocol_type": _prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        ProtocolTemplate.type, func.count(ProtocolTemplate.type)
+                    )
+                    .group_by(ProtocolTemplate.type).all()
+                    ]
+            )
+        },
+        "document_statistics": {
+            "document_type": _prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Document.type, func.count(Document.type)
+                    )
+                    .group_by(Document.type).all()
+                ]
+            )
+        }
     }
 
     return success_with_content_response(data)
