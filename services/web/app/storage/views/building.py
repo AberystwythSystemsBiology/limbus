@@ -44,6 +44,8 @@ class BuildingSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     site = ma.Nested(BasicSiteSchema)
     rooms = ma.Nested(BasicRoomSchema, many=True)
+    author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
 
 building_schema = BuildingSchema()
 
