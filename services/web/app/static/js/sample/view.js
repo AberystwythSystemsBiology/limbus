@@ -143,63 +143,80 @@ function fill_processing_information(processing_information) {
 }
 
 function fill_document_information(document_information) {
-    $("#documentTable").DataTable( {
-        data: document_information,
-        pageLength: 5,
-        columns: [
-            {
-                mData: {},
-                mRender: function(data, type, row) {
+    if (document_information.length) {
+        $("#documentTable").DataTable( {
+            data: document_information,
+            pageLength: 5,
+            columns: [
+                {
+                    mData: {},
+                    mRender: function(data, type, row) {
+    
+                    }
+                },
+                {}
+            ]
+        });
 
-                }
-            },
-            {}
-        ]
-    });
+    }
+    
+    else {
+        $("#documents").hide();
+    }
+
 }
 
 function fill_lineage_table(subsamples) {
-    $('#subSampleTable').DataTable( {
-        data: subsamples,
-        pageLength: 5,
-        columns: [
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var col_data = '';
-                    col_data += render_colour(data["colour"])
-                    col_data += "<a href='"+data["_links"]["self"]+ "'>";
-                    col_data += '<i class="fas fa-vial"></i> '
-                    col_data += data["uuid"];
-                    col_data += "</a>";
-                    if (data["source"] != "New") {
 
-                    col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                    col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
-                    col_data += '<i class="fas fa-vial"></i> ';
-                    col_data += data["parent"]["uuid"],
-                    col_data += "</a></small>";
-                }
-
-                    return col_data
-                }
+    if (subsamples.length > 0) {
+        $('#subSampleTable').DataTable( {
+            data: subsamples,
+            pageLength: 5,
+            columns: [
+                {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var col_data = '';
+                        col_data += render_colour(data["colour"])
+                        col_data += "<a href='"+data["_links"]["self"]+ "'>";
+                        col_data += '<i class="fas fa-vial"></i> '
+                        col_data += data["uuid"];
+                        col_data += "</a>";
+                        if (data["source"] != "New") {
+    
+                        col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
+                        col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
+                        col_data += '<i class="fas fa-vial"></i> ';
+                        col_data += data["parent"]["uuid"],
+                        col_data += "</a></small>";
+                    }
+    
+                        return col_data
+                    }
+                },
+                {data: "type"},
+                {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
+                        var col_data = '';
+                        col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
+                        col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["type"]); 
+                        col_data += '</span>';
+                        return col_data
+                    }
             },
-            {data: "type"},
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
-                    var col_data = '';
-                    col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["type"]); 
-                    col_data += '</span>';
-                    return col_data
-                }
-        },
+    
+            ],
+            
+        });
+    }
 
-        ],
-        
-    });
+
+    else {
+        $("#lineage").hide();
+    }
+    
 }
 
 
