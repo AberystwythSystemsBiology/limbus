@@ -34,7 +34,7 @@ def storage_shelf_home(tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/shelf/LIMBSHELF-<id>", methods=["GET"])
+@api.route("/storage/shelf/LIMBSHF-<id>", methods=["GET"])
 @token_required
 def storage_shelf_view(id, tokenuser: UserAccount):
     return success_with_content_response(
@@ -43,6 +43,13 @@ def storage_shelf_view(id, tokenuser: UserAccount):
     )
 
 
+
+@api.route("/storage/shelf/LIMBSHF-<id>/edit", methods=["PUT"])
+@token_required
+def storage_shelf_edit(id, tokenuser: UserAccount):
+    values = request.get_json()
+    print(values)
+    return generic_edit(db, ColdStorageShelf, id, new_shelf_schema, basic_shelf_schema, values, tokenuser)
 
 @api.route("/storage/shelf/new/", methods=["POST"])
 @token_required

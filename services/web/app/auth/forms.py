@@ -21,7 +21,7 @@ from wtforms import (
     ValidationError,
     SelectField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 from .models import UserAccount
 
@@ -30,7 +30,7 @@ from .enums import Title
 
 class LoginForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired()])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
     submit = SubmitField("Log In")
 
 
@@ -38,7 +38,7 @@ class PasswordChangeForm(FlaskForm):
     current_password = PasswordField(
         "Current Password",
         description="For security reasons, please enter your current password",
-        validators=[DataRequired()],
+        validators=[DataRequired(), Length(min=6)],
     )
     password = PasswordField(
         "Password",
@@ -46,6 +46,7 @@ class PasswordChangeForm(FlaskForm):
         validators=[
             DataRequired(),
             EqualTo("confirm_password", message="Passwords must match"),
+            Length(min=6)
         ],
     )
     confirm_password = PasswordField("Confirm Password")
@@ -82,6 +83,7 @@ class UserAccountRegistrationForm(FlaskForm):
         validators=[
             DataRequired(),
             EqualTo("confirm_password", message="Passwords must match"),
+            Length(min=6)
         ],
     )
     confirm_password = PasswordField("Confirm Password")

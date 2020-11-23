@@ -12,13 +12,16 @@
         {{ storage_navbar() }}
         <div class="storage container">
 
-            <h1><span class="secondary-heading"><i class="fa fa-building"></i></span>Edit Room</h1>
-
-
-            <form method="POST" action="{{ url_for('storage.edit_room', room_id=room.id) }}">
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('storage.view_room', id=room.id) }}">
+                        <i class="fa fa-door-closed"></i> LIMBROOM-{{room.id}}
+                    </a>
+                </span>Edit Room</h1>
+            
+            <form method="POST" action="{{ url_for('storage.edit_room', id=room.id) }}">
                 {{ form.csrf_token }}
-                {{ form_field(form.room) }}
-                {{ form_field(form.building) }}
+                {{ form_field(form.name) }}
                 {{ form_field(form.submit) }}
             </form>
 

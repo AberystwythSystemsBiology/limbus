@@ -34,8 +34,10 @@ function render_colour(colour) {
 
 }
 
+
+
 function get_greeting() {
-  var api_url = encodeURI(window.location+'api/misc/greeting');
+  var api_url = encodeURI(window.location.origin+'/api/misc/greeting');
 
 
   var json = (function () {

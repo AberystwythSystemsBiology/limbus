@@ -43,6 +43,8 @@ class RoomSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     building_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
+    updated_on = ma.DateTime()
     storage = ma.Nested(BasicColdStorageSchema, many=True)
 
 room_schema = RoomSchema()

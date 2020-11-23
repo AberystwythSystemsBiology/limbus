@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+
+{% block head %}
+    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
+          rel="stylesheet">
+{% endblock %}
+
+{% block title %}Edit Building{% endblock %}
+
+{% block body %}
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
+
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('storage.edit_building', id=building.id) }}">
+                <i class="fas fa-boxes"></i> LIMBBUILD-{{building.id}}</span>
+            </a>
+            Edit Building
+        </h1>
+        
+        <form method="POST" action="{{ url_for('storage.edit_building', id=building.id) }}">
+            {{ form.csrf_token }}
+            {{ form_field(form.name) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

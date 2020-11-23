@@ -77,50 +77,38 @@ def view_room(id: int):
 
     return abort(response.status_code)
 
-'''
-
-@storage.route("/rooms/LIMBROM-<room_id>/edit", methods=["GET", "POST"])
+@storage.route("/rooms/LIMBROOM-<id>/edit", methods=["GET", "POST"])
 @login_required
-def edit_room(room_id: int):
-    form = RoomRegistrationForm()
-    if form.validate_on_submit():
-        r = db.session.query(Room).filter(Room.id == room_id).first_or_404()
+def edit_room(id):
 
-        r.room_number = form.room.data
-        r.building = (form.building.data,)
-        r.author_id = current_user.id
+    response = requests.get(
+        url_for("api.storage_room_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
-        db.session.commit()
+    if response.status_code == 200:
 
-        flash("LIMBROM-%s successfully updated." % (room_id))
+        form = RoomRegistrationForm(data=response.json()["content"])
 
-        return redirect(url_for("storage.view_room", room_id=room_id))
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+            }
 
-    room = BasicRoomView(room_id)
-    form.room.data = room["room_number"]
-    form.building.data = room["building"]
-    return render_template("storage/room/edit.html", form=form, room=room)
+            edit_response = requests.put(
+                url_for("api.storage_room_edit", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
 
+            if edit_response.status_code == 200:
+                flash("Room Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
 
-@storage.route("/rooms/add_storage/LIMBROM-<room_id>", methods=["GET", "POST"])
-@login_required
-def add_lts(room_id: int):
-    room = BasicRoomView(room_id)
-    form = LongTermColdStorageForm()
+            
+            return redirect(url_for("storage.view_room", id=id))
+        
+        return render_template("storage/room/edit.html", room=response.json()["content"], form=form)
 
-    if form.validate_on_submit():
-        fcs = FixedColdStorage(
-            serial_number=form.serial_number.data,
-            manufacturer=form.manufacturer.data,
-            temperature=form.temperature.data,
-            type=form.type.data,
-            room_id=room_id,
-            author_id=current_user.id,
-        )
-
-        db.session.add(fcs)
-        db.session.commit()
-        return redirect(url_for("storage.view_room", room_id=room_id))
-
-    return render_template("storage/lts/new.html", form=form, room=room)
-'''
+    return abort(response.status_code)

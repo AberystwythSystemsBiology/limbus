@@ -49,7 +49,7 @@ class BasicDocumentSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            "self": ma.URLFor("document.view", id="id", _external=True),
+            "self": ma.URLFor("document.view", id="<id>", _external=True),
             "collection": ma.URLFor("document.index", _external=True),
         }
     )

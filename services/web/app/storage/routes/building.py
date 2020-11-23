@@ -65,3 +65,39 @@ def view_building(id):
         return render_template("storage/building/view.html", building=response.json()["content"])
 
     return abort(response.status_code)
+
+@storage.route("/building/LIMBUILD-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_building(id):
+
+    response = requests.get(
+        url_for("api.storage_building_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+
+        form = BuildingRegistrationForm(data=response.json()["content"])
+
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+            }
+
+            edit_response = requests.put(
+                url_for("api.storage_edit_building", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Building Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+
+            
+            return redirect(url_for("storage.view_building", id=id))
+        
+        return render_template("storage/building/edit.html", building=response.json()["content"], form=form)
+
+    return abort(response.status_code)

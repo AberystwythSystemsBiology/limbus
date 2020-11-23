@@ -57,6 +57,78 @@
 
                 {{ rack }}
 
+                <div class="row">
+                    <div class="col-sm-5 box">
+                        <div class="row no-gutters">
+                            <div class="col col-sm"></div>
+                            {% for i in range(rack.num_cols) %}
+                                <div class="col box-heading">
+                                    <div class="square">
+                                        <div class="align-middle">{{ i + 1 }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% for i in range(rack.num_rows) %}
+                            <div class="row no-gutters">
+                                {% for j in range(rack.num_cols + 1) %}
+                                    {% if j == 0 %}
+                                        <div class="col">
+                                            <div class="square">
+                                                <div class="align-middle">
+                                                    {% set count.value = count.value + 1 %}
+                                                    {{ count.value }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {% set anot = namespace(value="%i_%i" % (_row.value, _col.value)) %}
+                                        <div class="col" id="{{ anot.value }}">
+                                            <a href="#">
+     
+                                                <div class="square">
+                                                    <div class="tube align-middle">
+                                                        {% set verbose_tube_count.value = verbose_tube_count.value + 1 %}
+                                                        {% if true %}
+
+                                                        {% else %}
+                                                            <div class="empty-tube">
+                                                                {{ verbose_tube_count.value }}
+                                                            </div>
+                                                        {% endif %}
+     
+                                                        {% set _col.value = _col.value + 1 %}
+     
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% set _row.value = _row.value + 1 %}
+                            </div>
+                            {% set _col.value = 0 %}
+     
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-7">
+                        <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Identifier</th>
+                                <th>Sample Status</th>
+                                <th>Collection Date</th>
+                                <th>Sample Creator</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
         </div>
     </div>
 {% endblock %}
