@@ -15,8 +15,7 @@
 
 
 from sqlalchemy import func
-from ..database import db, Address, SiteInformation, UserAccount, Sample
-from ..donor.models import Donor
+from ..database import *
 
 from ..api import api
 from ..api.responses import *

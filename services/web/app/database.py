@@ -37,6 +37,6 @@ from .protocol.models import *
 from .sample.models import *
 from .tmpstore.models import *
 from .storage.models import *
-
+from .donor.models import *
 
 configure_mappers()

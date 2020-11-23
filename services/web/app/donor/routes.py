@@ -25,11 +25,10 @@ from flask import (
 )
 from flask_login import login_required, current_user
 import requests
-from .models import Donor
+
 from .forms import DonorCreationForm
 from ..misc import get_internal_api_header
 
-from .. import db
 
 import uuid
 
