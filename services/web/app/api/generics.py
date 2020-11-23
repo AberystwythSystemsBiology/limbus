@@ -85,7 +85,7 @@ def generic_edit(
     if not values:
         return no_values_response()
 
-    existing = model.query.filter_by(id=id).first()
+    existing = model.query.get(id)
 
     if not existing:
         return not_found()
@@ -97,11 +97,12 @@ def generic_edit(
 
     for attr, value in values.items():
         setattr(existing, attr, value)
+    
 
     existing.editor_id = tokenuser.id
-
+    existing.update_time()
+    
     try:
-        db.session.add(existing)
         db.session.commit()
         db.session.flush()
 
