@@ -10,8 +10,12 @@
     <div id="sidebar-wrapper">
     {{ storage_navbar() }}
     <div class="storage container">
-            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> LIMBSHF-{{ shelf.id }}</span>
-                <i class="fa fa-edit"></i> Edit</h1>
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
+                    <i class="fa fa-cube"></i> LIMBSHF-{{ shelf.id }}</a></span>
+                    </a>
+                <i class="fa fa-edit"></i> Edit Shelf</h1>
 
             <form  method="POST" action="{{ url_for('storage.edit_shelf', id=shelf.id ) }}">
                 {{ form.csrf_token() }}

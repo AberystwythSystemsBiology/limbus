@@ -79,7 +79,7 @@ def generic_edit(
     new_schema: masql.SQLAlchemySchema,
     view_schema: masql.SQLAlchemySchema,
     values: dict,
-    token_user: UserAccount,
+    tokenuser: UserAccount,
 ):
 
     if not values:

@@ -96,11 +96,29 @@ def edit_cold_storage(id):
     )
 
     if response.status_code == 200:
-        
-        # Need to rename some attributes.
+        form = ColdStorageForm(data=response.json()["content"])
+        if form.validate_on_submit():
+            form_information = {
+                "serial_number": form.serial_number.data,
+                "manufacturer": form.manufacturer.data,
+                "comments": form.comments.data,
+                "temp": form.temperature.data,
+                "type": form.type.data
+            }
 
-        form = ColdStorageForm()
+            edit_response = requests.put(
+                url_for("api.storage_coldstorage_edit", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
 
+            if edit_response.status_code == 200:
+                flash("Cold Storage Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+
+            
+            return redirect(url_for("storage.view_cold_storage", id=id))
         return render_template("storage/lts/edit.html", cs=response.json()["content"], form=form)
 
     return abort(response.status_code)

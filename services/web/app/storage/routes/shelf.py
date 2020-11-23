@@ -77,6 +77,44 @@ def view_shelf(id):
 
     return abort(response.status_code)
 
+
+@storage.route("/shelf/LIMBSHF-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        shelf = response.json()["content"]
+        form = NewShelfForm(data = shelf)
+
+
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+                "description": form.description.data
+            }
+
+            edit_response = requests.put(
+                url_for("api.storage_shelf_edit", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Shelf Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+
+            
+            return redirect(url_for("storage.view_shelf", id=id))
+
+        return render_template("storage/shelf/edit.html", shelf=shelf, form=form)
+
+    return abort(response.status_code)
+
 @storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
 @login_required
 def assign_rack_to_shelf(id):
