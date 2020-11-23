@@ -315,6 +315,12 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     )
 
 
+
+@api.route("/sample/<uuid>/document", methods=["POST"])
+@token_required
+def sample_to_document(uuid: str, tokenuser: UserAccount):
+    pass
+
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):

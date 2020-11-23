@@ -21,11 +21,30 @@ from flask_login import login_required
 import requests
 from ...misc import get_internal_api_header
 
+from ..forms import SampleToDocumentAssociatationForm
+
 
 @sample.route("<uuid>", methods=["GET"])
 @login_required
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
+
+
+@sample.route("<uuid>/associate/document", methods=["GET","POST"])
+@login_required
+def associate_document(uuid):
+
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        form = SampleToDocumentAssociatationForm([])
+
+        return render_template("sample/document_associate.html", sample=sample_response.json()["content"], form=form)
+    abort(sample_response.status_code)
+
 
 
 @sample.route("<uuid>/data", methods=["GET"])

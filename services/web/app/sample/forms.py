@@ -63,6 +63,11 @@ class SampleFilterForm(FlaskForm):
     submit = SubmitField("Filter")
 
 
+def SampleToDocumentAssociatationForm(documents: list) -> FlaskForm:
+
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
     # TODO: Likely to be broken out to a new file
