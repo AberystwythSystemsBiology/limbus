@@ -96,38 +96,36 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-def ColdStorageForm():
-    class StaticForm(FlaskForm):
-        serial_number = StringField(
-            "Serial Number",
-            description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
-        )
-        manufacturer = StringField(
-            "Manufacturer",
-            validators=[DataRequired()],
-            description="The storage facility manufacturer.",
-        )
+class ColdStorageForm(FlaskForm):
+    serial_number = StringField(
+        "Serial Number",
+        description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
+    )
+    
+    manufacturer = StringField(
+        "Manufacturer",
+        validators=[DataRequired()],
+        description="The storage facility manufacturer.",
+    )
 
-        comments = TextAreaField(
-            "Comments"
-        )
+    comments = TextAreaField("Comments")
 
-        temperature = SelectField(
-            "Temperature",
-            choices=FixedColdStorageTemps.choices(),
-            validators=[DataRequired()],
-            description="The temperature of the inside of the storage facility.",
-        )
-        type = SelectField(
-            "Storage Type",
-            choices=FixedColdStorageType.choices(),
-            validators=[DataRequired()],
-            description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
-        )
+    temperature = SelectField("Temperature",
+        choices=FixedColdStorageTemps.choices(),
+        validators=[DataRequired()],
+        description="The temperature of the inside of the storage facility.",
+    )
+    
+    type = SelectField(
+        "Storage Type",
+        choices=FixedColdStorageType.choices(),
+        validators=[DataRequired()],
+        description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
+    )
 
-    setattr(StaticForm, "submit", SubmitField("Register"))
+    submit = SubmitField("Register")
 
-    return StaticForm()
+
 
 
 def SampleToEntityForm(samples: list) -> FlaskForm:

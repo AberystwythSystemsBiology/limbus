@@ -83,16 +83,24 @@ def view_cold_storage(id):
         return render_template("storage/lts/view.html", cs=response.json()["content"])
     return abort(response.status_code)
 
-    '''
+
+
+
+
+@storage.route("/coldstorage/LIMBCS-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_cold_storage(id):
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
     if response.status_code == 200:
-        return render_template("storage/room/view.html", room=response.json()["content"])
+        
+        # Need to rename some attributes.
+
+        form = ColdStorageForm()
+
+        return render_template("storage/lts/edit.html", cs=response.json()["content"], form=form)
 
     return abort(response.status_code)
-    '''
-
-
-
-@storage.route("/coldstorage/LIMBLTS-<lts_id>/edit", methods=["GET", "POST"])
-@login_required
-def edit_lts(lts_id):
-    pass
