@@ -15,7 +15,8 @@
 
 
 from sqlalchemy import func
-from ..database import db, Address, SiteInformation, UserAccount, Sample, Document, Attribute, ProtocolTemplate
+from ..database import db, Address, SiteInformation, UserAccount, Sample
+from ..donor.models import Donor
 
 from ..api import api
 from ..api.responses import *
@@ -103,7 +104,7 @@ def get_data(tokenuser: UserAccount):
             "sample_count": Sample.query.count(),
             "user_count": UserAccount.query.count(),
             "site_count": SiteInformation.query.count(),
-            "donor_count": 0,
+            "donor_count": Donor.query.count(),
         },
         "sample_statistics": {
             "sample_type": _prepare_for_chart_js(

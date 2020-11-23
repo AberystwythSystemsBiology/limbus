@@ -30,29 +30,33 @@ from ...misc import get_internal_api_header
 def aliquot(uuid: str):
     # An aliquot creates a specimen from the same type as the parent.
 
-    sample_response = requests.get(
-        url_for("api.sample_view_sample", uuid=uuid, _external=True),
-        headers=get_internal_api_header()
+    protocol_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
     )
 
-    if sample_response.status_code == 200:
+    if protocol_response.status_code != 200:
+        abort(400)
 
-        protocol_response = requests.get(
-            url_for("api.protocol_query", _external=True),
-            headers=get_internal_api_header(),
-            json={"is_locked": False},
-        )
+    user_response = requests.get(
+        url_for("api.auth_home", _external=True),
+        headers=get_internal_api_header(),
+        json={},
+    )
 
-        if protocol_response.status_code != 200:
-            abort(protocol_response.status_code)
+    if user_response.status_code != 200:
+        abort(400)
 
-        form = SampleAliquotingForm(protocol_response.json()["content"])
+    processing_templates = protocol_response.json()["content"]
+    users = user_response.json()["content"]
 
-        return render_template("sample/sample/aliquot/create.html", form=form, sample=sample_response.json()["content"])
-    
-    abort(sample_response.status_code)
+    form = SampleAliquotingForm(processing_templates) #, users)
 
-@sample.route("query/", methods=["POST"])
+    return render_template("sample/sample/aliquot/create.html", form=form)
+
+
+@sample.route("query", methods=["POST"])
 @login_required
 def query():
     values = request.get_json()
@@ -78,6 +82,7 @@ def aliquot_endpoint(uuid: str):
     values = request.get_json()
 
     if not values:
+
         return {"Err": "No values provided."}
     
 

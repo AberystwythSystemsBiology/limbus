@@ -93,3 +93,4 @@ def storage_room_lock(id, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(basic_room_schema.dump(room))
+

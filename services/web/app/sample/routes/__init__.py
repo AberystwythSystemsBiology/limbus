@@ -46,6 +46,19 @@ def query_index():
     else:
         abort(response.status_code)
 
+@sample.route("/export", methods=["POST"])
+@login_required
+def query_export():
+    response = requests.get(
+        url_for("api.sample_export", _external=True),
+        headers=get_internal_api_header(),
+        json=request.json,
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        abort(response.status_code)
 
 @sample.route("/biohazard_information")
 @login_required
@@ -56,3 +69,4 @@ def biohazard_information() -> str:
 from .add import *
 from .sample import *
 from .aliquot import *
+#from .edit import *

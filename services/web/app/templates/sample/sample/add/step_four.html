@@ -6,7 +6,7 @@
 {% block body %}
     <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample Processing Information</h1>
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> Edit Sample</span> Sample Processing Information</h1>
         {{ render_progress(4, 8) }}
 
         <p>Before we continue, you must first link the sample to processing protocol template.</p>
@@ -34,3 +34,7 @@
     </div>
 {% endblock %}
 
+{% block javascript %}
+    <script src="{{ url_for('static', filename='js/sample/information/add/step_four.js') }}"></script>
+add
+{% endblock %}

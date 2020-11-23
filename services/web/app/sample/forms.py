@@ -26,7 +26,8 @@ from wtforms import (
     TimeField,
     IntegerField,
 )
-from wtforms.validators import DataRequired, Length, ValidationError
+from wtforms.validators import DataRequired, Length, ValidationError, Optional
+from wtforms.widgets import TextInput
 
 from datetime import datetime
 
@@ -60,6 +61,7 @@ class SampleFilterForm(FlaskForm):
     colour = SelectField("Colour", choices=Colour.choices(with_none=True))
     type = SelectField("Sample Type", choices=SampleType.choices(with_none=True))
     source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
+    status = SelectField("Sample Status", choices=SampleStatus.choices(with_none=True))
     submit = SubmitField("Filter")
 
 
@@ -82,7 +84,6 @@ def SampleToDocumentAssociatationForm(documents: list) -> FlaskForm:
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
     # TODO: Likely to be broken out to a new file
-
     def _custom_text_field(attribute):
         text_setting = attribute["text_setting"]
 
@@ -94,7 +95,7 @@ def FinalSampleForm(custom_attributes: list) -> FlaskForm:
         return form_type(
             attribute["term"],
             description=attribute["term"],
-            validators=[DataRequired(), Length(text_setting["max_length"])],
+            validators=[DataRequired(), Length(max=text_setting["max_length"])],
             render_kw={"custom": True},
         )
 
@@ -190,44 +191,60 @@ def CollectionConsentAndDisposalForm(
                     if len(samples_response.json()["content"]) != 0:
                         raise ValidationError("Biobank barcode must be unique!")
 
+        sample_status = SelectField(
+            "Sample Management Type",
+            description="Choose biobank (default) or temporary storage",
+            choices = [['NPR', 'Biobank'], ['TMP', 'Temporary storage']],
+            validators = [Optional()],
+        )
+
         # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
             "Sample Biobank Barcode",
-            validators=[validate_barcode],
-            description="If your sample already has a barcode/identifier, you can enter it here.",
+            #validators=[validate_barcode],
+            #description="If your sample already has a barcode/identifier, you can enter it here.",
+            description="Enter a barcode/identifier for your sample",
         )
 
         collection_date = DateField(
             "Sample Collection Date",
-            validators=[DataRequired()],
+            #validators=[DataRequired()],
+            validators=[Optional()],
             description="The date in which the sample was collected.",
-            default=datetime.today,
+            #default=None, # datetime.today,
+
         )
 
         collection_time = TimeField(
             "Sample Collection Time",
-            default=datetime.now(),
-            validators=[DataRequired()],
+            #default=None, #datetime.now(),
+            #validators=[DataRequired()],
+            validators=[Optional()],
             description="The time at which the sample was collected.",
         )
 
         disposal_date = DateField(
-            "Sample Disposal Date (*)",
+            u"Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
-            default=datetime.today,
+            #default=None, #datetime.today,
+            validators=[Optional()],
         )
 
+        disposal_instruction_choices = DisposalInstruction.choices()
+        disposal_instruction_choices.insert(0, ['', 'None'])
         disposal_instruction = SelectField(
             "Sample Disposal Instruction",
-            choices=DisposalInstruction.choices(),
+            choices=disposal_instruction_choices,
             description="The method of sample disposal.",
+            validators=[Optional()],
         )
 
         has_donor = BooleanField("Has Donor")
 
         consent_select = SelectField(
             "Patient Consent Form Template",
-            validators=[DataRequired()],
+            #validators=[DataRequired()],
+            #validators=[Optional()],
             choices=consent_templates,
             description="The patient consent form template that reflects the consent form the sample donor signed.",
             coerce=int,
@@ -235,7 +252,7 @@ def CollectionConsentAndDisposalForm(
 
         collection_select = SelectField(
             "Collection Protocol",
-            validators=[DataRequired()],
+            #validators=[DataRequired()],
             choices=collection_protocols,
             description="The protocol that details how the sample was taken.",
             coerce=int,
@@ -244,15 +261,18 @@ def CollectionConsentAndDisposalForm(
         collected_by = StringField(
             "Collected By",
             description="The initials of the individual who collected the sample.",
+            #default=None,
         )
 
         collection_site = SelectField(
             "Collection Site",
             description="The site in which the sample was taken",
             coerce=int,
-            validators=[DataRequired()],
+            #validators=[DataRequired()],
+            validators=[Optional()],
             choices=collection_sites,
         )
+
 
         submit = SubmitField("Continue")
 
@@ -269,20 +289,23 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
 
         processing_date = DateField(
             "Processing Date",
-            default=datetime.today(),
+            #default=datetime.today(),
             description="The date in which the sample was processed.",
+            validators =[Optional()],
         )
         processing_time = TimeField(
             "Processing Time",
-            default=datetime.now(),
+            #default=datetime.now(),
             description="The time in which the sample was processed.",
+            validators=[Optional()],
         )
 
         processing_protocol_id = SelectField(
             "Processing Protocol",
             choices=protocol_templates,
             coerce=int,
-            validators=[DataRequired()],
+            #validators=[DataRequired()],
+            validators=[Optional()],
         )
 
         comments = TextAreaField("Comments")
@@ -307,12 +330,14 @@ class SampleReviewForm(FlaskForm):
     date = DateField(
         "Review Date",
         description="The date in which the Sample Review was undertaken.",
-        default=datetime.today(),
+        #default=datetime.today(),
+        validators=[Optional()],
     )
     time = TimeField(
         "Review Time",
         description="The time in which the Sample Review was undertaken.",
-        default=datetime.now(),
+        #default=datetime.now(),
+        validators=[Optional()],
     )
     conducted_by = StringField(
         "Review Conducted By",
@@ -375,5 +400,20 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
         ),
     )
 
-    
+
+    # user_choices = []
+    #
+    # for user in users:
+    #     user_choices.append(
+    #         [user["id"], "%s %s" % (user["first_name"], user["last_name"])]
+    #     )
+
+    setattr(
+        StaticForm,
+        "processed_by",
+        #SelectField("Processed By", choices=user_choices, coerce=int),
+        # sample processor not necessarily in the system
+        StringField("Processed By"),
+    )
+
     return StaticForm()

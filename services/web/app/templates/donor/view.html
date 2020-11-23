@@ -28,15 +28,20 @@
         <table class="table table-striped">
             
             {{ show_value(donor.age, "Age", "text") }}
-            {{ show_value(donor.sex, "Sex", "enum") }}
-            {{ show_value(donor.status, "Status", "enum") }}
-            {{ show_value(donor.race, "Race", "enum") }}
-            {{ show_value(donor.height, "Height (cm)", "text") }}
-            {{ show_value(donor.weight, "Weight (kg)", "text") }}
-            {{ show_value('%0.2f'| format(donor.weight / (donor.height/100)**2|float), "BMI", "text")}}
-            
-            {% if donor.status.value == "Deceased" %}
-                {{ show_value(donor.death_date, "Death Date", "datetime") }}
+            {{ show_value(donor.sex, "Sex", "text") }}
+            {{ show_value(donor.status, "Status", "text") }}
+            {{ show_value(donor.race, "Race", "text") }}
+            {%if (donor.height != None and donor.height > 0) %}
+                {{ show_value(donor.height, "Height (cm)", "text") }}
+            {%endif %}
+            {%if (donor.weight != None and donor.weight > 0) %}
+                {{ show_value(donor.weight, "Weight (kg)", "text") }}
+                {%if (donor.height != None and donor.height > 0) %}
+                    {{ show_value('%0.2f'| format(donor.weight / (donor.height/100)**2|float), "BMI", "text")}}
+                {%endif %}
+            {%endif %}
+            {% if donor.death_date != None %}
+                {{ show_value(donor.death_date, "Death Date", "text") }}
             {%endif %}
 
         </table>
@@ -49,6 +54,8 @@
     </div>
 </div>
 
-
-
 {% endblock %}
+
+<!--            {% if donor.status.value == "Deceased" %}-->
+<!--                {{ show_value(donor.death_date, "Death Date", "text") }}-->
+<!--            {%endif %}-->

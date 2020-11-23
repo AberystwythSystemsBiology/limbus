@@ -21,7 +21,6 @@ from flask import render_template, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
 
-
 @storage.route("site/LIMBSITE-<id>/new_building", methods=["GET", "POST"])
 @login_required
 def new_building(id):

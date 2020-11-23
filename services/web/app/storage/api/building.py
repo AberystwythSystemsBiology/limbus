@@ -35,6 +35,12 @@ def storage_buildings_home(tokenuser: UserAccount):
         basic_buildings_schema.dump(Building.query.all())
     )
 
+@api.route("/storage/building/", methods=["GET"])
+@token_required
+def storage_buildings_view( tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_buildings_schema.dump(Building.query.all())
+    )
 
 @api.route("/storage/building/LIMBBUILD-<id>", methods=["GET"])
 @token_required
@@ -118,4 +124,5 @@ def storage_edit_building(id: int, tokenuser: UserAccount):
 
         return success_with_content_response(basic_building_schema.dump(building))
     except Exception as err:
+
         return transaction_error_response(err)

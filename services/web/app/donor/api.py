@@ -24,7 +24,7 @@ from ..decorators import token_required
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
 
-from datetime import datetime
+from sqlalchemy.sql import func
 
 from ..auth.models import UserAccount
 from .models import Donor
@@ -39,7 +39,6 @@ def donor_home(tokenuser: UserAccount):
     if not allowed:
         return not_allowed()
 
-    print(Donor.query.all())
     return success_with_content_response(
         donors_schema.dump(Donor.query.all())
     )
@@ -53,11 +52,11 @@ def donor_view(id, tokenuser: UserAccount):
         )
     )
 
+
 @api.route("/donor/LIMBDON-<id>/edit", methods=["PUT"])
 @token_required
 def donor_edit(id, tokenuser: UserAccount):
     values = request.get_json()
-
     if not values:
         return no_values_response()
 
@@ -72,6 +71,7 @@ def donor_edit(id, tokenuser: UserAccount):
         setattr(donor, attr, value)
 
     donor.editor_id = tokenuser.id
+    donor.updated_on = func.now()
 
     try:
         db.session.add(donor)

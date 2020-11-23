@@ -17,7 +17,7 @@
 from flask import request, abort, url_for
 from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
-import requests
+#from sqlalchemy.sql import func
 
 from ..api import api, generics
 from ..api.filters import generate_base_query_filters, get_filters_and_joins
@@ -36,6 +36,7 @@ from ..database import (
     SampleToType,
     SampleDocument,
     SubSampleToSample,
+    SampleReview,
 )
 
 from .views import (
@@ -49,6 +50,7 @@ from .views import (
     new_sample_protocol_event_schema,
     sample_protocol_event_schema,
     new_sample_schema,
+    new_sample_review_schema,
     new_sample_disposal_schema,
     basic_disposal_schema,
     sample_document_schema,
@@ -76,7 +78,8 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-
+    print('filters: ', filters)
+    print('joins: ', joins)
     return success_with_content_response(
         basic_samples_schema.dump(
             Sample.query.filter_by(**filters).filter(*joins).all()
@@ -215,6 +218,54 @@ def sample_new_sample(tokenuser: UserAccount):
         db.session.flush()
 
         return success_with_content_response(basic_sample_schema.dump(new_sample))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/sample/new_sample_review", methods=["POST"])
+@token_required
+def sample_new_sample_review(tokenuser: UserAccount):
+    values = request.get_json()
+    if not values:
+        return no_values_response()
+
+    try:
+       sample_review_values = new_sample_review_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_sample_review = SampleReview(**sample_review_values)
+    new_sample_review.author_id = tokenuser.id
+
+    # modify sample status according to review results
+    sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
+
+    if sample.status not in ['TMP', 'NCO', 'NPR']:
+        if sample.remaining_quantity == 0:
+            sample.status = 'UNU'
+        elif values['datetime'] is None or values['quality'] is None:
+            sample.status = 'NRE'
+        elif values['quality'] in ['DAM', 'UNU', 'BAD']:
+            sample.status = 'UNU'
+        elif values['quality'] == 'DES':
+            sample.status = 'DES'
+        elif values['quality'] in ['GOO', 'UNS']:
+            sample.status = 'AVA'
+
+        sample.updated_on = datetime.now()
+        sample.editor_id = tokenuser.id
+
+    try:
+        db.session.add(new_sample_review)
+        db.session.add(sample)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            {'sample_review': new_sample_review.dump(new_sample_review),
+             'sample_details': new_sample_schema.dump(sample),
+             }
+        )
     except Exception as err:
         return transaction_error_response(err)
 
@@ -363,20 +414,21 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     if not _validate_aliquots(values["aliquots"]):
         return validation_error_response({"messages": "Failed to load aliquot, sorry."})
 
-    to_remove = sum([abs(float(a["volume"])) for a in values["aliquots"]])
+    to_remove = sum([float(a["volume"]) for a in values["aliquots"]])
+
+    sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+    parent_values = new_sample_schema.dump(sample)
+    parent_id = sample.id
+    sample_values = new_sample_schema.load(parent_values)
 
     remaining_quantity = sample.remaining_quantity
 
     if remaining_quantity < to_remove:
         return validation_error_response({"messages": "Total sum not equal or less than remaining quantity."})
 
-
     for aliquot in values["aliquots"]:
-        ali_sample = Sample.query.filter_by(uuid=uuid).first_or_404()
-
-        db.session.expunge(ali_sample)
+        ali_sample = Sample(**sample_values)
         make_transient(ali_sample)
-
         ali_sample.id = None
         ali_sample.uuid = None
         ali_sample.barcode = aliquot["barcode"]
@@ -397,6 +449,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.add(ssts)
             
     sample.remaining_quantity = sample.remaining_quantity - to_remove
+    #sample.updated_on = datetime.now()
     # Submit quantity changes.
     db.session.add(sample)
     db.session.commit()
@@ -404,5 +457,3 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     return success_with_content_response(
             basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
     )
-
-
