@@ -39,8 +39,8 @@ class DonorSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
 
     age = masql.auto_field()
-    sex = EnumField(BiologicalSexTypes)
-    status = EnumField(DonorStatusTypes)
+    sex = EnumField(BiologicalSexTypes, by_value=True)
+    status = EnumField(DonorStatusTypes, by_value=True)
     death_date = ma.Date()
 
     weight = masql.auto_field()
