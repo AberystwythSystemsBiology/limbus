@@ -33,6 +33,7 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     num_cols = masql.auto_field()
     colour = EnumField(Colour, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
 
 
 rack_schema = SampleRackSchema()

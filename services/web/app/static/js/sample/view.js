@@ -151,10 +151,22 @@ function fill_document_information(document_information) {
                 {
                     mData: {},
                     mRender: function(data, type, row) {
-    
+                        console.log(data)
+
+                        document_data = "<a href='"+data["_links"]["self"]+"'>";
+                        document_data += '<i class="fas fa-file"></i> LIMBDOC-'
+                        document_data += data["id"] + ": "
+                        document_data += data["name"] + "</a>"
+                        return document_data
                     }
                 },
-                {}
+                {
+                    mData: {},
+                    mRender: function(data, type, row) {
+                        return data["type"]
+                    }
+                }
+                
             ]
         });
 
