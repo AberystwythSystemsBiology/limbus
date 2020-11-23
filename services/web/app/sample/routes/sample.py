@@ -15,7 +15,7 @@
 
 from .. import sample
 import requests
-from flask import render_template, url_for
+from flask import render_template, url_for, flash, redirect
 from flask_login import login_required
 
 import requests
@@ -40,10 +40,35 @@ def associate_document(uuid):
     )
 
     if sample_response.status_code == 200:
-        form = SampleToDocumentAssociatationForm([])
+        document_response = requests.get(url_for("api.document_home", _external=True), headers=get_internal_api_header() )
+        
+        if document_response.status_code == 200:
 
-        return render_template("sample/document_associate.html", sample=sample_response.json()["content"], form=form)
-    abort(sample_response.status_code)
+            form = SampleToDocumentAssociatationForm(document_response.json()["content"])
+
+            if form.validate_on_submit():
+                
+                response = requests.post(
+                    url_for("api.sample_to_document", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                    "sample_id": sample_response.json()["content"]["id"],
+                    "document_id": form.documents.data
+                }
+                )
+
+                if response.status_code == 200:
+                    flash("Document successfully associated")
+                else:
+                    flash("We have a problem :( %s" % (response.json()))
+
+                return redirect(url_for("sample.view", uuid=uuid))
+
+            return render_template("sample/document_associate.html", sample=sample_response.json()["content"], form=form)
+
+        return abort(document_response.status_code)
+
+    return abort(sample_response.status_code)
 
 
 

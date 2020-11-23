@@ -68,6 +68,17 @@ def SampleToDocumentAssociatationForm(documents: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
 
+    
+    setattr(
+        StaticForm,
+        "documents",
+        SelectField(
+            "Document",
+            choices=[(d["id"], "LIMBDOC-%i: %s (%s) " % (d["id"], d["name"], d["type"])) for d in documents], coerce=int
+        ),
+        )
+    return StaticForm()
+
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
     # TODO: Likely to be broken out to a new file

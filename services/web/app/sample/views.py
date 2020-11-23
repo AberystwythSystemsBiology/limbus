@@ -34,6 +34,7 @@ from ..database import (
     SampleReview,
     SampleToType,
     SampleDisposal,
+    SampleDocument
 )
 
 from .enums import (
@@ -114,6 +115,23 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
 
 basic_disposal_schema = BasicSampleDisposalSchema()
 
+class SampleDocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDocument
+    
+    sample_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+sample_document_schema = SampleDocumentSchema()
+
+class NewDocumentToSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDocument
+
+    sample_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+new_document_to_sample_schema = NewDocumentToSampleSchema()
 
 class NewSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -19,7 +19,7 @@ from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
 import requests
 
-from ..api import api
+from ..api import api, generics
 from ..api.filters import generate_base_query_filters, get_filters_and_joins
 from ..api.responses import *
 from ..webarg_parser import use_args, use_kwargs, parser
@@ -34,6 +34,7 @@ from ..database import (
     SampleDisposal,
     SampleToContainer,
     SampleToType,
+    SampleDocument,
     SubSampleToSample,
 )
 
@@ -50,10 +51,12 @@ from .views import (
     new_sample_schema,
     new_sample_disposal_schema,
     basic_disposal_schema,
+    sample_document_schema,
     new_fluid_sample_schema,
     new_cell_sample_schema,
     sample_type_schema,
     SampleSearchSchema,
+    new_document_to_sample_schema
 )
 
 from datetime import datetime
@@ -316,10 +319,12 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
 
 
-@api.route("/sample/<uuid>/document", methods=["POST"])
+@api.route("/sample/associate/document", methods=["POST"])
 @token_required
-def sample_to_document(uuid: str, tokenuser: UserAccount):
-    pass
+def sample_to_document(tokenuser: UserAccount):
+    values = request.get_json()
+    return generics.generic_new(db, SampleDocument, new_document_to_sample_schema, sample_document_schema, values, tokenuser)
+    
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
