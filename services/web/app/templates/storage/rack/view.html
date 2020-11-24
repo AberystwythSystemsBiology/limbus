@@ -5,13 +5,8 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMBRACK-{{ rack.id }}{% endblock %}
+{% block title %}LIMBRACK-{{ id }}{% endblock %}
 
-{% set count = namespace(value=0) %}
-{% set verbose_tube_count = namespace(value=0) %}
-
-{% set _row = namespace(value=0) %}
-{% set _col = namespace(value=0) %}
 
 {% block body %}
 
@@ -20,114 +15,57 @@
         <div class="storage container">
 
             <h1><span class="secondary-heading">Sample Rack</span>
-                <i class="fa fa-cube"></i> LIMBRACK-{{ rack.id }}
+                <i class="fa fa-grip-vertical"></i> LIMBRACK-{{ id }}
             </h1>
 
             <div class="row text-muted">
                 <div class="col-7">
                     <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                        {% if not rack.is_locked %}
                         <div class="btn-group mr-2" role="group" aria-label="First group">
                             <a href="">
                                 <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                     Details
                                 </button>
                             </a>
-                        </div>
-        
-                        {% endif %}
-    
-                        <div class="btn-group mr-2" role="group" aria-label="Second group">
-                            <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if rack.is_locked %}
-                                Unl{% else %}L{% endif %}ock
-                            </button>
-                        </div>
+                        </div>   
+
                     </div>
                 </div>
                 <div class="col-5 text-right">
-                    <i class="fa fa-calendar"></i> Created On: {{ rack.created_on }}
+                    <i class="fa fa-calendar"></i> Created On: <span id="createdOn"></span>
                     <div class="clearfix"></div>
-                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(rack.author) }}
+                    <i class="fa fa-user"></i> Created By: <span id="createdBy"></span>
                 </div>
             </div>
                 
-                {{ show_value(rack.uuid, "UUID", "text") }}
-                {{ show_value(rack.serial_number, "Serial Number", "text") }}
 
-                {{ rack }}
+            <h2><i class="fa fa-grip-vertical"></i> Rack View</h2>
 
-                <div class="row">
-                    <div class="col-sm-5 box">
-                        <div class="row no-gutters">
-                            <div class="col col-sm"></div>
-                            {% for i in range(rack.num_cols) %}
-                                <div class="col box-heading">
-                                    <div class="square">
-                                        <div class="align-middle">{{ i + 1 }}</div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        {% for i in range(rack.num_rows) %}
-                            <div class="row no-gutters">
-                                {% for j in range(rack.num_cols + 1) %}
-                                    {% if j == 0 %}
-                                        <div class="col">
-                                            <div class="square">
-                                                <div class="align-middle">
-                                                    {% set count.value = count.value + 1 %}
-                                                    {{ count.value }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        {% set anot = namespace(value="%i_%i" % (_row.value, _col.value)) %}
-                                        <div class="col" id="{{ anot.value }}">
-                                            <a href="#">
-     
-                                                <div class="square">
-                                                    <div class="tube align-middle">
-                                                        {% set verbose_tube_count.value = verbose_tube_count.value + 1 %}
-                                                        {% if true %}
+            <div class="row">
+                <div class="col-8">
 
-                                                        {% else %}
-                                                            <div class="empty-tube">
-                                                                {{ verbose_tube_count.value }}
-                                                            </div>
-                                                        {% endif %}
-     
-                                                        {% set _col.value = _col.value + 1 %}
-     
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                                {% set _row.value = _row.value + 1 %}
-                            </div>
-                            {% set _col.value = 0 %}
-     
-                        {% endfor %}
-                    </div>
-                    <div class="col-md-7">
-                        <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
-                            <thead>
-                            <tr>
-                                <th>Position</th>
-                                <th>Identifier</th>
-                                <th>Sample Status</th>
-                                <th>Collection Date</th>
-                                <th>Sample Creator</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
+                <div class="col-4">
+                    SAAS
+                </div>
+            </div>
+
+            <h2><i class="fas fa-vial"></i> Sample Table</h2>
+
+            <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Identifier</th>
+                        <th>Sample Status</th>
+                        <th>Collection Date</th>
+                        <th>Sample Creator</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
 
         </div>
     </div>
@@ -135,4 +73,5 @@
 
 {% block javascript %}
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/storage/rack/view.js') }}"></script>
 {% endblock %}

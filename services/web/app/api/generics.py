@@ -95,12 +95,8 @@ def generic_edit(
     except ValidationError as err:
         return validation_error_response(err)
 
-    for attr, value in values.items():
-        setattr(existing, attr, value)
-    
-
+    existing.update(values)
     existing.editor_id = tokenuser.id
-    existing.update_time()
     
     try:
         db.session.commit()

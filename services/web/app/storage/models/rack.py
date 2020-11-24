@@ -25,5 +25,3 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
 
-    
-    

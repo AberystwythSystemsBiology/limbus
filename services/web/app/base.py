@@ -40,6 +40,9 @@ class BaseModel(object):
         nullable=False,
     )
 
-    def update_time(self):
-        self.updated_on = db.func.now()
 
+    def update(self, values):
+        for attr, values in values.items():
+            setattr(self, attr, values)
+
+        self.updated_on = db.func.now()

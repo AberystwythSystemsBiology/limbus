@@ -18,9 +18,38 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ...database import SampleRack
+from ...database import SampleRack, EntityToStorage
 from ...sample.enums import Colour
 from ...auth.views import BasicUserAccountSchema
+
+
+class ViewSampleToSampleRackSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    id = masql.auto_field()
+    sample_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    row = masql.auto_field()
+    col = masql.auto_field()
+    entry = masql.auto_field()
+    entry_datetime = masql.auto_field()
+
+view_sample_to_sample_rack_schema = ViewSampleToSampleRackSchema()
+
+class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    sample_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    row = masql.auto_field()
+    col = masql.auto_field()
+    entry = masql.auto_field()
+    entry_datetime = masql.auto_field()
+
+new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
+    
 
 class SampleRackSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -20,11 +20,12 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, SampleRack, UserAccount
+from ...database import db, SampleRack, UserAccount, EntityToStorage
 
 from marshmallow import ValidationError
 
 from ..views.rack import *
+import requests
 
 
 @api.route("/storage/rack", methods=["GET"])
@@ -62,3 +63,39 @@ def storage_rack_new(tokenuser: UserAccount):
 @token_required
 def storage_rack_lock(id, tokenuser: UserAccount):
     return generic_lock(db, SampleRack, id, basic_sample_wrack_schema, tokenuser)
+
+@api.route("/storage/rack/LIMBRACK-<id>/assign_sample", methods=["POST"])
+@token_required
+def storage_rack_add_sample(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = new_sample_to_sample_rack_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    # check if Sample exists.
+    existing = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
+
+    if not existing:
+        new = EntityToStorage(**values)
+        new.author_id = tokenuser.id
+        db.session.add(new)
+    else:
+        existing.shelf_id = None
+        existing.rack_id = None
+
+        existing.update(values)
+        db.session.add(existing)
+    
+    try:
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(view_sample_to_sample_rack_schema.dump(existing))
+    except Exception as err:
+        return transaction_error_response(err)
+    

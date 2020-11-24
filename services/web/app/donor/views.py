@@ -46,7 +46,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     weight = masql.auto_field()
     height = masql.auto_field()
 
-    race = EnumField(RaceTypes)
+    race = EnumField(RaceTypes, by_value=True)
 
     author = ma.Nested(BasicUserAccountSchema)
     updater = ma.Nested(BasicUserAccountSchema)

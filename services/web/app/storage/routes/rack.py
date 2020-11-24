@@ -200,15 +200,22 @@ def crybox_from_file_validation(hash: str):
 @storage.route("/rack/LIMBRACK-<id>")
 @login_required
 def view_rack(id):
-    response = requests.get(
+    return render_template("storage/rack/view.html", id=id)
+
+
+@storage.route("/rack/LIMBRACK-<id>/endpoint")
+@login_required
+def view_rack_endpoint(id):
+    view_response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header()
     )
 
-    if response.status_code == 200:
-        return render_template("storage/rack/view.html", rack=response.json()["content"])
+    if view_response.status_code == 200:
+        return view_response.json()
+    return abort(view_response.status_code)
 
-    return abort(response.status_code)
+
 
 """
 # TODO: All of this needs to be given a specific view.
