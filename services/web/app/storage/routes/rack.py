@@ -217,6 +217,73 @@ def view_rack_endpoint(id):
 
 
 
+@storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_rack(id):
+
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        rack = response.json()["content"]
+
+        form = NewSampleRackForm(
+            data={
+                "serial": rack["serial_number"],
+                "description": rack["description"]
+                }
+        )
+
+        delattr(form, "num_cols")
+        delattr(form, "num_rows")
+        delattr(form, "colours")
+
+        if form.validate_on_submit():
+            form_information = {
+                "serial_number": form.serial.data,
+                "description": form.description.data
+            }
+
+            edit_response = requests.put(
+                url_for("api.storage_rack_edit", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Shelf Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+            
+            return redirect(url_for("storage.view_rack", id=id))
+
+
+        return render_template("storage/rack/edit.html", rack=response.json()["content"], form=form)
+
+
+    abort(response.status_code)
+    
+    '''
+    form = NewCryovialBoxForm()
+    delattr(form, "num_cols")
+    delattr(form, "num_rows")
+
+
+    if form.validate_on_submit():
+        cb = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first()
+        print(">>>>>>>>>>>>>>>", form.serial.data)
+        cb.serial = form.serial.data
+        db.session.add(cb)
+        db.session.commit()
+        flash("Cryobox information successfully edited!")
+        return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
+
+    form.serial.data = cryo["info"]["serial"]
+    return render_template("storage/cryobox/edit.html", cryo=cryo, form=form)
+    '''
+
 """
 # TODO: All of this needs to be given a specific view.
 from sqlalchemy_continuum import version_class
@@ -260,26 +327,6 @@ def view_history(storage_type, id):
     )
 
 
-@storage.route("cryobox/LIMCRB-<cryo_id>/edit", methods=["GET", "POST"])
-@login_required
-def edit_cryobox(cryo_id):
-    cryo = CryoboxView(cryo_id)
-
-    form = NewCryovialBoxForm()
-    delattr(form, "num_cols")
-    delattr(form, "num_rows")
-
-    if form.validate_on_submit():
-        cb = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first()
-        print(">>>>>>>>>>>>>>>", form.serial.data)
-        cb.serial = form.serial.data
-        db.session.add(cb)
-        db.session.commit()
-        flash("Cryobox information successfully edited!")
-        return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
-
-    form.serial.data = cryo["info"]["serial"]
-    return render_template("storage/cryobox/edit.html", cryo=cryo, form=form)
 
 
 @storage.route(

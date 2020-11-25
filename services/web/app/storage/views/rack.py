@@ -57,6 +57,7 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     
     id = masql.auto_field()
     uuid = masql.auto_field()
+    description = masql.auto_field()
     serial_number = masql.auto_field()
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
