@@ -88,14 +88,6 @@ def get_greeting():
 @api.route("/misc/panel", methods=["GET"])
 @token_required
 def get_data(tokenuser: UserAccount):
-    def _prepare_for_chart_js(a):
-        ye = {"labels": [], "data": []}
-
-        for (label, data) in a:
-            ye["labels"].append(label)
-            ye["data"].append(data)
-
-        return ye
 
     data = {
         "name": SiteInformation.query.first().name,
@@ -106,7 +98,7 @@ def get_data(tokenuser: UserAccount):
             "donor_count": Donor.query.count(),
         },
         "sample_statistics": {
-            "sample_type": _prepare_for_chart_js(
+            "sample_type": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -116,7 +108,7 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),
-            "sample_biohazard": _prepare_for_chart_js(
+            "sample_biohazard": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -126,7 +118,7 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),
-            "sample_source": _prepare_for_chart_js(
+            "sample_source": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -136,7 +128,7 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),  # SampleSource
-            "sample_status": _prepare_for_chart_js(
+            "sample_status": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -152,7 +144,7 @@ def get_data(tokenuser: UserAccount):
 
         },
         "attribute_statistics": {
-            "attribute_type": _prepare_for_chart_js(
+            "attribute_type": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -163,7 +155,7 @@ def get_data(tokenuser: UserAccount):
             )
         },
         "protocol_statistics": {
-            "protocol_type": _prepare_for_chart_js(
+            "protocol_type": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -174,7 +166,7 @@ def get_data(tokenuser: UserAccount):
             )
         },
         "document_statistics": {
-            "document_type": _prepare_for_chart_js(
+            "document_type": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(

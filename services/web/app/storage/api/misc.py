@@ -14,13 +14,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask import request, current_app, jsonify, send_file
-
+from sqlalchemy import func
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, SiteInformation, UserAccount, EntityToStorage
+from ...database import *
 
 from marshmallow import ValidationError
 
@@ -50,7 +50,6 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     
     ets = EntityToStorage.query.filter_by(rack_id = values["rack_id"]).first()
 
-    print(ets)
 
     if ets != None:
         ets.box_id = None
@@ -117,3 +116,38 @@ def storage_view_tree(tokenuser: UserAccount):
     return success_with_content_response(
         tree_sites_schema.dump(SiteInformation.query.all())
     )
+
+@api.route("/storage", methods=["GET"])
+@token_required
+def storage_view_panel(tokenuser: UserAccount):
+    
+    data = {
+        "basic_statistics": {
+            "site_count": SiteInformation.query.count(),
+            "building_count": Building.query.count(),
+            "room_count": Room.query.count(),
+            "cold_storage_count": ColdStorage.query.count()
+        },
+        "cold_storage_statistics": {
+            "cold_storage_type": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        ColdStorage.type, func.count(ColdStorage.type)
+                    )
+                    .group_by(ColdStorage.type).all()
+                ]
+            ),
+            "cold_storage_temp": prepare_for_chart_js(
+                 [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        ColdStorage.temp, func.count(ColdStorage.temp)
+                    )
+                    .group_by(ColdStorage.temp).all()
+                ]
+            )
+        }
+    }
+
+    return success_with_content_response(data)

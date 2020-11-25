@@ -89,3 +89,12 @@ def success_with_content_response(content):
 
 def success_without_content_response():
     return {"success": True}, 200, {"ContentType": "application/json"}
+
+def prepare_for_chart_js(a):
+    ye = {"labels": [], "data": []}
+
+    for (label, data) in a:
+        ye["labels"].append(label)
+        ye["data"].append(data)
+
+    return ye

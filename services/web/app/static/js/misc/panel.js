@@ -19,17 +19,6 @@ function get_panel_info() {
 }
 
 
-function dynamicColours(length) {
-    var colours = [];
-    for (i =0; i < length; i++) {
-        var r = Math.floor(Math.random() * 255);
-        var g = Math.floor(Math.random() * 255);
-        var b = Math.floor(Math.random() * 255);
-        colours.push("rgba(" + r + "," + g + "," + b + ", 1)");
-    }
-    return colours;
-    
-}
 
 function fill_document_statistics(document_statistics) {
 
