@@ -73,7 +73,9 @@ def storage_room_edit(id, tokenuser: UserAccount):
 
     values = request.get_json()
 
-    return generic_edit(db, Room, id, new_room_schema, basic_room_schema, values, tokenuser)
+    return generic_edit(
+        db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
+    )
 
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
@@ -93,4 +95,3 @@ def storage_room_lock(id, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(basic_room_schema.dump(room))
-

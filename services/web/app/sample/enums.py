@@ -123,7 +123,6 @@ class DisposalInstruction(FormEnum):
     PRE = "Preserve"
 
 
-
 class CellContainer(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"

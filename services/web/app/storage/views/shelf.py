@@ -26,10 +26,11 @@ from ...sample.views import BasicSampleSchema
 from ...auth.views import BasicUserAccountSchema
 from ..views.rack import BasicSampleRackSchema
 
+
 class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorageShelf
-    
+
     id = masql.auto_field()
     name = masql.auto_field()
     description = masql.auto_field()
@@ -41,8 +42,10 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     racks = ma.Nested(BasicSampleRackSchema, many=True)
     is_locked = masql.auto_field()
     storage_id = masql.auto_field()
-    
+
+
 shelf_schema = ColdStorageShelfSchema()
+
 
 class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -61,7 +64,7 @@ basic_shelves_schema = BasicColdStorageShelfSchema(many=True)
 class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorageShelf
-    
+
     id = masql.auto_field()
     name = masql.auto_field()
     description = masql.auto_field()

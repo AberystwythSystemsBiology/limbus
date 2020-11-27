@@ -40,9 +40,7 @@ def storage_coldstorage_home(tokenuser: UserAccount):
 @token_required
 def storage_coldstorage_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        cold_storage_schema.dump(
-            ColdStorage.query.filter_by(id=id).first_or_404()
-        )
+        cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
 
 

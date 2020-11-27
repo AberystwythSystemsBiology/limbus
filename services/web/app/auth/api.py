@@ -81,15 +81,15 @@ def auth_edit_user(id: int, tokenuser: UserAccount):
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
     """Add a new user account endpoint.
-        ---
-        post:
-          description: Submit a new user account
-          responses:
-            200:
-              content:
-                application/json:
-                  schema: NewUserAccountSchema
-        """
+    ---
+    post:
+      description: Submit a new user account
+      responses:
+        200:
+          content:
+            application/json:
+              schema: NewUserAccountSchema
+    """
     values = request.get_json()
 
     if not values:

@@ -37,6 +37,7 @@ import treepoem
 from io import BytesIO
 from random import choice
 
+
 @api.route("/misc/barcode/<t>/<i>/", methods=["GET"])
 @token_required
 def misc_generate_barcode(tokenuser: UserAccount, t: str, i: str):
@@ -84,6 +85,7 @@ def get_greeting():
     c = choice(list(dictionary.keys()))
 
     return jsonify({"language": dictionary[c], "greeting": c})
+
 
 @api.route("/misc/panel", methods=["GET"])
 @token_required
@@ -139,10 +141,7 @@ def get_data(tokenuser: UserAccount):
                 ]
             ),  # SampleSource
         },
-        "storage_statistics": {
-            
-
-        },
+        "storage_statistics": {},
         "attribute_statistics": {
             "attribute_type": prepare_for_chart_js(
                 [
@@ -150,7 +149,8 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         Attribute.type, func.count(Attribute.type)
                     )
-                    .group_by(Attribute.type).all()
+                    .group_by(Attribute.type)
+                    .all()
                 ]
             )
         },
@@ -161,8 +161,9 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         ProtocolTemplate.type, func.count(ProtocolTemplate.type)
                     )
-                    .group_by(ProtocolTemplate.type).all()
-                    ]
+                    .group_by(ProtocolTemplate.type)
+                    .all()
+                ]
             )
         },
         "document_statistics": {
@@ -172,10 +173,11 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         Document.type, func.count(Document.type)
                     )
-                    .group_by(Document.type).all()
+                    .group_by(Document.type)
+                    .all()
                 ]
             )
-        }
+        },
     }
 
     return success_with_content_response(data)
@@ -187,8 +189,6 @@ def site_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_sites_schema.dump(SiteInformation.query.all())
     )
-
-
 
 
 @api.route("/misc/address/", methods=["GET"])

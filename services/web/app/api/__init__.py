@@ -35,6 +35,7 @@ from ..storage.api import *
 from .responses import *
 from .filters import *
 
+
 def prepare_for_chart_js(a):
     ye = {"labels": [], "data": []}
 

@@ -37,7 +37,7 @@ from ...misc import get_internal_api_header
 
 from ..forms import NewSampleRackForm, SampleToEntityForm
 
-'''
+"""
 
 def iter_all_strings():
     for size in itertools.count(1):
@@ -87,24 +87,23 @@ def file_to_json(form) -> dict:
 
     return data
 
-'''
+"""
+
 
 @storage.route("/rack")
 @login_required
 def rack_index():
     response = requests.get(
         url_for("api.storage_rack_home", _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-         return render_template("storage/rack/index.html", racks=response.json()["content"])
-
+        return render_template(
+            "storage/rack/index.html", racks=response.json()["content"]
+        )
 
     return abort(response.status_code)
-    
-
-   
 
 
 @storage.route("/rack/new", methods=["GET", "POST"])
@@ -127,8 +126,8 @@ def rack_manual_entry():
                 "num_rows": form.num_rows.data,
                 "num_cols": form.num_cols.data,
                 "colour": form.colours.data,
-                "description": form.description.data
-            }
+                "description": form.description.data,
+            },
         )
 
         if response.status_code == 200:
@@ -198,6 +197,8 @@ def crybox_from_file_validation(hash: str):
     )
 
 """
+
+
 @storage.route("/rack/LIMBRACK-<id>")
 @login_required
 def view_rack(id):
@@ -210,7 +211,10 @@ def view_rack_endpoint(id):
     def _assign_view(sample, rack_view):
         try:
             row, col = sample["row"], sample["col"]
-            rack_view["content"]["view"][row]["%i\t%i" % (row, col)] = {"empty": False, "sample": sample["sample"]}
+            rack_view["content"]["view"][row]["%i\t%i" % (row, col)] = {
+                "empty": False,
+                "sample": sample["sample"],
+            }
             return 1, rack_view
         except Exception as e:
             pass
@@ -218,13 +222,12 @@ def view_rack_endpoint(id):
 
     view_response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
-
 
     if view_response.status_code == 200:
         rack_view = view_response.json()
-        
+
         _rack = []
 
         for row in range(rack_view["content"]["num_rows"]):
@@ -244,23 +247,23 @@ def view_rack_endpoint(id):
 
         rack_view["content"]["counts"] = {"full": count, "empty": total - count}
 
-
         return rack_view
     return abort(view_response.status_code)
+
 
 @storage.route("/rack/LIMBRACK-<id>/assign/<row>/<column>", methods=["GET", "POST"])
 @login_required
 def assign_rack_sample(id, row, column):
     view_response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if view_response.status_code == 200:
 
         sample_response = requests.get(
             url_for("api.sample_home", _external=True),
-            headers=get_internal_api_header()
+            headers=get_internal_api_header(),
         )
 
         if sample_response.status_code == 200:
@@ -268,7 +271,7 @@ def assign_rack_sample(id, row, column):
             form = SampleToEntityForm(sample_response.json()["content"])
 
             if form.validate_on_submit():
-              
+
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_sample_to_rack", _external=True),
                     headers=get_internal_api_header(),
@@ -277,12 +280,14 @@ def assign_rack_sample(id, row, column):
                         "rack_id": id,
                         "row": row,
                         "col": column,
-                        "entry_datetime": str(datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S"
-                        )),
-                        "entry": form.entered_by.data
-                    }
+                        "entry_datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "entry": form.entered_by.data,
+                    },
                 )
 
                 if sample_move_response.status_code == 200:
@@ -290,17 +295,15 @@ def assign_rack_sample(id, row, column):
                 else:
                     flash(sample_move_response.json())
 
-
             return render_template(
                 "storage/rack/sample_to_rack.html",
                 rack=view_response.json()["content"],
                 row=row,
                 column=column,
-                form=form
-                )
+                form=form,
+            )
 
     abort(view_response.status_code)
-
 
 
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
@@ -309,17 +312,14 @@ def edit_rack(id):
 
     response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
         rack = response.json()["content"]
 
         form = NewSampleRackForm(
-            data={
-                "serial": rack["serial_number"],
-                "description": rack["description"]
-                }
+            data={"serial": rack["serial_number"], "description": rack["description"]}
         )
 
         delattr(form, "num_cols")
@@ -329,7 +329,7 @@ def edit_rack(id):
         if form.validate_on_submit():
             form_information = {
                 "serial_number": form.serial.data,
-                "description": form.description.data
+                "description": form.description.data,
             }
 
             edit_response = requests.put(
@@ -342,16 +342,16 @@ def edit_rack(id):
                 flash("Shelf Successfully Edited")
             else:
                 flash("We have a problem: %s" % (edit_response.json()))
-            
+
             return redirect(url_for("storage.view_rack", id=id))
 
-
-        return render_template("storage/rack/edit.html", rack=response.json()["content"], form=form)
-
+        return render_template(
+            "storage/rack/edit.html", rack=response.json()["content"], form=form
+        )
 
     abort(response.status_code)
-    
-    '''
+
+    """
     form = NewCryovialBoxForm()
     delattr(form, "num_cols")
     delattr(form, "num_rows")
@@ -368,7 +368,8 @@ def edit_rack(id):
 
     form.serial.data = cryo["info"]["serial"]
     return render_template("storage/cryobox/edit.html", cryo=cryo, form=form)
-    '''
+    """
+
 
 """
 # TODO: All of this needs to be given a specific view.

@@ -37,6 +37,7 @@ import requests
 
 strconv = lambda i: i or None
 
+
 @donor.route("/")
 @login_required
 def index():
@@ -45,9 +46,7 @@ def index():
     )
 
     if response.status_code == 200:
-        return render_template(
-            "donor/index.html", donors=response.json()["content"]
-        )
+        return render_template("donor/index.html", donors=response.json()["content"])
     else:
         return abort(response.status_code)
 
@@ -75,7 +74,7 @@ def add():
         death_date = None
 
         if form.status.data == "DE":
-            death_date = form.death_date.data#, '%Y-%m-%d')
+            death_date = form.death_date.data  # , '%Y-%m-%d')
 
         form_information = {
             "age": form.age.data,
@@ -84,7 +83,7 @@ def add():
             "race": form.race.data,
             "death_date": death_date,
             "weight": form.weight.data,
-            "height": form.height.data
+            "height": form.height.data,
         }
 
         # Set empty field to Null
@@ -104,6 +103,7 @@ def add():
             return abort(response.status_code)
 
     return render_template("donor/add.html", form=form)
+
 
 @login_required
 @donor.route("/edit/LIMBDON-<id>", methods=["GET", "POST"])
@@ -125,14 +125,14 @@ def edit(id):
                 "age": form.age.data,
                 "sex": form.sex.data,
                 "status": form.status.data,
-                "death_date": death_date, #form.death_date.data,
+                "death_date": death_date,  # form.death_date.data,
                 "weight": form.weight.data,
                 "height": form.height.data,
-                "race": form.race.data
+                "race": form.race.data,
             }
             # Set empty field to Null
             for i in form_information:
-                form_information[i] = strconv(form_information[i] )
+                form_information[i] = strconv(form_information[i])
 
             edit_response = requests.put(
                 url_for("api.donor_edit", id=id, _external=True),

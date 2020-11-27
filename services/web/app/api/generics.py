@@ -21,6 +21,7 @@ from .responses import *
 from .filters import generate_base_query_filters, get_filters_and_joins
 import io
 
+
 def generic_new(
     db,
     model: Base,
@@ -97,7 +98,7 @@ def generic_edit(
 
     existing.update(values)
     existing.editor_id = tokenuser.id
-    
+
     try:
         db.session.commit()
         db.session.flush()

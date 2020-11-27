@@ -18,6 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 from ...sample.enums import Colour
 
+
 class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     serial_number = db.Column(db.String(256))
     description = db.Column(db.Text)
@@ -25,9 +26,8 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
 
-
     entity_to_storage_instances = db.relationship(
-        "EntityToStorage", 
+        "EntityToStorage",
         primaryjoin="SampleRack.id==EntityToStorage.rack_id",
     )
 
@@ -35,6 +35,5 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         "ColdStorageShelf",
         secondary="entitytostorage",
         primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.rack_id==SampleRack.id )",
-        uselist=False
+        uselist=False,
     )
-

@@ -66,20 +66,23 @@ class SampleFilterForm(FlaskForm):
 
 
 def SampleToDocumentAssociatationForm(documents: list) -> FlaskForm:
-
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
 
-    
     setattr(
         StaticForm,
         "documents",
         SelectField(
             "Document",
-            choices=[(d["id"], "LIMBDOC-%i: %s (%s) " % (d["id"], d["name"], d["type"])) for d in documents], coerce=int
+            choices=[
+                (d["id"], "LIMBDOC-%i: %s (%s) " % (d["id"], d["name"], d["type"]))
+                for d in documents
+            ],
+            coerce=int,
         ),
-        )
+    )
     return StaticForm()
+
 
 def FinalSampleForm(custom_attributes: list) -> FlaskForm:
 
@@ -194,31 +197,30 @@ def CollectionConsentAndDisposalForm(
         sample_status = SelectField(
             "Sample Management Type",
             description="Choose biobank (default) or temporary storage",
-            choices = [['NPR', 'Biobank'], ['TMP', 'Temporary storage']],
-            validators = [Optional()],
+            choices=[["NPR", "Biobank"], ["TMP", "Temporary storage"]],
+            validators=[Optional()],
         )
 
         # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
             "Sample Biobank Barcode",
-            #validators=[validate_barcode],
-            #description="If your sample already has a barcode/identifier, you can enter it here.",
+            # validators=[validate_barcode],
+            # description="If your sample already has a barcode/identifier, you can enter it here.",
             description="Enter a barcode/identifier for your sample",
         )
 
         collection_date = DateField(
             "Sample Collection Date",
-            #validators=[DataRequired()],
+            # validators=[DataRequired()],
             validators=[Optional()],
             description="The date in which the sample was collected.",
-            #default=None, # datetime.today,
-
+            # default=None, # datetime.today,
         )
 
         collection_time = TimeField(
             "Sample Collection Time",
-            #default=None, #datetime.now(),
-            #validators=[DataRequired()],
+            # default=None, #datetime.now(),
+            # validators=[DataRequired()],
             validators=[Optional()],
             description="The time at which the sample was collected.",
         )
@@ -226,12 +228,12 @@ def CollectionConsentAndDisposalForm(
         disposal_date = DateField(
             u"Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
-            #default=None, #datetime.today,
+            # default=None, #datetime.today,
             validators=[Optional()],
         )
 
         disposal_instruction_choices = DisposalInstruction.choices()
-        disposal_instruction_choices.insert(0, ['', 'None'])
+        disposal_instruction_choices.insert(0, ["", "None"])
         disposal_instruction = SelectField(
             "Sample Disposal Instruction",
             choices=disposal_instruction_choices,
@@ -243,8 +245,8 @@ def CollectionConsentAndDisposalForm(
 
         consent_select = SelectField(
             "Patient Consent Form Template",
-            #validators=[DataRequired()],
-            #validators=[Optional()],
+            # validators=[DataRequired()],
+            # validators=[Optional()],
             choices=consent_templates,
             description="The patient consent form template that reflects the consent form the sample donor signed.",
             coerce=int,
@@ -252,7 +254,7 @@ def CollectionConsentAndDisposalForm(
 
         collection_select = SelectField(
             "Collection Protocol",
-            #validators=[DataRequired()],
+            # validators=[DataRequired()],
             choices=collection_protocols,
             description="The protocol that details how the sample was taken.",
             coerce=int,
@@ -261,18 +263,17 @@ def CollectionConsentAndDisposalForm(
         collected_by = StringField(
             "Collected By",
             description="The initials of the individual who collected the sample.",
-            #default=None,
+            # default=None,
         )
 
         collection_site = SelectField(
             "Collection Site",
             description="The site in which the sample was taken",
             coerce=int,
-            #validators=[DataRequired()],
+            # validators=[DataRequired()],
             validators=[Optional()],
             choices=collection_sites,
         )
-
 
         submit = SubmitField("Continue")
 
@@ -289,13 +290,13 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
 
         processing_date = DateField(
             "Processing Date",
-            #default=datetime.today(),
+            # default=datetime.today(),
             description="The date in which the sample was processed.",
-            validators =[Optional()],
+            validators=[Optional()],
         )
         processing_time = TimeField(
             "Processing Time",
-            #default=datetime.now(),
+            # default=datetime.now(),
             description="The time in which the sample was processed.",
             validators=[Optional()],
         )
@@ -304,7 +305,7 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
             "Processing Protocol",
             choices=protocol_templates,
             coerce=int,
-            #validators=[DataRequired()],
+            # validators=[DataRequired()],
             validators=[Optional()],
         )
 
@@ -330,13 +331,13 @@ class SampleReviewForm(FlaskForm):
     date = DateField(
         "Review Date",
         description="The date in which the Sample Review was undertaken.",
-        #default=datetime.today(),
+        # default=datetime.today(),
         validators=[Optional()],
     )
     time = TimeField(
         "Review Time",
         description="The time in which the Sample Review was undertaken.",
-        #default=datetime.now(),
+        # default=datetime.now(),
         validators=[Optional()],
     )
     conducted_by = StringField(
@@ -382,7 +383,10 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
             "Aliquot Time", validators=[DataRequired()], default=datetime.now()
         )
         comments = TextAreaField("Comments")
-        processed_by = StringField("Processed By", description="The initials of the individual who collected the sample.")
+        processed_by = StringField(
+            "Processed By",
+            description="The initials of the individual who collected the sample.",
+        )
         submit = SubmitField("Submit")
 
     processing_template_choices = []
@@ -400,7 +404,6 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
         ),
     )
 
-
     # user_choices = []
     #
     # for user in users:
@@ -411,7 +414,7 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
     setattr(
         StaticForm,
         "processed_by",
-        #SelectField("Processed By", choices=user_choices, coerce=int),
+        # SelectField("Processed By", choices=user_choices, coerce=int),
         # sample processor not necessarily in the system
         StringField("Processed By"),
     )

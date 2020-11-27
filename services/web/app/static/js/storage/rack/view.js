@@ -20,6 +20,7 @@ function get_rack_information() {
 
 
 function render_subtitle(rack_information) {
+    $("#colour").html(render_colour(rack_information["colour"]))
     $("#createdOn").html(rack_information["created_on"]);
     $("#createdBy").html(rack_information["author"]["first_name"] + " " + rack_information["author"]["last_name"]);
     var shelf_information = rack_information["shelf"];
@@ -53,6 +54,26 @@ function render_empty(row_id, rc, count, assign_sample_url) {
     });
 }
 
+function render_modal(sample_info) {
+    $("#sampleName").html(render_colour(sample_info["colour"]) + sample_info["uuid"])
+
+    var html = render_content("Biobank Barcode", sample_info["biobank_barcode"]);
+    html += render_content("Sample Type", sample_info["type"]);
+    html += render_content("Collection Site", sample_info["collection_information"]["collection_site"]);
+    html += render_content("Sample Source", sample_info["source"]);
+    html += render_content("Created On", sample_info["created_on"]);
+
+    $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
+    console.log(sample_info);
+
+    $("#sample_view_btn").click( function() {
+        window.location.href = sample_info["_links"]["self"];
+    })
+
+    $("#sampleModalInformation").html(html);
+
+}
+
 function render_full(info, row_id, rc, count, assign_sample_url) {
     var sample_info = info["sample"]
     var content = '<div class="col" id="tube_' + rc.join("_") + '">'
@@ -63,7 +84,9 @@ function render_full(info, row_id, rc, count, assign_sample_url) {
 
 
     $("#tube_" + rc.join("_")).click(function () {
-        window.location = sample_info["_links"]["self"];
+        //window.location = sample_info["_links"]["self"];
+        render_modal(sample_info);
+        $("#sampleInfoModal").modal();
     });
 }
 

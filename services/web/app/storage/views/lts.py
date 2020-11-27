@@ -38,10 +38,11 @@ class BasicColdStorageSchema(masql.SQLAlchemySchema):
 basic_cold_storage_schema = BasicColdStorageSchema()
 basic_cold_storages_schema = BasicColdStorageSchema(many=True)
 
+
 class ColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorage
-    
+
     id = masql.auto_field()
     uuid = masql.auto_field()
     serial_number = masql.auto_field()
@@ -52,9 +53,11 @@ class ColdStorageSchema(masql.SQLAlchemySchema):
     shelves = ma.Nested(ColdStorageShelfSchema, many=True)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
-    #room = ma.Nested(BasicRoomSchema, many=False)
+    # room = ma.Nested(BasicRoomSchema, many=False)
+
 
 cold_storage_schema = ColdStorageSchema()
+
 
 class NewColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:

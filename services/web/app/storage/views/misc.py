@@ -17,7 +17,14 @@ from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-from ...database import SiteInformation, Building,  Room, ColdStorage, ColdStorageShelf, EntityToStorage
+from ...database import (
+    SiteInformation,
+    Building,
+    Room,
+    ColdStorage,
+    ColdStorageShelf,
+    EntityToStorage,
+)
 from ..enums import FixedColdStorageType, FixedColdStorageTemps
 from flask import url_for
 
@@ -31,8 +38,10 @@ class NewSampleToShelfSchema(masql.SQLAlchemySchema):
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
 
+
 new_sample_to_shelf_schema = NewSampleToShelfSchema()
 new_samples_to_shelves_schema = NewSampleToShelfSchema(many=True)
+
 
 class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -43,25 +52,29 @@ class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
 
+
 new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
 new_samples_to_sample_racks_schema = NewSampleToSampleRackSchema(many=True)
+
 
 class NewSampleRackToShelfSchema(masql.SQLAlchemySchema):
     class Meta:
         model = EntityToStorage
-    
+
     rack_id = masql.auto_field()
     shelf_id = masql.auto_field()
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
 
+
 new_sample_rack_to_shelf_schema = NewSampleRackToShelfSchema()
 new_sample_racks_to_shelves_schema = NewSampleRackToShelfSchema(many=True)
+
 
 class TreeShelfSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorageShelf
-    
+
     id = masql.auto_field()
     name = masql.auto_field()
 
@@ -70,6 +83,7 @@ class TreeShelfSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
         }
     )
+
 
 class TreeColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -88,6 +102,7 @@ class TreeColdStorageSchema(masql.SQLAlchemySchema):
         }
     )
 
+
 class TreeRoomSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Room
@@ -101,6 +116,7 @@ class TreeRoomSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("storage.view_room", id="<id>", _external=True),
         }
     )
+
 
 class TreeBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -116,10 +132,11 @@ class TreeBuildingSchema(masql.SQLAlchemySchema):
         }
     )
 
+
 class TreeSiteSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SiteInformation
-    
+
     id = masql.auto_field()
     name = masql.auto_field()
     buildings = ma.Nested(TreeBuildingSchema, many=True)
@@ -129,5 +146,6 @@ class TreeSiteSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("storage.view_site", id="<id>", _external=True),
         }
     )
+
 
 tree_sites_schema = TreeSiteSchema(many=True)

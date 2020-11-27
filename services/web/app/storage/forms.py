@@ -48,7 +48,6 @@ class BuildingRegistrationForm(FlaskForm):
     submit = SubmitField("Register Building")
 
 
-
 class NewShelfForm(FlaskForm):
     name = StringField(
         "Shelf Name",
@@ -101,7 +100,7 @@ class ColdStorageForm(FlaskForm):
         "Serial Number",
         description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
     )
-    
+
     manufacturer = StringField(
         "Manufacturer",
         validators=[DataRequired()],
@@ -110,12 +109,13 @@ class ColdStorageForm(FlaskForm):
 
     comments = TextAreaField("Comments")
 
-    temperature = SelectField("Temperature",
+    temperature = SelectField(
+        "Temperature",
         choices=FixedColdStorageTemps.choices(),
         validators=[DataRequired()],
         description="The temperature of the inside of the storage facility.",
     )
-    
+
     type = SelectField(
         "Storage Type",
         choices=FixedColdStorageType.choices(),
@@ -126,16 +126,11 @@ class ColdStorageForm(FlaskForm):
     submit = SubmitField("Register")
 
 
-
-
 def SampleToEntityForm(samples: list) -> FlaskForm:
 
     samples_choices = []
     for sample in samples:
-        samples_choices.append(
-            [int(sample["id"]), sample["uuid"]]
-        )
-
+        samples_choices.append([int(sample["id"]), sample["uuid"]])
 
     class StaticForm(FlaskForm):
         date = DateField("Entry Date", validators=[DataRequired()])
@@ -149,7 +144,9 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     setattr(
         StaticForm,
         "samples",
-        SelectField("Sample", choices=samples_choices, validators=[DataRequired()], coerce=int),
+        SelectField(
+            "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int
+        ),
     )
 
     return StaticForm()
@@ -167,9 +164,14 @@ def RackToShelfForm(racks: list) -> FlaskForm:
 
     choices = []
 
-
     for rack in racks:
-        choices.append([rack["id"], "LIMBRACK-%s: %s (%i x %i)" % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]) ])
+        choices.append(
+            [
+                rack["id"],
+                "LIMBRACK-%s: %s (%i x %i)"
+                % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
+            ]
+        )
 
     setattr(
         StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int)

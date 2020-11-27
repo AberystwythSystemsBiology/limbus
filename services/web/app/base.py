@@ -17,6 +17,7 @@ from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from .database import db
 import datetime
 
+
 @as_declarative()
 class BaseModel(object):
     @declared_attr
@@ -39,7 +40,6 @@ class BaseModel(object):
         server_onupdate=db.func.now(),
         nullable=False,
     )
-
 
     def update(self, values):
         for attr, values in values.items():

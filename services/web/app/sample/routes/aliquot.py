@@ -51,7 +51,7 @@ def aliquot(uuid: str):
     processing_templates = protocol_response.json()["content"]
     users = user_response.json()["content"]
 
-    form = SampleAliquotingForm(processing_templates) #, users)
+    form = SampleAliquotingForm(processing_templates)  # , users)
 
     return render_template("sample/sample/aliquot/create.html", form=form)
 
@@ -84,7 +84,6 @@ def aliquot_endpoint(uuid: str):
     if not values:
 
         return {"Err": "No values provided."}
-    
 
     aliquot_response = requests.post(
         url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
@@ -94,10 +93,9 @@ def aliquot_endpoint(uuid: str):
 
     print(aliquot_response.content)
 
-
     if aliquot_response.status_code == 200:
         return aliquot_response.json(), aliquot_response.status_code
-    
+
     return aliquot_response.content, aliquot_response.status_code
 
 

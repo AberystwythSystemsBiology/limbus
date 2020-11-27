@@ -68,12 +68,12 @@ def prepare_form_data(form_data: dict) -> dict:
         event_flag = True
         try:
             datetime_dt = datetime.strptime(
-            "%s %s"
-            % (
-                event_data["%s_date" % (datetime_terminology)],
-                event_data["%s_time" % (datetime_terminology)],
-            ),
-            "%Y-%m-%d %H:%M:%S",
+                "%s %s"
+                % (
+                    event_data["%s_date" % (datetime_terminology)],
+                    event_data["%s_time" % (datetime_terminology)],
+                ),
+                "%Y-%m-%d %H:%M:%S",
             )
             if protocol_id == 0:
                 protocol_id = None
@@ -97,7 +97,7 @@ def prepare_form_data(form_data: dict) -> dict:
         sample_information_data: dict,
         processing_information: dict,
         final_form_data: dict,
-        sample_review_data: dict, # interesting
+        sample_review_data: dict,  # interesting
         sample_to_type_id: str,
         collection_event_id: str,
         processing_event_id: str,
@@ -122,16 +122,25 @@ def prepare_form_data(form_data: dict) -> dict:
             "consent_id": consent_id,
         }
 
-        if collection_data["sample_status"] == 'TMP':
-            new_sample_data["status"] = 'TMP'
-        elif collection_event_id is None or collection_data['collection_date'] is None or \
-                datetime.strptime(collection_data['collection_date'], "%Y-%m-%d").date()\
-                < datetime.now().date():
-            new_sample_data["status"] = 'NCO'
-        elif processing_event_id is None or processing_information['processing_information']["collection_date"] is None:
-            new_sample_data["status"] = 'NPR'
-        elif sample_review_data['date'] is None or sample_review_data['quality'] is None:
-            new_sample_data["status"] = 'NRE'
+        if collection_data["sample_status"] == "TMP":
+            new_sample_data["status"] = "TMP"
+        elif (
+            collection_event_id is None
+            or collection_data["collection_date"] is None
+            or datetime.strptime(collection_data["collection_date"], "%Y-%m-%d").date()
+            < datetime.now().date()
+        ):
+            new_sample_data["status"] = "NCO"
+        elif (
+            processing_event_id is None
+            or processing_information["processing_information"]["collection_date"]
+            is None
+        ):
+            new_sample_data["status"] = "NPR"
+        elif (
+            sample_review_data["date"] is None or sample_review_data["quality"] is None
+        ):
+            new_sample_data["status"] = "NRE"
         # elif sample_review_data['quality'] in ['DAM', 'UNU', 'BAD']:
         #     new_sample_data["status"] = 'UNU'
         # elif sample_review_data['quality'] == 'DES':
@@ -143,7 +152,7 @@ def prepare_form_data(form_data: dict) -> dict:
 
     def _prepare_disposal_object(collection_data: dict, sample_id: int) -> dict:
 
-        if collection_data["disposal_instruction"] in [None, '']:
+        if collection_data["disposal_instruction"] in [None, ""]:
             event_flag = False
         else:
             event_flag = True
@@ -206,7 +215,7 @@ def prepare_form_data(form_data: dict) -> dict:
                     {"attribute_id": custom_attribute[0], "data": custom_attribute[1]}
                 )
         event_flag = False
-        if len(custom_attributes)>0:
+        if len(custom_attributes) > 0:
             event_flag = True
         return custom_attributes, event_flag
 
@@ -215,7 +224,7 @@ def prepare_form_data(form_data: dict) -> dict:
         try:
             datetime_dt = datetime.strptime(
                 "%s %s" % (sample_review_data["date"], sample_review_data["time"]),
-                "%Y-%m-%d %H:%M:%S" #"%Y/%m/%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S",  # "%Y/%m/%d %H:%M:%S",
             )
         except:
             datetime_dt = None
@@ -250,7 +259,7 @@ def prepare_form_data(form_data: dict) -> dict:
             return collection_response.content
 
         collection_id = collection_response.json()["content"]["id"]
-        print('collection_id: ', collection_id)
+        print("collection_id: ", collection_id)
 
     processing_data, event_flag = _prepare_processing_protocol(
         form_data["add_processing_information"],
@@ -272,7 +281,6 @@ def prepare_form_data(form_data: dict) -> dict:
 
         processing_id = processing_response.json()["content"]["id"]
 
-
     consent_data, event_flag = _prepare_consent(
         form_data["add_collection_consent_and_barcode"]["consent_form_id"],
         form_data["add_digital_consent_form"],
@@ -291,7 +299,9 @@ def prepare_form_data(form_data: dict) -> dict:
 
         consent_id = consent_response.json()["content"]["id"]
 
-    type_data, event_flag = _prepare_sample_type_and_container(form_data["add_sample_information"])
+    type_data, event_flag = _prepare_sample_type_and_container(
+        form_data["add_sample_information"]
+    )
 
     type_id = None
     if event_flag:
@@ -305,7 +315,6 @@ def prepare_form_data(form_data: dict) -> dict:
             return consent_response.content
 
         type_id = type_response.json()["content"]["id"]
-
 
     disposal_data, event_flag = _prepare_disposal_object(
         form_data["add_collection_consent_and_barcode"], sample_id=None
@@ -322,7 +331,7 @@ def prepare_form_data(form_data: dict) -> dict:
         if disposal_response.status_code != 200:
             return disposal_response.content
 
-        disposal_id =disposal_response.json()["content"]["id"]
+        disposal_id = disposal_response.json()["content"]["id"]
 
     sample_data = _prepare_sample_object(
         form_data["add_collection_consent_and_barcode"],
@@ -342,19 +351,21 @@ def prepare_form_data(form_data: dict) -> dict:
         headers=get_internal_api_header(),
         json=sample_data,
     )
-    print('add sample!!')
+    print("add sample!!")
     if sample_response.status_code != 200:
         return sample_response.content
 
     # Start add Review
-    print('add review!!')
+    print("add review!!")
     print(sample_response.json()["content"])
-    form_data["add_sample_review"]["sample_id"] = sample_response.json()["content"]["id"]
+    form_data["add_sample_review"]["sample_id"] = sample_response.json()["content"][
+        "id"
+    ]
 
     sample_review_data, event_flag = _prepare_sample_review_data(
         form_data["add_sample_review"],
     )
-    print('sample_review_data, ', sample_review_data)
+    print("sample_review_data, ", sample_review_data)
 
     if event_flag:
         review_response = requests.post(
@@ -393,7 +404,7 @@ def prepare_form_data(form_data: dict) -> dict:
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
 def add_rerouter(hash):
-    #hash = request.form['hash']
+    # hash = request.form['hash']
     if hash == "new":
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
 
@@ -436,9 +447,9 @@ def add_rerouter(hash):
 def add_collection_consent_and_barcode():
 
     consent_templates = []
-    collection_protocols = [] # [[0,'']]
-    collection_sites = [] # [[0,'']]
-    processing_protocols = [] # [[0,'']] # allow none provisionally
+    collection_protocols = []  # [[0,'']]
+    collection_sites = []  # [[0,'']]
+    processing_protocols = []  # [[0,'']] # allow none provisionally
 
     consent_templates_response = requests.get(
         url_for("api.consent_query", _external=True),
@@ -486,8 +497,8 @@ def add_collection_consent_and_barcode():
         consent_templates, collection_protocols, collection_sites
     )
 
-    print('collection date: ', form.collection_date.data)
-    print('form_id: ', form.consent_select.data)
+    print("collection date: ", form.collection_date.data)
+    print("form_id: ", form.consent_select.data)
     if form.validate_on_submit():
         route_data = {
             "barcode": form.barcode.data,
@@ -503,7 +514,7 @@ def add_collection_consent_and_barcode():
             "has_donor": form.has_donor.data,
         }
 
-        #if route_data["site_id"] == 0:
+        # if route_data["site_id"] == 0:
         #    route_data["site_id"] = None
         if route_data["disposal_instruction"] == 0:
             route_data["disposal_instruction"] = None
@@ -671,17 +682,15 @@ def add_processing_information(hash):
         headers=get_internal_api_header(),
         json={"is_locked": False, "type": "SAP"},
     )
-    processing_protocols = [] #[[0,'']]
+    processing_protocols = []  # [[0,'']]
 
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
             processing_protocols.append(
                 [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
             )
-    print('tmpstore_data, ', tmpstore_data)
+    print("tmpstore_data, ", tmpstore_data)
     form = ProtocolTemplateSelectForm(processing_protocols)
-
-
 
     if form.validate_on_submit():
         if form.processing_protocol_id.data == 0:
@@ -690,18 +699,22 @@ def add_processing_information(hash):
         processing_information_details = {
             "processing_protocol_id": form.processing_protocol_id.data,
             "sample_status": form.sample_status.data,
-            "processing_date": None, #str(form.processing_date.data),
-            "processing_time": None, #form.processing_time.data, #.strftime("%H:%M:%S"),
+            "processing_date": None,  # str(form.processing_date.data),
+            "processing_time": None,  # form.processing_time.data, #.strftime("%H:%M:%S"),
             "comments": form.comments.data,
             "undertaken_by": form.undertaken_by.data,
         }
         if form.processing_date.data is not None:
-            processing_information_details["processing_date"] = str(form.processing_date.data)
+            processing_information_details["processing_date"] = str(
+                form.processing_date.data
+            )
             processing_information_details["processing_time"] = "00:00:00"
-            processing_information_details["sample_status"] = 'NRE'
+            processing_information_details["sample_status"] = "NRE"
 
         if form.processing_time.data is not None:
-            processing_information_details["processing_time"] = form.processing_time.data.strftime("%H:%M:%S")
+            processing_information_details[
+                "processing_time"
+            ] = form.processing_time.data.strftime("%H:%M:%S")
 
         tmpstore_data["add_processing_information"] = processing_information_details
 
@@ -740,8 +753,8 @@ def add_sample_review(hash):
     if form.validate_on_submit():
         sample_review_details = {
             "quality": form.quality.data,
-            "date": None, #str(form.date.data),
-            "time": None, #form.time.data.strftime("%H:%M:%S"),
+            "date": None,  # str(form.date.data),
+            "time": None,  # form.time.data.strftime("%H:%M:%S"),
             "conducted_by": form.conducted_by.data,
             "comments": form.comments.data,
         }

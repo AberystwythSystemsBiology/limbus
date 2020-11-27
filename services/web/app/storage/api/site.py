@@ -22,9 +22,8 @@ from marshmallow import ValidationError
 
 from ...database import SiteInformation, UserAccount
 
-from ..views import (
-    site_schema
-)
+from ..views import site_schema
+
 
 @api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])
 @token_required

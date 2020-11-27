@@ -18,7 +18,7 @@ from .enums import DocumentType
 from ..mixins import RefAuthorMixin, RefEditorMixin
 
 
-class Document(Base, RefAuthorMixin, RefEditorMixin):    
+class Document(Base, RefAuthorMixin, RefEditorMixin):
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
     type = db.Column(db.Enum(DocumentType), nullable=False)

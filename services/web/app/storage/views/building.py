@@ -28,6 +28,7 @@ from .room import BasicRoomSchema
 class BasicBuildingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Building
+
     id = masql.auto_field()
     name = masql.auto_field()
     site_id = masql.auto_field()
@@ -35,6 +36,7 @@ class BasicBuildingSchema(masql.SQLAlchemySchema):
 
 basic_building_schema = BasicBuildingSchema()
 basic_buildings_schema = BasicBuildingSchema(many=True)
+
 
 class BuildingSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -47,7 +49,9 @@ class BuildingSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
+
 building_schema = BuildingSchema()
+
 
 class NewBuildingSchema(masql.SQLAlchemySchema):
     class Meta:

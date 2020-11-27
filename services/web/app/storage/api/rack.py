@@ -66,11 +66,15 @@ def storage_rack_new(tokenuser: UserAccount):
 def storage_rack_lock(id, tokenuser: UserAccount):
     return generic_lock(db, SampleRack, id, basic_sample_wrack_schema, tokenuser)
 
+
 @api.route("/storage/rack/LIMBRACK-<id>/edit", methods=["PUT"])
 @token_required
-def storage_rack_edit(id, tokenuser:UserAccount):
+def storage_rack_edit(id, tokenuser: UserAccount):
     values = request.get_json()
-    return generic_edit(db, SampleRack, id, new_sample_rack_schema, rack_schema, values, tokenuser)
+    return generic_edit(
+        db, SampleRack, id, new_sample_rack_schema, rack_schema, values, tokenuser
+    )
+
 
 @api.route("/storage/rack/assign_sample", methods=["POST"])
 @token_required
@@ -99,12 +103,13 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         existing.storage_type = "STB"
         existing.update(values)
         db.session.add(existing)
-    
+
     try:
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(view_sample_to_sample_rack_schema.dump(existing))
+        return success_with_content_response(
+            view_sample_to_sample_rack_schema.dump(existing)
+        )
     except Exception as err:
         return transaction_error_response(err)
-    

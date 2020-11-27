@@ -42,14 +42,12 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    
     try:
         rack_to_shelf_result = new_sample_rack_to_shelf_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-    
-    ets = EntityToStorage.query.filter_by(rack_id = values["rack_id"]).first()
 
+    ets = EntityToStorage.query.filter_by(rack_id=values["rack_id"]).first()
 
     if ets != None:
         ets.box_id = None
@@ -65,11 +63,10 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     try:
         db.session.add(ets)
         db.session.commit()
-        return success_with_content_response(
-            {"success": True}
-        )
+        return success_with_content_response({"success": True})
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
 @token_required
@@ -80,14 +77,13 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-    
 
     try:
         sample_to_shelf_result = new_sample_to_shelf_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-    
-    ets = EntityToStorage.query.filter_by(sample_id = values["sample_id"]).first()
+
+    ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
 
     if ets != None:
         ets.box_id = None
@@ -103,30 +99,30 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
     try:
         db.session.add(ets)
         db.session.commit()
-        return success_with_content_response(
-            {"success": True}
-        )
+        return success_with_content_response({"success": True})
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/storage/tree", methods=["GET"])
 @token_required
 def storage_view_tree(tokenuser: UserAccount):
-    
+
     return success_with_content_response(
         tree_sites_schema.dump(SiteInformation.query.all())
     )
 
+
 @api.route("/storage", methods=["GET"])
 @token_required
 def storage_view_panel(tokenuser: UserAccount):
-    
+
     data = {
         "basic_statistics": {
             "site_count": SiteInformation.query.count(),
             "building_count": Building.query.count(),
             "room_count": Room.query.count(),
-            "cold_storage_count": ColdStorage.query.count()
+            "cold_storage_count": ColdStorage.query.count(),
         },
         "cold_storage_statistics": {
             "cold_storage_type": prepare_for_chart_js(
@@ -135,19 +131,21 @@ def storage_view_panel(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         ColdStorage.type, func.count(ColdStorage.type)
                     )
-                    .group_by(ColdStorage.type).all()
+                    .group_by(ColdStorage.type)
+                    .all()
                 ]
             ),
             "cold_storage_temp": prepare_for_chart_js(
-                 [
+                [
                     (type.value, count)
                     for (type, count) in db.session.query(
                         ColdStorage.temp, func.count(ColdStorage.temp)
                     )
-                    .group_by(ColdStorage.temp).all()
+                    .group_by(ColdStorage.temp)
+                    .all()
                 ]
-            )
-        }
+            ),
+        },
     }
 
     return success_with_content_response(data)

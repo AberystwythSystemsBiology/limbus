@@ -30,7 +30,7 @@ def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
 
-@sample.route("<uuid>/associate/document", methods=["GET","POST"])
+@sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required
 def associate_document(uuid):
 
@@ -40,21 +40,26 @@ def associate_document(uuid):
     )
 
     if sample_response.status_code == 200:
-        document_response = requests.get(url_for("api.document_home", _external=True), headers=get_internal_api_header() )
-        
+        document_response = requests.get(
+            url_for("api.document_home", _external=True),
+            headers=get_internal_api_header(),
+        )
+
         if document_response.status_code == 200:
 
-            form = SampleToDocumentAssociatationForm(document_response.json()["content"])
+            form = SampleToDocumentAssociatationForm(
+                document_response.json()["content"]
+            )
 
             if form.validate_on_submit():
-                
+
                 response = requests.post(
                     url_for("api.sample_to_document", _external=True),
                     headers=get_internal_api_header(),
                     json={
-                    "sample_id": sample_response.json()["content"]["id"],
-                    "document_id": form.documents.data
-                }
+                        "sample_id": sample_response.json()["content"]["id"],
+                        "document_id": form.documents.data,
+                    },
                 )
 
                 if response.status_code == 200:
@@ -64,12 +69,15 @@ def associate_document(uuid):
 
                 return redirect(url_for("sample.view", uuid=uuid))
 
-            return render_template("sample/document_associate.html", sample=sample_response.json()["content"], form=form)
+            return render_template(
+                "sample/document_associate.html",
+                sample=sample_response.json()["content"],
+                form=form,
+            )
 
         return abort(document_response.status_code)
 
     return abort(sample_response.status_code)
-
 
 
 @sample.route("<uuid>/data", methods=["GET"])

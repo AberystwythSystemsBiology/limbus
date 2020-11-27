@@ -22,11 +22,12 @@ from wtforms import (
     SelectField,
     BooleanField,
     DecimalField,
-    #DateField,
+    # DateField,
     IntegerField,
-    HiddenField
+    HiddenField,
 )
-#from wtforms.fields.html5 import DateField
+
+# from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, EqualTo, URL
 
 
@@ -41,7 +42,7 @@ class DonorCreationForm(FlaskForm):
     sex = SelectField("Sex", choices=BiologicalSexTypes.choices())
     status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-    death_date = StringField("Date of Death", description='YYYY-mm-dd')
+    death_date = StringField("Date of Death", description="YYYY-mm-dd")
 
     weight = StringField("Weight (kg)")
     height = StringField("Height (cm)")

@@ -31,13 +31,14 @@ from .. import storage
 
 from ..forms import RoomRegistrationForm, RoomRegistrationForm
 
+
 @storage.route("/building/LIMBBUILD-<id>/room/new", methods=["GET", "POST"])
 @login_required
 def new_room(id):
-    
+
     response = requests.get(
         url_for("api.storage_building_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -48,19 +49,22 @@ def new_room(id):
             new_response = requests.post(
                 url_for("api.storage_room_new", _external=True),
                 headers=get_internal_api_header(),
-                json = {
-                    "name": form.name.data,
-                    "building_id": id
-                }
+                json={"name": form.name.data, "building_id": id},
             )
 
             if new_response.status_code == 200:
                 flash("Room Successfully Created")
-                return redirect(url_for("storage.view_room", id=new_response.json()["content"]["id"]))
+                return redirect(
+                    url_for(
+                        "storage.view_room", id=new_response.json()["content"]["id"]
+                    )
+                )
             return abort(new_response.status_code)
-        
-        return render_template("storage/room/new.html", form=form, building=response.json()["content"])
-    
+
+        return render_template(
+            "storage/room/new.html", form=form, building=response.json()["content"]
+        )
+
     return abort(response.status_code)
 
 
@@ -69,13 +73,16 @@ def new_room(id):
 def view_room(id: int):
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        return render_template("storage/room/view.html", room=response.json()["content"])
+        return render_template(
+            "storage/room/view.html", room=response.json()["content"]
+        )
 
     return abort(response.status_code)
+
 
 @storage.route("/rooms/LIMBROOM-<id>/edit", methods=["GET", "POST"])
 @login_required
@@ -83,7 +90,7 @@ def edit_room(id):
 
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -106,9 +113,10 @@ def edit_room(id):
             else:
                 flash("We have a problem: %s" % (edit_response.json()))
 
-            
             return redirect(url_for("storage.view_room", id=id))
-        
-        return render_template("storage/room/edit.html", room=response.json()["content"], form=form)
+
+        return render_template(
+            "storage/room/edit.html", room=response.json()["content"], form=form
+        )
 
     return abort(response.status_code)

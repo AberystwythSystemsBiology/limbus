@@ -260,7 +260,7 @@ $(document).ready(function() {
     fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
     fill_collection_information(sample_info["collection_information"]);
     fill_consent_information(sample_info["consent_information"]);
-    fill_processing_information(sample_info["processing_information"]);
+    //fill_processing_information(sample_info["processing_information"]);
     fill_lineage_table(sample_info["subsamples"]);
     fill_comments(sample_info["comments"]);
     fill_document_information(sample_info["documents"]);
