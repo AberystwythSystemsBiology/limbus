@@ -31,3 +31,10 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         primaryjoin="SampleRack.id==EntityToStorage.rack_id",
     )
 
+    shelf = db.relationship(
+        "ColdStorageShelf",
+        secondary="entitytostorage",
+        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.rack_id==SampleRack.id )",
+        uselist=False
+    )
+

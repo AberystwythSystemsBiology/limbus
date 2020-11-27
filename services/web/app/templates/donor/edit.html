@@ -11,8 +11,15 @@
             {{ form.csrf_token() }}
             {{ form_field(form.age)}}
             {{ form_field(form.sex)}}
-            {{ form_field(form.weight)}}
-            {{ form_field(form.height)}}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.weight)}}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.height)}}
+
+                </div>
+            </div>
             {{ form_field(form.race)}}
 
             {{ form_field(form.status)}}

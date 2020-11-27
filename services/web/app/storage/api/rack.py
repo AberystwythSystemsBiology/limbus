@@ -22,6 +22,8 @@ from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, SampleRack, UserAccount, EntityToStorage
 
+from ..enums import EntityToStorageType
+
 from marshmallow import ValidationError
 
 from ..views.rack import *
@@ -70,9 +72,9 @@ def storage_rack_edit(id, tokenuser:UserAccount):
     values = request.get_json()
     return generic_edit(db, SampleRack, id, new_sample_rack_schema, rack_schema, values, tokenuser)
 
-@api.route("/storage/rack/LIMBRACK-<id>/assign_sample", methods=["POST"])
+@api.route("/storage/rack/assign_sample", methods=["POST"])
 @token_required
-def storage_rack_add_sample(id, tokenuser: UserAccount):
+def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
@@ -89,11 +91,12 @@ def storage_rack_add_sample(id, tokenuser: UserAccount):
     if not existing:
         new = EntityToStorage(**values)
         new.author_id = tokenuser.id
+        new.storage_type = "STB"
         db.session.add(new)
     else:
         existing.shelf_id = None
         existing.rack_id = None
-
+        existing.storage_type = "STB"
         existing.update(values)
         db.session.add(existing)
     

@@ -34,6 +34,14 @@ function render_colour(colour) {
 
 }
 
+function render_content(label, content) {
+  if (content == undefined || content == "") {
+      content = "Not Available."
+  }
+  return '<div class="row"><div class="col-5">'+ label + ':</div><div class="col-7">'+content+'</div></div>';
+   
+}
+
 function dynamicColours(length) {
   var colours = [];
   for (i =0; i < length; i++) {

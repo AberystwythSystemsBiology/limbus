@@ -15,10 +15,27 @@
             
             <h1>
                 <span class="secondary-heading">
-                    <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</span> Assign Sample to Rack</h1>
+                    <a href="{{url_for('storage.view_rack', id=rack.id) }}">
+                        <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
+                    </span>
+                    Assign Sample to Rack</h1>
 
             <form action="" method="post">
+                {{ form.csrf_token }}
+                
+                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
 
+                <div class="row">
+                    <div class="col-sm-6">
+                        {{ form_field(form.date) }}
+                    </div>
+                    <div class="col-sm-6">
+                        {{ form_field(form.time) }}
+                    </div>
+                </div>
+                {{ form_field(form.entered_by) }}
+
+                {{ form_field(form.submit) }}
 
             </form>
 

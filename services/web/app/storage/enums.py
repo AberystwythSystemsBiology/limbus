@@ -17,7 +17,7 @@ from ..FormEnum import FormEnum
 
 
 class EntityToStorageType(FormEnum):
-    STB = "Sample to Box"
+    STB = "Sample to Rack"
     STS = "Sample to Shelf"
     BTS = "Box to Shelf"
 

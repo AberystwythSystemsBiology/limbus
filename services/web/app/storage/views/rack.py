@@ -18,7 +18,7 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ...database import SampleRack, EntityToStorage
+from ...database import SampleRack, EntityToStorage, ColdStorageShelf
 from ...sample.views import BasicSampleSchema
 from ...sample.enums import Colour
 from ...auth.views import BasicUserAccountSchema
@@ -52,7 +52,19 @@ class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     entry_datetime = masql.auto_field()
 
 new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
-    
+
+class ShelfViewSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True)
+        }
+    )
 
 class SampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -67,7 +79,8 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
-    entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema)
+    entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema, many=True)
+    shelf = ma.Nested(ShelfViewSchema)
 
     _links = ma.Hyperlinks(
         {
@@ -79,6 +92,8 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     )
 
 rack_schema = SampleRackSchema()
+
+
 
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:

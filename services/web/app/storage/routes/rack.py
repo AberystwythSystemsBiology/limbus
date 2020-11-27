@@ -31,10 +31,11 @@ from .. import storage
 from string import ascii_uppercase
 import itertools
 import re
+from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
 
-from ..forms import NewSampleRackForm
+from ..forms import NewSampleRackForm, SampleToEntityForm
 
 '''
 
@@ -206,10 +207,20 @@ def view_rack(id):
 @storage.route("/rack/LIMBRACK-<id>/endpoint")
 @login_required
 def view_rack_endpoint(id):
+    def _assign_view(sample, rack_view):
+        try:
+            row, col = sample["row"], sample["col"]
+            rack_view["content"]["view"][row]["%i\t%i" % (row, col)] = {"empty": False, "sample": sample["sample"]}
+            return 1, rack_view
+        except Exception as e:
+            pass
+        return 0, rack_view
+
     view_response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header()
     )
+
 
     if view_response.status_code == 200:
         rack_view = view_response.json()
@@ -223,7 +234,16 @@ def view_rack_endpoint(id):
 
         rack_view["content"]["view"] = _rack
 
-        rack_view["content"]["counts"] = {"full": 10, "empty": 31}
+        count = 0
+
+        for sample in rack_view["content"]["entity_to_storage_instances"]:
+            add, rack_view = _assign_view(sample, rack_view)
+            count += add
+
+        total = rack_view["content"]["num_cols"] * rack_view["content"]["num_rows"]
+
+        rack_view["content"]["counts"] = {"full": count, "empty": total - count}
+
 
         return rack_view
     return abort(view_response.status_code)
@@ -238,9 +258,50 @@ def assign_rack_sample(id, row, column):
 
     if view_response.status_code == 200:
 
-        return render_template("storage/rack/sample_to_rack.html", rack=view_response.json()["content"], row=row, column=column)
+        sample_response = requests.get(
+            url_for("api.sample_home", _external=True),
+            headers=get_internal_api_header()
+        )
+
+        if sample_response.status_code == 200:
+
+            form = SampleToEntityForm(sample_response.json()["content"])
+
+            if form.validate_on_submit():
+              
+                sample_move_response = requests.post(
+                    url_for("api.storage_transfer_sample_to_rack", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "sample_id": form.samples.data,
+                        "rack_id": id,
+                        "row": row,
+                        "col": column,
+                        "entry_datetime": str(datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S"
+                        )),
+                        "entry": form.entered_by.data
+                    }
+                )
+
+                if sample_move_response.status_code == 200:
+                    return redirect(url_for("storage.view_rack", id=id))
+                else:
+                    flash(sample_move_response.json())
+
+
+            return render_template(
+                "storage/rack/sample_to_rack.html",
+                rack=view_response.json()["content"],
+                row=row,
+                column=column,
+                form=form
+                )
 
     abort(view_response.status_code)
+
+
 
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 @login_required
