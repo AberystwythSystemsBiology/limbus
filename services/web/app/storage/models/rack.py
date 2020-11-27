@@ -25,3 +25,9 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)
 
+
+    entity_to_storage_instances = db.relationship(
+        "EntityToStorage", 
+        primaryjoin="SampleRack.id==EntityToStorage.rack_id",
+    )
+

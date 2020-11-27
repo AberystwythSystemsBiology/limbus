@@ -98,6 +98,8 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         uselist=False,
     )
 
+    storage = db.relationship("EntityToStorage", uselist=True)
+
     # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
 
 

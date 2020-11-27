@@ -61,7 +61,6 @@ import requests
 from flask import url_for
 from ..misc import get_internal_api_header
 
-
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsent

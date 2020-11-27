@@ -212,10 +212,35 @@ def view_rack_endpoint(id):
     )
 
     if view_response.status_code == 200:
-        return view_response.json()
+        rack_view = view_response.json()
+        
+        _rack = []
+
+        for row in range(rack_view["content"]["num_rows"]):
+            _rack.append({})
+            for col in range(rack_view["content"]["num_cols"]):
+                _rack[row]["%i\t%i" % (row, col)] = {"empty": True}
+
+        rack_view["content"]["view"] = _rack
+
+        rack_view["content"]["counts"] = {"full": 10, "empty": 31}
+
+        return rack_view
     return abort(view_response.status_code)
 
+@storage.route("/rack/LIMBRACK-<id>/assign/<row>/<column>", methods=["GET", "POST"])
+@login_required
+def assign_rack_sample(id, row, column):
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if view_response.status_code == 200:
+
+        return render_template("storage/rack/sample_to_rack.html", rack=view_response.json()["content"], row=row, column=column)
+
+    abort(view_response.status_code)
 
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 @login_required

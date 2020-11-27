@@ -19,6 +19,7 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ...database import SampleRack, EntityToStorage
+from ...sample.views import BasicSampleSchema
 from ...sample.enums import Colour
 from ...auth.views import BasicUserAccountSchema
 
@@ -34,6 +35,8 @@ class ViewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     col = masql.auto_field()
     entry = masql.auto_field()
     entry_datetime = masql.auto_field()
+
+    sample = ma.Nested(BasicSampleSchema)
 
 view_sample_to_sample_rack_schema = ViewSampleToSampleRackSchema()
 
@@ -64,7 +67,16 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
+    entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema)
 
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
+            "collection": ma.URLFor("storage.rack_index", _external=True),
+            "qr_code": ma.URLFor("sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True),
+            "assign_sample": ma.URLFor("storage.assign_rack_sample", id="<id>", row="rph", column="cph", _external=True)
+        }
+    )
 
 rack_schema = SampleRackSchema()
 
@@ -83,7 +95,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            # "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
             "collection": ma.URLFor("storage.rack_index", _external=True),
             "qr_code": ma.URLFor("sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True)
         }
