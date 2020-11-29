@@ -64,7 +64,6 @@ function render_modal(sample_info) {
     html += render_content("Created On", sample_info["created_on"]);
 
     $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
-    console.log(sample_info);
 
     $("#sample_view_btn").click( function() {
         window.location.href = sample_info["_links"]["self"];
@@ -111,10 +110,95 @@ function render_occupancy_chart(counts) {
     );
 }
 
+function render_sample_table(samples) {
 
+
+    if (samples.length > 0) {
+        
+        $('#sampleTable').DataTable( {
+            data: samples,
+            dom: 'Bfrtip',
+            buttons: [ 'print', 'csv', 'colvis' ],
+            columnDefs: [],
+            columns: [
+                {
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        return data["pos"][0] + "x" + data["pos"][1]
+                    },
+                    "width": "3%"
+                },
+             {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var col_data = '';
+                        col_data += render_colour(data["sample"]["colour"])
+                        col_data += "<a href='"+data["sample"]["_links"]["self"]+ "'>";
+                        col_data += '<i class="fas fa-vial"></i> '
+                        col_data += data["sample"]["uuid"];
+                        col_data += "</a>";
+                        if (data["sample"]["source"] != "New") {
+    
+                        col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
+                        col_data += '<a href="'+data["sample"]["parent"]["_links"]["self"]+'" target="_blank">'
+                        col_data += '<i class="fas fa-vial"></i> ';
+                        col_data += data["sample"]["parent"]["uuid"],
+                        col_data += "</a></small>";
+                    }
+    
+                        return col_data
+                    }
+                },
+                
+                {
+                    "mData" : {},
+                    "mRender": function (data, type, row) {
+                        var sample_type_information = data["sample"]["sample_type_information"];
+                        
+        
+                        if (data["sample"]["type"] == "Fluid") {
+                            return sample_type_information["flui_type"];
+                        }
+                        else if (data["sample"]["type"] == "Cell") {
+                            return sample_type_information["cell_type"] + " > " + sample_type_information["tiss_type"];
+                        }
+                        
+        
+                    }
+                },
+                {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var col_data = data["sample"]["collection_information"]["datetime"]
+                        return col_data;
+                    }
+                },
+                {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
+                        var col_data = '';
+                        col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
+                        col_data += data["sample"]["remaining_quantity"]+"/"+data["sample"]["quantity"]+get_metric(data["sample"]["type"]); 
+                        col_data += '</span>';
+                        return col_data
+                    }
+            }
+    
+            
+    
+            ],
+            
+        });
+    }
+
+
+    else {
+        $("#sample-table-div").hide();
+    }
+}
 
 function render_information(rack_information) {
-    console.log(rack_information);
     $("#rack_information").append(render_content("UUID", rack_information["uuid"]));
     $("#rack_information").append(render_content("Serial Number", rack_information["serial_number"]));
     $("#rack_information").append(render_content("Description", rack_information["description"]));
@@ -125,6 +209,8 @@ function render_information(rack_information) {
 
 function render_view(view, assign_sample_url) {
     var count = 0;
+
+    var samples = [];
 
     for (r in view) {
         var row_id = "row_" + r
@@ -138,10 +224,14 @@ function render_view(view, assign_sample_url) {
             }
             else {
                 render_full(column, row_id, c.split("\t"), count, assign_sample_url);
+                column["pos"] = c.split("\t");
+                samples.push(column)
+
             }
         }
     }
 
+    return samples;
 
 }
 
@@ -152,8 +242,9 @@ $(document).ready(function () {
 
     render_subtitle(rack_information);
     render_information(rack_information);
-    render_view(rack_information["view"], rack_information["_links"]["assign_sample"]);
+    var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"]);
     render_occupancy_chart(rack_information["counts"])
+    render_sample_table(samples);
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();
 
