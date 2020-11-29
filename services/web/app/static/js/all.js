@@ -42,6 +42,16 @@ function render_content(label, content) {
    
 }
 
+function view_form_helper(id_ref) {
+  var element_id = $("#"+id_ref+" option:selected").val();
+  console.log(element_id);
+  var url = $("#"+id_ref+"_href").attr("href");
+  var url_without_id = url.substr(0, url.lastIndexOf("-") + 1)
+  $("#"+id_ref+"_href").attr("href", url_without_id + element_id);
+}
+
+
+
 function dynamicColours(length) {
   var colours = [];
   for (i =0; i < length; i++) {

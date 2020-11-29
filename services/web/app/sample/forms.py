@@ -214,19 +214,19 @@ def CollectionConsentAndDisposalForm(
             # validators=[DataRequired()],
             validators=[Optional()],
             description="The date in which the sample was collected.",
-            # default=None, # datetime.today,
+            default=datetime.today(),
         )
 
         collection_time = TimeField(
             "Sample Collection Time",
             # default=None, #datetime.now(),
-            # validators=[DataRequired()],
+            default=datetime.today(),
             validators=[Optional()],
             description="The time at which the sample was collected.",
         )
 
         disposal_date = DateField(
-            u"Sample Disposal Date (*)",
+            "Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
             # default=None, #datetime.today,
             validators=[Optional()],
@@ -290,13 +290,13 @@ def ProtocolTemplateSelectForm(protocol_templates: list) -> FlaskForm:
 
         processing_date = DateField(
             "Processing Date",
-            # default=datetime.today(),
+            default=datetime.today(),
             description="The date in which the sample was processed.",
             validators=[Optional()],
         )
         processing_time = TimeField(
             "Processing Time",
-            # default=datetime.now(),
+            default=datetime.now(),
             description="The time in which the sample was processed.",
             validators=[Optional()],
         )

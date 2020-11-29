@@ -133,8 +133,8 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
         samples_choices.append([int(sample["id"]), sample["uuid"]])
 
     class StaticForm(FlaskForm):
-        date = DateField("Entry Date", validators=[DataRequired()])
-        time = TimeField("Entry Time", validators=[DataRequired()])
+        date = DateField("Entry Date", validators=[DataRequired()], default=datetime.today())
+        time = TimeField("Entry Time", validators=[DataRequired()], default=datetime.now())
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
@@ -154,8 +154,8 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        date = DateField("Entry Date", validators=[DataRequired()])
-        time = TimeField("Entry Time", validators=[DataRequired()])
+        date = DateField("Entry Date", validators=[DataRequired()], default=datetime.today())
+        time = TimeField("Entry Time", validators=[DataRequired()], default=datetime.now())
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
