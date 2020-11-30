@@ -34,8 +34,9 @@ import re
 from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
+from uuid import uuid4 
 
-from ..forms import NewSampleRackForm, SampleToEntityForm
+from ..forms import NewSampleRackForm, SampleToEntityForm, NewCryovialBoxFileUploadForm, CryoBoxFileUploadSelectForm
 
 """
 
@@ -52,40 +53,6 @@ for i in iter_all_strings():
         break
 
 
-def file_to_json(form) -> dict:
-    data = {}
-
-    csv_data = [
-        x.decode("UTF-8").replace("\n", "").split(",") for x in form.file.data.stream
-    ]
-
-    # Get Indexes
-    indexes = {
-        "Tube Barcode": csv_data[0].index("Tube Barcode"),
-        "Tube Position": csv_data[0].index("Tube Position"),
-        "Tube Row": [],
-        "Tube Column": [],
-    }
-
-    positions = {
-        x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]
-    }
-
-    data["positions"] = positions
-
-    # Going to use plain old regex to do the splits
-    regex = re.compile(r"(\d+|\s+)")
-
-    for position in data["positions"].keys():
-        splitted = regex.split(position)
-        indexes["Tube Column"].append(splitted[0])
-        indexes["Tube Row"].append(int(splitted[1]))
-
-    data["num_cols"] = len(list(set(indexes["Tube Column"])))
-    data["num_rows"] = max(indexes["Tube Row"])
-    data["serial_number"] = form.serial.data
-
-    return data
 
 """
 
@@ -136,19 +103,89 @@ def rack_manual_entry():
 
     return render_template("storage/rack/new/manual/new.html", form=form)
 
+@storage.route("rack/new/automatic", methods=["GET", "POST"])
+@login_required
+def rack_automatic_entry():
+    def _file_to_json(data_stream) -> dict:
+        data = {}
+
+        csv_data = [
+            x.decode("UTF-8").replace("\n", "").split(",") for x in data_stream
+        ]
+        indexes = {
+            "Tube Barcode": csv_data[0].index("Tube Barcode"),
+            "Tube Position": csv_data[0].index("Tube Position"),
+            "Tube Row": [],
+            "Tube Column": [],
+        }
+
+        positions = {
+            x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]
+        }
+
+        data["positions"] = positions
+
+        # Going to use plain old regex to do the splits
+        regex = re.compile(r"(\d+|\s+)")
+
+        for position in data["positions"].keys():
+            splitted = regex.split(position)
+            indexes["Tube Column"].append(splitted[0])
+            indexes["Tube Row"].append(int(splitted[1]))
+
+        data["num_cols"] = len(list(set(indexes["Tube Column"])))
+        data["num_rows"] = max(indexes["Tube Row"])
+        data["serial_number"] = form.serial.data
+
+        return data
+
+    form = NewCryovialBoxFileUploadForm()
+
+    if form.validate_on_submit():
+        _hash = str(uuid4())
+        # replace with tempstore
+        session[_hash] = {
+            "serial_number": form.serial.data,
+            "barcode_type": form.barcode_type.data,
+            "json": _file_to_json(form.file.data.stream)
+        }
+        return redirect(url_for("storage.rack_automatic_entry_validation", _hash=_hash))
+        
+
+    return render_template("storage/rack/new/from_file/step_one.html", form=form)
+
+
+@storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
+@login_required
+def rack_automatic_entry_validation(_hash: str):
+    session_data = session[_hash]
+    sample_data = {}
+
+    for position, identifier in session_data["json"]["positions"].items():
+        sample = None
+        if "identifier" != "":
+            sample_response = requests.get(
+                url_for("api.sample_query", _external=True),
+                headers=get_internal_api_header(),
+                json={session_data["barcode_type"]: identifier}
+                )
+            
+            if sample_response.status_code == 200:
+                sample = sample_response.json()["content"]
+                sample_data[position] = sample
+
+    form = CryoBoxFileUploadSelectForm(sample_data)
+    
+    return render_template(
+        "storage/rack/new/from_file/step_two.html",
+        session_data=session_data,
+        form=form,
+        hash=_hash,
+    )
+
+
 
 """
-
-@storage.route("/cryobox/new/from_file", methods=["GET", "POST"])
-@login_required
-def cryobox_from_file():
-    form = NewCryovialBoxFileUploadForm()
-    if form.validate_on_submit():
-        hash = generate_random_hash()
-        session[hash] = file_to_json(form)
-        return redirect(url_for("storage.crybox_from_file_validation", hash=hash))
-    return render_template("storage/cryobox/new/from_file/step_one.html", form=form)
-
 
 @storage.route("/cryobox/new/from_file/validation/<hash>", methods=["GET", "POST"])
 @login_required
@@ -351,106 +388,4 @@ def edit_rack(id):
 
     abort(response.status_code)
 
-    """
-    form = NewCryovialBoxForm()
-    delattr(form, "num_cols")
-    delattr(form, "num_rows")
 
-
-    if form.validate_on_submit():
-        cb = db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first()
-        print(">>>>>>>>>>>>>>>", form.serial.data)
-        cb.serial = form.serial.data
-        db.session.add(cb)
-        db.session.commit()
-        flash("Cryobox information successfully edited!")
-        return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
-
-    form.serial.data = cryo["info"]["serial"]
-    return render_template("storage/cryobox/edit.html", cryo=cryo, form=form)
-    """
-
-
-"""
-# TODO: All of this needs to be given a specific view.
-from sqlalchemy_continuum import version_class
-from sqlalchemy import desc
-
-
-@storage.route("/history/LIMB<storage_type>-<id>/")
-@login_required
-def view_history(storage_type, id):
-    EntityToStorageVersioned = version_class(EntityToStorage)
-    if storage_type == "CRB":
-        attr = "box_id"
-    elif storage_type == "SHF":
-        attr = "shelf_id"
-    elif storage_type == "SMP":
-        attr = "sample_id"
-
-    changes = {}
-
-    for change in (
-        db.session.query(EntityToStorageVersioned)
-        .filter(getattr(EntityToStorageVersioned, attr) == id)
-        .order_by(desc(EntityToStorageVersioned.update_date))
-        .all()
-    ):
-        changes[change.id] = {
-            "sample_id": change.sample_id,
-            "box_id": change.box_id,
-            "shelf_id": change.shelf_id,
-            "storage_type": change.storage_type.value,
-            "row": change.row,
-            "col": change.col,
-            "entered_by": change.entered_by,
-            "entered": change.entered,
-            "update_date": change.update_date,
-            "author_information": UserView(change.author_id),
-        }
-
-    return render_template(
-        "storage/history.html", storage_type=storage_type, id=id, changes=changes
-    )
-
-
-
-
-@storage.route(
-    "cryobox/add/sample/LIMCRB-<cryo_id>/<row>_<col>", methods=["GET", "POST"]
-)
-@login_required
-def add_cryobox_sample(cryo_id, row, col):
-    cryo = (
-        db.session.query(CryovialBox).filter(CryovialBox.id == cryo_id).first_or_404()
-    )
-
-    samples = db.session.query(Sample).all()
-
-    form = SampleToEntityForm(samples)
-
-    if form.validate_on_submit():
-        sample = (
-            db.session.query(Sample)
-            .filter(Sample.id == form.samples.data)
-            .first_or_404()
-        )
-
-        move_entity_to_storage(
-            sample_id=sample.id,
-            box_id=cryo_id,
-            row=row,
-            col=col,
-            entered=form.date.data.strftime("%Y-%m-%d, %H:%M:%S"),
-            entered_by=form.entered_by.data,
-            author_id=current_user.id,
-            storage_type=EntityToStorageTpye.STB,
-        )
-
-        flash("Sample assigned to shelf!")
-        return redirect(url_for("storage.view_cryobox", cryo_id=cryo_id))
-
-    return render_template(
-        "storage/cryobox/sample_to_box.html", cryo=cryo, form=form, row=row, col=col
-    )
-"""

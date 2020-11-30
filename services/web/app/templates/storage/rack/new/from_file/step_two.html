@@ -1,25 +1,36 @@
 {% extends "template.html" %}
 
-{% block title %}Step Two: New Cryovial Box (From File){% endblock %}
+{% block title %}Step Two: New Sample Rack{% endblock %}
+
+{% block head %}
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
+{% endblock %}
+
 
 {% block body %}
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+  
+      <div class="storage container">
 
-        <div class="container">
-
-            <h1><span class="secondary-heading"><i class="fa fa-cube"></i> New Cryovial Box (From File)</span><i class="fa fa-upload"></i> Step Two: Validation</h1>
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('storage.add_rack') }}">
+                    <i class="fa fa-grip-vertical"></i> New Sample Rack
+                    </a>
+                </span>
+                <i class="fa fa-upload"></i> Step Two: File Validation</h1>
             
             <div class="alert alert-warning text-center">
                 <b>Notice:</b> This is currently in early development stages and will 
                 likely break if the following instructions are not followed.</div>
-        
-            <div class="row">
+                
+
                 {{ show_value(session_data["serial_number"], "Serial Number", "text")  }}
+                {{ show_value(session_data["json"]["num_rows"], "Number of Rows", "text")  }}
+                {{ show_value(session_data["json"]["num_cols"], "Number of Columns", "text")  }}
 
-                {{ show_value(session_data["num_rows"], "Number ofRows", "text")  }}
-                {{ show_value(session_data["num_cols"], "Number of Columns", "text")  }}
-            </div>
-
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.crybox_from_file_validation', hash=hash) }}" >
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_automatic_entry_validation', _hash=hash) }}" >
                 
                 {{ form.csrf_token() }}
                 
@@ -38,9 +49,12 @@
                     {% if field.render_kw["_selectform"]%}
                         <tr>
                             <th scope="1">{{ field.label }}</td>
-                            {% if field.render_kw["_has_sample"] %}
-                                <td><i class="fas fa-vial"></i> LIMBSMP-{{field.render_kw["_sample"].id}}</td>
-                                <td>{{field.render_kw["_sample"].biobank_barcode}}</td>
+                            {% if field.render_kw["_sample"] %}
+                                <td><a href=' {{ field.render_kw["_sample"][0]["_links"]["self"]  }}'>
+                                    <i class="fas fa-vial"></i> {{field.render_kw["_sample"][0]["uuid"]}}
+                                    </a>
+                                </td>
+                                <td>{{field.render_kw["_sample"][0]["barcode"]}}</td>
                                 <td>{{field}}</td>
                             {% else %}
                                 <td>Not Found</td>
@@ -57,4 +71,12 @@
 
             </form>
         </div>
+    </div>
+
+{% endblock %}
+
+
+        
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

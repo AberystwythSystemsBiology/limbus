@@ -251,6 +251,7 @@ class SampleSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
 
+    uuid = masql.auto_field()
     barcode = masql.auto_field()
     colour = masql.auto_field()
     type = masql.auto_field()

@@ -74,6 +74,11 @@ class NewSampleRackForm(FlaskForm):
 
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
+    barcode_type = SelectField(
+        "Barcode Type",
+        choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
+        description="The barcode attribute to cross reference against."
+        )
     file = FileField("File", validators=[DataRequired()])
     submit = SubmitField("Upload File")
 
@@ -193,8 +198,7 @@ def CryoBoxFileUploadSelectForm(sample_data: dict):
                 position,
                 render_kw={
                     "_selectform": True,
-                    "_has_sample": info["sample"] != None,
-                    "_sample": info["sample"],
+                    "_sample": info,
                 },
             ),
         )

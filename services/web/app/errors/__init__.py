@@ -80,7 +80,7 @@ def handle_error(e, code, json=False):
         return {"message": e}, code
     return (
         render_template(
-            "error.html", smiley=choice(sad), text=e, title="{}".format(code)
+            "error.html", e=code, smiley=choice(sad), text=e, title="{}".format(code)
         ),
         code,
     )
@@ -118,10 +118,12 @@ def gone(e="410: Gone", json=False):
 @errorhandler(Exception)
 @errorhandler(InternalServerError.code)
 def internal_error(exce):
-    if os.environ["FLASK_CONFIG"] == "dev":
+    if os.environ["FLASK_CONFIG"] == "development":
         raise exce
 
     code = hexlify(urandom(4)).decode()
     error(Exception("Code: {}".format(code), exce), exc_info=True)
-    text = "500: Something awful has happened\n{}".format(code)
+    text = "500: Something bad has happened\n{}".format(code)
+
+
     return handle_error(text, InternalServerError.code)
