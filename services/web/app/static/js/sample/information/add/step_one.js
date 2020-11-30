@@ -30,15 +30,15 @@ $(document).ready(function() {
     disposal_logic();
     donor_logic();
     view_consent_form();
-    view_form_helper("consent");
-    view_form_helper("collection");
+    view_form_helper("consent_select");
+    view_form_helper("collection_select");
 
     $("#consent_select").on("change", function() {
-        view_form_helper("consent");
+        view_form_helper("consent_select");
     });
 
     $("#collection_select ").on("change", function() {
-        view_form_helper("collection");
+        view_form_helper("collection_select");
     });
 
 

@@ -43,6 +43,7 @@ function render_content(label, content) {
 }
 
 function view_form_helper(id_ref) {
+  console.log(view_form_helper);
   var element_id = $("#"+id_ref+" option:selected").val();
   console.log(element_id);
   var url = $("#"+id_ref+"_href").attr("href");

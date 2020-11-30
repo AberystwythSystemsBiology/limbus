@@ -204,23 +204,21 @@ def CollectionConsentAndDisposalForm(
         # TODO: Write a validator to check if Sample not already in biobank.
         barcode = StringField(
             "Sample Biobank Barcode",
-            # validators=[validate_barcode],
-            # description="If your sample already has a barcode/identifier, you can enter it here.",
+            validators=[validate_barcode],
             description="Enter a barcode/identifier for your sample",
         )
 
         collection_date = DateField(
             "Sample Collection Date",
-            # validators=[DataRequired()],
-            validators=[Optional()],
+            validators=[DataRequired()],
             description="The date in which the sample was collected.",
             default=datetime.today(),
         )
 
         collection_time = TimeField(
             "Sample Collection Time",
-            # default=None, #datetime.now(),
-            default=datetime.today(),
+            #default=None, #datetime.now(),
+            default=datetime.now(),
             validators=[Optional()],
             description="The time at which the sample was collected.",
         )
@@ -228,15 +226,13 @@ def CollectionConsentAndDisposalForm(
         disposal_date = DateField(
             "Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
-            # default=None, #datetime.today,
-            validators=[Optional()],
+            default=datetime.today,
+            validators=[Optional()]
         )
 
-        disposal_instruction_choices = DisposalInstruction.choices()
-        disposal_instruction_choices.insert(0, ["", "None"])
         disposal_instruction = SelectField(
             "Sample Disposal Instruction",
-            choices=disposal_instruction_choices,
+            choices=DisposalInstruction.choices(),
             description="The method of sample disposal.",
             validators=[Optional()],
         )
@@ -245,7 +241,7 @@ def CollectionConsentAndDisposalForm(
 
         consent_select = SelectField(
             "Patient Consent Form Template",
-            # validators=[DataRequired()],
+            validators=[DataRequired()],
             # validators=[Optional()],
             choices=consent_templates,
             description="The patient consent form template that reflects the consent form the sample donor signed.",
@@ -271,7 +267,7 @@ def CollectionConsentAndDisposalForm(
             description="The site in which the sample was taken",
             coerce=int,
             # validators=[DataRequired()],
-            validators=[Optional()],
+            #validators=[Optional()],
             choices=collection_sites,
         )
 
@@ -331,13 +327,13 @@ class SampleReviewForm(FlaskForm):
     date = DateField(
         "Review Date",
         description="The date in which the Sample Review was undertaken.",
-        # default=datetime.today(),
+        default=datetime.today(),
         validators=[Optional()],
     )
     time = TimeField(
         "Review Time",
         description="The time in which the Sample Review was undertaken.",
-        # default=datetime.now(),
+        default=datetime.now(),
         validators=[Optional()],
     )
     conducted_by = StringField(

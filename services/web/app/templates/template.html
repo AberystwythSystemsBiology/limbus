@@ -56,11 +56,28 @@
                         </div>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('donor.index') }}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-user-circle"></i> Donors
                         </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('donor.index') }}"><i class="fa fa-user-circle"></i> Donor Index</a>
+                            <a class="dropdown-item" href="{{ url_for('donor.add') }}"><i class="fas fa-plus"></i> New Donor</a>
+
+                        </div>
                     </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-file"></i> Documents
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('document.index') }}"><i class="fas fa-file"></i> Document Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('document.new_document') }}"><i class="fas fa-plus"></i> New Document</a>
+
+                        </div>
+                    </li>
+
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -86,11 +103,6 @@
                         </div>
                     </li>
 
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document Portal</a>
-                    </li>
-
                 </ul>
                 </ul>
 
@@ -99,6 +111,9 @@
             {% if current_user.is_authenticated %}
 
                 <ul class="navbar-nav ml-auto">
+                    <form class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" type="search" placeholder="UUID" aria-label="UUID">
+                      </form>
                 <li class="dropdown">
                     <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"
                        aria-expanded="false">

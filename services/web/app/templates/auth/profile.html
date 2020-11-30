@@ -49,8 +49,24 @@
 
             </div>
             <div class="col-sm-5">
-                <img src="{{ user.gravatar }}" class="rounded-circle"
-                     style="padding-bottom: 10px; margin:0 auto 0;">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h4>Avatar</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                        <img src="{{ user.gravatar }}" class="mx-auto d-block rounded-circle">
+                        </div>
+                    </div>
+                    <div class="card-footer" >
+                        <a href="https://en.gravatar.com/">
+                        <div class="mx-auto d-block btn btn-primary">
+                            Change Gravatar
+                        </div>
+                    </a>
+                    </div>
+                </div>
+                
 
                 <h2>Account Information</h2>
 
