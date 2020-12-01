@@ -25,12 +25,16 @@
 
             </div>
             <div class="card-footer">
-                <div class="btn btn-success full-width disabled" id="copy">
+                <button class="btn btn-success full-width" onclick="copyToClipboard('#token')">
                     <i class="fa fa-clipboard"></i> Copy to Clipboard
-                </div>
+                </button>
             </div>
         </div>
 
     </div>
 
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/auth/token.js') }}"></script>
 {% endblock %}
