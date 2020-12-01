@@ -5,7 +5,14 @@
 {% block body %}
 <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fa fa-user-circle"></i> Donor</span>LIMBDON-{{donor.id}}</h1>
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('donor.index') }}">
+                <i class="fa fa-user-circle"></i> Donor Portal
+                </a>
+            </span>
+            {{ render_colour(donor.colour) }} LIMBDON-{{donor.id}}: {{donor.uuid}}
+        </h1>
 
         <div class="row">
             <div class="col-sm-8">
@@ -23,39 +30,31 @@
             </div>           
         </div>
         
+         
+           
 
-
-        <table class="table table-striped">
-            
-            {{ show_value(donor.age, "Age", "text") }}
-            {{ show_value(donor.sex, "Sex", "text") }}
-            {{ show_value(donor.status, "Status", "text") }}
-            {{ show_value(donor.race, "Race", "text") }}
-            {%if (donor.height != None and donor.height > 0) %}
-                {{ show_value(donor.height, "Height (cm)", "text") }}
-            {%endif %}
-            {%if (donor.weight != None and donor.weight > 0) %}
-                {{ show_value(donor.weight, "Weight (kg)", "text") }}
-                {%if (donor.height != None and donor.height > 0) %}
-                    {{ show_value('%0.2f'| format(donor.weight / (donor.height/100)**2|float), "BMI", "text")}}
-                {%endif %}
-            {%endif %}
-            {% if donor.death_date != None %}
-                {{ show_value(donor.death_date, "Death Date", "text") }}
-            {%endif %}
-
-        </table>
         </div>
         
-        <div class="col-sm-4">
-            <h3><i class="fas fa-vial"></i> Samples</h3>
         
     </div>
-    </div>
+
+    {{ show_value(donor.age, "Age", "text") }}
+    {{ show_value(donor.sex, "Sex", "text") }}
+    {{ show_value(donor.status, "Status", "text") }}
+    {{ show_value(donor.race, "Race", "text") }}
+    {%if (donor.height != None and donor.height > 0) %}
+        {{ show_value(donor.height, "Height (cm)", "text") }}
+    {%endif %}
+    {%if (donor.weight != None and donor.weight > 0) %}
+        {{ show_value(donor.weight, "Weight (kg)", "text") }}
+        {%if (donor.height != None and donor.height > 0) %}
+            {{ show_value('%0.2f'| format(donor.weight / (donor.height/100)**2|float), "BMI", "text")}}
+        {%endif %}
+    {%endif %}
+    {% if donor.death_date != None %}
+        {{ show_value(donor.death_date, "Death Date", "text") }}
+    {%endif %}
 </div>
 
 {% endblock %}
 
-<!--            {% if donor.status.value == "Deceased" %}-->
-<!--                {{ show_value(donor.death_date, "Death Date", "text") }}-->
-<!--            {%endif %}-->

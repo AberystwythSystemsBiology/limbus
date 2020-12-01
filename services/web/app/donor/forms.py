@@ -22,13 +22,13 @@ from wtforms import (
     SelectField,
     BooleanField,
     DecimalField,
-    # DateField,
+    DateField,
     IntegerField,
     HiddenField,
 )
 
 # from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, Email, EqualTo, URL
+from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
 
 
 from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
@@ -39,14 +39,20 @@ class DonorCreationForm(FlaskForm):
     age = StringField(
         "Age (years)", description="The length of time that a donor has lived in years."
     )
-    sex = SelectField("Sex", choices=BiologicalSexTypes.choices())
+    sex = SelectField(
+        "Biological Sex",
+        choices=BiologicalSexTypes.choices(),
+        )
     status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-    death_date = StringField("Date of Death", description="YYYY-mm-dd")
+    death_date = DateField("Date of Death", validators=[Optional()])
 
     weight = StringField("Weight (kg)")
     height = StringField("Height (cm)")
 
-    race = SelectField("Race", choices=RaceTypes.choices())
+    race = SelectField(
+        "Race",
+        choices=RaceTypes.choices(),
+        )
 
     submit = SubmitField("Submit")
