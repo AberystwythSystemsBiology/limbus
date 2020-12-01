@@ -217,7 +217,7 @@ def CollectionConsentAndDisposalForm(
 
         collection_time = TimeField(
             "Sample Collection Time",
-            #default=None, #datetime.now(),
+            # default=None, #datetime.now(),
             default=datetime.now(),
             validators=[Optional()],
             description="The time at which the sample was collected.",
@@ -227,7 +227,7 @@ def CollectionConsentAndDisposalForm(
             "Sample Disposal Date (*)",
             description="The date in which the sample is required to be disposed of.",
             default=datetime.today,
-            validators=[Optional()]
+            validators=[Optional()],
         )
 
         disposal_instruction = SelectField(
@@ -267,7 +267,7 @@ def CollectionConsentAndDisposalForm(
             description="The site in which the sample was taken",
             coerce=int,
             # validators=[DataRequired()],
-            #validators=[Optional()],
+            # validators=[Optional()],
             choices=collection_sites,
         )
 

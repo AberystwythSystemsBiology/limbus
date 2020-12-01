@@ -44,12 +44,19 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     storage_id = masql.auto_field()
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
-        "assign_rack_to_shelf": ma.URLFor("storage.assign_rack_to_shelf", id="<id>", _external=True),
-        "assign_sample_to_shelf": ma.URLFor("storage.assign_sample_to_shelf", id="<id>", _external=True),
-        "edit": ma.URLFor("storage.edit_shelf", id="<id>", _external=True)
-        })
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
+            "assign_rack_to_shelf": ma.URLFor(
+                "storage.assign_rack_to_shelf", id="<id>", _external=True
+            ),
+            "assign_sample_to_shelf": ma.URLFor(
+                "storage.assign_sample_to_shelf", id="<id>", _external=True
+            ),
+            "edit": ma.URLFor("storage.edit_shelf", id="<id>", _external=True),
+        }
+    )
+
 
 shelf_schema = ColdStorageShelfSchema()
 

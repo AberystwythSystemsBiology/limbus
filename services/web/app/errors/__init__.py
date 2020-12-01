@@ -125,5 +125,4 @@ def internal_error(exce):
     error(Exception("Code: {}".format(code), exce), exc_info=True)
     text = "500: Something bad has happened\n{}".format(code)
 
-
     return handle_error(text, InternalServerError.code)

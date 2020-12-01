@@ -119,7 +119,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
-    #entity_to_storage_instances = ma.Method(deserialize="_sample_count")
+    # entity_to_storage_instances = ma.Method(deserialize="_sample_count")
 
     sample_count = ma.Function(lambda obj: len(obj.entity_to_storage_instances))
 
@@ -132,7 +132,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
             ),
         }
     )
-    
+
     def _sample_count(self, obj):
         return len(obj.views)
 

@@ -37,9 +37,11 @@ import treepoem
 from io import BytesIO
 from random import choice
 
+
 @api.route("/misc/uuid", methods=["GET"])
 def query_uuid():
     return {}
+
 
 @api.route("/misc/barcode/<t>/<i>/", methods=["GET"])
 @token_required

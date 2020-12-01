@@ -79,8 +79,8 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     barcode_type = SelectField(
         "Barcode Type",
         choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
-        description="The barcode attribute to cross reference against."
-        )
+        description="The barcode attribute to cross reference against.",
+    )
     file = FileField("File", validators=[DataRequired()])
     submit = SubmitField("Upload File")
 
@@ -141,8 +141,12 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
         samples_choices.append([int(sample["id"]), sample["uuid"]])
 
     class StaticForm(FlaskForm):
-        date = DateField("Entry Date", validators=[DataRequired()], default=datetime.today())
-        time = TimeField("Entry Time", validators=[DataRequired()], default=datetime.now())
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
@@ -162,8 +166,12 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        date = DateField("Entry Date", validators=[DataRequired()], default=datetime.today())
-        time = TimeField("Entry Time", validators=[DataRequired()], default=datetime.now())
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",

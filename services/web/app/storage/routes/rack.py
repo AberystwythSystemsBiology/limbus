@@ -34,9 +34,14 @@ import re
 from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
-from uuid import uuid4 
+from uuid import uuid4
 
-from ..forms import NewSampleRackForm, SampleToEntityForm, NewCryovialBoxFileUploadForm, CryoBoxFileUploadSelectForm
+from ..forms import (
+    NewSampleRackForm,
+    SampleToEntityForm,
+    NewCryovialBoxFileUploadForm,
+    CryoBoxFileUploadSelectForm,
+)
 
 
 def iter_all_strings():
@@ -50,7 +55,6 @@ for i in iter_all_strings():
     values.append(i)
     if i == "ZZZ":
         break
-
 
 
 @storage.route("/rack")
@@ -99,15 +103,14 @@ def rack_manual_entry():
 
     return render_template("storage/rack/new/manual/new.html", form=form)
 
+
 @storage.route("rack/new/automatic", methods=["GET", "POST"])
 @login_required
 def rack_automatic_entry():
     def _file_to_json(data_stream) -> dict:
         data = {}
 
-        csv_data = [
-            x.decode("UTF-8").replace("\n", "").split(",") for x in data_stream
-        ]
+        csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in data_stream]
         indexes = {
             "Tube Barcode": csv_data[0].index("Tube Barcode"),
             "Tube Position": csv_data[0].index("Tube Position"),
@@ -116,7 +119,8 @@ def rack_automatic_entry():
         }
 
         positions = {
-            x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]] for x in csv_data[1:]
+            x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]]
+            for x in csv_data[1:]
         }
 
         data["positions"] = positions
@@ -132,7 +136,6 @@ def rack_automatic_entry():
         data["num_cols"] = len(list(set(indexes["Tube Column"])))
         data["num_rows"] = max(indexes["Tube Row"])
 
-
         return data
 
     form = NewCryovialBoxFileUploadForm()
@@ -146,10 +149,9 @@ def rack_automatic_entry():
             "serial_number": form.serial.data,
             "colour": form.colour.data,
             "description": form.description.data,
-            "json": _file_to_json(form.file.data.stream)
+            "json": _file_to_json(form.file.data.stream),
         }
         return redirect(url_for("storage.rack_automatic_entry_validation", _hash=_hash))
-        
 
     return render_template("storage/rack/new/from_file/step_one.html", form=form)
 
@@ -166,9 +168,9 @@ def rack_automatic_entry_validation(_hash: str):
             sample_response = requests.get(
                 url_for("api.sample_query", _external=True),
                 headers=get_internal_api_header(),
-                json={session_data["barcode_type"]: identifier}
-                )
-            
+                json={session_data["barcode_type"]: identifier},
+            )
+
             if sample_response.status_code == 200:
                 sample = sample_response.json()["content"]
                 sample_data[position] = sample
@@ -184,14 +186,14 @@ def rack_automatic_entry_validation(_hash: str):
                 "num_rows": session_data["json"]["num_rows"],
                 "num_cols": session_data["json"]["num_cols"],
                 "colour": session_data["colour"],
-                "description": session_data["description"]
+                "description": session_data["description"],
             },
         )
 
         if response.status_code == 200:
-            
+
             _samples = []
-        
+
             for element in form:
                 if element.type == "BooleanField":
                     if element.data:
@@ -203,7 +205,7 @@ def rack_automatic_entry_validation(_hash: str):
             responses = []
 
             for s in _samples:
-                
+
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_sample_to_rack", _external=True),
                     headers=get_internal_api_header(),
@@ -212,75 +214,24 @@ def rack_automatic_entry_validation(_hash: str):
                         "rack_id": response.json()["content"]["id"],
                         "row": s[2],
                         "col": s[1],
-                        "entry_datetime": str(datetime.now())
+                        "entry_datetime": str(datetime.now()),
                     },
                 )
 
                 responses.append([sample_move_response, s[0]])
-            
-            return redirect(url_for("storage.view_rack", id=response.json()["content"]["id"]))
-            
+
+            return redirect(
+                url_for("storage.view_rack", id=response.json()["content"]["id"])
+            )
 
         flash("We have an issue!")
-    
+
     return render_template(
         "storage/rack/new/from_file/step_two.html",
         session_data=session_data,
         form=form,
         hash=_hash,
     )
-
-
-
-"""
-
-@storage.route("/cryobox/new/from_file/validation/<hash>", methods=["GET", "POST"])
-@login_required
-def crybox_from_file_validation(hash: str):
-    session_data = session[hash]
-
-    sample_data = {}
-
-    for position, barcode in session_data["positions"].items():
-        sample_data[position] = {
-            "barcode": barcode,
-            "sample": db.session.query(Sample)
-            .filter(Sample.biobank_barcode == barcode)
-            .first(),
-        }
-
-    form = CryoBoxFileUploadSelectForm(sample_data)
-
-    if form.validate_on_submit():
-
-        cry = CryovialBox(
-            serial=session_data["serial_number"],
-            num_rows=session_data["num_rows"],
-            num_cols=session_data["num_cols"],
-            author_id=current_user.id,
-        )
-
-        db.session.add(cry)
-        db.session.flush()
-
-        for ele in form:
-            if ele.type == "BooleanField":
-                if ele.data:
-                    regex = re.compile(r"(\d+|\s+)")
-                    col, row, _ = regex.split(ele.id)
-                    sample_id = ele.render_kw["_sample"].id
-
-        db.session.commit()
-        clear_session(hash)
-        return redirect(url_for("storage.cryobox_index"))
-    return render_template(
-        "storage/cryobox/new/from_file/step_two.html",
-        form=form,
-        hash=hash,
-        session_data=session_data,
-    )
-
-"""
 
 
 @storage.route("/rack/LIMBRACK-<id>")
@@ -434,5 +385,3 @@ def edit_rack(id):
         )
 
     abort(response.status_code)
-
-

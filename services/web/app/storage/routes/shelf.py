@@ -74,10 +74,8 @@ def new_shelf(id):
 
 @storage.route("/shelf/LIMBSHF-<id>", methods=["GET"])
 @login_required
-def view_shelf(id):   
-    return render_template(
-        "storage/shelf/view.html", id=id
-    )
+def view_shelf(id):
+    return render_template("storage/shelf/view.html", id=id)
 
 
 @storage.route("/shelf/LIMBSHF-<id>/endpoint", methods=["GET"])
@@ -92,6 +90,7 @@ def shelf_endpoint(id):
         return response.json()
 
     return abort(response.status_code)
+
 
 @storage.route("/shelf/LIMBSHF-<id>/edit", methods=["GET", "POST"])
 @login_required

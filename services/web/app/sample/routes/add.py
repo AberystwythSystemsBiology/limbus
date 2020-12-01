@@ -299,7 +299,11 @@ def add_rerouter(hash):
                                 sample_add_respose = prepare_form_data(data)
                                 if sample_add_respose.status_code == 200:
                                     flash("Sample successfully added!")
-                                    return redirect(sample_add_respose.json()["content"]["_links"]["self"])
+                                    return redirect(
+                                        sample_add_respose.json()["content"]["_links"][
+                                            "self"
+                                        ]
+                                    )
 
                                 else:
                                     flash(sample_add_respose.json())
