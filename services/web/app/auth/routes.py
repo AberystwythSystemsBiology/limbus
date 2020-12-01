@@ -123,16 +123,13 @@ def change_password():
 @auth.route("/token", methods=["GET"])
 @login_required
 def generate_token():
-    # I was going to make this API based, but I'd rather the user log in just in-case :)
-    new_token = str(uuid4())
+    response = requests.get(
+        url_for("api.auth_new_token", _external=True),
+        headers=get_internal_api_header()
 
-    uat = UserAccountToken.query.filter_by(user_id=current_user.id).first()
-    if uat != None:
-        uat.token = new_token
-    else:
-        uat = UserAccountToken(user_id=current_user.id, token=new_token)
+    )
 
-    db.session.add(uat)
-    db.session.commit()
+    if response.status_code == 200:
+        return render_template("auth/token.html", token=response.json()["content"])
 
-    return render_template("auth/token.html", token=new_token)
+    abort(response.status_code)

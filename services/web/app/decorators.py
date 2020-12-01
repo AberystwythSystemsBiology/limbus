@@ -63,7 +63,7 @@ def token_required(f):
         if user != None:
             user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
             if user_token != None:
-                if user_token.verify_token(token) or True:
+                if user_token.verify_token(token):
                     return True, user
         return False, None
 
