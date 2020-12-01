@@ -34,8 +34,42 @@ function render_colour(colour) {
 
 }
 
+function render_content(label, content) {
+  if (content == undefined || content == "") {
+      content = "Not Available."
+  }
+  return '<div class="row"><div class="col-5">'+ label + ':</div><div class="col-7">'+content+'</div></div>';
+   
+}
+
+function view_form_helper(id_ref) {
+  console.log(view_form_helper);
+  var element_id = $("#"+id_ref+" option:selected").val();
+  console.log(element_id);
+  var url = $("#"+id_ref+"_href").attr("href");
+  var url_without_id = url.substr(0, url.lastIndexOf("-") + 1)
+  $("#"+id_ref+"_href").attr("href", url_without_id + element_id);
+}
+
+
+
+function dynamicColours(length) {
+  var colours = [];
+  for (i =0; i < length; i++) {
+      var r = Math.floor(Math.random() * 255);
+      var g = Math.floor(Math.random() * 255);
+      var b = Math.floor(Math.random() * 255);
+      colours.push("rgba(" + r + "," + g + "," + b + ", 1)");
+  }
+  return colours;
+  
+}
+
+
+
+
 function get_greeting() {
-  var api_url = encodeURI(window.location+'api/misc/greeting');
+  var api_url = encodeURI(window.location.origin+'/api/misc/greeting');
 
 
   var json = (function () {
@@ -55,6 +89,27 @@ function get_greeting() {
   return json;
 }
 
+function uuid_search(query) {
+  var api_url = window.location.origin + "/sample/query";
+
+  var json = (function () {
+    var json = null;
+    $.post({
+        'async': false,
+        'global': false,
+        'url': api_url,
+        'contentType': 'application/json',
+        'data': JSON.stringify(query),
+        'success': function (data) {
+            json = data;
+        }
+    });
+    return json;
+  })();
+
+  return json["content"];
+}
+
 
 function fill_greeting(greeting) {
   $("#greeting").html(greeting["greeting"]);
@@ -67,6 +122,19 @@ $(document).ready(function(){
   $('#history').DataTable( {} );
 
 
+  $("#nav-sample-search").keypress(function(e) {
+    if(e.which == 13) {
+        jQuery(this).blur();
+        var result = uuid_search({"uuid": this.value});
+        if (result.length > 0) {
+          window.location.href = result[0]["_links"]["self"]
+        }
+        else {
+          $("#sample-uuid-search-not-found-placeholder").html(this.value);
+          $("#uuid-search-modal-not-found").modal('show');
+        }
+    }
+  });
 
   $("#navbarDropdown").click(function() {
     var greeting = get_greeting()

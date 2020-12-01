@@ -39,17 +39,14 @@ def donor_home(tokenuser: UserAccount):
     if not allowed:
         return not_allowed()
 
-    return success_with_content_response(
-        donors_schema.dump(Donor.query.all())
-    )
+    return success_with_content_response(donors_schema.dump(Donor.query.all()))
+
 
 @api.route("/donor/LIMBDON-<id>")
 @token_required
 def donor_view(id, tokenuser: UserAccount):
     return success_with_content_response(
-        donor_schema.dump(
-            Donor.query.filter_by(id=id).first()
-        )
+        donor_schema.dump(Donor.query.filter_by(id=id).first())
     )
 
 
@@ -77,11 +74,10 @@ def donor_edit(id, tokenuser: UserAccount):
         db.session.add(donor)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(
-            donor_schema.dump(donor)
-        )
+        return success_with_content_response(donor_schema.dump(donor))
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/donor/new", methods=["POST"])
 @token_required
@@ -103,8 +99,6 @@ def donor_new(tokenuser: UserAccount):
         db.session.add(new_donor)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(
-            donor_schema.dump(new_donor)
-        )
+        return success_with_content_response(donor_schema.dump(new_donor))
     except Exception as err:
         return transaction_error_response(err)

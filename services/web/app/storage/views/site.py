@@ -25,6 +25,7 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
+
 class SiteSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SiteInformation
@@ -39,6 +40,7 @@ class SiteSchema(masql.SQLAlchemySchema):
     buildings = ma.Nested(BasicBuildingSchema, many=True)
 
     author = ma.Nested(BasicUserAccountSchema)
+
 
 site_schema = SiteSchema()
 sites_schema = SiteSchema(many=True)

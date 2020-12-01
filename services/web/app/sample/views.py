@@ -34,6 +34,7 @@ from ..database import (
     SampleReview,
     SampleToType,
     SampleDisposal,
+    SampleDocument,
 )
 
 from .enums import (
@@ -113,6 +114,28 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
 
 
 basic_disposal_schema = BasicSampleDisposalSchema()
+
+
+class SampleDocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDocument
+
+    sample_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+
+sample_document_schema = SampleDocumentSchema()
+
+
+class NewDocumentToSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDocument
+
+    sample_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+
+new_document_to_sample_schema = NewDocumentToSampleSchema()
 
 
 class NewSampleDisposalSchema(masql.SQLAlchemySchema):
@@ -228,6 +251,7 @@ class SampleSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
 
+    uuid = masql.auto_field()
     barcode = masql.auto_field()
     colour = masql.auto_field()
     type = masql.auto_field()
@@ -260,14 +284,16 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
         {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
     )
 
+
 class SampleToTypeSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleToType
-    
+
     flui_type = EnumField(FluidSampleType, by_value=True)
     mole_type = EnumField(MolecularSampleType, by_value=True)
     cell_type = EnumField(CellSampleType, by_value=True)
     tiss_type = EnumField(TissueSampleType, by_value=True)
+
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -294,7 +320,9 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
         {
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
-            "qr_code": ma.URLFor("sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True)
+            "qr_code": ma.URLFor(
+                "sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True
+            ),
         }
     )
 
@@ -327,9 +355,15 @@ class SampleSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field(allow_none=True)
     author = ma.Nested(BasicUserAccountSchema, many=False)
-    processing_information = ma.Nested(SampleProtocolEventSchema, many=False, allow_none=True)
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False, allow_none=True)
-    disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False, allow_none=True)
+    processing_information = ma.Nested(
+        SampleProtocolEventSchema, many=False, allow_none=True
+    )
+    collection_information = ma.Nested(
+        SampleProtocolEventSchema, many=False, allow_none=True
+    )
+    disposal_information = ma.Nested(
+        BasicSampleDisposalSchema, many=False, allow_none=True
+    )
     consent_information = ma.Nested(ConsentSchema, many=False)
 
     documents = ma.Nested(BasicDocumentSchema, many=True, allow_none=True)
@@ -346,8 +380,7 @@ class SampleSchema(masql.SQLAlchemySchema):
             "webapp_query": ma.URLFor("sample.query", _external=True),
             "webapp_aliquot": ma.URLFor(
                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
-            )
-
+            ),
         }
     )
 

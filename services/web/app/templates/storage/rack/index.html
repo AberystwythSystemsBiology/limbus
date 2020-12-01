@@ -51,7 +51,7 @@
                 <tr>
                     <td>
                         {{render_colour( rack.colour ) }}
-                        <a href="#">
+                        <a href="{{ url_for('storage.view_rack', id=rack.id) }}">
                             <i class="fa fa-grip-vertical"></i> LIMBRACK-{{ rack.id }}
                         </a>
                     </td>

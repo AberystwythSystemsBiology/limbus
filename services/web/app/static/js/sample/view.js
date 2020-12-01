@@ -26,13 +26,7 @@ function get_barcode(type) {
 
 }
 
-function render_content(label, content) {
-    if (content == undefined) {
-        content = "Not Available."
-    }
-    return '<div class="row"><div class="col-5">'+ label + ':</div><div class="col-7">'+content+'</div></div>';
-     
-}
+
 
 function fill_title(sample) {
 
@@ -143,63 +137,92 @@ function fill_processing_information(processing_information) {
 }
 
 function fill_document_information(document_information) {
-    $("#documentTable").DataTable( {
-        data: document_information,
-        pageLength: 5,
-        columns: [
-            {
-                mData: {},
-                mRender: function(data, type, row) {
+    if (document_information.length) {
+        $("#documentTable").DataTable( {
+            data: document_information,
+            pageLength: 5,
+            columns: [
+                {
+                    mData: {},
+                    mRender: function(data, type, row) {
+                        console.log(data)
 
+                        document_data = "<a href='"+data["_links"]["self"]+"'>";
+                        document_data += '<i class="fas fa-file"></i> LIMBDOC-'
+                        document_data += data["id"] + ": "
+                        document_data += data["name"] + "</a>"
+                        return document_data
+                    }
+                },
+                {
+                    mData: {},
+                    mRender: function(data, type, row) {
+                        return data["type"]
+                    }
                 }
-            },
-            {}
-        ]
-    });
+                
+            ]
+        });
+
+    }
+    
+    else {
+        $("#documents").hide();
+    }
+
 }
 
 function fill_lineage_table(subsamples) {
-    $('#subSampleTable').DataTable( {
-        data: subsamples,
-        pageLength: 5,
-        columns: [
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var col_data = '';
-                    col_data += render_colour(data["colour"])
-                    col_data += "<a href='"+data["_links"]["self"]+ "'>";
-                    col_data += '<i class="fas fa-vial"></i> '
-                    col_data += data["uuid"];
-                    col_data += "</a>";
-                    if (data["source"] != "New") {
 
-                    col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                    col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
-                    col_data += '<i class="fas fa-vial"></i> ';
-                    col_data += data["parent"]["uuid"],
-                    col_data += "</a></small>";
-                }
-
-                    return col_data
-                }
+    if (subsamples.length > 0) {
+        $('#subSampleTable').DataTable( {
+            data: subsamples,
+            pageLength: 5,
+            columns: [
+                {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var col_data = '';
+                        col_data += render_colour(data["colour"])
+                        col_data += "<a href='"+data["_links"]["self"]+ "'>";
+                        col_data += '<i class="fas fa-vial"></i> '
+                        col_data += data["uuid"];
+                        col_data += "</a>";
+                        if (data["source"] != "New") {
+    
+                        col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
+                        col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
+                        col_data += '<i class="fas fa-vial"></i> ';
+                        col_data += data["parent"]["uuid"],
+                        col_data += "</a></small>";
+                    }
+    
+                        return col_data
+                    }
+                },
+                {data: "type"},
+                {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
+                        var col_data = '';
+                        col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
+                        col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["type"]); 
+                        col_data += '</span>';
+                        return col_data
+                    }
             },
-            {data: "type"},
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
-                    var col_data = '';
-                    col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["type"]); 
-                    col_data += '</span>';
-                    return col_data
-                }
-        },
+    
+            ],
+            
+        });
+    }
 
-        ],
-        
-    });
+
+    else {
+        $("#lineage").hide();
+    }
+    
 }
 
 
@@ -237,7 +260,7 @@ $(document).ready(function() {
     fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
     fill_collection_information(sample_info["collection_information"]);
     fill_consent_information(sample_info["consent_information"]);
-    fill_processing_information(sample_info["processing_information"]);
+    //fill_processing_information(sample_info["processing_information"]);
     fill_lineage_table(sample_info["subsamples"]);
     fill_comments(sample_info["comments"]);
     fill_document_information(sample_info["documents"]);

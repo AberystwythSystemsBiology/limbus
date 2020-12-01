@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 MAINTAINER "Keiron O'Shea <keo7@aber.ac.uk>"
 
 RUN apt update
-RUN apt install -y curl python3 python3-pip gv
+RUN apt install -y curl python3 python3-pip gv libffi-dev
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1

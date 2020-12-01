@@ -5,7 +5,7 @@
           rel="stylesheet">
 {% endblock %}
 
-{% block title %}Sample to Box{% endblock %}
+{% block title %}LIMBRACK-{{rack.id}}: Assign Sample to Rack{% endblock %}
 
 {% block body %}
 
@@ -13,12 +13,18 @@
         {{ storage_navbar() }}
         <div class="storage container">
             
-            <h1><span class="secondary-heading"><i class="fa fa-cube"></i>LIMBCRB-{{cryo.id}}</span> Sample to Box</h1>
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{url_for('storage.view_rack', id=rack.id) }}">
+                        <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
+                    </span>
+                    Assign Sample to Rack</h1>
 
-            {{ form.errors }}
-            <form action="{{ url_for('storage.add_cryobox_sample', cryo_id = cryo.id, row=row, col=col) }}" method="post">
+            <form action="" method="post">
                 {{ form.csrf_token }}
-                {{ form_field(form.samples) }}
+                
+                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
+
                 <div class="row">
                     <div class="col-sm-6">
                         {{ form_field(form.date) }}
@@ -28,7 +34,9 @@
                     </div>
                 </div>
                 {{ form_field(form.entered_by) }}
+
                 {{ form_field(form.submit) }}
+
             </form>
 
 

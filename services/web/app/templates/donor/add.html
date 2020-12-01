@@ -10,13 +10,23 @@
     <form method="POST" action="{{ url_for('donor.add' ) }}">
     
         {{ form.csrf_token() }}
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.race)}}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.sex)}}
+            </div>
+        </div>
 
-        {{ form_field(form.race)}}
-        {{ form_field(form.sex)}}
-        {{ form_field(form.age)}}
-
-        {{ form_field(form.height)}}
-        {{ form_field(form.weight)}}
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.height)}}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.weight)}}
+            </div>
+        </div>
 
         {{ form_field(form.status)}}
         {{ form_field(form.death_date)}}

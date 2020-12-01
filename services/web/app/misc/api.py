@@ -15,8 +15,7 @@
 
 
 from sqlalchemy import func
-from ..database import db, Address, SiteInformation, UserAccount, Sample
-from ..donor.models import Donor
+from ..database import *
 
 from ..api import api
 from ..api.responses import *
@@ -37,6 +36,12 @@ from marshmallow import ValidationError
 import treepoem
 from io import BytesIO
 from random import choice
+
+
+@api.route("/misc/uuid", methods=["GET"])
+def query_uuid():
+    return {}
+
 
 @api.route("/misc/barcode/<t>/<i>/", methods=["GET"])
 @token_required
@@ -86,17 +91,10 @@ def get_greeting():
 
     return jsonify({"language": dictionary[c], "greeting": c})
 
+
 @api.route("/misc/panel", methods=["GET"])
 @token_required
 def get_data(tokenuser: UserAccount):
-    def _prepare_for_chart_js(a):
-        ye = {"labels": [], "data": []}
-
-        for (label, data) in a:
-            ye["labels"].append(label)
-            ye["data"].append(data)
-
-        return ye
 
     data = {
         "name": SiteInformation.query.first().name,
@@ -107,7 +105,7 @@ def get_data(tokenuser: UserAccount):
             "donor_count": Donor.query.count(),
         },
         "sample_statistics": {
-            "sample_type": _prepare_for_chart_js(
+            "sample_type": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -117,7 +115,7 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),
-            "sample_biohazard": _prepare_for_chart_js(
+            "sample_biohazard": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -127,7 +125,7 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),
-            "sample_source": _prepare_for_chart_js(
+            "sample_source": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -137,7 +135,7 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),  # SampleSource
-            "sample_status": _prepare_for_chart_js(
+            "sample_status": prepare_for_chart_js(
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
@@ -147,6 +145,43 @@ def get_data(tokenuser: UserAccount):
                     .all()
                 ]
             ),  # SampleSource
+        },
+        "storage_statistics": {},
+        "attribute_statistics": {
+            "attribute_type": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Attribute.type, func.count(Attribute.type)
+                    )
+                    .group_by(Attribute.type)
+                    .all()
+                ]
+            )
+        },
+        "protocol_statistics": {
+            "protocol_type": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        ProtocolTemplate.type, func.count(ProtocolTemplate.type)
+                    )
+                    .group_by(ProtocolTemplate.type)
+                    .all()
+                ]
+            )
+        },
+        "document_statistics": {
+            "document_type": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Document.type, func.count(Document.type)
+                    )
+                    .group_by(Document.type)
+                    .all()
+                ]
+            )
         },
     }
 
@@ -159,8 +194,6 @@ def site_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_sites_schema.dump(SiteInformation.query.all())
     )
-
-
 
 
 @api.route("/misc/address/", methods=["GET"])

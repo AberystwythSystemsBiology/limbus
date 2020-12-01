@@ -31,7 +31,7 @@
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"/>
 </head>
 
-<body class="d-flex flex-column min-vh-100 text-justify">
+<body class="wrapper d-flex flex-column min-vh-100 text-justify">
 
 <nav class="navbar  navbar-dark bg-primary fixed-top navbar-expand-lg">
     <div class="container">
@@ -56,11 +56,28 @@
                         </div>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('donor.index') }}">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-user-circle"></i> Donors
                         </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('donor.index') }}"><i class="fa fa-user-circle"></i> Donor Index</a>
+                            <a class="dropdown-item" href="{{ url_for('donor.add') }}"><i class="fas fa-plus"></i> New Donor</a>
+
+                        </div>
                     </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-file"></i> Documents
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{{ url_for('document.index') }}"><i class="fas fa-file"></i> Document Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('document.new_document') }}"><i class="fas fa-plus"></i> New Document</a>
+
+                        </div>
+                    </li>
+
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -68,6 +85,8 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Storage Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('storage.rack_index') }}"><i class="fa fa-grip-vertical"></i> Storage Racks</a>
+
                             <a class="dropdown-item" href="{{ url_for('storage.add_rack') }}"><i class="fas fa-plus"></i> New Storage Rack</a>
                         </div>
                     </li>
@@ -84,11 +103,6 @@
                         </div>
                     </li>
 
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('document.index' ) }}"><i class="fas fa-file"></i> Document Portal</a>
-                    </li>
-
                 </ul>
                 </ul>
 
@@ -97,6 +111,9 @@
             {% if current_user.is_authenticated %}
 
                 <ul class="navbar-nav ml-auto">
+                    <div class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" id="nav-sample-search" placeholder="Sample UUID" aria-label="UUID">
+                    </div>
                 <li class="dropdown">
                     <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"
                        aria-expanded="false">
@@ -158,13 +175,32 @@
             </div>
         {% endfor %}
     {% endif %}
-{% endwith %}
 
+    
+{% endwith %}
 
 
 {% block body %}
 {% endblock %}
 
+
+<div class="modal fade" id="uuid-search-modal-not-found" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Sample Not Found</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-center">
+            <p class="exception-smiley">🤷</p>
+            <h2><span id="sample-uuid-search-not-found-placeholder"></span> cannot be found.</h2>
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
 
 <div class="wrapper flex-grow-1"></div>

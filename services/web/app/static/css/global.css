@@ -48,6 +48,14 @@ nav img {
     overflow:hidden;
 }
 
+#view_area {
+    margin:0 auto 0;
+}
+
+#view_area .col {
+    max-width: 8%;
+}
+
 .protocol-text {
     background-color: #f5f5f5;
     padding:1em;

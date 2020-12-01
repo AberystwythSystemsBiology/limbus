@@ -46,7 +46,7 @@ class PasswordChangeForm(FlaskForm):
         validators=[
             DataRequired(),
             EqualTo("confirm_password", message="Passwords must match"),
-            Length(min=6)
+            Length(min=6),
         ],
     )
     confirm_password = PasswordField("Confirm Password")
@@ -83,7 +83,7 @@ class UserAccountRegistrationForm(FlaskForm):
         validators=[
             DataRequired(),
             EqualTo("confirm_password", message="Passwords must match"),
-            Length(min=6)
+            Length(min=6),
         ],
     )
     confirm_password = PasswordField("Confirm Password")

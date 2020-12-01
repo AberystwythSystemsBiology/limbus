@@ -1,6 +1,7 @@
 alembic==1.4.2
 apispec==3.3.1
 apispec-webframeworks==0.5.2
+blabel==0.1.4
 chardet==3.0.4
 cryptography==3.2
 click==7.1.2

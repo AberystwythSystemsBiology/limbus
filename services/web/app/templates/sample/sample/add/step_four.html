@@ -14,7 +14,7 @@
         
         <form action="{{ url_for('sample.add_processing_information', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
-            {{ form_field(form.processing_protocol_id) }}
+            {{ form_field(form.processing_protocol_id, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
             {{ form_field(form.sample_status) }}
 
             <div class="row">

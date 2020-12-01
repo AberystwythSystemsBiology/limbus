@@ -53,7 +53,7 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
-    type = EnumField(ProtocolType)
+    type = EnumField(ProtocolType, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 

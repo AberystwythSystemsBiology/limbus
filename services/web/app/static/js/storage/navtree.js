@@ -69,16 +69,21 @@ function sap2tree(sap) {
         }
     }
 }
-$(function() {
 
-    $('#sidebar-collapse').on('click', function () {
+function collapse_sidebar() {
         $('#sidebar').toggleClass('active');
         $('#sidebar-collapse-icon').toggleClass('fa-chevron-left');
         $('#sidebar-collapse-icon').toggleClass('fa-chevron-right');
         $('#sidebar-collapse button').toggleClass('btn-light');
         $('#sidebar-collapse button').toggleClass('btn-primary');
-    });
+}
 
+$(function() {
+
+    $('#sidebar-collapse').on('click', function () {
+        collapse_sidebar();
+
+    });
 
 
     function selectElement(element) {

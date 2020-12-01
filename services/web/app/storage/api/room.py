@@ -25,6 +25,7 @@ from ...database import db, Room, UserAccount
 from marshmallow import ValidationError
 
 from ..views import basic_room_schema, basic_rooms_schema, new_room_schema, room_schema
+from ...api.generics import *
 
 
 @api.route("/storage/room", methods=["GET"])
@@ -70,34 +71,11 @@ def storage_room_new(tokenuser: UserAccount):
 @token_required
 def storage_room_edit(id, tokenuser: UserAccount):
 
-    room = Room.query.filter_by(id=id).first()
-
-    if not room:
-        return not_found()
-
     values = request.get_json()
 
-    if not values:
-        return no_values_response()
-
-    try:
-        result = new_room_schema.load(values)
-    except ValidationError as err:
-        return validation_error_response(err)
-
-    for attr, value in values.items():
-        setattr(room, attr, value)
-
-    room.editor_id = tokenuser.id
-
-    try:
-        db.session.add(room)
-        db.session.commit()
-        db.session.flush()
-
-        return success_with_content_response(basic_room_schema.dump(room))
-    except Exception as err:
-        return transaction_error_response(err)
+    return generic_edit(
+        db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
+    )
 
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
@@ -117,4 +95,3 @@ def storage_room_lock(id, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(basic_room_schema.dump(room))
-

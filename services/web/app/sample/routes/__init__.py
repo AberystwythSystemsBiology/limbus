@@ -46,6 +46,7 @@ def query_index():
     else:
         abort(response.status_code)
 
+
 @sample.route("/export", methods=["POST"])
 @login_required
 def query_export():
@@ -60,6 +61,7 @@ def query_export():
     else:
         abort(response.status_code)
 
+
 @sample.route("/biohazard_information")
 @login_required
 def biohazard_information() -> str:
@@ -69,4 +71,5 @@ def biohazard_information() -> str:
 from .add import *
 from .sample import *
 from .aliquot import *
-#from .edit import *
+
+# from .edit import *

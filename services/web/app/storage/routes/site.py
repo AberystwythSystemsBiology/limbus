@@ -29,15 +29,18 @@ from .. import storage
 import requests
 from ...misc import get_internal_api_header
 
+
 @storage.route("/site/LIMBSITE-<id>", methods=["GET"])
 @login_required
 def view_site(id):
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        return render_template("storage/site/view.html", site=response.json()["content"])
+        return render_template(
+            "storage/site/view.html", site=response.json()["content"]
+        )
 
     return abort(response.status_code)

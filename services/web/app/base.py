@@ -15,6 +15,7 @@
 
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from .database import db
+import datetime
 
 
 @as_declarative()
@@ -22,6 +23,10 @@ class BaseModel(object):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
+
+    @declared_attr
+    def __mapper_args__(cls):
+        return {"eager_defaults": True}
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
@@ -35,3 +40,9 @@ class BaseModel(object):
         server_onupdate=db.func.now(),
         nullable=False,
     )
+
+    def update(self, values):
+        for attr, values in values.items():
+            setattr(self, attr, values)
+
+        self.updated_on = db.func.now()

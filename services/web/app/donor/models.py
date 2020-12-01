@@ -15,12 +15,11 @@
 
 from ..database import db, Base
 from .enums import *
-from ..mixins import RefAuthorMixin, RefEditorMixin
+from ..mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
-class Donor(Base, RefAuthorMixin, RefEditorMixin):
+class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    uuid = db.Column(db.String(36))
     age = db.Column(db.Integer)
     sex = db.Column(db.Enum(BiologicalSexTypes))
     status = db.Column(db.Enum(DonorStatusTypes))

@@ -1,9 +1,3 @@
-Date.prototype.toDateInputValue = (function() {
-    var local = new Date(this);
-    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
-    return local.toJSON().slice(0,10);
-});
-
 
 function hide_all() {
     $("#processing_date_div").hide();
@@ -34,12 +28,15 @@ function logic() {
     }
 }
 
-// $(document).ready(function() {
-//     logic();
-//     $("#sample_status").change(function () {
-//         logic();
-//     });
-// });
+$(document).ready(function() {
+    view_form_helper("processing_protocol_id");
+    $("#processing_protocol_id").on("change", function() {
+        view_form_helper("processing_protocol_id");
+    });
+
+
+
+});
 
 
 // function check_status() {

@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask import url_for
+from datetime import datetime
 import pycountry
 from flask_wtf import FlaskForm
 import requests
@@ -48,7 +49,6 @@ class BuildingRegistrationForm(FlaskForm):
     submit = SubmitField("Register Building")
 
 
-
 class NewShelfForm(FlaskForm):
     name = StringField(
         "Shelf Name",
@@ -68,12 +68,19 @@ class NewSampleRackForm(FlaskForm):
     num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
     num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
     description = TextAreaField("Description")
-    colours = SelectField("Colours", choices=Colour.choices())
+    colours = SelectField("Colour", choices=Colour.choices())
     submit = SubmitField("Register")
 
 
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
+    description = TextAreaField("Description")
+    colour = SelectField("Colour", choices=Colour.choices())
+    barcode_type = SelectField(
+        "Barcode Type",
+        choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
+        description="The barcode attribute to cross reference against.",
+    )
     file = FileField("File", validators=[DataRequired()])
     submit = SubmitField("Upload File")
 
@@ -96,52 +103,50 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-def ColdStorageForm():
-    class StaticForm(FlaskForm):
-        serial_number = StringField(
-            "Serial Number",
-            description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
-        )
-        manufacturer = StringField(
-            "Manufacturer",
-            validators=[DataRequired()],
-            description="The storage facility manufacturer.",
-        )
+class ColdStorageForm(FlaskForm):
+    serial_number = StringField(
+        "Serial Number",
+        description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
+    )
 
-        comments = TextAreaField(
-            "Comments"
-        )
+    manufacturer = StringField(
+        "Manufacturer",
+        validators=[DataRequired()],
+        description="The storage facility manufacturer.",
+    )
 
-        temperature = SelectField(
-            "Temperature",
-            choices=FixedColdStorageTemps.choices(),
-            validators=[DataRequired()],
-            description="The temperature of the inside of the storage facility.",
-        )
-        type = SelectField(
-            "Storage Type",
-            choices=FixedColdStorageType.choices(),
-            validators=[DataRequired()],
-            description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
-        )
+    comments = TextAreaField("Comments")
 
-    setattr(StaticForm, "submit", SubmitField("Register"))
+    temperature = SelectField(
+        "Temperature",
+        choices=FixedColdStorageTemps.choices(),
+        validators=[DataRequired()],
+        description="The temperature of the inside of the storage facility.",
+    )
 
-    return StaticForm()
+    type = SelectField(
+        "Storage Type",
+        choices=FixedColdStorageType.choices(),
+        validators=[DataRequired()],
+        description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
+    )
+
+    submit = SubmitField("Register")
 
 
 def SampleToEntityForm(samples: list) -> FlaskForm:
 
     samples_choices = []
     for sample in samples:
-        samples_choices.append(
-            [int(sample["id"]), sample["uuid"]]
-        )
-
+        samples_choices.append([int(sample["id"]), sample["uuid"]])
 
     class StaticForm(FlaskForm):
-        date = DateField("Entry Date", validators=[DataRequired()])
-        time = TimeField("Entry Time", validators=[DataRequired()])
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
@@ -151,7 +156,9 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     setattr(
         StaticForm,
         "samples",
-        SelectField("Sample", choices=samples_choices, validators=[DataRequired()], coerce=int),
+        SelectField(
+            "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int
+        ),
     )
 
     return StaticForm()
@@ -159,8 +166,12 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        date = DateField("Entry Date", validators=[DataRequired()])
-        time = TimeField("Entry Time", validators=[DataRequired()])
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
@@ -169,9 +180,14 @@ def RackToShelfForm(racks: list) -> FlaskForm:
 
     choices = []
 
-
     for rack in racks:
-        choices.append([rack["id"], "LIMBRACK-%s: %s (%i x %i)" % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]) ])
+        choices.append(
+            [
+                rack["id"],
+                "LIMBRACK-%s: %s (%i x %i)"
+                % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
+            ]
+        )
 
     setattr(
         StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int)
@@ -192,8 +208,7 @@ def CryoBoxFileUploadSelectForm(sample_data: dict):
                 position,
                 render_kw={
                     "_selectform": True,
-                    "_has_sample": info["sample"] != None,
-                    "_sample": info["sample"],
+                    "_sample": info,
                 },
             ),
         )

@@ -19,16 +19,50 @@ function get_panel_info() {
 }
 
 
-function dynamicColours(length) {
-    var colours = [];
-    for (i =0; i < length; i++) {
-        var r = Math.floor(Math.random() * 255);
-        var g = Math.floor(Math.random() * 255);
-        var b = Math.floor(Math.random() * 255);
-        colours.push("rgba(" + r + "," + g + "," + b + ", 1)");
-    }
-    return colours;
-    
+
+function fill_document_statistics(document_statistics) {
+
+    new Chart(document.getElementById("document_type"), {
+        type: 'bar',
+        data: {
+          labels: document_statistics["document_type"]["labels"],
+          datasets: [{
+                data: document_statistics["document_type"]["data"],
+                backgroundColor: dynamicColours(document_statistics["document_type"]["labels"].length)
+            }],
+
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: "Document Type"
+               }}}
+        );
+}
+
+function fill_attribute_statistics(attribute_statistics) {
+    new Chart(document.getElementById("attribute_type"), {
+        type: 'bar',
+        data: {
+          labels: attribute_statistics["attribute_type"]["labels"],
+          datasets: [{
+                data: attribute_statistics["attribute_type"]["data"],
+                backgroundColor: dynamicColours(attribute_statistics["attribute_type"]["labels"].length)
+            }],
+
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: "Attribute Type"
+               }}}
+        );
 }
 
 function fill_sample_statistics(sample_statistics) {
@@ -117,6 +151,28 @@ function fill_sample_statistics(sample_statistics) {
 
 }
 
+function fill_protocol_statistics(protocol_statistics) {
+    new Chart(document.getElementById("protocol_type"), {
+        type: 'bar',
+        data: {
+          labels: protocol_statistics["protocol_type"]["labels"],
+          datasets: [{
+                data: protocol_statistics["protocol_type"]["data"],
+                backgroundColor: dynamicColours(protocol_statistics["protocol_type"]["labels"].length)
+            }],
+
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: "Protocol Type"
+               }}}
+        );
+}
+
 function fill_basic_statistics(basic_statistics) {
     $("#donor_count").html(basic_statistics["donor_count"]);
     $("#sample_count").html(basic_statistics["sample_count"]);
@@ -129,6 +185,9 @@ function fill_panel() {
     $("#biobank_name").html(panel_info["name"]);
     fill_basic_statistics(panel_info["basic_statistics"]);
     fill_sample_statistics(panel_info["sample_statistics"]);
+    fill_document_statistics(panel_info["document_statistics"]);
+    fill_attribute_statistics(panel_info["attribute_statistics"]);
+    fill_protocol_statistics(panel_info["protocol_statistics"]);
 }
 
 $(document).ready(function() {

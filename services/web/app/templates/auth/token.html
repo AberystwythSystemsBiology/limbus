@@ -20,17 +20,21 @@
             <div class="card-header text-center"><h2>Your new token is</h2></div>
             <div class="card-body text-center">
                 <code>
-                    <pre style="font-size:2em;" id="token">{{ token }}</pre>
+                    <pre style="font-size:2em;" id="token">{{ token["token"] }}</pre>
                 </code>
 
             </div>
             <div class="card-footer">
-                <div class="btn btn-success full-width disabled" id="copy">
+                <button class="btn btn-success full-width" onclick="copyToClipboard('#token')">
                     <i class="fa fa-clipboard"></i> Copy to Clipboard
-                </div>
+                </button>
             </div>
         </div>
 
     </div>
 
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/auth/token.js') }}"></script>
 {% endblock %}

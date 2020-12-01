@@ -14,7 +14,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-
 from .building import *
 from .room import *
 from .lts import *
@@ -24,6 +23,7 @@ from .rack import *
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 from ..enums import EntityToStorageType
+
 
 class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
@@ -35,3 +35,7 @@ class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     entry_datetime = db.Column(db.DateTime)
     entry = db.Column(db.String(5))
     removed = db.Column(db.Boolean)
+
+    sample = db.relationship("Sample")
+    rack = db.relationship("SampleRack")
+    shelf = db.relationship("ColdStorageShelf")

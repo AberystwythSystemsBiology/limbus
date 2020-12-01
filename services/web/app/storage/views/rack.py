@@ -18,24 +18,93 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ...database import SampleRack
+from ...database import SampleRack, EntityToStorage, ColdStorageShelf
+from ...sample.views import BasicSampleSchema
 from ...sample.enums import Colour
 from ...auth.views import BasicUserAccountSchema
+
+
+class ViewSampleToSampleRackSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    id = masql.auto_field()
+    sample_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    row = masql.auto_field()
+    col = masql.auto_field()
+    entry = masql.auto_field()
+    entry_datetime = masql.auto_field()
+
+    sample = ma.Nested(BasicSampleSchema)
+
+
+view_sample_to_sample_rack_schema = ViewSampleToSampleRackSchema()
+
+
+class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    sample_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    row = masql.auto_field()
+    col = masql.auto_field()
+    entry = masql.auto_field()
+    entry_datetime = masql.auto_field()
+
+
+new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
+
+
+class ShelfViewSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("storage.view_shelf", id="<id>", _external=True)}
+    )
+
 
 class SampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleRack
-    
+
     id = masql.auto_field()
     uuid = masql.auto_field()
+    description = masql.auto_field()
     serial_number = masql.auto_field()
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
     colour = EnumField(Colour, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
+    created_on = ma.Date()
+    entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema, many=True)
+    shelf = ma.Nested(ShelfViewSchema)
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
+            "collection": ma.URLFor("storage.rack_index", _external=True),
+            "qr_code": ma.URLFor(
+                "sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True
+            ),
+            "assign_sample": ma.URLFor(
+                "storage.assign_rack_sample",
+                id="<id>",
+                row="rph",
+                column="cph",
+                _external=True,
+            ),
+        }
+    )
 
 
 rack_schema = SampleRackSchema()
+
 
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -50,13 +119,22 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
+    # entity_to_storage_instances = ma.Method(deserialize="_sample_count")
+
+    sample_count = ma.Function(lambda obj: len(obj.entity_to_storage_instances))
+
     _links = ma.Hyperlinks(
         {
-            # "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
             "collection": ma.URLFor("storage.rack_index", _external=True),
-            "qr_code": ma.URLFor("sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True)
+            "qr_code": ma.URLFor(
+                "sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True
+            ),
         }
     )
+
+    def _sample_count(self, obj):
+        return len(obj.views)
 
 
 basic_sample_rack_schema = BasicSampleRackSchema()

@@ -17,7 +17,7 @@
                 <h1>
                     <span class="secondary-heading">
                         <a href="{{ url_for('storage.view_building', id=room.building_id) }}">
-                            <i class="fa fa-building"></i> LIMBSIT-{{ room.building_id }}
+                            <i class="fa fa-building"></i> LIMBBUILD-{{ room.building_id }}
                                         </a>
                     </span>
                     <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
@@ -25,6 +25,7 @@
 
             </span>
             
+
             
             <div class="row text-muted">
                 <div class="col-7">
@@ -40,7 +41,7 @@
                         </div>
 
                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="">
+                                <a href="{{ url_for('storage.edit_room', id=room.id) }}">
                                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                         Details
                                     </button>

@@ -30,13 +30,14 @@ import requests
 from ...misc import get_internal_api_header
 from datetime import datetime
 
+
 @storage.route("/coldstorage/LIMBCS-<id>/shelf/new", methods=["GET", "POST"])
 @login_required
 def new_shelf(id):
-        
+
     response = requests.get(
         url_for("api.storage_coldstorage_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
@@ -47,53 +48,103 @@ def new_shelf(id):
             new_response = requests.post(
                 url_for("api.storage_shelf_new", _external=True),
                 headers=get_internal_api_header(),
-                json = {
+                json={
                     "name": form.name.data,
                     "description": form.description.data,
-                    "storage_id": id
-                }
+                    "storage_id": id,
+                },
             )
 
             if new_response.status_code == 200:
                 flash("Shelf Successfully Created")
                 # TODO: Replace.
-                return redirect(url_for("storage.view_shelf", id=new_response.json()["content"]["id"]))
+                return redirect(
+                    url_for(
+                        "storage.view_shelf", id=new_response.json()["content"]["id"]
+                    )
+                )
             return abort(new_response.status_code)
-        
-        return render_template("storage/shelf/new.html", form=form, cs=response.json()["content"])
-    
+
+        return render_template(
+            "storage/shelf/new.html", form=form, cs=response.json()["content"]
+        )
+
     return abort(response.status_code)
+
 
 @storage.route("/shelf/LIMBSHF-<id>", methods=["GET"])
 @login_required
 def view_shelf(id):
+    return render_template("storage/shelf/view.html", id=id)
+
+
+@storage.route("/shelf/LIMBSHF-<id>/endpoint", methods=["GET"])
+@login_required
+def shelf_endpoint(id):
     response = requests.get(
         url_for("api.storage_shelf_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        return render_template("storage/shelf/view.html", shelf=response.json()["content"])
+        return response.json()
 
     return abort(response.status_code)
+
+
+@storage.route("/shelf/LIMBSHF-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        shelf = response.json()["content"]
+        form = NewShelfForm(data=shelf)
+
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+                "description": form.description.data,
+            }
+
+            edit_response = requests.put(
+                url_for("api.storage_shelf_edit", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Shelf Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+
+            return redirect(url_for("storage.view_shelf", id=id))
+
+        return render_template("storage/shelf/edit.html", shelf=shelf, form=form)
+
+    return abort(response.status_code)
+
 
 @storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
 @login_required
 def assign_rack_to_shelf(id):
     response = requests.get(
         url_for("api.storage_shelf_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        
+
         rack_response = requests.get(
             url_for("api.storage_rack_home", _external=True),
-            headers=get_internal_api_header()
+            headers=get_internal_api_header(),
         )
 
         if rack_response.status_code == 200:
-            
+
             form = RackToShelfForm(rack_response.json()["content"])
 
             if form.validate_on_submit():
@@ -103,12 +154,14 @@ def assign_rack_to_shelf(id):
                     json={
                         "rack_id": form.racks.data,
                         "shelf_id": id,
-                        "entry_datetime": str(datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S"
-                        )),
-                        "entry": form.entered_by.data
-                        }
+                        "entry_datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "entry": form.entered_by.data,
+                    },
                 )
 
                 if rack_move_response.status_code == 200:
@@ -116,8 +169,12 @@ def assign_rack_to_shelf(id):
 
                 return abort(rack_response.status_code)
 
-            return render_template("storage/shelf/rack_to_shelf.html", shelf=response.json()["content"], form=form)
-    
+            return render_template(
+                "storage/shelf/rack_to_shelf.html",
+                shelf=response.json()["content"],
+                form=form,
+            )
+
     return abort(response.status_code)
 
 
@@ -126,14 +183,14 @@ def assign_rack_to_shelf(id):
 def assign_sample_to_shelf(id):
     response = requests.get(
         url_for("api.storage_shelf_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        
+
         sample_response = requests.get(
             url_for("api.sample_home", _external=True),
-            headers=get_internal_api_header()
+            headers=get_internal_api_header(),
         )
 
         if sample_response.status_code == 200:
@@ -141,19 +198,21 @@ def assign_sample_to_shelf(id):
             form = SampleToEntityForm(sample_response.json()["content"])
 
             if form.validate_on_submit():
-              
+
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_sample_to_shelf", _external=True),
                     headers=get_internal_api_header(),
                     json={
                         "sample_id": form.samples.data,
                         "shelf_id": id,
-                        "entry_datetime": str(datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S"
-                        )),
-                        "entry": form.entered_by.data
-                        }
+                        "entry_datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "entry": form.entered_by.data,
+                    },
                 )
 
                 if sample_move_response.status_code == 200:
@@ -162,6 +221,10 @@ def assign_sample_to_shelf(id):
                 else:
                     flash(sample_move_response.json())
 
-            return render_template("storage/shelf/sample_to_shelf.html", shelf=response.json()["content"], form=form)
+            return render_template(
+                "storage/shelf/sample_to_shelf.html",
+                shelf=response.json()["content"],
+                form=form,
+            )
 
     return abort(response.status_code)

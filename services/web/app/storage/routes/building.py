@@ -21,16 +21,15 @@ from flask import render_template, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
 
+
 @storage.route("site/LIMBSITE-<id>/new_building", methods=["GET", "POST"])
 @login_required
 def new_building(id):
-    
 
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
-
 
     if response.status_code == 200:
         form = BuildingRegistrationForm()
@@ -44,24 +43,71 @@ def new_building(id):
 
             if post_response.status_code == 200:
                 flash("Building Successfully Created")
-                return redirect(url_for("storage.view_building", id=post_response.json()["content"]["id"]))
+                return redirect(
+                    url_for(
+                        "storage.view_building",
+                        id=post_response.json()["content"]["id"],
+                    )
+                )
             else:
                 return abort(response.status_code)
 
-        return render_template("storage/building/new.html", form=form, site=response.json()["content"])
+        return render_template(
+            "storage/building/new.html", form=form, site=response.json()["content"]
+        )
 
     abort(response.status_code)
-    
+
 
 @storage.route("/building/LIMBUILD-<id>", methods=["GET"])
 @login_required
 def view_building(id):
     response = requests.get(
         url_for("api.storage_building_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        return render_template("storage/building/view.html", building=response.json()["content"])
+        return render_template(
+            "storage/building/view.html", building=response.json()["content"]
+        )
+
+    return abort(response.status_code)
+
+
+@storage.route("/building/LIMBUILD-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_building(id):
+
+    response = requests.get(
+        url_for("api.storage_building_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+
+        form = BuildingRegistrationForm(data=response.json()["content"])
+
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+            }
+
+            edit_response = requests.put(
+                url_for("api.storage_edit_building", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+            if edit_response.status_code == 200:
+                flash("Building Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+
+            return redirect(url_for("storage.view_building", id=id))
+
+        return render_template(
+            "storage/building/edit.html", building=response.json()["content"], form=form
+        )
 
     return abort(response.status_code)

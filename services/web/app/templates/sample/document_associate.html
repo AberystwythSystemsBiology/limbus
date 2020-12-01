@@ -1,0 +1,22 @@
+{% extends "template.html" %}
+
+{% block title %}Associate Document :: Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ sample._links.self }}">
+            <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
+            <i class="fas fa-file"></i> Document Association </h1>
+
+
+
+        <form action="{{ url_for('sample.associate_document', uuid=sample.uuid) }}" method="POST">
+            {{ form.csrf_token }}
+            {{ form_field(form.documents) }}
+            {{ form_field(form.submit) }}
+        </form>
+
+
+    </div>
+{% endblock %}

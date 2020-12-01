@@ -19,7 +19,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import configure_mappers
 
 from sqlalchemy_continuum import make_versioned
-#make_versioned(user_cls=None)
+
+# make_versioned(user_cls=None)
 
 db = SQLAlchemy()
 
@@ -37,6 +38,6 @@ from .protocol.models import *
 from .sample.models import *
 from .tmpstore.models import *
 from .storage.models import *
-
+from .donor.models import *
 
 configure_mappers()

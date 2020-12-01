@@ -27,15 +27,27 @@ def index():
     return render_template("storage/index.html")
 
 
+@storage.route("/endpoint")
+@login_required
+def endpoint():
+    response = requests.get(
+        url_for("api.storage_view_panel", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    abort(response.status_code)
+
+
 @storage.route("/overview")
 @login_required
 def storage_navbar_api():
     response = requests.get(
         url_for("api.storage_view_tree", _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
         return response.json()
-    # storage_view_tree
     abort(response.status_code)

@@ -30,7 +30,8 @@ from .views import (
     edit_user_account_schema,
 )
 
-from ..database import UserAccount
+from ..database import UserAccount, UserAccountToken
+from uuid import uuid4
 
 
 @api.route("/auth")
@@ -49,6 +50,21 @@ def auth_view_user(id: int):
         full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first_or_404())
     )
 
+
+@api.route("/auth/user/new_token", methods=["GET"])
+@token_required
+def auth_new_token(tokenuser: UserAccount):
+    new_token = str(uuid4())
+    uat = UserAccountToken.query.filter_by(user_id=tokenuser.id).first()
+    if uat != None:
+        uat.token = new_token
+    else:
+        uat = UserAccountToken(user_id=tokenuser.id, token=new_token)
+    
+    db.session.add(uat)
+    db.session.commit()
+
+    return {"success": True, "content": {"token": new_token}}
 
 @api.route("/auth/user/<id>/edit", methods=["PUT"])
 @token_required
@@ -81,15 +97,15 @@ def auth_edit_user(id: int, tokenuser: UserAccount):
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
     """Add a new user account endpoint.
-        ---
-        post:
-          description: Submit a new user account
-          responses:
-            200:
-              content:
-                application/json:
-                  schema: NewUserAccountSchema
-        """
+    ---
+    post:
+      description: Submit a new user account
+      responses:
+        200:
+          content:
+            application/json:
+              schema: NewUserAccountSchema
+    """
     values = request.get_json()
 
     if not values:
