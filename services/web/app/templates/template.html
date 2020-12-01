@@ -111,9 +111,9 @@
             {% if current_user.is_authenticated %}
 
                 <ul class="navbar-nav ml-auto">
-                    <form class="form-inline my-2 my-lg-0">
-                        <input class="form-control mr-sm-2" id="nav-sample-search" type="search" placeholder="Sample UUID" aria-label="UUID">
-                      </form>
+                    <div class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" id="nav-sample-search" placeholder="Sample UUID" aria-label="UUID">
+                    </div>
                 <li class="dropdown">
                     <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"
                        aria-expanded="false">
@@ -175,13 +175,32 @@
             </div>
         {% endfor %}
     {% endif %}
-{% endwith %}
 
+    
+{% endwith %}
 
 
 {% block body %}
 {% endblock %}
 
+
+<div class="modal fade" id="uuid-search-modal-not-found" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalCenterTitle">Sample Not Found</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-center">
+            <p class="exception-smiley">🤷</p>
+            <h2><span id="sample-uuid-search-not-found-placeholder"></span> cannot be found.</h2>
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
 
 <div class="wrapper flex-grow-1"></div>

@@ -89,6 +89,27 @@ function get_greeting() {
   return json;
 }
 
+function uuid_search(query) {
+  var api_url = window.location.origin + "/sample/query";
+
+  var json = (function () {
+    var json = null;
+    $.post({
+        'async': false,
+        'global': false,
+        'url': api_url,
+        'contentType': 'application/json',
+        'data': JSON.stringify(query),
+        'success': function (data) {
+            json = data;
+        }
+    });
+    return json;
+  })();
+
+  return json["content"];
+}
+
 
 function fill_greeting(greeting) {
   $("#greeting").html(greeting["greeting"]);
@@ -101,6 +122,19 @@ $(document).ready(function(){
   $('#history').DataTable( {} );
 
 
+  $("#nav-sample-search").keypress(function(e) {
+    if(e.which == 13) {
+        jQuery(this).blur();
+        var result = uuid_search({"uuid": this.value});
+        if (result.length > 0) {
+          window.location.href = result[0]["_links"]["self"]
+        }
+        else {
+          $("#sample-uuid-search-not-found-placeholder").html(this.value);
+          $("#uuid-search-modal-not-found").modal('show');
+        }
+    }
+  });
 
   $("#navbarDropdown").click(function() {
     var greeting = get_greeting()
