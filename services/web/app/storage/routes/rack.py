@@ -38,7 +38,6 @@ from uuid import uuid4
 
 from ..forms import NewSampleRackForm, SampleToEntityForm, NewCryovialBoxFileUploadForm, CryoBoxFileUploadSelectForm
 
-"""
 
 def iter_all_strings():
     for size in itertools.count(1):
@@ -52,9 +51,6 @@ for i in iter_all_strings():
     if i == "ZZZ":
         break
 
-
-
-"""
 
 
 @storage.route("/rack")
@@ -135,7 +131,7 @@ def rack_automatic_entry():
 
         data["num_cols"] = len(list(set(indexes["Tube Column"])))
         data["num_rows"] = max(indexes["Tube Row"])
-        data["serial_number"] = form.serial.data
+
 
         return data
 
@@ -147,6 +143,9 @@ def rack_automatic_entry():
         session[_hash] = {
             "serial_number": form.serial.data,
             "barcode_type": form.barcode_type.data,
+            "serial_number": form.serial.data,
+            "colour": form.colour.data,
+            "description": form.description.data,
             "json": _file_to_json(form.file.data.stream)
         }
         return redirect(url_for("storage.rack_automatic_entry_validation", _hash=_hash))
@@ -175,6 +174,54 @@ def rack_automatic_entry_validation(_hash: str):
                 sample_data[position] = sample
 
     form = CryoBoxFileUploadSelectForm(sample_data)
+
+    if form.validate_on_submit():
+        response = requests.post(
+            url_for("api.storage_rack_new", _external=True),
+            headers=get_internal_api_header(),
+            json={
+                "serial_number": session_data["serial_number"],
+                "num_rows": session_data["json"]["num_rows"],
+                "num_cols": session_data["json"]["num_cols"],
+                "colour": session_data["colour"],
+                "description": session_data["description"]
+            },
+        )
+
+        if response.status_code == 200:
+            
+            _samples = []
+        
+            for element in form:
+                if element.type == "BooleanField":
+                    if element.data:
+                        regex = re.compile(r"(\d+|\s+)")
+                        col, row, _ = regex.split(element.id)
+                        sample_id = element.render_kw["_sample"][0]["id"]
+                        _samples.append([sample_id, values.index(col), row])
+
+            responses = []
+
+            for s in _samples:
+                
+                sample_move_response = requests.post(
+                    url_for("api.storage_transfer_sample_to_rack", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "sample_id": s[0],
+                        "rack_id": response.json()["content"]["id"],
+                        "row": s[2],
+                        "col": s[1],
+                        "entry_datetime": str(datetime.now())
+                    },
+                )
+
+                responses.append([sample_move_response, s[0]])
+            
+            return redirect(url_for("storage.view_rack", id=response.json()["content"]["id"]))
+            
+
+        flash("We have an issue!")
     
     return render_template(
         "storage/rack/new/from_file/step_two.html",

@@ -68,12 +68,14 @@ class NewSampleRackForm(FlaskForm):
     num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
     num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
     description = TextAreaField("Description")
-    colours = SelectField("Colours", choices=Colour.choices())
+    colours = SelectField("Colour", choices=Colour.choices())
     submit = SubmitField("Register")
 
 
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
+    description = TextAreaField("Description")
+    colour = SelectField("Colour", choices=Colour.choices())
     barcode_type = SelectField(
         "Barcode Type",
         choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
