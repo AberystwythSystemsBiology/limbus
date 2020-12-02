@@ -22,6 +22,7 @@ from flask import Flask
 
 from .commands import cmd_setup as cmd_setup_blueprint
 from .api import api as api_blueprint
+from .labels import labels as label_blueprint
 from .setup import setup as setup_blueprint
 from .misc import misc as misc_blueprint
 from .auth import auth as auth_blueprint
@@ -61,6 +62,7 @@ def register_error_handlers(app):
 def register_blueprints(app):
     app.register_blueprint(cmd_setup_blueprint)
     app.register_blueprint(api_blueprint, url_prefix="/api")
+    app.register_blueprint(label_blueprint, url_prefix="/labels")
     app.register_blueprint(setup_blueprint, url_prefix="/setup")
     app.register_blueprint(misc_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix="/auth")

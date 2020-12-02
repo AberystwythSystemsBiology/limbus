@@ -16,5 +16,6 @@
 
 from flask import Blueprint
 
-misc = Blueprint("labels", __name__)
+labels = Blueprint("labels", __name__)
 
+from .routes import *

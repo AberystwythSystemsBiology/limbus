@@ -25,15 +25,11 @@ from flask import (
 )
 from flask_login import login_required, current_user
 import requests
+from datetime import datetime
 
 from .forms import DonorCreationForm
 from ..misc import get_internal_api_header
 
-
-import uuid
-
-from ..misc import get_internal_api_header
-import requests
 
 strconv = lambda i: i or None
 
@@ -74,7 +70,8 @@ def add():
         death_date = None
 
         if form.status.data == "DE":
-            death_date = form.death_date.data  # , '%Y-%m-%d')
+            death_date = str(form.death_date.data) 
+
 
         form_information = {
             "age": form.age.data,
@@ -86,10 +83,6 @@ def add():
             "height": form.height.data,
         }
 
-        # Set empty field to Null
-        for i in form_information:
-            form_information[i] = strconv(form_information[i])
-
         response = requests.post(
             url_for("api.donor_new", _external=True),
             headers=get_internal_api_header(),
@@ -99,8 +92,9 @@ def add():
         if response.status_code == 200:
             flash("Donor information successfully added!")
             return redirect(url_for("donor.index"))
-        else:
-            return abort(response.status_code)
+        
+        print(response.content)
+        abort(response.status_code)
 
     return render_template("donor/add.html", form=form)
 
@@ -114,18 +108,23 @@ def edit(id):
     )
 
     if response.status_code == 200:
+
+        donor_info = response.json()["content"]
+
+        donor_info["death_date"] = datetime.strptime(donor_info["death_date"], "%Y-%m-%d")
+
         form = DonorCreationForm(data=response.json()["content"])
         if form.validate_on_submit():
 
             death_date = None
             if form.status.data == "DE":
-                death_date = strconv(form.death_date.data)  # , '%Y-%m-%d')
+                death_date = str(form.death_date.data) 
 
             form_information = {
                 "age": form.age.data,
                 "sex": form.sex.data,
                 "status": form.status.data,
-                "death_date": death_date,  # form.death_date.data,
+                "death_date": death_date,
                 "weight": form.weight.data,
                 "height": form.height.data,
                 "race": form.race.data,

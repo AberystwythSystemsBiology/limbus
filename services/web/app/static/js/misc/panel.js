@@ -18,6 +18,27 @@ function get_panel_info() {
     return json["content"];
 }
 
+function make_doughnut(dom_id, data, labels, title) {
+    new Chart(document.getElementById(dom_id), {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+                data: data,
+                backgroundColor: dynamicColours(labels.length)
+            }],
+
+        },
+        options: {
+            legend: {
+                display: true
+            },
+            title: {
+                display: true,
+                text: title
+               }}}
+        );
+}
 
 
 function fill_document_statistics(document_statistics) {
@@ -81,7 +102,7 @@ function fill_sample_statistics(sample_statistics) {
                 position: "bottom"
             },
             title: {
-                display: true,
+                dispfill_donor_statisticslay: true,
                 text: "Sample Status"
                }}}
         );
@@ -173,6 +194,14 @@ function fill_protocol_statistics(protocol_statistics) {
         );
 }
 
+function fill_donor_statistics(donor_statistics) {
+    make_doughnut("donor_status", donor_statistics["donor_status"]["data"], donor_statistics["donor_status"]["labels"], "Donor Status");
+    console.log(donor_statistics);
+    make_doughnut("donor_sex", donor_statistics["donor_sex"]["data"], donor_statistics["donor_sex"]["labels"], "Donor Sex");
+    make_doughnut("donor_race", donor_statistics["donor_race"]["data"], donor_statistics["donor_race"]["labels"], "Donor Race");
+
+}
+
 function fill_basic_statistics(basic_statistics) {
     $("#donor_count").html(basic_statistics["donor_count"]);
     $("#sample_count").html(basic_statistics["sample_count"]);
@@ -185,9 +214,11 @@ function fill_panel() {
     $("#biobank_name").html(panel_info["name"]);
     fill_basic_statistics(panel_info["basic_statistics"]);
     fill_sample_statistics(panel_info["sample_statistics"]);
+    fill_donor_statistics(panel_info["donor_statistics"]);
     fill_document_statistics(panel_info["document_statistics"]);
     fill_attribute_statistics(panel_info["attribute_statistics"]);
     fill_protocol_statistics(panel_info["protocol_statistics"]);
+
 }
 
 $(document).ready(function() {

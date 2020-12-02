@@ -45,10 +45,10 @@ class DonorCreationForm(FlaskForm):
         )
     status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-    death_date = DateField("Date of Death", validators=[Optional()])
+    death_date = DateField("Date of Death")
 
-    weight = StringField("Weight (kg)")
-    height = StringField("Height (cm)")
+    weight = StringField("Weight (kg)", validators=[DataRequired()])
+    height = StringField("Height (cm)", validators=[DataRequired()])
 
     race = SelectField(
         "Race",

@@ -96,6 +96,13 @@ def get_greeting():
 @token_required
 def get_data(tokenuser: UserAccount):
 
+    a = db.session.query(
+        func.date_trunc("day", Sample.created_on)).group_by(func.date_trunc("day", Sample.created_on)).all()
+    
+
+    a = db.session.query(func.date_trunc("day", Sample.created_on), func.count(Sample.id)).group_by(func.date_trunc("day", Sample.created_on)).all()
+
+
     data = {
         "name": SiteInformation.query.first().name,
         "basic_statistics": {
@@ -103,6 +110,38 @@ def get_data(tokenuser: UserAccount):
             "user_count": UserAccount.query.count(),
             "site_count": SiteInformation.query.count(),
             "donor_count": Donor.query.count(),
+        },
+        "donor_statistics": {
+            "donor_status": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Donor.status, func.count(Donor.status)
+                    )
+                    .group_by(Donor.status)
+                    .all()
+                ]
+            ),
+            "donor_sex": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Donor.sex, func.count(Donor.sex)
+                    )
+                    .group_by(Donor.sex)
+                    .all()
+                ]
+            ),
+            "donor_race": prepare_for_chart_js(
+                [
+                    (type.value, count)
+                    for (type, count) in db.session.query(
+                        Donor.race, func.count(Donor.race)
+                    )
+                    .group_by(Donor.race)
+                    .all()
+                ]
+            )
         },
         "sample_statistics": {
             "sample_type": prepare_for_chart_js(

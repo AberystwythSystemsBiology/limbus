@@ -23,7 +23,7 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     age = db.Column(db.Integer)
     sex = db.Column(db.Enum(BiologicalSexTypes))
     status = db.Column(db.Enum(DonorStatusTypes))
-    death_date = db.Column(db.DateTime)
+    death_date = db.Column(db.Date)
 
     weight = db.Column(db.Float)
     height = db.Column(db.Float)

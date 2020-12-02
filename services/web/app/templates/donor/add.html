@@ -10,6 +10,8 @@
     <form method="POST" action="{{ url_for('donor.add' ) }}">
     
         {{ form.csrf_token() }}
+        {{ form_field(form.age)}}
+
         <div class="row">
             <div class="col-6">
                 {{ form_field(form.race)}}
