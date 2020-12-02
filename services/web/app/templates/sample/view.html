@@ -42,12 +42,15 @@
                       <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i class="fas fa-vial"></i>Aliquot</a>
                       <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
                       <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid ) }}"><i class="fas fa-file"></i> Associate Document</a>
-
                     </div>
                   </div>
+
+                  
                 </div>
   
-  
+                <div class="btn-group mr-2" role="group" aria-label="First group">
+                  <button type="button" class="btn btn-outline-dark" id="print-label-btn"><i class="fa fa-print"></i> Print Label</button>
+              </div>
   
              </div>                          
               </div>

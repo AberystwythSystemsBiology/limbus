@@ -15,6 +15,28 @@
 
 from . import labels
 
-@labels.route("/test")
-def test_labels():
-    return "Labels Works"
+from blabel import LabelWriter
+import os
+from flask import send_file
+from io import BytesIO
+import tempfile
+
+TEMPLATES_DIRECTORY = os.environ["TEMPLATES_DIRECTORY"]
+
+@labels.route("/sample/<uuid>")
+def sample_label(uuid: str):
+    sample_template_dir = os.path.join(TEMPLATES_DIRECTORY, "sample")
+
+    ntf = tempfile.NamedTemporaryFile()
+    tmp_fp = ntf.name + ".pdf"
+    
+    label_writer = LabelWriter(os.path.join(sample_template_dir, "template.html"),
+                           default_stylesheets=(os.path.join(sample_template_dir, "style.css"),))
+    
+    records= [
+        dict(sample_id=uuid, sample_name=uuid)
+    ]
+
+
+    label_writer.write_labels(records, target=tmp_fp)
+    return send_file(tmp_fp, as_attachment=False, attachment_filename="label.pdf")
