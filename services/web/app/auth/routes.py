@@ -124,9 +124,7 @@ def change_password():
 @login_required
 def generate_token():
     response = requests.get(
-        url_for("api.auth_new_token", _external=True),
-        headers=get_internal_api_header()
-
+        url_for("api.auth_new_token", _external=True), headers=get_internal_api_header()
     )
 
     if response.status_code == 200:

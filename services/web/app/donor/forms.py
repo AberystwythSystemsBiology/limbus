@@ -42,7 +42,7 @@ class DonorCreationForm(FlaskForm):
     sex = SelectField(
         "Biological Sex",
         choices=BiologicalSexTypes.choices(),
-        )
+    )
     status = SelectField("Status", choices=DonorStatusTypes.choices())
 
     death_date = DateField("Date of Death")
@@ -53,6 +53,6 @@ class DonorCreationForm(FlaskForm):
     race = SelectField(
         "Race",
         choices=RaceTypes.choices(),
-        )
+    )
 
     submit = SubmitField("Submit")

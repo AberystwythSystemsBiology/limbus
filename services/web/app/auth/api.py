@@ -60,11 +60,12 @@ def auth_new_token(tokenuser: UserAccount):
         uat.token = new_token
     else:
         uat = UserAccountToken(user_id=tokenuser.id, token=new_token)
-    
+
     db.session.add(uat)
     db.session.commit()
 
     return {"success": True, "content": {"token": new_token}}
+
 
 @api.route("/auth/user/<id>/edit", methods=["PUT"])
 @token_required

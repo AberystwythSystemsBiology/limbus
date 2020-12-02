@@ -381,9 +381,7 @@ class SampleSchema(masql.SQLAlchemySchema):
             "webapp_aliquot": ma.URLFor(
                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
             ),
-            "label": ma.URLFor(
-                "labels.sample_label", uuid="<uuid>", _external=True
-            )
+            "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
         }
     )
 

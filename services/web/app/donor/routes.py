@@ -70,8 +70,7 @@ def add():
         death_date = None
 
         if form.status.data == "DE":
-            death_date = str(form.death_date.data) 
-
+            death_date = str(form.death_date.data)
 
         form_information = {
             "age": form.age.data,
@@ -92,7 +91,7 @@ def add():
         if response.status_code == 200:
             flash("Donor information successfully added!")
             return redirect(url_for("donor.index"))
-        
+
         print(response.content)
         abort(response.status_code)
 
@@ -111,14 +110,16 @@ def edit(id):
 
         donor_info = response.json()["content"]
 
-        donor_info["death_date"] = datetime.strptime(donor_info["death_date"], "%Y-%m-%d")
+        donor_info["death_date"] = datetime.strptime(
+            donor_info["death_date"], "%Y-%m-%d"
+        )
 
         form = DonorCreationForm(data=response.json()["content"])
         if form.validate_on_submit():
 
             death_date = None
             if form.status.data == "DE":
-                death_date = str(form.death_date.data) 
+                death_date = str(form.death_date.data)
 
             form_information = {
                 "age": form.age.data,

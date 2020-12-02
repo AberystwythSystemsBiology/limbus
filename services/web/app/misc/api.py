@@ -96,13 +96,13 @@ def get_greeting():
 @token_required
 def get_data(tokenuser: UserAccount):
 
-    '''
+    """
     a = db.session.query(
         func.date_trunc("day", Sample.created_on)).group_by(func.date_trunc("day", Sample.created_on)).all()
-    
+
 
     a = db.session.query(func.date_trunc("day", Sample.created_on), func.count(Sample.id)).group_by(func.date_trunc("day", Sample.created_on)).all()
-    '''
+    """
 
     data = {
         "name": SiteInformation.query.first().name,
@@ -142,7 +142,7 @@ def get_data(tokenuser: UserAccount):
                     .group_by(Donor.race)
                     .all()
                 ]
-            )
+            ),
         },
         "sample_statistics": {
             "sample_type": prepare_for_chart_js(
