@@ -29,9 +29,19 @@ from wtforms import (
 
 # from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
-
-
 from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
+
+class DonorFilterForm(FlaskForm):
+
+    sex = SelectField(
+        "Biological Sex",
+        choices=BiologicalSexTypes.choices(with_none=True),
+    )
+    status = SelectField("Status", choices=DonorStatusTypes.choices(with_none=True))
+    race = SelectField(
+        "Race",
+        choices=RaceTypes.choices(with_none=True),
+    )
 
 
 class DonorCreationForm(FlaskForm):

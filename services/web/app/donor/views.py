@@ -27,6 +27,17 @@ from ..auth.views import BasicUserAccountSchema
 from .enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
 
 
+class DonorSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Donor
+
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    sex = EnumField(BiologicalSexTypes, by_value=True)
+    status = EnumField(DonorStatusTypes, by_value=True)
+    race = EnumField(RaceTypes, by_value=True)
+
+
 class DonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor

@@ -25,10 +25,12 @@ from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
 
 from sqlalchemy.sql import func
+from ..webarg_parser import use_args, use_kwargs, parser
+
 
 from ..auth.models import UserAccount
 from .models import Donor
-from .views import donor_schema, donors_schema, new_donor_schema
+from .views import donor_schema, donors_schema, new_donor_schema, DonorSearchSchema
 
 
 @api.route("/donor")
@@ -40,6 +42,19 @@ def donor_home(tokenuser: UserAccount):
         return not_allowed()
 
     return success_with_content_response(donors_schema.dump(Donor.query.all()))
+
+
+
+@api.route("/donor/query", methods=["GET"])
+@use_args(DonorSearchSchema(), location="json")
+@token_required
+def donor_query(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, Donor)
+    return success_with_content_response(
+        donors_schema.dump(
+            Donor.query.filter_by(**filters).filter(*joins).all()
+        )
+    )
 
 
 @api.route("/donor/LIMBDON-<id>")

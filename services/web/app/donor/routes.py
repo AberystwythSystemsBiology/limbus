@@ -22,12 +22,13 @@ from flask import (
     current_app,
     session,
     flash,
+    request
 )
 from flask_login import login_required, current_user
 import requests
 from datetime import datetime
 
-from .forms import DonorCreationForm
+from .forms import DonorCreationForm, DonorFilterForm
 from ..misc import get_internal_api_header
 
 
@@ -37,15 +38,22 @@ strconv = lambda i: i or None
 @donor.route("/")
 @login_required
 def index():
+    form=DonorFilterForm()
+    return render_template("donor/index.html", form=form)
+
+@donor.route("/query", methods=["POST"])
+@login_required
+def query_index():
     response = requests.get(
-        url_for("api.donor_home", _external=True), headers=get_internal_api_header()
+        url_for("api.donor_query", _external=True),
+        headers=get_internal_api_header(),
+        json=request.json,
     )
 
     if response.status_code == 200:
-        return render_template("donor/index.html", donors=response.json()["content"])
+        return response.json()
     else:
-        return abort(response.status_code)
-
+        abort(response.status_code)
 
 @donor.route("/LIMBDON-<id>")
 @login_required
