@@ -348,6 +348,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     remaining_quantity = masql.auto_field()
     comments = masql.auto_field()
     barcode = masql.auto_field()
+    sample_type_information = ma.Nested(SampleToTypeSchema)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)

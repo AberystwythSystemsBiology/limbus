@@ -45,7 +45,7 @@ function fill_title(sample) {
         parent_html += sample["parent"]["uuid"]
         parent_html += '</a>'
         $("#parent").html(parent_html);
-        $("#parent_div").show();
+        $("#parent-div").show();
     }
 
    
@@ -60,7 +60,6 @@ function fill_comments(comments) {
 
 
 function fill_collection_information(collection_information) {
-    
     var protocol_info = collection_information["protocol"];
     var html = "";
     
@@ -103,16 +102,35 @@ function fill_consent_information(consent_information) {
 
 }
 
-function fill_basic_information(sample_info) {
-
+function fill_basic_information(sample_information) {
     var html = "";
 
-    html += render_content("Biobank Barcode", sample_info["barcode"])
-    html += render_content("Sample Type", sample_info["type"])
-    html += render_content("Biohazard Level", sample_info["biohazard_level"])
+    if (sample_information["type"] == "Fluid") {
+        var measurement = "mL";
+        var sample_type = sample_information["sample_type_information"]["flui_type"];
+    }
+
+    else if (sample_information["type"] == "Molecular") {
+        var measurement = "μg/mL";
+        var sample_type = sample_information["sample_type_information"]["mole_type"];
+
+    }
+
+    else {
+        var measurement = "Cells";
+        var sample_type = sample_information["sample_type_information"]["cell_type"];
+    }
+
+    html += render_content("Status", sample_information["status"]);
+    html += render_content("Biobank Barcode", sample_information["barcode"]);
+    html += render_content("Biohazard Level", sample_information["biohazard_level"]);
+    html += render_content("Type", sample_information["type"]);
+    html += render_content("Sample Type", sample_type);
 
 
-    $("#basic_information").html(html);
+    html += render_content("Quantity", sample_information["remaining_quantity"] + " / " + sample_information["quantity"] + " " + measurement);
+
+    $("#basic-information").html(html);
 }
 
 

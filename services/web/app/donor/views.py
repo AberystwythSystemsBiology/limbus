@@ -25,6 +25,7 @@ from marshmallow_enum import EnumField
 
 from ..auth.views import BasicUserAccountSchema
 from .enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
+from ..sample.enums import Colour
 
 
 class DonorSearchSchema(masql.SQLAlchemySchema):
@@ -78,15 +79,18 @@ class NewDonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
 
-    age = masql.auto_field(allow_none=True)
-    sex = EnumField(BiologicalSexTypes, allow_none=True)
-    status = EnumField(DonorStatusTypes, allow_none=True)
-    death_date = ma.Date(format="%Y-%m-%d", allow_none=True)  #
+    age = masql.auto_field()
+    sex = EnumField(BiologicalSexTypes)
+    status = EnumField(DonorStatusTypes)
+    death_date = ma.Date()
+    colour = EnumField(Colour)
+    mpn = masql.auto_field()
+    enrollment_site_id = masql.auto_field()
 
-    weight = masql.auto_field(allow_none=True)
-    height = masql.auto_field(allow_none=True)
+    weight = masql.auto_field()
+    height = masql.auto_field()
 
-    race = EnumField(RaceTypes, allow_none=True)
+    race = EnumField(RaceTypes)
 
 
 new_donor_schema = NewDonorSchema()

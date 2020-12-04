@@ -15,17 +15,27 @@
 
 from ..database import db, Base
 from .enums import *
+from ..sample.enums import Colour
 from ..mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
 class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     age = db.Column(db.Integer)
+    colour = db.Column(db.Enum(Colour))
+    registration_date = db.Column(db.Date)
+    mpn = db.Column(db.String(128))
+
     sex = db.Column(db.Enum(BiologicalSexTypes))
+
+    enrollment_site_id = db.Column(db.ForeignKey("siteinformation.id"))
     status = db.Column(db.Enum(DonorStatusTypes))
     death_date = db.Column(db.Date)
-
     weight = db.Column(db.Float)
     height = db.Column(db.Float)
-
     race = db.Column(db.Enum(RaceTypes))
+
+
+class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))

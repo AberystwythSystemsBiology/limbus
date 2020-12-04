@@ -18,7 +18,7 @@ function get_panel_info() {
     return json["content"];
 }
 
-function make_doughnut(dom_id, data, labels, title) {
+function make_doughnut(dom_id, data, labels) {
     new Chart(document.getElementById(dom_id), {
         type: 'doughnut',
         data: {
@@ -34,8 +34,50 @@ function make_doughnut(dom_id, data, labels, title) {
                 display: true
             },
             title: {
-                display: true,
-                text: title
+                display: false
+               }}}
+        );
+}
+
+function make_pie(dom_id, data, labels) {
+    new Chart(document.getElementById(dom_id), {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+                data: data,
+                backgroundColor: dynamicColours(labels.length)
+            }],
+
+        },
+        options: {
+            legend: {
+                display: true
+            },
+            title: {
+                display: false
+               }}}
+        );
+}
+
+function make_bar(dom_id, data, labels) {
+    new Chart(document.getElementById(dom_id), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          barThickness: "flex",
+          datasets: [{
+                data: data,
+                backgroundColor: dynamicColours(labels.length)
+            }],
+
+        },
+        options: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: false
                }}}
         );
 }
@@ -80,125 +122,30 @@ function fill_attribute_statistics(attribute_statistics) {
                 display: false
             },
             title: {
-                display: true,
+                display: false,
                 text: "Attribute Type"
                }}}
         );
 }
 
 function fill_sample_statistics(sample_statistics) {
-    new Chart(document.getElementById("sample_status"), {
-        type: 'doughnut',
-        data: {
-          labels: sample_statistics["sample_status"]["labels"],
-          datasets: [{
-                data: sample_statistics["sample_status"]["data"],
-                backgroundColor: dynamicColours(sample_statistics["sample_status"]["labels"].length)
-            }],
-
-        },
-        options: {
-            legend: {
-                position: "bottom"
-            },
-            title: {
-                dispfill_donor_statisticslay: true,
-                text: "Sample Status"
-               }}}
-        );
-
-        new Chart(document.getElementById("sample_source"), {
-            type: 'doughnut',
-            data: {
-              labels: sample_statistics["sample_source"]["labels"],
-              datasets: [{
-                    data: sample_statistics["sample_source"]["data"],
-                    backgroundColor: dynamicColours(sample_statistics["sample_source"]["labels"].length)
-
-                }],
-    
-            },
-            options: {
-                legend: {
-                    position: "bottom"
-                },
-                title: {
-                    display: true,
-                    text: "Sample Source"
-                   }}}
-            );
-            new Chart(document.getElementById("sample_type"), {
-                type: 'doughnut',
-                data: {
-                  labels: sample_statistics["sample_type"]["labels"],
-                  datasets: [{
-                        data: sample_statistics["sample_type"]["data"],
-                        backgroundColor: dynamicColours(sample_statistics["sample_type"]["labels"].length)
-
-                    }],
-        
-                },
-                options: {
-                    legend: {
-                        position: "bottom"
-                    },
-                    title: {
-                        display: true,
-                        text: "Sample Type"
-                       }}}
-                );
-
-                new Chart(document.getElementById("sample_biohazard"), {
-                    type: 'doughnut',
-                    data: {
-                      labels: sample_statistics["sample_biohazard"]["labels"],
-                      datasets: [{
-                            data: sample_statistics["sample_biohazard"]["data"],
-                            backgroundColor: dynamicColours(sample_statistics["sample_biohazard"]["labels"].length)
-
-                        }],
-            
-                    },
-                    options: {
-                        legend: {
-                            position: "bottom"
-                        },
-                        title: {
-                            display: true,
-                            text: "Sample Biohazard Level"
-                           }}}
-                    );
+    make_doughnut("sample_status", sample_statistics["sample_status"]["data"], sample_statistics["sample_status"]["labels"], "");
+    make_bar("sample_source", sample_statistics["sample_source"]["data"], sample_statistics["sample_source"]["labels"], "");
+    make_pie("sample_biohazard", sample_statistics["sample_biohazard"]["data"], sample_statistics["sample_biohazard"]["labels"], "");
+    make_doughnut("sample_type", sample_statistics["sample_type"]["data"], sample_statistics["sample_type"]["labels"], "");
 
 
 }
 
 function fill_protocol_statistics(protocol_statistics) {
-    new Chart(document.getElementById("protocol_type"), {
-        type: 'bar',
-        data: {
-          labels: protocol_statistics["protocol_type"]["labels"],
-          datasets: [{
-                data: protocol_statistics["protocol_type"]["data"],
-                backgroundColor: dynamicColours(protocol_statistics["protocol_type"]["labels"].length)
-            }],
+    make_pie("protocol_type", protocol_statistics["protocol_type"]["data"], protocol_statistics["protocol_type"]["labels"], "");
 
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                text: "Protocol Type"
-               }}}
-        );
 }
 
 function fill_donor_statistics(donor_statistics) {
     make_doughnut("donor_status", donor_statistics["donor_status"]["data"], donor_statistics["donor_status"]["labels"], "Donor Status");
-    console.log(donor_statistics);
-    make_doughnut("donor_sex", donor_statistics["donor_sex"]["data"], donor_statistics["donor_sex"]["labels"], "Donor Sex");
-    make_doughnut("donor_race", donor_statistics["donor_race"]["data"], donor_statistics["donor_race"]["labels"], "Donor Race");
+    make_pie("donor_sex", donor_statistics["donor_sex"]["data"], donor_statistics["donor_sex"]["labels"], "Donor Sex");
+    make_bar("donor_race", donor_statistics["donor_race"]["data"], donor_statistics["donor_race"]["labels"], "Donor Race");
 
 }
 
@@ -222,7 +169,7 @@ function fill_panel() {
 }
 
 $(document).ready(function() {
-
+    $("body").css({"backgroundColor":"#f8f9fa"});
     fill_panel();
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();

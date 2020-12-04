@@ -38,7 +38,7 @@ function render_content(label, content) {
   if (content == undefined || content == "") {
       content = "Not Available."
   }
-  return '<div class="row"><div class="col-5">'+ label + ':</div><div class="col-7">'+content+'</div></div>';
+  return '<tr"><td width="30%" style="font-weight:bold">'+ label + ':</td><td>'+content+'</td></tr>';
    
 }
 
