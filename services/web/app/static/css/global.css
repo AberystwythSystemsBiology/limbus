@@ -257,7 +257,7 @@ canvas {
 }
 
 .storage {
-    max-width:90% !important;
+    width:100% !important;
 }
 
 footer {

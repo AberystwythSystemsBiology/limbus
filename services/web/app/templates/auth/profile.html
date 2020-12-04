@@ -4,122 +4,143 @@
 {% block title %}My Profile{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
     <div class="container">
-
         <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span>My Profile</h1>
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-        <div class="btn-group mr-2" role="group" aria-label="First group">
-            <a href="{{ url_for('auth.edit') }}">
-                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
-            </a>
-        </div>
-        <div class="btn-group mr-2" role="group" aria-label="Second group">
-            <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#newTokenModal"><i class="fa fa-sync"></i> Generate New Token</button>
-        </div>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('auth.edit') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
+                </a>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#newTokenModal"><i
+                        class="fa fa-sync"></i> Generate New Token</button>
+            </div>
             <div class="btn-group mr-2" role="group" aria-label="Second group">
                 <a href="{{ url_for('auth.change_password') }}">
-                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-key"></i> Change Password</button>
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-key"></i> Change
+                        Password</button>
                 </a>
+            </div>
         </div>
-      </div>
+    </div>
+</div>
+<div class="container">
 
-        <div class="row">
-            <div class="col col-sm-7">
-                <h2>Personal Information</h2>
+
+
+    <div class="row">
+        <div class="col col-sm-7">
+            <h2>Personal Information</h2>
+            <table class="table table-striped">
 
                 {{ show_value(user.email, "Email Address", "text") }}
                 {{ show_value(user.title, "Title", "text") }}
                 {{ show_value(user.first_name, "First Name", "text") }}
                 {{ show_value(user.middle_name, "Middle Name", "text") }}
                 {{ show_value(user.last_name, "Last Name", "text") }}
+            </table>
 
-                <h2>Site Information</h2>
+            <h2>Site Information</h2>
+            <table class="table table-striped">
+
                 {{ show_value(user.site.name, "Site Name", "text") }}
 
-                <h4>Address</h4>
+            </table>
+            <h4>Address</h4>
+            <table class="table table-striped">
+
                 {{ show_value(user.site.address.street_address_one, "Address Line One", "text") }}
                 {{ show_value(user.site.address.street_address_two, "Address Line Two", "text") }}
                 {{ show_value(user.site.address.city, "City", "text") }}
                 {{ show_value(user.site.address.county, "County", "text") }}
                 {{ show_value(user.site.address.country, "Country", "text") }}
                 {{ show_value(user.site.address.post_code, "Post Code", "text") }}
-
-            </div>
-            <div class="col-sm-5">
-                <div class="card">
-                    <div class="card-header text-center">
-                        <h4>Avatar</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
+            </table>
+        </div>
+        <div class="col-sm-5">
+            <div class="card">
+                <div class="card-header text-center">
+                    Avatar
+                </div>
+                <div class="card-body">
+                    <div class="row">
                         <img src="{{ user.gravatar }}" class="mx-auto d-block rounded-circle">
-                        </div>
                     </div>
-                    <div class="card-footer" >
-                        <a href="https://en.gravatar.com/">
+                </div>
+                <div class="card-footer">
+                    <a href="https://en.gravatar.com/">
                         <div class="mx-auto d-block btn btn-primary">
                             Change Gravatar
                         </div>
                     </a>
-                    </div>
                 </div>
-                
+            </div>
 
-                <h2>Account Information</h2>
+
+            <h2>Account Information</h2>
+            <table class="table table-striped">
 
                 {{ show_value(user.created_on, "Created On", "text") }}
                 {{ show_value(user.account_type, "Account Type", "text") }}
+            </table>
 
-
-                <h2>Token Information</h2>
+            <h2>Token Information</h2>
+            <table class="table table-striped">
 
                 {{ show_value(user.token.created_on, "Created On", "text") }}
                 {{ show_value(user.token.updated_on, "Updated On", "text") }}
+            </table>
 
-            </div>
         </div>
-
-
     </div>
 
-    <div class="modal fade" id="newTokenModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
+
+</div>
+
+<div class="modal fade" id="newTokenModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-sync"></i> Generate New Token</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-sync"></i> Generate New Token</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-              <p>Tokens are used to provide access to an external API endpoint. You can use an API token to authenticate a script or other process with an this instance of LImBuS.
-              </p>
+                <p>Tokens are used to provide access to an external API endpoint. You can use an API token to
+                    authenticate a script or other process with an this instance of LImBuS.
+                </p>
 
-              <p>You generate the token from your LImBuS account, then copy and paste it to the script.</p>
+                <p>You generate the token from your LImBuS account, then copy and paste it to the script.</p>
 
-              <div class="alert alert-warning">
-                  <b>Note:</b> Please ensure that you upgrade your scripts if you decide to continue.
-              </div>
+                <div class="alert alert-warning">
+                    <b>Note:</b> Please ensure that you upgrade your scripts if you decide to continue.
+                </div>
 
-              <h3>Use an API token</h3>
+                <h3>Use an API token</h3>
 
-              <p>A primary use case for API tokens is to allow scripts to access REST APIs for LImBuS using HTTP authentication.</p>
+                <p>A primary use case for API tokens is to allow scripts to access REST APIs for LImBuS using HTTP
+                    authentication.</p>
 
-              <p>Depending on the details of the HTTP library you use, simply replace your password with the token. For example, when using curl, you could do something like this:</p>
-              
-              <div class="card card-body bg-light">
-                <code>curl -H "Email: {{ current_user.email }}" -H "Token: your-api-token"  {{ url_for('api.sample_home', _external=True)}}</code>
-              </div>
+                <p>Depending on the details of the HTTP library you use, simply replace your password with the token.
+                    For example, when using curl, you could do something like this:</p>
+
+                <div class="card card-body bg-light">
+                    <code>curl -H "Email: {{ current_user.email }}" -H "Token: your-api-token"  {{ url_for('api.sample_home', _external=True)}}</code>
+                </div>
             </div>
             <div class="modal-footer">
                 <a href="{{ url_for('auth.generate_token') }}">
                     <div class="btn btn-success">Continue</div>
                 </a>
             </div>
-          </div>
         </div>
-      </div>
+    </div>
+</div>
 
 
 {% endblock %}

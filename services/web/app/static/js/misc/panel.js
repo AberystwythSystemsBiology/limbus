@@ -169,7 +169,7 @@ function fill_panel() {
 }
 
 $(document).ready(function() {
-    $("body").css({"backgroundColor":"#f8f9fa"});
+    $("body").css({"backgroundColor":"#eeeeee"});
     fill_panel();
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();
