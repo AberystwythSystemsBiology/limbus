@@ -22,18 +22,15 @@ from flask import (
     current_app,
     session,
     flash,
+    request
 )
 from flask_login import login_required, current_user
 import requests
+from datetime import datetime
 
-from .forms import DonorCreationForm
+from .forms import DonorCreationForm, DonorFilterForm
 from ..misc import get_internal_api_header
 
-
-import uuid
-
-from ..misc import get_internal_api_header
-import requests
 
 strconv = lambda i: i or None
 
@@ -41,15 +38,22 @@ strconv = lambda i: i or None
 @donor.route("/")
 @login_required
 def index():
+    form=DonorFilterForm()
+    return render_template("donor/index.html", form=form)
+
+@donor.route("/query", methods=["POST"])
+@login_required
+def query_index():
     response = requests.get(
-        url_for("api.donor_home", _external=True), headers=get_internal_api_header()
+        url_for("api.donor_query", _external=True),
+        headers=get_internal_api_header(),
+        json=request.json,
     )
 
     if response.status_code == 200:
-        return render_template("donor/index.html", donors=response.json()["content"])
+        return response.json()
     else:
-        return abort(response.status_code)
-
+        abort(response.status_code)
 
 @donor.route("/LIMBDON-<id>")
 @login_required
@@ -68,41 +72,49 @@ def view(id):
 @login_required
 @donor.route("/new", methods=["GET", "POST"])
 def add():
-    form = DonorCreationForm()
-    if form.validate_on_submit():
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True),
+        headers=get_internal_api_header()
+    )
 
-        death_date = None
+    if sites_response.status_code == 200:
 
-        if form.status.data == "DE":
-            death_date = form.death_date.data  # , '%Y-%m-%d')
+        form = DonorCreationForm(sites_response.json()["content"])
+        if form.validate_on_submit():
 
-        form_information = {
-            "age": form.age.data,
-            "sex": form.sex.data,
-            "status": form.status.data,
-            "race": form.race.data,
-            "death_date": death_date,
-            "weight": form.weight.data,
-            "height": form.height.data,
-        }
+            death_date = None
 
-        # Set empty field to Null
-        for i in form_information:
-            form_information[i] = strconv(form_information[i])
+            if form.status.data == "DE":
+                death_date = str(form.death_date.data)
 
-        response = requests.post(
-            url_for("api.donor_new", _external=True),
-            headers=get_internal_api_header(),
-            json=form_information,
-        )
+            form_information = {
+                "age": form.age.data,
+                "enrollment_site_id": form.site.data,
+                "registration_date": form.registration_date.data,
+                "sex": form.sex.data,
+                "colour": form.colour.data,
+                "status": form.status.data,
+                "mpn": form.mpn.data,
+                "race": form.race.data,
+                "death_date": death_date,
+                "weight": form.weight.data,
+                "height": form.height.data,
+            }
 
-        if response.status_code == 200:
-            flash("Donor information successfully added!")
-            return redirect(url_for("donor.index"))
-        else:
-            return abort(response.status_code)
+            response = requests.post(
+                url_for("api.donor_new", _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
 
-    return render_template("donor/add.html", form=form)
+            if response.status_code == 200:
+                flash("Donor information successfully added!")
+                return redirect(url_for("donor.index"))
+
+            abort(response.status_code)
+
+        return render_template("donor/add.html", form=form)
+    abort(response.status_code)
 
 
 @login_required
@@ -114,18 +126,25 @@ def edit(id):
     )
 
     if response.status_code == 200:
+
+        donor_info = response.json()["content"]
+
+        donor_info["death_date"] = datetime.strptime(
+            donor_info["death_date"], "%Y-%m-%d"
+        )
+
         form = DonorCreationForm(data=response.json()["content"])
         if form.validate_on_submit():
 
             death_date = None
             if form.status.data == "DE":
-                death_date = strconv(form.death_date.data)  # , '%Y-%m-%d')
+                death_date = str(form.death_date.data)
 
             form_information = {
                 "age": form.age.data,
                 "sex": form.sex.data,
                 "status": form.status.data,
-                "death_date": death_date,  # form.death_date.data,
+                "death_date": death_date,
                 "weight": form.weight.data,
                 "height": form.height.data,
                 "race": form.race.data,

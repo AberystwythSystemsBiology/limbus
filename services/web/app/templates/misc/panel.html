@@ -20,8 +20,10 @@
       <h2>Getting the panel ready for you.</h2>
       </div>
   </div>
-
-    <div id="content" class="container" style="display: none;">
+  
+    <div id="content" style="display: none;">
+      <div class="jumbotron" style="margin-top:-15px;">
+        <div class="container">
         <h1><span class="secondary-heading"><i class="fa fa-solar-panel"></i> Overview Panel</span><span id="biobank_name"></span></h1>
 
         <div class="row">
@@ -51,42 +53,132 @@
                   </div>
             </div>          
         </div>
+      </div>
+    </div>
 
-        <h2><i class="fas fa-vial"></i> Samples Overview</h2>
+    <div class="panel-background">
 
-        <div class="row">
-          <div class="col-3">
+    <div class="container">
+
+
+      <div class="card-deck mb-3 text-center">
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Sample Status</h4>
+          </div>
+          <div class="card-body">
             <canvas id="sample_status" width="100%" height="100%"></canvas>
           </div>
-          <div class="col-3">
+        </div>
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Sample Type</h4>
+          </div>
+          <div class="card-body">
             <canvas id="sample_source" width="100%" height="100%"></canvas>
           </div>
-          <div class="col-3">
+        </div>
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Sample Type</h4>
+          </div>
+          <div class="card-body">
             <canvas id="sample_type" width="100%" height="100%"></canvas>
           </div>
-          <div class="col-3">
+        </div>
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Biohazard Level</h4>
+          </div>
+          <div class="card-body">
             <canvas id="sample_biohazard" width="100%" height="100%"></canvas>
           </div>
         </div>
-
-
-        <h2><i class="fa fa-cloud-meatball"></i> Metadata Overview</h2>
+      </div>
         
-        <div class="row">
-          <div class="col-4">
-            <canvas id="document_type" width="100%" height="100%"></canvas>
+
+      
+      <div class="row">
+        <div class="col-9">
+
+          <div class="card-deck mb-3 text-center">
+            <div class="card mb-4 box-shadow">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Donor Status</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="donor_status" width="100%" height="100%"></canvas>
+              </div>
+            </div>
+            <div class="card mb-4 box-shadow">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Donor Sex</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="donor_sex" width="100%" height="100%"></canvas>
+              </div>
+            </div>
+            <div class="card mb-4 box-shadow">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Donor Race</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="donor_race" width="100%" height="100%"></canvas>
+              </div>
+            </div>
+            
           </div>
-          <div class="col-4">
-            <canvas id="attribute_type" width="100%" height="100%"></canvas>
+    
+    
+          <div class="card-deck mb-3 text-center">
+            <div class="card mb-4 box-shadow">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Document Type</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="document_type" width="100%" height="100%"></canvas>
+              </div>
+            </div>
+            <div class="card mb-4 box-shadow">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Attribute Type</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="attribute_type" width="100%" height="100%"></canvas>
+              </div>
+            </div>
+            <div class="card mb-4 box-shadow">
+              <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Protocol Type</h4>
+              </div>
+              <div class="card-body">
+                <canvas id="protocol_type" width="100%" height="100%"></canvas>
+              </div>
+            </div>
+            
           </div>
-          <div class="col-4">
-            <canvas id="protocol_type" width="100%" height="100%"></canvas>
+
+        </div>
+        <div class="col-3">
+          <div class="card mb-4 box-shadow text-center">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">Reminders</h4>
+            </div>
+            <div class="card-body">
+                <h2>Coming Soon</h2>
+            </div>
           </div>
         </div>
 
+      </div>
+
+      
+      
 
 
 
+      </div>
+    </div>
     </div>
 {% endblock %}
 

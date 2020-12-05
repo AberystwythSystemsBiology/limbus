@@ -4,8 +4,8 @@
 {% block title %}Edit Consent Template{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
     <div class="container">
-
         <h1>
             <span class="secondary-heading">
                 <a href="{{ url_for('consent.view', id=template.id) }}">
@@ -14,6 +14,11 @@
             </span>
             Edit Details
         </h1>
+    </div>
+</div>
+    <div class="container">
+
+        
 
         <form action="{{ url_for('consent.edit', id=template.id) }}" method="POST">
             {{ form.csrf_token }}

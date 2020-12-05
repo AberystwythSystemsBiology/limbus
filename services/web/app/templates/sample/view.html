@@ -3,192 +3,208 @@
 {% block title %}{{ uuid }}{% endblock %}
 
 {% block body %}
-    <div id="loading-screen" class="container text-center">
-        <div class="loading">
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;" >
-              <span class="sr-only">Loading...</span>
-            </div>
-          </div>
-
-          <h1>Just a sec...</h1>
-          <h2>Getting {{ uuid }} </h2>
-          </div>
+<div id="loading-screen" class="container text-center">
+  <div class="loading">
+    <div class="d-flex justify-content-center">
+      <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;">
+        <span class="sr-only">Loading...</span>
+      </div>
     </div>
 
+    <h1>Just a sec...</h1>
+    <h2>Getting {{ uuid }} </h2>
+  </div>
+</div>
 
-    <div id="content" class="container" style="display: none;">
-        
-        <h1><span class="secondary-heading">
+
+<div id="content" style="display: none;">
+
+  <div class="jumbotron" style="">
+    <div class="container">
+      <div class="row">
+        <div class="col-10">
+          <h1><span class="secondary-heading">
             <a href="{{ url_for('sample.index') }}">
-                    <i class="fas fa-vial"></i> Sample Portal
+              <i class="fas fa-vial"></i> Sample Portal
             </a></span> <span id="uuid"></span></h1>
-            <h4 id="parent_div" style="display: none; margin-top:-5px;" class="text-muted"> Parent Sample: <span id="parent"></span></h4>
-            
-
-            <div class="row text-muted">
-              <div class="col-7">
-                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                  <div class="btn-group mr-2" role="group" aria-label="First group">
-                      <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i class="fa fa-question"></i> View Consent</button>
-                  </div>
-                  
-                  <div class="btn-btn-group mr-2" role="group">
-                  <div class="dropdown">
-                    <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-vial"></i> Sample Actions
-                    </button>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i class="fas fa-vial"></i>Aliquot</a>
-                      <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
-                      <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid ) }}"><i class="fas fa-file"></i> Associate Document</a>
-
-                    </div>
-                  </div>
+          <h4 id="parent-div" style="display: none; margin-top:-5px;" class="text-muted"> Parent Sample: <span
+              id="parent"></span></h4>
+  
+  
+        <div class="text-muted">
+          <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
+                  class="fa fa-question"></i> View Consent</button>
+            </div>
+  
+            <div class="btn-btn-group mr-2" role="group">
+              <div class="dropdown">
+                <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-vial"></i> Sample Actions
+                </button>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
+                      class="fas fa-vial"></i>Aliquot</a>
+                  <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
+                  <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid ) }}"><i
+                      class="fas fa-file"></i> Associate Document</a>
                 </div>
-  
-  
-  
-             </div>                          
               </div>
-              <div class="col-5 text-right">
-                  
-                  <div class="clearfix"></div>
-                  <i class="fa fa-calendar"></i> Created On: <span id="created_on"></span>
-                  <div class="clearfix"></div>
-                  <i class="fa fa-user"></i> Created By: <span id="created_by"></span>
-              </div>
+            </div>
+  
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+              <button type="button" class="btn btn-outline-dark" id="print-label-btn"><i class="fa fa-print"></i> Print
+                Label</button>
+            </div>
   
           </div>
-  
+        </div>
 
+        </div>
+        <div class="col-2">
+          <div class="card">
+            <div class="card-body">
+              <img id="barcode" alt="barcode" style="width:100%;" />
 
-        
-        <div class="row">
-            <div class="col-9">
-                <h2>Sample Information</h2>
-                <div id="basic_information"></div>
-                <h2>Collection Information</h2>
-                <div id="collection_information"></div>
-                <h2>Processing Information</h2>
-                <div id="processing_information"></div>
-                <div id="documents">
-
-                  <h2><i class="fas fa-file"></i> Associated Documents</h2>
-                  <table id="documentTable" class="table table-striped table-bordered" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Document</th>
-                            <th>Type</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    </tbody>
-                </table>
             </div>
-
-                <h2>Comments</h2>
-                <blockquote class="jumbotron blockquote">
-                  <p class="mb-0" id="comments">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-                </blockquote>
-
-                <div id="lineage">
-
-                <h2>Lineage</h2>
-
-                <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
-                  <thead>
-                      <tr>
-                          <th>Identifier</th>
-                          <th>Type</th>
-                          <th>Quantity</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-
-                  </tbody>
-              </table>
+            <div class="card-footer">
+              <div id="qrcode" class="btn btn-sm btn-outline-dark">
+                QR
+              </div>
+              <div id="datamatrix" class="btn btn-sm btn-outline-dark">
+                DataMatrix
               </div>
             </div>
-            <div class="col-3 text-center">
-
-                <div class="card">
-                  <div class="card-header">
-                      <h4>Sample Quantity</h4>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="quantity-chart" width="100%" height="100%"></canvas>
-                  </div>
-
-                </div>
-              </br>
-
-                <div class="card">
-                  <div class="card-header">
-                      <h4>Sample Barcode</h4>
-                  </div>
-                  <div class="card-body">
-                    <img id="barcode" alt="barcode" style="margin: 0 auto 0; padding: 1em;"/>
-                  </div>
-                  <div class="card-footer">
-                    <div id="qrcode" class="btn btn-outline-dark">
-                      <i class="fa fa-qrcode"></i> QRCode
-                    </div>
-                    <div id="datamatrix" class="btn btn-outline-dark">
-                      <i class="fa fa-qrcode"></i> DataMatrix
-                    </div>
-                  </div>
-                </div>
-
-
-            </div>
+          </div>
         </div>
 
-    </div>
+      
 
 
-
-<!-- Consent Modal -->
-<div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog" aria-labelledby="consentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Digital Consent Form</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="card">
-                <div class="card-header">
-                    <div class="text-center">
-                        <h2><span id="consent_name"></span></h2>
-                        <h3>Version: <span id="consent_version"></span></h3>
-                    </div>
-                    
-                    <label>Patient Consent Form ID/Code</label>
-                    <p><span id="consent_identifier"></span></p>
-                </div>
-                <ul id="questionnaire-list" class="list-group list-group-flush">
-                    
-                </ul>
-                <div class="card-footer">
-                    <label>Comments</label>
-
-                    <label>Date Signed</label>
-                    <p><span id="consent_date_signed"></span></p>
-                </div>
-            </div>
-        
       </div>
     </div>
   </div>
+
+
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-9">
+        <h2>Basic Information</h2>
+
+        <table class="table table-striped" id="basic-information"></table>
+
+        <h2>Collection Information</h2>
+        <table class="table table-striped" id="collection_information"></table>
+        <h2>Processing Information</h2>
+        <table class="table table-striped" id="processing_information"></table>
+
+        <div id="documents">
+
+          <h2><i class="fas fa-file"></i> Associated Documents</h2>
+          <table id="documentTable" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+              <tr>
+                <th>Document</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Comments</h2>
+        <blockquote class="blockquote">
+          <p class="mb-0" id="comments">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a
+            ante.</p>
+        </blockquote>
+
+        <div id="lineage">
+
+          <h2>Lineage</h2>
+
+          <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+              <tr>
+                <th>Identifier</th>
+                <th>Type</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-3 text-center">
+
+        <div class="card">
+          <div class="card-header">
+            <h4>Sample Quantity</h4>
+          </div>
+          <div class="card-body">
+            <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+          </div>
+
+        </div>
+        </br>
+
+        
+
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Consent Modal -->
+<div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog"
+  aria-labelledby="consentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Digital Consent Form</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="text-center">
+            <h2><span id="consent_name"></span></h2>
+            <h3>Version: <span id="consent_version"></span></h3>
+          </div>
+
+          <label>Patient Consent Form ID/Code</label>
+          <p><span id="consent_identifier"></span></p>
+        </div>
+        <ul id="questionnaire-list" class="list-group list-group-flush">
+
+        </ul>
+        <div class="card-footer">
+          <label>Comments</label>
+
+          <label>Date Signed</label>
+          <p><span id="consent_date_signed"></span></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/sample/view.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sample/view.js') }}"></script>
 {% endblock %}

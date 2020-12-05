@@ -4,8 +4,8 @@
 {% block title %}Edit Question{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
     <div class="container">
-
         <h1>
             <span class="secondary-heading">
                 <a href="{{ url_for('consent.view_question', id=template, q_id=question.id) }}">
@@ -14,6 +14,11 @@
             </span>
             Edit
         </h1>
+    </div>
+</div>
+    <div class="container">
+
+        
 
         <form action="{{ url_for('consent.edit_question', id=template, q_id=question.id) }}" method="POST">
             {{ form.csrf_token }}

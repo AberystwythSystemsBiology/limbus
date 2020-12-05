@@ -29,30 +29,62 @@ from wtforms import (
 
 # from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
-
-
 from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
+from ..sample.enums import Colour
 
+class DonorFilterForm(FlaskForm):
 
-class DonorCreationForm(FlaskForm):
-
-    age = StringField(
-        "Age (years)", description="The length of time that a donor has lived in years."
-    )
     sex = SelectField(
         "Biological Sex",
-        choices=BiologicalSexTypes.choices(),
-        )
-    status = SelectField("Status", choices=DonorStatusTypes.choices())
-
-    death_date = DateField("Date of Death", validators=[Optional()])
-
-    weight = StringField("Weight (kg)")
-    height = StringField("Height (cm)")
-
+        choices=BiologicalSexTypes.choices(with_none=True),
+    )
+    status = SelectField("Status", choices=DonorStatusTypes.choices(with_none=True))
     race = SelectField(
         "Race",
-        choices=RaceTypes.choices(),
+        choices=RaceTypes.choices(with_none=True),
+    )
+
+
+def DonorCreationForm(sites: dict):
+    class StaticForm(FlaskForm):
+        colour = SelectField("Colour", choices=Colour.choices())
+
+        age = StringField(
+            "Age", description="The length of time that a donor has lived for in years."
+        )
+        sex = SelectField(
+            "Biological Sex",
+            choices=BiologicalSexTypes.choices(),
         )
 
-    submit = SubmitField("Submit")
+        mpn = StringField("Master Patient Number")
+
+        registration_date = DateField("Registration Date")
+
+        status = SelectField("Status", choices=DonorStatusTypes.choices())
+
+        death_date = DateField("Date of Death")
+
+        weight = StringField("Weight (kg)", validators=[DataRequired()])
+        height = StringField("Height (cm)", validators=[DataRequired()])
+
+        race = SelectField(
+            "Race",
+            choices=RaceTypes.choices(),
+        )
+
+        submit = SubmitField("Submit")
+
+    site_choices = []
+    for site in sites:
+        site_choices.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
+
+    setattr(StaticForm, "site",         # enrollment site
+        SelectField(
+            "Enrollment Site",
+            choices=site_choices,
+            coerce=int
+        ))
+
+    return StaticForm()
+

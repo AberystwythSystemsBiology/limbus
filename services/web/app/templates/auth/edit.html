@@ -4,9 +4,16 @@
 {% block title %}Edit User Account{% endblock %}
 
 {% block body %}
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span><i class="fa fa-key"></i> Edit</h1>
+
+        </div>
+    </div>
+
     <div class="container">
 
-        <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span><i class="fa fa-key"></i> Edit</h1>
 
         <form action="{{ url_for('auth.edit') }}" method="POST">
             {{ form.csrf_token }}

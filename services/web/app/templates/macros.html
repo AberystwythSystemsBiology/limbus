@@ -156,23 +156,22 @@
 
 
 {% macro show_value(attribute, label, type) -%}
-    <div class="row" style="padding-bottom: 1em;">
-        <div class="col-5">{{ label }}:</div>
-        <div class="col-7">
-            {% if type == "enum" %}
-                {{ attribute.value }}
-            {% elif type == "datetime" %}
-                {{ attribute.strftime('%d-%m-%Y') }}
+<tr>
+    <td width="30%"><b>{{ label }}:</b></td>
+    <td>{% if type == "enum" %}
+        {{ attribute.value }}
+    {% elif type == "datetime" %}
+        {{ attribute.strftime('%d-%m-%Y') }}
 
-            {% else %}
-                {% if attribute == "" %}
-                    Not Available
-                {% else %}
-                    {{ attribute }}
-                {% endif %}
-            {% endif %}
-        </div>
-    </div>
+    {% else %}
+        {% if attribute == "" %}
+            Not Available
+        {% else %}
+            {{ attribute }}
+        {% endif %}
+    {% endif %}</td>
+  </tr>
+    
 
 {%- endmacro %}
 
