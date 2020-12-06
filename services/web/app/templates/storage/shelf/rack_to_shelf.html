@@ -11,13 +11,19 @@
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="storage container">
-            <h1><span class="secondary-heading">
-                <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
-                    <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</span>
-                </a>
-                <i class="fa fa-grip-vertical"></i> Assign Rack
-            </h1>
+        <div class="storage">
+            <div class="jumbotron">
+                <div class="container">
+                    <h1><span class="secondary-heading">
+                        <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
+                            <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</span>
+                        </a>
+                        <i class="fa fa-grip-vertical"></i> Assign Rack
+                    </h1>
+                </div>
+            </div>
+            
+            <div class="container">
 
             <form method="POST" action="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id ) }}">
                 {{ form.csrf_token }}
@@ -37,6 +43,7 @@
             </form>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}

@@ -10,8 +10,15 @@
 {% block body %}
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="storage container">
-            <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBROOM-{{room.id}} ({{ room.name }}) </span>New Cold Storage</h1>
+        <div class="storage">
+            <div class="jumbotron">
+                <div class="container">
+                    <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBROOM-{{room.id}} ({{ room.name }}) </span>New Cold Storage</h1>
+
+                </div>
+            </div>
+
+            <div class="container">
 
             <form method="POST" action="{{ url_for('storage.new_cold_storage', id=room.id) }}">
                 {{ form.csrf_token }}
@@ -23,7 +30,7 @@
 
                 {{ form_field(form.submit) }}
             </form>
-
+        </div>
 
         </div>
     </div>

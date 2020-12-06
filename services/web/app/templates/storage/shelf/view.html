@@ -10,7 +10,7 @@
 {% block body %}
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
-    <div class="storage container">
+    <div class="storage">
 
         <div id="loading-screen" class="container text-center">
             <div class="loading">
@@ -27,50 +27,51 @@
 
         <div id="content" style="display: none;">
             <div class="jumbotron">
-                
-            </div>
-        <h1>
-            <span class="secondary-heading">
-                <span id="storage-href">
-                    <i class="fa fa-temperature-low"></i> LIMBCS-<span id="storage-id"></span></span></span>
-            <i class="fa fa-bars"></i> LIMBSHF-{{ id }}</span></h1>
-
-
-        <div class="row text-muted">
-            <div class="col-7">
-                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <button id="edit-details-btn" type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                Details
-                            </button>
+                <div class="container">
+                    <h1>
+                        <span class="secondary-heading">
+                            <span id="storage-href">
+                                <i class="fa fa-temperature-low"></i> LIMBCS-<span id="storage-id"></span></span></span>
+                        <i class="fa fa-bars"></i> LIMBSHF-{{ id }}</span></h1>
+            
+            
+                    <div class="row text-muted">
+                        <div class="col-7">
+                            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                        <button id="edit-details-btn" type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                            Details
+                                        </button>
+                                </div>
+            
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                        <button id="add-sample-btn" type="button" class="btn btn-outline-dark">
+                                            <i class="fas fa-vial"></i> Add Sample
+                                        </button>
+                                </div>
+            
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                        <button id="add-rack-btn" type="button" class="btn btn-outline-dark">
+                                            <i class="fa fa-grip-vertical"></i> Add Rack
+                                        </button>
+                                </div>
+            
+            
+            
+                            </div>
+                        </div>
+                        <div class="col-5 text-right">
+                            <i class="fa fa-calendar"></i> Created On: <span id="created-on"></span>
+                            <div class="clearfix"></div>
+                            <i class="fa fa-user"></i> Created By: <span id="created-by"></span>
+                        </div>
                     </div>
-
-                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <button id="add-sample-btn" type="button" class="btn btn-outline-dark">
-                                <i class="fas fa-vial"></i> Add Sample
-                            </button>
-                    </div>
-
-                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <button id="add-rack-btn" type="button" class="btn btn-outline-dark">
-                                <i class="fa fa-grip-vertical"></i> Add Rack
-                            </button>
-                    </div>
-
-
-
                 </div>
             </div>
-            <div class="col-5 text-right">
-                <i class="fa fa-calendar"></i> Created On: <span id="created-on"></span>
-                <div class="clearfix"></div>
-                <i class="fa fa-user"></i> Created By: <span id="created-by"></span>
-            </div>
-        </div>
-
-        <div id="shelf-information">
-
-        </div>
+        
+        <div class="container">
+        <h2>Information</h2>
+        <table class="table table-striped" id="shelf-information"></table>
 
         <div id="sample-div">
             <h2><i class="fas fa-vial"></i> Stored Samples</h2>
@@ -111,7 +112,7 @@
         </div>
     </div>
 </div>
-</div>
+</div></div>
 {% endblock %}
 
 {% block javascript %}

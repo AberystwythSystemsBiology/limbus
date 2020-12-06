@@ -30,43 +30,44 @@
             <div id="content"style="display: none;">
 
                 <div class="jumbotron">
-                    
-                </div>
-
-                <h1><span id="sh" class="secondary-heading"></span>
-                    <span id="colour"></span>LIMBRACK-{{ id }}
-                </h1>
-                <div class="row text-muted">
-                    <div class="col-7">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                            <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.edit_rack', id=id) }}">
-                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                        Details
-                                    </button>
-                                </a>
-                            </div>   
-                            
+                    <div class="container">
+                        <h1><span id="sh" class="secondary-heading"></span>
+                            <span id="colour"></span>LIMBRACK-{{ id }}
+                        </h1>
+                        <div class="row text-muted">
+                            <div class="col-7">
+                                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                                        <a href="{{ url_for('storage.edit_rack', id=id) }}">
+                                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                                Details
+                                            </button>
+                                        </a>
+                                    </div>   
+                                    
+                                </div>
+                                
+        
+        
+                            </div>
+                            <div class="col-5 text-right">
+                                <i class="fa fa-calendar"></i> Created On: <span id="createdOn"></span>
+                                <div class="clearfix"></div>
+                                <i class="fa fa-user"></i> Created By: <span id="createdBy"></span>
+                            </div>
                         </div>
-                        
-
-
-                    </div>
-                    <div class="col-5 text-right">
-                        <i class="fa fa-calendar"></i> Created On: <span id="createdOn"></span>
-                        <div class="clearfix"></div>
-                        <i class="fa fa-user"></i> Created By: <span id="createdBy"></span>
+           
                     </div>
                 </div>
 
+                <div class="container">
                     <div class="row">
                         <div class="col-10">
-                            <h2>Rack Information</h2>
+                            <h2>Information</h2>
                     
 
             
-                    <div id="rack_information">
-                    </div>
+                    <table id="rack_information" class="table table-striped"></table>
 
                             
                         </div>
@@ -108,7 +109,7 @@
         </div>
     </div>
 
-
+</div>
 
     <div class="modal fade" tabindex="-1" role="dialog" id="sampleInfoModal" aria-hidden="true">
         <div class="modal-dialog modal-lg">

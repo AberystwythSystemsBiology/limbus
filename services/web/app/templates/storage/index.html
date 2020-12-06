@@ -11,7 +11,7 @@
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="storage container">
+        <div class="storage">
             
             <div id="loading-screen" class="container text-center">
                 <div class="loading">
@@ -26,53 +26,64 @@
                   </div>
               </div>
             
-            <div id="content" class="container" style="display: none;">
-
-            <h1><i class="fas fa-boxes"></i> Sample Storage Portal</h1>
-            
-            <div class="row">
-                <div class="col-sm-3">
-                  <div class="data">
-                      <span id="site_count" class="data large"></span>
-                      <span class="data small">Sites</span>
+            <div id="content" style="display: none;">
+              <div class="jumbotron">
+                <div class="container">
+                <h1><i class="fas fa-boxes"></i> Sample Storage Portal</h1>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <div class="data">
+                        <span id="site_count" class="data large"></span>
+                        <span class="data small">Sites</span>
+                      </div>
+                </div>
+                    <div class="col-sm-3">
+                        <div class="data">
+                            <span id="building_count" class="data large"></span>
+                            <span class="data small">Buildings</span>
+                          </div>
                     </div>
+                    
+                    <div class="col-sm-3">
+                        <div class="data">
+                            <span id="room_count" class="data large"></span>
+                            <span class="data small">Rooms</span>
+                          </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="data">
+                            <span id="cold_storage_count" class="data large"></span>
+                            <span class="data small">Cold Storage</span>
+                          </div>
+                    </div>          
+                </div>
               </div>
-                  <div class="col-sm-3">
-                      <div class="data">
-                          <span id="building_count" class="data large"></span>
-                          <span class="data small">Buildings</span>
-                        </div>
-                  </div>
-                  
-                  <div class="col-sm-3">
-                      <div class="data">
-                          <span id="room_count" class="data large"></span>
-                          <span class="data small">Rooms</span>
-                        </div>
-                  </div>
-                  <div class="col-sm-3">
-                      <div class="data">
-                          <span id="cold_storage_count" class="data large"></span>
-                          <span class="data small">Cold Storage</span>
-                        </div>
-                  </div>          
               </div>
-      
+            
+            
+              <div class="container">
+                <div class="card-deck mb-3 text-center">
+                  <div class="card mb-4 box-shadow">
+                    <div class="card-header">
+                      <h4 class="my-0 font-weight-normal">Cold Storage Type</h4>
+                    </div>
+                    <div class="card-body">
+                      <canvas id="cold_storage_type" width="100%" height="100%"></canvas>
+                    </div>
+                  </div>
+                  <div class="card mb-4 box-shadow">
+                    <div class="card-header">
+                      <h4 class="my-0 font-weight-normal">Cold Storage Temperatures</h4>
+                    </div>
+                    <div class="card-body">
+                      <canvas id="cold_storage_temp" width="100%" height="100%"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
               
-            <h2><i class="fa fa-temperature-low "></i> Cold Storage Overview</h2>
 
-            <!-- Present Data Here -->
-            <div class="row">
-                <div class="col-1"></div>
-                <div class="col-5">
-                    <canvas id="cold_storage_type" width="100%" height="100%"></canvas>
-                  </div>
-                  <div class="col-5">
-                    <canvas id="cold_storage_temp" width="100%" height="100%"></canvas>
-                  </div>
-                  <div class="col-1"></div>
 
-            </div>
             </div>
         </div>
     </div>
@@ -81,6 +92,7 @@
 {% block javascript %}
     <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/panel.js') }}"></script>
 
 {% endblock %}

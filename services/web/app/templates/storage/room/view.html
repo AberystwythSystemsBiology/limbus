@@ -11,65 +11,71 @@
 
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="storage container">
-
-            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                <h1>
-                    <span class="secondary-heading">
-                        <a href="{{ url_for('storage.view_building', id=room.building_id) }}">
-                            <i class="fa fa-building"></i> LIMBBUILD-{{ room.building_id }}
-                                        </a>
-                    </span>
-                    <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
-                </h1>
-
-            </span>
-            
-
-            
-            <div class="row text-muted">
-                <div class="col-7">
-                    <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                        {% if not room.is_locked %}
-
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('storage.new_cold_storage', id=room.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fas fa-plus"></i>
-                                    Add Cold Storage
-                                </button>
-                            </a>
-                        </div>
-
+        <div class="storage">
+            <div class="jumbotron">
+                <div class="container">
+                    <h1>
+                        <span class="secondary-heading">
+                            <a href="{{ url_for('storage.view_building', id=room.building_id) }}">
+                                <i class="fa fa-building"></i> LIMBBUILD-{{ room.building_id }}
+                                            </a>
+                        </span>
+                        <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
+                    </h1>
+    
+                
+    
+                
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            {% if not room.is_locked %}
+    
                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.edit_room', id=room.id) }}">
-                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                        Details
+                                <a href="{{ url_for('storage.new_cold_storage', id=room.id) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fas fa-plus"></i>
+                                        Add Cold Storage
                                     </button>
                                 </a>
                             </div>
-
     
-                        {% endif %}
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="{{ url_for('storage.edit_room', id=room.id) }}">
+                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                            Details
+                                        </button>
+                                    </a>
+                                </div>
     
-                        <div class="btn-group mr-2" role="group" aria-label="Second group">
-                            <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
-                                Unl{% else %}L{% endif %}ock
-                            </button>
+        
+                            {% endif %}
+        
+                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: {{ room.created_on }}
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(room.author) }}
+                    </div>
                 </div>
-                <div class="col-5 text-right">
-                    <i class="fa fa-calendar"></i> Created On: {{ room.created_on }}
-                    <div class="clearfix"></div>
-                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(room.author) }}
+    
                 </div>
             </div>
-
+  
+            <div class="container">
 
             <h2>Room Information</h2>
+            
+            <table class="table table-striped">
+                {{ show_value(room.name, "Room Name", "text") }}
 
-            {{ show_value(room.name, "Room Name", "text") }}
+            </table>
 
             <h2><i class="fa fa-temperature-low"></i> Cold Storage</h2>
 
@@ -95,6 +101,8 @@
             {% endfor %}
 
         </div>
+    </div>
+
     </div>
 
 {% endblock %}

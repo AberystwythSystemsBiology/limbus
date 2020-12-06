@@ -9,8 +9,10 @@
 {% block body %}
     <div id="sidebar-wrapper">
     {{ storage_navbar() }}
-    <div class="storage container">
-            <h1>
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>
                     <span class="secondary-heading">
                         <a href="{{ url_for('storage.view_cold_storage', id=cs.id) }}">
                             <i class="fa fa-cube"></i> LIMBCS-{{ cs.id }}                </a>
@@ -18,6 +20,10 @@
                 <i class="fa fa-edit"></i> Edit Cold Storage
             </h1>
 
+            </div>
+        </div>
+            
+        <div class="container">
 
             <form method="POST" action="{{ url_for('storage.edit_cold_storage', id=cs.id ) }}">
                 {{ form.csrf_token }}
@@ -29,7 +35,7 @@
                 {{ form_field(form.submit) }}
             </form>
     </div>
-
+</div>
     </div>
 {% endblock %}
 

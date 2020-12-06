@@ -10,20 +10,28 @@
 {% block body %}
     <div id="sidebar-wrapper">
         {{ storage_navbar() }}
-        <div class="storage container">
+        <div class="storage">
+            <div class="jumbotron">
+                <div class="container">
+                    <h1>
+                        <span class="secondary-heading">
+                            <a href="{{ url_for('storage.view_room', id=room.id) }}">
+                                <i class="fa fa-door-closed"></i> LIMBROOM-{{room.id}}
+                            </a>
+                        </span>Edit Room</h1>
+                </div>
+            </div>
 
-            <h1>
-                <span class="secondary-heading">
-                    <a href="{{ url_for('storage.view_room', id=room.id) }}">
-                        <i class="fa fa-door-closed"></i> LIMBROOM-{{room.id}}
-                    </a>
-                </span>Edit Room</h1>
+            <div class="container">
+                <form method="POST" action="{{ url_for('storage.edit_room', id=room.id) }}">
+                    {{ form.csrf_token }}
+                    {{ form_field(form.name) }}
+                    {{ form_field(form.submit) }}
+                </form>
+            </div>
             
-            <form method="POST" action="{{ url_for('storage.edit_room', id=room.id) }}">
-                {{ form.csrf_token }}
-                {{ form_field(form.name) }}
-                {{ form_field(form.submit) }}
-            </form>
+            
+
 
         </div>
     </div>

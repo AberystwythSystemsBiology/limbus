@@ -10,15 +10,17 @@
 {% block body %}
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
-    <div class="storage container">
-
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
         <h1><span class="secondary-heading">
             <a href="{{ url_for('storage.view_site', id=site.id) }}">
                 <i class="fas fa-boxes"></i> LIMBSITE-{{site.id}}</span>
             </a>
             Register Building
         </h1>
-        
+    </div>
+</div>
         <form method="POST" action="{{ url_for('storage.new_building', id=site.id) }}">
             {{ form.csrf_token }}
             {{ form_field(form.name) }}
