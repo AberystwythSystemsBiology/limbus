@@ -11,16 +11,21 @@
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
   
-      <div class="storage container">
+      <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('storage.add_rack') }}">
+                        <i class="fa fa-grip-vertical"></i> New Sample Rack
+                        </a>
+                    </span>
+                    <i class="fa fa-upload"></i> Step Two: File Validation</h1>
+                
+            </div>
+        </div>
+        <div class="container">
 
-            <h1>
-                <span class="secondary-heading">
-                    <a href="{{ url_for('storage.add_rack') }}">
-                    <i class="fa fa-grip-vertical"></i> New Sample Rack
-                    </a>
-                </span>
-                <i class="fa fa-upload"></i> Step Two: File Validation</h1>
-            
             <div class="alert alert-warning text-center">
                 <b>Notice:</b> This is currently in early development stages and will 
                 likely break if the following instructions are not followed.</div>
@@ -73,6 +78,7 @@
 
             </form>
         </div>
+    </div>
     </div>
 
 {% endblock %}

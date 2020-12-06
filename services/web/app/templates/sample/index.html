@@ -3,8 +3,12 @@
 {% block title %}Samples{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><i class="fas fa-vial"></i> Samples</h1>
+    </div>
+</div>
 <div class="container">
-
 
     
     <div class="row">
@@ -32,19 +36,7 @@
         </div>
         <div class="col-9">
 
-            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                <h1><i class="fas fa-vial"></i> Samples</h1>
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('sample.add_collection_consent_and_barcode') }}">
-                            <div class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Add Sample
-                            </div>
-                        </a>
 
-                    </div>
-                </div>
-            </span>
 
             <div id="loading" class="text-center">
                 <div class="loading">

@@ -67,22 +67,39 @@
                     
 
             
-                    <table id="rack_information" class="table table-striped"></table>
+                    <table id="rack-information" class="table table-striped"></table>
 
                             
                         </div>
                         <div class="col-2">
-                                <canvas id="status_chart" width="100%" height="100%"></canvas>
+                            <div class="card text-center">
+                                <div class="card-header">
+                                    Occupancy Chart
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="status_chart" width="100%" height="100%"></canvas>
+                    
+                                </div>
+
+                                </div>
+                              </div>
                         </div>
                     </div>          
+            
+            <div class="rack-view-area">
+                <div class="container">
+                    <h2><i class="fa fa-grip-vertical"></i> Rack View (<span id="row"></span> x <span id="col"></span>)</h2>
+                    <div id="view_area"></div>
+                </div>
 
+                
+            </div>
 
-            <h2><i class="fa fa-grip-vertical"></i> Rack View (<span id="row"></span> x <span id="col"></span>)</h2>
-            <div id="view_area"></div>
             
             
             <div id="sample-table-div">
 
+                <div class="container">
             <h2><i class="fas fa-vial"></i> Sample Table</h2>
 
             <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
@@ -105,7 +122,7 @@
 
 
             </div>
-
+        </div>
         </div>
     </div>
 

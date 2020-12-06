@@ -43,9 +43,6 @@ function render_information(shelf_information) {
     $("#shelf-information").html(html);
 }
 
-function render_sample_table(samples) { 
-    
-}
 
 function render_rack_table(racks) {
     if (racks.length > 0) {
