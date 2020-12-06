@@ -3,15 +3,20 @@
 {% block title %}Document Association // LIMBPRO-{{ protocol.id }}{% endblock %}
 
 {% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('protocol.view', id=protocol.id) }}">
+                        <i class="fas fa-file"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
+                    </a>
+                </span>
+                Associating Document
+            </h1>
+        </div>
+    </div>
     <div class="container">
-        <h1>
-            <span class="secondary-heading">
-                <a href="{{ url_for('protocol.view', id=protocol.id) }}">
-                    <i class="fas fa-file"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
-                </a>
-            </span>
-            Associating Document
-        </h1>
+       
         <form method="POST" action="{{ url_for('protocol.associate_document', id=protocol.id ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.document) }}

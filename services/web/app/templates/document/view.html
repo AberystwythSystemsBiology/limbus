@@ -3,56 +3,64 @@
 {% block title %}LIMBDOC-{{ document.id }}{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1><span class="secondary-heading">
-            <a href="{{ url_for('document.index') }}">
-                <i class="fas fa-file"></i> Document Portal</span>
-            </a>LIMBDOC-{{ document.id }}</h1>
-
-        <div class="row text-muted">
-            <div class="col-7">
-                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                    {% if not document.is_locked %}
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('document.edit', id=document.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                    Details
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('document.index') }}">
+                    <i class="fas fa-file"></i> Document Portal</span>
+                </a>LIMBDOC-{{ document.id }}</h1>
+        
+        
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            {% if not document.is_locked %}
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="{{ url_for('document.edit', id=document.id) }}">
+                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                            Details
+                                        </button>
+                                    </a>
+                                </div>
+        
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="{{ url_for('document.new_file', id=document.id) }}">
+                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-upload"></i> Upload File</button>
+                                    </a>
+                                </div>
+        
+        
+                            {% endif %}
+        
+                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if document.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
                                 </button>
-                            </a>
+                            </div>
                         </div>
-
-                        <div class="btn-group mr-2" role="group" aria-label="First group">
-                            <a href="{{ url_for('document.new_file', id=document.id) }}">
-                                <button type="button" class="btn btn-outline-dark"><i class="fa fa-upload"></i> Upload File</button>
-                            </a>
-                        </div>
-
-
-                    {% endif %}
-
-                    <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if document.is_locked %}
-                            Unl{% else %}L{% endif %}ock
-                        </button>
+                    </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: {{ document.created_on }}
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(document.author) }}
                     </div>
                 </div>
             </div>
-            <div class="col-5 text-right">
-                <i class="fa fa-calendar"></i> Created On: {{ document.created_on }}
-                <div class="clearfix"></div>
-                <i class="fa fa-user"></i> Created By: {{ render_author_for_table(document.author) }}
-            </div>
-        </div>
+    </div>
+    <div class="container">
+
+
 
 
         <h2>Document Information</h2>
 
+        <table class="table table-striped">
         {{ show_value(document.name, "Document Name", "text") }}
         {{ show_value(document.description, "Document Description", "textarea") }}
         {{ show_value(document.type, "Document Type", "text") }}
         {{ show_value(render_author_for_table(document.author), "Author", "text") }}
-
+        </table>
 
         <h2>
             <i class="fa fa-paperclip"></i> Document Files

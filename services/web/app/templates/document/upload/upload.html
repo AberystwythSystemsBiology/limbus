@@ -3,8 +3,13 @@
 {% block title %}Upload File{% endblock %}
 
 {% block body %}
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span><i class="fa fa-upload"></i> New File</h1>
+        </div>
+    </div>
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span><i class="fa fa-upload"></i> New File</h1>
 
 
         <form method="POST" action="{{ url_for('document.new_file', id=document.id ) }}"

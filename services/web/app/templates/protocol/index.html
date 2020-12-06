@@ -3,19 +3,22 @@
 {% block title %}Protocol Portal{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <div class="jumbotron">
+        <div class="container">
             <h1><i class="fa fa-project-diagram"></i> Protocol Portal</h1>
-            <div class="btn-toolbar">
-                <div class="btn-group mr-2">
+
+            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group mr-2" role="group" aria-label="First group">
                     <a href="{{ url_for('protocol.new') }}">
-                        <div class="btn btn-primary">
-                            <i class="fas fa-plus"></i> New Protocol
-                        </div>
+                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Protocol</button>
                     </a>
                 </div>
-                </div>
-            </span>
+    
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        
 
         <p>This is the Patient Consent Form Portal. This is where patient consent forms can be found.</p>
 

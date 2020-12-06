@@ -3,8 +3,13 @@
 {% block title %}Editing LIMBDOC-{{ document.id }}{% endblock %}
 
 {% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span>Edit</h1>
+
+        </div>
+    </div>
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span>Edit</h1>
         <form method="POST" action="{{ url_for('document.edit', id=document.id ) }}">
             {{ form.csrf_token }}
             {{ form_field(form.name) }}

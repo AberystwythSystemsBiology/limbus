@@ -3,12 +3,17 @@
 {% block title %}New Patient Consent Form Template{% endblock %}
 
 {% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('protocol.index') }}">
+                        <i class="fa fa-project-diagram"></i> Protocol Portal
+                </a></span> New Protocol</h1>
+        </div>
+    </div>
     <div class="container">
 
-        <h1><span class="secondary-heading">
-            <a href="{{ url_for('protocol.index') }}">
-                    <i class="fa fa-project-diagram"></i> Protocol Portal
-            </a></span> New Protocol</h1>
+
 
         <form method="POST" action="{{ url_for('protocol.new' ) }}">
             {{ form.csrf_token }}

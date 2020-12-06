@@ -9,13 +9,19 @@
 
 {% block body %}
 
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading">
+                <a href="{{ url_for('protocol.view', id=protocol.id) }}">
+                        <i class="fa fa-project-diagram"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
+                </a></span> New Protocol Text</h1>
+    
+        </div>
+    </div>
+
     <div class="container">
 
-        <h1><span class="secondary-heading">
-            <a href="{{ url_for('protocol.view', id=protocol.id) }}">
-                    <i class="fa fa-project-diagram"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
-            </a></span> New Protocol Text</h1>
-
+        
         <form method="POST">
             {{ form.csrf_token }}
             {{ form_field(form.type) }}
