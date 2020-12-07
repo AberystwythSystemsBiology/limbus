@@ -3,15 +3,20 @@
 {% block title %}Create Aliquot{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a id="sample_href">
+                    <i class="fas fa-vial"></i> <span id="uuid"></span>
+                </a>
+            </span>
+            <i class="fa fa-code-branch"></i> Create Aliquoted Samples
+        </h1>
+    </div>
+</div>
 <div class="container">
-    <h1>
-        <span class="secondary-heading">
-            <a id="sample_href">
-                <i class="fas fa-vial"></i> <span id="uuid"></span>
-            </a>
-        </span>
-        <i class="fa fa-code-branch"></i> Create Aliquoted Samples
-    </h1>
+
 
     <div id="database_error" class="alert alert-danger" style="display:none;">
         <b>ALERT:</b> It looks like one of your Sample Barcodes is already in the database. You must correct this
@@ -34,7 +39,7 @@
 
     <div class="row">
 
-        <div class="col-10">
+        <div class="col-9">
                 <div class="row">
                     <div class="col-6">
                         <div class="form-group">
@@ -75,8 +80,16 @@
                 {{ form_field(form.comments) }}
 
         </div>
-        <div class="col-2">
-            <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header text-center">
+                  Sample Quantity
+                </div>
+                <div class="card-body">
+                  <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+                </div>
+      
+              </div>
         </div>
     </div>
 

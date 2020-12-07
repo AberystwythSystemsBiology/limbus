@@ -109,15 +109,15 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
 
-    title = EnumField(Title)
+    title = EnumField(Title, by_value=True)
 
     email = masql.auto_field()
     first_name = masql.auto_field()
     middle_name = masql.auto_field()
     last_name = masql.auto_field()
 
-    account_type = EnumField(AccountType)
-    access_control = EnumField(AccessControl)
+    account_type = EnumField(AccountType, by_value=True)
+    access_control = EnumField(AccessControl, by_value=True)
 
     created_on = fields.Date()
     updated_on = fields.Date()
