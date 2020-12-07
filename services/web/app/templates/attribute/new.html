@@ -4,16 +4,22 @@
 
 {% block body %}
 
+    <div class="jumbotron">
+        <div class="container">
+
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for("attribute.index") }}">
+                        <i class="fab fa-buffer"></i> Attribute Portal
+                    </a>
+                </span>
+                New Attribute
+            </h1>
+        </div>
+    </div>
+
     <div class="container">
 
-        <h1>
-            <span class="secondary-heading">
-                <a href="{{ url_for("attribute.index") }}">
-                    <i class="fab fa-buffer"></i> Attribute Portal
-                </a>
-            </span>
-            New Attribute
-        </h1>
 
         <form action="{{ url_for('attribute.new') }}" method="POST">
             {{ form.csrf_token() }}

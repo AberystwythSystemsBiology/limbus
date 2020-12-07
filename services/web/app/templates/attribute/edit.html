@@ -4,8 +4,9 @@
 
 {% block body %}
 
-    <div class="container">
 
+<div class="jumbotron">
+    <div class="container">
         <h1>
             <span class="secondary-heading">
                 <a href="{{ url_for("attribute.view", id=attribute_id) }}">
@@ -14,6 +15,11 @@
             </span>
             Edit
         </h1>
+    </div>
+</div>
+    <div class="container">
+
+
 
 
         <form action="{{ url_for('attribute.edit', id=attribute_id) }}" method="POST">

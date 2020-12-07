@@ -31,6 +31,9 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
 from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
 from ..sample.enums import Colour
+from datetime import datetime
+
+
 
 class DonorFilterForm(FlaskForm):
 
@@ -59,7 +62,7 @@ def DonorCreationForm(sites: dict):
 
         mpn = StringField("Master Patient Number")
 
-        registration_date = DateField("Registration Date")
+        registration_date = DateField("Registration Date", default=datetime.today())
 
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 

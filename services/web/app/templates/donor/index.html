@@ -3,6 +3,21 @@
 {% block title %}Donors{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><i class="fa fa-user-circle"></i> Donors</h1>
+
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('donor.add') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Donor</button>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <div class="container">
     
     <div class="row">
@@ -27,19 +42,6 @@
         </div>
         <div class="col-9">
 
-            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                <h1><i class="fa fa-user-circle"></i> Donors</h1>
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('donor.add') }}">
-                            <div class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Add Donor
-                            </div>
-                        </a>
-
-                    </div>
-                </div>
-            </span>
 
             <div id="loading" class="text-center">
                 <div class="loading">

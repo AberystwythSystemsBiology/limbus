@@ -3,17 +3,21 @@
 {% block title %}New Attribute{%endblock %}
 
 {% block body %}
-
+    <div class="jumbotron">
+        <div class="container">
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for("attribute.view", id=attribute_id) }}">
+                        <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute_id }}
+                    </a>
+                </span>
+                New Option
+            </h1>
+    
+        </div>
+    </div>
     <div class="container">
 
-        <h1>
-            <span class="secondary-heading">
-                <a href="{{ url_for("attribute.view", id=attribute_id) }}">
-                    <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute_id }}
-                </a>
-            </span>
-            New Option
-        </h1>
 
         <form action="{{ url_for('attribute.new_option', id=attribute_id) }}" method="POST">
 		{{ form.csrf_token  }}

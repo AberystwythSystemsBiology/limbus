@@ -3,68 +3,81 @@
 {% block title %}LIMBATTR-{{ attribute.id }}{% endblock %}
 
 {% block body %}
-
-    <div class="container">
-
-        <h1>
-            <span class="secondary-heading">
-                <a href="{{ url_for('attribute.index') }}">
-                    <i class="fab fa-buffer"></i> Attribute Portal
-                </a>
-            </span>LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
-        </h1>
+    <div class="jumbotron">
+        <div class="container">
+            <h1>
+                <span class="secondary-heading">
+                    <a href="{{ url_for('attribute.index') }}">
+                        <i class="fab fa-buffer"></i> Attribute Portal
+                    </a>
+                </span>LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
+            </h1>
 
             <div class="row text-muted">
-            <div class="col-6">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-            {% if not attribute.is_locked %}
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <a href="{{ url_for('attribute.edit', id=attribute.id) }}">
-                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
+                <div class="col-6">
+                            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                {% if not attribute.is_locked %}
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="{{ url_for('attribute.edit', id=attribute.id) }}">
+                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
+                            </button>
+                        </a>
+                    </div>
+                    {% if attribute.type == "OPTION" %}
+                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                    <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
+                        <button type="button" class="btn btn-outline-dark">
+                            <i class="fa fa-list"></i> New Option
                         </button>
                     </a>
                 </div>
-                {% if attribute.type == "OPTION" %}
-            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
-                    <button type="button" class="btn btn-outline-dark">
-                        <i class="fa fa-list"></i> New Option
+                        {% endif %}
+    
+                {% endif %}
+    
+                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            class="btn btn-outline-dark">
+                        <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
                     </button>
-                </a>
+                </div>
+    
+    
+    
+    
             </div>
-                    {% endif %}
-
-            {% endif %}
-
-            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                        class="btn btn-outline-dark">
-                    <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
-                </button>
+                </div>
+                <div class="col-6 text-right">
+                    <i class="fa fa-calendar"></i> Created On: {{ attribute.created_on }}
+                    <div class="clearfix"></div>
+                    <i class="fa fa-user"></i> Created By: {{ render_author_for_table(attribute.author) }}
+                </div>
+    
             </div>
-
-
-
-
-        </div>
-            </div>
-            <div class="col-6 text-right">
-                <i class="fa fa-calendar"></i> Created On: {{ attribute.created_on }}
-                <div class="clearfix"></div>
-                <i class="fa fa-user"></i> Created By: {{ render_author_for_table(attribute.author) }}
-            </div>
-
+    
         </div>
 
-        <h2>Attribute Information</h2>
+        
+    </div>
+    <div class="container">
+
+
+
+            
+        <h2>Information</h2>
+        <table class="table table-striped">
         {{ show_value(attribute.description, "Description", "textarea") }}
         {{ show_value(attribute.type, "Type", "textarea") }}
         {{ show_value(attribute.element_type, "Elements", "textarea") }}
+    </table>
 
         {% if attribute.type == "NUMERIC" %}
             <h2>Numeric Information</h2>
+            <table class="table table-striped">
+
             {{ show_value(attribute.numeric_setting.measurement, "Measurement", "textarea") }}
             {{ show_value(attribute.numeric_setting.symbol, "Symbol", "textarea") }}
+        </table>
 
         {% elif attribute.type == "OPTION" %}
             <h2>Option Information</h2>
@@ -96,9 +109,11 @@
         </table>
         {% else %}
             <h2>Textual Information</h2>
+            <table class="table table-striped">
+
             {{ show_value(attribute.text_setting.max_length, "Max Length", "textarea") }}
             {{ show_value(attribute.text_setting.type, "Entry Type", "textarea") }}
-
+            </table>
         {% endif %}
     </div>
 
