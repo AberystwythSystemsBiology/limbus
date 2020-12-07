@@ -2,7 +2,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    padding-top: 60px; /* Whatever the height of your navbar is; the
+    padding-top: 65px; /* Whatever the height of your navbar is; the
                              default is 50px */
 }
 
@@ -10,13 +10,32 @@ body {
     max-width: 1280px;
 }
 
-nav img {
-    height:30px;
+nav {
+    height:65px;
+    padding:0px;
 }
+
+nav img {
+    height:28px;
+    
+}
+
+
 
 .form-description {
     margin-top:-10px;
     padding:0;
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #000;
+    margin-right:0.5em;
+}
+
+.btn-secondary:hover {
+    background-color: #ffff00;
+    color: #000;
 }
 
 #wmd-preview {
@@ -80,11 +99,14 @@ nav a {
     padding: 1em 0 2em 0 ;
     background-color: #007bff;
     color: #fff;
+    border-bottom: ;
 }
 
 .jumbotron {
     max-height: 250px !important;
     border-radius: 0;
+    border-bottom: #ffff00 solid 5px;
+
 }
 
 .jumbotron .dropdown-item {
