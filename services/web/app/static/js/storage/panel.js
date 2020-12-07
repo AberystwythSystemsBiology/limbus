@@ -29,49 +29,15 @@ function render_counts(basic_statistics) {
 }
 
 function render_cold_storage_statistics(cold_storage_statistics) {
-    new Chart(document.getElementById("cold_storage_type"), {
-        type: 'horizontalBar',
-        data: {
-          labels: cold_storage_statistics["cold_storage_type"]["labels"],
-          datasets: [{
-                data: cold_storage_statistics["cold_storage_type"]["data"],
-                backgroundColor: dynamicColours(cold_storage_statistics["cold_storage_type"]["labels"].length)
-            }],
-
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                text: "Cold Storage Type"
-               }}}
-        );
+    make_pie("cold_storage_type", cold_storage_statistics["cold_storage_type"]["data"], cold_storage_statistics["cold_storage_type"]["labels"])
+    make_pie("cold_storage_temp", cold_storage_statistics["cold_storage_temp"]["data"], cold_storage_statistics["cold_storage_temp"]["labels"])
 
 
-        new Chart(document.getElementById("cold_storage_temp"), {
-            type: 'doughnut',
-            data: {
-              labels: cold_storage_statistics["cold_storage_temp"]["labels"],
-              datasets: [{
-                    data: cold_storage_statistics["cold_storage_temp"]["data"],
-                    backgroundColor: dynamicColours(cold_storage_statistics["cold_storage_temp"]["labels"].length)
-                }],
-    
-            },
-            options: {
-                legend: {
-                    display: true
-                },
-                title: {
-                    display: true,
-                    text: "Cold Storage Temperatures"
-                   }}}
-            );
 }
 
 $(document).ready(function() {
+    $("body").css({"backgroundColor":"#eeeeee"});
+
     var panel_information = get_panel_information();
     render_counts(panel_information["basic_statistics"]);
     render_cold_storage_statistics(panel_information["cold_storage_statistics"]);

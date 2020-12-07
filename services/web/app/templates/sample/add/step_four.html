@@ -1,0 +1,47 @@
+{% extends "template.html" %}
+
+{% block title %}New Sample: Select Sample Processing Protocol{% endblock %}
+
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> Edit Sample</span> Sample Processing Information
+        </h1>
+        {{ render_progress(4, 8) }}
+    </div>
+</div>
+
+<div class="container">
+
+
+
+    <p>Before we continue, you must first link the sample to processing protocol template.</p>
+
+
+    <form action="{{ url_for('sample.add_processing_information', hash=hash) }}" method="POST">
+        {{ form.csrf_token }}
+        {{ form_field(form.processing_protocol_id, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
+        {{ form_field(form.sample_status) }}
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.processing_date) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.processing_time) }}
+            </div>
+
+        </div>
+        {{ form_field(form.comments) }}
+        {{ form_field(form.undertaken_by) }}
+        {{ form_field(form.submit) }}
+    </form>
+
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/information/add/step_four.js') }}"></script>
+add
+{% endblock %}

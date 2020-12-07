@@ -3,60 +3,61 @@
 {% block title %}Overview Panel{% endblock %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
 
-  <div id="loading-screen" class="container text-center">
-    <div class="loading">
+<div id="loading-screen" class="container text-center">
+  <div class="loading">
     <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;" >
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-
-      <h1>Just a sec...</h1>
-      <h2>Getting the panel ready for you.</h2>
-      </div>
-  </div>
-  
-    <div id="content" style="display: none;">
-      <div class="jumbotron" style="margin-top:-15px;">
-        <div class="container">
-        <h1><span class="secondary-heading"><i class="fa fa-solar-panel"></i> Overview Panel</span><span id="biobank_name"></span></h1>
-
-        <div class="row">
-          <div class="col-sm-3">
-            <div class="data">
-                <span id="sample_count" class="data large"></span>
-                <span class="data small">Samples</span>
-              </div>
-        </div>
-            <div class="col-sm-3">
-                <div class="data">
-                    <span id="donor_count" class="data large"></span>
-                    <span class="data small">Donors</span>
-                  </div>
-            </div>
-            
-            <div class="col-sm-3">
-                <div class="data">
-                    <span id="user_count" class="data large"></span>
-                    <span class="data small">Users</span>
-                  </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="data">
-                    <span id="site_count" class="data large"></span>
-                    <span class="data small">Sites</span>
-                  </div>
-            </div>          
-        </div>
+      <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;">
+        <span class="sr-only">Loading...</span>
       </div>
     </div>
 
-    <div class="panel-background">
+    <h1>Just a sec...</h1>
+    <h2>Getting the panel ready for you.</h2>
+  </div>
+</div>
+
+<div id="content" style="display: none;">
+  <div class="jumbotron" style="margin-top:-15px;">
+    <div class="container">
+      <h1><span class="secondary-heading"><i class="fa fa-solar-panel"></i> Overview Panel</span><span
+          id="biobank_name"></span></h1>
+
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="data">
+            <span id="sample_count" class="data large"></span>
+            <span class="data small">Samples</span>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="data">
+            <span id="donor_count" class="data large"></span>
+            <span class="data small">Donors</span>
+          </div>
+        </div>
+
+        <div class="col-sm-3">
+          <div class="data">
+            <span id="user_count" class="data large"></span>
+            <span class="data small">Users</span>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <div class="data">
+            <span id="site_count" class="data large"></span>
+            <span class="data small">Sites</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-background">
 
     <div class="container">
 
@@ -95,9 +96,9 @@
           </div>
         </div>
       </div>
-        
 
-      
+
+
       <div class="row">
         <div class="col-9">
 
@@ -126,10 +127,10 @@
                 <canvas id="donor_race" width="100%" height="100%"></canvas>
               </div>
             </div>
-            
+
           </div>
-    
-    
+
+
           <div class="card-deck mb-3 text-center">
             <div class="card mb-4 box-shadow">
               <div class="card-header">
@@ -155,7 +156,7 @@
                 <canvas id="protocol_type" width="100%" height="100%"></canvas>
               </div>
             </div>
-            
+
           </div>
 
         </div>
@@ -165,25 +166,26 @@
               <h4 class="my-0 font-weight-normal">Reminders</h4>
             </div>
             <div class="card-body">
-                <h2>Coming Soon</h2>
+              <h2>Coming Soon</h2>
             </div>
           </div>
         </div>
 
       </div>
 
-      
-      
 
 
 
-      </div>
+
+
     </div>
-    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/misc/panel.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/misc/panel.js') }}"></script>
 
 {% endblock %}

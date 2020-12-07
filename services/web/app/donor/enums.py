@@ -18,7 +18,7 @@ from ..FormEnum import FormEnum
 
 class RaceTypes(FormEnum):
     A = "White"
-    A1 = "Welsh/Englush/Scottish/Northern Irish/British"
+    A1 = "Welsh/English/Scottish/Northern Irish/British"
     A2 = "Irish"
     A3 = "Gypsy or Irish Traveller"
     A4 = "Any Other White Background"

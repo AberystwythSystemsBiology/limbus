@@ -65,7 +65,7 @@ class DonorSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            "self": ma.URLFor("donor.view", id="id", _external=True),
+            "self": ma.URLFor("donor.view", id="<id>", _external=True),
             "collection": ma.URLFor("donor.index", _external=True),
         }
     )

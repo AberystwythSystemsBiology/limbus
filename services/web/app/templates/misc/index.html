@@ -4,45 +4,46 @@
 
 {% block body %}
 
-    <div id="homepage-jumbotron" class="jumbotron">
-        <div class="container">
-            <div class="media p-3">
-                <div class="media-body" style="text-align: center;">
-                    <h1>Free your Biobank</h1>
-                    <h3>
-                        Empowering you to get what needs sorting, sorted.
-                    </h3>
-                </div>
-            </div>
-        </div>
-    </div>
-
+<div id="homepage-jumbotron" class="jumbotron">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-4">
-                <h1 class="fa fa-handshake"></h1>
-                <h2>Furthering collaboration</h2>
-                <p>We believe in the unique combination of academic collaboration and the power of Free and Open
-                    Source Software.</p>
-                <p><a class="btn btn-primary" href="{{ url_for('misc.team') }}" role="button">Meet the Team</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h1 class="fa fa-box-open"></h1>
-                <h2>Free and Open Source</h2>
-                <p>This project is proudly licensed under the terms of the GPLv3+.</p>
-                <p>This means that it will be free, forever.</p>
-                <p><a class="btn btn-primary" href="{{ url_for('misc.license') }}" role="button">View License</a></p>
-            </div>
-            <div class="col-lg-4">
-                <a class="twitter-timeline" data-lang="en" data-dnt="true" href="https://twitter.com/limbus_bims?ref_src=twsrc%5Etfw">
-                    Tweets by limbus_bims</a>
+        <div class="media p-3">
+            <div class="media-body" style="text-align: center;">
+                <h1>Free your Biobank</h1>
+                <h3>
+                    Empowering you to get what needs sorting, sorted.
+                </h3>
             </div>
         </div>
-        <h2>Who uses</h2>
     </div>
+</div>
+
+<div class="container">
+    <div class="row text-center">
+        <div class="col-lg-4">
+            <h1 class="fa fa-handshake"></h1>
+            <h2>Furthering collaboration</h2>
+            <p>We believe in the unique combination of academic collaboration and the power of Free and Open
+                Source Software.</p>
+            <p><a class="btn btn-primary" href="{{ url_for('misc.team') }}" role="button">Meet the Team</a></p>
+        </div>
+        <div class="col-lg-4">
+            <h1 class="fa fa-box-open"></h1>
+            <h2>Free and Open Source</h2>
+            <p>This project is proudly licensed under the terms of the GPLv3+.</p>
+            <p>This means that it will be free, forever.</p>
+            <p><a class="btn btn-primary" href="{{ url_for('misc.license') }}" role="button">View License</a></p>
+        </div>
+        <div class="col-lg-4">
+            <a class="twitter-timeline" data-lang="en" data-dnt="true"
+                href="https://twitter.com/limbus_bims?ref_src=twsrc%5Etfw">
+                Tweets by limbus_bims</a>
+        </div>
+    </div>
+    <h2>Who uses</h2>
+</div>
 {% endblock %}
 
 
 {% block javascript %}
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endblock %}

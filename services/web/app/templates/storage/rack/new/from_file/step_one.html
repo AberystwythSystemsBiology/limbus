@@ -10,25 +10,31 @@
 
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
-  
-      <div class="storage container">
 
-            <h1>
-                <span class="secondary-heading">
-                    <a href="{{ url_for('storage.add_rack') }}">
-                    <i class="fa fa-grip-vertical"></i> New Sample Rack
-                    </a>
-                </span><i class="fa fa-upload"></i> Step One: File Upload
-            </h1>
-            
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('storage.add_rack') }}">
+                            <i class="fa fa-grip-vertical"></i> New Sample Rack
+                        </a>
+                    </span><i class="fa fa-upload"></i> Step One: File Upload
+                </h1>
+            </div>
+        </div>
+
+        <div class="container">
+
             <div class="alert alert-warning text-center">
-                <b>Notice:</b> This is currently in early development stages and will 
+                <b>Notice:</b> This is currently in early development stages and will
                 likely break if the following instructions are not followed.</div>
-            
+
             <p>
                 As this is in the early stages of development, there is a tight restriction on what is deemed a valid
-                cryovial container file. Firslty, you must ensure that the file is in the comma-seperated file format exported 
-                to the following standard: 
+                cryovial container file. Firslty, you must ensure that the file is in the comma-seperated file format
+                exported
+                to the following standard:
             </p>
 
             <ul>
@@ -42,8 +48,9 @@
             </p>
 
             <ul>
-                <li>Tube Barcode: The reference string of characters used to interrogate LImBuS for existing samples.</li>
-                <li>Tube Position: The position of the vial in the form of A1, B2, F42.</li> 
+                <li>Tube Barcode: The reference string of characters used to interrogate LImBuS for existing samples.
+                </li>
+                <li>Tube Position: The position of the vial in the form of A1, B2, F42.</li>
             </ul>
 
             <p>
@@ -52,30 +59,34 @@
 
             <p>
 
-                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                  How to export XLSX to CSV (LibreOffice)?
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample"
+                    aria-expanded="false" aria-controls="collapseExample">
+                    How to export XLSX to CSV (LibreOffice)?
                 </button>
-              </p>
-              <div class="collapse" id="collapseExample">
+            </p>
+            <div class="collapse" id="collapseExample">
                 <div class="card card-body">
                     <h2>Export as a CSV file in LibreOffice</h2>
 
                     <p>
-                        1. Open the XLSX file in LibreOffice Calc. You may be asked to convert to the open document foundations 
-                        recommended format. Whether you want to is up to you, but there are a lot of advantages to using file
+                        1. Open the XLSX file in LibreOffice Calc. You may be asked to convert to the open document
+                        foundations
+                        recommended format. Whether you want to is up to you, but there are a lot of advantages to using
+                        file
                         formats that comply with open standards.
                     </p>
                     <p>
                         2. Click <b>File</b> and then <b>Save As</b>.
                     </p>
                     <p>
-                        3. In the Save As dialogue, select the <b>Text CSV (.csv) file type</b> option and click that. One done
+                        3. In the Save As dialogue, select the <b>Text CSV (.csv) file type</b> option and click that.
+                        One done
                         click <b>Save As</b> and <b>accept the default encoding options</b>.
                     </p>
                 </div>
-              </div>          
-            
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_automatic_entry') }}" >
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_automatic_entry') }}">
                 {{ form.csrf_token() }}
                 {{ form_field(form.serial)}}
                 {{ form_field(form.barcode_type )}}
@@ -85,9 +96,10 @@
                 {{ form_field(form.submit)}}
             </form>
         </div>
-        </div>
-        {% endblock %}
-        
-        {% block javascript %}
-        <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
-        {% endblock %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{% endblock %}

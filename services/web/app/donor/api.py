@@ -44,16 +44,13 @@ def donor_home(tokenuser: UserAccount):
     return success_with_content_response(donors_schema.dump(Donor.query.all()))
 
 
-
 @api.route("/donor/query", methods=["GET"])
 @use_args(DonorSearchSchema(), location="json")
 @token_required
 def donor_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Donor)
     return success_with_content_response(
-        donors_schema.dump(
-            Donor.query.filter_by(**filters).filter(*joins).all()
-        )
+        donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
     )
 
 

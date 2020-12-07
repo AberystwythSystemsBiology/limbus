@@ -37,15 +37,12 @@ function render_subtitle(shelf_information) {
 }
 
 function render_information(shelf_information) {
-    $("#shelf-information").append(render_content("UUID", shelf_information["uuid"]));
-    $("#shelf-information").append(render_content("Name", shelf_information["name"]));
-    $("#shelf-information").append(render_content("Description", shelf_information["description"]));
-
+    var html = render_content("UUID", shelf_information["uuid"]);
+    html += render_content("Name", shelf_information["name"]);
+    html += render_content("Description", shelf_information["description"]);
+    $("#shelf-information").html(html);
 }
 
-function render_sample_table(samples) { 
-    
-}
 
 function render_rack_table(racks) {
     if (racks.length > 0) {

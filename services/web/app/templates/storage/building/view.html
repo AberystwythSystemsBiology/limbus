@@ -1,81 +1,95 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 
 {% block title %}LIMBBUILD-{{ building.id }}: {{ building.name }}{% endblock %}
 
 {% block body %}
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage container">
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
 
 
                 <h1><span class="secondary-heading">
-                    <a href="{{ url_for('storage.index') }}">
-                        <i class="fa fa-hospital"></i> LIMBSIT-{{ building.site.id }}: {{ building.site.name }}</span>
+                        <a href="{{ url_for('storage.index') }}">
+                            <i class="fa fa-hospital"></i> LIMBSIT-{{ building.site.id }}:
+                            {{ building.site.name }}</span>
                     </a>
-                    <i class="fa fa-home"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}</h1>                
-            
+                    <i class="fa fa-home"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}</h1>
 
-                    <div class="row text-muted">
-                        <div class="col-7">
-                            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                                {% if not building.is_locked %}
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.edit_building', id=building.id) }}">
-                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                            Details
-                                        </button>
-                                    </a>
-                                </div>
 
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.new_room', id=building.id) }}">
-                                        
-                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> Add Room
-                                        </button>
-                                    </a>
-                                </div>
-                
-                                {% endif %}
-            
-                                <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if building.is_locked %}
-                                        Unl{% else %}L{% endif %}ock
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            {% if not building.is_locked %}
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.edit_building', id=building.id) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                        Details
                                     </button>
-                                </div>
+                                </a>
+                            </div>
+
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.new_room', id=building.id) }}">
+
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> Add
+                                        Room
+                                    </button>
+                                </a>
+                            </div>
+
+                            {% endif %}
+
+                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if building.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
+                                </button>
                             </div>
                         </div>
-                        <div class="col-5 text-right">
-                            <i class="fa fa-calendar"></i> Created On: {{ building.created_on }}
-                            <div class="clearfix"></div>
-                            <i class="fa fa-user"></i> Created By: {{ render_author_for_table(building.author) }}
-                        </div>
                     </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: {{ building.created_on }}
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(building.author) }}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                    {{ show_value(building.name, "Building Name", "text") }}
-                    {{ show_value(building.site.address.street_address_one, "Address Line One", "text") }}
-                    {{ show_value(building.site.address.street_address_two, "Address Line Two", "text") }}
-                    {{ show_value(building.site.address.city, "City", "text") }}
-                    {{ show_value(building.site.address.county, "County", "text") }}
-                    {{ show_value(building.site.address.post_code, "Post Code", "text") }}
+        <div class="container">
 
+            <h2>Information</h2>
+
+            <table class="table table-striped">
+
+
+                {{ show_value(building.name, "Building Name", "text") }}
+                {{ show_value(building.site.address.street_address_one, "Address Line One", "text") }}
+                {{ show_value(building.site.address.street_address_two, "Address Line Two", "text") }}
+                {{ show_value(building.site.address.city, "City", "text") }}
+                {{ show_value(building.site.address.county, "County", "text") }}
+                {{ show_value(building.site.address.post_code, "Post Code", "text") }}
+            </table>
+
+            <h2>Rooms</h2>
 
             <table id="documents" class="table table-striped table-bordered" style="width:100%">
                 <thead>
-                <tr>
-                    <th>Room</th>
-                    <th>Uploader</th>
-                    <th>Created On</th>
-                </tr>
+                    <tr>
+                        <th>Room</th>
+                        <th>Uploader</th>
+                        <th>Created On</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for room in building.rooms %}
+                    {% for room in building.rooms %}
                     <tr>
                         <td>
                             <a href="{{ url_for('storage.view_room', id=room.id) }}">
@@ -85,14 +99,14 @@
                         <td>{{ render_author_for_table(room.author) }}</td>
                         <td>{{ room.created_on }}</td>
                     </tr>
-                {% endfor %}
+                    {% endfor %}
                 </tbody>
             </table>
-           
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

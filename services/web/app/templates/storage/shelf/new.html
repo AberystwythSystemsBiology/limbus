@@ -1,37 +1,41 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}LIMBCS-{{ cs.id }}: New Shelf{% endblock %}
 
 {% block body %}
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage container">
-            
-            <h1><span class="secondary-heading">
-                <a href="{{url_for('storage.view_cold_storage', id=cs.id) }}">
-                    <i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}
-                </a>
-            </span>
-                New Shelf
-            </h1>
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1><span class="secondary-heading">
+                        <a href="{{url_for('storage.view_cold_storage', id=cs.id) }}">
+                            <i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}
+                        </a>
+                    </span>
+                    New Shelf
+                </h1>
+            </div>
+        </div>
+
+        <div class="container">
 
             <form action="{{ url_for('storage.new_shelf', id=cs.id) }}" method="post">
-                    {{ form.csrf_token() }}
-                    {{ form_field(form.name) }}
-                    {{ form_field(form.description) }}
-                    {{ form_field(form.submit) }}
+                {{ form.csrf_token() }}
+                {{ form_field(form.name) }}
+                {{ form_field(form.description) }}
+                {{ form_field(form.submit) }}
             </form>
-
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

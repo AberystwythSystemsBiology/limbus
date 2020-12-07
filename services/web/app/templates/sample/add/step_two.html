@@ -1,0 +1,52 @@
+{% extends "template.html" %}
+
+{% block title %}Enter Patient Consent Form Details{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form
+            Details</h1>
+        {{ render_progress(2, 8) }}
+
+    </div>
+</div>
+
+<div class="container">
+
+
+
+
+    <form action="{{ url_for('sample.add_digital_consent_form', hash=hash) }}" method="POST">
+
+        {{ questionnaire.csrf_token() }}
+        <div class="card">
+            <div class="card-header">
+                <div class="text-center">
+                    <h2>{{ consent_template.name }}</h2>
+                    <h3>Version: {{ consent_template.version }}</h3>
+                </div>
+
+                {{ form_field(questionnaire.consent_id) }}
+            </div>
+            <ul id="#questionnaire-list" class="list-group list-group-flush">
+                {% set count = namespace(value=0) %}
+                {% for question in questionnaire %}
+                {% if (question.type == "BooleanField") %}
+                {% set count.value = count.value + 1 %}
+                {{ render_question( question, count.value ) }}
+                {% endif %}
+                {% endfor %}
+            </ul>
+            <div class="card-footer">
+                {{ form_field(questionnaire.comments) }}
+                {{ form_field(questionnaire.date_signed) }}
+            </div>
+        </div>
+
+        {{ form_field(questionnaire.submit) }}
+
+    </form>
+</div>
+{% endblock %}

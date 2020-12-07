@@ -22,7 +22,7 @@ from flask import (
     current_app,
     session,
     flash,
-    request
+    request,
 )
 from flask_login import login_required, current_user
 import requests
@@ -38,8 +38,9 @@ strconv = lambda i: i or None
 @donor.route("/")
 @login_required
 def index():
-    form=DonorFilterForm()
+    form = DonorFilterForm()
     return render_template("donor/index.html", form=form)
+
 
 @donor.route("/query", methods=["POST"])
 @login_required
@@ -54,6 +55,7 @@ def query_index():
         return response.json()
     else:
         abort(response.status_code)
+
 
 @donor.route("/LIMBDON-<id>")
 @login_required
@@ -73,8 +75,7 @@ def view(id):
 @donor.route("/new", methods=["GET", "POST"])
 def add():
     sites_response = requests.get(
-        url_for("api.site_home", _external=True),
-        headers=get_internal_api_header()
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
 
     if sites_response.status_code == 200:
@@ -82,21 +83,16 @@ def add():
         form = DonorCreationForm(sites_response.json()["content"])
         if form.validate_on_submit():
 
-            death_date = None
-
-            if form.status.data == "DE":
-                death_date = str(form.death_date.data)
-
             form_information = {
                 "age": form.age.data,
                 "enrollment_site_id": form.site.data,
-                "registration_date": form.registration_date.data,
+                "registration_date": str(datetime.strptime(str(form.registration_date.data), "%Y-%m-%d")),
                 "sex": form.sex.data,
                 "colour": form.colour.data,
                 "status": form.status.data,
                 "mpn": form.mpn.data,
                 "race": form.race.data,
-                "death_date": death_date,
+                "death_date": str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d")),
                 "weight": form.weight.data,
                 "height": form.height.data,
             }
@@ -111,6 +107,7 @@ def add():
                 flash("Donor information successfully added!")
                 return redirect(url_for("donor.index"))
 
+            print(response.content)
             abort(response.status_code)
 
         return render_template("donor/add.html", form=form)

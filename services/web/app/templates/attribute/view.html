@@ -3,9 +3,8 @@
 {% block title %}LIMBATTR-{{ attribute.id }}{% endblock %}
 
 {% block body %}
-
+<div class="jumbotron">
     <div class="container">
-
         <h1>
             <span class="secondary-heading">
                 <a href="{{ url_for('attribute.index') }}">
@@ -14,39 +13,39 @@
             </span>LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
         </h1>
 
-            <div class="row text-muted">
+        <div class="row text-muted">
             <div class="col-6">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-            {% if not attribute.is_locked %}
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <a href="{{ url_for('attribute.edit', id=attribute.id) }}">
-                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
-                        </button>
-                    </a>
-                </div>
-                {% if attribute.type == "OPTION" %}
-            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
-                    <button type="button" class="btn btn-outline-dark">
-                        <i class="fa fa-list"></i> New Option
-                    </button>
-                </a>
-            </div>
+                <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                    {% if not attribute.is_locked %}
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="{{ url_for('attribute.edit', id=attribute.id) }}">
+                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
+                            </button>
+                        </a>
+                    </div>
+                    {% if attribute.type == "OPTION" %}
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
+                            <button type="button" class="btn btn-outline-dark">
+                                <i class="fa fa-list"></i> New Option
+                            </button>
+                        </a>
+                    </div>
                     {% endif %}
 
-            {% endif %}
+                    {% endif %}
 
-            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                        class="btn btn-outline-dark">
-                    <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
-                </button>
-            </div>
-
-
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            class="btn btn-outline-dark">
+                            <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
+                        </button>
+                    </div>
 
 
-        </div>
+
+
+                </div>
             </div>
             <div class="col-6 text-right">
                 <i class="fa fa-calendar"></i> Created On: {{ attribute.created_on }}
@@ -56,79 +55,96 @@
 
         </div>
 
-        <h2>Attribute Information</h2>
+    </div>
+
+
+</div>
+<div class="container">
+
+
+
+
+    <h2>Information</h2>
+    <table class="table table-striped">
         {{ show_value(attribute.description, "Description", "textarea") }}
         {{ show_value(attribute.type, "Type", "textarea") }}
         {{ show_value(attribute.element_type, "Elements", "textarea") }}
+    </table>
 
-        {% if attribute.type == "NUMERIC" %}
-            <h2>Numeric Information</h2>
-            {{ show_value(attribute.numeric_setting.measurement, "Measurement", "textarea") }}
-            {{ show_value(attribute.numeric_setting.symbol, "Symbol", "textarea") }}
+    {% if attribute.type == "NUMERIC" %}
+    <h2>Numeric Information</h2>
+    <table class="table table-striped">
 
-        {% elif attribute.type == "OPTION" %}
-            <h2>Option Information</h2>
+        {{ show_value(attribute.numeric_setting.measurement, "Measurement", "textarea") }}
+        {{ show_value(attribute.numeric_setting.symbol, "Symbol", "textarea") }}
+    </table>
 
-            <table id="optiontable" class="table table-striped table-bordered" style="width:100%">
-            <thead>
+    {% elif attribute.type == "OPTION" %}
+    <h2>Option Information</h2>
+
+    <table id="optiontable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
             <tr>
                 <th>Term</th>
                 <th>Uploader</th>
                 <th>Created On</th>
                 <th>Actions</th>
             </tr>
-            </thead>
-            <tbody>
+        </thead>
+        <tbody>
             {% for option in attribute.options %}
-                <tr {% if option.is_locked %}style="color:red;"{% endif %}>
-                    <td>{{ option.term }}</td>
-                    <td>{{ render_author_for_table(option.author) }}</td>
-                    <td>{{ option.created_on }}</td>
-                    <td>
-                        <a href="{{ url_for('attribute.lock_option', id=attribute.id, option_id=option.id) }}">
-                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}"><i class="fa fa-lock"></i> {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
-                        </a>
-                    </td>
-                </tr>
+            <tr {% if option.is_locked %}style="color:red;" {% endif %}>
+                <td>{{ option.term }}</td>
+                <td>{{ render_author_for_table(option.author) }}</td>
+                <td>{{ option.created_on }}</td>
+                <td>
+                    <a href="{{ url_for('attribute.lock_option', id=attribute.id, option_id=option.id) }}">
+                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}"><i
+                                class="fa fa-lock"></i> {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
 
-            </tbody>
-        </table>
-        {% else %}
-            <h2>Textual Information</h2>
-            {{ show_value(attribute.text_setting.max_length, "Max Length", "textarea") }}
-            {{ show_value(attribute.text_setting.type, "Entry Type", "textarea") }}
+        </tbody>
+    </table>
+    {% else %}
+    <h2>Textual Information</h2>
+    <table class="table table-striped">
 
-        {% endif %}
-    </div>
+        {{ show_value(attribute.text_setting.max_length, "Max Length", "textarea") }}
+        {{ show_value(attribute.text_setting.type, "Entry Type", "textarea") }}
+    </table>
+    {% endif %}
+</div>
 
-     <!-- Modal -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">
-                        <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock Attribute
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ url_for('attribute.lock', id=attribute.id) }}" method="POST">
-                    {{ form.csrf_token() }}
-                    <div class="modal-body">
-                        <div class="alert alert-warning">
-                            Warning: This is a potentially destructive action.
-                        </div>
-                        {{ form_field(form.name) }}
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-success full-width" type="submit">Submit</button>
-                    </div>
-                </form>
-
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">
+                    <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock Attribute
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <form action="{{ url_for('attribute.lock', id=attribute.id) }}" method="POST">
+                {{ form.csrf_token() }}
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        Warning: This is a potentially destructive action.
+                    </div>
+                    {{ form_field(form.name) }}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success full-width" type="submit">Submit</button>
+                </div>
+            </form>
+
         </div>
     </div>
+</div>
 {% endblock %}

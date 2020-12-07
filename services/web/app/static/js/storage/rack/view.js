@@ -199,9 +199,11 @@ function render_sample_table(samples) {
 }
 
 function render_information(rack_information) {
-    $("#rack_information").append(render_content("UUID", rack_information["uuid"]));
-    $("#rack_information").append(render_content("Serial Number", rack_information["serial_number"]));
-    $("#rack_information").append(render_content("Description", rack_information["description"]));
+    var html = render_content("UUID", rack_information["uuid"]);
+    html += render_content("Serial Number", rack_information["serial_number"]);
+    html +=  render_content("Description", rack_information["description"])
+
+    $("#rack-information").html(html);
 
     $("#row").html(rack_information["num_rows"]);
     $("#col").html(rack_information["num_cols"]);

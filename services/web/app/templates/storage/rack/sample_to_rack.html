@@ -1,49 +1,48 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}LIMBRACK-{{rack.id}}: Assign Sample to Rack{% endblock %}
 
 {% block body %}
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage container">
-            
-            <h1>
-                <span class="secondary-heading">
-                    <a href="{{url_for('storage.view_rack', id=rack.id) }}">
-                        <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
-                    </span>
-                    Assign Sample to Rack</h1>
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
 
-            <form action="" method="post">
-                {{ form.csrf_token }}
-                
-                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{url_for('storage.view_rack', id=rack.id) }}">
+                    <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
+            </span>
+            Assign Sample to Rack</h1>
 
-                <div class="row">
-                    <div class="col-sm-6">
-                        {{ form_field(form.date) }}
-                    </div>
-                    <div class="col-sm-6">
-                        {{ form_field(form.time) }}
-                    </div>
+        <form action="" method="post">
+            {{ form.csrf_token }}
+
+            {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
+
+            <div class="row">
+                <div class="col-sm-6">
+                    {{ form_field(form.date) }}
                 </div>
-                {{ form_field(form.entered_by) }}
+                <div class="col-sm-6">
+                    {{ form_field(form.time) }}
+                </div>
+            </div>
+            {{ form_field(form.entered_by) }}
 
-                {{ form_field(form.submit) }}
+            {{ form_field(form.submit) }}
 
-            </form>
+        </form>
 
 
-        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

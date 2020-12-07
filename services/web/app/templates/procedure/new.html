@@ -4,26 +4,26 @@
 
 {% block body %}
 
-    <div class="container">
+<div class="container">
 
-        <h1><span class="secondary-heading"><i class="fa fa-stethoscope"></i> Diagnostic Procedure</span>New Procedure</h1>
+    <h1><span class="secondary-heading"><i class="fa fa-stethoscope"></i> Diagnostic Procedure</span>New Procedure</h1>
 
-        <form method="POST" action="{{ url_for('procedures.new') }}" enctype="multipart/form-data">
-            {{ form.csrf_token() }}
-            {{ form_field(form.name) }}
-            {{ form_field(form.version) }}
-            {{ form_field(form.description) }}
-            {{ form_field(form.from_file) }}
+    <form method="POST" action="{{ url_for('procedures.new') }}" enctype="multipart/form-data">
+        {{ form.csrf_token() }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.version) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.from_file) }}
 
-            <div id="data">
-                {{ form_field(form.json_file) }}
-            </div>
-            {{ form_field(form.submit) }}
+        <div id="data">
+            {{ form_field(form.json_file) }}
+        </div>
+        {{ form_field(form.submit) }}
 
-        </form>
-    </div>
+    </form>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/procedure/new.js') }}"></script>
+<script src="{{ url_for('static', filename='js/procedure/new.js') }}"></script>
 {% endblock %}

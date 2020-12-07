@@ -3,29 +3,29 @@
 {% block title %}New Document :: Document Portal{% endblock %}
 
 {% block body %}
-    <div class="jumbotron">
-        <div class="container">
-            <h1><span class="secondary-heading">
-                <a href="{{url_for('document.index') }}">
-                <i class="fas fa-file"></i> Document Portal</a></span>
-                New Document
-            </h1>
-
-        </div>
-    </div>
+<div class="jumbotron">
     <div class="container">
+        <h1><span class="secondary-heading">
+                <a href="{{url_for('document.index') }}">
+                    <i class="fas fa-file"></i> Document Portal</a></span>
+            New Document
+        </h1>
 
-
-        <form method="POST" action="{{ url_for('document.new_document' ) }}">
-            {{ form.csrf_token }}
-
-            {{ form_field(form.name) }}
-            {{ form_field(form.description) }}
-
-            {{ form_field(form.type) }}
-
-            {{ form_field(form.submit, with_label=False) }}
-
-        </form>
     </div>
+</div>
+<div class="container">
+
+
+    <form method="POST" action="{{ url_for('document.new_document' ) }}">
+        {{ form.csrf_token }}
+
+        {{ form_field(form.name) }}
+        {{ form_field(form.description) }}
+
+        {{ form_field(form.type) }}
+
+        {{ form_field(form.submit, with_label=False) }}
+
+    </form>
+</div>
 {% endblock %}

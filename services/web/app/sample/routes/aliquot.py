@@ -53,7 +53,7 @@ def aliquot(uuid: str):
 
     form = SampleAliquotingForm(processing_templates)  # , users)
 
-    return render_template("sample/sample/aliquot/create.html", form=form)
+    return render_template("sample/aliquot/create.html", form=form)
 
 
 @sample.route("query", methods=["POST"])

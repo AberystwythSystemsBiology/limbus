@@ -413,7 +413,7 @@ def add_collection_consent_and_barcode():
         flash("We have a problem :( %s" % (store_response.json()))
 
     return render_template(
-        "sample/sample/add/step_one.html",
+        "sample/add/step_one.html",
         form=form,
         template_count=len(consent_templates),
         collection_protocol_count=len(collection_protocols),
@@ -478,7 +478,7 @@ def add_digital_consent_form(hash):
         flash("We have a problem :( %s" % (store_response.json()))
 
     return render_template(
-        "sample/sample/add/step_two.html",
+        "sample/add/step_two.html",
         hash=hash,
         consent_template=consent_template,
         questionnaire=questionnaire,
@@ -532,7 +532,7 @@ def add_sample_information(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/sample/add/step_three.html", form=form, hash=hash)
+    return render_template("sample/add/step_three.html", form=form, hash=hash)
 
 
 @sample.route("add/processing_information/<hash>", methods=["GET", "POST"])
@@ -590,7 +590,7 @@ def add_processing_information(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/sample/add/step_four.html", form=form, hash=hash)
+    return render_template("sample/add/step_four.html", form=form, hash=hash)
 
 
 @sample.route("add/sample_review/<hash>", methods=["GET", "POST"])
@@ -633,7 +633,7 @@ def add_sample_review(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/sample/add/review.html", hash=hash, form=form)
+    return render_template("sample/add/review.html", hash=hash, form=form)
 
 
 @sample.route("add/custom_attributes/<hash>", methods=["GET", "POST"])
@@ -689,7 +689,7 @@ def add_custom_atributes(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/sample/add/step_five.html", form=form, hash=hash)
+    return render_template("sample/add/step_five.html", form=form, hash=hash)
 
 
 @sample.route("add/six/<hash>", methods=["GET", "POST"])
@@ -752,4 +752,4 @@ def add_sample_final_form(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/sample/add/step_six.html", form=form, hash=hash)
+    return render_template("sample/add/step_six.html", form=form, hash=hash)

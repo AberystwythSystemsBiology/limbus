@@ -3,14 +3,19 @@
 {% block title %}My TempStore{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
     <div class="container">
-
         <h1><i class="fa fa-hourglass-end"></i> My TempStore Alpha</h1>
 
-        <p>Welcome to the TempStore, this is where you can find temporary storage for...</p>
+    </div>
+</div>
+<div class="container">
 
-        <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
-            <thead>
+
+    <p>Welcome to the TempStore, this is where you can find temporary storage for...</p>
+
+    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
             <tr>
                 <th>UUID</th>
                 <th>Type</th>
@@ -19,35 +24,34 @@
                 <th>Created On</th>
                 <th><i class="fa fa-code"></i></th>
             </tr>
-            </thead>
-            <tbody>
+        </thead>
+        <tbody>
             {% for tmpstore in tmpstores %}
-                <tr>
-                    <td>
-                        {% if tmpstore.type == "SMP" %}
-                            <a href="{{ url_for('sample.add_rerouter', hash=tmpstore.uuid) }}">
+            <tr>
+                <td>
+                    {% if tmpstore.type == "SMP" %}
+                    <a href="{{ url_for('sample.add_rerouter', hash=tmpstore.uuid) }}">
                         {% else %}
-                            <a href="#">
-                        {% endif %}
-                                <i class="fa fa-hourglass-end"></i> {{ tmpstore.uuid }}
-                            </a>
-                    </td>
-                    <td>{{ tmpstore.type }}</td>
-                    <td>{{ render_author_for_table(tmpstore.author) }}</td>
-                    <td>{{ render_author_for_table(tmpstore.editor) }}</td>
-                    <td>{{ tmpstore.created_on }}</td>
-                    <td>
-                        <a href="{{ url_for('tmpstore.view', hash=tmpstore.uuid) }}">
-                            <div class="btn btn-primary btn-small">
-                                <i class="fa fa-code"></i>
-                            </div>
+                        <a href="#">
+                            {% endif %}
+                            <i class="fa fa-hourglass-end"></i> {{ tmpstore.uuid }}
                         </a>
-                    </td>
-                </tr>
+                </td>
+                <td>{{ tmpstore.type }}</td>
+                <td>{{ render_author_for_table(tmpstore.author) }}</td>
+                <td>{{ render_author_for_table(tmpstore.editor) }}</td>
+                <td>{{ tmpstore.created_on }}</td>
+                <td>
+                    <a href="{{ url_for('tmpstore.view', hash=tmpstore.uuid) }}">
+                        <div class="btn btn-primary btn-small">
+                            <i class="fa fa-code"></i>
+                        </div>
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
-            </tbody>
-        </table>
-    </div>
+        </tbody>
+    </table>
+</div>
 
 {% endblock %}
-

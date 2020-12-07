@@ -26,6 +26,7 @@ import requests
 
 TEMPLATES_DIRECTORY = os.environ["TEMPLATES_DIRECTORY"]
 
+
 @labels.route("/sample/<uuid>")
 @login_required
 def sample_label(uuid: str):
@@ -58,17 +59,17 @@ def sample_label(uuid: str):
         elif sample_type == "Molecular":
             measurement = "μg/mL"
 
-        records = [dict(
-            sample_id=sample["uuid"],
-            sample_name=sample["uuid"],
-            sample_type=sample["type"],
-            measurement=measurement,
-            sample_quantity=sample["remaining_quantity"]
-            )]
+        records = [
+            dict(
+                sample_id=sample["uuid"],
+                sample_name=sample["uuid"],
+                sample_type=sample["type"],
+                measurement=measurement,
+                sample_quantity=sample["remaining_quantity"],
+            )
+        ]
 
         label_writer.write_labels(records, target=tmp_fp)
         return send_file(tmp_fp, as_attachment=False, attachment_filename="label.pdf")
-    
+
     return abort(sample_response.status_code)
-    
-    

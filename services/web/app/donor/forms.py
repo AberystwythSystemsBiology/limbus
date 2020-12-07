@@ -31,6 +31,8 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
 from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
 from ..sample.enums import Colour
+from datetime import datetime
+
 
 class DonorFilterForm(FlaskForm):
 
@@ -59,11 +61,13 @@ def DonorCreationForm(sites: dict):
 
         mpn = StringField("Master Patient Number")
 
-        registration_date = DateField("Registration Date")
+        registration_date = DateField("Registration Date", default=datetime.today())
 
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-        death_date = DateField("Date of Death")
+        death_date = DateField(
+            "Date of Death", default=datetime.today(), validators=[Optional()]
+        )
 
         weight = StringField("Weight (kg)", validators=[DataRequired()])
         height = StringField("Height (cm)", validators=[DataRequired()])
@@ -75,16 +79,25 @@ def DonorCreationForm(sites: dict):
 
         submit = SubmitField("Submit")
 
+        def validate(self):
+            if not FlaskForm.validate(self):
+                return False
+
+            if self.status == "DE":
+                if not self.death_date.data:
+                    self.death_date.errors.append("Date Required")
+                    return False
+
+            return True
+
     site_choices = []
     for site in sites:
         site_choices.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
 
-    setattr(StaticForm, "site",         # enrollment site
-        SelectField(
-            "Enrollment Site",
-            choices=site_choices,
-            coerce=int
-        ))
+    setattr(
+        StaticForm,
+        "site",  # enrollment site
+        SelectField("Enrollment Site", choices=site_choices, coerce=int),
+    )
 
     return StaticForm()
-
