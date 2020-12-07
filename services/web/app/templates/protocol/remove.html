@@ -3,18 +3,18 @@
 {% block title %}Editing LIMBPRO-{{ protocol.id }}{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>
-            <span class="secondary-heading">
-                <a href="{{ url_for('protocol.view', id=protocol_id) }}">
-                    <i class="fas fa-file"></i> LIMBPRO-{{ protocol_id }}: {{ text.type }}
-                </a>
-            </span>
-            Removing Text
-        </h1>
-        <form method="POST" action="{{ url_for('protocol.remove_text', id=protocol_id, t_id=text.id ) }}">
-            {{ form.csrf_token }}
-            {{ form_field(form.submit) }}
-        </form>
-    </div>
+<div class="container">
+    <h1>
+        <span class="secondary-heading">
+            <a href="{{ url_for('protocol.view', id=protocol_id) }}">
+                <i class="fas fa-file"></i> LIMBPRO-{{ protocol_id }}: {{ text.type }}
+            </a>
+        </span>
+        Removing Text
+    </h1>
+    <form method="POST" action="{{ url_for('protocol.remove_text', id=protocol_id, t_id=text.id ) }}">
+        {{ form.csrf_token }}
+        {{ form_field(form.submit) }}
+    </form>
+</div>
 {% endblock %}

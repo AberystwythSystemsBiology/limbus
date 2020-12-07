@@ -5,27 +5,28 @@
 
 {% block body %}
 
-    <div class="jumbotron">
-        <div class="container">
-            <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span><i class="fa fa-key"></i> Edit</h1>
-
-        </div>
-    </div>
-
+<div class="jumbotron">
     <div class="container">
-
-
-        <form action="{{ url_for('auth.edit') }}" method="POST">
-            {{ form.csrf_token }}
-            {{ form_field(form.title) }}
-            {{ form_field(form.first_name) }}
-            {{ form_field(form.middle_name) }}
-            {{ form_field(form.last_name) }}
-            {{ form_field(form.submit) }}
-        </form>
-
+        <h1><span class="secondary-heading"><i class="fa fa-user"></i> User Account</span><i class="fa fa-key"></i> Edit
+        </h1>
 
     </div>
+</div>
+
+<div class="container">
+
+
+    <form action="{{ url_for('auth.edit') }}" method="POST">
+        {{ form.csrf_token }}
+        {{ form_field(form.title) }}
+        {{ form_field(form.first_name) }}
+        {{ form_field(form.middle_name) }}
+        {{ form_field(form.last_name) }}
+        {{ form_field(form.submit) }}
+    </form>
+
+
+</div>
 
 
 

@@ -4,26 +4,26 @@
 
 {% block body %}
 
-    <div class="container">
+<div class="container">
 
-        <h1>
-            <span class="secondary-heading">
-                <a href="{{ url_for("attribute.view", id=attribute_id) }}">
-                    <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute_id }}
-                </a>
-            </span>
-            Lock Option
-        </h1>
+    <h1>
+        <span class="secondary-heading">
+            <a href="{{ url_for("attribute.view", id=attribute_id) }}">
+                <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute_id }}
+            </a>
+        </span>
+        Lock Option
+    </h1>
 
-        <div class="alert alert-warning text-center">
-            <b>Notice:</b> This is a potentially destructive action.
-        </div>
-
-        <form action="{{ url_for('attribute.lock_option', id=attribute_id, option_id=option_id) }}" method="POST">
-            {{ form.csrf_token() }}
-            {{ form_field(form.name) }}
-            {{ form_field(form.submit) }}
-        </form>
-
+    <div class="alert alert-warning text-center">
+        <b>Notice:</b> This is a potentially destructive action.
     </div>
+
+    <form action="{{ url_for('attribute.lock_option', id=attribute_id, option_id=option_id) }}" method="POST">
+        {{ form.csrf_token() }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.submit) }}
+    </form>
+
+</div>
 {% endblock %}

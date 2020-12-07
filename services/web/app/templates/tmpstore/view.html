@@ -3,16 +3,15 @@
 {% block title %}{{ hash }}{% endblock %}
 
 {% block body %}
-    <div class="jumbotron">
-        <div class="container">
-            <h1><i class="fa fa-hourglass-end"></i> {{ hash }}</h1>
-        </div>
-    </div>
+<div class="jumbotron">
     <div class="container">
-
-
-        <pre>{{ tmpstore|safe }}</pre>
+        <h1><i class="fa fa-hourglass-end"></i> {{ hash }}</h1>
     </div>
+</div>
+<div class="container">
+
+
+    <pre>{{ tmpstore|safe }}</pre>
+</div>
 
 {% endblock %}
-

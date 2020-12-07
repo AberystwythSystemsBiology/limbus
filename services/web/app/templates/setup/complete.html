@@ -4,16 +4,15 @@
 
 {% block body %}
 <div class="container">
-    <div class="jumbotron" style="margin-top: 10px;">
-      <h1 class="display-4">Setup Completed!</h1>
-      <p class="lead">That's it! You have completed setting up LImBuS!</p>
-      <hr class="my-4">
-      <p>Now log in using the information you provided.</p>
-      <p class="lead">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Log In</a>
-      </p>
-    </div>
+  <div class="jumbotron" style="margin-top: 10px;">
+    <h1 class="display-4">Setup Completed!</h1>
+    <p class="lead">That's it! You have completed setting up LImBuS!</p>
+    <hr class="my-4">
+    <p>Now log in using the information you provided.</p>
+    <p class="lead">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Log In</a>
+    </p>
+  </div>
 
 </div>
 {% endblock %}
-

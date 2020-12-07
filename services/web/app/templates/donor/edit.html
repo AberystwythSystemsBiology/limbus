@@ -6,46 +6,45 @@
 <div class="container">
 
     <h1><span class="secondary-heading">
-        <a href="{{ url_for('donor.view', id=donor.id) }}">
-        <i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}</span>
+            <a href="{{ url_for('donor.view', id=donor.id) }}">
+                <i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}</span>
         </a>
         Edit
     </h1>
 
-        <form method="POST" action="{{ url_for('donor.edit', id=donor.id ) }}">
-            {{ form.csrf_token() }}
-            {{ form_field(form.age)}}
-            <div class="row">
-                <div class="col-6">
-                    {{ form_field(form.race)}}
-                </div>
-                <div class="col-6">
-                    {{ form_field(form.sex)}}
-                </div>
+    <form method="POST" action="{{ url_for('donor.edit', id=donor.id ) }}">
+        {{ form.csrf_token() }}
+        {{ form_field(form.age)}}
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.race)}}
             </div>
-    
-            <div class="row">
-                <div class="col-6">
-                    {{ form_field(form.height)}}
-                </div>
-                <div class="col-6">
-                    {{ form_field(form.weight)}}
-                </div>
+            <div class="col-6">
+                {{ form_field(form.sex)}}
             </div>
-    
-            {{ form_field(form.status)}}
-            {{ form_field(form.death_date)}}
+        </div>
 
-            {{ form_field(form.submit) }}
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.height)}}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.weight)}}
+            </div>
+        </div>
 
-        </form>
+        {{ form_field(form.status)}}
+        {{ form_field(form.death_date)}}
 
-   
+        {{ form_field(form.submit) }}
+
+    </form>
+
+
 </div>
 
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/donor/donor_add.js') }}"></script>
+<script src="{{ url_for('static', filename='js/donor/donor_add.js') }}"></script>
 {% endblock %}
-

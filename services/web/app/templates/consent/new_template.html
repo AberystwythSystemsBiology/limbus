@@ -6,22 +6,22 @@
 <div class="jumbotron">
     <div class="container">
         <h1><span class="secondary-heading">
-            <a href="{{ url_for('consent.index') }}">
+                <a href="{{ url_for('consent.index') }}">
                     <i class="fa fa-question-circle"></i> Patient Consent Form Portal
-            </a></span> New Consent Form Template</h1>
+                </a></span> New Consent Form Template</h1>
     </div>
 </div>
-    <div class="container">
-       
+<div class="container">
 
-        <form method="POST" action="{{ url_for('consent.add' ) }}">
-            {{ form.csrf_token }}
-            {{ form_field(form.name) }}
-            {{ form_field(form.description) }}
-            {{ form_field(form.version) }}
-            {{ form_field(form.submit) }}
 
-        </form>
+    <form method="POST" action="{{ url_for('consent.add' ) }}">
+        {{ form.csrf_token }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.version) }}
+        {{ form_field(form.submit) }}
 
-    </div>
+    </form>
+
+</div>
 {% endblock %}

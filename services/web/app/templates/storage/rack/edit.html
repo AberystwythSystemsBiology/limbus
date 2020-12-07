@@ -1,13 +1,12 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}Editing LIMBRACK-{{ rack.id }}{% endblock %}
 {% block body %}
-    <div id="sidebar-wrapper">
+<div id="sidebar-wrapper">
     {{ storage_navbar() }}
     <div class="storage">
         <div class="jumbotron">
@@ -16,22 +15,22 @@
                     <i class="fa fa-edit"></i> Edit Rack</h1>
             </div>
         </div>
-            
+
         <div class="container">
 
-            <form  method="POST" action="{{ url_for('storage.edit_rack', id=rack.id ) }}">
+            <form method="POST" action="{{ url_for('storage.edit_rack', id=rack.id ) }}">
                 {{ form.csrf_token() }}
                 {{ form_field(form.serial) }}
                 {{ form_field(form.description) }}
                 {{ form_field(form.submit) }}
             </form>
 
+        </div>
     </div>
 </div>
-    </div>
 {% endblock %}
 
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

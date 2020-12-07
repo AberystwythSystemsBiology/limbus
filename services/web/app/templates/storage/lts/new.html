@@ -1,24 +1,24 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %} LIMBROOM-{{room.id}} ({{ room.name }}) : New Cold Storage{% endblock %}
 
 {% block body %}
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage">
-            <div class="jumbotron">
-                <div class="container">
-                    <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBROOM-{{room.id}} ({{ room.name }}) </span>New Cold Storage</h1>
-
-                </div>
-            </div>
-
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
             <div class="container">
+                <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBROOM-{{room.id}}
+                        ({{ room.name }}) </span>New Cold Storage</h1>
+
+            </div>
+        </div>
+
+        <div class="container">
 
             <form method="POST" action="{{ url_for('storage.new_cold_storage', id=room.id) }}">
                 {{ form.csrf_token }}
@@ -32,12 +32,12 @@
             </form>
         </div>
 
-        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/lts/add.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
-        return render_template("storage/shelf/new.html", form=form, cs=response.json()["content"])
+<script src="{{ url_for('static', filename='js/storage/lts/add.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+return render_template("storage/shelf/new.html", form=form, cs=response.json()["content"])
 {% endblock %}

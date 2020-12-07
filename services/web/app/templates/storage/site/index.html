@@ -1,74 +1,75 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}Sites{% endblock %}
 
 {% block body %}
 
-    <div id="jumbotron">
-        <div class="container">
-            
-        </div>
+<div id="jumbotron">
+    <div class="container">
+
     </div>
+</div>
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
 
-        <div class="storage container">
-            <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-                <h1><span class="secondary-heading"><i class="fas fa-boxes"></i> Sample Storage Portal</span><i class="fa fa-building"></i> Sites</h1>
+    <div class="storage container">
+        <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+            <h1><span class="secondary-heading"><i class="fas fa-boxes"></i> Sample Storage Portal</span><i
+                    class="fa fa-building"></i> Sites</h1>
 
-                <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
-                        <a href="{{ url_for('storage.add_site') }}">
-                            <div class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Add Site
-                            </div>
-                        </a>
-                    </div>
-
+            <div class="btn-toolbar">
+                <div class="btn-group mr-2">
+                    <a href="{{ url_for('storage.add_site') }}">
+                        <div class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Site
+                        </div>
+                    </a>
                 </div>
-            
-            </span>
+
+            </div>
+
+        </span>
 
 
-            <table id="sites" class="table table-striped table-bordered" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Identifier</th>
-                        <th>Upload Date</th>
-                        <th>Uploader</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for site, uploader in sites %}
-                    <tr>
-                        <td>LIMBSIT-{{ site.id }}: {{ site.name }}</td>
-                        <td>{{ site.creation_date.strftime('%Y-%m-%d') }}</td>
-                        <td>
-                            <img class="rounded-circle float-right" src="https://www.gravatar.com/avatar/{{ uploader.gravatar }}?s=20">
-                            {{ uploader.name }}
-                        </td>
-                        <td>
-                            <a href="{{ url_for('storage.view_site', id=site.id) }}">
-                                <btn class="btn btn-sm btn-primary">
-                                    <i class="fa fa-eye"></i> View
-                                </btn>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <table id="sites" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Identifier</th>
+                    <th>Upload Date</th>
+                    <th>Uploader</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for site, uploader in sites %}
+                <tr>
+                    <td>LIMBSIT-{{ site.id }}: {{ site.name }}</td>
+                    <td>{{ site.creation_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <img class="rounded-circle float-right"
+                            src="https://www.gravatar.com/avatar/{{ uploader.gravatar }}?s=20">
+                        {{ uploader.name }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('storage.view_site', id=site.id) }}">
+                            <btn class="btn btn-sm btn-primary">
+                                <i class="fa fa-eye"></i> View
+                            </btn>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

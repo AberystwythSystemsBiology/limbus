@@ -1,13 +1,12 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}Editing LIMBCS-{{ cs.id }}{% endblock %}
 {% block body %}
-    <div id="sidebar-wrapper">
+<div id="sidebar-wrapper">
     {{ storage_navbar() }}
     <div class="storage">
         <div class="jumbotron">
@@ -15,14 +14,14 @@
                 <h1>
                     <span class="secondary-heading">
                         <a href="{{ url_for('storage.view_cold_storage', id=cs.id) }}">
-                            <i class="fa fa-cube"></i> LIMBCS-{{ cs.id }}                </a>
-                        </span>
-                <i class="fa fa-edit"></i> Edit Cold Storage
-            </h1>
+                            <i class="fa fa-cube"></i> LIMBCS-{{ cs.id }} </a>
+                    </span>
+                    <i class="fa fa-edit"></i> Edit Cold Storage
+                </h1>
 
             </div>
         </div>
-            
+
         <div class="container">
 
             <form method="POST" action="{{ url_for('storage.edit_cold_storage', id=cs.id ) }}">
@@ -34,12 +33,12 @@
                 {{ form_field(form.comments) }}
                 {{ form_field(form.submit) }}
             </form>
+        </div>
     </div>
 </div>
-    </div>
 {% endblock %}
 
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

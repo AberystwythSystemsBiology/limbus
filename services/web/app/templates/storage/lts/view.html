@@ -1,93 +1,95 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}LIMBCS-{{ cs.id }}{% endblock %}
 
 {% block body %}
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage">
-            <div class="jumbotron">
-                <div class="container">
-                    <h1><span class="secondary-heading">
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1><span class="secondary-heading">
                         <a href="{{ url_for('storage.view_room', id=cs.room_id) }}">
-                        <i class="fa fa-door-closed"></i> LIMBROOM-{{ cs.room_id }}</a>
+                            <i class="fa fa-door-closed"></i> LIMBROOM-{{ cs.room_id }}</a>
                     </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }} ({{ cs.type }})</h1>
-    
-                    <div class="row text-muted">
-                        <div class="col-7">
-                            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                                {% if not cs.is_locked %}
-                                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                                        <a href="{{ url_for('storage.edit_cold_storage', id=cs.id )}}">
-                                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                                Details
-                                            </button>
-                                        </a>
-                                    </div>
-    
-                                    <div class="btn-group mr-2">
-                                        <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}"> 
-                                            <div class="btn btn-outline-dark">
-                                                <i class="fas fa-plus"></i> Add Shelf
-                                            </div>
-                                        </a>
-                                    </div>
-            
-        
-                                {% endif %}
-            
-                                <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                            class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if cs.is_locked %}
-                                        Unl{% else %}L{% endif %}ock
+
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            {% if not cs.is_locked %}
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.edit_cold_storage', id=cs.id )}}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                        Details
                                     </button>
-                                </div>
+                                </a>
+                            </div>
+
+                            <div class="btn-group mr-2">
+                                <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}">
+                                    <div class="btn btn-outline-dark">
+                                        <i class="fas fa-plus"></i> Add Shelf
+                                    </div>
+                                </a>
+                            </div>
+
+
+                            {% endif %}
+
+                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if cs.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
+                                </button>
                             </div>
                         </div>
-                        <div class="col-5 text-right">
-                            <i class="fa fa-calendar"></i> Created On: {{ cs.created_on }}
-                            <div class="clearfix"></div>
-                            <i class="fa fa-user"></i> Created By: {{ render_author_for_table(cs.author) }}
-                        </div>
+                    </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: {{ cs.created_on }}
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(cs.author) }}
+                    </div>
                 </div>
             </div>
-                
-                </div>
 
-                
-                <div class="container">
-                    <table class="table table-striped">
-            <h2>Information</h2>
-            {{ show_value(cs.uuid, "UUID", "text") }}
-            {{ show_value(cs.manufacturer, "Manufacturer", "text") }}
-            {{ show_value(cs.serial_number, "Serial Number", "text") }}
-            {{ show_value(cs.temp, "Temperature", "text") }}
-        </table>
+        </div>
+
+
+        <div class="container">
+            <table class="table table-striped">
+                <h2>Information</h2>
+                {{ show_value(cs.uuid, "UUID", "text") }}
+                {{ show_value(cs.manufacturer, "Manufacturer", "text") }}
+                {{ show_value(cs.serial_number, "Serial Number", "text") }}
+                {{ show_value(cs.temp, "Temperature", "text") }}
+            </table>
             <span class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
 
-            <h2><i class="fa fa-bars"></i> Shelves</h2>
-            <div class="btn-toolbar">
-                
-            </div>
-        </span>
+                <h2><i class="fa fa-bars"></i> Shelves</h2>
+                <div class="btn-toolbar">
+
+                </div>
+            </span>
 
 
             <div class="list-group">
                 {% for shelf in cs.shelves %}
-                <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}" class="list-group-item list-group-item-action">
+                <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}"
+                    class="list-group-item list-group-item-action">
                     <div class="media">
-                        <span class="mr-3"><h1><i class="fa fa-bars"></i></h1></span>
+                        <span class="mr-3">
+                            <h1><i class="fa fa-bars"></i></h1>
+                        </span>
                         <div class="media-body">
-                          <h5 class="mt-0">LIMBSHLF-{{shelf.id}}: {{shelf.name}} </h5>
-                          {{ show_value(shelf.description, "Description", "text") }}
+                            <h5 class="mt-0">LIMBSHLF-{{shelf.id}}: {{shelf.name}} </h5>
+                            {{ show_value(shelf.description, "Description", "text") }}
                         </div>
-                      </div>
+                    </div>
                 </a>
                 {% endfor %}
             </div>
@@ -98,5 +100,5 @@
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

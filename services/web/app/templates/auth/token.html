@@ -5,46 +5,46 @@
 
 {% block body %}
 
-    <div class="jumbotron">
-        <div class="container">
+<div class="jumbotron">
+    <div class="container">
         <h1><span class="secondary-heading">
-            <i class="fa fa-user"></i> User Account
-        </span>
+                <i class="fa fa-user"></i> User Account
+            </span>
             Token Generator</h1>
     </div>
 </div>
 
-    <div class="container">
+<div class="container">
 
-        
-        <div class="alert alert-warning text-center">
-            <b>Notice</b> This has invalidated your token. You will be required to update all of your scripts with the
-            new token in order to continue using the BIMS from an external interface. If you don't know what this means,
-            then you're probably not affected and can continue onward with your day. If you think this has broke something
-            please contact your systems administrator.
-        </div>
-        <div class="row">
-            <div class="col-6">
-                <div class="card">
-                    <div class="card-header text-center">Your new token is</div>
-                    <div class="card-body text-center">
-                        <code>
+
+    <div class="alert alert-warning text-center">
+        <b>Notice</b> This has invalidated your token. You will be required to update all of your scripts with the
+        new token in order to continue using the BIMS from an external interface. If you don't know what this means,
+        then you're probably not affected and can continue onward with your day. If you think this has broke something
+        please contact your systems administrator.
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header text-center">Your new token is</div>
+                <div class="card-body text-center">
+                    <code>
                             <pre style="font-size:1em;" id="token">{{ token["token"] }}</pre>
                         </code>
-        
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-success full-width" onclick="copyToClipboard('#token')">
-                            <i class="fa fa-clipboard"></i> Copy to Clipboard
-                        </button>
-                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success full-width" onclick="copyToClipboard('#token')">
+                        <i class="fa fa-clipboard"></i> Copy to Clipboard
+                    </button>
                 </div>
             </div>
         </div>
-
-        
-
     </div>
+
+
+
+</div>
 
 {% endblock %}
 

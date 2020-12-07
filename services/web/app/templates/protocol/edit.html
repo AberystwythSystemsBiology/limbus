@@ -3,26 +3,26 @@
 {% block title %}Editing LIMBPRO-{{ protocol.id }}{% endblock %}
 
 {% block body %}
-    <div class="jumbotron">
-        <div class="container">
-            <h1>
-                <span class="secondary-heading">
-                    <a href="{{ url_for('protocol.view', id=protocol.id) }}">
-                        <i class="fas fa-file"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
-                    </a>
-                </span>
-                Edit Protocol
-            </h1>
-        </div>
-    </div>
+<div class="jumbotron">
     <div class="container">
-
-        <form method="POST" action="{{ url_for('protocol.edit', id=protocol.id ) }}">
-            {{ form.csrf_token }}
-            {{ form_field(form.name) }}
-            {{ form_field(form.description) }}
-            {{ form_field(form.type) }}
-            {{ form_field(form.submit, with_label=False) }}
-        </form>
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('protocol.view', id=protocol.id) }}">
+                    <i class="fas fa-file"></i> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}
+                </a>
+            </span>
+            Edit Protocol
+        </h1>
     </div>
+</div>
+<div class="container">
+
+    <form method="POST" action="{{ url_for('protocol.edit', id=protocol.id ) }}">
+        {{ form.csrf_token }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.type) }}
+        {{ form_field(form.submit, with_label=False) }}
+    </form>
+</div>
 {% endblock %}

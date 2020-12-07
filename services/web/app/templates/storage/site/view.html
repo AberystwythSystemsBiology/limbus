@@ -1,101 +1,101 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 
 {% block title %}LIMBSITE-{{ site.id }}{% endblock %}
 
 {% block body %}
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage">
-            <div class="jumbotron">
-                <div class="container">
-                    <h1><span class="secondary-heading">
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1><span class="secondary-heading">
                         <a href="{{ url_for('storage.index') }}">
                             <i class="fas fa-boxes"></i> Storage Portal</span>
-                        </a>
-                        <i class="fa fa-building"></i> LIMBSITE-{{ site.id }}</h1>
-        
-        
-            
-                    <div class="row text-muted">
-                        <div class="col-7">
-                            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                                {% if not site.is_locked %}
-        
-        
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.new_building', id=site.id) }}">
-                                        <button type="button" class="btn btn-outline-dark">
-                                            <i class="fas fa-vial"></i> Add Building
-                                        </button>
-                                    </a>
-                                </div>
-                
-                                {% endif %}
-            
-                                <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if site.is_locked %}
-                                        Unl{% else %}L{% endif %}ock
+                    </a>
+                    <i class="fa fa-building"></i> LIMBSITE-{{ site.id }}</h1>
+
+
+
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            {% if not site.is_locked %}
+
+
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.new_building', id=site.id) }}">
+                                    <button type="button" class="btn btn-outline-dark">
+                                        <i class="fas fa-vial"></i> Add Building
                                     </button>
-                                </div>
+                                </a>
+                            </div>
+
+                            {% endif %}
+
+                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if site.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
+                                </button>
                             </div>
                         </div>
-                        <div class="col-5 text-right">
-                            <i class="fa fa-calendar"></i> Created On: {{ site.created_on }}
-                            <div class="clearfix"></div>
-                            <i class="fa fa-user"></i> Created By: {{ render_author_for_table(site.author) }}
-                        </div>
+                    </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: {{ site.created_on }}
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: {{ render_author_for_table(site.author) }}
                     </div>
                 </div>
             </div>
+        </div>
 
-            
 
-            
-            <div class="container">
 
-                <h2>Site Information</h2>
-                <table class="table table-striped">
-                    {{ show_value(site.name, "Name", "text") }}
-                    {{ show_value(site.address.street_address_one, "Address Line One", "text") }}
-                    {{ show_value(site.address.street_address_two, "Address Line Two", "text") }}
-                    {{ show_value(site.address.city, "City", "text") }}
-                    {{ show_value(site.address.county, "County", "text") }}
-                    {{ show_value(site.address.post_code, "Post Code", "text") }}
-                </table>
-                    <div class="list-group">
-                    <li class="list-group-item active">
-                          <h5 class="mb-1"><i class="fa fa-home"></i> Buildings</h5>
-                      </li>
-                      {% if site.buildings|length > 0 %}
-                        {% for building in site.buildings %}
-                            <a href="{{ url_for('storage.view_building', id=building.id) }}"
-                               class="list-group-item list-group-item-action flex-column align-items-start">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1"><i class="fa fa-home"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}</h5>
-                                </div>
-                            </a>
-                            
-                        {% endfor %}
-                        {% else %}
-                            <div class="list-group-item">
-                                No buildings available.
-                            </div>
-                        {% endif %}
+
+        <div class="container">
+
+            <h2>Site Information</h2>
+            <table class="table table-striped">
+                {{ show_value(site.name, "Name", "text") }}
+                {{ show_value(site.address.street_address_one, "Address Line One", "text") }}
+                {{ show_value(site.address.street_address_two, "Address Line Two", "text") }}
+                {{ show_value(site.address.city, "City", "text") }}
+                {{ show_value(site.address.county, "County", "text") }}
+                {{ show_value(site.address.post_code, "Post Code", "text") }}
+            </table>
+            <div class="list-group">
+                <li class="list-group-item active">
+                    <h5 class="mb-1"><i class="fa fa-home"></i> Buildings</h5>
+                </li>
+                {% if site.buildings|length > 0 %}
+                {% for building in site.buildings %}
+                <a href="{{ url_for('storage.view_building', id=building.id) }}"
+                    class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1"><i class="fa fa-home"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}
+                        </h5>
                     </div>
-                    </div>
+                </a>
+
+                {% endfor %}
+                {% else %}
+                <div class="list-group-item">
+                    No buildings available.
                 </div>
+                {% endif %}
             </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/site/view.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/site/view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

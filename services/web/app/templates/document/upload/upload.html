@@ -4,19 +4,19 @@
 
 {% block body %}
 
-    <div class="jumbotron">
-        <div class="container">
-            <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span><i class="fa fa-upload"></i> New File</h1>
-        </div>
-    </div>
+<div class="jumbotron">
     <div class="container">
-
-
-        <form method="POST" action="{{ url_for('document.new_file', id=document.id ) }}"
-              enctype="multipart/form-data">
-            {{ form.csrf_token }}
-            {{ form_field(form.file) }}
-            {{ form_field(form.submit, with_label=False) }}
-        </form>
+        <h1><span class="secondary-heading"><i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span><i
+                class="fa fa-upload"></i> New File</h1>
     </div>
+</div>
+<div class="container">
+
+
+    <form method="POST" action="{{ url_for('document.new_file', id=document.id ) }}" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        {{ form_field(form.file) }}
+        {{ form_field(form.submit, with_label=False) }}
+    </form>
+</div>
 {% endblock %}

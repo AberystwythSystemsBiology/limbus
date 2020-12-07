@@ -1,26 +1,25 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}New Site{% endblock %}
 
 {% block body %}
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage">
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
 
-            <div class="jumbotron">
-                <div class="container">
-                    <h1><span class="secondary-heading"><i class="fa fa-building"></i> Sites</span>New Site</h1>
-
-                </div>
-            </div>
-
+        <div class="jumbotron">
             <div class="container">
+                <h1><span class="secondary-heading"><i class="fa fa-building"></i> Sites</span>New Site</h1>
+
+            </div>
+        </div>
+
+        <div class="container">
 
             <form action="{{ url_for('storage.add_site') }}" method="post">
                 {{ form_field(form.name) }}
@@ -34,10 +33,10 @@
             </form>
         </div>
 
-        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

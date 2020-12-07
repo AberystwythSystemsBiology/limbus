@@ -4,78 +4,78 @@
 
 
 {% block body %}
-    <div class="container">
-        <h1><i class="fas fa-user-friends"></i> Meet the Team</h1>
+<div class="container">
+    <h1><i class="fas fa-user-friends"></i> Meet the Team</h1>
 
-        <p>We believe in the unique combination of academic collaboration and the power of Free and Open Source
-            Software.</p>
+    <p>We believe in the unique combination of academic collaboration and the power of Free and Open Source
+        Software.</p>
 
 
-        <div class="row text-center top10">
-            <div class="col-sm">
-                <img src="{{ url_for('static', filename='images/misc/team/keiron.JPG') }}" class="rounded-circle"
-                     style="max-width: 100px; padding-bottom: 10px;">
-                <h6>Keiron O'Shea</h6>
-                <p>Developer</p>
+    <div class="row text-center top10">
+        <div class="col-sm">
+            <img src="{{ url_for('static', filename='images/misc/team/keiron.JPG') }}" class="rounded-circle"
+                style="max-width: 100px; padding-bottom: 10px;">
+            <h6>Keiron O'Shea</h6>
+            <p>Developer</p>
 
-                <div class="btn btn-primary btn-sm disabled">
-                    <i class="fa fa-envelope"></i> Email
-                </div>
-                <a href="https://www.github.com/KeironO">
-                    <div class="btn btn-primary btn-sm">
-                        <i class="fab fa-github"></i> GitHub
-                    </div>
-                </a>
+            <div class="btn btn-primary btn-sm disabled">
+                <i class="fa fa-envelope"></i> Email
             </div>
-            <div class="col-sm">
-                <img src="{{ url_for('static', filename='images/misc/team/rob.jpg') }}" class="rounded-circle"
-                     style="max-width: 100px; padding-bottom: 10px;">
-                <h6>Rob Bolton</h6>
-                <p>Developer</p>
-                <p class="small"></p>
-                <div class="btn btn-primary btn-sm disabled">
-                    <i class="fa fa-envelope"></i> Email
+            <a href="https://www.github.com/KeironO">
+                <div class="btn btn-primary btn-sm">
+                    <i class="fab fa-github"></i> GitHub
                 </div>
-                <a href="https://www.github.com/rob-a-bolton">
-                    <div class="btn btn-primary btn-sm">
-                        <i class="fab fa-github"></i> GitHub
-                    </div>
-                </a>
-            </div>
-            <div class="col-sm">
-                <img src="{{ url_for('static', filename='images/misc/team/chuan.jpg') }}" class="rounded-circle "
-                     style="max-width: 100px; padding-bottom: 10px;">
-                <h6>Dr. Chuan Lu</h6>
-                <p>Project Supervisor</p>
-                <div class="btn btn-primary btn-sm disabled">
-                    <i class="fa fa-envelope"></i> Email
-                </div>
-            </div>
-
+            </a>
         </div>
-
-        <div class="row text-center top10">
-           <div class="col-sm">
-                <img src="{{ url_for('static', filename='images/misc/team/priya.jpg') }}" class="rounded-circle "
-                     style="max-width: 100px; padding-bottom: 10px;">
-                <h6>Dr. Priya Sai-Giridhar</h6>
-                <p>Project Supervisor</p>
-                <div class="btn btn-primary btn-sm disabled">
-                    <i class="fa fa-envelope"></i> Email
-                </div>
+        <div class="col-sm">
+            <img src="{{ url_for('static', filename='images/misc/team/rob.jpg') }}" class="rounded-circle"
+                style="max-width: 100px; padding-bottom: 10px;">
+            <h6>Rob Bolton</h6>
+            <p>Developer</p>
+            <p class="small"></p>
+            <div class="btn btn-primary btn-sm disabled">
+                <i class="fa fa-envelope"></i> Email
             </div>
-
-            <div class="col-sm">
-                <img src="{{ url_for('static', filename='images/misc/team/luis.jpg') }}" class="rounded-circle"
-                     style="max-width: 100px; padding-bottom: 10px;">
-                <h6>Prof. Luis AJ Mur</h6>
-                <p>Project Supervisor</p>
-                <div class="btn btn-primary btn-sm disabled">
-                    <i class="fa fa-envelope"></i> Email
+            <a href="https://www.github.com/rob-a-bolton">
+                <div class="btn btn-primary btn-sm">
+                    <i class="fab fa-github"></i> GitHub
                 </div>
+            </a>
+        </div>
+        <div class="col-sm">
+            <img src="{{ url_for('static', filename='images/misc/team/chuan.jpg') }}" class="rounded-circle "
+                style="max-width: 100px; padding-bottom: 10px;">
+            <h6>Dr. Chuan Lu</h6>
+            <p>Project Supervisor</p>
+            <div class="btn btn-primary btn-sm disabled">
+                <i class="fa fa-envelope"></i> Email
             </div>
         </div>
-
 
     </div>
+
+    <div class="row text-center top10">
+        <div class="col-sm">
+            <img src="{{ url_for('static', filename='images/misc/team/priya.jpg') }}" class="rounded-circle "
+                style="max-width: 100px; padding-bottom: 10px;">
+            <h6>Dr. Priya Sai-Giridhar</h6>
+            <p>Project Supervisor</p>
+            <div class="btn btn-primary btn-sm disabled">
+                <i class="fa fa-envelope"></i> Email
+            </div>
+        </div>
+
+        <div class="col-sm">
+            <img src="{{ url_for('static', filename='images/misc/team/luis.jpg') }}" class="rounded-circle"
+                style="max-width: 100px; padding-bottom: 10px;">
+            <h6>Prof. Luis AJ Mur</h6>
+            <p>Project Supervisor</p>
+            <div class="btn btn-primary btn-sm disabled">
+                <i class="fa fa-envelope"></i> Email
+            </div>
+        </div>
+    </div>
+
+
+</div>
 {% endblock %}

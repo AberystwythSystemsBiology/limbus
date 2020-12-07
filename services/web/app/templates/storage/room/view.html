@@ -1,36 +1,35 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}LIMBROM-{{ room.id }}{% endblock %}
 
 {% block body %}
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage">
-            <div class="jumbotron">
-                <div class="container">
-                    <h1>
-                        <span class="secondary-heading">
-                            <a href="{{ url_for('storage.view_building', id=room.building_id) }}">
-                                <i class="fa fa-building"></i> LIMBBUILD-{{ room.building_id }}
-                                            </a>
-                        </span>
-                        <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
-                    </h1>
-    
-                
-    
-                
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('storage.view_building', id=room.building_id) }}">
+                            <i class="fa fa-building"></i> LIMBBUILD-{{ room.building_id }}
+                        </a>
+                    </span>
+                    <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
+                </h1>
+
+
+
+
                 <div class="row text-muted">
                     <div class="col-7">
                         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                             {% if not room.is_locked %}
-    
+
                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                 <a href="{{ url_for('storage.new_cold_storage', id=room.id) }}">
                                     <button type="button" class="btn btn-outline-dark"><i class="fas fa-plus"></i>
@@ -38,21 +37,21 @@
                                     </button>
                                 </a>
                             </div>
-    
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.edit_room', id=room.id) }}">
-                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                            Details
-                                        </button>
-                                    </a>
-                                </div>
-    
-        
+
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.edit_room', id=room.id) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                        Details
+                                    </button>
+                                </a>
+                            </div>
+
+
                             {% endif %}
-        
+
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
                                 <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
+                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
                                     Unl{% else %}L{% endif %}ock
                                 </button>
                             </div>
@@ -64,14 +63,14 @@
                         <i class="fa fa-user"></i> Created By: {{ render_author_for_table(room.author) }}
                     </div>
                 </div>
-    
-                </div>
+
             </div>
-  
-            <div class="container">
+        </div>
+
+        <div class="container">
 
             <h2>Room Information</h2>
-            
+
             <table class="table table-striped">
                 {{ show_value(room.name, "Room Name", "text") }}
 
@@ -80,33 +79,33 @@
             <h2><i class="fa fa-temperature-low"></i> Cold Storage</h2>
 
             {% for n in range(0, room.storage|length, 3) %}
-                <div class="card-deck mb-3 text-center">
-                    {% for storage in room.storage[n:n+ 3] %}
-                        <div class="card mb-4 box-shadow">
-                            <div class="card-header">
-                                <h4 class="my-0 font-weight-normal">{{ storage.type }}</h4>
-                              </div>
-                              <div class="card-body">
-                                <h2 class="card-title pricing-card-title">{{storage.temp}}</h2>
-                                <ul class="list-unstyled mt-3 mb-4">
-                                  <li>{{ storage.manufacturer }}</li>
-                                </ul>
-                                    <a href="{{ url_for('storage.view_cold_storage', id=storage.id) }}">
-                                        <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
-                                    </a>
-                            </div>
-                        </div>
-                    {% endfor %}
+            <div class="card-deck mb-3 text-center">
+                {% for storage in room.storage[n:n+ 3] %}
+                <div class="card mb-4 box-shadow">
+                    <div class="card-header">
+                        <h4 class="my-0 font-weight-normal">{{ storage.type }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="card-title pricing-card-title">{{storage.temp}}</h2>
+                        <ul class="list-unstyled mt-3 mb-4">
+                            <li>{{ storage.manufacturer }}</li>
+                        </ul>
+                        <a href="{{ url_for('storage.view_cold_storage', id=storage.id) }}">
+                            <div class="btn btn-lg btn-block btn-outline-primary">Go</div>
+                        </a>
+                    </div>
                 </div>
+                {% endfor %}
+            </div>
             {% endfor %}
 
         </div>
     </div>
 
-    </div>
+</div>
 
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

@@ -4,7 +4,7 @@
 
 <head>
 
-<!--
+    <!--
      _  _  ___  _     _      ___         _____  _  _  ___  ___  ___   _   
     | || || __|| |   | |    / _ \       |_   _|| || || __|| _ \| __| | |  
     | __ || _| | |__ | |__ | (_) |        | |  | __ || _| |   /| _|  |_|  
@@ -22,127 +22,149 @@
 
     <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/@fortawesome/fontawesome-free/css/all.css') }}"
-          rel="stylesheet">
+        rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css') }}"
-          rel="stylesheet">
-    <link href="{{ url_for('static', filename='node_modules/datatables.net-searchpanes-dt/css/searchPanes.dataTables.min.css') }}"
-          rel="stylesheet">
+        rel="stylesheet">
+    <link
+        href="{{ url_for('static', filename='node_modules/datatables.net-searchpanes-dt/css/searchPanes.dataTables.min.css') }}"
+        rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/jstree/dist/themes/default/style.min.css') }}"
-          rel="stylesheet">
+        rel="stylesheet">
     <link href="{{ url_for('static', filename='node_modules/bootstrap-select/dist/css/bootstrap-select.min.css') }}"
-          rel="stylesheet">
-    <link href="{{ url_for('static', filename='node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}"
-          rel="stylesheet">
+        rel="stylesheet">
+    <link
+        href="{{ url_for('static', filename='node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.min.css') }}"
+        rel="stylesheet">
 
     {% block head %}
     {% endblock %}
 
     <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
 
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"/>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" />
 </head>
 
 <body class="wrapper d-flex flex-column min-vh-100 text-justify">
 
-<nav class="navbar  navbar-dark bg-primary fixed-top navbar-expand-lg">
-    <div class="container">
-        <a class="navbar-brand" href="{{ url_for('misc.index') }}">
-            <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"> LImBuS
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+    <nav class="navbar  navbar-dark bg-primary fixed-top navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('misc.index') }}">
+                <img src="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}"> LImBuS
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
                 aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarText">
-            {% if current_user.is_authenticated_and_not_bot %}
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                {% if current_user.is_authenticated_and_not_bot %}
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-vial"></i> Samples
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Sample Index</a>
-                            <a class="dropdown-item" href="{{ url_for('sample.add_collection_consent_and_barcode') }}"><i class="fas fa-plus"></i> New Sample</a>
+                            <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i>
+                                Sample Index</a>
+                            <a class="dropdown-item"
+                                href="{{ url_for('sample.add_collection_consent_and_barcode') }}"><i
+                                    class="fas fa-plus"></i> New Sample</a>
 
                         </div>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-user-circle"></i> Donors
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ url_for('donor.index') }}"><i class="fa fa-user-circle"></i> Donor Index</a>
-                            <a class="dropdown-item" href="{{ url_for('donor.add') }}"><i class="fas fa-plus"></i> New Donor</a>
+                            <a class="dropdown-item" href="{{ url_for('donor.index') }}"><i
+                                    class="fa fa-user-circle"></i> Donor Index</a>
+                            <a class="dropdown-item" href="{{ url_for('donor.add') }}"><i class="fas fa-plus"></i> New
+                                Donor</a>
 
                         </div>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-file"></i> Documents
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ url_for('document.index') }}"><i class="fas fa-file"></i> Document Portal</a>
-                            <a class="dropdown-item" href="{{ url_for('document.new_document') }}"><i class="fas fa-plus"></i> New Document</a>
+                            <a class="dropdown-item" href="{{ url_for('document.index') }}"><i class="fas fa-file"></i>
+                                Document Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('document.new_document') }}"><i
+                                    class="fas fa-plus"></i> New Document</a>
 
                         </div>
                     </li>
 
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-boxes"></i> Storage
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i> Storage Portal</a>
-                            <a class="dropdown-item" href="{{ url_for('storage.rack_index') }}"><i class="fa fa-grip-vertical"></i> Storage Racks</a>
+                            <a class="dropdown-item" href="{{ url_for('storage.index') }}"><i class="fas fa-boxes"></i>
+                                Storage Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('storage.rack_index') }}"><i
+                                    class="fa fa-grip-vertical"></i> Storage Racks</a>
 
-                            <a class="dropdown-item" href="{{ url_for('storage.add_rack') }}"><i class="fas fa-plus"></i> New Storage Rack</a>
+                            <a class="dropdown-item" href="{{ url_for('storage.add_rack') }}"><i
+                                    class="fas fa-plus"></i> New Storage Rack</a>
                         </div>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-vial"></i> Attributes and Protocols
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ url_for('consent.index') }}"><i class="fa fa-question-circle"></i> Consent Management</a>
-                            <a class="dropdown-item" href="{{ url_for('attribute.index') }}"><i class="fab fa-buffer"></i> Attribute Portal</a>
-                            <a class="dropdown-item" href="{{ url_for('protocol.index') }}"><i class="fa fa-project-diagram"></i> Protocol Portal</a>
-                            <a class="dropdown-item" href="#"><i class="fa fa-stethoscope"></i> Diagnositc Procedures</a>
+                            <a class="dropdown-item" href="{{ url_for('consent.index') }}"><i
+                                    class="fa fa-question-circle"></i> Consent Management</a>
+                            <a class="dropdown-item" href="{{ url_for('attribute.index') }}"><i
+                                    class="fab fa-buffer"></i> Attribute Portal</a>
+                            <a class="dropdown-item" href="{{ url_for('protocol.index') }}"><i
+                                    class="fa fa-project-diagram"></i> Protocol Portal</a>
+                            <a class="dropdown-item" href="#"><i class="fa fa-stethoscope"></i> Diagnositc
+                                Procedures</a>
                         </div>
                     </li>
 
                 </ul>
                 </ul>
 
-            {% endif %}
+                {% endif %}
 
-            {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated %}
 
                 <ul class="navbar-nav ml-auto">
                     <div class="form-inline my-2 my-lg-0">
-                        <input class="form-control mr-sm-2" id="nav-sample-search" placeholder="Sample UUID" aria-label="UUID">
+                        <input class="form-control mr-sm-2" id="nav-sample-search" placeholder="Sample UUID"
+                            aria-label="UUID">
                     </div>
-                <li class="dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"
-                       aria-expanded="false">
-                        <img src="{{ current_user.get_gravatar() }}"
-                             class="rounded-circle ">
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right position-absolute"
-                         aria-labelledby="navbarDropdown" style="width:300px">
+                    <li class="dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"
+                            aria-expanded="false">
+                            <img src="{{ current_user.get_gravatar() }}" class="rounded-circle ">
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right position-absolute"
+                            aria-labelledby="navbarDropdown" style="width:300px">
                             <span class="dropdown-item user-item">
                                 <h3><span id="greeting"></span>, {{current_user.first_name}}!</h3>
-                                <p class="text-muted">Now you know how to greet people in <span id="greet_language"></span>!</p>
+                                <p class="text-muted">Now you know how to greet people in <span
+                                        id="greet_language"></span>!</p>
                             </span>
 
-                        {% if not current_user.is_bot %}
+                            {% if not current_user.is_bot %}
                             <div class="dropdown-divider"></div>
                             {% if current_user.is_admin == "ASDADA"  %}
-                                <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i
-                                        class="fa fa-user-secret"></i> Admin Panel</a>
+                            <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i
+                                    class="fa fa-user-secret"></i> Admin Panel</a>
                             {% endif %}
                             <a class="dropdown-item" disabled><i class="fa fa-cog"></i> Settings</a>
                             <a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> My
@@ -156,132 +178,150 @@
                                     <i class="fa fa-sign-out-alt"></i> Log Out
                                 </div>
                             </a>
-                            </div>
+                        </div>
 
                         {% endif %}
-                </li>
+                    </li>
 
-            {% else %}
+                    {% else %}
 
-                <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fa fa-sign-in-alt"></i> Log In</a>
-                </li>
-            {% endif %}
-            </ul>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fa fa-sign-in-alt"></i> Log
+                                In</a>
+                        </li>
+                        {% endif %}
+                    </ul>
 
-        </div>
-    </div>
-</nav>
-
-
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-warning no-margin alert-dismissible fade show text-center" role="alert">
-                <strong>Notice!</strong> {{ message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
-        {% endfor %}
+        </div>
+    </nav>
+
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning no-margin alert-dismissible fade show text-center" role="alert">
+        <strong>Notice!</strong> {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
     {% endif %}
 
-    
-{% endwith %}
+
+    {% endwith %}
 
 
-{% block body %}
-{% endblock %}
+    {% block body %}
+    {% endblock %}
 
 
-<div class="modal fade" id="uuid-search-modal-not-found" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalCenterTitle">Sample Not Found</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body text-center">
-            <p class="exception-smiley">🤷</p>
-            <h2><span id="sample-uuid-search-not-found-placeholder"></span> cannot be found.</h2>
-        </div>
-        
-      </div>
-    </div>
-  </div>
-
-
-<div class="wrapper flex-grow-1"></div>
-
-
-<footer>
-    <div class="container py-5">
-
-
-        <div class="row">
-            <div class="col-6 col-md">
-
-
-                <img src="{{ url_for('static', filename='images/logos/aber.svg') }}" style="padding-bottom: 1em;">
-                <small class="d-block mb-3 text-muted">LImBuS was developed by researchers from Aberystwyth University</small>
-
-                <img src="{{ url_for('static', filename='images/logos/hduhb.svg') }}" style="padding-bottom: 1em;">
-                <small class="d-block mb-3 text-muted">With funding from Hywel Dda University Healthboard</small>
-            </div>
-            <div class="col-6">
-                <div class="row">
-                    <div class="col-6">
-                        <h5>Resources</h5>
-                        <ul class="list-unstyled text-small">
-                            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki"
-                                   target="_blank">Documentation</a>
-                            </li>
-                            <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/" target="_blank">Source
-                                Code</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-6">
-                        <h5>About</h5>
-                        <ul class="list-unstyled text-small">
-                            <li><a class="text-muted" href="{{ url_for('misc.privacy_policy') }}" target="_blank">Privacy Policy</a></li>
-                            <li><a class="text-muted" href="{{ url_for('misc.team') }}" target="_blank">Team</a></li>
-                            <li><a class="text-muted" href="{{ url_for('misc.license') }}" target="_blank">License</a></li>
-                        </ul>
-                    </div>
+    <div class="modal fade" id="uuid-search-modal-not-found" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Sample Not Found</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019-2020</small>
+                <div class="modal-body text-center">
+                    <p class="exception-smiley">🤷</p>
+                    <h2><span id="sample-uuid-search-not-found-placeholder"></span> cannot be found.</h2>
+                </div>
+
             </div>
         </div>
     </div>
-</footer>
 
 
-<script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net/js/jquery.dataTables.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-bs4/js/dataTables.bootstrap4.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-searchpanes/js/dataTables.searchPanes.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
-
-<script src="{{ url_for('static', filename='node_modules/datatables.net-select/js/dataTables.select.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/d3/dist/d3.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/jstree/dist/jstree.min.js') }}"></script>
-<script src="{{ url_for('static', filename='node_modules/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
-
-<script src="{{ url_for('static', filename='js/all.js') }}"></script>
+    <div class="wrapper flex-grow-1"></div>
 
 
-{% block javascript %}
+    <footer>
+        <div class="container py-5">
 
-{% endblock %}
+
+            <div class="row">
+                <div class="col-6 col-md">
+
+
+                    <img src="{{ url_for('static', filename='images/logos/aber.svg') }}" style="padding-bottom: 1em;">
+                    <small class="d-block mb-3 text-muted">LImBuS was developed by researchers from Aberystwyth
+                        University</small>
+
+                    <img src="{{ url_for('static', filename='images/logos/hduhb.svg') }}" style="padding-bottom: 1em;">
+                    <small class="d-block mb-3 text-muted">With funding from Hywel Dda University Healthboard</small>
+                </div>
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-6">
+                            <h5>Resources</h5>
+                            <ul class="list-unstyled text-small">
+                                <li><a class="text-muted"
+                                        href="https://github.com/AberystwythSystemsBiology/LImBuS/wiki"
+                                        target="_blank">Documentation</a>
+                                </li>
+                                <li><a class="text-muted" href="https://github.com/AberystwythSystemsBiology/LImBuS/"
+                                        target="_blank">Source
+                                        Code</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <h5>About</h5>
+                            <ul class="list-unstyled text-small">
+                                <li><a class="text-muted" href="{{ url_for('misc.privacy_policy') }}"
+                                        target="_blank">Privacy Policy</a></li>
+                                <li><a class="text-muted" href="{{ url_for('misc.team') }}" target="_blank">Team</a>
+                                </li>
+                                <li><a class="text-muted" href="{{ url_for('misc.license') }}"
+                                        target="_blank">License</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019-2020</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/datatables.net/js/jquery.dataTables.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-bs4/js/dataTables.bootstrap4.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-searchpanes/js/dataTables.searchPanes.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-buttons-bs4/js/buttons.bootstrap4.min.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-buttons/js/buttons.colVis.min.js') }}"></script>
+
+    <script
+        src="{{ url_for('static', filename='node_modules/datatables.net-select/js/dataTables.select.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/d3/dist/d3.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/jstree/dist/jstree.min.js') }}"></script>
+    <script
+        src="{{ url_for('static', filename='node_modules/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/all.js') }}"></script>
+
+
+    {% block javascript %}
+
+    {% endblock %}
 
 </body>
 

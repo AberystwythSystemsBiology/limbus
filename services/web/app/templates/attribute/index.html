@@ -6,30 +6,30 @@
 
 {% block body %}
 
-    <div class="jumbotron">
-        <div class="container">
-            <h1><i class="fab fa-buffer"></i> Attribute Portal</h1>
+<div class="jumbotron">
+    <div class="container">
+        <h1><i class="fab fa-buffer"></i> Attribute Portal</h1>
 
-            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <a href="{{ url_for('attribute.new') }}">
-                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Attribute</button>
-                    </a>
-                </div>
-    
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('attribute.new') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Attribute</button>
+                </a>
             </div>
+
         </div>
     </div>
+</div>
 
-    <div class="container">
-
-        
-
-        <p>This is the Attribute Portal. This is where your attributes can be found. </p>
+<div class="container">
 
 
-        <table id="attributeTable" class="table table-striped table-bordered" style="width:100%">
-            <thead>
+
+    <p>This is the Attribute Portal. This is where your attributes can be found. </p>
+
+
+    <table id="attributeTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
             <tr>
                 <th>Attribute</th>
                 <th>Attribute Type</th>
@@ -37,27 +37,27 @@
                 <th>Uploader</th>
                 <th>Created On</th>
             </tr>
-            </thead>
-            <tbody>
+        </thead>
+        <tbody>
             {% for attribute in attributes %}
-                <tr>
-                    <td>
-                        <a href="{{ url_for('attribute.view', id=attribute.id) }}">
-                            <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
-                            </a>
-                    </td>
-                    <td>{{ attribute.type }}</td>
-                    <td>{{ attribute.element_type }}</td>
-                    <td>{{ render_author_for_table(attribute.author) }}</td>
-                    <td>{{ attribute.created_on }}</td>
+            <tr>
+                <td>
+                    <a href="{{ url_for('attribute.view', id=attribute.id) }}">
+                        <i class="fab fa-buffer"></i> LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
+                    </a>
+                </td>
+                <td>{{ attribute.type }}</td>
+                <td>{{ attribute.element_type }}</td>
+                <td>{{ render_author_for_table(attribute.author) }}</td>
+                <td>{{ attribute.created_on }}</td>
 
-                </tr>
+            </tr>
             {% endfor %}
 
-            </tbody>
-        </table>
+        </tbody>
+    </table>
 
 
 
-    </div>
+</div>
 {% endblock %}

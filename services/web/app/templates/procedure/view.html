@@ -4,51 +4,52 @@
 
 {% block body %}
 
-    <div class="container">
+<div class="container">
 
-        <h1><i class="fa fa-stethoscope"></i> LIMBDIAG-{{dpv.id}}: {{dpv.name}}</h1>
-        
-
-        <h2>Volumes</h2>
-
-        <div class="accordion" id="accordionExample">
-            
-            {% for volume_id, volume in dpv.volumes.items() %}
-            <div class="card">
-                <div class="card-header">
-                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{volume.code}}" aria-controls="{{volume.code}}">
-                      Volume {{volume.code}}: {{ volume.name }}
-                    </button>
-                  
-                </div>
-            
-                <div id="{{volume.code}}" class="collapse" data-parent="#accordionExample">
-                    
-                    <ul class="list-group list-group-flush">
-                        {% for subheading_id, subheading in volume.subheadings.items() %}
-                        <li class="list-group-item">
-                            <h4>{{subheading.code}}: {{subheading.subheading }}</h4>
-                            <ul>
-                                {% for proc_id, proc in subheading.codes.items() %}
-                                    <li>{{proc.code}} : {{proc.procedure}}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                        {% endfor %}
-                      </ul>
-                </div>
-              </div>
-            {% endfor %}
+    <h1><i class="fa fa-stethoscope"></i> LIMBDIAG-{{dpv.id}}: {{dpv.name}}</h1>
 
 
-            
-          </div>
+    <h2>Volumes</h2>
+
+    <div class="accordion" id="accordionExample">
+
+        {% for volume_id, volume in dpv.volumes.items() %}
+        <div class="card">
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{volume.code}}"
+                    aria-controls="{{volume.code}}">
+                    Volume {{volume.code}}: {{ volume.name }}
+                </button>
+
+            </div>
+
+            <div id="{{volume.code}}" class="collapse" data-parent="#accordionExample">
+
+                <ul class="list-group list-group-flush">
+                    {% for subheading_id, subheading in volume.subheadings.items() %}
+                    <li class="list-group-item">
+                        <h4>{{subheading.code}}: {{subheading.subheading }}</h4>
+                        <ul>
+                            {% for proc_id, proc in subheading.codes.items() %}
+                            <li>{{proc.code}} : {{proc.procedure}}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
 
 
 
     </div>
+
+
+
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/procedure/new.js') }}"></script>
+<script src="{{ url_for('static', filename='js/procedure/new.js') }}"></script>
 {% endblock %}

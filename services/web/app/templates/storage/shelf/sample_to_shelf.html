@@ -1,35 +1,34 @@
 {% extends "template.html" %}
 
 {% block head %}
-    <link href="{{ url_for('static', filename='css/storage/navbar.css') }}"
-          rel="stylesheet">
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block title %}{{ shelf.name }}: Assign sample{% endblock %}
 
 {% block body %}
 
-    <div id="sidebar-wrapper">
-        {{ storage_navbar() }}
-        <div class="storage">
-            <div class="jumbotron">
-                <div class="container">
-                    <h1>
-                        <span class="secondary-heading">
-                            <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
-                                <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}
-                            </a>
-                        </span>
-                        <i class="fas fa-vial"></i> Assign Sample
-                    </h1>
-                </div>
-            </div>
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
             <div class="container">
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
+                            <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}
+                        </a>
+                    </span>
+                    <i class="fas fa-vial"></i> Assign Sample
+                </h1>
+            </div>
+        </div>
+        <div class="container">
 
 
             <form action="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}" method="post">
                 {{ form.csrf_token }}
-                
+
                 {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
 
                 <div class="row">
@@ -46,10 +45,11 @@
             </form>
 
 
-        </div></div>
+        </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
-    <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

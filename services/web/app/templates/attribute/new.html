@@ -4,41 +4,41 @@
 
 {% block body %}
 
-    <div class="jumbotron">
-        <div class="container">
-
-            <h1>
-                <span class="secondary-heading">
-                    <a href="{{ url_for("attribute.index") }}">
-                        <i class="fab fa-buffer"></i> Attribute Portal
-                    </a>
-                </span>
-                New Attribute
-            </h1>
-        </div>
-    </div>
-
+<div class="jumbotron">
     <div class="container">
 
-
-        <form action="{{ url_for('attribute.new') }}" method="POST">
-            {{ form.csrf_token() }}
-
-            {{ form_field(form.term) }}
-            {{ form_field(form.description) }}
-            {{ form_field(form.ref) }}
-            {{ form_field(form.accession) }}
-
-            <div class="row">
-                <div class="col-6">
-                    {{ form_field(form.element_type) }}
-                </div>
-                <div class="col-6">
-                    {{ form_field(form.type) }}
-                </div>
-            </div>
-            {{ form_field(form.submit) }}
-        </form>
-
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for("attribute.index") }}">
+                    <i class="fab fa-buffer"></i> Attribute Portal
+                </a>
+            </span>
+            New Attribute
+        </h1>
     </div>
+</div>
+
+<div class="container">
+
+
+    <form action="{{ url_for('attribute.new') }}" method="POST">
+        {{ form.csrf_token() }}
+
+        {{ form_field(form.term) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.ref) }}
+        {{ form_field(form.accession) }}
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.element_type) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.type) }}
+            </div>
+        </div>
+        {{ form_field(form.submit) }}
+    </form>
+
+</div>
 {% endblock %}
