@@ -4,10 +4,16 @@
 
 
 {% block body %}
-    <div class="container">
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading"><i class="fas fa-vial"></i> Edit Sample</span> Sample Processing Information</h1>
+            {{ render_progress(4, 8) }}
+        </div>
+    </div>    
 
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> Edit Sample</span> Sample Processing Information</h1>
-        {{ render_progress(4, 8) }}
+<div class="container">
+
+
 
         <p>Before we continue, you must first link the sample to processing protocol template.</p>
 

@@ -84,6 +84,7 @@ nav a {
 
 .jumbotron {
     max-height: 250px !important;
+    border-radius: 0;
 }
 
 .jumbotron .dropdown-item {
@@ -198,6 +199,16 @@ canvas {
 
 .data .large {
     font-size: 80px;
+}
+
+.progress {
+    background-color: #ffffff;
+    border:1px solid #FFFF00;
+
+}
+
+.progress-bar {
+    background-color: #FFFF00 !important;
 }
 
 .data .small {

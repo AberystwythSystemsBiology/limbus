@@ -3,12 +3,19 @@
 {% block title %}Enter Patient Consent Form Details{% endblock %}
 
 {% block body %}
-    <div class="container">
+
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form
+                Details</h1>
+            {{ render_progress(2, 8) }}
+    
+        </div>
+    </div>
+
+<div class="container">
 
 
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form
-            Details</h1>
-        {{ render_progress(2, 8) }}
 
 
         <form action="{{ url_for('sample.add_digital_consent_form', hash=hash) }}" method="POST">

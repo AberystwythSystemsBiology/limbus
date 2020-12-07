@@ -6,9 +6,15 @@
 
 
 {% block body %}
+    <div class="jumbotron">
+        <div class="container">
+            <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Custom Attribute Selection</h1>
+            {{ render_progress(5, 8) }}
+            
+        </div>
+    </div>
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Custom Attribute Selection</h1>
-        {{ render_progress(5, 8) }}
+
 
         <form action="{{ url_for('sample.add_custom_atributes', hash=hash) }}" method="POST">
             {{ form.csrf_token }}
