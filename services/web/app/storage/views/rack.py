@@ -89,8 +89,8 @@ class SampleRackSchema(masql.SQLAlchemySchema):
         {
             "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
             "collection": ma.URLFor("storage.rack_index", _external=True),
-            "qr_code": ma.URLFor(
-                "sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True
+            "barcode_generation": ma.URLFor(
+                "api.misc_generate_barcode", _external=True
             ),
             "assign_sample": ma.URLFor(
                 "storage.assign_rack_sample",
@@ -127,8 +127,8 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
         {
             "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
             "collection": ma.URLFor("storage.rack_index", _external=True),
-            "qr_code": ma.URLFor(
-                "sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True
+            "barcode_generation": ma.URLFor(
+                "api.misc_generate_barcode", _external=True
             ),
         }
     )

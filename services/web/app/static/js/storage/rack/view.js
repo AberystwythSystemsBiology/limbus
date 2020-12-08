@@ -54,6 +54,38 @@ function render_empty(row_id, rc, count, assign_sample_url) {
     });
 }
 
+
+function get_barcode(sample_info, barc_type) {
+
+    var url = encodeURI(sample_info["_links"]["barcode_generation"]);
+
+    console.log(url);
+
+    var b64 = "";
+
+    $.post({
+        async: false,
+        global: false,
+        url: url,
+        dataType: "json",
+        contentType: 'application/json',
+        data: JSON.stringify ({
+            "type": barc_type,
+            "data": sample_info["uuid"]
+        }),
+        success: function (data) {
+            b64 = data["b64"];
+        },
+
+    });
+
+    return b64;
+
+
+
+}
+
+
 function render_modal(sample_info) {
     $("#sampleName").html(render_colour(sample_info["colour"]) + sample_info["uuid"])
 
@@ -63,7 +95,10 @@ function render_modal(sample_info) {
     html += render_content("Sample Source", sample_info["source"]);
     html += render_content("Created On", sample_info["created_on"]);
 
-    $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
+    // $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
+    
+
+    //get_barcode("#sample_barcode", sample_info, "qr_code")
 
     $("#sample_view_btn").click( function() {
         window.location.href = sample_info["_links"]["self"];
@@ -77,7 +112,9 @@ function render_full(info, row_id, rc, count, assign_sample_url) {
     var sample_info = info["sample"]
     var content = '<div class="col" id="tube_' + rc.join("_") + '">'
     content += '<div class="square tube"><div class="align_middle present-tube">'
-    content += '<img width="100%" src="' + sample_info["_links"]["qr_code"] + '">'
+    content += '<img width="100%" src="data:image/png;base64,' + get_barcode(sample_info, "qrcode") + '">'
+    
+    
     content += "</div></div></div>"
     $("#" + row_id).append(content)
 
