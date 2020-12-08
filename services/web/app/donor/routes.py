@@ -86,13 +86,13 @@ def add():
             form_information = {
                 "age": form.age.data,
                 "enrollment_site_id": form.site.data,
-                "registration_date": str(datetime.strptime(str(form.registration_date.data), "%Y-%m-%d")),
+                "registration_date": str(datetime.strptime(str(form.registration_date.data), "%Y-%m-%d").date()),
                 "sex": form.sex.data,
                 "colour": form.colour.data,
                 "status": form.status.data,
                 "mpn": form.mpn.data,
                 "race": form.race.data,
-                "death_date": str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d")),
+                "death_date": str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()),
                 "weight": form.weight.data,
                 "height": form.height.data,
             }
@@ -130,39 +130,46 @@ def edit(id):
             donor_info["death_date"], "%Y-%m-%d"
         )
 
-        form = DonorCreationForm(data=response.json()["content"])
-        if form.validate_on_submit():
-
-            death_date = None
-            if form.status.data == "DE":
-                death_date = str(form.death_date.data)
-
-            form_information = {
-                "age": form.age.data,
-                "sex": form.sex.data,
-                "status": form.status.data,
-                "death_date": death_date,
-                "weight": form.weight.data,
-                "height": form.height.data,
-                "race": form.race.data,
-            }
-            # Set empty field to Null
-            for i in form_information:
-                form_information[i] = strconv(form_information[i])
-
-            edit_response = requests.put(
-                url_for("api.donor_edit", id=id, _external=True),
-                headers=get_internal_api_header(),
-                json=form_information,
-            )
-
-            if edit_response.status_code == 200:
-                flash("Donor Successfully Edited")
-            else:
-                flash("We have a problem: %s" % (edit_response.json()))
-            return redirect(url_for("donor.view", id=id))
-        return render_template(
-            "donor/edit.html", donor=response.json()["content"], form=form
+        sites_response = requests.get(
+            url_for("api.site_home", _external=True),
+            headers=get_internal_api_header()
         )
-    else:
-        return response.content
+
+        if sites_response.status_code == 200:
+
+            form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
+            if form.validate_on_submit():
+
+                death_date = None
+                if form.status.data == "DE":
+                    death_date = str(form.death_date.data)
+
+                form_information = {
+                    "age": form.age.data,
+                    "sex": form.sex.data,
+                    "status": form.status.data,
+                    "death_date": death_date,
+                    "weight": form.weight.data,
+                    "height": form.height.data,
+                    "race": form.race.data,
+                }
+                # Set empty field to Null
+                for i in form_information:
+                    form_information[i] = strconv(form_information[i])
+
+                edit_response = requests.put(
+                    url_for("api.donor_edit", id=id, _external=True),
+                    headers=get_internal_api_header(),
+                    json=form_information,
+                )
+
+                if edit_response.status_code == 200:
+                    flash("Donor Successfully Edited")
+                else:
+                    flash("We have a problem: %s" % (edit_response.json()))
+                return redirect(url_for("donor.view", id=id))
+            return render_template(
+                "donor/edit.html", donor=response.json()["content"], form=form
+            )
+        else:
+            return response.content

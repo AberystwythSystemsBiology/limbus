@@ -26,7 +26,6 @@ import requests
 
 TEMPLATES_DIRECTORY = os.environ["TEMPLATES_DIRECTORY"]
 
-
 @labels.route("/sample/<uuid>")
 @login_required
 def sample_label(uuid: str):

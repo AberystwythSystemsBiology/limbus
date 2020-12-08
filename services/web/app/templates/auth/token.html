@@ -24,12 +24,12 @@
         please contact your systems administrator.
     </div>
     <div class="row">
-        <div class="col-6">
+        <div class="col-9">
             <div class="card">
                 <div class="card-header text-center">Your new token is</div>
                 <div class="card-body text-center">
                     <code>
-                            <pre style="font-size:1em;" id="token">{{ token["token"] }}</pre>
+                            <pre style="font-size:1em;" id="token">{{ token }}</pre>
                         </code>
 
                 </div>
@@ -37,6 +37,15 @@
                     <button class="btn btn-success full-width" onclick="copyToClipboard('#token')">
                         <i class="fa fa-clipboard"></i> Copy to Clipboard
                     </button>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header text-center">App QR Code</div>
+                <div class="card-body">
+                    <img src="data:image/png;base64, {{ qr_code}}" width="100%">
                 </div>
             </div>
         </div>
