@@ -3,18 +3,38 @@
 {% block title %}Editing LIMBDON-{{donor.id}}{% endblock %}
 
 {% block body %}
-<div class="container">
-
-    <h1><span class="secondary-heading">
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
             <a href="{{ url_for('donor.view', id=donor.id) }}">
                 <i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}</span>
         </a>
         Edit
     </h1>
+    </div>
+</div>
+<div class="container">
+
+
 
     <form method="POST" action="{{ url_for('donor.edit', id=donor.id ) }}">
+       
         {{ form.csrf_token() }}
+
         {{ form_field(form.age)}}
+        {{ form_field(form.mpn)}}
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.site)}}
+
+            </div>
+            <div class="col-6">
+                {{ form_field(form.registration_date) }}
+            </div>
+        </div>
+
+
         <div class="row">
             <div class="col-6">
                 {{ form_field(form.race)}}
@@ -33,10 +53,11 @@
             </div>
         </div>
 
+        {{ form_field(form.colour)}}
         {{ form_field(form.status)}}
         {{ form_field(form.death_date)}}
 
-        {{ form_field(form.submit) }}
+        {{form_field(form.submit)}}
 
     </form>
 

@@ -20,9 +20,27 @@ function get_sample() {
 
 
 
-function get_barcode(type) {
-    var barcode_url = encodeURI(window.location+'/barcode/'+type);
-    $("#barcode").attr("src", barcode_url);
+function get_barcode(sample_info, barc_type) {
+    
+    var url = encodeURI(sample_info["_links"]["barcode_generation"]);
+
+    $.post({
+        async: false,
+        global: false,
+        url: url,
+        dataType: "json",
+        contentType: 'application/json',
+        data: JSON.stringify ({
+            "type": barc_type,
+            "data": sample_info["uuid"]
+        }),
+        success: function (data) {
+            $("#barcode").attr("src", "data:image/png;base64," + data["b64"]);
+        },
+
+    });
+
+
 
 }
 
@@ -271,7 +289,7 @@ $(document).ready(function() {
     var sample_info = get_sample();
     
     $("#loading-screen").fadeOut();
-    get_barcode("qrcode");
+    get_barcode(sample_info, "qrcode");
 
     fill_title(sample_info);
     fill_basic_information(sample_info);
@@ -286,12 +304,12 @@ $(document).ready(function() {
 
 
     $("#qrcode").click(function() {
-        get_barcode("qrcode");
+        get_barcode(sample_info, "qrcode");
 
     });
 
     $("#datamatrix").click(function() {
-        get_barcode("datamatrix");
+        get_barcode(sample_info, "datamatrix");
 
     });
 

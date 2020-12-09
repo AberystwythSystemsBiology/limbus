@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import redirect, render_template, url_for, flash, abort
+from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
 import requests
 
@@ -128,6 +128,15 @@ def generate_token():
     )
 
     if response.status_code == 200:
-        return render_template("auth/token.html", token=response.json()["content"])
+        token = response.json()["content"]["token"]
+
+        app_qr_response = requests.post(
+            url_for("api.misc_generate_barcode", _external=True),
+            json={"data": "%s;%s;%s" % (token, current_user.email, request.base_url), "type": "qrcode"}
+        )
+
+        if app_qr_response.status_code == 200:
+
+            return render_template("auth/token.html", token=token, qr_code=app_qr_response.json()["b64"])
 
     abort(response.status_code)

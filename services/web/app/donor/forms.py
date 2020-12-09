@@ -45,9 +45,11 @@ class DonorFilterForm(FlaskForm):
         "Race",
         choices=RaceTypes.choices(with_none=True),
     )
+    
+    colour = SelectField("Colour", choices=Colour.choices())
 
 
-def DonorCreationForm(sites: dict):
+def DonorCreationForm(sites: dict, data={}):
     class StaticForm(FlaskForm):
         colour = SelectField("Colour", choices=Colour.choices())
 
@@ -66,7 +68,7 @@ def DonorCreationForm(sites: dict):
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 
         death_date = DateField(
-            "Date of Death", default=datetime.today(), validators=[Optional()]
+            "Date of Death", default=datetime.today()
         )
 
         weight = StringField("Weight (kg)", validators=[DataRequired()])
@@ -85,7 +87,7 @@ def DonorCreationForm(sites: dict):
 
             if self.status == "DE":
                 if not self.death_date.data:
-                    self.death_date.errors.append("Date Required")
+                    self.death_date.errors.append("Date required.")
                     return False
 
             return True
@@ -100,4 +102,4 @@ def DonorCreationForm(sites: dict):
         SelectField("Enrollment Site", choices=site_choices, coerce=int),
     )
 
-    return StaticForm()
+    return StaticForm(data=data)

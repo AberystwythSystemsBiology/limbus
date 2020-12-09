@@ -320,8 +320,8 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
         {
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
-            "qr_code": ma.URLFor(
-                "sample.view_barcode", uuid="<uuid>", t="qrcode", _external=True
+            "barcode_generation": ma.URLFor(
+                "api.misc_generate_barcode", _external=True
             ),
         }
     )
@@ -383,6 +383,9 @@ class SampleSchema(masql.SQLAlchemySchema):
                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
             ),
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
+            "barcode_generation": ma.URLFor(
+                "api.misc_generate_barcode", _external=True
+            ),
         }
     )
 

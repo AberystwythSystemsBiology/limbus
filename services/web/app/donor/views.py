@@ -37,7 +37,7 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
     sex = EnumField(BiologicalSexTypes, by_value=True)
     status = EnumField(DonorStatusTypes, by_value=True)
     race = EnumField(RaceTypes, by_value=True)
-
+    colour = EnumField(Colour, by_value=True)
 
 class DonorSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -59,6 +59,7 @@ class DonorSchema(masql.SQLAlchemySchema):
 
     author = ma.Nested(BasicUserAccountSchema)
     updater = ma.Nested(BasicUserAccountSchema)
+    colour = EnumField(Colour, by_value=True)
 
     created_on = ma.Date()
     updated_on = ma.Date()
@@ -86,6 +87,7 @@ class NewDonorSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour)
     mpn = masql.auto_field()
     enrollment_site_id = masql.auto_field()
+    registration_date = masql.auto_field()
 
     weight = masql.auto_field()
     height = masql.auto_field()

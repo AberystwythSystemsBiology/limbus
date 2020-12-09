@@ -99,15 +99,12 @@ nav a {
     padding: 1em 0 2em 0 ;
     background-color: #007bff;
     color: #fff;
-    border-bottom: ;
-}
-
-.jumbotron {
     max-height: 250px !important;
     border-radius: 0;
     border-bottom: #ffff00 solid 5px;
 
 }
+
 
 .jumbotron .dropdown-item {
     color:#000 !important;
