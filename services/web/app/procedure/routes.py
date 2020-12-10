@@ -106,4 +106,4 @@ def new():
             return redirect(url_for("procedure.view", id=new_response.json()["content"]["id"]))
         else:
             flash("We have a problem!")
-    return render_template("procedure/new.html", form=form)
+    return render_template("procedure/new/class.html", form=form)
