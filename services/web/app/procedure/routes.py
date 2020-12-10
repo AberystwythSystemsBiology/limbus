@@ -67,6 +67,12 @@ def view_class_endpoint(id):
         
     abort(response.status_code)
 
+
+@procedure.route("/view/LIMBDIAG-<id>/volume/new")
+@login_required
+def new_volume(id):
+    return "Hello World"
+
 @procedure.route("/view/volume/<id>/endpoint")
 @login_required
 def view_volume_endpoint(id):

@@ -69,5 +69,10 @@ class DiagnosticProcedureClassSchema(masql.SQLAlchemySchema):
     update_date = ma.Date()
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
+    _links = ma.Hyperlinks({
+        "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
+        "new_volume": ma.URLFor("procedure.new_volume", id="<id>", _external=True)
+    })
+
 
 diagnostic_procedure_class_schema = DiagnosticProcedureClassSchema()

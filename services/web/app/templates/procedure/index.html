@@ -25,7 +25,7 @@
             {% for procedure in procedures %}
             <tr>
                 <td>
-                    <a href="{{ procedure['_links']['self'] }}">
+                    <a href="{{ url_for('procedure.view', id=procedure.id) }}">
                     <i class="fa fa-stethoscope"></i> LIMBDIAG-{{ procedure["id" ]}}: {{ procedure["name"] }}
                     </a>
                 </td>

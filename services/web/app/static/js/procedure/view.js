@@ -6,7 +6,7 @@ function sap2tree(data) {
     proc_class["text"] = `LIMBDIAG-${proc_class['id']}: ${proc_class['name']}`;
     proc_class["type"] = "class";
     proc_class["children"] = proc_class["volumes"];
-    proc_class["id"] = "a"
+    proc_class["id"] = proc_class["_links"]["self"];
 
 
     for (var a = 0; a < proc_class["children"].length; a++) {
@@ -41,7 +41,8 @@ function sap2tree(data) {
             'data': {
                 'text': proc_class["text"],
                 'type': 'class',
-                'children': proc_class["children"]
+                'children': proc_class["children"],
+                'id': proc_class["id"]
             }
         }
     }
@@ -75,6 +76,27 @@ function get_endpoing_data(api_url) {
 }
 
 
+function generate_class_view(endpoint_url) {
+    var pclass = get_endpoing_data(endpoint_url);
+
+    $("#secondary-heading").html("Diagnostic Procedure")
+    $("#primary-heading").html(`LIMBDIAG-${pclass['id']}: ${pclass['name']}`);
+
+    $("#created-on").html(pclass["creation_date"]);
+    $("#author").html(render_author(pclass["author"]));
+
+    var btn_html = render_jumbotron_btn(pclass["_links"]["new_volume"], "fa fa-plus", "New Volume");
+    $("#jumbotron-btn-toolbar").html(btn_html);
+
+    console.log(pclass);
+
+    html = render_content("Description", pclass["description"])
+    html += render_content("Version", pclass["version"])
+
+
+    $("#information").html(html);
+
+}
 
 function generate_volume_view(endpont_url) {
     var volume = get_endpoing_data(endpont_url);
@@ -96,7 +118,11 @@ $(function() {
 
     function selectElement(element) {
 
-        if (element["type"] == "volume") {
+        if (element["type"] == "class" ) {
+            generate_class_view(element["id"]);
+        }
+
+        else if (element["type"] == "volume") {
             generate_volume_view(element["id"]);
         }
 
@@ -112,12 +138,11 @@ $(function() {
         $('#jstree').jstree(sap2tree(data));
         
         $('#jstree').on("changed.jstree", function(e, data) {
-            // Don't process event if not triggered by user (e.g. page state reload)
             if(!data.event) { return; }
 
             switch (data.node.type) {
                 case 'class':
-                    location.href = location.href;
+                    selectElement(data.node);
                     break;
                 default:
                     selectElement(data.node);

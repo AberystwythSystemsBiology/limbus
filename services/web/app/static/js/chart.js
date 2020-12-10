@@ -20,24 +20,29 @@ function make_doughnut(dom_id, data, labels) {
 }
 
 function make_pie(dom_id, data, labels) {
-    new Chart(document.getElementById(dom_id), {
-        type: 'pie',
-        data: {
-          labels: labels,
-          datasets: [{
-                data: data,
-                backgroundColor: dynamicColours(labels.length)
-            }],
-
-        },
-        options: {
-            legend: {
-                display: true
+    if (data.length > 0) {
+        new Chart(document.getElementById(dom_id), {
+            type: 'pie',
+            data: {
+              labels: labels,
+              datasets: [{
+                    data: data,
+                    backgroundColor: dynamicColours(labels.length)
+                }],
+    
             },
-            title: {
-                display: false
-               }}}
-        );
+            options: {
+                legend: {
+                    display: true
+                },
+                title: {
+                    display: false
+                   }}}
+            );
+        }
+     else {
+        $(dom_id).parent().css({"color": "red", "border": "2px solid red"});
+    }
 }
 
 function make_bar(dom_id, data, labels) {

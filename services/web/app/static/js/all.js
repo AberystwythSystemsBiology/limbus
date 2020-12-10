@@ -12,7 +12,19 @@ function get_metric(type) {
   return metric
 }
 
+function render_author(author) {
+  return author["first_name"] + " " + author["last_name"];
+}
 
+
+function render_jumbotron_btn(url, fa, content) {
+  html = '<div class="btn-group mr-2" role="group" aria-label="First group">'
+  html += '<a href="' + url + '">'
+  html += '<button type="button" class="btn btn-outline-dark"><i class="' + fa + '"></i> '
+  html += content
+  html += '</button></a></div>'
+  return html
+}
 
 function render_colour(colour) {
   if (colour == "Blue") {
