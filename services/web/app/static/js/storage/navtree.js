@@ -59,7 +59,7 @@ function sap2tree(sap) {
             'shelf': { 'icon': 'fa fa-bars' }
         },
         'state': { 'key': 'storage' },
-        'plugins' : ['types', 'state'],
+        'plugins' : ['types', 'state', 'wholerow', 'search'],
         'core': {
             'data': {
                 'text': 'Show Sites',
@@ -92,6 +92,7 @@ $(function() {
     
     $.get( "/storage/overview", function( data ) {
         $('#jstree').jstree(sap2tree(data));
+        
         $('#jstree').on("changed.jstree", function(e, data) {
             // Don't process event if not triggered by user (e.g. page state reload)
             if(!data.event) { return; }

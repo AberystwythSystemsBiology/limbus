@@ -14,14 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import FileField, StringField, SubmitField, DecimalField, BooleanField
+from wtforms import FileField, StringField, SubmitField, DecimalField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
 
 
 class DiagnosticProcedureCreationForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    version = DecimalField("Version")
-    description = StringField("Description")
-    from_file = BooleanField("From File")
-    json_file = FileField("Upload (*)")
+    version = StringField("Version")
+    description = TextAreaField("Description")
     submit = SubmitField("Submit")

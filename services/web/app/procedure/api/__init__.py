@@ -13,8 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Blueprint
+from .pclass import *
+from .volume import *
+from .subvolume import *
+from .procedure import *
 
-procedure = Blueprint("procedure", __name__)
+from .tree import *
 
-from . import routes

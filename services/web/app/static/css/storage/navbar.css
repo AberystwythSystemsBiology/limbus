@@ -19,12 +19,7 @@
     margin-left: -20em;
 }
 
-.jstree-anchor {
-    background-color: #fff;
-    color: #000 !important;
-    margin-top: 0.5em;
-    border:#000 solid 1px;
-}
+
 
 #sidebar-collapse {
     float: right;

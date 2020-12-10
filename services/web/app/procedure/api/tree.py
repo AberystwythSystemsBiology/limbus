@@ -13,8 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import Blueprint
+from ...api import api, generic_new, generic_edit
+from ...api.responses import *
 
-procedure = Blueprint("procedure", __name__)
+from ...database import db
+from flask import request, current_app, jsonify
+from ...decorators import token_required
 
-from . import routes
+from marshmallow import ValidationError
+from ...database import UserAccount, DiagnosticProcedureClass
+
+from ..views import (
+    diagnostic_procedure_tree_schema
+)
+
+@api.route("/procedure/LIMBDIAG-<id>/tree")
+@token_required
+def procedure_tree(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        diagnostic_procedure_tree_schema.dump(DiagnosticProcedureClass.query.filter_by(id=id).first_or_404())
+    )

@@ -3,32 +3,35 @@
 {% block title %}Diagnostic Procedures{% endblock %}
 
 {% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><i class="fa fa-stethoscope"></i> Diagnostic Procedures</h1>
+
+    </div>
+</div>
 
 <div class="container">
 
-    <h1><i class="fa fa-stethoscope"></i> Diagnostic Procedures</h1>
 
     <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Version</th>
-                <th>Collection Date</th>
                 <th>Sample Creator</th>
             </tr>
         </thead>
         <tbody>
-            {% for procedure_id, procedure in procedures.items() %}
+            {% for procedure in procedures %}
             <tr>
                 <td>
-                    <a href="{{ url_for('procedures.view', procedure_id=procedure_id) }}">
-                        <i class="fa fa-stethoscope"></i> LIMBDIAG-{{ procedure_id }}: {{ procedure["name"] }}
+                    <a href="{{ procedure['_links']['self'] }}">
+                    <i class="fa fa-stethoscope"></i> LIMBDIAG-{{ procedure["id" ]}}: {{ procedure["name"] }}
                     </a>
                 </td>
                 <td>{{ procedure["version"] }}</td>
-                <td>{{ procedure["upload_date"].strftime('%Y-%m-%d') }}</td>
                 <td>
-                    {{ procedure["user_information"]["email"] }}
+                    {{ render_author_for_table(procedure["author"]) }}
                 </td>
             </tr>
             {% endfor %}

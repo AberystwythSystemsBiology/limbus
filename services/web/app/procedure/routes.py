@@ -13,83 +13,91 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import redirect, abort, render_template, url_for, session, request, jsonify
+from flask import redirect, abort, render_template, url_for, session, request, jsonify, flash
 from flask_login import current_user, login_required
 
 from .models import *
-from .. import db
 
+import requests
+from ..misc import get_internal_api_header
 from . import procedure
 from .forms import DiagnosticProcedureCreationForm
 
 import json
 
-from .views import DiagnosticProceduresIndexView, DiagnosticProcedureView
-
-
 @procedure.route("/")
 @login_required
 def index():
-    procedures = DiagnosticProceduresIndexView()
-    return render_template("procedure/index.html", procedures=procedures)
 
+    response = requests.get(url_for("api.procedure_home", _external=True), headers=get_internal_api_header())
 
-@procedure.route("/view/LIMBDIAG-<procedure_id>")
+    if response.status_code == 200:
+        return render_template("procedure/index.html", procedures=response.json()["content"])
+
+    abort(response.status_code)
+
+@procedure.route("/view/LIMBDIAG-<id>/tree")
 @login_required
-def view(procedure_id):
-    dpv = DiagnosticProcedureView(procedure_id)
-    return render_template("procedure/view.html", dpv=dpv)
+def view_tree(id):
+    
+    response = requests.get(
+        url_for("api.procedure_tree", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code == 200:
+        return response.json()
+    abort(response.status_code)
+
+@procedure.route("/view/LIMBDIAG-<id>")
+@login_required
+def view(id):
+    return render_template("procedure/view.html")
+        
+@procedure.route("/view/LIMBDIAG-<id>/endpoint")
+@login_required
+def view_class_endpoint(id):
+    response = requests.get(
+        url_for("api.procedure_view_class", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return response.json()
+        
+    abort(response.status_code)
+
+@procedure.route("/view/volume/<id>/endpoint")
+@login_required
+def view_volume_endpoint(id):
+    response = requests.get(
+        url_for("api.procedure_view_volume", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return response.json()
+
+    abort(response.status_code)
 
 @procedure.route("/new", methods=["GET", "POST"])
 def new():
     form = DiagnosticProcedureCreationForm()
+
     if form.validate_on_submit():
-        dpc = DiagnosticProcedureClass(
-            name=form.name.data,
-            version=form.version.data,
-            description=form.version.data,
-            author_id=current_user.id,
+        new_response = requests.post(
+            url_for("api.procedure_new_class", _external=True),
+            json={
+                "name": form.name.data,
+                "description": form.description.data,
+                "version": form.version.data
+            },
+            headers=get_internal_api_header()
         )
 
-        db.session.add(dpc)
-        db.session.flush()
-
-        if form.from_file.data == True:
-            data = json.load(form.json_file.data)
-            for volume, data in data.items():
-                dpv = DiagnosticProcedureVolume(
-                    code=volume,
-                    name=data["title"],
-                    author_id=current_user.id,
-                    class_id=dpc.id,
-                )
-
-                db.session.add(dpv)
-                db.session.flush()
-
-                for sh_code, subheading in data["subheadings"].items():
-                    dpsh = DiagnosticProcedureSubheading(
-                        code=sh_code,
-                        subheading=subheading["heading"],
-                        author_id=current_user.id,
-                        volume_id=dpv.id,
-                    )
-
-                    db.session.add(dpsh)
-                    db.session.flush()
-
-                    for code, descr in subheading["codes"].items():
-                        dp = DiagnosticProcedure(
-                            code=code,
-                            procedure=descr,
-                            author_id=current_user.id,
-                            subheading_id=dpsh.id,
-                        )
-
-                        db.session.add(dp)
-
-        db.session.commit()
-        return redirect(url_for("procedures.index"))
-
+        if new_response.status_code == 200:
+            flash("Procedure class successfuly added.")
+            return redirect(url_for("procedure.view", id=new_response.json()["content"]["id"]))
+        else:
+            flash("We have a problem!")
     return render_template("procedure/new.html", form=form)
