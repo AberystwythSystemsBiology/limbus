@@ -21,7 +21,7 @@ from .models import *
 import requests
 from ..misc import get_internal_api_header
 from . import procedure
-from .forms import DiagnosticProcedureCreationForm
+from .forms import DiagnosticProcedureCreationForm, DiagnosticProcedureVolumeCreationForm
 
 import json
 
@@ -68,11 +68,39 @@ def view_class_endpoint(id):
     abort(response.status_code)
 
 
-@procedure.route("/view/LIMBDIAG-<id>/volume/new")
+@procedure.route("/view/LIMBDIAG-<id>/volume/new", methods=["GET", "POST"])
 @login_required
 def new_volume(id):
-    return "Hello World"
+    response = requests.get(
+        url_for("api.procedure_view_class", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
 
+    if response.status_code == 200:
+        form = DiagnosticProcedureVolumeCreationForm()
+
+        if form.validate_on_submit():
+
+            volume_response = requests.post(
+                url_for("api.procedure_new_volume", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "code": form.code.data,
+                    "name": form.name.data,
+                    "class_id": response.json()["content"]["id"] 
+                }
+            )
+
+            if volume_response.status_code == 200:
+                flash("Volume successfully added")
+                return redirect(url_for("procedure.view", id=response.json()["content"]["id"]))
+
+            flash("Error")
+
+        return render_template("procedure/new/volume.html", pclass=response.json()["content"], form=form)
+
+    else:
+        abort(response.status_code)
 @procedure.route("/view/volume/<id>/endpoint")
 @login_required
 def view_volume_endpoint(id):

@@ -23,3 +23,9 @@ class DiagnosticProcedureCreationForm(FlaskForm):
     version = StringField("Version")
     description = TextAreaField("Description")
     submit = SubmitField("Submit")
+
+class DiagnosticProcedureVolumeCreationForm(FlaskForm):
+    # TODO: Max Length 2
+    code = StringField("Code", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
