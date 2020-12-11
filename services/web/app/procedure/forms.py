@@ -18,7 +18,7 @@ from wtforms import FileField, StringField, SubmitField, DecimalField, BooleanFi
 from wtforms.validators import DataRequired
 
 
-class DiagnosticProcedureCreationForm(FlaskForm):
+class DiagnosticProcedureClassCreationForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     version = StringField("Version")
     description = TextAreaField("Description")
@@ -33,6 +33,14 @@ class DiagnosticProcedureVolumeCreationForm(FlaskForm):
 class DiagnosticProcedureSubVolumeCreationForm(FlaskForm):
     code = StringField("Code", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
+    reference = StringField("Reference URL")
+
+    submit = SubmitField("Submit")
+
+
+class DiagnosticProcedureCreationForm(FlaskForm):
+    code = StringField("Code", validators=[DataRequired()])
+    procedure = StringField("Procedure", validators=[DataRequired()])
     reference = StringField("Reference URL")
 
     submit = SubmitField("Submit")

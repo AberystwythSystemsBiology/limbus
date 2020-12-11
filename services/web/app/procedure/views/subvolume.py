@@ -25,7 +25,7 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ...auth.views import BasicUserAccountSchema
-
+from .volume import BasicDiagnosticProcedureVolumeSchema
 
 class NewDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -39,6 +39,28 @@ class NewDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
 
 
 new_diagnostic_procedure_subvolume_class = NewDiagnosticProcedureSubVolumeSchema()
+
+
+class DiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DiagnosticProcedureSubVolume
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    code = masql.auto_field()
+
+    creation_date = ma.Date()
+    update_date = ma.Date()
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    
+    volume = ma.Nested(BasicDiagnosticProcedureVolumeSchema())
+
+    _links = ma.Hyperlinks({
+        "new_procedure": ma.URLFor("procedure.new_procedure", id="<id>", _external=True)
+    })
+
+diagnostic_procedure_subvolume_schema = DiagnosticProcedureSubVolumeSchema()
+diagnostic_procedure_subvolumes_schema = DiagnosticProcedureSubVolumeSchema(many=True)
 
 class BasicDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
     class Meta:

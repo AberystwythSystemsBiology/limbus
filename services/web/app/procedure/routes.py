@@ -22,6 +22,7 @@ import requests
 from ..misc import get_internal_api_header
 from . import procedure
 from .forms import (
+    DiagnosticProcedureClassCreationForm,
     DiagnosticProcedureCreationForm,
     DiagnosticProcedureVolumeCreationForm,
     DiagnosticProcedureSubVolumeCreationForm
@@ -140,6 +141,21 @@ def new_subvolume(id):
 
     abort(response.status_code)
 
+@procedure.route("/new/procedure/<id>", methods=["GET", "POST"])
+@login_required
+def new_procedure(id):
+    response = requests.get(
+        url_for("api.procedure_view_subvolume", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        form = DiagnosticProcedureCreationForm()
+
+        return render_template("procedure/new/procedure.html", form=form, subvolume=response.json()["content"])
+
+    abort(response.status_code)
+
 @procedure.route("/view/volume/<id>/endpoint")
 @login_required
 def view_volume_endpoint(id):
@@ -153,9 +169,23 @@ def view_volume_endpoint(id):
 
     abort(response.status_code)
 
+
+@procedure.route("/view/subvolume/<id>/endpoint")
+@login_required
+def view_subvolume_endpoint(id):
+    response = requests.get(
+        url_for("api.procedure_view_subvolume", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return response.json()
+
+    abort(response.status_code)
+
 @procedure.route("/new", methods=["GET", "POST"])
 def new():
-    form = DiagnosticProcedureCreationForm()
+    form = DiagnosticProcedureClassCreationForm()
 
     if form.validate_on_submit():
         new_response = requests.post(

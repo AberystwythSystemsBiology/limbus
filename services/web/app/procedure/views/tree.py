@@ -46,6 +46,10 @@ class BasicDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
     code = masql.auto_field()
 
     procedures = ma.Nested(BasicDiagnosticProcedureSchema(many=True))
+
+    _links = ma.Hyperlinks({
+        "self": ma.URLFor("procedure.view_subvolume_endpoint", id="<id>", _external=True)
+    })
     
 
 class BasicDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):

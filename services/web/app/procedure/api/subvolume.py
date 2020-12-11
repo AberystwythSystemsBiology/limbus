@@ -25,8 +25,18 @@ from ...database import UserAccount, DiagnosticProcedureSubVolume
 
 from ..views import (
     basic_diagnostic_procedure_subvolume_schema,
-    new_diagnostic_procedure_subvolume_class
+    new_diagnostic_procedure_subvolume_class,
+    diagnostic_procedure_subvolume_schema
 )
+
+@api.route("/procedure/subvolume/view/<id>")
+@token_required
+def procedure_view_subvolume(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        diagnostic_procedure_subvolume_schema.dump(
+            DiagnosticProcedureSubVolume.query.filter_by(id=id).first_or_404()
+        )
+    )
 
 
 @api.route("/procedure/new/subvolume", methods=["POST"])

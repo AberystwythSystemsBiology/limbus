@@ -22,6 +22,7 @@ function sap2tree(data) {
             var subvolume = volume["children"][b];
             subvolume["text"] = `${subvolume['code']}: ${subvolume['name']}`;
             subvolume["type"] = "subvolume"
+            subvolume["id"] = subvolume["_links"]["self"];
             subvolume["children"] = [];
 
         }
@@ -142,7 +143,20 @@ function generate_volume_view(endpont_url) {
 
 function generate_subvolume_view(endpont_url) {
     var subvolume = get_endpoing_data(endpont_url);
+    $("#secondary-heading").html(`<i class='fa fa-book'></i> Volume ${subvolume['volume']['code']}: ${subvolume['volume']['name']}`);
     $("#primary-heading").html(`${subvolume['code']}: ${subvolume['name']}`);
+    $("#created-on").html(subvolume["creation_date"]);
+    $("#author").html(render_author(subvolume["author"]));
+
+    var html = "<h2>Procedures</h2><table class='table table-striped'>";
+
+    html += "</table>"
+
+    $("#additional-content").html(html);
+
+
+    var btn_html = render_jumbotron_btn(subvolume["_links"]["new_procedure"], "fa fa-plus", "New Procedure");
+    $("#jumbotron-btn-toolbar").html(btn_html);
 
 }
 
@@ -180,9 +194,6 @@ $(function() {
             if(!data.event) { return; }
 
             switch (data.node.type) {
-                case 'class':
-                    selectElement(data.node);
-                    break;
                 default:
                     selectElement(data.node);
                     break;

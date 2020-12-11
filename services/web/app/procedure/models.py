@@ -32,7 +32,6 @@ class DiagnosticProcedureVolume(Base, RefAuthorMixin, RefEditorMixin):
     class_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedureclass.id"))
 
     pclass = db.relationship("DiagnosticProcedureClass", uselist=False)
-
     subvolumes = db.relationship("DiagnosticProcedureSubVolume", uselist=True)
 
 class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):
@@ -41,6 +40,7 @@ class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):
     reference = db.Column(db.String(256))
     volume_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedurevolume.id"))
 
+    volume = db.relationship("DiagnosticProcedureVolume")
     procedures = db.relationship("DiagnosticProcedure", uselist=True)
 
 class DiagnosticProcedure(Base, RefAuthorMixin, RefEditorMixin):
