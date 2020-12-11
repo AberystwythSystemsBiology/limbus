@@ -31,6 +31,8 @@ class DiagnosticProcedureVolume(Base, RefAuthorMixin, RefEditorMixin):
     name = db.Column(db.String)
     class_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedureclass.id"))
 
+    pclass = db.relationship("DiagnosticProcedureClass", uselist=False)
+
     subvolumes = db.relationship("DiagnosticProcedureSubVolume", uselist=True)
 
 class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):

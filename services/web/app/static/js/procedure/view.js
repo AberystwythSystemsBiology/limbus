@@ -82,6 +82,7 @@ function wipe_all() {
     $("#author").html("");
     $("#jumbotron-btn-toolbar").html("");
     $("#information").html("");
+    $("#additional-content").html("");
 
 }
 
@@ -89,8 +90,12 @@ function wipe_all() {
 function generate_class_view(endpoint_url) {
     var pclass = get_endpoing_data(endpoint_url);
 
-    $("#secondary-heading").html("Diagnostic Procedure")
-    $("#primary-heading").html(`LIMBDIAG-${pclass['id']}: ${pclass['name']}`);
+    var title = `LIMBDIAG-${pclass['id']}: ${pclass['name']}`
+
+    $(document).prop('title', title);
+
+    $("#secondary-heading").html("<a href='"+ pclass["_links"]["procedures_index"]+"'><i class='fa fa-stethoscope'></i> Diagnostic Procedure</a>")
+    $("#primary-heading").html(title);
 
     $("#created-on").html(pclass["creation_date"]);
     $("#author").html(render_author(pclass["author"]));
@@ -98,9 +103,9 @@ function generate_class_view(endpoint_url) {
     var btn_html = render_jumbotron_btn(pclass["_links"]["new_volume"], "fa fa-plus", "New Volume");
     $("#jumbotron-btn-toolbar").html(btn_html);
 
-
     html = render_content("Description", pclass["description"])
     html += render_content("Version", pclass["version"])
+
 
 
     $("#information").html(html);
@@ -109,9 +114,27 @@ function generate_class_view(endpoint_url) {
 
 function generate_volume_view(endpont_url) {
     var volume = get_endpoing_data(endpont_url);
-    $("#secondary-heading").html("Volume");
-    $("#primary-heading").html(`${volume['code']}: ${volume['name']}`);
+
+    $("#secondary-heading").html(`<i class="fa fa-stethoscope"></i> LIMBDIAG-${volume['pclass']['id']}: ${volume['pclass']['name']}`);
+    $("#primary-heading").html(`Volume ${volume['code']}: ${volume['name']}`);
+    $("#created-on").html(volume["creation_date"]);
+    $("#author").html(render_author(volume["author"]));
+
+    var html = "<h2>Subvolumes</h2><table class='table table-striped'>";
+  
+
+    for (i in volume["subvolumes"]) {
+        var subvolume = volume["subvolumes"][i];
+        html += render_content(subvolume["code"], subvolume["name"]);
+    }
+
     
+
+    html += "</table>"
+
+    $("#additional-content").html(html);
+
+
     var btn_html = render_jumbotron_btn(volume["_links"]["new_subvolume"], "fa fa-plus", "New Subvolume");
     $("#jumbotron-btn-toolbar").html(btn_html);
 

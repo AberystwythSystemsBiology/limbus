@@ -71,6 +71,7 @@ class DiagnosticProcedureClassSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks({
         "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
+        "procedures_index": ma.URLFor("procedure.index"),
         "new_volume": ma.URLFor("procedure.new_subvolume", id="<id>", _external=True)
     })
 
