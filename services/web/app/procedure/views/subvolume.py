@@ -26,6 +26,7 @@ from marshmallow_enum import EnumField
 
 from ...auth.views import BasicUserAccountSchema
 from .volume import BasicDiagnosticProcedureVolumeSchema
+from .procedure import BasicDiagnosticProcedureSchema
 
 class NewDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -54,6 +55,8 @@ class DiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
     
     volume = ma.Nested(BasicDiagnosticProcedureVolumeSchema())
+
+    procedures = ma.Nested(BasicDiagnosticProcedureSchema(many=True))
 
     _links = ma.Hyperlinks({
         "new_procedure": ma.URLFor("procedure.new_procedure", id="<id>", _external=True)

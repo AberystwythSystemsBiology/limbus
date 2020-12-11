@@ -150,9 +150,16 @@ function generate_subvolume_view(endpont_url) {
 
     var html = "<h2>Procedures</h2><table class='table table-striped'>";
 
+    for (i in subvolume["procedures"]) {
+        var procedure = subvolume["procedures"][i];
+        html += render_content(procedure["code"], procedure["procedure"]);
+    }
+
     html += "</table>"
 
     $("#additional-content").html(html);
+
+    console.log(subvolume)
 
 
     var btn_html = render_jumbotron_btn(subvolume["_links"]["new_procedure"], "fa fa-plus", "New Procedure");
