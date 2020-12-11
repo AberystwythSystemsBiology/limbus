@@ -75,6 +75,16 @@ function get_endpoing_data(api_url) {
     return json["content"];
 }
 
+function wipe_all() {
+    $("#secondary-heading").html("");
+    $("#primary-heading").html("");
+    $("#created-on").html("");
+    $("#author").html("");
+    $("#jumbotron-btn-toolbar").html("");
+    $("#information").html("");
+
+}
+
 
 function generate_class_view(endpoint_url) {
     var pclass = get_endpoing_data(endpoint_url);
@@ -88,7 +98,6 @@ function generate_class_view(endpoint_url) {
     var btn_html = render_jumbotron_btn(pclass["_links"]["new_volume"], "fa fa-plus", "New Volume");
     $("#jumbotron-btn-toolbar").html(btn_html);
 
-    console.log(pclass);
 
     html = render_content("Description", pclass["description"])
     html += render_content("Version", pclass["version"])
@@ -100,7 +109,12 @@ function generate_class_view(endpoint_url) {
 
 function generate_volume_view(endpont_url) {
     var volume = get_endpoing_data(endpont_url);
+    $("#secondary-heading").html("Volume");
     $("#primary-heading").html(`${volume['code']}: ${volume['name']}`);
+
+    var btn_html = render_jumbotron_btn("#", "fa fa-plus", "New Subvolume");
+    $("#jumbotron-btn-toolbar").html(btn_html);
+
 }
 
 function generate_subvolume_view(endpont_url) {
@@ -117,6 +131,8 @@ $(function() {
 
 
     function selectElement(element) {
+
+        wipe_all();
 
         if (element["type"] == "class" ) {
             generate_class_view(element["id"]);
