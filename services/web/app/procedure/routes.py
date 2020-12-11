@@ -21,7 +21,11 @@ from .models import *
 import requests
 from ..misc import get_internal_api_header
 from . import procedure
-from .forms import DiagnosticProcedureCreationForm, DiagnosticProcedureVolumeCreationForm
+from .forms import (
+    DiagnosticProcedureCreationForm,
+    DiagnosticProcedureVolumeCreationForm,
+    DiagnosticProcedureSubVolumeCreationForm
+)
 
 import json
 
@@ -101,6 +105,41 @@ def new_volume(id):
 
     else:
         abort(response.status_code)
+
+
+@procedure.route("/new/volume/<id>/subvolume/new", methods=["GET", "POST"])
+@login_required
+def new_subvolume(id):
+    response = requests.get(
+        url_for("api.procedure_view_volume", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        
+        form = DiagnosticProcedureSubVolumeCreationForm()
+
+        if form.validate_on_submit():
+            new_response = requests.post(
+                url_for("api.procedure_new_subvolume", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "code": form.code.data,
+                    "name": form.name.data,
+                    "volume_id": id
+                }
+            )
+
+            if new_response.status_code == 200:
+                flash("Subvolume added")
+
+            else:
+                flash("Oh no...")
+
+        return render_template("procedure/new/subvolume.html", volume=response.json()["content"], form=form)
+
+    abort(response.status_code)
+
 @procedure.route("/view/volume/<id>/endpoint")
 @login_required
 def view_volume_endpoint(id):

@@ -29,3 +29,10 @@ class DiagnosticProcedureVolumeCreationForm(FlaskForm):
     code = StringField("Code", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+class DiagnosticProcedureSubVolumeCreationForm(FlaskForm):
+    code = StringField("Code", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    reference = StringField("Reference URL")
+
+    submit = SubmitField("Submit")

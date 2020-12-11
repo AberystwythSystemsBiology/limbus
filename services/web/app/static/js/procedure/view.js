@@ -111,8 +111,8 @@ function generate_volume_view(endpont_url) {
     var volume = get_endpoing_data(endpont_url);
     $("#secondary-heading").html("Volume");
     $("#primary-heading").html(`${volume['code']}: ${volume['name']}`);
-
-    var btn_html = render_jumbotron_btn("#", "fa fa-plus", "New Subvolume");
+    
+    var btn_html = render_jumbotron_btn(volume["_links"]["new_subvolume"], "fa fa-plus", "New Subvolume");
     $("#jumbotron-btn-toolbar").html(btn_html);
 
 }

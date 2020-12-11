@@ -26,14 +26,15 @@ from ...database import UserAccount, DiagnosticProcedureVolume
 from ..views import (
     basic_diagnostic_procedure_volume_schema,
     basic_diagnostic_procedure_volumes_schema,
-    new_diagnostic_procedure_volume_class
+    new_diagnostic_procedure_volume_class,
+    diagnostic_procedure_volume_schema
 )
 
 @api.route("/procedure/volume/view/<id>")
 @token_required
 def procedure_view_volume(id, tokenuser: UserAccount):
     return success_with_content_response(
-        basic_diagnostic_procedure_volume_schema.dump(DiagnosticProcedureVolume.query.filter_by(id=id).first_or_404())
+        diagnostic_procedure_volume_schema.dump(DiagnosticProcedureVolume.query.filter_by(id=id).first_or_404())
     )
 
 

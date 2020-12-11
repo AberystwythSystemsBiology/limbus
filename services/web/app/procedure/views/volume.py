@@ -39,6 +39,22 @@ class NewDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
 
 new_diagnostic_procedure_volume_class = NewDiagnosticProcedureVolumeSchema()
 
+class DiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DiagnosticProcedureVolume
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    code = masql.auto_field()
+
+    _links = ma.Hyperlinks({
+        "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
+        "new_subvolume": ma.URLFor("procedure.new_subvolume", id="<id>", _external=True)
+    })
+
+
+diagnostic_procedure_volume_schema = DiagnosticProcedureVolumeSchema()
+
 class BasicDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DiagnosticProcedureVolume
