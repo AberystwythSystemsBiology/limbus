@@ -241,3 +241,5 @@ yarn.lock
 
 *.owl
 *.xrdf
+
+ontologies/

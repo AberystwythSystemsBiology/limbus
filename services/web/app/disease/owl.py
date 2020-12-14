@@ -13,12 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from owlready2 import get_ontology
+from owlready2 import get_ontology, onto_path
 import os
 
-DOID_PATH = os.environ["DOID_PATH"]
+onto_path.append(os.environ["ONTO_PATH"])
 
 def load_doid():
-    onto = get_ontology("file://%s" % (DOID_PATH)).load()
 
-    print(onto)
+    onto = get_ontology("http://www.lesfleursdunormal.fr/static/_downloads/pizza_onto.owl").load()
+
