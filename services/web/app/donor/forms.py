@@ -24,12 +24,13 @@ from wtforms import (
     DecimalField,
     DateField,
     IntegerField,
+    TextAreaField,
     HiddenField,
 )
 
 # from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
-from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
+from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes, CancerStage
 from ..sample.enums import Colour
 from datetime import datetime
 
@@ -49,14 +50,32 @@ class DonorFilterForm(FlaskForm):
     colour = SelectField("Colour", choices=Colour.choices())
 
 
-class DonorAssignDiagnosisForm(FlaskForm):
-    disease_query = StringField("Disease Query")
-    disease_select = SelectField("Disease Results")
+def DonorAssignDiagnosisForm(diagnosis_procedures: {}):
+    class StaticForm(FlaskForm):
+        disease_query = StringField("Disease Query")
+        disease_select = SelectField("Disease Results")
 
-    diagnosis_date = DateField("Diagnosis Date")
-    stage = SelectField("Stage")
+        diagnosis_date = DateField("Diagnosis Date")
+        stage = SelectField("Stage", choices=CancerStage.choices())
 
-    submit = SubmitField("Submit")
+        comments = TextAreaField("Comments")
+
+        volume = SelectField("Volume")
+        subvolume = SelectField("Sub Volume")
+        procedure = SelectField("Procedure")
+
+        submit = SubmitField("Submit")
+
+
+    setattr(
+        StaticForm,
+        "class",
+        SelectField("Diagnostic Procedure Class", choices=[[x["id"], "LIMBDIAG-%i: %s " % (x["id"], x["name"])] for x in diagnosis_procedures])
+    ) 
+
+    
+
+    return StaticForm()
 
 def DonorCreationForm(sites: dict, data={}):
     class StaticForm(FlaskForm):

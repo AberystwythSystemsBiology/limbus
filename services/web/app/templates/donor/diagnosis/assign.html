@@ -53,6 +53,24 @@
             {{ form_field(form.stage) }}
         </div>
     </div>
+    {{ form_field(form.class) }}
+    
+    <div class="row">
+        <div class="col-4">
+            {{ form_field(form.volume) }}
+        </div>
+        <div class="col-4">
+            {{ form_field(form.subvolume) }}
+        </div>
+        <div class="col-4">
+            {{ form_field(form.procedure) }}
+
+        </div>
+    </div>
+
+
+    {{ form_field(form.comments) }}
+
 </div>
 
 {% endblock %}

@@ -15,6 +15,14 @@
 
 from ..FormEnum import FormEnum
 
+class CancerStage(FormEnum):
+    NA = "Not-applicable"
+    S0 = "Stage 0"
+    S1 = "Stage 1"
+    S2 = "Stage 2"
+    S3 = "Stage 3"
+    S4 = "Stage 4"
+
 
 class RaceTypes(FormEnum):
     A = "White"

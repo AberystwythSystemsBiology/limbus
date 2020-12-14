@@ -77,7 +77,13 @@ def new_diagnosis(id):
     )
 
     if response.status_code == 200:
-        form = DonorAssignDiagnosisForm()
+
+        procedure_response = requests.get(
+            url_for("api.procedure_home", _external=True),
+            headers=get_internal_api_header()
+        )
+
+        form = DonorAssignDiagnosisForm(procedure_response.json()["content"])
         return render_template("donor/diagnosis/assign.html", donor=response.json()["content"], form=form)
     else:
         return response.content
