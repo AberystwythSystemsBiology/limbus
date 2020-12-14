@@ -240,3 +240,4 @@ yarn.lock
 !**/migrations/script.py.mako
 
 *.owl
+*.xrdf
