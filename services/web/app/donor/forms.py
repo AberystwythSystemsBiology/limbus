@@ -49,6 +49,15 @@ class DonorFilterForm(FlaskForm):
     colour = SelectField("Colour", choices=Colour.choices())
 
 
+class DonorAssignDiagnosisForm(FlaskForm):
+    disease_query = StringField("Disease Query")
+    disease_select = SelectField("Disease Results")
+
+    diagnosis_date = DateField("Diagnosis Date")
+    stage = SelectField("Stage")
+
+    submit = SubmitField("Submit")
+
 def DonorCreationForm(sites: dict, data={}):
     class StaticForm(FlaskForm):
         colour = SelectField("Colour", choices=Colour.choices())

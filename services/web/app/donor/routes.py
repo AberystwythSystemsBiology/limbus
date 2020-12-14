@@ -28,11 +28,8 @@ from flask_login import login_required, current_user
 import requests
 from datetime import datetime
 
-from .forms import DonorCreationForm, DonorFilterForm
+from .forms import DonorCreationForm, DonorFilterForm, DonorAssignDiagnosisForm
 from ..misc import get_internal_api_header
-
-
-strconv = lambda i: i or None
 
 
 @donor.route("/")
@@ -70,6 +67,36 @@ def view(id):
     else:
         return response.content
 
+
+@donor.route("/LIMBDON-<id>/diagnosis/new")
+@login_required
+def new_diagnosis(id):
+    response = requests.get(
+        url_for("api.donor_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        form = DonorAssignDiagnosisForm()
+        return render_template("donor/diagnosis/assign.html", donor=response.json()["content"], form=form)
+    else:
+        return response.content
+
+@donor.route("/disease/api/label_filter", methods=["POST"])
+@login_required
+def api_filter():
+    query = request.json
+
+    query_response = requests.post(
+        url_for("api.doid_query_by_label", _external=True),
+        headers=get_internal_api_header(),
+        json=query
+    )
+
+
+    if query_response.status_code == 200:
+        return query_response.json()
+    return query_response.content
 
 @login_required
 @donor.route("/new", methods=["GET", "POST"])

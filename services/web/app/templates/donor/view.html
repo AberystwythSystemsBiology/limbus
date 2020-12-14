@@ -21,9 +21,13 @@
                             <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
                         </a>
                     </div>
-
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{url_for('donor.edit', id=donor.id) }}">
+                        <a href="{{ url_for('donor.new_diagnosis', id=donor.id) }}">
+                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Associate Diagnosis</button>
+                        </a>
+                    </div>
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <a href="#">
                             <button type="button" class="btn btn-outline-dark"><i class="fas fa-vial"></i> Assign Sample</button>
                         </a>
                     </div>

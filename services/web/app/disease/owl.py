@@ -13,12 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from owlready2 import get_ontology, onto_path
+from owlready2 import get_ontology, onto_path, get_namespace
 import os
-
 onto_path.append(os.environ["ONTO_PATH"])
 
 def load_doid():
+    onto = get_ontology("file://%s%s" % (os.environ["ONTO_PATH"], "owlapi.xrdf")).load()
+    obo = get_namespace("http://purl.obolibrary.org/obo/")
 
-    onto = get_ontology("http://www.lesfleursdunormal.fr/static/_downloads/pizza_onto.owl").load()
-
+    return onto, obo
