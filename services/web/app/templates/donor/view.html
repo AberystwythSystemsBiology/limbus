@@ -60,7 +60,7 @@
         {{ show_value('%0.2f'| format(donor.weight / (donor.height/100)**2|float), "BMI", "text")}}
         {%endif %}
         {%endif %}
-        {% if donor.death_date != None %}
+        {% if donor.status == "Deceased" %}
         {{ show_value(donor.death_date, "Death Date", "text") }}
         {%endif %}
 

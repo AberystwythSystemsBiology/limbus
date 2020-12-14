@@ -238,3 +238,5 @@ yarn.lock
 !**/migrations/__init__.py
 !**/migrations/env.py
 !**/migrations/script.py.mako
+
+*.owl
