@@ -15,6 +15,13 @@
 
 from ..FormEnum import FormEnum
 
+class Condition(FormEnum):
+    UND = "Undetermined"
+    GOO = "Good"
+    FAI = "Fair"
+    CRI = "Critical"
+    
+
 class CancerStage(FormEnum):
     NA = "Not-applicable"
     S0 = "Stage 0"

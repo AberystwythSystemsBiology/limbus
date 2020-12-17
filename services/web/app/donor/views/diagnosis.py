@@ -18,9 +18,14 @@ from ...database import DonorDiagnosisEvent
 from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
+from marshmallow import fields
 
+from flask import url_for
+import requests
+from ...misc import get_internal_api_header
 from ...auth.views import BasicUserAccountSchema
 from ..enums import CancerStage
+from ...disease.api import retrieve_by_iri
 
 class NewDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -36,15 +41,19 @@ class NewDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
 new_donor_diagnosis_event_schema = NewDonorDiagnosisEventSchema()
 
 
+class DoidInstance(fields.Field):
+
+    def _serialize(self, value, attr, obj, **kwargs):
+        return retrieve_by_iri(value)
+
 class DonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DonorDiagnosisEvent
 
     id = masql.auto_field()
-    donor_id = masql.auto_field()
-    doid_ref = masql.auto_field()
-    stage = EnumField(CancerStage)
     diagnosis_date = ma.Date()
     comments = masql.auto_field()
+    doid_ref = DoidInstance()
+    stage = EnumField(CancerStage)
 
 donor_diagnosis_event_schema = DonorDiagnosisEventSchema()

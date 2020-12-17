@@ -30,7 +30,7 @@ from wtforms import (
 
 # from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional, NumberRange, InputRequired
-from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes, CancerStage
+from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes, CancerStage, Condition
 from ..sample.enums import Colour
 from datetime import datetime
 import requests
@@ -70,10 +70,9 @@ class DoidValidatingSelectField(SelectField):
 class DonorAssignDiagnosisForm(FlaskForm):
     disease_query = StringField("Disease Query")
     disease_select = DoidValidatingSelectField("Disease Results", validators=[])
-
     diagnosis_date = DateField("Diagnosis Date", default=datetime.today())
     stage = SelectField("Stage", choices=CancerStage.choices())
-
+    condition = SelectField("Condition", choices=Condition.choices())
     comments = TextAreaField("Comments")
 
     submit = SubmitField("Submit")

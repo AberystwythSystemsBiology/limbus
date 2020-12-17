@@ -21,37 +21,12 @@ from ..decorators import token_required
 from ..api.responses import *
 from ..auth.models import UserAccount
 
+from owlready2.entity import ThingClass
 
 DOID, obo = load_doid()
 
-@api.route("/disease/query/validate_label", methods=["GET"])
-@token_required
-def doid_validate_by_iri(tokenuser: UserAccount):
-    values = request.get_json()
-
-    if not values:
-        return no_values_response()
-    
-    term = DOID.search_one(iri=values["iri"])
-    
-    success = True
-    response = 200
-
-    if term == None:
-        success = False
-        response += 300
-
-    return {"success": success, "iri": values["iri"]}, response
-
-@api.route("/disease/query/name", methods=["post"])
-@token_required
-def doid_query_by_label(tokenuser: UserAccount):
-    values = request.get_json()
-
-    if not values:
-        return no_values_response()
-    
-    def _get_parents(term, ret):
+def prepare_instance(thing: ThingClass):
+    def _get_parents(thing, ret):
         if len(ret) == 0:
             pass
 
@@ -84,19 +59,60 @@ def doid_query_by_label(tokenuser: UserAccount):
 
         return reference_dictionary
 
-    results = DOID.search(label="*%s" % (values["label"]), subclass_of=obo.DOID_4)
+    return {
+            "iri": thing.iri,
+            "name": thing.name,
+            "description": thing.IAO_0000115,
+            "synonyms": thing.hasExactSynonym,
+            "label":  thing.label.first() or instance.name,
+            "references": _resolve_references(thing.hasDbXref)
+    }
+
+def retrieve_by_iri(iri: str) -> dict:
+    thing = DOID.search_one(iri=iri)
+
+    if thing != None:
+        return prepare_instance(thing)
+    
+    return thing
+
+def retrieve_by_label(label: str):
+    results = DOID.search(label="*%s" % (label), subclass_of=obo.DOID_4)
 
     results_dict = {}
 
-    for result in results:
-        results_dict[result.iri] = {
-            "name": result.name,
-            "description": result.IAO_0000115,
-            "synonyms": result.hasExactSynonym,
-            "label":  result.label.first() or result.name,
-            "references": _resolve_references(result.hasDbXref)
-        }
+    for thing in results:
+        results_dict[thing.iri] = prepare_instance(thing)
+
+    return results_dict
+
+@api.route("/disease/query/validate_label", methods=["GET"])
+@token_required
+def doid_validate_by_iri(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+    
+    thing = retrieve_by_iri(values["iri"])
+    
+    success = True
+    response = 200
+
+    if thing == None:
+        success = False
+        response += 300
+
+    return {"success": success, "iri": values["iri"], "thing": thing}, response
+
+@api.route("/disease/query/name", methods=["post"])
+@token_required
+def doid_query_by_label(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()   
    
 
-    return success_with_content_response(results_dict)
+    return success_with_content_response(retrieve_by_label(values["label"]))
 
