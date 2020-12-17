@@ -24,6 +24,25 @@ from ..auth.models import UserAccount
 
 DOID, obo = load_doid()
 
+@api.route("/disease/query/validate_label", methods=["GET"])
+@token_required
+def doid_validate_by_iri(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+    
+    term = DOID.search_one(iri=values["iri"])
+    
+    success = True
+    response = 200
+
+    if term == None:
+        success = False
+        response += 300
+
+    return {"success": success, "iri": values["iri"]}, response
+
 @api.route("/disease/query/name", methods=["post"])
 @token_required
 def doid_query_by_label(tokenuser: UserAccount):
@@ -31,7 +50,6 @@ def doid_query_by_label(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-
     
     def _get_parents(term, ret):
         if len(ret) == 0:

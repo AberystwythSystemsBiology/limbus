@@ -21,12 +21,14 @@ from ..mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    age = db.Column(db.Integer)
+    dob = db.Column(db.Date)
+
     colour = db.Column(db.Enum(Colour))
     registration_date = db.Column(db.Date)
     mpn = db.Column(db.String(128))
 
     sex = db.Column(db.Enum(BiologicalSexTypes))
+    diagnoses = db.relationship("DonorDiagnosisEvent")
 
     enrollment_site_id = db.Column(db.ForeignKey("siteinformation.id"))
     status = db.Column(db.Enum(DonorStatusTypes))
@@ -39,3 +41,13 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+
+class DonorDiagnosisEvent(Base, RefAuthorMixin, RefEditorMixin):
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+
+    doid_ref = db.Column(db.String())
+
+    stage = db.Column(db.Enum(CancerStage))
+    diagnosis_date = db.Column(db.Date)
+
+    comments = db.Column(db.Text())

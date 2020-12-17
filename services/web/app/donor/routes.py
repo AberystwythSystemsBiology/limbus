@@ -68,7 +68,7 @@ def view(id):
         return response.content
 
 
-@donor.route("/LIMBDON-<id>/diagnosis/new")
+@donor.route("/LIMBDON-<id>/diagnosis/new", methods=["GET", "POST"])
 @login_required
 def new_diagnosis(id):
     response = requests.get(
@@ -78,12 +78,28 @@ def new_diagnosis(id):
 
     if response.status_code == 200:
 
-        procedure_response = requests.get(
-            url_for("api.procedure_home", _external=True),
-            headers=get_internal_api_header()
-        )
+        form = DonorAssignDiagnosisForm()
 
-        form = DonorAssignDiagnosisForm(procedure_response.json()["content"])
+
+        if form.validate_on_submit():
+            
+            diagnosis_response = requests.post(
+                url_for("api.donor_new_diagnosis", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "doid_ref": form.disease_select.data,
+                    "stage": form.stage.data,
+                    "diagnosis_date": str(datetime.strptime(str(form.diagnosis_date.data), "%Y-%m-%d").date()),
+                    "comments": form.comments.data
+                }
+            )
+
+            if diagnosis_response.status_code == 200:
+                flash("Disease Annotation Added!")
+                return redirect(url_for("donor.view", id=id))
+
+            flash("Error!: %s" % diagnosis_response.json()["message"])
+
         return render_template("donor/diagnosis/assign.html", donor=response.json()["content"], form=form)
     else:
         return response.content
@@ -98,7 +114,6 @@ def api_filter():
         headers=get_internal_api_header(),
         json=query
     )
-
 
     if query_response.status_code == 200:
         return query_response.json()
@@ -116,8 +131,9 @@ def add():
         form = DonorCreationForm(sites_response.json()["content"])
         if form.validate_on_submit():
 
+
             form_information = {
-                "age": form.age.data,
+                "dob": str(datetime.strptime("%s-%s-1" % (form.year.data, form.month.data), "%Y-%m-%d").date()),
                 "enrollment_site_id": form.site.data,
                 "registration_date": str(datetime.strptime(str(form.registration_date.data), "%Y-%m-%d").date()),
                 "sex": form.sex.data,
@@ -140,7 +156,6 @@ def add():
                 flash("Donor information successfully added!")
                 return redirect(url_for("donor.index"))
 
-            print(response.content)
             abort(response.status_code)
 
         return render_template("donor/add.html", form=form)

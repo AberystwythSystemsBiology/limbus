@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..database import db, UserAccount
+from ..database import db, UserAccount, DonorDiagnosisEvent, Donor
 
 from ..api import api
 from ..api.responses import *
@@ -29,8 +29,15 @@ from ..webarg_parser import use_args, use_kwargs, parser
 
 
 from ..auth.models import UserAccount
-from .models import Donor
-from .views import donor_schema, donors_schema, new_donor_schema, DonorSearchSchema
+
+from .views import (
+    donor_schema,
+    donors_schema,
+    new_donor_schema,
+    DonorSearchSchema,
+    new_donor_diagnosis_event_schema,
+    donor_diagnosis_event_schema
+)
 
 
 @api.route("/donor")
@@ -112,5 +119,31 @@ def donor_new(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
         return success_with_content_response(donor_schema.dump(new_donor))
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/donor/LIMBDON-<id>/new/diagnosis", methods=["POST"])
+@token_required
+def donor_new_diagnosis(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        # New view
+        values["donor_id"] = id
+        result = new_donor_diagnosis_event_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_diagnosis = DonorDiagnosisEvent(**result)
+    new_diagnosis.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_diagnosis)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(donor_diagnosis_event_schema.dump(new_diagnosis))
     except Exception as err:
         return transaction_error_response(err)

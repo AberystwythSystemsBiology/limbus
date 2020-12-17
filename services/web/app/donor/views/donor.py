@@ -13,20 +13,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..extensions import ma
-from .models import Donor
-from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
+from ...extensions import ma
+from ...database import Donor
+from ..enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
 
 from sqlalchemy_continuum import version_class, parent_class
-from ..extensions import ma
+from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ..auth.views import BasicUserAccountSchema
-from .enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
-from ..sample.enums import Colour
+from ...auth.views import BasicUserAccountSchema
+from ..enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
+from ...sample.enums import Colour
 
+from .diagnosis import DonorDiagnosisEventSchema
 
 class DonorSearchSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -46,14 +47,17 @@ class DonorSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
 
     uuid = masql.auto_field()
+   
+    dob = ma.Date()
 
-    age = masql.auto_field()
     sex = EnumField(BiologicalSexTypes, by_value=True)
     status = EnumField(DonorStatusTypes, by_value=True)
     death_date = ma.Date()
 
     weight = masql.auto_field()
     height = masql.auto_field()
+
+    diagnoses = ma.Nested(DonorDiagnosisEventSchema, many=True)
 
     race = EnumField(RaceTypes, by_value=True)
 
@@ -76,11 +80,12 @@ donor_schema = DonorSchema()
 donors_schema = DonorSchema(many=True)
 
 
+
 class NewDonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
 
-    age = masql.auto_field()
+    dob = ma.Date()
     sex = EnumField(BiologicalSexTypes)
     status = EnumField(DonorStatusTypes)
     death_date = ma.Date()

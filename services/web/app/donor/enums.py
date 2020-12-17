@@ -23,7 +23,6 @@ class CancerStage(FormEnum):
     S3 = "Stage 3"
     S4 = "Stage 4"
 
-
 class RaceTypes(FormEnum):
     A = "White"
     A1 = "Welsh/English/Scottish/Northern Irish/British"

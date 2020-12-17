@@ -6,18 +6,28 @@
 
 <div class="jumbotron">
     <div class="container">
-        <h1>Assign Diagnosis</h1>
+        <h1>
+            <span class="secondary-heading">
+                <a href='{{ donor["_links"]["self"] }}'>
+                    <i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}
+                </a>
+            </span><i class="fa fa-stethoscope"></i> Assign Diagnosis</h1>
     </div>
 </div>
 
 <div class="container">
-    <div class="row">
+    <form method="POST" action="{{ url_for('donor.new_diagnosis', id=donor.id ) }}">
+        {{ form.csrf_token }}
+
+        <div class="row">
         <div class="col-10">
             {{ form_field(form.disease_query) }}
         </div>
         <div class="col-2">
                 <div style="padding-bottom:2rem; display:block;"></div>
-                <div id="disease-search" class="btn btn-primary full-width">Search</div>
+                <div id="disease-search" class="btn btn-primary full-width">
+                    <i class="fa fa-search"></i> Search
+                </div>
         </div>
     </div>
     {{ form_field(form.disease_select) }}
@@ -53,24 +63,11 @@
             {{ form_field(form.stage) }}
         </div>
     </div>
-    {{ form_field(form.class) }}
-    
-    <div class="row">
-        <div class="col-4">
-            {{ form_field(form.volume) }}
-        </div>
-        <div class="col-4">
-            {{ form_field(form.subvolume) }}
-        </div>
-        <div class="col-4">
-            {{ form_field(form.procedure) }}
-
-        </div>
-    </div>
-
 
     {{ form_field(form.comments) }}
 
+    {{ form_field(form.submit) }}
+    </form>
 </div>
 
 {% endblock %}

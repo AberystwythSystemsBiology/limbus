@@ -59,7 +59,7 @@ function render_table(query) {
                 "mData": {},
                 "mRender": function (data, type, row) {
                     // Age
-                    return data["age"];
+                    return data["dob"];
 
 
                 }

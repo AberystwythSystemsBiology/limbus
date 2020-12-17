@@ -65,6 +65,15 @@ function update_disease_select(diseases) {
     });
 }
 
+function validate_form() {
+    if ($("#disease_select").val() == null) {
+        $("#submit").attr('disabled','disabled');
+    }
+
+    else {
+        $("#submit").removeAttr('disabled');
+    }
+}
 
 $(document).ready(function(){
     $("#disease-search").on("click", function() {
@@ -78,8 +87,25 @@ $(document).ready(function(){
             update_disease_select(diseases);
 
             $("#disease-result").fadeIn();
+            validate_form();
 
         } 
+    });
+
+    validate_form();
+
+    $("#has_procedure").on("change", function() {
+        if ($(this).prop("checked")) {
+            console.log("Aeeeyooo")
+        }
+
+        else {
+            console.log("Aeee")
+        }
+    });
+
+    $("#disease_select").on("change", function() {
+        validate_form();
     })
 
 });
