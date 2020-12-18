@@ -20,6 +20,9 @@ nav img {
     
 }
 
+.nav-link .active {
+    font-weight: bold;
+}
 
 
 .form-description {

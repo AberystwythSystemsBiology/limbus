@@ -84,7 +84,7 @@ def DonorCreationForm(sites: dict, data={}):
 
 
         month = SelectField("Month", choices=[(str(x), x) for x in range(1, 13)],)
-        year = SelectField("Year", choices=[(str(x), x) for x in range(1899, 2020)])
+        year = SelectField("Year", choices=[(str(x), x) for x in range(2020, 1899, -1)])
 
         sex = SelectField(
             "Biological Sex",

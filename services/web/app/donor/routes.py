@@ -57,15 +57,18 @@ def query_index():
 @donor.route("/LIMBDON-<id>")
 @login_required
 def view(id):
+    return render_template("donor/view.html")
+    
+@donor.route("/LIMBDON-<id>/endpoint")
+@login_required
+def view_endpoint(id):
     response = requests.get(
         url_for("api.donor_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        return render_template("donor/view.html", donor=response.json()["content"])
-    else:
-        return response.content
+        return response.json()
 
 
 @donor.route("/LIMBDON-<id>/diagnosis/new", methods=["GET", "POST"])
