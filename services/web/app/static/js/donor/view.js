@@ -32,14 +32,68 @@ function hide_all() {
     
 }
 
-function fill_basic_information(donor_information) {
-    console.log(donor_information)
+
+function calculate_bmi(height, weight) {
+    var hm = height / 100
+
+    var ini = weight / hm
+    return (ini / hm).toFixed(2);
 }
+
+
+function render_dob(dob) { 
+    var date = new Date(Date.parse(dob));
+    const month = date.toLocaleString('default', { month: 'long' });
+    return [month + " " + date.getFullYear(), calculate_age(date.getMonth(), date.getFullYear()), date];
+}
+
+function fill_basic_information(donor_information, age, dob) {
+
+    html = render_content("Date of Birth", dob);
+    html += render_content("Age", age)
+    html += render_content("Height", donor_information["height"]+"cm");
+    html += render_content("Weight", donor_information["weight"]+"kg");
+    html += render_content("Biological Sex", donor_information["sex"])
+    html += render_content("Body Mass Index", calculate_bmi(donor_information["height"], donor_information["weight"]));
+    html += render_content("Race", donor_information["race"]);
+    html += render_content("Status", donor_information["status"]);
+
+    if (donor_information["status"] == "Deceased") {
+        html += render_content("Date of Death", donor_information["death_date"]);
+    }
+
+    $("#basic-information-table").html(html);
+
+}
+
+function fill_diagnosis_information(diagnoses, date) {
+
+    html = ""
+
+    $.each(diagnoses,function(index,value){
+        var media_html = "<div class='media'><div class='align-self-center mr-3'><h1>a</h1></div><div class='media-body'>"
+        
+        media_html += "<h2>"+value["doid_ref"]["label"]+"</h2>";
+        
+
+        media_html += "</div></div>"
+        
+        console.log(value)
+
+        html += media_html;
+    });
+
+    $("#diagnosis-area-div").html(html);
+    
+ }
 
 
 $(document).ready(function () {
 
     var donor_information = get_donor();
+
+    $("#donor-id").html(donor_information["id"]);
+
 
     $("#edit-donor-btn").on("click", function() {
         window.location.href = donor_information["_links"]["edit"];
@@ -50,9 +104,14 @@ $(document).ready(function () {
         window.location.href = donor_information["_links"]["assign_diagnosis"];
     });
 
-    $("#donor-id").html(donor_information["id"]);
+    var arr = render_dob(donor_information["dob"])
 
-    fill_basic_information(donor_information)
+    var dob = arr[0];
+    var age = arr[1];
+    var date = arr[2];
+
+    fill_basic_information(donor_information, age, dob)
+    fill_diagnosis_information(donor_information["diagnoses"], date);
 
     $("#diagnosis-nav").on("click", function() {
         deactivate_nav();
