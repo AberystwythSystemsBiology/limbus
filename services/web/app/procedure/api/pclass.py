@@ -26,22 +26,29 @@ from ...database import UserAccount, DiagnosticProcedureClass
 from ..views import (
     new_diagnostic_procedure_class,
     diagnostic_procedure_class_schema,
-    basic_diagnostic_procedure_classes_schema
+    basic_diagnostic_procedure_classes_schema,
 )
+
 
 @api.route("/procedure")
 @token_required
 def procedure_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_diagnostic_procedure_classes_schema.dump(DiagnosticProcedureClass.query.all())
+        basic_diagnostic_procedure_classes_schema.dump(
+            DiagnosticProcedureClass.query.all()
+        )
     )
+
 
 @api.route("/procedure/LIMBDIAG-<id>")
 @token_required
 def procedure_view_class(id, tokenuser: UserAccount):
     return success_with_content_response(
-        diagnostic_procedure_class_schema.dump(DiagnosticProcedureClass.query.filter_by(id=id).first_or_404())
+        diagnostic_procedure_class_schema.dump(
+            DiagnosticProcedureClass.query.filter_by(id=id).first_or_404()
+        )
     )
+
 
 @api.route("/procedure/new/class", methods=["POST"])
 @token_required
@@ -52,9 +59,5 @@ def procedure_new_class(tokenuser: UserAccount):
         new_diagnostic_procedure_class,
         diagnostic_procedure_class_schema,
         request.json,
-        tokenuser
-        )
-        
-
-
-
+        tokenuser,
+    )

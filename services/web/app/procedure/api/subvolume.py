@@ -26,8 +26,9 @@ from ...database import UserAccount, DiagnosticProcedureSubVolume
 from ..views import (
     basic_diagnostic_procedure_subvolume_schema,
     new_diagnostic_procedure_subvolume_class,
-    diagnostic_procedure_subvolume_schema
+    diagnostic_procedure_subvolume_schema,
 )
+
 
 @api.route("/procedure/subvolume/view/<id>")
 @token_required
@@ -48,5 +49,5 @@ def procedure_new_subvolume(tokenuser: UserAccount):
         new_diagnostic_procedure_subvolume_class,
         basic_diagnostic_procedure_subvolume_schema,
         request.json,
-        tokenuser
-        )
+        tokenuser,
+    )

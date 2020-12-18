@@ -15,12 +15,13 @@
 
 from ..FormEnum import FormEnum
 
+
 class Condition(FormEnum):
     UND = "Undetermined"
     GOO = "Good"
     FAI = "Fair"
     CRI = "Critical"
-    
+
 
 class CancerStage(FormEnum):
     NA = "Not-applicable"
@@ -29,6 +30,7 @@ class CancerStage(FormEnum):
     S2 = "Stage 2"
     S3 = "Stage 3"
     S4 = "Stage 4"
+
 
 class RaceTypes(FormEnum):
     A = "White"

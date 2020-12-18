@@ -28,6 +28,7 @@ from ...auth.views import BasicUserAccountSchema
 from .tree import BasicDiagnosticProcedureSubVolumeSchema
 from .pclass import BasicDiagnosticProcedureClassSchema
 
+
 class NewDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DiagnosticProcedureVolume
@@ -39,6 +40,7 @@ class NewDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
 
 
 new_diagnostic_procedure_volume_class = NewDiagnosticProcedureVolumeSchema()
+
 
 class DiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -52,16 +54,21 @@ class DiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     creation_date = ma.Date()
     update_date = ma.Date()
     author = ma.Nested(BasicUserAccountSchema, many=False)
-    
+
     pclass = ma.Nested(BasicDiagnosticProcedureClassSchema())
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
-        "new_subvolume": ma.URLFor("procedure.new_subvolume", id="<id>", _external=True)
-    })
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
+            "new_subvolume": ma.URLFor(
+                "procedure.new_subvolume", id="<id>", _external=True
+            ),
+        }
+    )
 
 
 diagnostic_procedure_volume_schema = DiagnosticProcedureVolumeSchema()
+
 
 class BasicDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -70,7 +77,9 @@ class BasicDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     name = masql.auto_field()
     code = masql.auto_field()
-    
+
 
 basic_diagnostic_procedure_volume_schema = BasicDiagnosticProcedureVolumeSchema()
-basic_diagnostic_procedure_volumes_schema = BasicDiagnosticProcedureVolumeSchema(many=True)
+basic_diagnostic_procedure_volumes_schema = BasicDiagnosticProcedureVolumeSchema(
+    many=True
+)

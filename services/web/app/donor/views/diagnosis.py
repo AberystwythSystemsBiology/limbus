@@ -27,6 +27,7 @@ from ...auth.views import BasicUserAccountSchema
 from ..enums import CancerStage
 from ...disease.api import retrieve_by_iri
 
+
 class NewDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DonorDiagnosisEvent
@@ -36,15 +37,15 @@ class NewDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     stage = EnumField(CancerStage)
     diagnosis_date = ma.Date()
     comments = masql.auto_field()
-    
+
 
 new_donor_diagnosis_event_schema = NewDonorDiagnosisEventSchema()
 
 
 class DoidInstance(fields.Field):
-
     def _serialize(self, value, attr, obj, **kwargs):
         return retrieve_by_iri(value)
+
 
 class DonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -55,5 +56,6 @@ class DonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     doid_ref = DoidInstance()
     stage = EnumField(CancerStage)
+
 
 donor_diagnosis_event_schema = DonorDiagnosisEventSchema()

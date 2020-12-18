@@ -17,7 +17,7 @@ from ..models import (
     DiagnosticProcedureVolume,
     DiagnosticProcedureClass,
     DiagnosticProcedureSubVolume,
-    DiagnosticProcedure
+    DiagnosticProcedure,
 )
 
 from ...extensions import ma
@@ -29,6 +29,7 @@ from marshmallow_enum import EnumField
 
 from ...auth.views import BasicUserAccountSchema
 
+
 class BasicDiagnosticProcedureSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DiagnosticProcedure
@@ -36,6 +37,7 @@ class BasicDiagnosticProcedureSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     code = masql.auto_field()
     procedure = masql.auto_field()
+
 
 class BasicDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -47,10 +49,14 @@ class BasicDiagnosticProcedureSubVolumeSchema(masql.SQLAlchemySchema):
 
     procedures = ma.Nested(BasicDiagnosticProcedureSchema(many=True))
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("procedure.view_subvolume_endpoint", id="<id>", _external=True)
-    })
-    
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor(
+                "procedure.view_subvolume_endpoint", id="<id>", _external=True
+            )
+        }
+    )
+
 
 class BasicDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -61,9 +67,10 @@ class BasicDiagnosticProcedureVolumeSchema(masql.SQLAlchemySchema):
     code = masql.auto_field()
 
     subvolumes = ma.Nested(BasicDiagnosticProcedureSubVolumeSchema(many=True))
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("procedure.view_volume_endpoint", id="<id>", _external=True)
-    })
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("procedure.view_volume_endpoint", id="<id>", _external=True)}
+    )
+
 
 class DiagnosticProcedureTreeSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -74,9 +81,9 @@ class DiagnosticProcedureTreeSchema(masql.SQLAlchemySchema):
 
     volumes = ma.Nested(BasicDiagnosticProcedureVolumeSchema(many=True))
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("procedure.view_class_endpoint", id="<id>", _external=True)
-    })
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("procedure.view_class_endpoint", id="<id>", _external=True)}
+    )
 
 
 diagnostic_procedure_tree_schema = DiagnosticProcedureTreeSchema()

@@ -23,10 +23,7 @@ from ...decorators import token_required
 from marshmallow import ValidationError
 from ...database import UserAccount, DiagnosticProcedure
 
-from ..views import (
-    basic_diagnostic_procedure_schema,
-    new_diagnostic_procedure_schema
-)
+from ..views import basic_diagnostic_procedure_schema, new_diagnostic_procedure_schema
 
 
 @api.route("/procedure/new/procedure", methods=["POST"])
@@ -38,5 +35,5 @@ def procedure_new_procedure(tokenuser: UserAccount):
         new_diagnostic_procedure_schema,
         basic_diagnostic_procedure_schema,
         request.json,
-        tokenuser
-        )
+        tokenuser,
+    )

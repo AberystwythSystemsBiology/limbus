@@ -42,6 +42,7 @@ class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 
+
 class DonorDiagnosisEvent(Base, RefAuthorMixin, RefEditorMixin):
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 

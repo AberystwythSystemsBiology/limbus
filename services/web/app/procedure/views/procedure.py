@@ -39,6 +39,7 @@ class NewDiagnosticProcedureSchema(masql.SQLAlchemySchema):
 
 new_diagnostic_procedure_schema = NewDiagnosticProcedureSchema()
 
+
 class BasicDiagnosticProcedureSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DiagnosticProcedure
@@ -48,6 +49,7 @@ class BasicDiagnosticProcedureSchema(masql.SQLAlchemySchema):
     code = masql.auto_field()
     reference = masql.auto_field()
     sub_volume_id = masql.auto_field()
+
 
 basic_diagnostic_procedure_schema = BasicDiagnosticProcedureSchema()
 basic_diagnostic_procedure__schema = BasicDiagnosticProcedureSchema(many=True)

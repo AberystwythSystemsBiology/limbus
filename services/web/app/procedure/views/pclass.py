@@ -50,12 +50,16 @@ class BasicDiagnosticProcedureClassSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
     creation_date = ma.Date()
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True)
-    })
+    _links = ma.Hyperlinks(
+        {"self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True)}
+    )
+
 
 basic_diagnostic_procedure_class_schema = BasicDiagnosticProcedureClassSchema()
-basic_diagnostic_procedure_classes_schema = BasicDiagnosticProcedureClassSchema(many=True)
+basic_diagnostic_procedure_classes_schema = BasicDiagnosticProcedureClassSchema(
+    many=True
+)
+
 
 class DiagnosticProcedureClassSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -69,11 +73,15 @@ class DiagnosticProcedureClassSchema(masql.SQLAlchemySchema):
     update_date = ma.Date()
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
-    _links = ma.Hyperlinks({
-        "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
-        "procedures_index": ma.URLFor("procedure.index"),
-        "new_volume": ma.URLFor("procedure.new_subvolume", id="<id>", _external=True)
-    })
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("api.procedure_view_class", id="<id>", _external=True),
+            "procedures_index": ma.URLFor("procedure.index"),
+            "new_volume": ma.URLFor(
+                "procedure.new_subvolume", id="<id>", _external=True
+            ),
+        }
+    )
 
 
 diagnostic_procedure_class_schema = DiagnosticProcedureClassSchema()

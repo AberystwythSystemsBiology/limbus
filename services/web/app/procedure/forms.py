@@ -14,7 +14,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import FileField, StringField, SubmitField, DecimalField, BooleanField, TextAreaField
+from wtforms import (
+    FileField,
+    StringField,
+    SubmitField,
+    DecimalField,
+    BooleanField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired
 
 
@@ -24,11 +31,13 @@ class DiagnosticProcedureClassCreationForm(FlaskForm):
     description = TextAreaField("Description")
     submit = SubmitField("Submit")
 
+
 class DiagnosticProcedureVolumeCreationForm(FlaskForm):
     # TODO: Max Length 2
     code = StringField("Code", validators=[DataRequired()])
     name = StringField("Name", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
 
 class DiagnosticProcedureSubVolumeCreationForm(FlaskForm):
     code = StringField("Code", validators=[DataRequired()])

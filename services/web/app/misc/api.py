@@ -38,19 +38,19 @@ from io import BytesIO
 from random import choice
 import base64
 
+
 @api.route("/misc/barcode", methods=["POST"])
 def misc_generate_barcode():
 
     values = request.get_json()
 
     img = treepoem.generate_barcode(barcode_type=values["type"], data=values["data"])
-    
+
     img_io = BytesIO()
     img.save(img_io, format="PNG")
     img_io.seek(0)
 
     return {"success": True, "b64": base64.b64encode(img_io.getvalue()).decode()}, 200
-
 
 
 @api.route("/misc/greeting", methods=["GET"])

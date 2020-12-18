@@ -25,6 +25,7 @@ from owlready2.entity import ThingClass
 
 DOID, obo = load_doid()
 
+
 def prepare_instance(thing: ThingClass):
     def _get_parents(thing, ret):
         if len(ret) == 0:
@@ -45,7 +46,7 @@ def prepare_instance(thing: ThingClass):
             "SNOMEDCT_US_2020_03_01": "https://snomedbrowser.com/Codes/Details/%s",
             "MESH": "https://meshb.nlm.nih.gov/record/ui?ui=%s",
             "GARD": "https://rarediseases.info.nih.gov/diseases/%s/index",
-            "NCI": "https://nciterms.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=20.07d&code=%s&ns=ncit"
+            "NCI": "https://nciterms.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=20.07d&code=%s&ns=ncit",
         }
 
         for reference in hasDbXref:
@@ -60,21 +61,23 @@ def prepare_instance(thing: ThingClass):
         return reference_dictionary
 
     return {
-            "iri": thing.iri,
-            "name": thing.name,
-            "description": thing.IAO_0000115,
-            "synonyms": thing.hasExactSynonym,
-            "label":  thing.label.first() or instance.name,
-            "references": _resolve_references(thing.hasDbXref)
+        "iri": thing.iri,
+        "name": thing.name,
+        "description": thing.IAO_0000115,
+        "synonyms": thing.hasExactSynonym,
+        "label": thing.label.first() or instance.name,
+        "references": _resolve_references(thing.hasDbXref),
     }
+
 
 def retrieve_by_iri(iri: str) -> dict:
     thing = DOID.search_one(iri=iri)
 
     if thing != None:
         return prepare_instance(thing)
-    
+
     return thing
+
 
 def retrieve_by_label(label: str):
     results = DOID.search(label="*%s" % (label), subclass_of=obo.DOID_4)
@@ -86,6 +89,7 @@ def retrieve_by_label(label: str):
 
     return results_dict
 
+
 @api.route("/disease/query/validate_label", methods=["GET"])
 @token_required
 def doid_validate_by_iri(tokenuser: UserAccount):
@@ -93,9 +97,9 @@ def doid_validate_by_iri(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-    
+
     thing = retrieve_by_iri(values["iri"])
-    
+
     success = True
     response = 200
 
@@ -105,14 +109,13 @@ def doid_validate_by_iri(tokenuser: UserAccount):
 
     return {"success": success, "iri": values["iri"], "thing": thing}, response
 
+
 @api.route("/disease/query/name", methods=["post"])
 @token_required
 def doid_query_by_label(tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
-        return no_values_response()   
-   
+        return no_values_response()
 
     return success_with_content_response(retrieve_by_label(values["label"]))
-

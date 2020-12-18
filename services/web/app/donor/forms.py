@@ -29,8 +29,22 @@ from wtforms import (
 )
 
 # from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional, NumberRange, InputRequired
-from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes, CancerStage, Condition
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    URL,
+    Optional,
+    NumberRange,
+    InputRequired,
+)
+from .enums import (
+    RaceTypes,
+    BiologicalSexTypes,
+    DonorStatusTypes,
+    CancerStage,
+    Condition,
+)
 from ..sample.enums import Colour
 from datetime import datetime
 import requests
@@ -49,18 +63,16 @@ class DonorFilterForm(FlaskForm):
         "Race",
         choices=RaceTypes.choices(with_none=True),
     )
-    
+
     colour = SelectField("Colour", choices=Colour.choices())
 
 
 class DoidValidatingSelectField(SelectField):
-
-
     def pre_validate(self, form):
         iri_repsonse = requests.get(
             url_for("api.doid_validate_by_iri", _external=True),
             headers=get_internal_api_header(),
-            json={"iri": self.data}
+            json={"iri": self.data},
         )
 
         if iri_repsonse.status_code != 200:
@@ -77,13 +89,15 @@ class DonorAssignDiagnosisForm(FlaskForm):
 
     submit = SubmitField("Submit")
 
-    
+
 def DonorCreationForm(sites: dict, data={}):
     class StaticForm(FlaskForm):
         colour = SelectField("Colour", choices=Colour.choices())
 
-
-        month = SelectField("Month", choices=[(str(x), x) for x in range(1, 13)],)
+        month = SelectField(
+            "Month",
+            choices=[(str(x), x) for x in range(1, 13)],
+        )
         year = SelectField("Year", choices=[(str(x), x) for x in range(2020, 1899, -1)])
 
         sex = SelectField(
@@ -97,9 +111,7 @@ def DonorCreationForm(sites: dict, data={}):
 
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-        death_date = DateField(
-            "Date of Death", default=datetime.today()
-        )
+        death_date = DateField("Date of Death", default=datetime.today())
 
         weight = StringField("Weight (kg)", validators=[DataRequired()])
         height = StringField("Height (cm)", validators=[DataRequired()])

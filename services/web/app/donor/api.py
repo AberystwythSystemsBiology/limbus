@@ -36,7 +36,7 @@ from .views import (
     new_donor_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
-    donor_diagnosis_event_schema
+    donor_diagnosis_event_schema,
 )
 
 
@@ -122,6 +122,7 @@ def donor_new(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/donor/LIMBDON-<id>/new/diagnosis", methods=["POST"])
 @token_required
 def donor_new_diagnosis(id, tokenuser: UserAccount):
@@ -144,6 +145,8 @@ def donor_new_diagnosis(id, tokenuser: UserAccount):
         db.session.add(new_diagnosis)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response(donor_diagnosis_event_schema.dump(new_diagnosis))
+        return success_with_content_response(
+            donor_diagnosis_event_schema.dump(new_diagnosis)
+        )
     except Exception as err:
         return transaction_error_response(err)

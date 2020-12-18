@@ -58,7 +58,8 @@ def query_index():
 @login_required
 def view(id):
     return render_template("donor/view.html")
-    
+
+
 @donor.route("/LIMBDON-<id>/endpoint")
 @login_required
 def view_endpoint(id):
@@ -83,18 +84,21 @@ def new_diagnosis(id):
 
         form = DonorAssignDiagnosisForm()
 
-
         if form.validate_on_submit():
-            
+
             diagnosis_response = requests.post(
                 url_for("api.donor_new_diagnosis", id=id, _external=True),
                 headers=get_internal_api_header(),
                 json={
                     "doid_ref": form.disease_select.data,
                     "stage": form.stage.data,
-                    "diagnosis_date": str(datetime.strptime(str(form.diagnosis_date.data), "%Y-%m-%d").date()),
-                    "comments": form.comments.data
-                }
+                    "diagnosis_date": str(
+                        datetime.strptime(
+                            str(form.diagnosis_date.data), "%Y-%m-%d"
+                        ).date()
+                    ),
+                    "comments": form.comments.data,
+                },
             )
 
             if diagnosis_response.status_code == 200:
@@ -103,9 +107,12 @@ def new_diagnosis(id):
 
             flash("Error!: %s" % diagnosis_response.json()["message"])
 
-        return render_template("donor/diagnosis/assign.html", donor=response.json()["content"], form=form)
+        return render_template(
+            "donor/diagnosis/assign.html", donor=response.json()["content"], form=form
+        )
     else:
         return response.content
+
 
 @donor.route("/disease/api/label_filter", methods=["POST"])
 @login_required
@@ -115,12 +122,13 @@ def api_filter():
     query_response = requests.post(
         url_for("api.doid_query_by_label", _external=True),
         headers=get_internal_api_header(),
-        json=query
+        json=query,
     )
 
     if query_response.status_code == 200:
         return query_response.json()
     return query_response.content
+
 
 @login_required
 @donor.route("/new", methods=["GET", "POST"])
@@ -134,17 +142,26 @@ def add():
         form = DonorCreationForm(sites_response.json()["content"])
         if form.validate_on_submit():
 
-
             form_information = {
-                "dob": str(datetime.strptime("%s-%s-1" % (form.year.data, form.month.data), "%Y-%m-%d").date()),
+                "dob": str(
+                    datetime.strptime(
+                        "%s-%s-1" % (form.year.data, form.month.data), "%Y-%m-%d"
+                    ).date()
+                ),
                 "enrollment_site_id": form.site.data,
-                "registration_date": str(datetime.strptime(str(form.registration_date.data), "%Y-%m-%d").date()),
+                "registration_date": str(
+                    datetime.strptime(
+                        str(form.registration_date.data), "%Y-%m-%d"
+                    ).date()
+                ),
                 "sex": form.sex.data,
                 "colour": form.colour.data,
                 "status": form.status.data,
                 "mpn": form.mpn.data,
                 "race": form.race.data,
-                "death_date": str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()),
+                "death_date": str(
+                    datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
+                ),
                 "weight": form.weight.data,
                 "height": form.height.data,
             }
@@ -182,8 +199,7 @@ def edit(id):
         )
 
         sites_response = requests.get(
-            url_for("api.site_home", _external=True),
-            headers=get_internal_api_header()
+            url_for("api.site_home", _external=True), headers=get_internal_api_header()
         )
 
         if sites_response.status_code == 200:

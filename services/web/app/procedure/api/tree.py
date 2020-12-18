@@ -23,13 +23,14 @@ from ...decorators import token_required
 from marshmallow import ValidationError
 from ...database import UserAccount, DiagnosticProcedureClass
 
-from ..views import (
-    diagnostic_procedure_tree_schema
-)
+from ..views import diagnostic_procedure_tree_schema
+
 
 @api.route("/procedure/LIMBDIAG-<id>/tree")
 @token_required
 def procedure_tree(id, tokenuser: UserAccount):
     return success_with_content_response(
-        diagnostic_procedure_tree_schema.dump(DiagnosticProcedureClass.query.filter_by(id=id).first_or_404())
+        diagnostic_procedure_tree_schema.dump(
+            DiagnosticProcedureClass.query.filter_by(id=id).first_or_404()
+        )
     )

@@ -29,6 +29,7 @@ from ...sample.enums import Colour
 
 from .diagnosis import DonorDiagnosisEventSchema
 
+
 class DonorSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
@@ -40,6 +41,7 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
     race = EnumField(RaceTypes, by_value=True)
     colour = EnumField(Colour, by_value=True)
 
+
 class DonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
@@ -47,7 +49,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
 
     uuid = masql.auto_field()
-   
+
     dob = ma.Date()
 
     sex = EnumField(BiologicalSexTypes, by_value=True)
@@ -73,14 +75,15 @@ class DonorSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("donor.view", id="<id>", _external=True),
             "collection": ma.URLFor("donor.index", _external=True),
             "edit": ma.URLFor("donor.edit", id="<id>", _external=True),
-            "assign_diagnosis": ma.URLFor("donor.new_diagnosis", id="<id>", _external=True)
+            "assign_diagnosis": ma.URLFor(
+                "donor.new_diagnosis", id="<id>", _external=True
+            ),
         }
     )
 
 
 donor_schema = DonorSchema()
 donors_schema = DonorSchema(many=True)
-
 
 
 class NewDonorSchema(masql.SQLAlchemySchema):
