@@ -26,6 +26,16 @@ function render_jumbotron_btn(url, fa, content) {
   return html
 }
 
+function calculate_age(month, year) {
+
+  var dob = new Date(year, month);
+  var today = new Date();
+
+  var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000))
+
+  return age
+}
+
 function render_colour(colour) {
   if (colour == "Blue") {
       var colour_class = "bg-primary";

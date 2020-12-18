@@ -10,33 +10,31 @@ function check_status() {
 }   
 
 
-function calculate_age() {
+
+
+function assign_age() {
     var month = $("#month").val();
     var year = $("#year").val();
-
-    var dob = new Date(year, month);
-    var today = new Date();
-
-    var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000))
-
-    $("#years").html(age);
+    $("#years").html(calculate_age(month, year));
 }
+
+
 
 $(document).ready(function(){
     check_status();
 
-    calculate_age();
+    assign_age();
 
     $("#month").change(function() {
-        calculate_age();
+        assign_age();
     });
 
     $("#year").change(function() {
-        calculate_age();
+        assign_age();
     });
 
     $("#status").change(function() {
-        check_status();
+        assign_age();
       });
 
 });
