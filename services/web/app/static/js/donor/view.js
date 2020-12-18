@@ -71,7 +71,7 @@ function fill_diagnosis_information(diagnoses, date) {
     html = ""
 
     $.each(diagnoses,function(index,value){
-        var media_html = "<div class='media'><div class='align-self-center mr-3'><h1>a</h1></div><div class='media-body'>"
+        var media_html = "<div class='media'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div><div class='media-body'>"
         
         media_html += "<h2>"+value["doid_ref"]["label"]+"</h2>";
         
@@ -83,7 +83,7 @@ function fill_diagnosis_information(diagnoses, date) {
         html += media_html;
     });
 
-    $("#diagnosis-area-div").html(html);
+    $("#diagnosis-div").html(html);
     
  }
 
@@ -91,6 +91,8 @@ function fill_diagnosis_information(diagnoses, date) {
 $(document).ready(function () {
 
     var donor_information = get_donor();
+
+    render_window_title("LIMBDON-" + donor_information["id"]);
 
     $("#donor-id").html(donor_information["id"]);
 

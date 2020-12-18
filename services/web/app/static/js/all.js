@@ -26,6 +26,10 @@ function render_jumbotron_btn(url, fa, content) {
   return html
 }
 
+function render_window_title(text) {
+  document.title = text + " : The Libre Biobank Management System"
+}
+
 function calculate_age(month, year) {
 
   var dob = new Date(year, month);
