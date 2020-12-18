@@ -24,6 +24,10 @@ nav img {
     font-weight: bold;
 }
 
+.jumbotron table {
+    color:#fff;
+}
+
 
 .form-description {
     margin-top:-10px;

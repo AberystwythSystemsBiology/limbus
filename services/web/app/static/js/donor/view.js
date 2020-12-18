@@ -70,18 +70,41 @@ function fill_diagnosis_information(diagnoses, date) {
 
     html = ""
 
-    $.each(diagnoses,function(index,value){
-        var media_html = "<div class='media'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div><div class='media-body'>"
-        
-        media_html += "<h2>"+value["doid_ref"]["label"]+"</h2>";
+    $.each(diagnoses,function(index, value){
+        var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div><div class='media-body'>"
         
 
-        media_html += "</div></div>"
+        
+
+        media_html += "<h2>"
+        media_html += value["doid_ref"]["label"]
+        media_html +=' <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">'
+        media_html += value["doid_ref"]["name"]
+        media_html += "</span></h2>";
+        
+
+        media_html += "<table class='table table-striped'>";
+        media_html += render_content("Description", value["doid_ref"]["description"]);
+        media_html += render_content("Stage", value["stage"]);
+        media_html += render_content("Comments", value["comments"]);
+        media_html += render_content("Date of Diagnosis", value["diagnosis_date"]);
+
+        media_html += "</table>"
+
+    
+
+        media_html += "</div>"
+
+        media_html += "</div></div></div>"
         
         console.log(value)
 
         html += media_html;
     });
+
+    if (html == "" ) {
+        html += "<h2>No diagnosis information found.</h2>"
+    }
 
     $("#diagnosis-div").html(html);
     

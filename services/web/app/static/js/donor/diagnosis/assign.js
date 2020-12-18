@@ -36,7 +36,6 @@ function fill_content(disease_info, uri) {
         $("#synonym-btns").append("<div class='btn btn-sm' style='margin-right:10px; margin-bottom: 10px;'>"+b+"</div>");
     })
 
-    console.log(disease_info);
 
     $.each(disease_info["references"], function(a, b) {
         var html = "<a href='" + b["self"] + "' target='_blank'>"
