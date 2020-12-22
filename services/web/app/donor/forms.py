@@ -89,6 +89,18 @@ class DonorAssignDiagnosisForm(FlaskForm):
 
     submit = SubmitField("Submit")
 
+def DonorSampleAssociationForm(samples: dict):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+
+    sample_choices = []
+    for sample in samples:
+        sample_choices.append([sample["id"], sample["uuid"]])
+
+    setattr(StaticForm, "sample", SelectField("Sample", choices=sample_choices, coerce=int))
+
+    return StaticForm()
 
 def DonorCreationForm(sites: dict, data={}):
     class StaticForm(FlaskForm):

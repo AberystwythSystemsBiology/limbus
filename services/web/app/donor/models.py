@@ -37,6 +37,11 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     height = db.Column(db.Float)
     race = db.Column(db.Enum(RaceTypes))
 
+    samples = db.relationship(
+        "Sample", uselist=True, secondary="donortosample"
+    )
+
+
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))

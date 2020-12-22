@@ -58,6 +58,81 @@ function calculate_bmi(height, weight) {
 }
 
 
+function render_sample_table(d) {
+    $('#donor-samples-table').DataTable( {
+        data: d,
+        dom: 'Bfrtip',
+        buttons: [ 'print', 'csv', 'colvis' ],
+        columnDefs: [
+            { targets: -3,
+            visible:false}, { targets: -2, visible: false}
+        ],
+        columns: [
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var col_data = '';
+                    col_data += render_colour(data["colour"])
+                    col_data += "<a href='"+data["_links"]["self"]+ "'>";
+                    col_data += '<i class="fas fa-vial"></i> '
+                    col_data += data["uuid"];
+                    col_data += "</a>";
+                    if (data["source"] != "New") {
+
+                    col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
+                    col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
+                    col_data += '<i class="fas fa-vial"></i> ';
+                    col_data += data["parent"]["uuid"],
+                    col_data += "</a></small>";
+                }
+
+                    return col_data
+                }
+            },
+            
+            {data: "type"},
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+                    
+    
+                    if (data["type"] == "Fluid") {
+                        return sample_type_information["flui_type"];
+                    }
+                    else if (data["type"] == "Cell") {
+                        return sample_type_information["cell_type"] + " > " + sample_type_information["tiss_type"];
+                    }
+                    
+    
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var col_data = data["collection_information"]["datetime"]
+                    return col_data;
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
+                    var col_data = '';
+                    col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
+                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["type"]); 
+                    col_data += '</span>';
+                    return col_data
+                }
+        }
+
+        
+
+        ],
+        
+    });
+}
+
 function render_dob(dob) { 
     var date = new Date(Date.parse(dob));
     const month = date.toLocaleString('default', { month: 'long' });
@@ -132,6 +207,9 @@ $(document).ready(function () {
 
     var donor_information = get_donor();
 
+
+    render_sample_table(donor_information["samples"]);
+
     render_window_title("LIMBDON-" + donor_information["id"]);
 
     $("#donor-id").html(donor_information["id"]);
@@ -144,6 +222,10 @@ $(document).ready(function () {
 
     $("#assign-diagnosis-btn").on("click", function() {
         window.location.href = donor_information["_links"]["assign_diagnosis"];
+    });
+
+    $("#assign-sample-btn").on("click", function() {
+        window.location.href = donor_information["_links"]["associate_sample"]
     });
 
     var arr = render_dob(donor_information["dob"])

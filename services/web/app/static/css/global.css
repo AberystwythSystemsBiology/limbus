@@ -24,6 +24,10 @@ nav img {
     font-weight: bold;
 }
 
+.nav-tabs {
+    margin-bottom: 1em;
+}
+
 .jumbotron table {
     color:#fff;
 }
