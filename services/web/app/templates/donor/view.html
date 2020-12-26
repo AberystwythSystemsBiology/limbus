@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBDON-{{donor.id}}{% endblock %}
+{% block title %}{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -11,27 +11,21 @@
                     <i class="fa fa-user-circle"></i> Donor Portal
                 </a>
             </span>
-            {{ render_colour(donor.colour) }} LIMBDON-{{donor.id}}
+            <span id="donor-colour"> LIMBDON-<span id="donor-id"></span>
         </h1>
         <div class="row">
             <div class="col-sm-8">
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{url_for('donor.edit', id=donor.id) }}">
-                            <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
-                        </a>
+                        <button type="button" id="edit-donor-btn" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
                     </div>
-
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{url_for('donor.edit', id=donor.id) }}">
-                            <button type="button" class="btn btn-outline-dark"><i class="fas fa-vial"></i> Assign Sample</button>
-                        </a>
+                        <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Associate Diagnosis</button>
                     </div>
-                    <div class="btn-group" role="group" aria-label="Third group">
-                        <button type="button" class="btn btn-outline-dark" disabled><i class="fa fa-print"></i>
-                            Print</button>
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button type="button" id="assign-sample-btn" class="btn btn-outline-dark"><i class="fas fa-vial"></i> Assign Sample</button>
                     </div>
-                </div>
+                   </div>
 
             </div>
 
@@ -42,29 +36,53 @@
 
 <div class="container">
 
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" id="basic-info-nav">Basic Information</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="diagnosis-nav">Diagnosis Information</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="samples-nav">Samples</a>
+        </li>
+
+      </ul>
+    
+
+    <div id="basic-info-div">
+
+        <table class="table table-striped" id="basic-information-table">
+            
+        </table>
+    </div>
+
+    <div id="diagnosis-div" style="display: none;">
 
 
-    <table class="table table-striped">
-        {{ show_value(donor.uuid, "UUID", "text") }}
+    </div>
 
-        {{ show_value(donor.age, "Age", "text") }}
-        {{ show_value(donor.sex, "Sex", "text") }}
-        {{ show_value(donor.status, "Status", "text") }}
-        {{ show_value(donor.race, "Race", "text") }}
-        {%if (donor.height != None and donor.height > 0) %}
-        {{ show_value(donor.height, "Height (cm)", "text") }}
-        {%endif %}
-        {%if (donor.weight != None and donor.weight > 0) %}
-        {{ show_value(donor.weight, "Weight (kg)", "text") }}
-        {%if (donor.height != None and donor.height > 0) %}
-        {{ show_value('%0.2f'| format(donor.weight / (donor.height/100)**2|float), "BMI", "text")}}
-        {%endif %}
-        {%endif %}
-        {% if donor.death_date != None %}
-        {{ show_value(donor.death_date, "Death Date", "text") }}
-        {%endif %}
+    <div id="samples-div" style="display: none;">
+        <table class="table table-striped full-width" width="100%" id="donor-samples-table">
+            <thead>
+                <tr>
+                    <th>Identifier</th>
+                    <th>Base Type</th>
+                    <th>Sample Type</th>
+                    <th>Collected On</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
-    </table>
 </div>
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/donor/view.js') }}"></script>
 
 {% endblock %}

@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+
+{% block title %}New Diagnostic Procedure{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fa fa-stethoscope"></i> Diagnostic Procedure</span>New Subvolume</h1>
+
+    </div>
+</div>
+
+<div class="container">
+
+    <form method="POST" action="{{ url_for('procedure.new_subvolume', id=volume.id) }}">
+        {{ form.csrf_token() }}
+        {{ form_field(form.code) }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.submit) }}
+    </form>
+</div>
+{% endblock %}

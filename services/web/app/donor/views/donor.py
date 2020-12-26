@@ -13,19 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..extensions import ma
-from .models import Donor
-from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
+from ...extensions import ma
+from ...database import Donor
+from ..enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
 
 from sqlalchemy_continuum import version_class, parent_class
-from ..extensions import ma
+from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ..auth.views import BasicUserAccountSchema
-from .enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
-from ..sample.enums import Colour
+from ...auth.views import BasicUserAccountSchema
+from ..enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
+from ...sample.enums import Colour
+from ...sample.views import BasicSampleSchema
+
+from .diagnosis import DonorDiagnosisEventSchema
 
 
 class DonorSearchSchema(masql.SQLAlchemySchema):
@@ -39,6 +42,7 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
     race = EnumField(RaceTypes, by_value=True)
     colour = EnumField(Colour, by_value=True)
 
+
 class DonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
@@ -47,7 +51,8 @@ class DonorSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
 
-    age = masql.auto_field()
+    dob = ma.Date()
+
     sex = EnumField(BiologicalSexTypes, by_value=True)
     status = EnumField(DonorStatusTypes, by_value=True)
     death_date = ma.Date()
@@ -55,11 +60,15 @@ class DonorSchema(masql.SQLAlchemySchema):
     weight = masql.auto_field()
     height = masql.auto_field()
 
+    diagnoses = ma.Nested(DonorDiagnosisEventSchema, many=True)
+
     race = EnumField(RaceTypes, by_value=True)
 
     author = ma.Nested(BasicUserAccountSchema)
     updater = ma.Nested(BasicUserAccountSchema)
     colour = EnumField(Colour, by_value=True)
+
+    samples = ma.Nested(BasicSampleSchema, many=True)
 
     created_on = ma.Date()
     updated_on = ma.Date()
@@ -68,6 +77,13 @@ class DonorSchema(masql.SQLAlchemySchema):
         {
             "self": ma.URLFor("donor.view", id="<id>", _external=True),
             "collection": ma.URLFor("donor.index", _external=True),
+            "edit": ma.URLFor("donor.edit", id="<id>", _external=True),
+            "assign_diagnosis": ma.URLFor(
+                "donor.new_diagnosis", id="<id>", _external=True
+            ),
+            "associate_sample": ma.URLFor(
+                "donor.associate_sample", id="<id>", _external=True
+            )
         }
     )
 
@@ -80,7 +96,7 @@ class NewDonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
 
-    age = masql.auto_field()
+    dob = ma.Date()
     sex = EnumField(BiologicalSexTypes)
     status = EnumField(DonorStatusTypes)
     death_date = ma.Date()

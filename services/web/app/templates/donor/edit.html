@@ -16,13 +16,15 @@
 <div class="container">
 
 
-
     <form method="POST" action="{{ url_for('donor.edit', id=donor.id ) }}">
        
         {{ form.csrf_token() }}
 
-        {{ form_field(form.age)}}
+        {{ form_field(form.month)}}
+        {{ form_field(form.year)}}
+
         {{ form_field(form.mpn)}}
+
 
         <div class="row">
             <div class="col-6">

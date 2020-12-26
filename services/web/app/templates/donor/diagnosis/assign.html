@@ -1,0 +1,78 @@
+{% extends "template.html" %}
+
+{% block title %}{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a href='{{ donor["_links"]["self"] }}'>
+                    <i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}
+                </a>
+            </span><i class="fa fa-stethoscope"></i> Assign Diagnosis</h1>
+    </div>
+</div>
+
+<div class="container">
+    <form method="POST" action="{{ url_for('donor.new_diagnosis', id=donor.id ) }}">
+        {{ form.csrf_token }}
+
+        <div class="row">
+        <div class="col-10">
+            {{ form_field(form.disease_query) }}
+        </div>
+        <div class="col-2">
+                <div style="padding-bottom:2rem; display:block;"></div>
+                <div id="disease-search" class="btn btn-primary full-width">
+                    <i class="fa fa-search"></i> Search
+                </div>
+        </div>
+    </div>
+    {{ form_field(form.disease_select) }}
+
+    <div id="disease-result" class="jumbotron disease-view" style="display:none;">
+        <div class="container">
+            <h2>
+                <span id="disease-name"></span>
+                <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">
+                    <span id="doid-id"></span>
+                </h2>
+            
+
+            <h3>Description</h3>            
+            <div id="disease-description"></div>
+
+            <h3>Synonyms</h3>
+
+            <div id="synonym-btns" class="btn-toolbar"></div>
+            
+            <h3>References</h3>
+
+            <div id="disease-references" class="btn-toolbar"></div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            {{ form_field(form.diagnosis_date) }}
+        </div>
+        <div class="col-6">
+            {{ form_field(form.stage) }}
+        </div>
+    </div>
+
+    {{ form_field(form.comments) }}
+    {{ form_field(form.condition) }}
+
+    {{ form_field(form.submit) }}
+    </form>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/donor/diagnosis/assign.js') }}"></script>
+{% endblock %}

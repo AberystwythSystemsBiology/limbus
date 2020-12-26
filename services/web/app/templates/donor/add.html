@@ -17,8 +17,25 @@
     <form method="POST" action="{{ url_for('donor.add' ) }}">
 
         {{ form.csrf_token() }}
+        <div class="row">
+            <div class="col-8">
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.month)}}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.year) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 data text-center">
+                <span id="years" class="data large"></span>
+                <span class="data small">years old</span>
 
-        {{ form_field(form.age)}}
+            </div>
+        </div>
+        
+
         {{ form_field(form.mpn)}}
 
         <div class="row">

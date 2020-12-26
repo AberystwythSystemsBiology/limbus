@@ -13,103 +13,43 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import db
+
+from ..database import db, Base
+from ..mixins import RefAuthorMixin, RefEditorMixin
 
 
-class DiagnosticProcedureClass(db.Model):
-    __versioned__ = {}
-    __tablename__ = "diagnostic_procedure_classes"
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class DiagnosticProcedureClass(Base, RefAuthorMixin, RefEditorMixin):
     name = db.Column(db.String)
     version = db.Column(db.String)
     description = db.Column(db.String)
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    volumes = db.relationship("DiagnosticProcedureVolume", uselist=True)
 
 
-class DiagnosticProcedureVolume(db.Model):
-    __versioned__ = {}
-    __tablename__ = "diagnostic_procedure_volumes"
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class DiagnosticProcedureVolume(Base, RefAuthorMixin, RefEditorMixin):
     code = db.Column(db.String(5))
     name = db.Column(db.String)
+    class_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedureclass.id"))
 
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    class_id = db.Column(db.Integer, db.ForeignKey("diagnostic_procedure_classes.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    pclass = db.relationship("DiagnosticProcedureClass", uselist=False)
+    subvolumes = db.relationship("DiagnosticProcedureSubVolume", uselist=True)
 
 
-class DiagnosticProcedureSubheading(db.Model):
-    __versioned__ = {}
-    __tablename__ = "diagnostic_procedure_subheadings"
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):
     code = db.Column(db.String(5))
-    subheading = db.Column(db.String())
-
-    # Website linking to page?
+    name = db.Column(db.String())
     reference = db.Column(db.String(256))
+    volume_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedurevolume.id"))
 
-    volume_id = db.Column(db.Integer, db.ForeignKey("diagnostic_procedure_volumes.id"))
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
-    )
+    volume = db.relationship("DiagnosticProcedureVolume")
+    procedures = db.relationship("DiagnosticProcedure", uselist=True)
 
 
-class DiagnosticProcedure(db.Model):
-    __versioned__ = {}
-    __tablename__ = "diagnostic_procedures"
-
-    id = db.Column(db.Integer, primary_key=True)
-
+class DiagnosticProcedure(Base, RefAuthorMixin, RefEditorMixin):
     code = db.Column(db.String(5))
     procedure = db.Column(db.String())
-
-    # Website linking to page?
     reference = db.Column(db.String(256))
 
-    subheading_id = db.Column(
-        db.Integer, db.ForeignKey("diagnostic_procedure_subheadings.id")
-    )
-
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    updater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-
-    creation_date = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
-    update_date = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        server_onupdate=db.func.now(),
-        nullable=False,
+    sub_volume_id = db.Column(
+        db.Integer, db.ForeignKey("diagnosticproceduresubvolume.id")
     )

@@ -28,11 +28,14 @@ from flask_login import login_required, current_user
 import requests
 from datetime import datetime
 
-from .forms import DonorCreationForm, DonorFilterForm
+from .forms import (
+    DonorCreationForm,
+    DonorFilterForm,
+    DonorAssignDiagnosisForm,
+    DonorSampleAssociationForm
+)
+
 from ..misc import get_internal_api_header
-
-
-strconv = lambda i: i or None
 
 
 @donor.route("/")
@@ -60,15 +63,110 @@ def query_index():
 @donor.route("/LIMBDON-<id>")
 @login_required
 def view(id):
+    return render_template("donor/view.html")
+
+
+@donor.route("/LIMBDON-<id>/endpoint")
+@login_required
+def view_endpoint(id):
     response = requests.get(
         url_for("api.donor_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-        return render_template("donor/view.html", donor=response.json()["content"])
+        return response.json()
+
+
+@donor.route("/LIMBDON-<id>/associate/sample", methods=["GET", "POST"])
+@login_required
+def associate_sample(id):
+    response = requests.get(
+        url_for("api.donor_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+
+        sample_response = requests.get(
+            url_for("api.sample_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"source": "NEW"}
+        )
+
+        if sample_response.status_code == 200:
+            form = DonorSampleAssociationForm(sample_response.json()["content"])
+
+            if form.validate_on_submit():
+                association_response = requests.post(
+                    url_for("api.donor_associate_sample", id=id, _external=True),
+                    headers=get_internal_api_header(),
+                    json={"sample_id": form.sample.data}
+                )
+
+                if association_response.status_code == 200:
+                    return redirect(url_for("donor.view", id=id))
+
+            return render_template("donor/sample/associate.html", donor=response.json()["content"], form=form)
+        abort(sample_response.status_code)
+    abort(response.status_code)
+
+@donor.route("/LIMBDON-<id>/associate/diagnosis", methods=["GET", "POST"])
+@login_required
+def new_diagnosis(id):
+    response = requests.get(
+        url_for("api.donor_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+
+        form = DonorAssignDiagnosisForm()
+
+        if form.validate_on_submit():
+
+            diagnosis_response = requests.post(
+                url_for("api.donor_new_diagnosis", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "doid_ref": form.disease_select.data,
+                    "stage": form.stage.data,
+                    "diagnosis_date": str(
+                        datetime.strptime(
+                            str(form.diagnosis_date.data), "%Y-%m-%d"
+                        ).date()
+                    ),
+                    "comments": form.comments.data,
+                },
+            )
+
+            if diagnosis_response.status_code == 200:
+                flash("Disease Annotation Added!")
+                return redirect(url_for("donor.view", id=id))
+
+            flash("Error!: %s" % diagnosis_response.json()["message"])
+
+        return render_template(
+            "donor/diagnosis/assign.html", donor=response.json()["content"], form=form
+        )
     else:
         return response.content
+
+
+@donor.route("/disease/api/label_filter", methods=["POST"])
+@login_required
+def api_filter():
+    query = request.json
+
+    query_response = requests.post(
+        url_for("api.doid_query_by_label", _external=True),
+        headers=get_internal_api_header(),
+        json=query,
+    )
+
+    if query_response.status_code == 200:
+        return query_response.json()
+    return query_response.content
 
 
 @login_required
@@ -84,15 +182,25 @@ def add():
         if form.validate_on_submit():
 
             form_information = {
-                "age": form.age.data,
+                "dob": str(
+                    datetime.strptime(
+                        "%s-%s-1" % (form.year.data, form.month.data), "%Y-%m-%d"
+                    ).date()
+                ),
                 "enrollment_site_id": form.site.data,
-                "registration_date": str(datetime.strptime(str(form.registration_date.data), "%Y-%m-%d").date()),
+                "registration_date": str(
+                    datetime.strptime(
+                        str(form.registration_date.data), "%Y-%m-%d"
+                    ).date()
+                ),
                 "sex": form.sex.data,
                 "colour": form.colour.data,
                 "status": form.status.data,
                 "mpn": form.mpn.data,
                 "race": form.race.data,
-                "death_date": str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()),
+                "death_date": str(
+                    datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
+                ),
                 "weight": form.weight.data,
                 "height": form.height.data,
             }
@@ -107,7 +215,6 @@ def add():
                 flash("Donor information successfully added!")
                 return redirect(url_for("donor.index"))
 
-            print(response.content)
             abort(response.status_code)
 
         return render_template("donor/add.html", form=form)
@@ -131,8 +238,7 @@ def edit(id):
         )
 
         sites_response = requests.get(
-            url_for("api.site_home", _external=True),
-            headers=get_internal_api_header()
+            url_for("api.site_home", _external=True), headers=get_internal_api_header()
         )
 
         if sites_response.status_code == 200:

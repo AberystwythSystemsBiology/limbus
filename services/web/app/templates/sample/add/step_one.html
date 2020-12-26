@@ -69,18 +69,18 @@
     <div class="row">
         <div class="col-4">
             {% if template_count == 0 %}
-            <div class="jumbotron alert-danger full-width text-center">
-                <h1>:(</h1>
+            <div class="jumbotron alert-danger full-width text-center container">
+                <h1>😔</h1>
                 <h2>No Consent Form Templates Found</h2>
                 <p>There doesn't seem to be any form templates available.</p>
                 <a href="{{ url_for('consent.add') }}">
-                    <div class="btn btn-danger full-width">
+                    <div class="btn btn-outline-dark">
                         New Consent Form Template
                     </div>
                 </a>
             </div>
             {% else %}
-            <div class="jumbotron alert-success full-width text-center">
+            <div class="jumbotron alert-success full-width text-center container">
                 <h1>:D</h1>
                 <h2>Consent Form Template(s) Found!</h2>
             </div>
@@ -89,12 +89,12 @@
         </div>
         <div class="col-4">
             {% if collection_protocol_count == 0 %}
-            <div class="jumbotron alert-danger full-width text-center">
-                <h1>:(</h1>
+            <div class="jumbotron alert-danger full-width text-center container">
+                <h1>😔</h1>
                 <h2>No Acquisition Protocol(s) Found</h2>
                 <p>There doesn't seem to be any acquisition protocols available.</p>
                 <a href="{{ url_for('protocol.new') }}">
-                    <div class="btn btn-danger full-width">
+                    <div class="btn btn-outline-dark">
                         New Protocol
                     </div>
                 </a>
@@ -110,11 +110,11 @@
         <div class="col-4">
             {% if processing_protocols_count == 0 %}
             <div class="jumbotron alert-danger full-width text-center">
-                <h1>:(</h1>
+                <h1>😔</h1>
                 <h2>No Processing Protocol(s) Found</h2>
                 <p>There doesn't seem to be any processing protocols available.</p>
                 <a href="{{ url_for('protocol.new') }}">
-                    <div class="btn btn-danger full-width">
+                    <div class="btn btn-outline-dark">
                         New Protocol
                     </div>
                 </a>

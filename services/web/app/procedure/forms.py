@@ -14,14 +14,42 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import FileField, StringField, SubmitField, DecimalField, BooleanField
+from wtforms import (
+    FileField,
+    StringField,
+    SubmitField,
+    DecimalField,
+    BooleanField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired
 
 
-class DiagnosticProcedureCreationForm(FlaskForm):
+class DiagnosticProcedureClassCreationForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
-    version = DecimalField("Version")
-    description = StringField("Description")
-    from_file = BooleanField("From File")
-    json_file = FileField("Upload (*)")
+    version = StringField("Version")
+    description = TextAreaField("Description")
+    submit = SubmitField("Submit")
+
+
+class DiagnosticProcedureVolumeCreationForm(FlaskForm):
+    # TODO: Max Length 2
+    code = StringField("Code", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+class DiagnosticProcedureSubVolumeCreationForm(FlaskForm):
+    code = StringField("Code", validators=[DataRequired()])
+    name = StringField("Name", validators=[DataRequired()])
+    reference = StringField("Reference URL")
+
+    submit = SubmitField("Submit")
+
+
+class DiagnosticProcedureCreationForm(FlaskForm):
+    code = StringField("Code", validators=[DataRequired()])
+    procedure = StringField("Procedure", validators=[DataRequired()])
+    reference = StringField("Reference URL")
+
     submit = SubmitField("Submit")

@@ -132,11 +132,16 @@ def generate_token():
 
         app_qr_response = requests.post(
             url_for("api.misc_generate_barcode", _external=True),
-            json={"data": "%s;%s;%s" % (token, current_user.email, request.base_url), "type": "qrcode"}
+            json={
+                "data": "%s;%s;%s" % (token, current_user.email, request.base_url),
+                "type": "qrcode",
+            },
         )
 
         if app_qr_response.status_code == 200:
 
-            return render_template("auth/token.html", token=token, qr_code=app_qr_response.json()["b64"])
+            return render_template(
+                "auth/token.html", token=token, qr_code=app_qr_response.json()["b64"]
+            )
 
     abort(response.status_code)

@@ -24,14 +24,32 @@ from wtforms import (
     DecimalField,
     DateField,
     IntegerField,
+    TextAreaField,
     HiddenField,
 )
 
 # from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired, Email, EqualTo, URL, Optional
-from .enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    URL,
+    Optional,
+    NumberRange,
+    InputRequired,
+)
+from .enums import (
+    RaceTypes,
+    BiologicalSexTypes,
+    DonorStatusTypes,
+    CancerStage,
+    Condition,
+)
 from ..sample.enums import Colour
 from datetime import datetime
+import requests
+from flask import url_for
+from ..misc import get_internal_api_header
 
 
 class DonorFilterForm(FlaskForm):
@@ -45,17 +63,55 @@ class DonorFilterForm(FlaskForm):
         "Race",
         choices=RaceTypes.choices(with_none=True),
     )
-    
+
     colour = SelectField("Colour", choices=Colour.choices())
 
+
+class DoidValidatingSelectField(SelectField):
+    def pre_validate(self, form):
+        iri_repsonse = requests.get(
+            url_for("api.doid_validate_by_iri", _external=True),
+            headers=get_internal_api_header(),
+            json={"iri": self.data},
+        )
+
+        if iri_repsonse.status_code != 200:
+            raise ValidationError("%s is not a valid DOID iri" % (self.data))
+
+
+class DonorAssignDiagnosisForm(FlaskForm):
+    disease_query = StringField("Disease Query")
+    disease_select = DoidValidatingSelectField("Disease Results", validators=[])
+    diagnosis_date = DateField("Diagnosis Date", default=datetime.today())
+    stage = SelectField("Stage", choices=CancerStage.choices())
+    condition = SelectField("Condition", choices=Condition.choices())
+    comments = TextAreaField("Comments")
+
+    submit = SubmitField("Submit")
+
+def DonorSampleAssociationForm(samples: dict):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+
+    sample_choices = []
+    for sample in samples:
+        sample_choices.append([sample["id"], sample["uuid"]])
+
+    setattr(StaticForm, "sample", SelectField("Sample", choices=sample_choices, coerce=int))
+
+    return StaticForm()
 
 def DonorCreationForm(sites: dict, data={}):
     class StaticForm(FlaskForm):
         colour = SelectField("Colour", choices=Colour.choices())
 
-        age = StringField(
-            "Age", description="The length of time that a donor has lived for in years."
+        month = SelectField(
+            "Month",
+            choices=[(str(x), x) for x in range(1, 13)],
         )
+        year = SelectField("Year", choices=[(str(x), x) for x in range(2020, 1899, -1)])
+
         sex = SelectField(
             "Biological Sex",
             choices=BiologicalSexTypes.choices(),
@@ -67,9 +123,7 @@ def DonorCreationForm(sites: dict, data={}):
 
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-        death_date = DateField(
-            "Date of Death", default=datetime.today()
-        )
+        death_date = DateField("Date of Death", default=datetime.today())
 
         weight = StringField("Weight (kg)", validators=[DataRequired()])
         height = StringField("Height (cm)", validators=[DataRequired()])

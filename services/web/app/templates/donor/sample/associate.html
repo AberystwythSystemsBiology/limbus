@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+
+{% block title %}Editing LIMBDON-{{donor.id}}{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('donor.view', id=donor.id) }}">
+                <i class="fa fa-user-circle"></i> LIMBDON-{{donor.id}}</span>
+        </a>
+        Associate Sample(s)
+    </h1>
+    </div>
+</div>
+<div class="container">
+    <div class="alert alert-warning text-center">
+        <b>Note:</b> You can only associate a donor to a parent Sample.
+    </div>
+
+    <form method="POST" action="{{ url_for('donor.associate_sample', id=donor.id ) }}">
+    {{ form.csrf_token }}
+    {{ form_field(form.sample) }}
+    {{ form_field(form.submit) }}
+    </form>
+
+</div>
+
+{%endblock %}

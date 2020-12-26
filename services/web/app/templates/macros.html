@@ -84,7 +84,7 @@
         {% endif %}
 
         {% endif %}
-        {% elif field.type == "SelectField" %}
+        {% elif field.type == "SelectField"  or field.type == "DoidValidatingSelectField" %}
         <label for="{{ field.id }}">{{ field.label.text }} </label>
 
         {{ render_form_error(field) }}
