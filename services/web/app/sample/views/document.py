@@ -13,3 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+class SampleDocumentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDocument
+
+    sample_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+
+sample_document_schema = SampleDocumentSchema()
+
+
+class NewDocumentToSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDocument
+
+    sample_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+
+new_document_to_sample_schema = NewDocumentToSampleSchema()

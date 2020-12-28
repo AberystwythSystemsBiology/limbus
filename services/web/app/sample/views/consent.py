@@ -13,3 +13,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+class NewConsentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsent
+
+    identifier = masql.auto_field()
+    comments = masql.auto_field()
+    template_id = masql.auto_field()
+    date_signed = masql.auto_field()
+
+
+new_consent_schema = NewConsentSchema()
+
+
+class ConsentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsent
+
+    id = masql.auto_field()
+    identifier = masql.auto_field()
+    comments = masql.auto_field()
+    template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
+    answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
+
+
+consent_schema = ConsentSchema()
+
+
+class NewConsentAnswerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsentAnswer
+
+    consent_id = masql.auto_field()
+    question_id = masql.auto_field()
+
+
+new_consent_answer_schema = NewConsentAnswerSchema()
+new_consent_answers_schema = NewConsentAnswerSchema(many=True)

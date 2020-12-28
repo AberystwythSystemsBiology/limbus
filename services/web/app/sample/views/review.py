@@ -13,18 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
-class SampleUUIDSchema(masql.SQLAlchemySchema):
+class NewSampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = Sample
+        model = SampleReview
 
-    uuid = masql.auto_field(required=False)
+    sample_id = masql.auto_field()
+    conducted_by = masql.auto_field()
+    datetime = masql.auto_field()
+    quality = EnumField(SampleQuality)
+    comments = masql.auto_field()
 
-    _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
-    )
 
-
-
-from .filter import *
+new_sample_review_schema = NewSampleReviewSchema()

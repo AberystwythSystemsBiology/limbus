@@ -13,18 +13,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
-class SampleUUIDSchema(masql.SQLAlchemySchema):
+class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = Sample
+        model = SampleDisposal
 
-    uuid = masql.auto_field(required=False)
-
-    _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
-    )
-
+    id = masql.auto_field()
+    instruction = EnumField(DisposalInstruction)
+    comments = masql.auto_field()
+    disposal_date = masql.auto_field()
 
 
-from .filter import *
+basic_disposal_schema = BasicSampleDisposalSchema()
+
+
+class NewSampleDisposalSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDisposal
+
+    instruction = EnumField(DisposalInstruction)
+    comments = masql.auto_field()
+    disposal_date = masql.auto_field(allow_none=True)
+
+
+new_sample_disposal_schema = NewSampleDisposalSchema()
+
+

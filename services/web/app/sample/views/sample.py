@@ -16,12 +16,37 @@
 from ...database import Sample
 from ...auth.views import BasicUserAccountSchema
 from ...extensions import ma
+from ..enums import (
+    SampleType,
+    Colour,
+    SampleSource,
+)
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
+class NewSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
 
+    barcode = masql.auto_field(allow_none=True)
+    source = EnumField(SampleSource)
+    type = EnumField(SampleType)
+    status = EnumField(SampleStatus)
+    colour = EnumField(Colour)
+    biohazard_level = EnumField(BiohazardLevel)
+    comments = masql.auto_field()
+    site_id = masql.auto_field(allow_none=True)
+    quantity = masql.auto_field()
+    disposal_id = masql.auto_field(allow_none=True)
+    sample_to_type_id = masql.auto_field()
+    consent_id = masql.auto_field()
+    collection_event_id = masql.auto_field(allow_none=True)
+    processing_event_id = masql.auto_field(allow_none=True)
+
+
+new_sample_schema = NewSampleSchema()
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
