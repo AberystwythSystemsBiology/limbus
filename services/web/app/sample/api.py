@@ -58,7 +58,7 @@ from .views import (
     new_fluid_sample_schema,
     new_cell_sample_schema,
     sample_type_schema,
-    SampleSearchSchema,
+    SampleFilterSchema,
     new_document_to_sample_schema,
 )
 
@@ -75,7 +75,7 @@ def sample_home(tokenuser: UserAccount):
 
 
 @api.route("/sample/query", methods=["GET"])
-@use_args(SampleSearchSchema(), location="json")
+@use_args(SampleFilterSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)

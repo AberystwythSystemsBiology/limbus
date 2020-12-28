@@ -13,7 +13,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+import marshmallow_sqlalchemy as masql
+from ...database import Sample
 
-from .filter import *
+class SampleSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
 
-# Base stuff (just UUID)
+    uuid = masql.auto_field()
+    barcode = masql.auto_field()
+    colour = masql.auto_field()
+    type = masql.auto_field()
+    biohazard_level = masql.auto_field()
+    source = masql.auto_field()
+    status = masql.auto_field()
