@@ -369,6 +369,8 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     documents = ma.Nested(BasicDocumentSchema, many=True, allow_none=True)
 
+    reviews = masql.auto_field()
+
     parent = ma.Nested(BasicSampleSchema, many=False, allow_none=True)
     subsamples = ma.Nested(BasicSampleSchema, many=True, allow_none=True)
 

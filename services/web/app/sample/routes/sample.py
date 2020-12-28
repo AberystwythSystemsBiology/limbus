@@ -22,6 +22,7 @@ import requests
 from ...misc import get_internal_api_header
 
 from ..forms import SampleToDocumentAssociatationForm, SampleReviewForm
+from datetime import datetime
 
 
 @sample.route("<uuid>", methods=["GET"])
@@ -40,6 +41,35 @@ def associate_review(uuid):
 
     if sample_response.status_code == 200:
         form = SampleReviewForm()
+
+
+        if form.validate_on_submit():
+            
+            new_review_event_response = requests.post(
+                url_for("api.sample_new_sample_review", uuid=uuid, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "sample_id": sample_response.json()["content"]["id"],
+                    "conducted_by": form.conducted_by.data,
+                    "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                    "quality": form.quality.data,
+                    "comments": form.comments.data
+                }
+            )
+
+
+            if new_review_event_response.status_code == 200:
+                flash("Sample Review Successfully Added!")
+                return redirect(url_for("sample.view", uuid=uuid))
+
+            else:
+                flash("Error")
+
         return render_template("sample/associate/review.html", sample=sample_response.json()["content"], form=form)
     
     abort(sample_response.status_code)

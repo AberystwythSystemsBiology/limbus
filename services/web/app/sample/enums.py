@@ -17,11 +17,11 @@ from ..FormEnum import FormEnum
 
 
 class SampleQuality(FormEnum):
-    NOT = "Not Specified"
     GOO = "Good"
     BAD = "Bad"
     DAM = "Damaged"
     UNU = "Unusable"
+    NOT = "Not Specified"
 
 
 class Colour(FormEnum):

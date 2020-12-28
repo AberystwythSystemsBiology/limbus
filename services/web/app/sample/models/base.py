@@ -78,6 +78,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         primaryjoin="SampleProtocolEvent.id==Sample.processing_event_id",
     )
 
+
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)
 
