@@ -38,6 +38,11 @@ nav img {
     padding:0;
 }
 
+.alert-warning {
+    background-color: #ffff00;
+    color:#000 !important;
+}
+
 .btn-secondary {
     background-color: #ffffff;
     color: #000;

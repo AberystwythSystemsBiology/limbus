@@ -38,6 +38,14 @@
                     class="fa fa-question"></i> View Consent</button>
               </div>
 
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('sample.associate_document', uuid=uuid ) }}">
+                <button type="button" class="btn btn-outline-dark"><i
+                  class="fas fa-file"></i> Associate Document</button>
+                </a>
+              </div>
+
+
               <div class="btn-btn-group mr-2" role="group">
                 <div class="dropdown">
                   <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
@@ -48,8 +56,7 @@
                     <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i>Aliquot</a>
                     <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid ) }}"><i
-                        class="fas fa-file"></i> Associate Document</a>
+                    
                   </div>
                 </div>
               </div>
@@ -99,6 +106,12 @@
         <a class="nav-link" id="processing-nav">Processing Information</a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" id="associated-documents-nav">Associated Documents</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="sample-review-nav">Sample Reviews</a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link" id="lineage-nav">Lineage</a>
       </li>
       <li class="nav-item">
@@ -112,18 +125,12 @@
           <table class="table table-striped" id="basic-information"></table>
 
           <h2>Comments</h2>
-          <blockquote class="blockquote">
-            <p class="mb-0" id="comments">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a
-              ante.</p>
-          </blockquote>
+          <blockquote class="blockquote" id="comments" class="text-normal"></blockquote>
 
-          <div id="documents">
-
-
-          
+          <div id="documents"></div>
         </div>
-        <div class="col-3 text-center">
 
+        <div class="col-3 text-center">
           <div class="card">
             <div class="card-header">
               Sample Quantity
@@ -131,61 +138,58 @@
             <div class="card-body">
               <canvas id="quantity-chart" width="100%" height="100%"></canvas>
             </div>
-
           </div>
-
-
-
-
         </div>
       </div>
     </div>
 
 
-    <div id="collection-info">
+    <div id="collection-info" style="display:none;">
       <table class="table table-striped" id="collection_information"></table>
     </div>
 
-    <div id="processing-info">
+    <div id="processing-info" style="display:none;">
       <table class="table table-striped" id="processing_information"></table>
     </div>
 
-    
-    <h2><i class="fas fa-file"></i> Associated Documents</h2>
-    <table id="documentTable" class="table table-striped table-bordered" style="width:100%">
-      <thead>
-        <tr>
-          <th>Document</th>
-          <th>Type</th>
-        </tr>
-      </thead>
-      <tbody>
 
-      </tbody>
-    </table>
-  </div>
- 
+    <div id="associated-documents" style="display:none;">
+      <table id="documentTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
 
-
-      <div id="lineage-info">
-
-
-        <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
-          <thead>
-            <tr>
-              <th>Identifier</th>
-              <th>Type</th>
-              <th>Quantity</th>
-            </tr>
-          </thead>
-          <tbody>
-
-          </tbody>
-        </table>
-      </div>
+        </tbody>
+      </table>
     </div>
 
+
+
+
+
+    <div id="lineage-info" style="display:none;">
+
+
+      <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+          <tr>
+            <th>Identifier</th>
+            <th>Type</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+      </table>
+    </div>
   </div>
+
+</div>
 
 </div>
 </div>
