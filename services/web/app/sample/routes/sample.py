@@ -15,13 +15,13 @@
 
 from .. import sample
 import requests
-from flask import render_template, url_for, flash, redirect
+from flask import render_template, url_for, flash, redirect, abort
 from flask_login import login_required
 
 import requests
 from ...misc import get_internal_api_header
 
-from ..forms import SampleToDocumentAssociatationForm
+from ..forms import SampleToDocumentAssociatationForm, SampleReviewForm
 
 
 @sample.route("<uuid>", methods=["GET"])
@@ -29,6 +29,20 @@ from ..forms import SampleToDocumentAssociatationForm
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
+@sample.route("<uuid>/associate/review", methods=["GET", "POST"])
+@login_required
+def associate_review(uuid):
+
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if sample_response.status_code == 200:
+        form = SampleReviewForm()
+        return render_template("sample/associate/review.html", sample=sample_response.json()["content"], form=form)
+    
+    abort(sample_response.status_code)
 
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required
@@ -70,7 +84,7 @@ def associate_document(uuid):
                 return redirect(url_for("sample.view", uuid=uuid))
 
             return render_template(
-                "sample/document_associate.html",
+                "sample/associate/document.html",
                 sample=sample_response.json()["content"],
                 form=form,
             )
