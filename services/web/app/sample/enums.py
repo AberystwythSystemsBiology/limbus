@@ -184,12 +184,12 @@ class FluidContainer(FormEnum):
 
 
 class SampleStatus(FormEnum):
-    NCO = "Not Collected"
-    NPR = "Not Processed"
-    NRE = "Pending Review"
     AVA = "Available"
     DES = "Destroyed"
     UNU = "Unusable"
     TRA = "Transferred"
     MIS = "Missing"
     TMP = "Temporary Storage"
+    NCO = "Not Collected"
+    NPR = "Not Processed"
+    NRE = "Pending Review"
