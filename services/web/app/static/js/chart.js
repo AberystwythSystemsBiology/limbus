@@ -15,38 +15,25 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-function make_doughnut(dom_id, data, labels) {
-    new Chart(document.getElementById(dom_id), {
-        type: 'doughnut',
-        data: {
-          labels: labels,
-          datasets: [{
-                data: data,
-                backgroundColor: dynamicColours(labels.length)
-            }],
-
-        },
-        options: {
-            legend: {
-                display: true
-            },
-            title: {
-                display: false
-               }}}
-        );
+function chart_placeholder(dom_id, data_length) {
+    if (data_length < 1) {
+        $("#" + dom_id + "-div").html("Not enough data provided.");
+        return false
+    }
+    return true
 }
 
-function make_pie(dom_id, data, labels) {
-    if (data.length > 0) {
+function make_doughnut(dom_id, data, labels) {
+    if (chart_placeholder(dom_id, data.length)) {
         new Chart(document.getElementById(dom_id), {
-            type: 'pie',
+            type: 'doughnut',
             data: {
-              labels: labels,
-              datasets: [{
+                labels: labels,
+                datasets: [{
                     data: data,
                     backgroundColor: dynamicColours(labels.length)
                 }],
-    
+
             },
             options: {
                 legend: {
@@ -54,52 +41,83 @@ function make_pie(dom_id, data, labels) {
                 },
                 title: {
                     display: false
-                   }}}
-            );
+                }
+            }
         }
-     else {
-        $(dom_id).parent().css({"color": "red", "border": "2px solid red"});
+        );
+    }
+
+}
+
+function make_pie(dom_id, data, labels) {
+    if (chart_placeholder(dom_id, data.length)) {
+        new Chart(document.getElementById(dom_id), {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: dynamicColours(labels.length)
+                }],
+
+            },
+            options: {
+                legend: {
+                    display: true
+                },
+                title: {
+                    display: false
+                }
+            }
+        }
+        );
     }
 }
 
+
+
 function make_bar(dom_id, data, labels) {
+    if (chart_placeholder(dom_id, data.length)) {
 
 
-    new Chart(document.getElementById(dom_id), {
-        type: 'bar',
-        data: {
-          labels: labels,
-          barThickness: "flex",
-          datasets: [{
-                data: data,
-                backgroundColor: dynamicColours(labels.length)
-            }],
+        new Chart(document.getElementById(dom_id), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                barThickness: "flex",
+                datasets: [{
+                    data: data,
+                    backgroundColor: dynamicColours(labels.length)
+                }],
 
-        },
-        options: {
-            legend: {
-                display: false
             },
-            title: {
-                display: false
-               },
-            scales: {
-                yAxes: [{
-                    display: true,
-                    ticks: {
-                        beginAtZero: true,
-                        userCallback: function(label, index, labels) {
-                            // when the floored value is the same as the value we have a whole number
-                            if (Math.floor(label) === label) {
-                                return label;
-                            }
-       
-                        },
-                        max: Math.floor(Math.max(...data) * 1.3),
-                        stepValue: 1,
+            options: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            beginAtZero: true,
+                            userCallback: function (label, index, labels) {
+                                // when the floored value is the same as the value we have a whole number
+                                if (Math.floor(label) === label) {
+                                    return label;
+                                }
+
+                            },
+                            max: Math.floor(Math.max(...data) * 1.3),
+                            stepValue: 1,
+                        }
                     }
-                    }
-                ]
-            }}}
+                    ]
+                }
+            }
+        }
         );
+    }
 }
