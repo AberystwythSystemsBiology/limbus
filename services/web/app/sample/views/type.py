@@ -63,10 +63,10 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
 
     id = masql.auto_field()
 
-    flui_type = EnumField(FluidSampleType)
-    mole_type = EnumField(MolecularSampleType)
-    cell_type = EnumField(CellSampleType)
-    tiss_type = EnumField(TissueSampleType)
+    flui_type = EnumField(FluidSampleType, by_value=True)
+    mole_type = EnumField(MolecularSampleType, by_value=True)
+    cell_type = EnumField(CellSampleType, by_value=True)
+    tiss_type = EnumField(TissueSampleType, by_value=True)
 
     author = ma.Nested(BasicUserAccountSchema)
     container_id = masql.auto_field()

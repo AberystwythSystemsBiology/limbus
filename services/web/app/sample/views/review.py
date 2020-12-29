@@ -22,6 +22,18 @@ from ..enums import SampleQuality
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
+class SampleReviewSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleReview
+
+    conducted_by = masql.auto_field()
+    datetime = masql.auto_field()
+    quality = EnumField(SampleQuality, by_value=True)
+    comments = masql.auto_field()
+
+sample_review_schema = SampleReviewSchema()
+sample_reviews_schema = SampleReviewSchema(many=True)
+
 class NewSampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleReview

@@ -29,7 +29,8 @@ from . import (
     SampleTypeSchema,
     SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
-    ConsentSchema
+    ConsentSchema,
+    SampleReviewSchema
 )
 
 from ...document.views import BasicDocumentSchema
@@ -105,7 +106,6 @@ class SampleSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     type = EnumField(SampleType, by_value=True)
     is_locked = masql.auto_field()
-    sample_type_information = None
 
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
@@ -126,7 +126,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
 
-    reviews = masql.auto_field()
+    reviews = ma.Nested(SampleReviewSchema, many=True)
 
     parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
