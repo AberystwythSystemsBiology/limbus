@@ -20,7 +20,7 @@ from sqlalchemy.orm import configure_mappers
 
 from sqlalchemy_continuum import make_versioned
 
-# make_versioned(user_cls=None)
+make_versioned(user_cls=None)
 
 db = SQLAlchemy()
 
@@ -28,6 +28,8 @@ from .base import BaseModel
 
 Base = declarative_base(cls=BaseModel)
 Base.query = db.session.query_property()
+
+
 
 from .auth.models import *
 from .misc.models import *
