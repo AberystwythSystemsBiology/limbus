@@ -113,20 +113,29 @@ class VersionsView(fields.Field):
 
         for version in obj.versions[0:]:
             
+            change_date = str(version.updated_on)[0:10]
+
+            if change_date not in change_history:
+                change_history[change_date] = []
+
             changeset = version.changeset
 
-            cs = {"changes": {}, "updated_by": version.editor_id}
+            cs = {"changes": [], "updated_on": str(version.updated_on), "updated_by": version.editor_id}
 
             for k, v in changeset.items():
                 
-                v = [_my_serialise(x) for x in v]
+                if k not in ["updated_on", "editor_id"]:
 
-                cs["changes"][k] = {
-                    "old": v[0],
-                    "new": v[1] 
-                }
+                    v = [_my_serialise(x) for x in v]
 
-            change_history[str(version.updated_on)] = cs
+
+                    cs["changes"].append({
+                        "key": k,
+                        "old": v[0],
+                        "new": v[1]
+                    })
+
+            change_history[change_date].append(cs)
             
         return change_history
 

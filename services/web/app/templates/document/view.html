@@ -52,9 +52,15 @@
 <div class="container">
 
 
-
-
-    <h2>Document Information</h2>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" id="document-info-nav">Document Information</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="diagnosis-nav"><i class="fa fa-history"></i> History</a>
+        </li>
+        
+      </ul>
 
     <table class="table table-striped">
         {{ show_value(document.name, "Document Name", "text") }}
@@ -101,6 +107,51 @@
             {% endif %}
         </tbody>
     </table>
+
+
+    <h2>History</h2>
+
+
+    
+
+    {% for date, changes in document.versions.items() %}
+        <p class="text-muted">Changes on {{ date }}</p>
+
+        <div id="accordion">
+            
+        
+        
+        {% for change in changes %}
+
+        
+            <div class="card">
+                <div class="card-header" data-toggle="collapse" data-target="#collapse{{loop.index}}" aria-expanded="true" aria-controls="collapse{{loop.index}}">
+                    <p class="small">{{ change.updated_on  }}</p>
+                </div>
+                <div id="collapse{{ loop.index }}" class="collapse" aria-labelledby="heading{{ loop.index }}" data-parent="#accordion">
+                    <div class="card-body">
+                        {% for values in change.changes %}
+                            <div class="row">
+                                <div class="col-2">
+                                    {{ values.key }}: 
+                                </div>
+                                <code class="col-5 alert-danger">
+                                    - {{ values.old }}
+                                </code>
+                                <code class="col-5 alert-success">
+                                    + {{ values.new }}
+                                </code>
+                            </div>
+                        {% endfor %}
+                        
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+
+    {% endfor %}
 
 </div>
 
