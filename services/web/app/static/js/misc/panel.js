@@ -38,48 +38,12 @@ function get_panel_info() {
 
 
 function fill_document_statistics(document_statistics) {
-
-    new Chart(document.getElementById("document-type"), {
-        type: 'bar',
-        data: {
-          labels: document_statistics["document_type"]["labels"],
-          datasets: [{
-                data: document_statistics["document_type"]["data"],
-                backgroundColor: dynamicColours(document_statistics["document_type"]["labels"].length)
-            }],
-
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                text: "Document Type"
-               }}}
-        );
+    make_bar("document-type", document_statistics["document_type"]["data"], document_statistics["document_type"]["labels"], "");
 }
 
 function fill_attribute_statistics(attribute_statistics) {
-    new Chart(document.getElementById("attribute-type"), {
-        type: 'bar',
-        data: {
-          labels: attribute_statistics["attribute_type"]["labels"],
-          datasets: [{
-                data: attribute_statistics["attribute_type"]["data"],
-                backgroundColor: dynamicColours(attribute_statistics["attribute_type"]["labels"].length)
-            }],
+    make_bar("attribute-type", attribute_statistics["attribute_type"]["data"], attribute_statistics["attribute_type"]["labels"], "");
 
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: false,
-                text: "Attribute Type"
-               }}}
-        );
 }
 
 function fill_sample_statistics(sample_statistics) {

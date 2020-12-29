@@ -27,6 +27,9 @@
       <h1><span class="secondary-heading"><i class="fa fa-solar-panel"></i> Overview Panel</span><span
           id="biobank-name"></span></h1>
 
+        
+        
+
       <div class="row">
         <div class="col-sm-3">
           <div class="data">
@@ -60,7 +63,16 @@
   <div class="panel-background">
 
     <div class="container">
-
+      <div class="card-deck mb-3 text-center">
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Sample History</h4>
+          </div>
+          <div class="card-body" id="sample-history-div">
+            <canvas id="sample-history" width="100%" height="100%"></canvas>
+          </div>
+        </div>
+      </div>
 
       <div class="card-deck mb-3 text-center">
         <div class="card mb-4 box-shadow">
@@ -148,10 +160,10 @@
               </div>
             </div>
             <div class="card mb-4 box-shadow">
-              <div class="card-header" id="protocol-type-div">
+              <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Protocol Type</h4>
               </div>
-              <div class="card-body">
+              <div class="card-body" id="protocol-type-div">
                 <canvas id="protocol-type" width="100%" height="100%"></canvas>
               </div>
             </div>
