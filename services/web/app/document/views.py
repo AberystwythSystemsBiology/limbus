@@ -71,6 +71,7 @@ class DocumentFileSchema(masql.SQLAlchemySchema):
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 
+
     _links = ma.Hyperlinks(
         {
             "self": ma.URLFor("document.view", id="<id>", _external=True),
@@ -94,8 +95,44 @@ class DocumentSearchSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema)
 
+from datetime import datetime
+from enum import Enum
+
+class VersionsView(fields.Field):
+    def _serialize(self, value, attr, obj, **kwargs):
+        
+        def _my_serialise(v):
+            if type(v) in [int, None, str, bool]:
+                return v
+            elif type(v) == datetime:
+                return str(v)
+            elif isinstance(v, Enum):
+                return v.value
+
+        change_history = {}
+
+        for version in obj.versions[0:]:
+            
+            changeset = version.changeset
+
+            cs = {"changes": {}, "updated_by": version.editor_id}
+
+            for k, v in changeset.items():
+                
+                v = [_my_serialise(x) for x in v]
+
+                cs["changes"][k] = {
+                    "old": v[0],
+                    "new": v[1] 
+                }
+
+            change_history[str(version.updated_on)] = cs
+            
+        return change_history
+
 
 class DocumentSchema(masql.SQLAlchemySchema):
+
     class Meta:
         model = Document
 
@@ -108,6 +145,8 @@ class DocumentSchema(masql.SQLAlchemySchema):
     updated_on = fields.DateTime()
     author = ma.Nested(BasicUserAccountSchema)
     files = ma.Nested(DocumentFileSchema(many=True))
+
+    versions = VersionsView()
 
 
 document_schema = DocumentSchema()
