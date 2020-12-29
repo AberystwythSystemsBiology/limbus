@@ -13,6 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import SampleProtocolEvent
+from ...auth.views import BasicUserAccountSchema
+from ...protocol.views import BasicProtocolTemplateSchema
+
+import marshmallow_sqlalchemy as masql
+
 class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent

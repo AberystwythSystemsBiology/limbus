@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...extensions import ma
 import marshmallow_sqlalchemy as masql
+
+from ...extensions import ma
 from ...database import Sample
 
-class SampleSearchSchema(masql.SQLAlchemySchema):
+class SampleFilterSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
 

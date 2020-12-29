@@ -13,6 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import SampleDisposal
+
+from ...consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
+
+from ..enums import DisposalInstruction
+
+import marshmallow_sqlalchemy as masql
+from marshmallow_enum import EnumField
+
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleDisposal

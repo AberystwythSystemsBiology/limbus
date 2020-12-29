@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import Sample
 
+import marshmallow_sqlalchemy as masql
 
 class SampleUUIDSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -28,3 +31,11 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
 
 
 from .filter import *
+from .consent import *
+from .disposal import *
+from .document import *
+from .filter import *
+from .protocol import *
+from .review import *
+from .type import *
+from .sample import *

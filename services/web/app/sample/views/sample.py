@@ -20,7 +20,19 @@ from ..enums import (
     SampleType,
     Colour,
     SampleSource,
+    SampleStatus,
+    BiohazardLevel
 )
+
+from . import (
+    SampleUUIDSchema,
+    SampleTypeSchema,
+    SampleProtocolEventSchema,
+    BasicSampleDisposalSchema,
+    ConsentSchema
+)
+
+from ...document.views import BasicDocumentSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -30,20 +42,20 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
 
-    barcode = masql.auto_field(allow_none=True)
+    barcode = masql.auto_field()
     source = EnumField(SampleSource)
     type = EnumField(SampleType)
     status = EnumField(SampleStatus)
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
     comments = masql.auto_field()
-    site_id = masql.auto_field(allow_none=True)
+    site_id = masql.auto_field()
     quantity = masql.auto_field()
-    disposal_id = masql.auto_field(allow_none=True)
+    disposal_id = masql.auto_field()
     sample_to_type_id = masql.auto_field()
     consent_id = masql.auto_field()
-    collection_event_id = masql.auto_field(allow_none=True)
-    processing_event_id = masql.auto_field(allow_none=True)
+    collection_event_id = masql.auto_field()
+    processing_event_id = masql.auto_field()
 
 
 new_sample_schema = NewSampleSchema()
@@ -53,7 +65,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
         model = Sample
 
     id = masql.auto_field()
-    uuid = masql.auto_field(required=False)
+    uuid = masql.auto_field()
     type = EnumField(SampleType, by_value=True)
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
@@ -64,7 +76,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
-    sample_type_information = ma.Nested(SampleToTypeSchema)
+    sample_type_information = ma.Nested(SampleTypeSchema)
 
     barcode = masql.auto_field()
     collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
@@ -99,7 +111,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     remaining_quantity = masql.auto_field()
     comments = masql.auto_field()
     barcode = masql.auto_field()
-    sample_type_information = ma.Nested(SampleToTypeSchema)
+    sample_type_information = ma.Nested(SampleTypeSchema)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)

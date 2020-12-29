@@ -13,6 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import SampleConsent, SampleConsentAnswer
+
+import marshmallow_sqlalchemy as masql
+
+from ...consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
+from ...auth.views import BasicUserAccountSchema
+
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsent

@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import SampleDocument
+
+import marshmallow_sqlalchemy as masql
+
 class SampleDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleDocument

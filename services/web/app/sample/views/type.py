@@ -13,7 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import SampleToType
 
+from marshmallow_enum import EnumField
+import marshmallow_sqlalchemy as masql
+
+from ..enums import (
+    FluidContainer,
+    FluidSampleType,
+    CellSampleType,
+    TissueSampleType,
+    FixationType,
+    CellContainer,
+    MolecularSampleType
+)
+
+from ...auth.views import BasicUserAccountSchema
 
 class NewFluidSampleSchema(ma.Schema):
     fluid_sample_type = EnumField(FluidSampleType)

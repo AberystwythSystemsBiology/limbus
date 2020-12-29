@@ -13,6 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...extensions import ma
+from ...database import SampleReview
+from ...auth.views import BasicUserAccountSchema
+
+from ..enums import SampleQuality
+
+import marshmallow_sqlalchemy as masql
+from marshmallow_enum import EnumField
+
 class NewSampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleReview
