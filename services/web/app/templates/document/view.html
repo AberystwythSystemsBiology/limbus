@@ -57,10 +57,12 @@
           <a class="nav-link active" id="document-info-nav">Document Information</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="diagnosis-nav"><i class="fa fa-history"></i> History</a>
+          <a class="nav-link" id="history-nav"><i class="fa fa-history"></i> History</a>
         </li>
         
       </ul>
+
+    <div id="basic-info-div">
 
     <table class="table table-striped">
         {{ show_value(document.name, "Document Name", "text") }}
@@ -109,10 +111,10 @@
     </table>
 
 
-    <h2>History</h2>
+    </div>
 
-
-    
+    <div id="history-div" style="display: none;">
+   
 
     {% for date, changes in document.versions.items() %}
         <p class="text-muted">Changes on {{ date }}</p>
@@ -152,7 +154,7 @@
     </div>
 
     {% endfor %}
-
+    </div>
 </div>
 
 <!-- Modal -->
@@ -184,4 +186,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/document/view.js') }}"></script>
 {% endblock %}
