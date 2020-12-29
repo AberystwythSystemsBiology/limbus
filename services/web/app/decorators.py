@@ -75,15 +75,20 @@ def token_required(f):
         # Internal Requests
         if "Flaskapp" in request.headers:
             check, user = internal_request()
+            if check:
+                if "tokenuser" in inspect.getfullargspec(f).args:
+                    kwargs["tokenuser"] = user
+                return f(*args, **kwargs)
+            return abort(401)
         # External Requests
         elif "Token" in request.headers:
             check, user = external_request()
-        if check:
-            if "tokenuser" in inspect.getfullargspec(f).args:
-                kwargs["tokenuser"] = user
-            return f(*args, **kwargs)
-        else:
-            return abort(401)
+            if check:
+                if "tokenuser" in inspect.getfullargspec(f).args:
+                    kwargs["tokenuser"] = user
+                return f(*args, **kwargs)
+            else:
+                return {"success": False, "message": "You are not authorised to view this page."}, 401
 
     return decorated_function
 
