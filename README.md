@@ -12,11 +12,24 @@
 
 The goal of this project is to develop a Biobank Information Management System (BIMS) for the management of biospecimens and associated data that are accepted, processed, distributed, and tracked by the biorepository at Hywel Dda University Health Board's Clinical Research Centre (CRC).
 
-> **Note:** LImBuS is, still very much, in the early stage of development. 
-
+## 📷 Screenshots
 
 <img src="screenshot.png" align="center" max-width="800px">
 
+## 🌟 Key Features
+
+- Sample Management
+- Sample Aliquoting
+- Protocol Management
+- Donor Management
+- Consent Management
+- Storage Management
+- Encrypted Document Management
+- Batch Management of Storage Racks
+- Clinical Disease Annotation
+- Barcode Generation
+- Barcode Label Creation
+- REST API
 
 ## 🤔 Bug reporting and feature suggestions
 
