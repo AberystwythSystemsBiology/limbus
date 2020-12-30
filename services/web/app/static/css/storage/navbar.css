@@ -5,10 +5,11 @@
 }
 
 #sidebar {
-    overflow-x: scroll;
     min-width: 20em;
+    max-width: 20em;
     height: 100%;
-    height: 100vh;
+    min-height: 100vh;
+
     top: 30px;
     left: 0;
     z-index: 998;
@@ -18,8 +19,6 @@
 #sidebar.active {
     margin-left: -20em;
 }
-
-
 
 #sidebar-collapse {
     float: right;

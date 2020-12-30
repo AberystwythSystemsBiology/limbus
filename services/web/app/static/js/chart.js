@@ -36,7 +36,7 @@ function make_timeseries(dom_id, data, labels) {
                 datasets: [{
                     label: "Samples Added",
                     data: data,
-                    backgroundColor: '#007bff'
+                    backgroundColor: 'rgba(0,102,255,0.6)'
                 }]
             },
             options: {
