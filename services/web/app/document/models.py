@@ -27,6 +27,7 @@ class Document(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class DocumentFile(Base, RefAuthorMixin):
+    __versioned__ = {}
     name = db.Column(db.String, nullable=False)
     checksum = db.Column(db.String(256), nullable=False)
     path = db.Column(db.String)

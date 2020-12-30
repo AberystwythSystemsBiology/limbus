@@ -28,6 +28,7 @@ from ..enums import (
 
 
 class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     flui_type = db.Column(db.Enum(FluidSampleType), nullable=True)
     mole_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
     cell_type = db.Column(db.Enum(CellSampleType), nullable=True)
@@ -38,6 +39,7 @@ class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleToContainer(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     flui_cont = db.Column(db.Enum(FluidContainer), nullable=True)
     fixa_cont = db.Column(db.Enum(FixationType), nullable=True)
     cell_cont = db.Column(db.Enum(CellContainer), nullable=True)

@@ -19,6 +19,7 @@ from ..mixins import RefAuthorMixin, RefEditorMixin
 
 
 class DiagnosticProcedureClass(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     name = db.Column(db.String)
     version = db.Column(db.String)
     description = db.Column(db.String)
@@ -27,6 +28,7 @@ class DiagnosticProcedureClass(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class DiagnosticProcedureVolume(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     code = db.Column(db.String(5))
     name = db.Column(db.String)
     class_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedureclass.id"))
@@ -36,6 +38,7 @@ class DiagnosticProcedureVolume(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     code = db.Column(db.String(5))
     name = db.Column(db.String())
     reference = db.Column(db.String(256))
@@ -46,6 +49,7 @@ class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class DiagnosticProcedure(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     code = db.Column(db.String(5))
     procedure = db.Column(db.String())
     reference = db.Column(db.String(256))

@@ -18,6 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
 class Room(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
+    __versioned__ = {}
     name = db.Column(db.String(128))
     building_id = db.Column(db.Integer, db.ForeignKey("building.id"))
     building = db.relationship("Building", uselist=False)

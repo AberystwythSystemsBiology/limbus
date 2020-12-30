@@ -19,7 +19,7 @@ from ..enums import SampleQuality
 
 
 class SampleReview(Base, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
     conducted_by = db.Column(db.String(128))
     datetime = db.Column(db.DateTime, nullable=False)

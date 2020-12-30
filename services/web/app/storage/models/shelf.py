@@ -18,6 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
 class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
+    __versioned__ = {}
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.Text)
     z = db.Column(db.Integer)

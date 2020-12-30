@@ -18,7 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
 class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     identifier = db.Column(db.String(128))
     comments = db.Column(db.Text)
     date_signed = db.Column(db.Date, nullable=False)
@@ -38,5 +38,6 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
     question_id = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))

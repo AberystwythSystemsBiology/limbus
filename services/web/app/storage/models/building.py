@@ -18,6 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
 class Building(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
+    __versioned__ = {}
     name = db.Column(db.String(128))
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     site = db.relationship("SiteInformation", uselist=False)

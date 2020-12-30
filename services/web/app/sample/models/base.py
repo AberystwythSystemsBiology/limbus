@@ -26,7 +26,7 @@ from ..enums import (
 
 
 class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     barcode = db.Column(db.Text)
 
     source = db.Column(db.Enum(SampleSource))
@@ -105,6 +105,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
     subsample_id = db.Column(
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
@@ -112,6 +113,7 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
