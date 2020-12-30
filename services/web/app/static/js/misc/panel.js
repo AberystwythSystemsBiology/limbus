@@ -47,6 +47,7 @@ function fill_attribute_statistics(attribute_statistics) {
 }
 
 function fill_sample_statistics(sample_statistics) {
+    make_timeseries("sample-history", sample_statistics["added_time"]["data"], sample_statistics["added_time"]["labels"]);
     make_doughnut("sample-status", sample_statistics["sample_status"]["data"], sample_statistics["sample_status"]["labels"], "");
     make_bar("sample-source", sample_statistics["sample_source"]["data"], sample_statistics["sample_source"]["labels"], "");
     make_pie("sample-biohazard", sample_statistics["sample_biohazard"]["data"], sample_statistics["sample_biohazard"]["labels"], "");
@@ -83,7 +84,6 @@ function fill_panel() {
     fill_document_statistics(panel_info["document_statistics"]);
     fill_attribute_statistics(panel_info["attribute_statistics"]);
     fill_protocol_statistics(panel_info["protocol_statistics"]);
-
 }
 
 $(document).ready(function() {

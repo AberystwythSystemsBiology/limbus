@@ -23,6 +23,54 @@ function chart_placeholder(dom_id, data_length) {
     return true
 }
 
+function make_timeseries(dom_id, data, labels) {
+    if (chart_placeholder(dom_id, data.length)) {
+
+
+        var ctx = document.getElementById(dom_id);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Samples Added",
+                    data: data,
+                    backgroundColor: '#007bff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            min: 0,
+                            max: Math.ceil(Math.max(...data)),
+                            stepSize: Math.ceil(Math.max(...data)/10)
+                        }
+                    }]
+                },
+                
+            }
+        });
+
+        
+    }
+}
+
 function make_doughnut(dom_id, data, labels) {
     if (chart_placeholder(dom_id, data.length)) {
         new Chart(document.getElementById(dom_id), {
