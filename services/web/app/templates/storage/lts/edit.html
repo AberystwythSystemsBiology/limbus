@@ -26,6 +26,7 @@
 
             <form method="POST" action="{{ url_for('storage.edit_cold_storage', id=cs.id ) }}">
                 {{ form.csrf_token }}
+                {{ form_field(form.alias) }}
                 {{ form_field(form.manufacturer) }}
                 {{ form_field(form.temperature) }}
                 {{ form_field(form.type) }}

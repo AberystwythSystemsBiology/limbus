@@ -20,12 +20,15 @@
                 </h1>
             </div>
         </div>
-        <form method="POST" action="{{ url_for('storage.new_building', id=site.id) }}">
-            {{ form.csrf_token }}
-            {{ form_field(form.name) }}
-            {{ form_field(form.submit) }}
-        </form>
+        
+        <div class="container">
 
+            <form method="POST" action="{{ url_for('storage.new_building', id=site.id) }}">
+                {{ form.csrf_token }}
+                {{ form_field(form.name) }}
+                {{ form_field(form.submit) }}
+            </form>
+        </div>
 
     </div>
 </div>

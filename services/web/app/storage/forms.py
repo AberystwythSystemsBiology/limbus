@@ -104,6 +104,12 @@ class SiteRegistrationForm(FlaskForm):
 
 
 class ColdStorageForm(FlaskForm):
+
+    alias = StringField(
+        "Alias",
+        validators=[DataRequired()]
+    )
+
     serial_number = StringField(
         "Serial Number",
         description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
@@ -116,6 +122,12 @@ class ColdStorageForm(FlaskForm):
     )
 
     comments = TextAreaField("Comments")
+
+    status = SelectField(
+        "Status",
+        choices=FixedColdStorageStatus.choices(),
+        validators=[DataRequired()]
+    )
 
     temperature = SelectField(
         "Temperature",
