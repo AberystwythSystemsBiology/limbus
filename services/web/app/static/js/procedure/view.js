@@ -67,11 +67,11 @@ function sap2tree(data) {
 }
 
 function collapse_sidebar() {
-        $('#sidebar').toggleClass('active');
-        $('#sidebar-collapse-icon').toggleClass('fa-chevron-left');
-        $('#sidebar-collapse-icon').toggleClass('fa-chevron-right');
-        $('#sidebar-collapse button').toggleClass('btn-light');
-        $('#sidebar-collapse button').toggleClass('btn-primary');
+    $('#sidebar').toggleClass('active');
+    $('#sidebar-collapse-icon').toggleClass('fa-chevron-left');
+    $('#sidebar-collapse-icon').toggleClass('fa-chevron-right');
+    $('#sidebar-collapse button').toggleClass('btn-light');
+    $('#sidebar-collapse button').toggleClass('btn-primary');
 }
 
 function get_endpoing_data(api_url) {

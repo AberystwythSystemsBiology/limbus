@@ -21,7 +21,7 @@ from .enums import ProtocolType, ProtocolTextType
 
 
 class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     name = db.Column(db.String(128), nullable=False)
     type = db.Column(db.Enum(ProtocolType))
     description = db.Column(db.Text())
@@ -33,7 +33,7 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class ProtocolTemplateToDocument(Base, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     description = db.Column(db.Text, nullable=True)
     protocol_id = db.Column(
         db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
@@ -42,7 +42,7 @@ class ProtocolTemplateToDocument(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     text = db.Column(db.Text(), nullable=False)
     type = db.Column(db.Enum(ProtocolTextType))
     protocol_id = db.Column(

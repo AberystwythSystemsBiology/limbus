@@ -58,7 +58,7 @@ from .views import (
     new_fluid_sample_schema,
     new_cell_sample_schema,
     sample_type_schema,
-    SampleSearchSchema,
+    SampleFilterSchema,
     new_document_to_sample_schema,
 )
 
@@ -75,7 +75,7 @@ def sample_home(tokenuser: UserAccount):
 
 
 @api.route("/sample/query", methods=["GET"])
-@use_args(SampleSearchSchema(), location="json")
+@use_args(SampleFilterSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
@@ -223,10 +223,11 @@ def sample_new_sample(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/sample/new_sample_review", methods=["POST"])
+@api.route("/sample/new/review", methods=["POST"])
 @token_required
 def sample_new_sample_review(tokenuser: UserAccount):
     values = request.get_json()
+
     if not values:
         return no_values_response()
 
@@ -238,23 +239,7 @@ def sample_new_sample_review(tokenuser: UserAccount):
     new_sample_review = SampleReview(**sample_review_values)
     new_sample_review.author_id = tokenuser.id
 
-    # modify sample status according to review results
     sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
-
-    if sample.status not in ["TMP", "NCO", "NPR"]:
-        if sample.remaining_quantity == 0:
-            sample.status = "UNU"
-        elif values["datetime"] is None or values["quality"] is None:
-            sample.status = "NRE"
-        elif values["quality"] in ["DAM", "UNU", "BAD"]:
-            sample.status = "UNU"
-        elif values["quality"] == "DES":
-            sample.status = "DES"
-        elif values["quality"] in ["GOO", "UNS"]:
-            sample.status = "AVA"
-
-        sample.updated_on = datetime.now()
-        sample.editor_id = tokenuser.id
 
     try:
         db.session.add(new_sample_review)
@@ -262,12 +247,7 @@ def sample_new_sample_review(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(
-            {
-                "sample_review": new_sample_review.dump(new_sample_review),
-                "sample_details": new_sample_schema.dump(sample),
-            }
-        )
+        return success_with_content_response(new_sample_review_schema.dump(new_sample_review))
     except Exception as err:
         return transaction_error_response(err)
 

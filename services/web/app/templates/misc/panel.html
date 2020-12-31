@@ -25,31 +25,34 @@
   <div class="jumbotron" style="margin-top:-15px;">
     <div class="container">
       <h1><span class="secondary-heading"><i class="fa fa-solar-panel"></i> Overview Panel</span><span
-          id="biobank_name"></span></h1>
+          id="biobank-name"></span></h1>
+
+        
+        
 
       <div class="row">
         <div class="col-sm-3">
           <div class="data">
-            <span id="sample_count" class="data large"></span>
+            <span id="sample-count" class="data large"></span>
             <span class="data small">Samples</span>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="data">
-            <span id="donor_count" class="data large"></span>
+            <span id="donor-count" class="data large"></span>
             <span class="data small">Donors</span>
           </div>
         </div>
 
         <div class="col-sm-3">
           <div class="data">
-            <span id="user_count" class="data large"></span>
+            <span id="user-count" class="data large"></span>
             <span class="data small">Users</span>
           </div>
         </div>
         <div class="col-sm-3">
           <div class="data">
-            <span id="site_count" class="data large"></span>
+            <span id="site-count" class="data large"></span>
             <span class="data small">Sites</span>
           </div>
         </div>
@@ -60,39 +63,48 @@
   <div class="panel-background">
 
     <div class="container">
-
+      <div class="card-deck mb-3 text-center">
+        <div class="card mb-4 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Sample History</h4>
+          </div>
+          <div class="card-body" id="sample-history-div" style="height: 500px;">
+            <canvas id="sample-history" width="100%"></canvas>
+          </div>
+        </div>
+      </div>
 
       <div class="card-deck mb-3 text-center">
         <div class="card mb-4 box-shadow">
           <div class="card-header">
             <h4 class="my-0 font-weight-normal">Sample Status</h4>
           </div>
-          <div class="card-body">
-            <canvas id="sample_status" width="100%" height="100%"></canvas>
+          <div class="card-body" id="sample-status-div">
+            <canvas id="sample-status" width="100%" height="100%"></canvas>
           </div>
         </div>
         <div class="card mb-4 box-shadow">
           <div class="card-header">
             <h4 class="my-0 font-weight-normal">Sample Type</h4>
           </div>
-          <div class="card-body">
-            <canvas id="sample_source" width="100%" height="100%"></canvas>
+          <div class="card-body" id="sample-source-div">
+            <canvas id="sample-source" width="100%" height="100%"></canvas>
           </div>
         </div>
         <div class="card mb-4 box-shadow">
           <div class="card-header">
             <h4 class="my-0 font-weight-normal">Sample Type</h4>
           </div>
-          <div class="card-body">
-            <canvas id="sample_type" width="100%" height="100%"></canvas>
+          <div class="card-body" id="sample-type-div">
+            <canvas id="sample-type" width="100%" height="100%"></canvas>
           </div>
         </div>
         <div class="card mb-4 box-shadow">
           <div class="card-header">
             <h4 class="my-0 font-weight-normal">Biohazard Level</h4>
           </div>
-          <div class="card-body">
-            <canvas id="sample_biohazard" width="100%" height="100%"></canvas>
+          <div class="card-body" id="sample-biohazard-div">
+            <canvas id="sample-biohazard" width="100%" height="100%"></canvas>
           </div>
         </div>
       </div>
@@ -101,30 +113,29 @@
 
       <div class="row">
         <div class="col-9">
-
           <div class="card-deck mb-3 text-center">
             <div class="card mb-4 box-shadow">
               <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Donor Status</h4>
               </div>
-              <div class="card-body">
-                <canvas id="donor_status" width="100%" height="100%"></canvas>
+              <div class="card-body" id="donor-status-div">
+                <canvas id="donor-status" width="100%" height="100%"></canvas>
               </div>
             </div>
             <div class="card mb-4 box-shadow">
               <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Donor Sex</h4>
               </div>
-              <div class="card-body">
-                <canvas id="donor_sex" width="100%" height="100%"></canvas>
+              <div class="card-body" id="donor-sex-div">
+                <canvas id="donor-sex" width="100%" height="100%"></canvas>
               </div>
             </div>
             <div class="card mb-4 box-shadow">
               <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Donor Race</h4>
               </div>
-              <div class="card-body">
-                <canvas id="donor_race" width="100%" height="100%"></canvas>
+              <div class="card-body" id="donor-race-div">
+                <canvas id="donor-race" width="100%" height="100%"></canvas>
               </div>
             </div>
 
@@ -136,24 +147,24 @@
               <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Document Type</h4>
               </div>
-              <div class="card-body">
-                <canvas id="document_type" width="100%" height="100%"></canvas>
+              <div class="card-body" id="document-type-id">
+                <canvas id="document-type" width="100%" height="100%"></canvas>
               </div>
             </div>
             <div class="card mb-4 box-shadow">
               <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Attribute Type</h4>
               </div>
-              <div class="card-body">
-                <canvas id="attribute_type" width="100%" height="100%"></canvas>
+              <div class="card-body" id="attribute-type-div">
+                <canvas id="attribute-type" width="100%" height="100%"></canvas>
               </div>
             </div>
             <div class="card mb-4 box-shadow">
               <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Protocol Type</h4>
               </div>
-              <div class="card-body">
-                <canvas id="protocol_type" width="100%" height="100%"></canvas>
+              <div class="card-body" id="protocol-type-div">
+                <canvas id="protocol-type" width="100%" height="100%"></canvas>
               </div>
             </div>
 
@@ -173,18 +184,15 @@
 
       </div>
 
-
-
-
-
-
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
 <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
 <script src="{{ url_for('static', filename='js/misc/panel.js') }}"></script>
 

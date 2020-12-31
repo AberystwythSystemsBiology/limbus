@@ -90,7 +90,7 @@ function fill_comments(comments) {
     if (comments == "") {
         var comments = "No comments available";
     }
-    $("#comments").html(comments);
+    $("#comments").text(comments);
 }
 
 
@@ -198,7 +198,6 @@ function fill_document_information(document_information) {
                 {
                     mData: {},
                     mRender: function(data, type, row) {
-                        console.log(data)
 
                         document_data = "<a href='"+data["_links"]["self"]+"'>";
                         document_data += '<i class="fas fa-file"></i> LIMBDOC-'
@@ -226,8 +225,6 @@ function fill_document_information(document_information) {
 }
 
 function fill_lineage_table(subsamples) {
-
-    if (subsamples.length > 0) {
         $('#subSampleTable').DataTable( {
             data: subsamples,
             pageLength: 5,
@@ -269,12 +266,9 @@ function fill_lineage_table(subsamples) {
             ],
             
         });
-    }
 
 
-    else {
-        $("#lineage").hide();
-    }
+
     
 }
 
@@ -301,6 +295,27 @@ function fill_quantity_chart(type, quantity, remaining_quantity) {
         }}
         );
 }
+
+function deactivate_nav() {
+    $("#basic-info-nav").removeClass("active");
+    $("#collection-nav").removeClass("active");
+    $("#processing-nav").removeClass("active");
+    $("#associated-documents-nav").removeClass("active");
+    $("#sample-review-nav").removeClass("active");
+    $("#lineage-nav").removeClass("active");
+    $("#custom-attr-nav").removeClass("active");
+}
+
+function hide_all() {
+    var tim = 50;
+    $("#basic-info").fadeOut(50);
+    $("#collection-info").fadeOut(50);
+    $("#processing-info").fadeOut(50);
+    $("#associated-documents").fadeOut(50);
+    $("#lineage-info").fadeOut(50);
+
+}
+
 
 $(document).ready(function() {
     var sample_info = get_sample();
@@ -330,9 +345,42 @@ $(document).ready(function() {
 
     });
 
-
     $("#print-label-btn").click(function() {
         window.location.href = sample_info["_links"]["label"]
     });
 
+    $("#basic-info-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#basic-info").fadeIn(100);
+    });
+
+    $("#collection-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#collection-info").fadeIn(100);
+    });
+
+    $("#processing-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#processing-info").fadeIn(100);
+    });
+
+    $("#associated-documents-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#associated-documents").fadeIn(100);
+    });
+
+    $("#lineage-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#lineage-info").fadeIn(100);
+    });
 });

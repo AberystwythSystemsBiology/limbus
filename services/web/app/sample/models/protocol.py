@@ -18,7 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
 class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
-
+    __versioned__ = {}
     datetime = db.Column(db.DateTime)
     undertaken_by = db.Column(db.String(128))
     comments = db.Column(db.Text)

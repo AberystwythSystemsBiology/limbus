@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,13 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
+import marshmallow_sqlalchemy as masql
 
+from ...extensions import ma
+from ...database import Sample
 
-class Building(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
-    __versioned__ = {}
-    name = db.Column(db.String(128))
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    site = db.relationship("SiteInformation", uselist=False)
-    rooms = db.relationship("Room", uselist=True)
+class SampleFilterSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    uuid = masql.auto_field()
+    barcode = masql.auto_field()
+    colour = masql.auto_field()
+    type = masql.auto_field()
+    biohazard_level = masql.auto_field()
+    source = masql.auto_field()
+    status = masql.auto_field()

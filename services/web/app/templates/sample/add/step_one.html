@@ -21,14 +21,7 @@
 
     <form action="{{ url_for('sample.add_collection_consent_and_barcode') }}" method="POST">
         {{ form.csrf_token }}
-        <div class="row">
-            <div class="col-6">
-                {{ form_field(form.barcode) }}
-            </div>
-            <div class="col-6">
-                {{ form_field(form.sample_status) }}
-            </div>
-        </div>
+        {{ form_field(form.barcode) }}
 
         {{ form_field(form.collection_select, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
 

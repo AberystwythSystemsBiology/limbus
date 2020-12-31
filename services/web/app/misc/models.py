@@ -17,8 +17,13 @@ from ..database import db, Base
 
 from ..mixins import RefAuthorMixin
 
+class Transaction(Base):
+    issued_at = db.Column(db.DateTime(), nullable=True)
+    remote_addr = db.Column(db.String(50), nullable=True)
+    
 
 class Address(Base, RefAuthorMixin):
+    __versioned__ = {}
     street_address_one = db.Column(db.String(256), nullable=False)
     street_address_two = db.Column(db.String(256))
     city = db.Column(db.String(128), nullable=False)
@@ -28,6 +33,7 @@ class Address(Base, RefAuthorMixin):
 
 
 class SiteInformation(Base, RefAuthorMixin):
+    __versioned__ = {}
     miabis_id = db.Column(db.String(128))
     acronym = db.Column(db.String(64))
     name = db.Column(db.String(128))

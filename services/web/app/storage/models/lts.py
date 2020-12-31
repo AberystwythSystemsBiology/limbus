@@ -19,6 +19,7 @@ from ..enums import FixedColdStorageTemps, FixedColdStorageType
 
 
 class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     serial_number = db.Column(db.String(128))
     manufacturer = db.Column(db.String(128))
     comments = db.Column(db.Text)
@@ -32,5 +33,6 @@ class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 
 class DocumentToColdStorage(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"))

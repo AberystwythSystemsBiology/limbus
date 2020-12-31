@@ -55,16 +55,3 @@ $(document).ready(function() {
 
 });
 
-
-// function check_status() {
-//     if ($("#processing_date_date").val() !='') {
-//         $("#death_date_div").show();
-//     }
-//     else {
-//         $("#sample_status_div").hide();
-//         $('#sample_status').val();
-//     }
-// }
-
-$("#sample_status_div").hide();
-

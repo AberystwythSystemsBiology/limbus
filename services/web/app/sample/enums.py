@@ -17,11 +17,11 @@ from ..FormEnum import FormEnum
 
 
 class SampleQuality(FormEnum):
-    NOT = "Not Specified"
     GOO = "Good"
     BAD = "Bad"
     DAM = "Damaged"
     UNU = "Unusable"
+    NOT = "Not Specified"
 
 
 class Colour(FormEnum):
@@ -184,12 +184,12 @@ class FluidContainer(FormEnum):
 
 
 class SampleStatus(FormEnum):
-    NCO = "Not Collected"
-    NPR = "Not Processed"
-    NRE = "Pending Review"
     AVA = "Available"
     DES = "Destroyed"
     UNU = "Unusable"
     TRA = "Transferred"
     MIS = "Missing"
     TMP = "Temporary Storage"
+    NCO = "Not Collected"
+    NPR = "Not Processed"
+    NRE = "Pending Review"
