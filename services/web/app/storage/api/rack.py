@@ -24,6 +24,8 @@ from ...database import db, SampleRack, UserAccount, EntityToStorage
 
 from ..enums import EntityToStorageType
 
+from sqlalchemy.sql import insert
+
 from marshmallow import ValidationError
 
 from ..views.rack import *
@@ -76,7 +78,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/rack/assign_sample", methods=["POST"])
+@api.route("/storage/rack/assign/sample", methods=["POST"])
 @token_required
 def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     values = request.get_json()
@@ -90,26 +92,25 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         return validation_error_response(err)
 
     # check if Sample exists.
-    existing = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
+    ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
 
-    if not existing:
-        new = EntityToStorage(**values)
-        new.author_id = tokenuser.id
-        new.storage_type = "STB"
-        db.session.add(new)
+    if not ets:
+        ets = EntityToStorage(**values)
+        ets.author_id = tokenuser.id
+        ets.storage_type = "STB"
     else:
-        existing.shelf_id = None
-        existing.rack_id = None
-        existing.storage_type = "STB"
-        existing.update(values)
-        db.session.add(existing)
-
+        ets.shelf_id = None
+        ets.rack_id = None
+        ets.storage_type = "STB"
+        ets.update(values)
     try:
+        db.session.add(ets)
         db.session.commit()
         db.session.flush()
 
         return success_with_content_response(
-            view_sample_to_sample_rack_schema.dump(existing)
+            view_sample_to_sample_rack_schema.dump(ets)
         )
     except Exception as err:
+        print(">>>>>>>>>>>>>>>", err)
         return transaction_error_response(err)

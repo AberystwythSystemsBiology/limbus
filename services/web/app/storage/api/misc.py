@@ -71,8 +71,6 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
-    # TODO: Need to check if Sample in table, and if it is - move.
-
     values = request.get_json()
 
     if not values:
@@ -85,6 +83,7 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
 
     ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
 
+
     if ets != None:
         ets.box_id = None
         ets.shelf_id = values["shelf_id"]
@@ -92,9 +91,14 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
         ets.storage_type = "STS"
 
     else:
-        ets = EntityToStorage(**sample_to_shelf_result)
-        ets.author_id = tokenuser.id
-        ets.storage_type = "STS"
+        ets = EntityToStorage(
+            sample_id = values["sample_id"],
+            shelf_id = values["shelf_id"],
+            storage_type = "STS",
+            entry = values["entry"],
+            entry_datetime = values["entry_datetime"],
+            author_id = tokenuser.id
+        )
 
     try:
         db.session.add(ets)

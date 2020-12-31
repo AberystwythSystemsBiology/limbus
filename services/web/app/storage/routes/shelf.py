@@ -166,8 +166,7 @@ def assign_rack_to_shelf(id):
 
                 if rack_move_response.status_code == 200:
                     return redirect(url_for("storage.view_shelf", id=id))
-
-                return abort(rack_response.status_code)
+                flash("We have a problem: %s" % (rack_move_response.json()))
 
             return render_template(
                 "storage/shelf/rack_to_shelf.html",

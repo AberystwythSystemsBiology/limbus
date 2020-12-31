@@ -49,7 +49,9 @@ def new_cold_storage(id):
                 url_for("api.storage_coldstorage_new", _external=True),
                 headers=get_internal_api_header(),
                 json={
+                    "alias": form.alias.data,
                     "room_id": id,
+                    "status": form.status.data,
                     "serial_number": form.serial_number.data,
                     "manufacturer": form.manufacturer.data,
                     "comments": form.comments.data,
@@ -66,7 +68,9 @@ def new_cold_storage(id):
                         id=new_response.json()["content"]["id"],
                     )
                 )
-            return abort(new_response.status_code)
+            else:
+                print(new_response.content)
+                flash("We have a problem", new_response.json())
 
         return render_template(
             "storage/lts/new.html", form=form, room=response.json()["content"]
@@ -101,6 +105,7 @@ def edit_cold_storage(id):
         form = ColdStorageForm(data=response.json()["content"])
         if form.validate_on_submit():
             form_information = {
+                "alias": form.alias.data,
                 "serial_number": form.serial_number.data,
                 "manufacturer": form.manufacturer.data,
                 "comments": form.comments.data,
