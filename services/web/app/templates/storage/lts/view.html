@@ -38,6 +38,14 @@
                                 </a>
                             </div>
 
+                            <div class="btn-group mr-2">
+                                <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}">
+                                    <div class="btn btn-outline-dark">
+                                        <i class="fas fa-plus"></i> Add Service Report
+                                    </div>
+                                </a>
+                            </div>
+
 
                             {% endif %}
 
@@ -67,10 +75,10 @@
                   <a class="nav-link active" id="basic-info-nav">Basic Information</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" id="collection-nav">Shelves</a>
+                  <a class="nav-link" id="shelves-nav">Shelves</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" id="associated-documents-nav">Callibration Information</a>
+                  <a class="nav-link" id="callibration-nav">Callibration Information</a>
                 </li>
 
             </ul>
