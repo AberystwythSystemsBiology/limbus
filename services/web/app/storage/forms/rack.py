@@ -12,3 +12,46 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+class NewSampleRackForm(FlaskForm):
+    serial = StringField("Serial Number", validators=[DataRequired()])
+    num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
+    num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
+    description = TextAreaField("Description")
+    colours = SelectField("Colour", choices=Colour.choices())
+    submit = SubmitField("Register")
+
+
+def CryoBoxFileUploadSelectForm(sample_data: dict):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit Cryovial Box")
+
+    for position, info in sample_data.items():
+        setattr(
+            StaticForm,
+            position,
+            BooleanField(
+                position,
+                render_kw={
+                    "_selectform": True,
+                    "_sample": info,
+                },
+            ),
+        )
+
+    return StaticForm()
+
+
+
+class NewCryovialBoxFileUploadForm(FlaskForm):
+    serial = StringField("Serial Number", validators=[DataRequired()])
+    description = TextAreaField("Description")
+    colour = SelectField("Colour", choices=Colour.choices())
+    barcode_type = SelectField(
+        "Barcode Type",
+        choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
+        description="The barcode attribute to cross reference against.",
+    )
+    file = FileField("File", validators=[DataRequired()])
+    submit = SubmitField("Upload File")
+
