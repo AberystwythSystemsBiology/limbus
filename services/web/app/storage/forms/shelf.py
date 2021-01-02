@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, TextAreaField, DateField, TimeField
+from wtforms.validators import DataRequired
+
+from datetime import datetime
 
 class NewShelfForm(FlaskForm):
     name = StringField(

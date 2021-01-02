@@ -13,7 +13,61 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask_wtf import FlaskForm
+from wtforms import (
+    StringField,
+    SubmitField,
+    TextAreaField,
+    SelectField,
+    DateField,
+    DecimalField
+)
 
+from wtforms.validators import DataRequired
+
+from datetime import datetime
+from ..enums import (
+    FixedColdStorageService,
+    FixedColdStorageStatus,
+    FixedColdStorageTemps,
+    ColdStorageServiceResult,
+    FixedColdStorageType
+)
+
+
+class ColdStorageServiceReportForm(FlaskForm):
+    date = DateField(
+        "Service Date",
+        validators=[DataRequired()],
+        default=datetime.today()
+    )
+
+    conducted_by = StringField(
+        "Conducted By"
+    )
+
+    temp = DecimalField(
+        "Temperature",
+        default=0.0
+    )
+
+    status = SelectField(
+        "Storage Status",
+        choices=ColdStorageServiceResult.choices()
+
+    )
+
+    comments = TextAreaField(
+        "Comments"
+    )
+
+    submit = SubmitField("Submit")
+    # Date
+    # Conducted by
+    # Temp
+    # Status
+    # Comments
+    # Submit
 
 class ColdStorageForm(FlaskForm):
 

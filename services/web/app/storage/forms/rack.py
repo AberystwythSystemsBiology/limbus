@@ -13,6 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+from flask_wtf import FlaskForm
+from wtforms import (
+    StringField,
+    SubmitField,
+    IntegerField,
+    SelectField,
+    TextAreaField,
+    FileField,
+    BooleanField
+)
+
+from wtforms.validators import DataRequired
+
+from ...sample.enums import Colour
+
 class NewSampleRackForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
     num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
