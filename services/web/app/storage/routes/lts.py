@@ -29,7 +29,7 @@ import requests
 from ...misc import get_internal_api_header
 from flask_login import current_user, login_required
 
-from ..forms import ColdStorageForm, NewShelfForm
+from ..forms import ColdStorageForm, NewShelfForm, ColdStorageServiceReportForm
 
 
 @storage.route("/coldstorage/new/LIMROOM-<id>", methods=["GET", "POST"])
@@ -79,6 +79,26 @@ def new_cold_storage(id):
     else:
         abort(response.status_code)
 
+
+@storage.route("/coldstorage/LIMBCS-<id>/new/report")
+@login_required
+def new_cold_storage_servicing_report(id: int):
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        form = ColdStorageServiceReportForm()
+
+
+        return render_template(
+            "storage/lts/servicing/new.html", 
+            form=form,
+            cs=response.json()["content"]
+        )
+
+    abort(response.status_code)
 
 @storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])
 @login_required
