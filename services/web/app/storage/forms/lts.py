@@ -13,3 +13,46 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+
+class ColdStorageForm(FlaskForm):
+
+    alias = StringField(
+        "Alias",
+        validators=[DataRequired()]
+    )
+
+    serial_number = StringField(
+        "Serial Number",
+        description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
+    )
+
+    manufacturer = StringField(
+        "Manufacturer",
+        validators=[DataRequired()],
+        description="The storage facility manufacturer.",
+    )
+
+    comments = TextAreaField("Comments")
+
+    status = SelectField(
+        "Status",
+        choices=FixedColdStorageStatus.choices(),
+        validators=[DataRequired()]
+    )
+
+    temperature = SelectField(
+        "Temperature",
+        choices=FixedColdStorageTemps.choices(),
+        validators=[DataRequired()],
+        description="The temperature of the inside of the storage facility.",
+    )
+
+    type = SelectField(
+        "Storage Type",
+        choices=FixedColdStorageType.choices(),
+        validators=[DataRequired()],
+        description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
+    )
+
+    submit = SubmitField("Register")

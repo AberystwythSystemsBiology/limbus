@@ -12,3 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+class BuildingRegistrationForm(FlaskForm):
+    name = StringField("Building Name", validators=[DataRequired()])
+    submit = SubmitField("Register Building")
