@@ -13,7 +13,7 @@
         <div class="jumbotron">
             <div class="container">
                 <h1><span class="secondary-heading"><i class="fa fa-building"></i> LIMBCS-{{cs.id}}
-                        ({{ cs.alias }}) </span>New Servicing Report</h1>
+                        ({{ cs.alias }}) </span>New Service Report</h1>
 
             </div>
         </div>
@@ -22,11 +22,11 @@
 
             <form method="POST" action="{{ url_for('storage.new_cold_storage_servicing_report', id=cs.id) }}">
                 {{ form.csrf_token }}
-                {{ form_field(form.date) }}
-                {{ form_field(form.conducted_by) }}
                 {{ form_field(form.status) }}
+                {{ form_field(form.date) }}
+                {{ form_field(form.temp) }}
+                {{ form_field(form.conducted_by) }}
                 {{ form_field(form.comments) }}
-
                 {{ form_field(form.submit) }}
             </form>
         </div>

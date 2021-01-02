@@ -43,16 +43,18 @@ class ColdStorageServiceReportForm(FlaskForm):
     )
 
     conducted_by = StringField(
-        "Conducted By"
+        "Conducted By",
+        description="The individual that conducted the service."
     )
 
     temp = DecimalField(
-        "Temperature",
+        "Temperature ℃",
+        description="The temperature reading on the cold storage in degrees centigrade (℃).",
         default=0.0
     )
 
     status = SelectField(
-        "Storage Status",
+        "Servicing Report Result",
         choices=ColdStorageServiceResult.choices()
 
     )
@@ -62,12 +64,7 @@ class ColdStorageServiceReportForm(FlaskForm):
     )
 
     submit = SubmitField("Submit")
-    # Date
-    # Conducted by
-    # Temp
-    # Status
-    # Comments
-    # Submit
+
 
 class ColdStorageForm(FlaskForm):
 

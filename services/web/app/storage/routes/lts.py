@@ -93,11 +93,11 @@ def new_cold_storage_servicing_report(id: int):
 
 
         return render_template(
-            "storage/lts/new_servicing_report.html", 
+            "storage/lts/servicing/new.html", 
             form=form,
             cs=response.json()["content"]
         )
-        
+
     abort(response.status_code)
 
 @storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])

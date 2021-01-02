@@ -30,22 +30,23 @@
                                 </a>
                             </div>
 
-                            <div class="btn-group mr-2">
-                                <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}">
-                                    <div class="btn btn-outline-dark">
-                                        <i class="fas fa-plus"></i> Add Shelf
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="btn-group mr-2">
-                                <a href="{{ url_for('storage.new_shelf', id=cs.room_id) }}">
-                                    <div class="btn btn-outline-dark">
-                                        <i class="fas fa-plus"></i> Add Service Report
-                                    </div>
-                                </a>
-                            </div>
-
+                            <div class="btn-btn-group mr-2" role="group">
+                                <div class="dropdown">
+                                  <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-lightbulb"></i> Actions
+                                  </button>
+                                  <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="{{ url_for('storage.new_shelf',id=cs.id) }}"><i
+                                        class="fa fa-bars"></i> Add Shelf</a>
+                                    <a class="dropdown-item" href="{{ url_for('storage.new_cold_storage_servicing_report',id=cs.id) }}"><i
+                                        class="fa fa-file"></i> Add Service Report</a>
+                                    
+                                  </div>
+                                </div>
+                              </div>
+ 
+     
 
                             {% endif %}
 
