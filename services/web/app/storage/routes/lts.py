@@ -69,7 +69,6 @@ def new_cold_storage(id):
                     )
                 )
             else:
-                print(new_response.content)
                 flash("We have a problem", new_response.json())
 
         return render_template(
@@ -80,7 +79,7 @@ def new_cold_storage(id):
         abort(response.status_code)
 
 
-@storage.route("/coldstorage/LIMBCS-<id>/new/report")
+@storage.route("/coldstorage/LIMBCS-<id>/new/report", methods=["GET", "POST"])
 @login_required
 def new_cold_storage_servicing_report(id: int):
     response = requests.get(
@@ -92,6 +91,25 @@ def new_cold_storage_servicing_report(id: int):
         form = ColdStorageServiceReportForm()
 
 
+        if form.validate_on_submit():
+            
+            new_response = requests.post(
+                url_for("api.storage_coldstorage_new_service_report", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "date": str(form.date.data),
+                    "conducted_by": form.conducted_by.data,
+                    "temp": float(form.temp.data),
+                    "status": form.status.data,
+                    "comments": form.comments.data
+                }
+            )
+
+            if new_response.status_code == 200:
+                flash("Service Report Added")
+                return redirect(url_for("storage.view_cold_storage", id=id))
+            else:
+                flash("We have a problem: %s" % (new_response.json()))
         return render_template(
             "storage/lts/servicing/new.html", 
             form=form,
