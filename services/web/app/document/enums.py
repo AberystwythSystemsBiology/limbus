@@ -21,4 +21,5 @@ class DocumentType(FormEnum):
     MANUE = "Device Manual"
     MATER = "Material Transfer Agreement"
     PROTO = "Processing Protocol"
+    SAFET = "Safety Data Sheet"
     OTHER = "Other"

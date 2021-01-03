@@ -41,8 +41,7 @@
                                         class="fa fa-bars"></i> Add Shelf</a>
                                     <a class="dropdown-item" href="{{ url_for('storage.new_cold_storage_servicing_report',id=cs.id) }}"><i
                                         class="fa fa-file"></i> Add Service Report</a>
-                                    
-                                  </div>
+                                    </div>
                                 </div>
                               </div>
  
@@ -79,10 +78,11 @@
                   <a class="nav-link" id="shelves-nav">Shelves</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" id="callibration-nav">Callibration Information</a>
+                  <a class="nav-link" id="service-report-nav">Service Reports</a>
                 </li>
 
             </ul>
+
 
             <div id="basic-info-div">
 
@@ -115,6 +115,34 @@
                 </a>
                 {% endfor %}
             </div>
+        </div>
+
+
+        <div id="service-report-div" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Service Date</th>
+                        <th>Status</th>
+                        <th>Temperature</th>
+                        <th>Uploader</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for service in cs.service_history %}
+                <tr>
+                    <td>
+                        <i class="fas fa-file"></i> SERVID-{{ service.id }}
+                    </td>
+                    <td>{{ service.date }}</td>
+                    <td>{{ service.status }}</td>
+                    <td>{{ service.temp }}℃</td>
+                    <td>{{ render_author_for_table(service.author) }}</td> 
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
         </div>
     </div>

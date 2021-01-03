@@ -23,7 +23,7 @@ from ...webarg_parser import use_args, use_kwargs, parser
 
 from marshmallow import ValidationError
 
-from ...database import db, UserAccount, ColdStorage
+from ...database import db, UserAccount, ColdStorage, ColdStorageService
 
 from ..views import *
 
@@ -42,6 +42,36 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
     return success_with_content_response(
         cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
+
+
+@api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
+@token_required
+def storage_coldstorage_new_service_report(id, tokenuser:UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    values["storage_id"] = id
+
+    try:
+        service_result = new_cold_storage_service_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    csr = ColdStorageService(**values)
+    csr.author_id = tokenuser.id
+
+    try:
+        db.session.add(csr)
+        db.session.commit()
+
+        return success_with_content_response(
+            cold_storage_service_schema.dump(csr)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
 
 
 @api.route("/storage/coldstorage/new", methods=["POST"])

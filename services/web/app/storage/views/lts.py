@@ -31,9 +31,24 @@ class ColdStorageServiceSchema(masql.SQLAlchemySchema):
     conducted_by = masql.auto_field()
     status = EnumField(ColdStorageServiceResult, by_value=True)
     comments = masql.auto_field()
+    temp = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
 
 cold_storage_service_schema = ColdStorageServiceSchema()
 cold_storage_services_schema = ColdStorageServiceSchema(many=True)
+
+class NewColdStorageServiceSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageService
+    
+    date = masql.auto_field()
+    conducted_by = masql.auto_field()
+    status = EnumField(ColdStorageServiceResult)
+    comments = masql.auto_field()
+    storage_id = masql.auto_field()
+    temp = masql.auto_field()
+
+new_cold_storage_service_schema = NewColdStorageServiceSchema()
 
 
 class BasicColdStorageSchema(masql.SQLAlchemySchema):
