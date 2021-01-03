@@ -118,8 +118,31 @@
         </div>
 
 
-        <div id="service-report-div">
-            {{ cs.service_history }}
+        <div id="service-report-div" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Service Date</th>
+                        <th>Status</th>
+                        <th>Temperature</th>
+                        <th>Uploader</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for service in cs.service_history %}
+                <tr>
+                    <td>
+                        <i class="fas fa-file"></i> SERVID-{{ service.id }}
+                    </td>
+                    <td>{{ service.date }}</td>
+                    <td>{{ service.status }}</td>
+                    <td>{{ service.temp }}℃</td>
+                    <td>{{ render_author_for_table(service.author) }}</td> 
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
         </div>
     </div>

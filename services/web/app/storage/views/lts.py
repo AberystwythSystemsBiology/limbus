@@ -32,6 +32,7 @@ class ColdStorageServiceSchema(masql.SQLAlchemySchema):
     status = EnumField(ColdStorageServiceResult, by_value=True)
     comments = masql.auto_field()
     temp = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
 
 cold_storage_service_schema = ColdStorageServiceSchema()
 cold_storage_services_schema = ColdStorageServiceSchema(many=True)
