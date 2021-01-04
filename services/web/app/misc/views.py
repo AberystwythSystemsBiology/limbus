@@ -31,7 +31,7 @@ class NewAddressSchema(masql.SQLAlchemySchema):
     county = masql.auto_field()
     post_code = masql.auto_field()
     country = masql.auto_field()
-    author_id = masql.auto_field()
+    # author_id = masql.auto_field()
 
 
 new_address_schema = NewAddressSchema()
