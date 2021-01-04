@@ -136,7 +136,7 @@ class SampleTypeSelectForm(FlaskForm):
         description="BSL category for the sample.",
     )
 
-    sample_type = SelectField("Sample Type", choices=SampleBaseType.choices())
+    sample_type = SelectField("Sample Type", choices=SampleType.choices())
     fluid_sample_type = SelectField(
         "Fluid Sample Type", choices=FluidSampleType.choices()
     )

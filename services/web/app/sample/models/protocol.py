@@ -25,7 +25,5 @@ class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
 
     comments = db.Column(db.Text)
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
     protocol = db.relationship("ProtocolTemplate")

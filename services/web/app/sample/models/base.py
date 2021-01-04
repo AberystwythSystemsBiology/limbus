@@ -59,24 +59,14 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         uselist=False,
         primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id",
     )
-  
-    # Procesing Events
-    processing_events = db.relationship(
-        "SampleProtocolEvent", 
-        primaryjoin=("and_(Sample.id==SampleProtocolEvent.sample_id)"),
-        uselist=True
-    )
 
-    # Transfer Events
-    processing_events = db.relationship(
-        "SampleProtocolEvent",
-        primaryjoin=("and_(Sample.id==SampleProtocolEvent.sample_id)"),
-        uselist=True
-    )
+    
+    # Procesing Events
+    processing_events = db.relationship("SampleProtocolEvent", uselist=True)
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
-    disposal_information = db.relationship("SampleDisposalProtocol", uselist=False)
+    disposal_information = db.relationship("SampleDisposal", uselist=False)
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)

@@ -16,7 +16,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField
-from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
+from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleType
 
 class SampleFilterForm(FlaskForm):
 
@@ -27,7 +27,7 @@ class SampleFilterForm(FlaskForm):
     uuid = StringField("UUID")
     barcode = StringField("Barcode")
     colour = SelectField("Colour", choices=Colour.choices(with_none=True))
-    type = SelectField("Sample Type", choices=SampleBaseType.choices(with_none=True))
+    type = SelectField("Sample Type", choices=SampleType.choices(with_none=True))
     source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
     status = SelectField("Sample Status", choices=SampleStatus.choices(with_none=True))
     submit = SubmitField("Filter")
