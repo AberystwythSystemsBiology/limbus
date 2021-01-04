@@ -66,7 +66,6 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
-    # TODO: Make a sample_id relationship in SampleDisposal.
     disposal_information = db.relationship("SampleDisposal", uselist=False)
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
@@ -120,3 +119,4 @@ class SampleDisposalProtocol(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
