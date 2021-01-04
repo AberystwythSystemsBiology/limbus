@@ -38,7 +38,7 @@ class SampleSource(FormEnum):
     DER = "Derivative"
 
 
-class SampleType(FormEnum):
+class SampleBaseType(FormEnum):
     FLU = "Fluid"
     CEL = "Cell"
     MOL = "Molecular"

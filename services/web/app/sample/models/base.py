@@ -16,7 +16,7 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import (
-    SampleType,
+    SampleBaseType,
     SampleStatus,
     DisposalInstruction,
     Colour,
@@ -44,7 +44,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
     # Type and container information
-    type = db.Column(db.Enum(SampleType))
+    base_type= db.Column(db.Enum(SampleBaseType))
     # TODO
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
     sample_type_information = db.relationship("SampleToType")

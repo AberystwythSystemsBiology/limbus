@@ -17,7 +17,7 @@ from ...database import Sample
 from ...auth.views import BasicUserAccountSchema
 from ...extensions import ma
 from ..enums import (
-    SampleType,
+    SampleBaseType,
     Colour,
     SampleSource,
     SampleStatus,
@@ -45,7 +45,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
 
     barcode = masql.auto_field()
     source = EnumField(SampleSource)
-    type = EnumField(SampleType)
+    base_type = EnumField(SampleBaseType)
     status = EnumField(SampleStatus)
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
@@ -67,10 +67,10 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
-    type = EnumField(SampleType, by_value=True)
+    base_type = EnumField(SampleBaseType, by_value=True)
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
-    status = EnumField(SampleType, by_value=True)
+    status = EnumField(SampleStatus, by_value=True)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
@@ -104,7 +104,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
 
     uuid = masql.auto_field()
-    type = EnumField(SampleType, by_value=True)
+    base_type = EnumField(SampleBaseType, by_value=True)
     is_locked = masql.auto_field()
 
     quantity = masql.auto_field()
