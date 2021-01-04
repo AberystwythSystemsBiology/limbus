@@ -46,8 +46,6 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
 
-
-
     storage_requirement = db.Column(db.Enum(SampleStorageRequirement))
 
     is_closed = db.Column(db.Boolean, default=False)
@@ -62,7 +60,9 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id",
     )
 
-    # protocol_events    
+    
+    # Procesing Events
+    processing_events = db.relationship("SampleProtocolEvent", uselist=True)
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
@@ -92,9 +92,9 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     donor = db.relationship(
         "Donor",
-        secondary="sampletodonor",
-        primaryjoin="Sample.id==SampleToDonor.sample_id",
-        secondaryjoin="Donor.id==SampleToDonor.donor_id",
+        secondary="donortosample",
+        primaryjoin="Sample.id==DonorToSample.sample_id",
+        secondaryjoin="Donor.id==DonorToSample.donor_id",
         uselist=False
     )
 
@@ -103,11 +103,6 @@ class SampleComments(Base, RefAuthorMixin, RefEditorMixin):
     comments = db.Column(db.Text)
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
 
-class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
-    vist_number = db.Column(db.Integer)
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
-    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
