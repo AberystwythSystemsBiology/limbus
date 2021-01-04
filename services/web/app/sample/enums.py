@@ -24,6 +24,15 @@ class SampleQuality(FormEnum):
     NOT = "Not Specified"
 
 
+class SampleStorageRequirement(FormEnum):
+    A = "Room Temperature"
+    B = "Between 2°C and 10°C"
+    C = "Between -18°C and -35°C"
+    D = "Between -60°C and -85°C"
+    LN = "Liquid Nitrogen"
+    Z = "Other"
+    N = "None"
+
 class Colour(FormEnum):
     BLU = "Blue"
     RED = "Red"
@@ -38,7 +47,7 @@ class SampleSource(FormEnum):
     DER = "Derivative"
 
 
-class SampleType(FormEnum):
+class SampleBaseType(FormEnum):
     FLU = "Fluid"
     CEL = "Cell"
     MOL = "Molecular"
