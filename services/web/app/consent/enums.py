@@ -22,13 +22,3 @@ class QuestionType(FormEnum):
     GENE = "Genetic Tests"
     FUTU = "Future Samples"
     EXTE = "Available for External Sources"
-
-class DataCategories(FormEnum):
-    BS = "Biological Samples"
-    SD = "Survey Data"
-    ID = "Imaging Data"
-    MR = "Medical Records"
-    NR = "National Registries"
-    GR = "Genealogical Records"
-    PM = "Physiological/Biochemical Measurements"
-    OT = "Other"
