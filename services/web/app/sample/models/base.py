@@ -29,23 +29,24 @@ from ..enums import (
 class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    barcode = db.Column(db.Text)
-
-    source = db.Column(db.Enum(SampleSource))
-    status = db.Column(db.Enum(SampleStatus))
     colour = db.Column(db.Enum(Colour))
+    barcode = db.Column(db.Text)
     biohazard_level = db.Column(db.Enum(BiohazardLevel))
+    source = db.Column(db.Enum(SampleSource))
+
+    base_type = db.Column(db.Enum(SampleBaseType))
+
+    status = db.Column(db.Enum(SampleStatus))
+
+    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
     quantity = db.Column(db.Float, nullable=False)
     remaining_quantity = db.Column(db.Float, nullable=False)
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-
-    base_type = db.Column(db.Enum(SampleBaseType))
-
-    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
+
+
 
     storage_requirement = db.Column(db.Enum(SampleStorageRequirement))
 
@@ -62,7 +63,6 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     )
 
     # protocol_events    
-
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
@@ -91,12 +91,24 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     storage = db.relationship("EntityToStorage", uselist=True)
 
-    # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
+    donor = db.relationship(
+        "Donor",
+        secondary="sampletodonor",
+        primaryjoin="Sample.id==SampleToDonor.sample_id",
+        secondaryjoin="Donor.id==SampleToDonor.donor_id",
+        uselist=False
+    )
 
 class SampleComments(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     comments = db.Column(db.Text)
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+
+class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
+    vist_number = db.Column(db.Integer)
+
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}

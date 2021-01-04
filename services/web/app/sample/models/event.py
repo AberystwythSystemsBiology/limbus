@@ -13,14 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
 
-
-
-
-from .protocol import *
-from .attribute import *
-from .types import *
-from .consent import *
-from .document import *
-from .review import *
-from .base import *
+class SampleEvent(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = "True"
