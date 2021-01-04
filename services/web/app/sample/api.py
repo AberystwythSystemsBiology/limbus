@@ -32,7 +32,7 @@ from ..database import (
     SampleConsent,
     SampleConsentAnswer,
     SampleProtocolEvent,
-    SampleDisposal,
+    SampleDisposalProtocol,
     SampleToContainer,
     SampleToType,
     SampleDocument,
@@ -265,7 +265,7 @@ def sample_new_disposal_instructions(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    new_disposal_instructions = SampleDisposal(**disposal_instructions_values)
+    new_disposal_instructions = SampleDisposalProtocol(**disposal_instructions_values)
     new_disposal_instructions.author_id = tokenuser.id
 
     try:

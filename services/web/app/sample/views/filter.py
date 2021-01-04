@@ -25,7 +25,7 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     barcode = masql.auto_field()
     colour = masql.auto_field()
-    type = masql.auto_field()
+    base_type = masql.auto_field()
     biohazard_level = masql.auto_field()
     source = masql.auto_field()
     status = masql.auto_field()

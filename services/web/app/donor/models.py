@@ -45,6 +45,7 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
+    visit_number = db.Column(db.Integer)
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
 

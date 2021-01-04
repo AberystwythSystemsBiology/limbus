@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,16 +16,5 @@
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin
 
-
-class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
-
-    datetime = db.Column(db.DateTime)
-    undertaken_by = db.Column(db.String(128))
-
-    comments = db.Column(db.Text)
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-
-    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
-    protocol = db.relationship("ProtocolTemplate")
+class SampleEvent(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = "True"

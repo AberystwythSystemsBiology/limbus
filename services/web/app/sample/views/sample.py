@@ -17,11 +17,12 @@ from ...database import Sample
 from ...auth.views import BasicUserAccountSchema
 from ...extensions import ma
 from ..enums import (
-    SampleType,
+    SampleBaseType,
     Colour,
     SampleSource,
     SampleStatus,
-    BiohazardLevel
+    BiohazardLevel,
+    SampleStorageRequirement
 )
 
 from . import (
@@ -39,101 +40,8 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-class NewSampleSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Sample
 
-    barcode = masql.auto_field()
-    source = EnumField(SampleSource)
-    type = EnumField(SampleType)
-    status = EnumField(SampleStatus)
-    colour = EnumField(Colour)
-    biohazard_level = EnumField(BiohazardLevel)
-    comments = masql.auto_field()
-    site_id = masql.auto_field()
-    quantity = masql.auto_field()
-    disposal_id = masql.auto_field()
-    sample_to_type_id = masql.auto_field()
-    consent_id = masql.auto_field()
-    collection_event_id = masql.auto_field()
-    processing_event_id = masql.auto_field()
-
-
-new_sample_schema = NewSampleSchema()
-
-class BasicSampleSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Sample
-
-    id = masql.auto_field()
-    uuid = masql.auto_field()
-    type = EnumField(SampleType, by_value=True)
-    quantity = masql.auto_field()
-    remaining_quantity = masql.auto_field()
-    status = EnumField(SampleType, by_value=True)
-
-    colour = EnumField(Colour, by_value=True)
-    source = EnumField(SampleSource, by_value=True)
-    created_on = ma.Date()
-    parent = ma.Nested(SampleUUIDSchema, many=False)
-
-    sample_type_information = ma.Nested(SampleTypeSchema)
-
-    barcode = masql.auto_field()
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
-
-    _links = ma.Hyperlinks(
-        {
-            "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
-            "collection": ma.URLFor("sample.index", _external=True),
-            "barcode_generation": ma.URLFor(
-                "api.misc_generate_barcode", _external=True
-            ),
-        }
-    )
-
-
-basic_sample_schema = BasicSampleSchema()
-basic_samples_schema = BasicSampleSchema(many=True)
-
-
-class SampleSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Sample
-
-    id = masql.auto_field()
-
-    uuid = masql.auto_field()
-    type = EnumField(SampleType, by_value=True)
-    is_locked = masql.auto_field()
-
-    quantity = masql.auto_field()
-    remaining_quantity = masql.auto_field()
-    comments = masql.auto_field()
-    barcode = masql.auto_field()
-    sample_type_information = ma.Nested(SampleTypeSchema)
-
-    colour = EnumField(Colour, by_value=True)
-    source = EnumField(SampleSource, by_value=True)
-    biohazard_level = EnumField(BiohazardLevel, by_value=True)
-    status = EnumField(SampleSource, by_value=True)
-    site_id = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
-    processing_information = ma.Nested(SampleProtocolEventSchema, many=False)
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
-    disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
-    consent_information = ma.Nested(ConsentSchema, many=False)
-
-    documents = ma.Nested(BasicDocumentSchema, many=True)
-
-    reviews = ma.Nested(SampleReviewSchema, many=True)
-
-    parent = ma.Nested(BasicSampleSchema, many=False)
-    subsamples = ma.Nested(BasicSampleSchema, many=True)
-
-    created_on = ma.Date()
-
-    _links = ma.Hyperlinks(
+_links = ma.Hyperlinks(
         {
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
@@ -148,5 +56,39 @@ class SampleSchema(masql.SQLAlchemySchema):
         }
     )
 
+class NewSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    colour = EnumField(Colour)
+    barcode = masql.auto_field()
+    bioharzard_level = EnumField(BiohazardLevel)
+    source = EnumField(SampleSource)
+    base_type = EnumField(SampleBaseType)
+    status = EnumField(SampleStatus)
+    collection_event_id = masql.auto_field()
+    quantity = masql.auto_field()
+    site_id = masql.auto_field()
+    consent_id = masql.auto_field()
+    storage_requirement = EnumField(SampleStorageRequirement)
+
+
+
+new_sample_schema = NewSampleSchema()
+
+class BasicSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    id = masql.auto_field()
+
+basic_sample_schema = BasicSampleSchema()
+basic_samples_schema = BasicSampleSchema(many=True)
+
+
+class SampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+    id = masql.auto_field()
 
 sample_schema = SampleSchema()

@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import SampleDisposal
+from ...database import SampleDisposalProtocol
 
 from ...consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
 
@@ -25,7 +25,7 @@ from marshmallow_enum import EnumField
 
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleDisposal
+        model = SampleDisposalProtocol
 
     id = masql.auto_field()
     instruction = EnumField(DisposalInstruction)
@@ -38,7 +38,7 @@ basic_disposal_schema = BasicSampleDisposalSchema()
 
 class NewSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleDisposal
+        model = SampleDisposalProtocol
 
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()

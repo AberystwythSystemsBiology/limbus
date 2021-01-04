@@ -20,10 +20,13 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     identifier = db.Column(db.String(128))
+    
     comments = db.Column(db.Text)
-    date_signed = db.Column(db.Date, nullable=False)
+    
+    date = db.Column(db.Date, nullable=False)
 
     file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    
     file = db.relationship("Document")
 
     withdrawn = db.Column(db.Boolean, default=False, nullable=False)
