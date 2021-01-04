@@ -28,7 +28,7 @@ class NewConsentSchema(masql.SQLAlchemySchema):
     identifier = masql.auto_field()
     comments = masql.auto_field()
     template_id = masql.auto_field()
-    date = masql.auto_field()
+    date_signed = masql.auto_field()
 
 
 new_consent_schema = NewConsentSchema()
