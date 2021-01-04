@@ -61,6 +61,12 @@ def CollectionConsentAndDisposalForm(
             validators=[Optional()],
         )
 
+        colour = SelectField(
+            "Colour",
+            choices=Colour.choices(),
+            description="Identifiable colour code for the sample.",
+        )
+
         barcode = StringField(
             "Sample Biobank Barcode",
             validators=[validate_barcode],
@@ -285,71 +291,4 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
         )
 
     return StaticForm()
-
-def FinalSampleForm(custom_attributes: list) -> FlaskForm:
-
-    # TODO: Likely to be broken out to a new file
-    def _custom_text_field(attribute):
-        text_setting = attribute["text_setting"]
-
-        if text_setting["type"] == "SF":
-            form_type = StringField
-        else:
-            form_type = TextAreaField
-
-        return form_type(
-            attribute["term"],
-            description=attribute["term"],
-            validators=[DataRequired(), Length(max=text_setting["max_length"])],
-            render_kw={"custom": True},
-        )
-
-    def _custom_numeric_field(attribute):
-        return FloatField(
-            attribute["term"],
-            description=attribute["description"],
-            validators=[DataRequired()],
-            render_kw={"custom": True},
-        )
-
-    def _custom_option_field(attribute):
-        choices = []
-        for option in attribute["options"]:
-            choices.append([option["id"], option["term"]])
-
-        return SelectField(
-            attribute["term"],
-            description=attribute["description"],
-            validators=[DataRequired()],
-            choices=choices,
-            render_kw={"custom": True},
-            coerce=int,
-        )
-
-    # END TODO
-
-    class StaticForm(FlaskForm):
-        colour = SelectField(
-            "Colour",
-            choices=Colour.choices(),
-            description="Identifiable colour code for the sample.",
-        )
-
-        comments = TextAreaField("Comments")
-        submit = SubmitField("Submit")
-
-    for attribute in custom_attributes:
-        if attribute["type"] == "TEXT":
-            form_element = _custom_text_field(attribute)
-        elif attribute["type"] == "OPTION":
-            form_element = _custom_option_field(attribute)
-        else:
-            form_element = _custom_numeric_field(attribute)
-
-        setattr(StaticForm, str(attribute["id"]), form_element)
-
-    return StaticForm()
-
-
-
 

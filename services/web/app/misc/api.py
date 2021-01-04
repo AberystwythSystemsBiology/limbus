@@ -153,9 +153,9 @@ def get_data(tokenuser: UserAccount):
                 [
                     (type.value, count)
                     for (type, count) in db.session.query(
-                        Sample.type, func.count(Sample.type)
+                        Sample.base_type, func.count(Sample.base_type)
                     )
-                    .group_by(Sample.type)
+                    .group_by(Sample.base_type)
                     .all()
                 ]
             ),

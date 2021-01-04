@@ -16,12 +16,12 @@
 <div class="container">
 
 
-
     {% if collection_protocol_count > 0 and template_count > 0 and processing_protocols_count >0 %}
 
     <form action="{{ url_for('sample.add_collection_consent_and_barcode') }}" method="POST">
         {{ form.csrf_token }}
         {{ form_field(form.barcode) }}
+        {{ form_field(form.colour) }}
 
         {{ form_field(form.collection_select, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
 

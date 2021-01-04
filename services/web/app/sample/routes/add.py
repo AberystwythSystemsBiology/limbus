@@ -26,8 +26,7 @@ from ..forms import (
     SampleTypeSelectForm,
     ProtocolTemplateSelectForm,
     SampleReviewForm,
-    CustomAttributeSelectForm,
-    FinalSampleForm,
+    CustomAttributeSelectForm
 )
 
 from datetime import datetime
@@ -690,66 +689,3 @@ def add_custom_atributes(hash):
         flash("We have a problem :( %s" % (store_response.json()))
 
     return render_template("sample/add/step_five.html", form=form, hash=hash)
-
-
-@sample.route("add/six/<hash>", methods=["GET", "POST"])
-@login_required
-def add_sample_final_form(hash):
-    # TODO: Extend the query thing to allow for .in when passed a list
-    tmpstore_response = requests.get(
-        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
-        headers=get_internal_api_header(),
-    )
-
-    if tmpstore_response.status_code != 200:
-        abort(tmpstore_response.status_code)
-
-    tmpstore_data = tmpstore_response.json()["content"]["data"]
-
-    custom_attribute_ids = tmpstore_data["add_custom_atributes"]["checked"]
-
-    custom_attributes = []
-    for id in custom_attribute_ids:
-        attribute_response = requests.get(
-            url_for("api.attribute_view_attribute", hash=hash, id=id, _external=True),
-            headers=get_internal_api_header(),
-        )
-
-        if attribute_response.status_code != 200:
-            pass
-        else:
-            custom_attributes.append(attribute_response.json()["content"])
-
-    form = FinalSampleForm(custom_attributes)
-
-    if form.validate_on_submit():
-        custom_field_data = []
-
-        for field in form:
-            if field.render_kw:
-                custom_field_data.append([int(field.id), field.data, field.type])
-
-        final_details = {
-            "colour": form.colour.data,
-            "comments": form.comments.data,
-            "custom_field_data": custom_field_data,
-        }
-
-        tmpstore_data["add_final_details"] = final_details
-
-        store_response = requests.put(
-            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
-            headers=get_internal_api_header(),
-            json={"data": tmpstore_data},
-        )
-
-        if store_response.status_code == 200:
-            return redirect(
-                url_for(
-                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
-                )
-            )
-
-        flash("We have a problem :( %s" % (store_response.json()))
-
-    return render_template("sample/add/step_six.html", form=form, hash=hash)
