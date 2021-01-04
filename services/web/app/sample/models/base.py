@@ -43,8 +43,8 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
-    # Type and container information
     base_type= db.Column(db.Enum(SampleBaseType))
+
     # TODO
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
     sample_type_information = db.relationship("SampleToType")
@@ -63,6 +63,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     consent_id = db.Column(
         db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False
     )
+
     consent_information = db.relationship("SampleConsent", uselist=False)
 
     # Disposal Information
@@ -70,14 +71,10 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
     disposal_information = db.relationship("SampleDisposal", uselist=False)
 
-    # Processing Information
-    # Done -> sample_new_sample_protocol_event
-    processing_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-    processing_information = db.relationship(
+    protocol_events = db.relationship(
         "SampleProtocolEvent",
-        primaryjoin="SampleProtocolEvent.id==Sample.processing_event_id",
+        secondary="sampletoprotocolevent",
     )
-
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)
@@ -101,7 +98,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     storage = db.relationship("EntityToStorage", uselist=True)
 
-    # donor = db.relationship("Donor", uselist=False, secondary="sampletodonor")
+    donor = db.relationship("Donor", uselist=False, secondary="donortosample")
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
@@ -110,6 +107,11 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     subsample_id = db.Column(
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
     )
+
+class SampleToProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+    sample_id =  db.Column(db.Integer, db.ForeignKey("sample.id"))
+    protocol_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):

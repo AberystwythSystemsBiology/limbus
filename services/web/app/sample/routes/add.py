@@ -41,7 +41,7 @@ def prepare_form_data(form_data: dict) -> dict:
             "consent_data": {
                 "template_id": int(consent_template_id),
                 "identifier": consent_data["consent_id"],
-                "date_signed": consent_data["date_signed"],
+                "date": consent_data["date"],
                 "comments": consent_data["comments"],
             },
             "answer_data": consent_data["checked"],
@@ -452,7 +452,7 @@ def add_digital_consent_form(hash):
         consent_details = {
             "consent_id": questionnaire.consent_id.data,
             "comments": questionnaire.comments.data,
-            "date_signed": str(questionnaire.date_signed.data),
+            "date": str(questionnaire.date.data),
             "checked": [],
         }
 

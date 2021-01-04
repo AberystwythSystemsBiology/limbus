@@ -212,7 +212,7 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
 
         comments = TextAreaField("Comments")
 
-        date_signed = DateField("Date of Consent", default=datetime.today())
+        date = DateField("Date of Consent", default=datetime.today())
 
         submit = SubmitField("Continue")
 
