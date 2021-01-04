@@ -29,9 +29,6 @@ from ..enums import (
 
 class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-
     flui_type = db.Column(db.Enum(FluidSampleType), nullable=True)
     mole_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
     cell_type = db.Column(db.Enum(CellSampleType), nullable=True)

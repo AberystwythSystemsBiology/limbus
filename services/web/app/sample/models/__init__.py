@@ -14,6 +14,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+"""
+class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
+    __tablename__ = "sampletodonor"
+
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+"""
+
+
 from .protocol import *
 from .attribute import *
 from .types import *

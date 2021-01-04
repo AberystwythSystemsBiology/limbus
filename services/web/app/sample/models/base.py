@@ -1,4 +1,4 @@
-# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,67 +21,65 @@ from ..enums import (
     DisposalInstruction,
     Colour,
     SampleSource,
-    SampleStorageRequirement,
     BiohazardLevel,
 )
 
 
 class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-
-    colour = db.Column(db.Enum(Colour))
     barcode = db.Column(db.Text)
-    biohazard_level = db.Column(db.Enum(BiohazardLevel))
+
     source = db.Column(db.Enum(SampleSource))
 
-    base_type = db.Column(db.Enum(SampleBaseType))
-
     status = db.Column(db.Enum(SampleStatus))
+    colour = db.Column(db.Enum(Colour))
 
-    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    biohazard_level = db.Column(db.Enum(BiohazardLevel))
+
+    comments = db.Column(db.Text, nullable=True)
 
     quantity = db.Column(db.Float, nullable=False)
     remaining_quantity = db.Column(db.Float, nullable=False)
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False)
 
-    storage_requirement = db.Column(db.Enum(SampleStorageRequirement))
+    base_type= db.Column(db.Enum(SampleBaseType))
 
-    is_closed = db.Column(db.Boolean, default=False)
-
-    # Relationship Information
-
+    # TODO
+    sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
     sample_type_information = db.relationship("SampleToType")
 
-    collection_event = db.relationship(
+    # Collection Informaiton
+    # Done -> sample_new_sample_protocol_event
+    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    collection_information = db.relationship(
         "SampleProtocolEvent",
         uselist=False,
         primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id",
     )
-  
-    # Procesing Events
-    processing_events = db.relationship(
-        "SampleProtocolEvent", 
-        primaryjoin=("and_(Sample.id==SampleProtocolEvent.sample_id)"),
-        uselist=True
-    )
 
-    # Transfer Events
-    processing_events = db.relationship(
-        "SampleProtocolEvent",
-        primaryjoin=("and_(Sample.id==SampleProtocolEvent.sample_id)"),
-        uselist=True
+    # Consent Information
+    # Done -> sample_new_sample_consent
+    consent_id = db.Column(
+        db.Integer, db.ForeignKey("sampleconsent.id"), nullable=False
     )
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
-    disposal_information = db.relationship("SampleDisposalProtocol", uselist=False)
+    # Disposal Information
+    # Done -> sample_new_disposal_instructions
+    disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
+    disposal_information = db.relationship("SampleDisposal", uselist=False)
+
+    protocol_events = db.relationship(
+        "SampleProtocolEvent",
+        secondary="sampletoprotocolevent",
+    )
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)
 
-    comments = db.relationship("SampleComments", uselist=True, primaryjoin="SampleComments.sample_id==Sample.id")
+    is_closed = db.Column(db.Boolean, default=False)
 
     subsamples = db.relationship(
         "Sample",
@@ -100,28 +98,24 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     storage = db.relationship("EntityToStorage", uselist=True)
 
-    donor = db.relationship(
-        "Donor",
-        secondary="donortosample",
-        primaryjoin="Sample.id==DonorToSample.sample_id",
-        secondaryjoin="Donor.id==DonorToSample.donor_id",
-        uselist=False
-    )
-
-class SampleComments(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
-    comments = db.Column(db.Text)
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    donor = db.relationship("Donor", uselist=False, secondary="donortosample")
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
-    subsample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
+    subsample_id = db.Column(
+        db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
+    )
 
-class SampleDisposalProtocol(Base, RefAuthorMixin, RefEditorMixin):
+class SampleToProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+    sample_id =  db.Column(db.Integer, db.ForeignKey("sample.id"))
+    protocol_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+
+
+class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)

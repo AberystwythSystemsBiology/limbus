@@ -132,7 +132,7 @@ function fill_consent_information(consent_information) {
         $("#questionnaire-list").append(answer_html);
     }
 
-    $("#consent_date_signed").html(consent_information);
+    $("#consent_date").html(consent_information);
 
 
 }
