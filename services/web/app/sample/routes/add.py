@@ -35,6 +35,9 @@ import requests
 
 
 def prepare_form_data(data: dict):
+
+    print(data)
+
     return "Hello World"
 
 
@@ -119,6 +122,7 @@ def add_step_one():
     if form.validate_on_submit():
 
         route_data = {
+            "sample_status": form.sample_status.data,
             "barcode": form.barcode.data,
             "collection_protocol_id": form.collection_select.data,
             "collected_by": form.collected_by.data,
@@ -180,7 +184,7 @@ def add_step_two(hash):
     )
 
     if consent_response.status_code != 200:
-        abort(consent_response.status_code)
+        return consent_response.response
 
     consent_template = consent_response.json()["content"]
 

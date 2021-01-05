@@ -106,8 +106,6 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
 
-    print(values)
-
     if not values:
         return no_values_response()
 
@@ -209,26 +207,29 @@ def sample_new_sample(tokenuser: UserAccount):
         return no_values_response()
 
     errors = {}
-    for key in ["collection_information"]:
+    for key in ["collection_information", "sample_information", "sample_type_information", "consent_information"]:
         if key not in values.keys():
             errors[key] = ["Not found."]
 
     if len(errors.keys()) > 0:
         return validation_error_response(errors)
 
-    print(values["collection_information"])
-
-    protocol_event = requests.post(
+    protocol_event_response = requests.post(
         url_for("api.sample_new_sample_protocol_event", _external=True),
-        headers=get_internal_api_header(),
+        headers=get_internal_api_header(tokenuser),
         json=values["collection_information"]
     )
 
-    if protocol_event.status_code == 200:
-        print(protocol_event)
+    if protocol_event_response.status_code == 200:
+        collection_event = protocol_event_response.json()["content"]
     else:
-        return success_with_content_response({"broke?": "yes"})
+        return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
 
+    
+    return {"acab": True}
+
+
+    '''
     try:
         sample_values = new_sample_schema.load(values)
     except ValidationError as err:
@@ -247,7 +248,7 @@ def sample_new_sample(tokenuser: UserAccount):
         return success_with_content_response(basic_sample_schema.dump(new_sample))
     except Exception as err:
         return transaction_error_response(err)
-
+    '''
 
 @api.route("/sample/new/review", methods=["POST"])
 @token_required

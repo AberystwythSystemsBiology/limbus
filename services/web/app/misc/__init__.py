@@ -30,11 +30,18 @@ def clear_session(hash: str) -> None:
             del session[k]
 
 
-def get_internal_api_header():
+def get_internal_api_header(tokenuser = None):
+
+    if tokenuser == None:
+        email = current_user.email
+    else:
+        email = tokenuser.email
+
     return {
         "FlaskApp": current_app.config.get("SECRET_KEY"),
-        "Email": current_user.email,
+        "Email": email
     }
+    
 
 
 from .routes import *
