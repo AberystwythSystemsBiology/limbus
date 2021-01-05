@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2020 Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -274,16 +274,16 @@ def prepare_form_data(form_data: dict) -> dict:
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
 def add_rerouter(hash):
-    if hash == "new":
-        return redirect(url_for("sample.add_step_one"))
-
+       
     query_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
     )
 
-    if query_response.status_code == 200:
+    if query_response.status_code == 200 or hash == "new":
         data = query_response.json()["content"]["data"]
+    else: 
+        return redirect(url_for("sample.add_step_one"))
 
     if "add_collection_consent_and_barcode" not in data:
         return redirect(url_for("sample.add_collection_consent_and_barcode"))
@@ -394,7 +394,7 @@ def add_step_one():
             url_for("api.tmpstore_new_tmpstore", _external=True),
             headers=get_internal_api_header(),
             json={
-                "data": {"add_collection_consent_and_barcode": route_data},
+                "data": {"step_one": route_data},
                 "type": "SMP",
             },
         )
@@ -457,7 +457,7 @@ def add_step_two(hash):
             if getattr(questionnaire, str(question["id"])).data:
                 consent_details["checked"].append(question["id"])
 
-        tmpstore_data["add_digital_consent_form"] = consent_details
+        tmpstore_data["step_two"] = consent_details
 
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
@@ -512,7 +512,7 @@ def add_step_three(hash):
             "cell_container": form.cell_container.data,
         }
 
-        tmpstore_data["add_sample_information"] = sample_information_details
+        tmpstore_data["step_three"] = sample_information_details
 
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
