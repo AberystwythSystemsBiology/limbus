@@ -592,49 +592,6 @@ def add_processing_information(hash):
     return render_template("sample/add/step_four.html", form=form, hash=hash)
 
 
-@sample.route("add/sample_review/<hash>", methods=["GET", "POST"])
-def add_sample_review(hash):
-    tmpstore_response = requests.get(
-        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
-        headers=get_internal_api_header(),
-    )
-
-    if tmpstore_response.status_code != 200:
-        abort(tmpstore_response.status_code)
-
-    tmpstore_data = tmpstore_response.json()["content"]["data"]
-
-    form = SampleReviewForm()
-
-    if form.validate_on_submit():
-        sample_review_details = {
-            "quality": form.quality.data,
-            "date": str(form.date.data),
-            "time": form.time.data.strftime("%H:%M:%S"),
-            "conducted_by": form.conducted_by.data,
-            "comments": form.comments.data,
-        }
-
-        tmpstore_data["add_sample_review"] = sample_review_details
-
-        store_response = requests.put(
-            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
-            headers=get_internal_api_header(),
-            json={"data": tmpstore_data},
-        )
-
-        if store_response.status_code == 200:
-            return redirect(
-                url_for(
-                    "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
-                )
-            )
-
-        flash("We have a problem :( %s" % (store_response.json()))
-
-    return render_template("sample/add/review.html", hash=hash, form=form)
-
-
 @sample.route("add/custom_attributes/<hash>", methods=["GET", "POST"])
 @login_required
 def add_custom_atributes(hash):

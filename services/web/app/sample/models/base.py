@@ -45,18 +45,8 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     base_type= db.Column(db.Enum(SampleBaseType))
 
-    # TODO
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
     sample_type_information = db.relationship("SampleToType")
-
-    # Collection Informaiton
-    # Done -> sample_new_sample_protocol_event
-    collection_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-    collection_information = db.relationship(
-        "SampleProtocolEvent",
-        uselist=False,
-        primaryjoin="SampleProtocolEvent.id==Sample.collection_event_id",
-    )
 
     # Consent Information
     # Done -> sample_new_sample_consent

@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .new import *
-from .add import *
-from .document import *
-from .filter import *
-from .review import *
+from .one import *
+from .two import *
+from .three import *
