@@ -25,6 +25,7 @@ from wtforms import (
     StringField,
     SubmitField,
     DateField,
+    TextAreaField,
     TimeField
 )
 
@@ -63,6 +64,11 @@ def CollectionConsentAndDisposalForm(
             default=datetime.now(),
             validators=[Optional()],
             description="The time at which the sample was collected.",
+        )
+
+        collection_comments = TextAreaField(
+            "Collection Comments",
+            description="Comments pertaining to the collection of the Sample."
         )
 
         disposal_date = DateField(
