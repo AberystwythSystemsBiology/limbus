@@ -9,16 +9,15 @@
 <div class="jumbotron">
     <div class="container">
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Sample and Storage Type</h1>
-        {{ render_progress(3, 8) }}
+        {{ render_progress(3, 3) }}
     </div>
 </div>
 <div class="container">
 
 
 
-    <form action="{{ url_for('sample.add_sample_information', hash=hash) }}" method="POST">
+    <form action="{{ url_for('sample.add_step_three', hash=hash) }}" method="POST">
         {{ form.csrf_token }}
-
 
         {{ form_field(form.sample_type) }}
         {{ form_field(form.fluid_sample_type) }}

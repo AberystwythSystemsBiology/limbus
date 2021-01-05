@@ -27,15 +27,6 @@ function disposal_logic() {
     }
 }
 
-function donor_logic() {
-    if ($("#has_donor:checkbox:checked").length >= 1) {
-        $("#donor_select_div").show();
-    }
-    else {
-        $("#donor_select_div").hide();
-    }
-}
-
 function view_consent_form() {
     var consent_id = $("#consent_select option:selected").val();
     var url = $("#consent_select_href").attr("href");
@@ -45,7 +36,6 @@ function view_consent_form() {
 
 $(document).ready(function() {
     disposal_logic();
-    donor_logic();
     view_consent_form();
     view_form_helper("consent_select");
     view_form_helper("collection_select");
@@ -63,7 +53,4 @@ $(document).ready(function() {
         disposal_logic();
     });
 
-    $("#has_donor").on("change", function() {
-        donor_logic();
-    })
 });
