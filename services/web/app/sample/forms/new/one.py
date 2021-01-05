@@ -28,6 +28,9 @@ from wtforms import (
     TimeField
 )
 
+from wtforms.validators import DataRequired, Optional
+
+
 
 def CollectionConsentAndDisposalForm(
     consent_templates: list,
