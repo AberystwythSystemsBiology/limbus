@@ -17,7 +17,7 @@
 from flask_wtf import FlaskForm
 
 from ....validators import validate_barcode
-from ...enums import Colour, DisposalInstruction
+from ...enums import Colour, DisposalInstruction, SampleStatus
 from datetime import datetime
 
 from wtforms import (
@@ -40,6 +40,11 @@ def CollectionConsentAndDisposalForm(
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
         
+        sample_status = SelectField(
+            "Sample Status",
+            choices=SampleStatus.choices()
+        )
+
         colour = SelectField(
             "Colour",
             choices=Colour.choices(),

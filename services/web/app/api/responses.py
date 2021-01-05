@@ -43,8 +43,11 @@ def validation_error_response(err):
         messages = err.messages
 
     except AttributeError:
-        messages = err["messages"]
-
+        if "messages" in err.keys():
+            messages = err["messages"]
+        else:
+            messages = err
+            
     return (
         {"success": False, "messages": messages, "type": "Validation Error"},
         417,

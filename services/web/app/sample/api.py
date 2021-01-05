@@ -14,6 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import requests
+
 from flask import request, abort, url_for
 from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
@@ -99,7 +101,7 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
         abort(404)
 
 
-@api.route("/sample/new_sample_protocol_event", methods=["POST"])
+@api.route("/sample/new/protocol_event", methods=["POST"])
 @token_required
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
@@ -196,7 +198,7 @@ def sample_new_sample_type(tokenuser: UserAccount):
     return success_with_content_response(sample_type_schema.dump(new_sample_to_type))
 
 
-@api.route("sample/new_sample", methods=["POST"])
+@api.route("sample/new", methods=["POST"])
 @token_required
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
@@ -204,9 +206,34 @@ def sample_new_sample(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
+    errors = {}
+    for key in ["collection_information", "sample_information", "sample_type_information", "consent_information"]:
+        if key not in values.keys():
+            errors[key] = ["Not found."]
+
+    if len(errors.keys()) > 0:
+        return validation_error_response(errors)
+
+    protocol_event_response = requests.post(
+        url_for("api.sample_new_sample_protocol_event", _external=True),
+        headers=get_internal_api_header(tokenuser),
+        json=values["collection_information"]
+    )
+
+    if protocol_event_response.status_code == 200:
+        collection_event = protocol_event_response.json()["content"]
+    else:
+        return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
+
+    
+    return {"acab": True}
+
+
+    '''
     try:
         sample_values = new_sample_schema.load(values)
     except ValidationError as err:
+        print(err)
         return validation_error_response(err)
 
     new_sample = Sample(**sample_values)
@@ -221,7 +248,7 @@ def sample_new_sample(tokenuser: UserAccount):
         return success_with_content_response(basic_sample_schema.dump(new_sample))
     except Exception as err:
         return transaction_error_response(err)
-
+    '''
 
 @api.route("/sample/new/review", methods=["POST"])
 @token_required
