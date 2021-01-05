@@ -15,7 +15,7 @@
 
 from flask_wtf import FlaskForm
 from datetime import datetime
-from ..enums import Colour, DisposalInstruction
+from ...enums import Colour, DisposalInstruction
 from wtforms import (
     BooleanField,
     StringField,
@@ -24,6 +24,9 @@ from wtforms import (
     DateField,
     TimeField
 )
+
+from wtforms.validators import DataRequired, Optional
+
 
 def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
     class StaticForm(FlaskForm):

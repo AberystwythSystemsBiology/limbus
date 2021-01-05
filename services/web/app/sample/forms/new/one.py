@@ -17,7 +17,7 @@
 from flask_wtf import FlaskForm
 
 from ....validators import validate_barcode
-from ..enums import Colour, DisposalInstruction
+from ...enums import Colour, DisposalInstruction
 from datetime import datetime
 
 from wtforms import (

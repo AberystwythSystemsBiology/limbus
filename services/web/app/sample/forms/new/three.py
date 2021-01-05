@@ -30,8 +30,12 @@ from ...enums import (
 from wtforms import (
     SelectField,
     FloatField,
-    SubmitField,
+    SubmitField
 )
+
+from wtforms.validators import DataRequired, Optional
+
+
 
 class SampleTypeSelectForm(FlaskForm):
 

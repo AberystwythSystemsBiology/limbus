@@ -18,7 +18,7 @@ import requests
 from flask import url_for
 from wtforms.validators import ValidationError
 
-from .api import get_internal_api_header
+from .misc import get_internal_api_header
 
 
 def validate_barcode(form, field):
