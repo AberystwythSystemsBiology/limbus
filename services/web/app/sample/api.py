@@ -14,6 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+import requests
+
 from flask import request, abort, url_for
 from sqlalchemy.orm.session import make_transient
 from marshmallow import ValidationError
@@ -99,10 +101,12 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
         abort(404)
 
 
-@api.route("/sample/new_sample_protocol_event", methods=["POST"])
+@api.route("/sample/new/protocol_event", methods=["POST"])
 @token_required
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
+
+    print(values)
 
     if not values:
         return no_values_response()
@@ -196,7 +200,7 @@ def sample_new_sample_type(tokenuser: UserAccount):
     return success_with_content_response(sample_type_schema.dump(new_sample_to_type))
 
 
-@api.route("sample/new_sample", methods=["POST"])
+@api.route("sample/new", methods=["POST"])
 @token_required
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
@@ -204,9 +208,31 @@ def sample_new_sample(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
+    errors = {}
+    for key in ["collection_information"]:
+        if key not in values.keys():
+            errors[key] = ["Not found."]
+
+    if len(errors.keys()) > 0:
+        return validation_error_response(errors)
+
+    print(values["collection_information"])
+
+    protocol_event = requests.post(
+        url_for("api.sample_new_sample_protocol_event", _external=True),
+        headers=get_internal_api_header(),
+        json=values["collection_information"]
+    )
+
+    if protocol_event.status_code == 200:
+        print(protocol_event)
+    else:
+        return success_with_content_response({"broke?": "yes"})
+
     try:
         sample_values = new_sample_schema.load(values)
     except ValidationError as err:
+        print(err)
         return validation_error_response(err)
 
     new_sample = Sample(**sample_values)
