@@ -184,6 +184,24 @@ function fill_document_information(document_information) {
 
 }
 
+function fill_protocol_events(events) {
+    for (e in events) {
+        var event_info = events[e];
+        // Start ul
+        html = "<li>"
+        // Start card body
+        html += "<div class='card card-body'>"
+        html += "<h5>" + event_info["protocol"]["type"] + "</h5>"
+        // End card body
+        html += "</div>"
+        // End ul
+        html += "</li>"
+
+        $("#protocol-event-li").append(html);
+    }
+    console.log(events);
+}
+
 function fill_lineage_table(subsamples) {
     $('#subSampleTable').DataTable({
         data: subsamples,
@@ -289,6 +307,8 @@ $(document).ready(function () {
     fill_lineage_table(sample_info["subsamples"]);
     fill_comments(sample_info["comments"]);
     fill_document_information(sample_info["documents"]);
+    fill_protocol_events(sample_info["protocol_events"]);
+
     $("#content").delay(500).fadeIn();
 
 
