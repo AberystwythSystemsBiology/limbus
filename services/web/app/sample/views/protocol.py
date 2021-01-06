@@ -28,7 +28,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
     protocol_id = masql.auto_field()
-
+    sample_id = masql.auto_field()
     
 
 

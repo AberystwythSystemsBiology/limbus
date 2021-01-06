@@ -36,23 +36,43 @@ import requests
 
 def prepare_form_data(data: dict):
 
-    # Todo: collection_information - protocol_id, undertaken_by, comments, date
-    # Todo: sample_information - barcode, source, base_type, status, biohazard_level, site_id, quantity
-    # Todo: sample_type_information - fluid_type, fluid_container
-    # Todo: consent_information - identifier, comments, template_id, answers ([]), created_on
-    # 
+    # TODO: collection_information
+    #   protocol_id - Yes
+    #   undertaken_by - Yes
+    #   comments - Yes
+    #   date - Yes
+    # TODO: sample_information
+    #   barcode - Yes
+    #   source - Yes
+    #   base_type - Yes
+    #   status - Yes
+    #   biohazard_level -yes
+    #   site_id - Yes
+    #   quantity - Yes
+    # TODO: sample_type_information
+    #   fluid_type
+    #   fluid_container
+    # TODO: consent_information
+    #   identifier - Yes
+    #   comments - Yes
+    #   template_id - Yes
+    #   answers ([]) - Yes
+    #   created_on - Yes
+
 
     step_one = data["step_one"]
     step_two = data["step_two"]
     step_three = data["step_three"]
 
     api_data = {
-        "collection_data": {
+        "collection_information": {
             "protocol_id": step_one["collection_protocol_id"],
             "undertaken_by": step_one["collected_by"],
-            "date": step_one["collection_date"]
+            "comments": step_one["collection_comments"],
+            "datetime": "%s %s" % (step_one["collection_date"], step_one["collection_time"])
         },
         "sample_information": {
+            "colour": step_one["colour"],
             "barcode": step_one["barcode"],
             "source": "NEW",
             "base_type": step_three["sample_type"],
@@ -67,18 +87,35 @@ def prepare_form_data(data: dict):
             "date": step_two["date"],
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"]
+        },
+        "disposal_information" : {
+            "instruction": step_one["disposal_instruction"],
+            "comments": step_one["disposal_comments"],
+            "disposal_date": step_one["disposal_date"]
         }
     }
 
     if step_three["sample_type"] == "FLU":
-        pass
+        sample_type_information = {
+            "fluid_type": step_three["fluid_sample_type"],
+            "fluid_container": step_three["fluid_container"]
+            }
     elif step_two["sample_type"] == "CEL":
-        pass
+        sample_type_information = {
+            "cellular_type": step_three["cell_container"],
+            "tissue_type": step_three["tissue_sample_type"],
+            "fixation_type": step_three["fixation_type"],
+            "cellular_container": step_three["cell_container"]
+        }
     elif step_two["sample_type"] == "MOL":
-        pass
+        sample_type_information = {
+            "molecular_type": step_three["molecular_sample_type"],
+            "fluid_container": step_three["fluid_container"]
+        }
+    
+    api_data["sample_type_information"] = sample_type_information
 
-
-    return "Hello World"
+    return api_data
 
 
 @sample.route("add/reroute/<hash>", methods=["GET"])
@@ -98,7 +135,18 @@ def add_rerouter(hash):
     if "step_one" in data:
         if "step_two" in data:
             if "step_three" in data:
-                return prepare_form_data(data)
+                api_data = prepare_form_data(data)
+
+                new_sample_response = requests.post(
+                    url_for("api.sample_new_sample", _external=True),
+                    headers=get_internal_api_header(),
+                    json=api_data
+                )
+
+                if new_sample_response.status_code == 200:
+                    return redirect(new_sample_response.json()["content"]["_links"]["self"])
+                else:
+                    flash("We have encountered an error.")
             return redirect(url_for("sample.add_step_three", hash=hash))
 
         return redirect(url_for("sample.add_step_two", hash=hash))
@@ -162,6 +210,7 @@ def add_step_one():
     if form.validate_on_submit():
 
         route_data = {
+            "colour": form.colour.data,
             "sample_status": form.sample_status.data,
             "barcode": form.barcode.data,
             "collection_protocol_id": form.collection_select.data,
@@ -170,8 +219,10 @@ def add_step_one():
             "site_id": form.collection_site.data,
             "collection_date": str(form.collection_date.data),
             "collection_time": str(form.collection_time.data),
+            "collection_comments": form.collection_comments.data,
             "disposal_instruction": form.disposal_instruction.data,
             "disposal_date": str(form.disposal_date.data),
+            "disposal_comments": form.disposal_comments.data
         }
 
         # This needs to be broken out to a new module then...
