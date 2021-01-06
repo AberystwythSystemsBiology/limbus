@@ -61,9 +61,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
     disposal_information = db.relationship("SampleDisposal", uselist=False)
 
-    protocol_events = db.relationship(
-        "SampleProtocolEvent"
-    )
+    protocol_events = db.relationship("SampleProtocolEvent")
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)

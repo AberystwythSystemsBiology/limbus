@@ -94,26 +94,6 @@ function fill_comments(comments) {
 }
 
 
-function fill_collection_information(collection_information) {
-    var protocol_info = collection_information["protocol"];
-    var html = "";
-
-    html += '<div class="media">';
-    html += '<h1 class="align-self-start mr-3"><i class="fab fa-buffer"></i></h1>'
-    html += '<div class="media-body">'
-    html += '<a href="' + protocol_info["_links"]["self"] + '" target="_blank">'
-    html += '<h5 class="mt-0">LIMBPRO-' + protocol_info["id"] + ': ' + protocol_info["name"] + '</h5>'
-    html += '</a>'
-    html += render_content("Collected On", collection_information["datetime"])
-    html += render_content("Collected By", collection_information["undertaken_by"])
-    html += render_content("Comments", collection_information["comments"])
-
-    html += '</div>'
-    html += '</div>'
-
-    $("#collection_information").html(html);
-}
-
 function fill_consent_information(consent_information) {
 
     $("#consent_name").html(consent_information["template"]["name"]);
@@ -140,26 +120,26 @@ function fill_consent_information(consent_information) {
 function fill_basic_information(sample_information) {
     var html = "";
 
-    if (sample_information["type"] == "Fluid") {
+    if (sample_information["base_type"] == "Fluid") {
         var measurement = "mL";
-        var sample_type = sample_information["sample_type_information"]["flui_type"];
+        var sample_type = sample_information["sample_type_information"]["fluid_type"];
     }
 
-    else if (sample_information["type"] == "Molecular") {
+    else if (sample_information["base_type"] == "Molecular") {
         var measurement = "μg/mL";
-        var sample_type = sample_information["sample_type_information"]["mole_type"];
+        var sample_type = sample_information["sample_type_information"]["molecular_type"];
 
     }
 
     else {
         var measurement = "Cells";
-        var sample_type = sample_information["sample_type_information"]["cell_type"];
+        var sample_type = sample_information["sample_type_information"]["cellular_type"];
     }
 
     html += render_content("Status", sample_information["status"]);
     html += render_content("Biobank Barcode", sample_information["barcode"]);
     html += render_content("Biohazard Level", sample_information["biohazard_level"]);
-    html += render_content("Type", sample_information["type"]);
+    html += render_content("Type", sample_information["base_type"]);
     html += render_content("Sample Type", sample_type);
 
 
@@ -168,26 +148,6 @@ function fill_basic_information(sample_information) {
     $("#basic-information").html(html);
 }
 
-
-function fill_processing_information(processing_information) {
-    var protocol_info = processing_information["protocol"];
-    var html = "";
-
-    html += '<div class="media">';
-    html += '<h1 class="align-self-start mr-3"><i class="fab fa-buffer"></i></h1>'
-    html += '<div class="media-body">'
-    html += '<a href="' + protocol_info["_links"]["self"] + '" target="_blank">'
-    html += '<h5 class="mt-0">LIMBPRO-' + protocol_info["id"] + ': ' + protocol_info["name"] + '</h5>'
-    html += '</a>'
-    html += render_content("Processed On", processing_information["datetime"])
-    html += render_content("Processed By", processing_information["undertaken_by"])
-    html += render_content("Comments", processing_information["comments"])
-
-    html += '</div>'
-    html += '</div>'
-
-    $("#processing_information").html(html);
-}
 
 function fill_document_information(document_information) {
     if (document_information.length) {
@@ -250,14 +210,14 @@ function fill_lineage_table(subsamples) {
                     return col_data
                 }
             },
-            { data: "type" },
+            { data: "base_type" },
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
                     var col_data = '';
                     col_data += '<span data-toggle="tooltip" data-placement="top" title="' + percentage + ' Available">';
-                    col_data += data["remaining_quantity"] + "/" + data["quantity"] + get_metric(data["type"]);
+                    col_data += data["remaining_quantity"] + "/" + data["quantity"] + get_metric(data["base_type"]);
                     col_data += '</span>';
                     return col_data
                 }
@@ -299,7 +259,7 @@ function fill_quantity_chart(type, quantity, remaining_quantity) {
 
 function deactivate_nav() {
     $("#basic-info-nav").removeClass("active");
-    $("#processing-nav").removeClass("active");
+    $("#protocol-events-nav").removeClass("active");
     $("#associated-documents-nav").removeClass("active");
     $("#sample-review-nav").removeClass("active");
     $("#lineage-nav").removeClass("active");
@@ -324,7 +284,7 @@ $(document).ready(function () {
 
     fill_title(sample_info);
     fill_basic_information(sample_info);
-    fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
+    fill_quantity_chart(sample_info["base_type"], sample_info["quantity"], sample_info["remaining_quantity"]);
     fill_consent_information(sample_info["consent_information"]);
     fill_lineage_table(sample_info["subsamples"]);
     fill_comments(sample_info["comments"]);

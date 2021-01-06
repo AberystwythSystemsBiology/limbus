@@ -76,7 +76,6 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     sample_type_information = ma.Nested(SampleTypeSchema)
 
     barcode = masql.auto_field()
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
 
     _links = ma.Hyperlinks(
         {
@@ -115,7 +114,8 @@ class SampleSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
-    protocol_events = ma.Nested(SampleProtocolEventSchema, many=False)
+
+    protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
     
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)

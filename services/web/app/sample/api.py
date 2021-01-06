@@ -234,6 +234,13 @@ def sample_new_sample(tokenuser: UserAccount):
     new_sample.author_id = tokenuser.id
     new_sample.remaining_quantity = sample_values["quantity"]
 
+    try:
+        db.session.add(new_sample)
+        db.session.commit()
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
     values["collection_information"]["sample_id"] = new_sample.id
 
     protocol_event_response = requests.post(
@@ -246,16 +253,10 @@ def sample_new_sample(tokenuser: UserAccount):
         collection_event = protocol_event_response.json()["content"]
     else:
         return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
+    
+    return success_with_content_response(basic_sample_schema.dump(Sample.query.filter_by(id=new_sample.id).first_or_404()))
 
 
-    try:
-        db.session.add(new_sample)
-        db.session.commit()
-        db.session.flush()
-
-        return success_with_content_response(basic_sample_schema.dump(new_sample))
-    except Exception as err:
-        return transaction_error_response(err)
 
 @api.route("/sample/new/review", methods=["POST"])
 @token_required

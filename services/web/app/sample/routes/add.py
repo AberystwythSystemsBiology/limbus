@@ -36,29 +36,6 @@ import requests
 
 def prepare_form_data(data: dict):
 
-    # TODO: collection_information
-    #   protocol_id - Yes
-    #   undertaken_by - Yes
-    #   comments - Yes
-    #   date - Yes
-    # TODO: sample_information
-    #   barcode - Yes
-    #   source - Yes
-    #   base_type - Yes
-    #   status - Yes
-    #   biohazard_level -yes
-    #   site_id - Yes
-    #   quantity - Yes
-    # TODO: sample_type_information
-    #   fluid_type
-    #   fluid_container
-    # TODO: consent_information
-    #   identifier - Yes
-    #   comments - Yes
-    #   template_id - Yes
-    #   answers ([]) - Yes
-    #   created_on - Yes
-
 
     step_one = data["step_one"]
     step_two = data["step_two"]

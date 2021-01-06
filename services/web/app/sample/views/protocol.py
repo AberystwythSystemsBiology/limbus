@@ -43,7 +43,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     datetime = masql.auto_field(format="%d/%m/%Y")
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
-    protocol = ma.Nested(BasicProtocolTemplateSchema)
+    protocol = ma.Nested(BasicProtocolTemplateSchema, many=False)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
 
