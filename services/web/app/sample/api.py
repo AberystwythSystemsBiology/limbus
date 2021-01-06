@@ -130,19 +130,32 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("sample/new_sample_type", methods=["POST"])
+@api.route("sample/new/sample_type_instance/<base_type>", methods=["POST"])
 @token_required
-def sample_new_sample_type(tokenuser: UserAccount):
+def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
+    if base_type == "FLU":
+        schema = new_fluid_sample_schema
+        container_variables = ["fluid_container"]
+    elif base_type == "CEL":
+        schema = new_cell_sample_Schema
+        # TODO: Change model to reflect new naming convention.
+        container_variables = ["cellular_container", "fixation_type"]
+    elif base_type == "MOL":
+        container_variables = ["fluid_container"]
+        schema = new_molecular_sample_schema
+    else:
+        return validation_error_response({"base_type": ["Not a valid base_type."]})
+
     try:
-        sample_type = values["type"]
-        sample_values = values["values"]
-    except KeyError as err:
+        new_schema = schema.load(values["sample_type_information"])
+    except ValidationError as err:
         return validation_error_response(err)
+    '''
 
     try:
         if sample_type == "FLU":
@@ -164,6 +177,7 @@ def sample_new_sample_type(tokenuser: UserAccount):
             new_container = SampleToContainer(
                 flui_cont=sample_schema["fluid_container"], author_id=tokenuser.id
             )
+
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -196,7 +210,7 @@ def sample_new_sample_type(tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(sample_type_schema.dump(new_sample_to_type))
-
+    '''
 
 @api.route("sample/new", methods=["POST"])
 @token_required
@@ -226,6 +240,16 @@ def sample_new_sample(tokenuser: UserAccount):
         return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
 
     
+    sample_type_response = requests.post(
+        url_for(
+            "api.sample_new_sample_type",
+            base_type=values["sample_information"]["base_type"],
+            _external=True
+            ),
+        headers=get_internal_api_header(tokenuser),
+        json=values["sample_type_information"]
+    )
+
     return {"acab": True}
 
 
