@@ -179,19 +179,7 @@ def sample_new_sample(tokenuser: UserAccount):
 
     if len(errors.keys()) > 0:
         return validation_error_response(errors)
-
-    protocol_event_response = requests.post(
-        url_for("api.sample_new_sample_protocol_event", _external=True),
-        headers=get_internal_api_header(tokenuser),
-        json=values["collection_information"]
-    )
-
-    if protocol_event_response.status_code == 200:
-        collection_event = protocol_event_response.json()["content"]
-    else:
-        return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
-
-    
+   
     sample_type_response = requests.post(
         url_for(
             "api.sample_new_sample_type",
@@ -245,6 +233,20 @@ def sample_new_sample(tokenuser: UserAccount):
     new_sample = Sample(**sample_values)
     new_sample.author_id = tokenuser.id
     new_sample.remaining_quantity = sample_values["quantity"]
+
+    values["collection_information"]["sample_id"] = new_sample.id
+
+    protocol_event_response = requests.post(
+        url_for("api.sample_new_sample_protocol_event", _external=True),
+        headers=get_internal_api_header(tokenuser),
+        json=values["collection_information"]
+    )
+
+    if protocol_event_response.status_code == 200:
+        collection_event = protocol_event_response.json()["content"]
+    else:
+        return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
+
 
     try:
         db.session.add(new_sample)

@@ -115,8 +115,8 @@ class SampleSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
-    processing_information = ma.Nested(SampleProtocolEventSchema, many=False)
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
+    protocol_events = ma.Nested(SampleProtocolEventSchema, many=False)
+    
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 

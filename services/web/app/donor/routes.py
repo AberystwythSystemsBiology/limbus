@@ -251,17 +251,28 @@ def edit(id):
                     death_date = str(form.death_date.data)
 
                 form_information = {
-                    "age": form.age.data,
+                    "dob": str(
+                        datetime.strptime(
+                            "%s-%s-1" % (form.year.data, form.month.data), "%Y-%m-%d"
+                        ).date()
+                    ),
+                    "enrollment_site_id": form.site.data,
+                    "registration_date": str(
+                        datetime.strptime(
+                            str(form.registration_date.data), "%Y-%m-%d"
+                        ).date()
+                    ),
                     "sex": form.sex.data,
+                    "colour": form.colour.data,
                     "status": form.status.data,
-                    "death_date": death_date,
+                    "mpn": form.mpn.data,
+                    "race": form.race.data,
+                    "death_date": str(
+                        datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
+                    ),
                     "weight": form.weight.data,
                     "height": form.height.data,
-                    "race": form.race.data,
                 }
-                # Set empty field to Null
-                for i in form_information:
-                    form_information[i] = strconv(form_information[i])
 
                 edit_response = requests.put(
                     url_for("api.donor_edit", id=id, _external=True),

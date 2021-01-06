@@ -62,8 +62,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     disposal_information = db.relationship("SampleDisposal", uselist=False)
 
     protocol_events = db.relationship(
-        "SampleProtocolEvent",
-        secondary="sampletoprotocolevent",
+        "SampleProtocolEvent"
     )
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
@@ -97,12 +96,6 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     subsample_id = db.Column(
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
     )
-
-class SampleToProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
-    sample_id =  db.Column(db.Integer, db.ForeignKey("sample.id"))
-    protocol_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
