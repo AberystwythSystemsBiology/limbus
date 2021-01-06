@@ -42,22 +42,17 @@ from marshmallow_enum import EnumField
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
-    '''
     barcode = masql.auto_field()
     source = EnumField(SampleSource)
     base_type = EnumField(SampleBaseType)
     status = EnumField(SampleStatus)
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
-    comments = masql.auto_field()
     site_id = masql.auto_field()
     quantity = masql.auto_field()
-    disposal_id = masql.auto_field()
-    sample_to_type_id = masql.auto_field()
     consent_id = masql.auto_field()
-    '''
-
-    collection_information = {}
+    sample_to_type_id = masql.auto_field()
+    
 
 new_sample_schema = NewSampleSchema()
 

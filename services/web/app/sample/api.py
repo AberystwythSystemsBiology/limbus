@@ -221,13 +221,15 @@ def sample_new_sample(tokenuser: UserAccount):
         return (consent_response.text, consent_response.status_code, consent_response.headers.items())
 
 
-    return (consent_response.text, consent_response.status_code, consent_response.headers.items())
-
+    sample_information = values["sample_information"]
+    sample_information["consent_id"] = consent_information["id"]
+    sample_information["sample_to_type_id"] = sample_type_information["id"]
+    
+   
     '''
     try:
-        sample_values = new_sample_schema.load(values)
+        sample_values = new_sample_schema.load(sample_information)
     except ValidationError as err:
-        print(err)
         return validation_error_response(err)
 
     new_sample = Sample(**sample_values)
@@ -352,30 +354,24 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
     '''
 
-    answers_list = []
-
-
+    # TODO: Fix null value in column \"id\" violates not-null constraint.
 
     for answer in answers:
         try:
-            answer_result = new_consent_answer_schema.load(
-                {"question_id": answer, "consent_id": new_consent.id}
-            )
-
-            answers_list.append(answer_result)
-
+            answer_result = new_consent_answer_schema.load({"question_id": int(answer), "consent_id": new_consent.id})
         except ValidationError as err:
             return validation_error_response(err)
 
-    for answer in answers_list:
+        new_answer = SampleConsentAnswer(**answer_result)
+        new_answer.author_id = tokenuser.id
+        
         try:
-            new_answer = SampleConsentAnswer(**answer)
-            new_answer.author_id = tokenuser.id
             db.session.add(new_answer)
             db.session.commit()
         except Exception as err:
             return transaction_error_response(err)
     '''
+
 
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
