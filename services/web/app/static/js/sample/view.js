@@ -298,7 +298,7 @@ function fill_quantity_chart(type, quantity, remaining_quantity) {
 
 function deactivate_nav() {
     $("#basic-info-nav").removeClass("active");
-    $("#collection-nav").removeClass("active");
+    //$("#collection-nav").removeClass("active");
     $("#processing-nav").removeClass("active");
     $("#associated-documents-nav").removeClass("active");
     $("#sample-review-nav").removeClass("active");
@@ -309,7 +309,7 @@ function deactivate_nav() {
 function hide_all() {
     var tim = 50;
     $("#basic-info").fadeOut(50);
-    $("#collection-info").fadeOut(50);
+    //$("#collection-info").fadeOut(50);
     $("#processing-info").fadeOut(50);
     $("#associated-documents").fadeOut(50);
     $("#lineage-info").fadeOut(50);
@@ -326,9 +326,9 @@ $(document).ready(function() {
     fill_title(sample_info);
     fill_basic_information(sample_info);
     fill_quantity_chart(sample_info["type"], sample_info["quantity"], sample_info["remaining_quantity"]);
-    fill_collection_information(sample_info["collection_information"]);
+    //fill_collection_information(sample_info["collection_information"]);
     fill_consent_information(sample_info["consent_information"]);
-    fill_processing_information(sample_info["processing_information"]);
+    // fill_processing_information(sample_info["processing_information"]);
     fill_lineage_table(sample_info["subsamples"]);
     fill_comments(sample_info["comments"]);
     fill_document_information(sample_info["documents"]);

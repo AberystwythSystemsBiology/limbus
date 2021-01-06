@@ -80,28 +80,22 @@ function render_table(query) {
                 }
             },
             
-            {data: "type"},
+            {data: "base_type"},
             {
                 "mData" : {},
                 "mRender": function (data, type, row) {
+                    console.log(data)
                     var sample_type_information = data["sample_type_information"];
                     
     
-                    if (data["type"] == "Fluid") {
-                        return sample_type_information["flui_type"];
+                    if (data["base_type"] == "Fluid") {
+                        return sample_type_information["fluid_type"];
                     }
-                    else if (data["type"] == "Cell") {
-                        return sample_type_information["cell_type"] + " > " + sample_type_information["tiss_type"];
+                    else if (data["base_type"] == "Cell") {
+                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
                     }
                     
     
-                }
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var col_data = data["collection_information"]["datetime"]
-                    return col_data;
                 }
             },
             {
@@ -110,7 +104,7 @@ function render_table(query) {
                     var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
                     var col_data = '';
                     col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["type"]); 
+                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["base_type"]); 
                     col_data += '</span>';
                     return col_data
                 }

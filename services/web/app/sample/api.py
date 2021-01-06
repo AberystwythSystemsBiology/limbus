@@ -173,7 +173,7 @@ def sample_new_sample(tokenuser: UserAccount):
         return no_values_response()
 
     errors = {}
-    for key in ["collection_information", "sample_information", "sample_type_information", "consent_information"]:
+    for key in ["collection_information", "disposal_information", "sample_information", "sample_type_information", "consent_information"]:
         if key not in values.keys():
             errors[key] = ["Not found."]
 
@@ -220,13 +220,23 @@ def sample_new_sample(tokenuser: UserAccount):
     else:
         return (consent_response.text, consent_response.status_code, consent_response.headers.items())
 
+    disposal_response = requests.post(
+        url_for("api.sample_new_disposal_instructions", _external=True),
+        headers=get_internal_api_header(tokenuser),
+        json=values["disposal_information"]
+    )
+
+    if disposal_response.status_code == 200:
+        disposal_information = disposal_response.json()["content"]
+    else:
+        return (disposal_response.text, disposal_response.status_code, disposal_response.headers.items())
+
 
     sample_information = values["sample_information"]
     sample_information["consent_id"] = consent_information["id"]
     sample_information["sample_to_type_id"] = sample_type_information["id"]
+    sample_information["disposal_id"] = disposal_information["id"]    
     
-   
-    '''
     try:
         sample_values = new_sample_schema.load(sample_information)
     except ValidationError as err:
@@ -244,7 +254,6 @@ def sample_new_sample(tokenuser: UserAccount):
         return success_with_content_response(basic_sample_schema.dump(new_sample))
     except Exception as err:
         return transaction_error_response(err)
-    '''
 
 @api.route("/sample/new/review", methods=["POST"])
 @token_required
@@ -275,7 +284,7 @@ def sample_new_sample_review(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/sample/new_disposal_instructions", methods=["POST"])
+@api.route("/sample/new/disposal_instructions", methods=["POST"])
 @token_required
 def sample_new_disposal_instructions(tokenuser: UserAccount):
     values = request.get_json()
@@ -352,9 +361,9 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     except Exception as err:
         return transation_error_response(err)
 
-    '''
-
     # TODO: Fix null value in column \"id\" violates not-null constraint.
+
+    '''
 
     for answer in answers:
         try:

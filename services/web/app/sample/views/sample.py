@@ -50,9 +50,10 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     biohazard_level = EnumField(BiohazardLevel)
     site_id = masql.auto_field()
     quantity = masql.auto_field()
+    disposal_id = masql.auto_field()
     consent_id = masql.auto_field()
     sample_to_type_id = masql.auto_field()
-    
+
 
 new_sample_schema = NewSampleSchema()
 
