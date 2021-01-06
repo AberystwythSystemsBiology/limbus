@@ -36,7 +36,47 @@ import requests
 
 def prepare_form_data(data: dict):
 
-    print(data)
+    # Todo: collection_information - protocol_id, undertaken_by, comments, date
+    # Todo: sample_information - barcode, source, base_type, status, biohazard_level, site_id, quantity
+    # Todo: sample_type_information - fluid_type, fluid_container
+    # Todo: consent_information - identifier, comments, template_id, answers ([]), created_on
+    # 
+
+    step_one = data["step_one"]
+    step_two = data["step_two"]
+    step_three = data["step_three"]
+
+    api_data = {
+        "collection_data": {
+            "protocol_id": step_one["collection_protocol_id"],
+            "undertaken_by": step_one["collected_by"],
+            "date": step_one["collection_date"]
+        },
+        "sample_information": {
+            "barcode": step_one["barcode"],
+            "source": "NEW",
+            "base_type": step_three["sample_type"],
+            "status": step_one["sample_status"],
+            "site_id": step_one["site_id"],
+            "biohazard_level": step_three["biohazard_level"],
+            "quantity": step_three["quantity"]
+        },
+        "consent_information": {
+            "identifier": step_two["consent_id"],
+            "comments": step_two["comments"],
+            "date": step_two["date"],
+            "answers": step_two["checked"],
+            "template_id": step_one["consent_form_id"]
+        }
+    }
+
+    if step_three["sample_type"] == "FLU":
+        pass
+    elif step_two["sample_type"] == "CEL":
+        pass
+    elif step_two["sample_type"] == "MOL":
+        pass
+
 
     return "Hello World"
 
