@@ -35,7 +35,6 @@ from ..database import (
     SampleConsentAnswer,
     SampleProtocolEvent,
     SampleDisposal,
-    SampleToContainer,
     SampleToType,
     SampleDocument,
     SubSampleToSample,
@@ -140,77 +139,30 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
 
     if base_type == "FLU":
         schema = new_fluid_sample_schema
-        container_variables = ["fluid_container"]
     elif base_type == "CEL":
         schema = new_cell_sample_Schema
-        # TODO: Change model to reflect new naming convention.
-        container_variables = ["cellular_container", "fixation_type"]
     elif base_type == "MOL":
-        container_variables = ["fluid_container"]
         schema = new_molecular_sample_schema
     else:
         return validation_error_response({"base_type": ["Not a valid base_type."]})
 
     try:
-        new_schema = schema.load(values["sample_type_information"])
+        new_schema = schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-    '''
-
+    
+    sampletotype = SampleToType(**new_schema)
+    sampletotype.author_id = tokenuser.id
+    
+    db.session.add(sampletotype)
+    
     try:
-        if sample_type == "FLU":
-            sample_schema = new_fluid_sample_schema.load(sample_values)
-
-            new_container = SampleToContainer(
-                flui_cont=sample_schema["fluid_container"], author_id=tokenuser.id
-            )
-
-        elif sample_type == "CEL":
-            sample_schema = new_cell_sample_schema.load(sample_values)
-            new_container = SampleToContainer(
-                cell_cont=sample_schema["cell_container"],
-                fixa_cont=sample_schema["fixation_type"],
-                author_id=tokenuser.id,
-            )
-        else:
-            sample_schema = new_molecular_sample_schema.load(sample_values)
-            new_container = SampleToContainer(
-                flui_cont=sample_schema["fluid_container"], author_id=tokenuser.id
-            )
-
-    except ValidationError as err:
-        return validation_error_response(err)
-
-    db.session.add(new_container)
-    db.session.commit()
-    db.session.flush()
-
-    if sample_type == "FLU":
-        new_sample_to_type = SampleToType(
-            flui_type=sample_schema["fluid_sample_type"],
-            author_id=tokenuser.id,
-            container_id=new_container.id,
-        )
-    elif sample_type == "CEL":
-        new_sample_to_type = SampleToType(
-            cell_type=sample_schema["cell_sample_type"],
-            tiss_type=sample_schema["tissue_sample_type"],
-            author_id=tokenuser.id,
-            container_id=new_container.id,
-        )
-    else:
-        new_sample_to_type = SampleToType(
-            molecular_sample_type=sample_schema["mole_type"],
-            author_id=tokenuser.id,
-            container_id=new_container.id,
-        )
-
-    db.session.add(new_sample_to_type)
-    db.session.commit()
-    db.session.flush()
-
-    return success_with_content_response(sample_type_schema.dump(new_sample_to_type))
-    '''
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(sample_type_schema.dump(sampletotype))
+    except Exception as err:
+        return transaction_error_response(err)
+ 
 
 @api.route("sample/new", methods=["POST"])
 @token_required
@@ -250,8 +202,26 @@ def sample_new_sample(tokenuser: UserAccount):
         json=values["sample_type_information"]
     )
 
-    return {"acab": True}
+    if sample_type_response.status_code == 200:
+        sample_type_information = sample_type_response.json()["content"]
 
+    else:
+        return (sample_type_response.text, sample_type_response.status_code, sample_type_response.headers.items())
+
+
+    consent_response = requests.post(
+        url_for("api.sample_new_sample_consent", _external=True),
+        headers=get_internal_api_header(tokenuser),
+        json=values["consent_information"]
+    )
+
+    if consent_response.status_code == 200:
+        consent_information = consent_response.json()["content"]
+    else:
+        return (consent_response.text, consent_response.status_code, consent_response.headers.items())
+
+
+    return (consent_response.text, consent_response.status_code, consent_response.headers.items())
 
     '''
     try:
@@ -345,23 +315,28 @@ def sample_get_containers():
     )
 
 
-@api.route("/sample/new_sample_consent", methods=["POST"])
+@api.route("/sample/new/consent", methods=["POST"])
 @token_required
 def sample_new_sample_consent(tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
         return no_values_response()
+    
+    errors = {}
+    for key in ["identifier", "comments", "template_id", "date", "answers"]:
+        if key not in values.keys():
+            errors[key] = ["Not found."]
+
+    if len(errors.keys()) > 0:
+        return validation_error_response(errors)
+
+    answers = values["answers"]
+    values.pop("answers")
+
 
     try:
-        consent_values = values["consent_data"]
-        answer_values = values["answer_data"]
-
-    except KeyError as err:
-        return validation_error_response(err)
-
-    try:
-        consent_result = new_consent_schema.load(consent_values)
+        consent_result = new_consent_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -375,9 +350,13 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     except Exception as err:
         return transation_error_response(err)
 
+    '''
+
     answers_list = []
 
-    for answer in answer_values:
+
+
+    for answer in answers:
         try:
             answer_result = new_consent_answer_schema.load(
                 {"question_id": answer, "consent_id": new_consent.id}
@@ -396,6 +375,7 @@ def sample_new_sample_consent(tokenuser: UserAccount):
             db.session.commit()
         except Exception as err:
             return transaction_error_response(err)
+    '''
 
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())

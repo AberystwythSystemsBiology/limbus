@@ -15,7 +15,7 @@
 
 from ...extensions import ma
 from ...database import SampleToType
-a
+
 from marshmallow_enum import EnumField
 import marshmallow_sqlalchemy as masql
 
@@ -32,7 +32,7 @@ from ..enums import (
 from ...auth.views import BasicUserAccountSchema
 
 class NewFluidSampleSchema(ma.Schema):
-    fluid_sample_type = EnumField(FluidSampleType)
+    fluid_type = EnumField(FluidSampleType)
     fluid_container = EnumField(FluidContainer)
 
 new_fluid_sample_schema = NewFluidSampleSchema()
@@ -68,7 +68,6 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
     cellular_container = EnumField(CellContainer, by_value=True)
 
     author = ma.Nested(BasicUserAccountSchema)
-    container_id = masql.auto_field()
 
 
 sample_type_schema = SampleTypeSchema()
