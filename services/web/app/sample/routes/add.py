@@ -77,14 +77,14 @@ def prepare_form_data(data: dict):
             "fluid_type": step_three["fluid_sample_type"],
             "fluid_container": step_three["fluid_container"]
             }
-    elif step_two["sample_type"] == "CEL":
+    elif step_three["sample_type"] == "CEL":
         sample_type_information = {
-            "cellular_type": step_three["cell_container"],
+            "cellular_type": step_three["cell_sample_type"],
             "tissue_type": step_three["tissue_sample_type"],
             "fixation_type": step_three["fixation_type"],
             "cellular_container": step_three["cell_container"]
         }
-    elif step_two["sample_type"] == "MOL":
+    elif step_three["sample_type"] == "MOL":
         sample_type_information = {
             "molecular_type": step_three["molecular_sample_type"],
             "fluid_container": step_three["fluid_container"]
@@ -322,7 +322,7 @@ def add_step_three(hash):
             "quantity": form.quantity.data,
             "fixation_type": form.fixation_type.data,
             "fluid_container": form.fluid_container.data,
-            "cell_container": form.cell_container.data,
+            "cell_container": form.cell_container.data
         }
 
         tmpstore_data["step_three"] = sample_information_details

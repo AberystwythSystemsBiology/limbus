@@ -47,6 +47,7 @@ from .views import (
     basic_sample_schema,
     new_consent_schema,
     consent_schema,
+    new_molecular_sample_schema,
     new_consent_answer_schema,
     sample_protocol_event_schema,
     new_sample_protocol_event_schema,
@@ -140,7 +141,7 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     if base_type == "FLU":
         schema = new_fluid_sample_schema
     elif base_type == "CEL":
-        schema = new_cell_sample_Schema
+        schema = new_cell_sample_schema
     elif base_type == "MOL":
         schema = new_molecular_sample_schema
     else:
@@ -149,6 +150,7 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     try:
         new_schema = schema.load(values)
     except ValidationError as err:
+        print(err, values)
         return validation_error_response(err)
     
     sampletotype = SampleToType(**new_schema)

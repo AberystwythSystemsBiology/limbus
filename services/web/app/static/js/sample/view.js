@@ -184,11 +184,37 @@ function fill_document_information(document_information) {
 
 }
 
+function fill_sample_reviews(reviews) {
+    for (r in reviews) {
+        var review_info = reviews[r];
+        
+        // Start ul
+        html = "<li>"
+        // Start card body
+        html += "<div class='card card-body'>"
+        html += "<h6>" + review_info["quality"] + "</h6>";
+        html += "<a href='#'>"
+        html += "<h5>Sample Review</h5>";
+        html += "</a>"
+        html += "<table class='table table-striped'>"
+        html += render_content("Conducted By", review_info["conducted_by"]);
+        html += render_content("Comments", review_info["comments"]);
+        html += render_content("Date Undertaken", review_info["datetime"]);
+
+        html += "</table>"
+        // End card body
+        html += "</div>"
+        // End ul
+        html += "</li>"
+
+        $("#sample-review-li").append(html);
+    }
+}
+
+
 function fill_protocol_events(events) {
     for (e in events) {
         var event_info = events[e];
-
-        console.log(event_info)
 
         // Start ul
         html = "<li>"
@@ -320,6 +346,7 @@ $(document).ready(function () {
     fill_comments(sample_info["comments"]);
     fill_document_information(sample_info["documents"]);
     fill_protocol_events(sample_info["protocol_events"]);
+    fill_sample_reviews(sample_info["reviews"]);
 
     $("#content").delay(500).fadeIn();
 
