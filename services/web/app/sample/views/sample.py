@@ -30,7 +30,8 @@ from . import (
     SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
     ConsentSchema,
-    SampleReviewSchema
+    SampleReviewSchema,
+    EntityToStorageSchema,
 )
 
 from ...document.views import BasicDocumentSchema
@@ -119,6 +120,8 @@ class SampleSchema(masql.SQLAlchemySchema):
     
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
+
+    storage = ma.Nested(EntityToStorageSchema, many=False)
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
 

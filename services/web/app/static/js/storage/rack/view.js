@@ -107,8 +107,8 @@ function render_modal(sample_info) {
     $("#sampleName").html(render_colour(sample_info["colour"]) + sample_info["uuid"])
 
     var html = render_content("Biobank Barcode", sample_info["biobank_barcode"]);
-    html += render_content("Sample Type", sample_info["type"]);
-    html += render_content("Collection Site", sample_info["collection_information"]["collection_site"]);
+    html += render_content("Sample Type", sample_info["base_type"]);
+    html += render_content("Collection Site", sample_info["collection_site"]);
     html += render_content("Sample Source", sample_info["source"]);
     html += render_content("Created On", sample_info["created_on"]);
 
@@ -168,6 +168,8 @@ function render_sample_table(samples) {
 
 
     if (samples.length > 0) {
+
+        console.log(samples)
         
         $('#sampleTable').DataTable( {
             data: samples,
@@ -210,11 +212,11 @@ function render_sample_table(samples) {
                         var sample_type_information = data["sample"]["sample_type_information"];
                         
         
-                        if (data["sample"]["type"] == "Fluid") {
-                            return sample_type_information["flui_type"];
+                        if (data["sample"]["base_type"] == "Fluid") {
+                            return sample_type_information["fluid_type"];
                         }
-                        else if (data["sample"]["type"] == "Cell") {
-                            return sample_type_information["cell_type"] + " > " + sample_type_information["tiss_type"];
+                        else if (data["sample"]["base_type"] == "Cellular") {
+                            return sample_type_information["cellular_type"] + " > " + sample_type_information["tiss_type"];
                         }
                         
         
@@ -223,17 +225,10 @@ function render_sample_table(samples) {
                 {
                     "mData": {},
                     "mRender": function (data, type, row) {
-                        var col_data = data["sample"]["collection_information"]["datetime"]
-                        return col_data;
-                    }
-                },
-                {
-                    "mData": {},
-                    "mRender": function (data, type, row) {
                         var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
                         var col_data = '';
                         col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                        col_data += data["sample"]["remaining_quantity"]+"/"+data["sample"]["quantity"]+get_metric(data["sample"]["type"]); 
+                        col_data += data["sample"]["remaining_quantity"]+"/"+data["sample"]["quantity"]+get_metric(data["sample"]["base_type"]); 
                         col_data += '</span>';
                         return col_data
                     }

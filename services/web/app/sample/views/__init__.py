@@ -38,4 +38,5 @@ from .filter import *
 from .protocol import *
 from .review import *
 from .type import *
+from .storage import *
 from .sample import *

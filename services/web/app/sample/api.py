@@ -97,7 +97,7 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
     if sample:
         return success_with_content_response(sample_schema.dump(sample))
     else:
-        abort(404)
+        return abort(404)
 
 
 @api.route("/sample/new/protocol_event", methods=["POST"])
@@ -364,10 +364,6 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     except Exception as err:
         return transation_error_response(err)
 
-    # TODO: Fix null value in column \"id\" violates not-null constraint.
-
-    '''
-
     for answer in answers:
         try:
             answer_result = new_consent_answer_schema.load({"question_id": int(answer), "consent_id": new_consent.id})
@@ -382,8 +378,6 @@ def sample_new_sample_consent(tokenuser: UserAccount):
             db.session.commit()
         except Exception as err:
             return transaction_error_response(err)
-    '''
-
 
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())

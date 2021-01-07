@@ -291,6 +291,7 @@ function hide_all() {
     $("#associated-documents").fadeOut(50);
     $("#lineage-info").fadeOut(50);
     $("#protocol-event-info").fadeOut(50);
+    $("#sample-review-info").fadeOut(50);
 }
 
 
@@ -339,6 +340,14 @@ $(document).ready(function () {
         hide_all();
         $("#protocol-event-info").fadeIn(100);
     });
+
+    $("#sample-review-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#sample-review-info").fadeIn(100);
+
+    })
 
     $("#associated-documents-nav").on("click", function () {
         deactivate_nav();
