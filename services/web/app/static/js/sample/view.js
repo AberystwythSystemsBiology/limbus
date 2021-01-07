@@ -190,20 +190,39 @@ function fill_sample_reviews(reviews) {
         
         // Start ul
         html = "<li>"
+        html += "<p class='text-muted'>Undertaken on " + review_info["datetime"] + "</p>"
+
         // Start card body
-        html += "<div class='card card-body'>"
-        html += "<h6>" + review_info["quality"] + "</h6>";
-        html += "<a href='#'>"
-        html += "<h5>Sample Review</h5>";
-        html += "</a>"
+        html += "<div class='card'>"
+
+        var header_colour = "text-white bg-warning"
+
+        if (review_info["result"] == "Pass") {
+            var header_colour = "text-white bg-success";
+        }
+
+        else if (review_info["result"] == "Fail") {
+            var header_colour = "text-white bg-danger";
+        }
+
+
+        html += "<div class='card-header "+header_colour+"'>"
+        html += review_info["review_type"]
+        html += "</div>";
+        html += "<div class=' card-body'>"
         html += "<table class='table table-striped'>"
+        html += render_content("Quality", review_info["quality"]);
         html += render_content("Conducted By", review_info["conducted_by"]);
         html += render_content("Comments", review_info["comments"]);
-        html += render_content("Date Undertaken", review_info["datetime"]);
-
         html += "</table>"
         // End card body
         html += "</div>"
+        html += "<div class='card-footer'>"
+        html += "<div class='btn btn-warning float-left'>Edit</div>"
+        html += "<div class='btn btn-danger float-right'>Remove</div>"
+        html += "</div>"
+        html += "</div>"
+
         // End ul
         html += "</li>"
 
@@ -218,20 +237,28 @@ function fill_protocol_events(events) {
 
         // Start ul
         html = "<li>"
+        html += "<p class='text-muted'>Undertaken on " + event_info["datetime"] + "</p>"
         // Start card body
-        html += "<div class='card card-body'>"
-        html += "<h6>" + event_info["protocol"]["type"] + "</h6>";
+        html += "<div class='card'>"
+        html += "<div class='card-header'>"
+        html += event_info["protocol"]["type"]
+        html += "</div>"
+        html += "<div class='card-body'>"
         html += "<a href='"+ event_info["protocol"]["_links"]["self"] +"'>"
         html += "<h5><i class='fa fa-project-diagram'></i> LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h5>";
         html += "</a>"
         html += "<table class='table table-striped'>"
         html += render_content("Undertaken By", event_info["undertaken_by"]);
         html += render_content("Comments", event_info["comments"]);
-        html += render_content("Date Undertaken", event_info["datetime"]);
-
         html += "</table>"
         // End card body
         html += "</div>"
+        html += "<div class='card-footer'>"
+        html += "<div class='btn btn-warning float-left'>Edit Event</div>"
+        html += "<div class='btn btn-danger float-right'>Remove Event</div>"
+        html += "</div>"
+        html += "</div>"
+
         // End ul
         html += "</li>"
 

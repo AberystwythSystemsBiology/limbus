@@ -102,6 +102,8 @@ def associate_review(uuid):
                 url_for("api.sample_new_sample_review", uuid=uuid, _external=True),
                 headers=get_internal_api_header(),
                 json={
+                    "review_type": form.review_type.data,
+                    "result": form.result.data,
                     "sample_id": sample_response.json()["content"]["id"],
                     "conducted_by": form.conducted_by.data,
                     "datetime": str(
