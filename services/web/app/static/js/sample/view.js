@@ -187,11 +187,23 @@ function fill_document_information(document_information) {
 function fill_protocol_events(events) {
     for (e in events) {
         var event_info = events[e];
+
+        console.log(event_info)
+
         // Start ul
         html = "<li>"
         // Start card body
         html += "<div class='card card-body'>"
-        html += "<h5>" + event_info["protocol"]["type"] + "</h5>"
+        html += "<h6>" + event_info["protocol"]["type"] + "</h6>";
+        html += "<a href='"+ event_info["protocol"]["_links"]["self"] +"'>"
+        html += "<h5><i class='fa fa-project-diagram'></i> LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h5>";
+        html += "</a>"
+        html += "<table class='table table-striped'>"
+        html += render_content("Undertaken By", event_info["undertaken_by"]);
+        html += render_content("Comments", event_info["comments"]);
+        html += render_content("Date Undertaken", event_info["datetime"]);
+
+        html += "</table>"
         // End card body
         html += "</div>"
         // End ul
@@ -199,7 +211,6 @@ function fill_protocol_events(events) {
 
         $("#protocol-event-li").append(html);
     }
-    console.log(events);
 }
 
 function fill_lineage_table(subsamples) {

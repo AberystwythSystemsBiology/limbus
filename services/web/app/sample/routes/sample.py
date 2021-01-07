@@ -30,6 +30,17 @@ from datetime import datetime
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
+@sample.route("<uuid>/associate/protocol_event", methods=["GET", "POST"])
+@login_required
+def associate_protocol_event(uuid):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if sample_response.status_code == 200:
+        return "Hello World"
+
 @sample.route("<uuid>/associate/review", methods=["GET", "POST"])
 @login_required
 def associate_review(uuid):
