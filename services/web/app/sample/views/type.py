@@ -46,8 +46,8 @@ class NewCellSampleSchema(ma.Schema):
 new_cell_sample_schema = NewCellSampleSchema()
 
 class NewMolecularSampleSchema(ma.Schema):
-    molecular_type = EnumField(FluidSampleType)
-    fluid_container = EnumField(MolecularSampleType)
+    molecular_type = EnumField(MolecularSampleType)
+    fluid_container = EnumField(FluidContainer)
 
 new_molecular_sample_schema = NewMolecularSampleSchema()
 

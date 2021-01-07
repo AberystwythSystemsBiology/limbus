@@ -21,7 +21,8 @@ from ...decorators import token_required
 from ...misc import get_internal_api_header
 
 from ..views import (
-    new_sample_disposal_schema
+    new_sample_disposal_schema,
+    basic_disposal_schema
 )
 
 from ...database import (

@@ -15,11 +15,22 @@
 
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField, DateField, TimeField, TextAreaField
-from ..enums import SampleQuality
+from ..enums import SampleQuality, ReviewType, ReviewResult
 from datetime import datetime
 
 
 class SampleReviewForm(FlaskForm):
+    
+    review_type = SelectField(
+        "Review Type",
+        choices=ReviewType.choices()
+    )
+
+    result = SelectField(
+        "Review Result",
+        choices=ReviewResult.choices()
+    )
+
     quality = SelectField(
         "Sample Quality",
         choices=SampleQuality.choices(),

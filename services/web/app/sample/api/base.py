@@ -25,16 +25,25 @@ from ...webarg_parser import use_args, use_kwargs, parser
 
 from ..views import (
     basic_samples_schema,
+    basic_sample_schema,
     sample_protocol_event_schema,
     sample_schema,
-    SampleFilterSchema
+    SampleFilterSchema,
+    new_fluid_sample_schema,
+    sample_type_schema,
+    new_cell_sample_schema,
+    new_molecular_sample_schema,
+    new_sample_schema,
 )
 
 from ...database import (
     db,
     Sample,
+    SampleToType,
     UserAccount
 )
+
+import requests
 
 @api.route("/sample", methods=["GET"])
 @token_required
