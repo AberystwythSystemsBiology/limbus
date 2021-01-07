@@ -108,6 +108,26 @@ function render_table(query) {
                     col_data += '</span>';
                     return col_data
                 }
+        },
+        {
+            "mData": {},
+            "mRender": function(data, type, row) {
+                var storage_data = data["storage"];
+
+                if (storage_data == null) {
+                    return "<span class='text-muted'>Not stored.</span>"
+                }
+
+                else if (storage_data["storage_type"] == "STB") {
+                    var rack_info = storage_data["rack"];
+                    var html = "<a href='"+rack_info["_links"]["self"]+"'>";
+                    html +=  "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
+                    html += "</a>"
+                    return html
+                }
+                console.log(storage_data);
+                return data["storage"]
+            }
         }
 
         

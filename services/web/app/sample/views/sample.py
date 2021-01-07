@@ -75,6 +75,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
     sample_type_information = ma.Nested(SampleTypeSchema)
+    storage = ma.Nested(EntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
 

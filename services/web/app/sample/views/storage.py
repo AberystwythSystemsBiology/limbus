@@ -33,6 +33,12 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     serial_number = masql.auto_field()
 
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
+        }
+    )
+
 class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorageShelf
@@ -41,6 +47,12 @@ class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
 
     storage_id = masql.auto_field()
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
+        }
+    )
 
 class EntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
