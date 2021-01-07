@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Sample Review :: Sample Acquisition Portal{% endblock %}
+{% block title %}New Protocol Event :: Sample Acquisition Portal{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -8,7 +8,7 @@
         <h1><span class="secondary-heading">
             <a href="{{ sample._links.self }}">
                 <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
-        <i class="fas fa-file"></i> New Review </h1>
+        <i class="fa fa-project-diagram"></i> New Protocol Event </h1>
     </div>
 </div>
 <div class="container">
@@ -18,7 +18,7 @@
 
     <form action="{{ url_for('sample.associate_protocol_event', uuid=sample.uuid) }}" method="POST">
         {{ form.csrf_token() }}
-        {{ form_field(form.quality) }}
+        {{ form_field(form.protocol_id) }}
         <div class="row">
             <div class="col-6">
                 {{ form_field(form.date) }}
@@ -27,8 +27,9 @@
                 {{ form_field(form.time) }}
             </div>
         </div>
-        {{ form_field(form.conducted_by) }}
         {{ form_field(form.comments) }}
+        {{ form_field(form.undertaken_by) }}
+
         {{ form_field(form.submit) }}
     </form>
 
