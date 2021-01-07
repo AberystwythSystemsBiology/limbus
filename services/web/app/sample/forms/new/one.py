@@ -90,6 +90,10 @@ def CollectionConsentAndDisposalForm(
             validators=[Optional()],
         )
 
+        disposal_comments = TextAreaField(
+            "Sample Disposal Comments"
+        )
+
         consent_select = SelectField(
             "Patient Consent Form Template",
             validators=[DataRequired()],

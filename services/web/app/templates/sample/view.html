@@ -38,19 +38,6 @@
                     class="fa fa-question"></i> View Consent</button>
               </div>
 
-              <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{ url_for('sample.associate_document', uuid=uuid ) }}">
-                <button type="button" class="btn btn-outline-dark"><i
-                  class="fas fa-file"></i> Associate Document</button>
-                </a>
-              </div>
-
-              <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{ url_for('sample.associate_review', uuid=uuid ) }}">
-                <button type="button" class="btn btn-outline-dark"><i
-                  class="fas fa-file"></i> New Review</button>
-                </a>
-              </div>
 
 
               <div class="btn-btn-group mr-2" role="group">
@@ -60,9 +47,15 @@
                     <i class="fas fa-vial"></i> Sample Actions
                   </button>
                   <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
+                      class="fas fa-file"></i> New Review</a>
+                    <a class="dropdown-item" href="{{ url_for('sample.associate_protocol_event', uuid=uuid) }}"><i
+                        class="fa fa-project-diagram"></i> New Protocol Event</a>
+                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
+                      class="fas fa-file"></i> Associate Document</a>
                     <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
-                        class="fas fa-vial"></i>Aliquot</a>
-                    <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive</a>
+                        class="fas fa-vial"></i> Aliquot Sample</a>
+                    <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
                     
                   </div>
                 </div>
@@ -107,7 +100,7 @@
         <a class="nav-link active" id="basic-info-nav">Basic Information</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="collection-nav">Collection and Processing Information</a>
+        <a class="nav-link" id="protocol-events-nav">Protocol Events</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="associated-documents-nav">Associated Documents</a>
@@ -128,9 +121,6 @@
         <div class="col-9">
           <table class="table table-striped" id="basic-information"></table>
 
-          <h2>Comments</h2>
-          <blockquote class="blockquote" id="comments" class="text-normal"></blockquote>
-
           <div id="documents"></div>
         </div>
 
@@ -148,13 +138,12 @@
     </div>
 
 
-    <div id="collection-info" style="display:none;">
-      <h2>Collection Information</h2>
-      <table class="table table-striped" id="collection_information"></table>
+    <div id="protocol-event-info" style="display:none;">
+      <ul class="timeline"  id="protocol-event-li"></ul>
+    </div>
 
-      <h2>Processing Information</h2>
-      <table class="table table-striped" id="processing_information"></table>
-
+    <div id="sample-review-info" style="display:none;">
+      <ul class="timeline"  id="sample-review-li"></ul>
     </div>
 
     <div id="associated-documents" style="display:none;">

@@ -29,17 +29,11 @@ from ..enums import (
 
 class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    flui_type = db.Column(db.Enum(FluidSampleType), nullable=True)
-    mole_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
-    cell_type = db.Column(db.Enum(CellSampleType), nullable=True)
-    tiss_type = db.Column(db.Enum(TissueSampleType), nullable=True)
+    fluid_type = db.Column(db.Enum(FluidSampleType), nullable=True)
+    molecular_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
+    cellular_type = db.Column(db.Enum(CellSampleType), nullable=True)
+    tissue_type = db.Column(db.Enum(TissueSampleType), nullable=True)
 
-    container_id = db.Column(db.Integer, db.ForeignKey("sampletocontainer.id"))
-    container = db.relationship("SampleToContainer")
-
-
-class SampleToContainer(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
-    flui_cont = db.Column(db.Enum(FluidContainer), nullable=True)
-    fixa_cont = db.Column(db.Enum(FixationType), nullable=True)
-    cell_cont = db.Column(db.Enum(CellContainer), nullable=True)
+    fluid_container = db.Column(db.Enum(FluidContainer), nullable=True)
+    fixation_type = db.Column(db.Enum(FixationType), nullable=True)
+    cellular_container = db.Column(db.Enum(CellContainer), nullable=True)

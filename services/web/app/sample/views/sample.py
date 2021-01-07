@@ -30,7 +30,8 @@ from . import (
     SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
     ConsentSchema,
-    SampleReviewSchema
+    SampleReviewSchema,
+    EntityToStorageSchema,
 )
 
 from ...document.views import BasicDocumentSchema
@@ -42,22 +43,18 @@ from marshmallow_enum import EnumField
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
-    '''
     barcode = masql.auto_field()
     source = EnumField(SampleSource)
     base_type = EnumField(SampleBaseType)
     status = EnumField(SampleStatus)
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
-    comments = masql.auto_field()
     site_id = masql.auto_field()
     quantity = masql.auto_field()
     disposal_id = masql.auto_field()
-    sample_to_type_id = masql.auto_field()
     consent_id = masql.auto_field()
-    '''
+    sample_to_type_id = masql.auto_field()
 
-    collection_information = {}
 
 new_sample_schema = NewSampleSchema()
 
@@ -78,9 +75,9 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
     sample_type_information = ma.Nested(SampleTypeSchema)
+    storage = ma.Nested(EntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
 
     _links = ma.Hyperlinks(
         {
@@ -119,10 +116,13 @@ class SampleSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
-    processing_information = ma.Nested(SampleProtocolEventSchema, many=False)
-    collection_information = ma.Nested(SampleProtocolEventSchema, many=False)
+
+    protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
+    
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
+
+    storage = ma.Nested(EntityToStorageSchema, many=False)
 
     documents = ma.Nested(BasicDocumentSchema, many=True)
 

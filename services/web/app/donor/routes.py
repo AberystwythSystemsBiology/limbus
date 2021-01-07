@@ -293,7 +293,6 @@ def edit(id):
                 for i in form_information:
                     form_information[i] = strconv(form_information[i])
 
-                print(form_information)
                 edit_response = requests.put(
                     url_for("api.donor_edit", id=id, _external=True),
                     headers=get_internal_api_header(),
@@ -305,6 +304,7 @@ def edit(id):
                 else:
                     flash("We have a problem: %s" % (edit_response.json()))
                 return redirect(url_for("donor.view", id=id))
+
             return render_template(
                 "donor/edit.html", donor=response.json()["content"], form=form
             )

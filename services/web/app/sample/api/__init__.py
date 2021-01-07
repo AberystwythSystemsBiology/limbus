@@ -13,30 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...extensions import ma
-from ...database import Sample
-
-import marshmallow_sqlalchemy as masql
-
-class SampleUUIDSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Sample
-
-    uuid = masql.auto_field(required=False)
-
-    _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
-    )
-
-
-
-from .filter import *
+from .base import *
 from .consent import *
-from .disposal import *
-from .document import *
-from .filter import *
 from .protocol import *
+from .disposal import *
 from .review import *
-from .type import *
-from .storage import *
-from .sample import *
+from .document import *

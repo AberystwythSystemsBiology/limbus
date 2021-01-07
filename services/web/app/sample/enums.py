@@ -24,13 +24,22 @@ class SampleQuality(FormEnum):
     NOT = "Not Specified"
 
 
+class ReviewType(FormEnum):
+    PC = "Purity Check"
+    QC = "Quality Check"
+    IC = "Identity Check"
+
+class ReviewResult(FormEnum):
+    PA = "Pass"
+    FA = "Fail"
+    UN = "Unknown"
+
 class Colour(FormEnum):
     BLU = "Blue"
     RED = "Red"
     GRE = "Green"
     YEL = "Yellow"
     GRY = "Grey"
-
 
 class SampleSource(FormEnum):
     NEW = "New"

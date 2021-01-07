@@ -48,7 +48,7 @@ def sample_label(uuid: str):
 
         sample = sample_response.json()["content"]
 
-        sample_type = sample["type"]
+        sample_type = sample["base_type"]
 
         if sample_type == "Fluid":
             measurement = "mL"
@@ -63,7 +63,7 @@ def sample_label(uuid: str):
             dict(
                 sample_id=sample["uuid"],
                 sample_name=sample["uuid"],
-                sample_type=sample["type"],
+                sample_type=sample["base_type"],
                 measurement=measurement,
                 sample_quantity=sample["remaining_quantity"],
             )

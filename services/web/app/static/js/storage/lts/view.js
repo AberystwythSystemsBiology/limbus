@@ -19,12 +19,14 @@ function deactivate_nav() {
     $("#basic-info-nav").removeClass("active");
     $("#shelves-nav").removeClass("active");
     $("#callibration-nav").removeClass("active");
+    $("#service-report-nav").removeClass("active");
 }
 
 function hide_all() {
     var tim = 50;
     $("#basic-info-div").fadeOut(50);
     $("#shelf-info-div").fadeOut(50);
+    $("#service-report-div").fadeOut(50);
 
 }
 
@@ -42,4 +44,12 @@ $(document).ready(function() {
         hide_all();
         $("#shelf-info-div").fadeIn(100);
     });
+
+    $("#service-report-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#service-report-div").fadeIn(100);
+
+    })
 });

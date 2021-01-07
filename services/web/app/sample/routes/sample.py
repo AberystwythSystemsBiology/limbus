@@ -21,7 +21,12 @@ from flask_login import login_required
 import requests
 from ...misc import get_internal_api_header
 
-from ..forms import SampleToDocumentAssociatationForm, SampleReviewForm
+from ..forms import (
+    SampleToDocumentAssociatationForm,
+    SampleReviewForm,
+    ProtocolEventForm
+)
+
 from datetime import datetime
 
 
@@ -29,6 +34,54 @@ from datetime import datetime
 @login_required
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
+
+@sample.route("<uuid>/associate/protocol_event", methods=["GET", "POST"])
+@login_required
+def associate_protocol_event(uuid):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if sample_response.status_code == 200:
+
+        protocols_response = requests.get(
+            url_for("api.protocol_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"is_locked": False},
+        )
+
+        protocols = []
+
+        if protocols_response.status_code == 200:
+            for protocol in protocols_response.json()["content"]:
+                protocols.append((int(protocol["id"]), "LIMBPRO-%s: %s" % (protocol["id"], protocol["name"])))
+
+        form = ProtocolEventForm(protocols)
+
+        if form.validate_on_submit():
+            new_event = requests.post(
+                url_for("api.sample_new_sample_protocol_event",_external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                    ),
+                    "undertaken_by": form.undertaken_by.data,
+                    "comments": form.comments.data,
+                    "protocol_id": form.protocol_id.data,
+                    "sample_id": sample_response.json()["content"]["id"]
+                    }
+            )
+
+            if new_event.status_code == 200:
+                flash("Protocol Event Successfully Added!")
+                return redirect(url_for("sample.view", uuid=uuid))
+            flash("We have a problem!")
+        return render_template("sample/protocol/new.html", form=form, sample=sample_response.json()["content"])
 
 @sample.route("<uuid>/associate/review", methods=["GET", "POST"])
 @login_required
@@ -49,6 +102,8 @@ def associate_review(uuid):
                 url_for("api.sample_new_sample_review", uuid=uuid, _external=True),
                 headers=get_internal_api_header(),
                 json={
+                    "review_type": form.review_type.data,
+                    "result": form.result.data,
                     "sample_id": sample_response.json()["content"]["id"],
                     "conducted_by": form.conducted_by.data,
                     "datetime": str(

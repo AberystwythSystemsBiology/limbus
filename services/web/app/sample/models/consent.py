@@ -38,6 +38,5 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
     question_id = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
