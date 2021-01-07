@@ -125,6 +125,14 @@ function render_table(query) {
                     html += "</a>"
                     return html
                 }
+
+                else if (storage_data["storage_type"] == "STS") {
+                    var shelf_info = storage_data["shelf"];
+                    var html = "<a href='"+shelf_info["_links"]["self"]+"'>";
+                    html +=  "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
+                    html += "</a>"
+                    return html
+                }
                 console.log(storage_data);
                 return data["storage"]
             }
