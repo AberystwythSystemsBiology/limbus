@@ -52,7 +52,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
 
     dob = ma.Date()
-
+    registration_date = ma.Date()
     sex = EnumField(BiologicalSexTypes, by_value=True)
     status = EnumField(DonorStatusTypes, by_value=True)
     death_date = ma.Date()
@@ -96,10 +96,11 @@ class NewDonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor
 
+    id = masql.auto_field(default=None)
     dob = ma.Date()
     sex = EnumField(BiologicalSexTypes)
     status = EnumField(DonorStatusTypes)
-    death_date = ma.Date()
+    death_date = ma.Date(allow_none=True)
     colour = EnumField(Colour)
     mpn = masql.auto_field()
     enrollment_site_id = masql.auto_field()
@@ -108,7 +109,30 @@ class NewDonorSchema(masql.SQLAlchemySchema):
     weight = masql.auto_field()
     height = masql.auto_field()
 
-    race = EnumField(RaceTypes)
+    race = EnumField(RaceTypes, by_value=False)
 
 
 new_donor_schema = NewDonorSchema()
+
+
+class EditDonorSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Donor
+
+    id = masql.auto_field(default=None, allow_none=True)
+    dob = ma.Date(allow_none=True)
+    sex = EnumField(BiologicalSexTypes, allow_none=True)
+    status = EnumField(DonorStatusTypes, allow_none=True)
+    death_date = ma.Date(allow_none=True)
+    colour = EnumField(Colour, allow_none=True)
+    mpn = masql.auto_field(allow_none=True)
+    enrollment_site_id = masql.auto_field()
+    registration_date = masql.auto_field()
+
+    weight = masql.auto_field(allow_none=True)
+    height = masql.auto_field(allow_none=True)
+
+    race = EnumField(RaceTypes,allow_none=True)
+
+
+edit_donor_schema = EditDonorSchema()
