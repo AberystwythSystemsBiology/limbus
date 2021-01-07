@@ -118,8 +118,24 @@
         </div>
 
 
-        <div id="service-report-div">
-            {{ cs.service_history }}
+        <div id="service-report-div" style="display: none;">
+            <ul class="timeline"  id="sample-review-li">
+                {% for service in cs.service_history %}
+                <li>
+                    <div class="card card-body">
+                        <h6>{{service.status}}</h6>
+                        <h5>Service</h5>
+                        <table class="table table-striped">
+                            {{ show_value(service.comments, "Comments", "text") }}
+                            {{ show_value(service.conducted_by, "Conducted By", "text") }}
+                            {{ show_value(service.temp, "Temperature", "text") }} 
+                            {{ show_value(service.date, "Date", "text") }} 
+                        </table>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            
         </div>
         </div>
     </div>
