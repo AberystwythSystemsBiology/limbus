@@ -3,15 +3,16 @@
 {% block title %}Setup Complete!{% endblock %}
 
 {% block body %}
-<div class="container">
-  <div class="jumbotron" style="margin-top: 10px;">
-    <h1 class="display-4">Setup Completed!</h1>
-    <p class="lead">That's it! You have completed setting up LImBuS!</p>
+  <div class="jumbotron">
+    <div class="container">
+
+    <h1>Setup Complete</h1>
+    <p>That's it! You have completed setting up LImBuS!</p>
     <hr class="my-4">
     <p>Now log in using the information you provided.</p>
-    <p class="lead">
-      <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Log In</a>
-    </p>
+      <a href="{{ url_for('auth.login') }}">
+        <div class="btn btn-outline-dark btn-lg" >Log In</div>
+      </a>
   </div>
 
 </div>
