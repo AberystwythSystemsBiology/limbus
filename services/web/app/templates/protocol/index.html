@@ -23,7 +23,7 @@
     <p>This is the Patient Consent Form Portal. This is where patient consent forms can be found.</p>
 
 
-    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+    <table id="protocol-table" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>Protocol</th>
@@ -50,4 +50,8 @@
 
 </div>
 
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/protocol/index.js') }}"></script>
 {% endblock %}
