@@ -43,7 +43,22 @@ from ...database import (
     UserAccount
 )
 
+from ..enums import *
+
 import requests
+
+@api.route("/sample/containers", methods=["GET"])
+def sample_get_containers():
+    return success_with_content_response(
+        {
+            "Fluid": {"container": FluidContainer.choices()},
+            "Molecular": {"container": FluidContainer.choices()},
+            "Cell": {
+                "container": CellContainer.choices(),
+                "fixation_type": FixationType.choices(),
+            },
+        }
+    )
 
 @api.route("/sample", methods=["GET"])
 @token_required

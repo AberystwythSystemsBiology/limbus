@@ -16,7 +16,7 @@
 
 
 
-    <form action="{{ url_for('sample.associate_protocol_event', uuid=sample.uuid) }}" method="POST">
+    <form action="{{ url_for('sample.new_protocol_event', uuid=sample.uuid) }}" method="POST">
         {{ form.csrf_token() }}
         {{ form_field(form.protocol_id) }}
         <div class="row">

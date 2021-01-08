@@ -148,10 +148,11 @@ function fill_sample_info() {
     $("#sample_href").attr("href", sample["_links"]["self"])
     $("#remaining_quantity").attr("value", parseFloat(sample["remaining_quantity"]));
     $("#original_quantity").attr("value", parseFloat(sample["quantity"]));
-    $("#remaining_metric").html(get_metric(sample["type"]));
-    $("#original_metric").html(get_metric(sample["type"]));
+    $("#remaining_metric").html(get_metric(sample["base_type"]));
+    $("#original_metric").html(get_metric(sample["base_type"]));
 
-    if (sample["type"] == "Cell") {
+
+    if (sample["base_type"] == "Cell") {
         $("#fixation_type_th").show()
     }
 
@@ -187,7 +188,8 @@ function update_number() {
 }
 
 function generate_container_select(indx) {
-    var containers = container_information[sample["type"]]
+    console.log(container_information);
+    var containers = container_information[sample["base_type"]]
 
     var containers_list = containers["container"];
 
@@ -205,7 +207,7 @@ function generate_container_select(indx) {
 
 
 function generate_fixation_select() {
-    var containers = container_information[sample["type"]]
+    var containers = container_information[sample["base_type"]]
     var fixation_list = containers["fixation_type"]
 
     // Start select
@@ -228,7 +230,7 @@ function make_new_form(indx) {
     row_form_html += '<tr id="row_'+indx+'">';
     // Container
     row_form_html += '<td>'+generate_container_select(indx)+'</td>'
-    if (sample["type"] == "Cell") {
+    if (sample["base_type"] == "Cell") {
         row_form_html += '<td>'+generate_fixation_select()+'</td>';
     }
     // Volume start

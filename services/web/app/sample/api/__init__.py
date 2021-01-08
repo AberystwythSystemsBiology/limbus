@@ -19,3 +19,4 @@ from .protocol import *
 from .disposal import *
 from .review import *
 from .document import *
+from .aliquot import *

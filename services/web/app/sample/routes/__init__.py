@@ -69,7 +69,6 @@ def biohazard_information() -> str:
 
 
 from .add import *
+from .protocol import *
 from .sample import *
 from .aliquot import *
-
-# from .edit import *
