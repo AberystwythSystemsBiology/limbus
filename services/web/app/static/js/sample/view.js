@@ -150,7 +150,6 @@ function fill_basic_information(sample_information) {
 
 
 function fill_document_information(document_information) {
-    if (document_information.length) {
         $("#documentTable").DataTable({
             data: document_information,
             pageLength: 5,
@@ -176,11 +175,7 @@ function fill_document_information(document_information) {
             ]
         });
 
-    }
 
-    else {
-        $("#documents").hide();
-    }
 
 }
 
@@ -196,30 +191,44 @@ function fill_sample_reviews(reviews) {
         html += "<div class='card'>"
 
         var header_colour = "text-white bg-warning"
+        var glyphicon = "fa fa-star";
 
         if (review_info["result"] == "Pass") {
             var header_colour = "text-white bg-success";
+            var glyphicon = "fa fa-check-circle"
         }
 
         else if (review_info["result"] == "Fail") {
             var header_colour = "text-white bg-danger";
+            var glyphicon = "fa fa-times-circle"
         }
 
 
         html += "<div class='card-header "+header_colour+"'>"
-        html += review_info["review_type"]
+        html += review_info["review_type"];
         html += "</div>";
         html += "<div class=' card-body'>"
+        html += "<div class='media'>"
+        html += "<div class='align-self-center mr-3'>"
+        html += "<h1><i class='"+ glyphicon + "'></i></h1>"
+        html += "</div>"
+        html += "<div class='media-body'>"
+        html += "<h5 class='mt-0'>" + review_info["uuid"] + "</h5>";
         html += "<table class='table table-striped'>"
         html += render_content("Quality", review_info["quality"]);
         html += render_content("Conducted By", review_info["conducted_by"]);
         html += render_content("Comments", review_info["comments"]);
         html += "</table>"
+        html += "</div>"
+
+        html += "</div>"
         // End card body
         html += "</div>"
         html += "<div class='card-footer'>"
+        //html += "<a href='" + review_info["_links"]["edit"] + "'>"
         html += "<div class='btn btn-warning float-left'>Edit</div>"
-        html += "<div class='btn btn-danger float-right'>Remove</div>"
+        //html += "</a>"
+        html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
         html += "</div>"
         html += "</div>"
 
@@ -235,30 +244,44 @@ function fill_protocol_events(events) {
     for (e in events) {
         var event_info = events[e];
 
+        
+
         // Start ul
         html = "<li>"
         html += "<p class='text-muted'>Undertaken on " + event_info["datetime"] + "</p>"
         // Start card body
         html += "<div class='card'>"
         html += "<div class='card-header'>"
-        html += event_info["protocol"]["type"]
+        html += event_info["protocol"]["type"];
+        html += "</div>";
+        html += "<div class=' card-body'>"
+        html += "<div class='media'>"
+        html += "<div class='align-self-center mr-3'>"
+        html += "<h1><i class='fa fa-project-diagram'></i></h1>"
         html += "</div>"
-        html += "<div class='card-body'>"
+        html += "<div class='media-body'>"
+        html += "<h5 class='mt-0'>" + event_info["uuid"] + "</h5>";
         html += "<a href='"+ event_info["protocol"]["_links"]["self"] +"'>"
-        html += "<h5><i class='fa fa-project-diagram'></i> LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h5>";
+        html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
         html += "<table class='table table-striped'>"
         html += render_content("Undertaken By", event_info["undertaken_by"]);
         html += render_content("Comments", event_info["comments"]);
         html += "</table>"
+        html += "</div>"
+
+        html += "</div>"
         // End card body
         html += "</div>"
         html += "<div class='card-footer'>"
-        html += "<div class='btn btn-warning float-left'>Edit Event</div>"
-        html += "<div class='btn btn-danger float-right'>Remove Event</div>"
+        html += "<a href='" + event_info["_links"]["edit"] + "'>"
+        html += "<div class='btn btn-warning float-left'>Edit</div>"
+        html += "</a>"
+        html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
         html += "</div>"
         html += "</div>"
 
+    
         // End ul
         html += "</li>"
 

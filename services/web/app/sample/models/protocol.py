@@ -14,11 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin
+from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
-class SampleProtocolEvent(Base, RefAuthorMixin, RefEditorMixin):
+class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
+    
     datetime = db.Column(db.DateTime)
     undertaken_by = db.Column(db.String(128))
     comments = db.Column(db.Text)

@@ -14,11 +14,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin
+from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import SampleQuality, ReviewResult, ReviewType
 
 
-class SampleReview(Base, RefAuthorMixin, RefEditorMixin):
+class SampleReview(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     result = db.Column(db.Enum(ReviewResult))
     review_type = db.Column(db.Enum(ReviewType))

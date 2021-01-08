@@ -28,7 +28,7 @@
     <p>This is the Attribute Portal. This is where your attributes can be found. </p>
 
 
-    <table id="attributeTable" class="table table-striped table-bordered" style="width:100%">
+    <table id="attribute-table" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>Attribute</th>
@@ -60,4 +60,9 @@
 
 
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/attribute/index.js') }}"></script>
+
 {% endblock %}

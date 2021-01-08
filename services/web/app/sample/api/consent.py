@@ -22,7 +22,8 @@ from ...misc import get_internal_api_header
 
 from ..views import (
     new_consent_schema,
-    consent_schema
+    consent_schema,
+    new_consent_answer_schema
 )
 
 from ...database import (

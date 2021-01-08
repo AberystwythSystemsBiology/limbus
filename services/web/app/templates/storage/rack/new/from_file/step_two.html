@@ -30,13 +30,14 @@
                 <b>Notice:</b> This is currently in early development stages and will
                 likely break if the following instructions are not followed.</div>
 
-
+            <table class="table table-striped">
             {{ show_value(session_data["serial_number"], "Serial Number", "text")  }}
             {{ show_value(render_colour(session_data["colour"]), "Colour", "text")  }}
             {{ show_value(session_data["description"], "Description", "text")  }}
             {{ show_value(session_data["json"]["num_rows"], "Number of Rows", "text")  }}
             {{ show_value(session_data["json"]["num_cols"], "Number of Columns", "text")  }}
-
+            </table>
+            
             <form method="POST" enctype="multipart/form-data"
                 action="{{ url_for('storage.rack_automatic_entry_validation', _hash=hash) }}">
 

@@ -89,7 +89,6 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
     subsample_id = db.Column(
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True

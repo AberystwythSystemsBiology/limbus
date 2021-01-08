@@ -1,64 +1,39 @@
-{% from "macros.html" import render_warning, form_field %}
+{% extends "template.html" %}
 
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8">
-    <meta name="author" content="Keiron O'Shea">
-    <title>Login : The Libre Biobank Management System</title>
+{% block title %}Log In{% endblock %}
 
-    <link href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.css') }}" rel="stylesheet">
+{% block body %}
 
-    {% block head %}
-    {% endblock %}
+<div class="container" style="padding-top: 1em; max-width: 800px;">
 
-    <link href="{{ url_for('static', filename='css/global.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/auth/login.css') }}" rel="stylesheet">
-
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/logos/limbus_logo.svg') }}" />
-</head>
-
-<body>
-
-
-
-    <div class="container text-center">
-
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-warning no-margin alert-dismissible fade show text-center" role="alert">
-            <strong>Notice!</strong> {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Keep your information secure
         </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
-        <img src="{{url_for('static', filename='images/logos/limbus_logo.svg')}}">
-
-        <h1>Welcome to LImBuS</h1>
-
-        <h2>Log in to your account</h2>
-
-
-        <form method="POST" action="{{ url_for('auth.login' ) }}">
-            {{ form.csrf_token }}
-            {{ form_field(form.email) }}
-            {{ form_field(form.password) }}
-            <button class="btn btn-success full-width" type="submit">Log In</button>
-        </form>
-
-        <h3>Problems signing in?</h3>
-
-        <p>Please contact your biobank administrator and ask them to reset your password.</p>
-
-    </div>
+        <div class="card-body">
+            Do not share your LImBuS log in details with anyone else. 
+        </div>
     </div>
 
-    </div>
+    <h1><i class="fa fa-key"></i> Log In</h1>
 
-</body>
+    <form method="POST" action="{{ url_for('auth.login' ) }}">
+        {{ form.csrf_token }}
+        {{ form_field(form.email) }}
+        {{ form_field(form.password) }}
+        {{ form_field(form.submit) }}
+    </form>
+
+    <h2 style="padding-top: 2em;">Problems signing in</h2>
+    
+    <h3><a href="#">I have forgotten my password</a></h3>
+    <h3><a href="#">I have forgotten my email address</a></h3>
+    <h3><a href="#">I need an account</a></h3>
+
+</div>
+
+
+
+
+{% endblock %}

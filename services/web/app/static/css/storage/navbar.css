@@ -9,7 +9,7 @@
     max-width: 20em;
     height: 100%;
     min-height: 100vh;
-
+    overflow: auto;
     top: 30px;
     left: 0;
     z-index: 998;

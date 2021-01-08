@@ -13,7 +13,7 @@
 <div class="container">
 
 
-    <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
+    <table id="procedure-table" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>Name</th>
@@ -39,4 +39,9 @@
     </table>
 
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/procedure/index.js') }}"></script>
+
 {% endblock %}

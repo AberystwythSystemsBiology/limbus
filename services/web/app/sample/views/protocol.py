@@ -39,6 +39,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
 
+    uuid = masql.auto_field()
     id = masql.auto_field()
     datetime = masql.auto_field(format="%d/%m/%Y")
     undertaken_by = masql.auto_field()
@@ -46,6 +47,12 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     protocol = ma.Nested(BasicProtocolTemplateSchema, many=False)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
+
+    _links = ma.Hyperlinks(
+        {
+            "edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True)
+        }
+    )
 
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
