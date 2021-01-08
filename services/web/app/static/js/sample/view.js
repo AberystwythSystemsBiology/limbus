@@ -150,7 +150,6 @@ function fill_basic_information(sample_information) {
 
 
 function fill_document_information(document_information) {
-    if (document_information.length) {
         $("#documentTable").DataTable({
             data: document_information,
             pageLength: 5,
@@ -176,11 +175,7 @@ function fill_document_information(document_information) {
             ]
         });
 
-    }
 
-    else {
-        $("#documents").hide();
-    }
 
 }
 
