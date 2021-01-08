@@ -15,6 +15,7 @@
 
 from flask import request, abort, url_for
 from marshmallow import ValidationError
+from sqlalchemy.orm.session import make_transient
 from ...api import api, generics
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
@@ -25,7 +26,10 @@ from ...webarg_parser import use_args, use_kwargs, parser
 import requests
 
 from ...database import (
-    Sample
+    db,
+    Sample,
+    UserAccount,
+    SubSampleToSample
 )
 
 from ..views import (
@@ -80,8 +84,10 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     to_remove = sum([float(a["volume"]) for a in values["aliquots"]])
 
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+
     parent_values = new_sample_schema.dump(sample)
     parent_id = sample.id
+
     sample_values = new_sample_schema.load(parent_values)
 
     remaining_quantity = sample.remaining_quantity
@@ -92,12 +98,13 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         )
 
     for aliquot in values["aliquots"]:
-        print(aliquot)
-        '''
+
         ali_sample = Sample(**sample_values)
         make_transient(ali_sample)
+
         ali_sample.id = None
         ali_sample.uuid = None
+
         ali_sample.barcode = aliquot["barcode"]
         ali_sample.quantity = float(aliquot["volume"])
         ali_sample.remaining_quantity = float(aliquot["volume"])
@@ -114,16 +121,14 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         )
 
         db.session.add(ssts)
-        '''
 
-    '''
-    sample.remaining_quantity = sample.remaining_quantity - to_remove
+    
+
+    sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
     db.session.add(sample)
     db.session.commit()
 
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
     )
-    '''
 
-    return "HELLO WORLD"

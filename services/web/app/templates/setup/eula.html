@@ -3,13 +3,19 @@
 {% block title %}End User License Agreement{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>
-        <span class="secondary-heading"><i class="fa fa-wrench"></i> LImBuS Setup</span>
-        <i class="fa fa-file-alt"></i> Not The End User License Agreement
-    </h1>
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading"><i class="fa fa-wrench"></i> LImBuS Setup</span>
+            <i class="fa fa-file-alt"></i> Not The End User License Agreement
+        </h1>
+    
+        {{ render_progress(2, 7) }} 
+    </div>
+</div>
 
-    {{ render_progress(2, 7) }}
+<div class="container">
+
 
     <p>As this project is licensed under the GNU General Public License v3.0, <b>you are not required to agree to an
             EULA</b>.

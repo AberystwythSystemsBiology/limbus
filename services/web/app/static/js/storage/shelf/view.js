@@ -147,7 +147,7 @@ function render_sample_table(samples) {
                 {
                     "mData": {},
                     "mRender": function(data, type,row) {
-                        return data["type"];
+                        return data["base_type"];
                     }
                 },
                 {
