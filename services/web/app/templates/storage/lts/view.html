@@ -122,16 +122,36 @@
             <ul class="timeline"  id="sample-review-li">
                 {% for service in cs.service_history %}
                 <li>
-                    <div class="card card-body">
-                        <h6>{{service.status}}</h6>
-                        <h5>Service</h5>
-                        <table class="table table-striped">
-                            {{ show_value(service.comments, "Comments", "text") }}
-                            {{ show_value(service.conducted_by, "Conducted By", "text") }}
-                            {{ show_value(service.temp, "Temperature", "text") }} 
-                            {{ show_value(service.date, "Date", "text") }} 
-                        </table>
+                    <p class="text-muted">Undertaken on {{ service.date }}</p>
+                    <div class="card">
+                        {% set header_colour = "text-white bg-danger" %}
+                        {% set glyphicon = "fa fa-times-circle" %}
+
+                        {% if service.status == "Pass" %}
+                            {% set header_colour = "text-white bg-success" %}
+                            {% set glyphicon = 'fa fa-check-circle' %}
+                        {% endif %}
+
+                        <div class="card-header {{ header_colour }}">
+                            {{ service.status }}
+                        </div>
+                        <div class="card-body">
+                            <div class="media">
+                                <div class="align-self-center mr-3">
+                                    <h1><i class='{{ glyphicon}}'></i></h1>
+                                </div>
+                                <div class="media-body">
+                                    <table class="table table-striped">
+                                        {{ show_value(service.comments, "Comments", "text") }}
+                                        {{ show_value(service.conducted_by, "Conducted By", "text") }}
+                                        {{ show_value(service.temp, "Temperature", "text") }} 
+                                        {{ show_value(service.date, "Date", "text") }} 
+                                    </table>
+                                </div>
+                            </div>
+                        
                     </div>
+                </div>
                 </li>
                 {% endfor %}
             </ul>
