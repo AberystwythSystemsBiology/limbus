@@ -35,6 +35,7 @@ from .protocol import protocol as protocol_blueprint
 from .sample import sample as sample_blueprint
 from .tmpstore import tmpstore as tmpstore_blueprint
 from .storage import storage as storage_blueprint
+from .admin import admin as admin_blueprint
 
 from app.errors import error_handlers
 
@@ -76,7 +77,7 @@ def register_blueprints(app):
     app.register_blueprint(sample_blueprint, url_prefix="/sample")
     app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
-
+    app.register_blueprint(admin_blueprint, url_prefix="/admin")
 
 def setup_database(app):
     with app.app_context():

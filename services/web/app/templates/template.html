@@ -161,11 +161,10 @@
 
                             {% if not current_user.is_bot %}
                             <div class="dropdown-divider"></div>
-                            {% if current_user.is_admin == "ASDADA"  %}
-                            <a class="dropdown-item" href="{{ url_for('admin.index') }}"><i
-                                    class="fa fa-user-secret"></i> Admin Panel</a>
+                            {% if current_user.is_admin == true  %}
+                            <a class="dropdown-item" href="{{ url_for('admin.index') }}">
+                                <i class="fa fa-cog"></i> Administrator Panel</a>
                             {% endif %}
-                            <a class="dropdown-item" disabled><i class="fa fa-cog"></i> Settings</a>
                             <a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> My
                                 Profile</a>
                             <a class="dropdown-item" href="{{ url_for('tmpstore.index') }}">
