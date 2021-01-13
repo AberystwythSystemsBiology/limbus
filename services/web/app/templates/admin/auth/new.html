@@ -1,0 +1,36 @@
+{% extends "template.html" %}
+
+
+{% block head %}
+<link href="{{ url_for('static', filename='css/admin/style.css') }}" rel="stylesheet">
+{% endblock %}
+
+
+{% block title %}New User Account : Admin Portal{% endblock %}
+
+
+{% block body %}
+
+
+
+  <div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fa fa-cog"></i> Administrator Panel</span><i class="fa fa-user"></i> New User Account</h1>
+
+      </div>
+  </div>
+
+
+
+  <div class="container">
+
+
+    {{ form_field(form.email) }}
+
+  </div>
+
+
+
+
+
+{% endblock %}

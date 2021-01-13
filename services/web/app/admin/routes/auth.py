@@ -17,6 +17,8 @@ from .. import admin
 from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
+from ...auth.forms import UserAccountRegistrationForm
+
 from flask import render_template, url_for, redirect, abort
 from flask_login import current_user, login_required
 
@@ -32,7 +34,9 @@ def auth_index():
 @check_if_admin
 @login_required
 def auth_new_account():
-    return "EA"
+    form = UserAccountRegistrationForm()
+
+    return render_template("/admin/auth/new.html", form=form)
 
 @admin.route("/auth/data", methods=["GET"])
 @check_if_admin
