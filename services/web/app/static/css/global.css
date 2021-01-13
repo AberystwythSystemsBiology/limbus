@@ -409,11 +409,11 @@ footer {
     background-color: #bbebdf;
 }
 
+
+
 table th {
     text-align: center;
-    background-color: #007bff;
-    color: #ffffff;
-    font-weight: normal;
+    font-weight: bold;
 }
 
 ul.timeline {

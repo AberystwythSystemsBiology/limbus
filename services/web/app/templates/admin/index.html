@@ -15,17 +15,44 @@
 
   <div class="jumbotron">
     <div class="container">
-        <h1>Administrator Panel</h1>
+        <h1><i class="fa fa-cog"></i> Administrator Panel</h1>
     </div>
   </div>
 
+
+
   <div class="container">
 
+  <p>We trust you have received the usual lecture from the local System 
+    Administrator. It usually boils down to these three things:</p>
 
-    <div class="btn btn-primary btn-lg">
-      User Accounts
+    <ol>
+      <li>Respect the privacy of others.</li>
+      <li>Think before you type.</li>
+      <li>With great power comes great responsibility.</li>
+    </ol>
+
+
+
+    <div class="card-deck mb-3 text-center">
+      <div class="card mb-4 box-shadow">
+        <div class="card-header">
+          <h4 class="my-0 font-weight-normal">User Accounts</h4>
+        </div>
+        <div class="card-body">
+          <h1 class="card-title pricing-card-title"><i class="fa fa-user"></i></h1>
+          <ul class="list-unstyled mt-3 mb-4">
+            <li>Create New Users</li>
+            <li>Manage Existing Users</li>
+            <li>Lock User Accounts</li>
+          </ul>
+          <a href="{{ url_for('admin.auth_index') }}">
+            <div class="btn btn-lg btn-block btn-primary">Go</div>
+          </a>
+        </div>
+      </div>
+      
     </div>
-
 
   </div>
 

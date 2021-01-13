@@ -12,3 +12,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from .. import admin
+from ...decorators import check_if_admin
+
+from flask import render_template, url_for, redirect, abort
+from flask_login import current_user, login_required
+
+@admin.route("/auth/", methods=["GET"])
+@check_if_admin
+@login_required
+def auth_index():
+    return render_template("admin/auth/index.html")
