@@ -77,7 +77,6 @@ def new_document():
                 data=form.file.data,
             )
 
-            print(file_response.json())
 
             if file_response.status_code == 200:
                 flash("Document Successfully Created")
