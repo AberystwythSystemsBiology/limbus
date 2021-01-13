@@ -30,7 +30,7 @@ from datetime import datetime
 @sample.route("review/<uuid>/edit", methods=["GET", "POST"])
 @login_required
 def remove_review(uuid):
-    pass
+    return "ToDo"
 
 @sample.route("<uuid>/associate/review", methods=["GET", "POST"])
 @login_required

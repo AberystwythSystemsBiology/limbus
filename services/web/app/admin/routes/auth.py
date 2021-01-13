@@ -15,12 +15,34 @@
 
 from .. import admin
 from ...decorators import check_if_admin
+from ...misc import get_internal_api_header
 
 from flask import render_template, url_for, redirect, abort
 from flask_login import current_user, login_required
+
+import requests
 
 @admin.route("/auth/", methods=["GET"])
 @check_if_admin
 @login_required
 def auth_index():
     return render_template("admin/auth/index.html")
+
+@admin.route("/auth/new", methods=["GET", "POST"])
+@check_if_admin
+@login_required
+def auth_new_account():
+    return "EA"
+
+@admin.route("/auth/data", methods=["GET"])
+@check_if_admin
+@login_required
+def auth_data():
+    auth_response = requests.get(
+        url_for("api.auth_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if auth_response.status_code == 200:
+        return auth_response.json()
+    return auth_response.content

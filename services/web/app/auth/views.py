@@ -41,6 +41,12 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
 
     first_name = masql.auto_field()
     last_name = masql.auto_field()
+    
+    account_type = EnumField(AccountType, by_value=True)
+
+    created_on = ma.Date()
+
+    is_locked = masql.auto_field()
 
     gravatar = fields.Method("get_gravatar")
 
