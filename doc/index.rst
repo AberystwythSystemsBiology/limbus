@@ -27,7 +27,8 @@ Learn more about configuring or deploying LImBuS.
    /deployment/internal.rst
    /deployment/external.rst
    /deployment/environment.rst
-   
+   /deployment/setup.rst
+
    
 Step-by-Step Guides
 -------------------
