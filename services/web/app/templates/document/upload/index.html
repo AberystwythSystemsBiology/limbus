@@ -16,13 +16,13 @@
 <div class="container">
 
 
-    <form method="POST" action="{{ url_for('document.new_document' ) }}">
+    <form method="POST" action="{{ url_for('document.new_document' ) }}"  enctype="multipart/form-data">
         {{ form.csrf_token }}
-
+        {{ form_field(form.type) }}
         {{ form_field(form.name) }}
         {{ form_field(form.description) }}
 
-        {{ form_field(form.type) }}
+        {{ form_field(form.file) }}
 
         {{ form_field(form.submit, with_label=False) }}
 

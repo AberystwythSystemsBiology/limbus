@@ -75,6 +75,9 @@ class DocumentCreationForm(FlaskForm):
         choices=[(x.name, x.value) for x in DocumentType],
     )
 
+    file = FileField("File Upload", validators=[DataRequired()])
+
+
     submit = SubmitField("Submit")
 
 
