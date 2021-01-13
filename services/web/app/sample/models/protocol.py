@@ -30,6 +30,3 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
     protocol = db.relationship("ProtocolTemplate")
 
-    # -- Use the same uuid to reference the same protocol event,
-    # e.g. for aliquot/derivation events, where the parent/child samples share the same event uuid
-    uuid = db.Column(db.String(36), default=uuid4, nullable=False, unique=False)

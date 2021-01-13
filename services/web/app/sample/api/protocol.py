@@ -66,16 +66,10 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
 def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
 
     try:
-        protocol_events = SampleProtocolEvent.query.filter_by(uuid=uuid)
-        if protocol_events.count() > 1:
-            err = {'messages':'Multiple protocol events involved!'}
+        protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
+        if protocol_event.is_locked:
+            err = {'messages': 'Protocol Event Locked!'}
             return validation_error_response(err)
-        else:
-
-            protocol_event = protocol_events.first()
-            if protocol_event.is_locked:
-                err = {'messages': 'Protocol Event Locked!'}
-                return validation_error_response(err)
 
         sample_uuid = Sample.query.filter_by(id=protocol_event.sample_id).first().uuid
         print("sample_uuid: ", sample_uuid)
@@ -83,8 +77,6 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     except:
         flash('Not found')
         return no_values_response()
-
-    protocol_event.author_id = tokenuser.id
 
     try:
         db.session.add(protocol_event)

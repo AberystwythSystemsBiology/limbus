@@ -120,7 +120,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     new_event.is_locked = True # to indicate events involving new sample creation
     db.session.add(new_event)
     db.session.flush()
-    event_uuid = new_event.uuid # share the same event uuid within the session/transaction.
+
     print("new_event.uuid: ", new_event.uuid)
 
     for aliquot in values["aliquots"]:
@@ -146,15 +146,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         )
         db.session.add(ssts)
         db.session.flush()
-
-        spe = SampleProtocolEvent(**event_result)
-        spe.is_locked = True  # to indicate events involving new sample creation
-        spe.sample_id = ali_sample.id
-        spe.uuid = event_uuid
-        db.session.add(spe)
-        db.session.flush()
-        print('Event_id: ', spe.id)
-        print('Event_uuid: ', spe.uuid)
 
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
     db.session.add(sample)
