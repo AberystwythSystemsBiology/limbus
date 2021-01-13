@@ -25,7 +25,7 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 from .models import UserAccount
 
-from .enums import Title
+from .enums import Title, AccountType
 
 
 class LoginForm(FlaskForm):
@@ -63,7 +63,7 @@ class UserAccountEditForm(FlaskForm):
     submit = SubmitField("Register")
 
 
-def UserAccountRegistrationForm(sites: list):
+def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
 
 
     class StaticForm(FlaskForm):
@@ -98,6 +98,13 @@ def UserAccountRegistrationForm(sites: list):
                 raise ValidationError("Email address already in use.")
 
     if len(sites) > 0:
-        pass
+        setattr(StaticForm, "site", SelectField(
+            "Site", choices=sites, coerce=int
+        ))
+
+    if with_type:
+        setattr(StaticForm, "type", SelectField(
+            "Account Type", choices=AccountType.choices()
+        ))
 
     return StaticForm()

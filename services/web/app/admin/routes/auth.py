@@ -19,7 +19,7 @@ from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm
 
-from flask import render_template, url_for, redirect, abort
+from flask import render_template, url_for, redirect, abort, flash
 from flask_login import current_user, login_required
 
 import requests
@@ -34,9 +34,48 @@ def auth_index():
 @check_if_admin
 @login_required
 def auth_new_account():
-    form = UserAccountRegistrationForm()
+    sites_response = requests.get(url_for("api.site_home", _external=True),
+        headers=get_internal_api_header()
+    )
 
-    return render_template("/admin/auth/new.html", form=form)
+    if sites_response.status_code == 200:
+        sites = []
+
+        for site in sites_response.json()["content"]:
+            sites.append([int(site["id"]), "LIMBSIT-%s: %s" % (site["id"], site["name"])])
+
+        form = UserAccountRegistrationForm(sites, with_type=True)
+
+        if form.validate_on_submit():
+
+            print("We are here.")
+
+            new_user_response = requests.post(
+                url_for("api.auth_new_user", _external=True),
+                json={
+                    "title": form.title.data,
+                    "first_name": form.first_name.data,
+                    "middle_name": form.middle_name.data,
+                    "last_name": form.last_name.data,
+                    "email": form.email.data,
+                    "account_type": form.type.data,
+                    "password": form.password.data,
+                    "site_id": form.site.data
+                },
+                headers=get_internal_api_header(),
+            )
+
+            if new_user_response.status_code == 200:
+                flash("User successfully added!")
+                return redirect(url_for("admin.auth_index"))
+            else:
+                flash("We have encountered a problem :(")
+
+        
+
+        return render_template("/admin/auth/new.html", form=form)
+    else:
+        return abort(500)
 
 @admin.route("/auth/data", methods=["GET"])
 @check_if_admin
