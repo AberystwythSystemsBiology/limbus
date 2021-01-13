@@ -1,0 +1,34 @@
+{% extends "template.html" %}
+
+{% block head %}
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}LIMBCS-{{ cs.id }}{% endblock %}
+
+{% block body %}
+
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage">
+        <div class="jumbotron">
+            <div class="container">
+                <h1><span class="secondary-heading">
+                        <a href="{{ url_for('storage.view_room', id=cs.room_id) }}">
+                            <i class="fa fa-door-closed"></i> LIMBROOM-{{ cs.room_id }}</a>
+                    </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}: {{ cs.alias}}</h1>
+
+        </div>
+
+
+        <div class="container">
+        
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/lts/view.js') }}"></script>
+
+{% endblock %}

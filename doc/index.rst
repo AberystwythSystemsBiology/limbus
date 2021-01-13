@@ -26,9 +26,19 @@ Learn more about configuring or deploying LImBuS.
    
    /deployment/internal.rst
    /deployment/external.rst
-   /deployment/environment.rst
    /deployment/setup.rst
 
+User Guide
+---------------
+
+Learn more about configuring or deploying LImBuS.
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: User Guide
+   
+   /sample/registration.rst
    
 Step-by-Step Guides
 -------------------

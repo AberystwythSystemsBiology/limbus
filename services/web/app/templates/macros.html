@@ -137,11 +137,16 @@
         {{ render_form_error(field) }}
         {{ field(class="form-control", type="password") }}
         {% elif field.type == "FileField" %}
-        <label for="{{ field.id }}">
-            {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+        <div class="form-group files color">
+            <label for="{{ field.id }}">
+                {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>
+                <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
+                {% if field.flags.required %}required{% endif %}>
+          </div>
+
+        
         {{ render_form_error(field) }}
-        <input type="file" class="form-control-file" id="{{ field.id }}" name="{{ field.name }}"
-            {% if field.flags.required %}required{% endif %}>
+        
         {% elif field.type == "IntegerField" %}
         <label for="{{ field.id }}">
             {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>

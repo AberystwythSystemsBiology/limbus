@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2020 Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -74,6 +74,9 @@ class DocumentCreationForm(FlaskForm):
         validators=[DataRequired()],
         choices=[(x.name, x.value) for x in DocumentType],
     )
+
+    file = FileField("File Upload", validators=[DataRequired()])
+
 
     submit = SubmitField("Submit")
 

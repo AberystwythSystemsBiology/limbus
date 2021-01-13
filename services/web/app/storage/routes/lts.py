@@ -118,6 +118,19 @@ def new_cold_storage_servicing_report(id: int):
 
     abort(response.status_code)
 
+
+@storage.route("/coldstorage/LIMBCS-<id>/associate/document", methods=["GET"])
+@login_required
+def associate_document(id):
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return render_template("storage/lts/associate/document.html", cs=response.json()["content"])
+    return abort(response.status_code)
+
 @storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])
 @login_required
 def view_cold_storage(id):
