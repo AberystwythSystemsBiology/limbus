@@ -48,7 +48,6 @@ def auth_new_account():
 
         if form.validate_on_submit():
 
-            print("We are here.")
 
             new_user_response = requests.post(
                 url_for("api.auth_new_user", _external=True),
