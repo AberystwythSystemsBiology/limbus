@@ -11,6 +11,6 @@ After you have deployed LImBuS, navigate to :code:`http://your.domain.here/setup
 where :code:`http://your.domain.here` is replaced with your domain. If successful,
 you should be greeted with the following page:
 
-.. image:: img/deployment/step_one.png
+.. image:: ../img/deployment/step_one.png
   :width: 800
   :alt: Step One of the Setup Screen.
