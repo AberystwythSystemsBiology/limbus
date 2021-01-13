@@ -50,7 +50,8 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            "edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True)
+            "edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True),
+            "remove": ma.URLFor("sample.remove_protocol_event", uuid="<uuid>", _external=True)
         }
     )
 

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, abort, url_for
+from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
 from sqlalchemy.orm.session import make_transient
 from ...api import api, generics
@@ -29,13 +29,16 @@ from ...database import (
     db,
     Sample,
     UserAccount,
-    SubSampleToSample
+    SubSampleToSample,
+    SampleProtocolEvent,
 )
 
 from ..views import (
     basic_sample_schema,
-    new_sample_schema
+    new_sample_schema,
+    new_sample_protocol_event_schema
 )
+from datetime import datetime
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
@@ -67,10 +70,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
                     valid = False
         return valid
 
-    sample = Sample.query.filter_by(uuid=uuid).first_or_404()
-    parent_id = sample.id
-
     values = request.get_json()
+    print('values: ', values)
 
     if not values:
         return no_values_response()
@@ -89,7 +90,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     parent_id = sample.id
 
     sample_values = new_sample_schema.load(parent_values)
-
     remaining_quantity = sample.remaining_quantity
 
     if remaining_quantity < to_remove:
@@ -97,14 +97,38 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             {"messages": "Total sum not equal or less than remaining quantity."}
         )
 
+    # New sampleprotocol_event
+    event_values = {
+        "datetime": str(
+            datetime.strptime(
+                "%s %s" % (values["aliquot_date"], values["aliquot_time"]),
+                "%Y-%m-%d %H:%M", #"%Y-%m-%d %H:%M:%S",
+            )
+        ),
+        "undertaken_by": values["processed_by"],
+        "comments": values["comments"],
+        "protocol_id": values["processing_protocol"],
+        "sample_id": parent_id
+    }
+
+    try:
+        event_result = new_sample_protocol_event_schema.load(event_values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_event = SampleProtocolEvent(**event_result)
+    new_event.is_locked = True # to indicate events involving new sample creation
+    db.session.add(new_event)
+    db.session.flush()
+    event_uuid = new_event.uuid # share the same event uuid within the session/transaction.
+    print("new_event.uuid: ", new_event.uuid)
+
     for aliquot in values["aliquots"]:
 
         ali_sample = Sample(**sample_values)
-        make_transient(ali_sample)
 
         ali_sample.id = None
         ali_sample.uuid = None
-
         ali_sample.barcode = aliquot["barcode"]
         ali_sample.quantity = float(aliquot["volume"])
         ali_sample.remaining_quantity = float(aliquot["volume"])
@@ -113,20 +137,33 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
         db.session.add(ali_sample)
         db.session.flush()
+        print('subtosample, ali_sample.id: ', ali_sample.id)
 
         ssts = SubSampleToSample(
             parent_id=parent_id,
             subsample_id=ali_sample.id,
             author_id=tokenuser.id,
         )
-
         db.session.add(ssts)
+        db.session.flush()
 
-    
+        spe = SampleProtocolEvent(**event_result)
+        spe.is_locked = True  # to indicate events involving new sample creation
+        spe.sample_id = ali_sample.id
+        spe.uuid = event_uuid
+        db.session.add(spe)
+        db.session.flush()
+        print('Event_id: ', spe.id)
+        print('Event_uuid: ', spe.uuid)
 
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
     db.session.add(sample)
-    db.session.commit()
+
+    try:
+        db.session.commit()
+        flash('Sample Ailquot Added Successfully!')
+    except Exception as err:
+        return transaction_error_response(err)
 
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
