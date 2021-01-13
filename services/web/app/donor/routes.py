@@ -261,6 +261,7 @@ def edit(id):
 
         if sites_response.status_code == 200:
             form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
+
             if form.validate_on_submit():
                 death_date = None
                 if form.status.data == "DE":

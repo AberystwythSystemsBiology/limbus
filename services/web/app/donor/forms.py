@@ -128,7 +128,7 @@ def DonorCreationForm(sites: dict, data={}):
 
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-        death_date = DateField("Date of Death", default=date.today())
+        death_date = DateField("Date of Death", default=date.today(), validators=[Optional()])
 
         weight = StringField("Weight (kg)", default='')
         height = StringField("Height (cm)", default='')
@@ -151,7 +151,7 @@ def DonorCreationForm(sites: dict, data={}):
             if not FlaskForm.validate(self):
                 return False
             
-            if self.status == "DE":
+            if self.status.data == "DE":
                 if self.death_date.data is None:
                     self.death_date.errors.append("Date required.")
                     return False
