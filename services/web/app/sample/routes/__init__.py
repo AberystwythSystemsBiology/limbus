@@ -72,3 +72,4 @@ from .add import *
 from .protocol import *
 from .sample import *
 from .aliquot import *
+from .review import *

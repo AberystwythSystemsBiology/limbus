@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,17 +13,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .routes import db
-from ..auth.models import UserAccount
-from ..auth.views import UserView
-
-
-def UserAccountsView() -> dict:
-    users = db.session.query(UserAccount).filter().all()
-
-    data = {}
-
-    for user in users:
-        data[user.id] = UserView(user.id)
-
-    return data
+from .index import *
+from .auth import *

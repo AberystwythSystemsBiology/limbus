@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,42 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from . import admin
-from .. import db
+from .. import admin
+from ...decorators import check_if_admin
 
 from flask import render_template, url_for, redirect, abort
 from flask_login import current_user, login_required
 
 
-from .forms import TemporaryRegistrationForm
-from .views import UserAccountsView
 
-from ..auth.models import User
-
-from functools import wraps
-
-
-from ..decorators import check_if_admin
-
-
-@admin.route("/", methods=["GET", "POST"])
+@admin.route("/", methods=["GET"])
 @check_if_admin
 @login_required
 def index():
-    form = TemporaryRegistrationForm()
-
-    accounts = UserAccountsView()
-
-    if form.validate_on_submit():
-
-        user = User(
-            email=form.email.data,
-            password=form.password.data,
-            is_admin=form.is_admin.data,
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        return redirect(url_for("admin.index"))
-
-    return render_template("admin/index.html", form=form, accounts=accounts)
+    return render_template("admin/index.html")
