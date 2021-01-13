@@ -1,4 +1,0 @@
-Development deployment
-======================
-
-Something here.
