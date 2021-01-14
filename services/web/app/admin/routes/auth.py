@@ -105,7 +105,6 @@ def auth_view_account(id):
                     flash("User Account Locked!")
                 return redirect(url_for("admin.auth_index"))
             else:
-                    
                 flash("We were unable to lock the User Account.")
 
         return render_template("admin/auth/view.html", user=response.json()["content"], form=form)

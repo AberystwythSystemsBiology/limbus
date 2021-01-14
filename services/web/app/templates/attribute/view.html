@@ -13,6 +13,7 @@
             </span>LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
         </h1>
 
+
         <div class="row text-muted">
             <div class="col-6">
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
@@ -23,7 +24,7 @@
                             </button>
                         </a>
                     </div>
-                    {% if attribute.type == "OPTION" %}
+                    {% if attribute.type == "Option" %}
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
                         <a href="{{ url_for('attribute.new_option', id=attribute.id) }}">
                             <button type="button" class="btn btn-outline-dark">
@@ -60,7 +61,7 @@
 
 </div>
 <div class="container">
-
+    {{ attribute }}
 
 
 

@@ -88,9 +88,9 @@ def attribute_new_option(id, tokenuser: UserAccount):
     if status_code != 200:
         return response.status_code
 
-    elif response["content"]["type"] != "OPTION":
+    elif response["content"]["type"] != "Option":
         return (
-            {"success": False, "messages": "Not an option value"},
+            {"success": False, "messages": "Not suitable for request as this is not an Option Attribute Type."},
             500,
             {"ContentType": "application/json"},
         )
@@ -109,9 +109,12 @@ def attribute_new_option(id, tokenuser: UserAccount):
     new_option.author_id = tokenuser.id
     new_option.attribute_id = id
 
+
     try:
         db.session.add(new_option)
         db.session.commit()
+
+        print(">>>>>>>>>>> WE ARE HERE")
 
         return success_with_content_response(
             attribute_schema.dump(Attribute.query.filter_by(id=id).first())
