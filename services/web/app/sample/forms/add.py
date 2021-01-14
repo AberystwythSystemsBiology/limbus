@@ -67,8 +67,6 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
         ),
     )
 
-
-
     setattr(
         StaticForm,
         "processed_by",
@@ -78,8 +76,6 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
     )
 
     return StaticForm()
-
-
 
 
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
@@ -94,4 +90,3 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
         )
 
     return StaticForm()
-

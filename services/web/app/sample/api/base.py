@@ -36,16 +36,12 @@ from ..views import (
     new_sample_schema,
 )
 
-from ...database import (
-    db,
-    Sample,
-    SampleToType,
-    UserAccount
-)
+from ...database import db, Sample, SampleToType, UserAccount
 
 from ..enums import *
 
 import requests
+
 
 @api.route("/sample/containers", methods=["GET"])
 def sample_get_containers():
@@ -59,6 +55,7 @@ def sample_get_containers():
             },
         }
     )
+
 
 @api.route("/sample", methods=["GET"])
 @token_required
@@ -100,58 +97,74 @@ def sample_new_sample(tokenuser: UserAccount):
         return no_values_response()
 
     errors = {}
-    for key in ["collection_information", "disposal_information", "sample_information", "sample_type_information", "consent_information"]:
+    for key in [
+        "collection_information",
+        "disposal_information",
+        "sample_information",
+        "sample_type_information",
+        "consent_information",
+    ]:
         if key not in values.keys():
             errors[key] = ["Not found."]
 
     if len(errors.keys()) > 0:
         return validation_error_response(errors)
-   
+
     sample_type_response = requests.post(
         url_for(
             "api.sample_new_sample_type",
             base_type=values["sample_information"]["base_type"],
-            _external=True
-            ),
+            _external=True,
+        ),
         headers=get_internal_api_header(tokenuser),
-        json=values["sample_type_information"]
+        json=values["sample_type_information"],
     )
 
     if sample_type_response.status_code == 200:
         sample_type_information = sample_type_response.json()["content"]
 
     else:
-        return (sample_type_response.text, sample_type_response.status_code, sample_type_response.headers.items())
-
+        return (
+            sample_type_response.text,
+            sample_type_response.status_code,
+            sample_type_response.headers.items(),
+        )
 
     consent_response = requests.post(
         url_for("api.sample_new_sample_consent", _external=True),
         headers=get_internal_api_header(tokenuser),
-        json=values["consent_information"]
+        json=values["consent_information"],
     )
 
     if consent_response.status_code == 200:
         consent_information = consent_response.json()["content"]
     else:
-        return (consent_response.text, consent_response.status_code, consent_response.headers.items())
+        return (
+            consent_response.text,
+            consent_response.status_code,
+            consent_response.headers.items(),
+        )
 
     disposal_response = requests.post(
         url_for("api.sample_new_disposal_instructions", _external=True),
         headers=get_internal_api_header(tokenuser),
-        json=values["disposal_information"]
+        json=values["disposal_information"],
     )
 
     if disposal_response.status_code == 200:
         disposal_information = disposal_response.json()["content"]
     else:
-        return (disposal_response.text, disposal_response.status_code, disposal_response.headers.items())
-
+        return (
+            disposal_response.text,
+            disposal_response.status_code,
+            disposal_response.headers.items(),
+        )
 
     sample_information = values["sample_information"]
     sample_information["consent_id"] = consent_information["id"]
     sample_information["sample_to_type_id"] = sample_type_information["id"]
-    sample_information["disposal_id"] = disposal_information["id"]    
-    
+    sample_information["disposal_id"] = disposal_information["id"]
+
     try:
         sample_values = new_sample_schema.load(sample_information)
     except ValidationError as err:
@@ -173,15 +186,24 @@ def sample_new_sample(tokenuser: UserAccount):
     protocol_event_response = requests.post(
         url_for("api.sample_new_sample_protocol_event", _external=True),
         headers=get_internal_api_header(tokenuser),
-        json=values["collection_information"]
+        json=values["collection_information"],
     )
 
     if protocol_event_response.status_code == 200:
         collection_event = protocol_event_response.json()["content"]
     else:
-        return (protocol_event_response.text, protocol_event_response.status_code, protocol_event_response.headers.items())
-    
-    return success_with_content_response(basic_sample_schema.dump(Sample.query.filter_by(id=new_sample.id).first_or_404()))
+        return (
+            protocol_event_response.text,
+            protocol_event_response.status_code,
+            protocol_event_response.headers.items(),
+        )
+
+    return success_with_content_response(
+        basic_sample_schema.dump(
+            Sample.query.filter_by(id=new_sample.id).first_or_404()
+        )
+    )
+
 
 @api.route("sample/new/sample_type_instance/<base_type>", methods=["POST"])
 @token_required
@@ -205,16 +227,15 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     except ValidationError as err:
         print(err, values)
         return validation_error_response(err)
-    
+
     sampletotype = SampleToType(**new_schema)
     sampletotype.author_id = tokenuser.id
-    
+
     db.session.add(sampletotype)
-    
+
     try:
         db.session.commit()
         db.session.flush()
         return success_with_content_response(sample_type_schema.dump(sampletotype))
     except Exception as err:
         return transaction_error_response(err)
- 

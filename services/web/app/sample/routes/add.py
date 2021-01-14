@@ -25,7 +25,7 @@ from ..forms import (
     PatientConsentQuestionnaire,
     SampleTypeSelectForm,
     SampleReviewForm,
-    CustomAttributeSelectForm
+    CustomAttributeSelectForm,
 )
 
 from datetime import datetime
@@ -33,9 +33,7 @@ from datetime import datetime
 import requests
 
 
-
 def prepare_form_data(data: dict):
-
 
     step_one = data["step_one"]
     step_two = data["step_two"]
@@ -46,7 +44,8 @@ def prepare_form_data(data: dict):
             "protocol_id": step_one["collection_protocol_id"],
             "undertaken_by": step_one["collected_by"],
             "comments": step_one["collection_comments"],
-            "datetime": "%s %s" % (step_one["collection_date"], step_one["collection_time"])
+            "datetime": "%s %s"
+            % (step_one["collection_date"], step_one["collection_time"]),
         },
         "sample_information": {
             "colour": step_one["colour"],
@@ -56,40 +55,40 @@ def prepare_form_data(data: dict):
             "status": step_one["sample_status"],
             "site_id": step_one["site_id"],
             "biohazard_level": step_three["biohazard_level"],
-            "quantity": step_three["quantity"]
+            "quantity": step_three["quantity"],
         },
         "consent_information": {
             "identifier": step_two["consent_id"],
             "comments": step_two["comments"],
             "date": step_two["date"],
             "answers": step_two["checked"],
-            "template_id": step_one["consent_form_id"]
+            "template_id": step_one["consent_form_id"],
         },
-        "disposal_information" : {
+        "disposal_information": {
             "instruction": step_one["disposal_instruction"],
             "comments": step_one["disposal_comments"],
-            "disposal_date": step_one["disposal_date"]
-        }
+            "disposal_date": step_one["disposal_date"],
+        },
     }
 
     if step_three["sample_type"] == "FLU":
         sample_type_information = {
             "fluid_type": step_three["fluid_sample_type"],
-            "fluid_container": step_three["fluid_container"]
-            }
+            "fluid_container": step_three["fluid_container"],
+        }
     elif step_three["sample_type"] == "CEL":
         sample_type_information = {
             "cellular_type": step_three["cell_sample_type"],
             "tissue_type": step_three["tissue_sample_type"],
             "fixation_type": step_three["fixation_type"],
-            "cellular_container": step_three["cell_container"]
+            "cellular_container": step_three["cell_container"],
         }
     elif step_three["sample_type"] == "MOL":
         sample_type_information = {
             "molecular_type": step_three["molecular_sample_type"],
-            "fluid_container": step_three["fluid_container"]
+            "fluid_container": step_three["fluid_container"],
         }
-    
+
     api_data["sample_type_information"] = sample_type_information
 
     return api_data
@@ -98,7 +97,7 @@ def prepare_form_data(data: dict):
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
 def add_rerouter(hash):
-       
+
     query_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
@@ -106,7 +105,7 @@ def add_rerouter(hash):
 
     if query_response.status_code == 200 or hash != "new":
         data = query_response.json()["content"]["data"]
-    else: 
+    else:
         return redirect(url_for("sample.add_step_one"))
 
     if "step_one" in data:
@@ -117,11 +116,13 @@ def add_rerouter(hash):
                 new_sample_response = requests.post(
                     url_for("api.sample_new_sample", _external=True),
                     headers=get_internal_api_header(),
-                    json=api_data
+                    json=api_data,
                 )
 
                 if new_sample_response.status_code == 200:
-                    return redirect(new_sample_response.json()["content"]["_links"]["self"])
+                    return redirect(
+                        new_sample_response.json()["content"]["_links"]["self"]
+                    )
                 else:
                     flash("We have encountered an error.")
             return redirect(url_for("sample.add_step_three", hash=hash))
@@ -199,7 +200,7 @@ def add_step_one():
             "collection_comments": form.collection_comments.data,
             "disposal_instruction": form.disposal_instruction.data,
             "disposal_date": str(form.disposal_date.data),
-            "disposal_comments": form.disposal_comments.data
+            "disposal_comments": form.disposal_comments.data,
         }
 
         # This needs to be broken out to a new module then...
@@ -322,7 +323,7 @@ def add_step_three(hash):
             "quantity": form.quantity.data,
             "fixation_type": form.fixation_type.data,
             "fluid_container": form.fluid_container.data,
-            "cell_container": form.cell_container.data
+            "cell_container": form.cell_container.data,
         }
 
         tmpstore_data["step_three"] = sample_information_details

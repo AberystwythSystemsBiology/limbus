@@ -18,6 +18,7 @@ from ...database import SampleDocument
 
 import marshmallow_sqlalchemy as masql
 
+
 class SampleDocumentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleDocument

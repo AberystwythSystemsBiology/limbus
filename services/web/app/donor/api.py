@@ -122,6 +122,7 @@ def donor_new(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/donor/LIMBDON-<id>/associate/sample", methods=["POST"])
 @token_required
 def donor_associate_sample(id, tokenuser: UserAccount):
@@ -130,10 +131,7 @@ def donor_associate_sample(id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    new_diagnosis_to_sample = DonorToSample(
-        sample_id = values["sample_id"],
-        donor_id = id
-    )
+    new_diagnosis_to_sample = DonorToSample(sample_id=values["sample_id"], donor_id=id)
 
     new_diagnosis_to_sample.author_id = tokenuser.id
 
@@ -141,9 +139,12 @@ def donor_associate_sample(id, tokenuser: UserAccount):
         db.session.add(new_diagnosis_to_sample)
         db.session.commit()
         db.session.flush()
-        return success_with_content_response({"sample_id": values["sample_id"], "donor_id": id})
+        return success_with_content_response(
+            {"sample_id": values["sample_id"], "donor_id": id}
+        )
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/donor/LIMBDON-<id>/associate/diagnosis", methods=["POST"])
 @token_required

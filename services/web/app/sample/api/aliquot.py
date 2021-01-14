@@ -25,17 +25,10 @@ from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 import requests
 
-from ...database import (
-    db,
-    Sample,
-    UserAccount,
-    SubSampleToSample
-)
+from ...database import db, Sample, UserAccount, SubSampleToSample
 
-from ..views import (
-    basic_sample_schema,
-    new_sample_schema
-)
+from ..views import basic_sample_schema, new_sample_schema
+
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
@@ -122,8 +115,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
         db.session.add(ssts)
 
-    
-
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
     db.session.add(sample)
     db.session.commit()
@@ -131,4 +122,3 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
     )
-

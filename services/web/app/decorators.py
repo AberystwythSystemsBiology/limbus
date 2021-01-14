@@ -88,7 +88,10 @@ def token_required(f):
                     kwargs["tokenuser"] = user
                 return f(*args, **kwargs)
             else:
-                return {"success": False, "message": "You are not authorised to view this page."}, 401
+                return {
+                    "success": False,
+                    "message": "You are not authorised to view this page.",
+                }, 401
 
     return decorated_function
 

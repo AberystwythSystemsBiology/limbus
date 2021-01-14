@@ -18,6 +18,7 @@ from ...database import Sample
 
 import marshmallow_sqlalchemy as masql
 
+
 class SampleUUIDSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -27,7 +28,6 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
     _links = ma.Hyperlinks(
         {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
     )
-
 
 
 from .filter import *

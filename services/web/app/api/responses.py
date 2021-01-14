@@ -47,7 +47,7 @@ def validation_error_response(err):
             messages = err["messages"]
         else:
             messages = err
-            
+
     return (
         {"success": False, "messages": messages, "type": "Validation Error"},
         417,

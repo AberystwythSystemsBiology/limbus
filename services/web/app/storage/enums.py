@@ -26,18 +26,22 @@ class FixedColdStorageType(FormEnum):
     FRI = "Fridge"
     FRE = "Freezer"
 
+
 class FixedColdStorageStatus(FormEnum):
     ON = "On"
     OF = "Off"
     NA = "Not Known"
 
+
 class ColdStorageServiceResult(FormEnum):
     PASS = "Pass"
     FAIL = "Fail"
 
+
 class FixedColdStorageService(FormEnum):
     IS = "In Service"
     OS = "Out of Service"
+
 
 class FixedColdStorageTemps(FormEnum):
     L = "-150 to -86°C"

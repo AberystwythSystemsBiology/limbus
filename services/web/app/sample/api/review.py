@@ -20,16 +20,9 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 
-from ..views import (
-    new_sample_review_schema
-)
+from ..views import new_sample_review_schema
 
-from ...database import (
-    db,
-    Sample,
-    SampleReview,
-    UserAccount
-)
+from ...database import db, Sample, SampleReview, UserAccount
 
 
 @api.route("/sample/new/review", methods=["POST"])
@@ -56,6 +49,8 @@ def sample_new_sample_review(tokenuser: UserAccount):
         db.session.commit()
         db.session.flush()
 
-        return success_with_content_response(new_sample_review_schema.dump(new_sample_review))
+        return success_with_content_response(
+            new_sample_review_schema.dump(new_sample_review)
+        )
     except Exception as err:
         return transaction_error_response(err)

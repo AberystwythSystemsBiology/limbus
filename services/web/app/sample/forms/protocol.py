@@ -21,20 +21,17 @@ from wtforms import (
     SubmitField,
     DateField,
     TextAreaField,
-    TimeField
+    TimeField,
 )
 
 from wtforms.validators import DataRequired, Optional
 from datetime import datetime
 
+
 def ProtocolEventForm(protocols: list):
     class StaticForm(FlaskForm):
-        
-        protocol_id = SelectField(
-            "Protocol",
-            choices=protocols,
-            coerce=int
-        )
+
+        protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
 
         date = DateField(
             "Protocol Event Date",
@@ -60,7 +57,5 @@ def ProtocolEventForm(protocols: list):
         )
 
         submit = SubmitField("Submit")
-
-
 
     return StaticForm()

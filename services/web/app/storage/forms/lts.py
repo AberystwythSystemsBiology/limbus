@@ -20,7 +20,7 @@ from wtforms import (
     TextAreaField,
     SelectField,
     DateField,
-    DecimalField
+    DecimalField,
 )
 
 from wtforms.validators import DataRequired
@@ -31,47 +31,50 @@ from ..enums import (
     FixedColdStorageStatus,
     FixedColdStorageTemps,
     ColdStorageServiceResult,
-    FixedColdStorageType
+    FixedColdStorageType,
 )
 
 
 class ColdStorageServiceReportForm(FlaskForm):
     date = DateField(
-        "Service Date",
-        validators=[DataRequired()],
-        default=datetime.today()
+        "Service Date", validators=[DataRequired()], default=datetime.today()
     )
 
     conducted_by = StringField(
-        "Conducted By",
-        description="The individual that conducted the service."
+        "Conducted By", description="The individual that conducted the service."
     )
 
     temp = DecimalField(
         "Temperature ℃",
         description="The temperature reading on the cold storage in degrees centigrade (℃).",
-        default=0.0
+        default=0.0,
     )
 
     status = SelectField(
-        "Servicing Report Result",
-        choices=ColdStorageServiceResult.choices()
-
+        "Servicing Report Result", choices=ColdStorageServiceResult.choices()
     )
 
-    comments = TextAreaField(
-        "Comments"
-    )
+    comments = TextAreaField("Comments")
 
     submit = SubmitField("Submit")
 
 
+def ColdStorageToDocumentAssociationForm(documents: list):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    setattr(
+        StaticForm,
+        "document_id",
+        SelectField("Document", choices=documents, coerce=int),
+    )
+
+    return StaticForm()
+
+
 class ColdStorageForm(FlaskForm):
 
-    alias = StringField(
-        "Alias",
-        validators=[DataRequired()]
-    )
+    alias = StringField("Alias", validators=[DataRequired()])
 
     serial_number = StringField(
         "Serial Number",
@@ -87,9 +90,7 @@ class ColdStorageForm(FlaskForm):
     comments = TextAreaField("Comments")
 
     status = SelectField(
-        "Status",
-        choices=FixedColdStorageStatus.choices(),
-        validators=[DataRequired()]
+        "Status", choices=FixedColdStorageStatus.choices(), validators=[DataRequired()]
     )
 
     temperature = SelectField(

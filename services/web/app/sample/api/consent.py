@@ -20,18 +20,10 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 
-from ..views import (
-    new_consent_schema,
-    consent_schema,
-    new_consent_answer_schema
-)
+from ..views import new_consent_schema, consent_schema, new_consent_answer_schema
 
-from ...database import (
-    db,
-    SampleConsent,
-    SampleConsentAnswer,
-    UserAccount
-)
+from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount
+
 
 @api.route("/sample/new/consent", methods=["POST"])
 @token_required
@@ -40,7 +32,7 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-    
+
     errors = {}
     for key in ["identifier", "comments", "template_id", "date", "answers"]:
         if key not in values.keys():
@@ -51,7 +43,6 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
     answers = values["answers"]
     values.pop("answers")
-
 
     try:
         consent_result = new_consent_schema.load(values)
@@ -70,13 +61,15 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
     for answer in answers:
         try:
-            answer_result = new_consent_answer_schema.load({"question_id": int(answer), "consent_id": new_consent.id})
+            answer_result = new_consent_answer_schema.load(
+                {"question_id": int(answer), "consent_id": new_consent.id}
+            )
         except ValidationError as err:
             return validation_error_response(err)
 
         new_answer = SampleConsentAnswer(**answer_result)
         new_answer.author_id = tokenuser.id
-        
+
         try:
             db.session.add(new_answer)
             db.session.commit()

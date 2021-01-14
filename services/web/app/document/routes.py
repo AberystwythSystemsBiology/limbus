@@ -69,22 +69,27 @@ def new_document():
         )
 
         if response.status_code == 200:
-            
+
             file_response = requests.post(
-                url_for("api.document_upload_file", id=int(response.json()["content"]["id"]), _external=True),
+                url_for(
+                    "api.document_upload_file",
+                    id=int(response.json()["content"]["id"]),
+                    _external=True,
+                ),
                 headers=get_internal_api_header(),
                 params={"filename": form.file.data.filename},
                 data=form.file.data,
             )
 
-
             if file_response.status_code == 200:
                 flash("Document Successfully Created")
 
-                return redirect(url_for("document.view", id=response.json()["content"]["id"]))
-            
+                return redirect(
+                    url_for("document.view", id=response.json()["content"]["id"])
+                )
+
             else:
-                flash("We have a problem", file_response.json() )
+                flash("We have a problem", file_response.json())
         else:
             return abort(response.status_code)
 

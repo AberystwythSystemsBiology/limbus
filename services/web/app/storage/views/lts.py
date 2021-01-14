@@ -18,14 +18,20 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 from ...database import ColdStorage, ColdStorageService
-from ..enums import FixedColdStorageTemps, FixedColdStorageType, ColdStorageServiceResult, FixedColdStorageStatus
+from ..enums import (
+    FixedColdStorageTemps,
+    FixedColdStorageType,
+    ColdStorageServiceResult,
+    FixedColdStorageStatus,
+)
 from ..views.shelf import ColdStorageShelfSchema
 from ...auth.views import BasicUserAccountSchema
+
 
 class ColdStorageServiceSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorageService
-    
+
     id = masql.auto_field()
     date = masql.auto_field()
     conducted_by = masql.auto_field()
@@ -33,19 +39,22 @@ class ColdStorageServiceSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     temp = masql.auto_field()
 
+
 cold_storage_service_schema = ColdStorageServiceSchema()
 cold_storage_services_schema = ColdStorageServiceSchema(many=True)
+
 
 class NewColdStorageServiceSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ColdStorageService
-    
+
     date = masql.auto_field()
     conducted_by = masql.auto_field()
     status = EnumField(ColdStorageServiceResult)
     comments = masql.auto_field()
     storage_id = masql.auto_field()
     temp = masql.auto_field()
+
 
 new_cold_storage_service_schema = NewColdStorageServiceSchema()
 

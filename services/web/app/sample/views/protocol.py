@@ -20,6 +20,7 @@ from ...protocol.views import BasicProtocolTemplateSchema
 
 import marshmallow_sqlalchemy as masql
 
+
 class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
@@ -29,7 +30,6 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     protocol_id = masql.auto_field()
     sample_id = masql.auto_field()
-    
 
 
 new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
@@ -49,12 +49,8 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
-        {
-            "edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True)
-        }
+        {"edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True)}
     )
 
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
-
-

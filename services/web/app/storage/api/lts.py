@@ -46,7 +46,7 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
-def storage_coldstorage_new_service_report(id, tokenuser:UserAccount):
+def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
@@ -66,12 +66,9 @@ def storage_coldstorage_new_service_report(id, tokenuser:UserAccount):
         db.session.add(csr)
         db.session.commit()
 
-        return success_with_content_response(
-            cold_storage_service_schema.dump(csr)
-        )
+        return success_with_content_response(cold_storage_service_schema.dump(csr))
     except Exception as err:
         return transaction_error_response(err)
-
 
 
 @api.route("/storage/coldstorage/new", methods=["POST"])

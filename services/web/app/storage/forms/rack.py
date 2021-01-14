@@ -22,12 +22,13 @@ from wtforms import (
     SelectField,
     TextAreaField,
     FileField,
-    BooleanField
+    BooleanField,
 )
 
 from wtforms.validators import DataRequired
 
 from ...sample.enums import Colour
+
 
 class NewSampleRackForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
@@ -58,7 +59,6 @@ def CryoBoxFileUploadSelectForm(sample_data: dict):
     return StaticForm()
 
 
-
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
     description = TextAreaField("Description")
@@ -70,4 +70,3 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     )
     file = FileField("File", validators=[DataRequired()])
     submit = SubmitField("Upload File")
-

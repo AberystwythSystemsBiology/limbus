@@ -18,6 +18,7 @@ import marshmallow_sqlalchemy as masql
 from ...extensions import ma
 from ...database import Sample
 
+
 class SampleFilterSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample

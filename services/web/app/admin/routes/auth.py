@@ -24,30 +24,33 @@ from flask_login import current_user, login_required
 
 import requests
 
+
 @admin.route("/auth/", methods=["GET"])
 @check_if_admin
 @login_required
 def auth_index():
     return render_template("admin/auth/index.html")
 
+
 @admin.route("/auth/new", methods=["GET", "POST"])
 @check_if_admin
 @login_required
 def auth_new_account():
-    sites_response = requests.get(url_for("api.site_home", _external=True),
-        headers=get_internal_api_header()
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
 
     if sites_response.status_code == 200:
         sites = []
 
         for site in sites_response.json()["content"]:
-            sites.append([int(site["id"]), "LIMBSIT-%s: %s" % (site["id"], site["name"])])
+            sites.append(
+                [int(site["id"]), "LIMBSIT-%s: %s" % (site["id"], site["name"])]
+            )
 
         form = UserAccountRegistrationForm(sites, with_type=True)
 
         if form.validate_on_submit():
-
 
             new_user_response = requests.post(
                 url_for("api.auth_new_user", _external=True),
@@ -59,7 +62,7 @@ def auth_new_account():
                     "email": form.email.data,
                     "account_type": form.type.data,
                     "password": form.password.data,
-                    "site_id": form.site.data
+                    "site_id": form.site.data,
                 },
                 headers=get_internal_api_header(),
             )
@@ -70,11 +73,10 @@ def auth_new_account():
             else:
                 flash("We have encountered a problem :(")
 
-        
-
         return render_template("/admin/auth/new.html", form=form)
     else:
         return abort(500)
+
 
 @admin.route("/auth/data", methods=["GET"])
 @check_if_admin

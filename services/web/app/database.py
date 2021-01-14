@@ -30,7 +30,6 @@ Base = declarative_base(cls=BaseModel)
 Base.query = db.session.query_property()
 
 
-
 from .auth.models import *
 from .misc.models import *
 from .attribute.models import *

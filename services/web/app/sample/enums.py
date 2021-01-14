@@ -29,10 +29,12 @@ class ReviewType(FormEnum):
     QC = "Quality Check"
     IC = "Identity Check"
 
+
 class ReviewResult(FormEnum):
     PA = "Pass"
     FA = "Fail"
     UN = "Unknown"
+
 
 class Colour(FormEnum):
     BLU = "Blue"
@@ -40,6 +42,7 @@ class Colour(FormEnum):
     GRE = "Green"
     YEL = "Yellow"
     GRY = "Grey"
+
 
 class SampleSource(FormEnum):
     NEW = "New"

@@ -26,24 +26,18 @@ from wtforms import (
     SubmitField,
     DateField,
     TextAreaField,
-    TimeField
+    TimeField,
 )
 
 from wtforms.validators import DataRequired, Optional
 
 
-
 def CollectionConsentAndDisposalForm(
-    consent_templates: list,
-    collection_protocols: list,
-    collection_sites: list
+    consent_templates: list, collection_protocols: list, collection_sites: list
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
-        
-        sample_status = SelectField(
-            "Sample Status",
-            choices=SampleStatus.choices()
-        )
+
+        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
 
         colour = SelectField(
             "Colour",
@@ -73,7 +67,7 @@ def CollectionConsentAndDisposalForm(
 
         collection_comments = TextAreaField(
             "Collection Comments",
-            description="Comments pertaining to the collection of the Sample."
+            description="Comments pertaining to the collection of the Sample.",
         )
 
         disposal_date = DateField(
@@ -90,9 +84,7 @@ def CollectionConsentAndDisposalForm(
             validators=[Optional()],
         )
 
-        disposal_comments = TextAreaField(
-            "Sample Disposal Comments"
-        )
+        disposal_comments = TextAreaField("Sample Disposal Comments")
 
         consent_select = SelectField(
             "Patient Consent Form Template",

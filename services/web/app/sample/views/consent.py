@@ -18,8 +18,12 @@ from ...database import SampleConsent, SampleConsentAnswer
 
 import marshmallow_sqlalchemy as masql
 
-from ...consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
+from ...consent.views import (
+    BasicConsentFormQuestionSchema,
+    BasicConsentFormTemplateSchema,
+)
 from ...auth.views import BasicUserAccountSchema
+
 
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:

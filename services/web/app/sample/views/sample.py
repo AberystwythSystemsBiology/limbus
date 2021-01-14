@@ -16,13 +16,7 @@
 from ...database import Sample
 from ...auth.views import BasicUserAccountSchema
 from ...extensions import ma
-from ..enums import (
-    SampleBaseType,
-    Colour,
-    SampleSource,
-    SampleStatus,
-    BiohazardLevel
-)
+from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
 from . import (
     SampleUUIDSchema,
@@ -40,9 +34,11 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
+
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
+
     barcode = masql.auto_field()
     source = EnumField(SampleSource)
     base_type = EnumField(SampleBaseType)
@@ -57,6 +53,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
 
 
 new_sample_schema = NewSampleSchema()
+
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -118,7 +115,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
     protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
-    
+
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
