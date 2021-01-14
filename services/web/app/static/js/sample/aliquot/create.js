@@ -206,7 +206,7 @@ function generate_container_select(indx) {
 }
 
 
-function generate_fixation_select() {
+function generate_fixation_select(indx) {
     var containers = container_information[sample["base_type"]]
     var fixation_list = containers["fixation_type"]
 
@@ -223,6 +223,10 @@ function generate_fixation_select() {
     return select_html;
 }
 
+function copy_row(indx) {
+    $("row_"+indx).clone().appendTo("#aliquoted_sample_table");
+}
+
 function make_new_form(indx) {
     var row_form_html = '';
 
@@ -231,7 +235,7 @@ function make_new_form(indx) {
     // Container
     row_form_html += '<td>'+generate_container_select(indx)+'</td>'
     if (sample["base_type"] == "Cell") {
-        row_form_html += '<td>'+generate_fixation_select()+'</td>';
+        row_form_html += '<td>'+generate_fixation_select(indx)+'</td>';
     }
     // Volume start
     row_form_html += '<td>';
@@ -260,6 +264,10 @@ function make_new_form(indx) {
         remove_row(to_remove);
         subtract_quantity();
     });
+
+    $(".copy").click(function() {
+        copy_row();
+    })
 
 
 

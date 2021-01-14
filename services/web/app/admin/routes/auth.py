@@ -18,6 +18,7 @@ from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm
+from ..forms import AccountLockForm
 
 from flask import render_template, url_for, redirect, abort, flash
 from flask_login import current_user, login_required
@@ -77,7 +78,7 @@ def auth_new_account():
     else:
         return abort(500)
 
-@admin.route("/auth/<id>", methods=["GET"])
+@admin.route("/auth/<id>", methods=["GET", "POST"])
 @check_if_admin
 @login_required
 def auth_view_account(id):
@@ -86,10 +87,31 @@ def auth_view_account(id):
         headers=get_internal_api_header(),
     )
 
+
     if response.status_code == 200:
-        return render_template("admin/auth/view.html", user=response.json()["content"])
+        form = AccountLockForm(response.json()["content"]["email"])
+
+        if form.validate_on_submit():
+            
+            lock_response = requests.put(
+                url_for("api.auth_lock_user", id=id, _external=True),
+                headers=get_internal_api_header()
+            )
+
+            if lock_response.status_code == 200:
+                if response.json()["is_locked"]:
+                    flash("User Account Unlocked!")
+                else:
+                    flash("User Account Locked!")
+                return redirect(url_for("admin.auth_index"))
+            else:
+                    
+                flash("We were unable to lock the User Account.")
+
+        return render_template("admin/auth/view.html", user=response.json()["content"], form=form)
     else:
         return abort(response.status_code)
+
 
 @admin.route("/auth/data", methods=["GET"])
 @check_if_admin

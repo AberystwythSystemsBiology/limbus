@@ -1,7 +1,7 @@
 {% extends "template.html" %}
 
 
-{% block title %}My Profile{% endblock %}
+{% block title %}{{user.email}}: User Account{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -10,9 +10,9 @@
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{ url_for('auth.edit') }}">
-                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Lock Account</button>
-                </a>
+                <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#lock-modal">
+                    <i class="fa fa-lock"></i> {% if user.is_locked %}Unl{%else%}L{%endif%}ock Account
+                </button>
             </div>
             
         </div>
@@ -20,7 +20,6 @@
 </div>
 <div class="container">
 
-    {{ user }}
 
     <div class="row">
         <div class="col col-sm-7">
@@ -84,47 +83,30 @@
 
 </div>
 
-<div class="modal fade" id="newTokenModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+
+<!-- Modal -->
+<div class="modal fade" id="lock-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel"><i class="fa fa-sync"></i> Generate New Token</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Tokens are used to provide access to an external API endpoint. You can use an API token to
-                    authenticate a script or other process with an this instance of LImBuS.
-                </p>
-
-                <p>You generate the token from your LImBuS account, then copy and paste it to the script.</p>
-
-                <div class="alert alert-warning">
-                    <b>Note:</b> Please ensure that you upgrade your scripts if you decide to continue.
-                </div>
-
-                <h3>Use an API token</h3>
-
-                <p>A primary use case for API tokens is to allow scripts to access REST APIs for LImBuS using HTTP
-                    authentication.</p>
-
-                <p>Depending on the details of the HTTP library you use, simply replace your password with the token.
-                    For example, when using curl, you could do something like this:</p>
-
-                <div class="card card-body bg-light">
-                    <code>curl -H "Email: {{ current_user.email }}" -H "Token: your-api-token"  {{ url_for('api.sample_home', _external=True)}}</code>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <a href="{{ url_for('auth.generate_token') }}">
-                    <div class="btn btn-success">Continue</div>
-                </a>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel">
+              {%if user.is_locked %}Unl{%else %}L{% endif %}ock User Account
+            </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-    </div>
-</div>
+        <div class="modal-body">
+            <form action="{{ url_for('admin.auth_view_account', id=user.id) }}" method="POST">
+                {{ form.csrf_token() }}
+                {{ form_field(form.email) }}
+                {{ form_field(form.submit) }}
+            </form>
 
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 {% endblock %}

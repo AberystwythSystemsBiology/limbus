@@ -46,10 +46,19 @@ function fill_accounts_table(accounts) {
 
                     var href = window.location.href + data["id"];
 
-                    var email_html = "<a href='" + href + "'>"
+                    var email_html = "";
+
+                    if (data["account_type"] != "Bot") {
+                        email_html +=  "<a href='" + href + "'>"
+
+                    }
+
                     email_html += "<i class='fa fa-user'></i> "
                     email_html += data["email"]
-                    email_html += "</a>"
+                    
+                    if (data["account_type" != "Bot"]) {
+                        email_html += "</a>"
+                    }
                     return email_html
                 }
             },

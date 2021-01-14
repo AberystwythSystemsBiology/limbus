@@ -27,7 +27,7 @@ from wtforms import (
 )
 
 from wtforms.validators import DataRequired, Length
-
+from ..validators import validate_against_text
 
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
@@ -162,14 +162,6 @@ class AttributeOptionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-def check_attribute_name(id):
-    def _check_attribute_name(form, field):
-        if field.data != "LIMBATTR-%s" % (str(id)):
-            raise ValidationError("Incorrect entry")
-
-    return _check_attribute_name
-
-
 def AttributeLockForm(id):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
@@ -179,7 +171,7 @@ def AttributeLockForm(id):
         "name",
         StringField(
             "Please enter LIMBATTR-%s to continue" % (str(id)),
-            [DataRequired(), check_attribute_name(id=id)],
+            [DataRequired(), validate_against_text("LIMBATTR-%s" % (str(id)))],
         ),
     )
 

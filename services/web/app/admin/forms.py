@@ -23,6 +23,7 @@ from wtforms import (
     BooleanField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo
+from ..validators import validate_against_text
 
 from ..auth.enums import Title
 
@@ -62,3 +63,18 @@ class UserAccountRegistrationForm(FlaskForm):
     def validate_email(self, field):
         if UserAccount.query.filter_by(email=field.data).first():
             raise ValidationError("Email address already in use.")
+
+def AccountLockForm(email):
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    setattr(
+        StaticForm,
+        "email",
+        StringField(
+            "Please enter %s" % (email),
+            [DataRequired(), validate_against_text(email)],
+        ),
+    )
+
+    return StaticForm()
