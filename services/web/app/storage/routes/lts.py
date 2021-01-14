@@ -146,7 +146,7 @@ def associate_document(id):
                 documents.append(
                     [
                         int(document["id"]),
-                        "LIBDOC-%s: %s" % (document["id"], document["name"]),
+                        "LIMBDOC-%s: %s" % (document["id"], document["name"]),
                     ]
                 )
 

@@ -77,6 +77,19 @@ def auth_new_account():
     else:
         return abort(500)
 
+@admin.route("/auth/<id>", methods=["GET"])
+@check_if_admin
+@login_required
+def auth_view_account(id):
+    response = requests.get(
+        url_for("api.auth_view_user", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return render_template("admin/auth/view.html", user=response.json()["content"])
+    else:
+        return abort(response.status_code)
 
 @admin.route("/auth/data", methods=["GET"])
 @check_if_admin

@@ -19,11 +19,15 @@
                     </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}: {{ cs.alias}}</h1>
 
         </div>
+      </div>
+      <div class="container">
 
+        {{ form.csrf_token() }}
+        {{ form_field(form.document_id) }}
+        {{ form_field(form.submit) }}
 
-        <div class="container">
-        
-    </div>
+        </div>
+</div>
 </div>
 {% endblock %}
 
