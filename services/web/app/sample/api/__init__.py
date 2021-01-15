@@ -20,4 +20,4 @@ from .disposal import *
 from .review import *
 from .document import *
 from .aliquot import *
-from attribute import *
+from .attribute import *
