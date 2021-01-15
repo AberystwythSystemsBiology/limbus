@@ -29,10 +29,13 @@ from wtforms import (
 from wtforms.validators import DataRequired, Length
 from ..validators import validate_against_text
 
+from ..misc import get_internal_api_header
+
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 from .models import Attribute, AttributeOption, AttributeTextSetting
 
+import requests
 
 # Pronto stuff here.
 import pronto
@@ -177,6 +180,22 @@ def AttributeLockForm(id):
 
     return StaticForm()
 
+
+def CustomAttributeSelectionForm(element) -> FlaskForm:
+    
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Continue")
+    
+    custom_attribute_response = requests.get(
+        url_for("api.attribute_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"element_type": element}
+    )
+
+    if custom_attribute_response.status_code == 200:
+        print(custom_attribute_response.json())
+
+    return StaticForm()
 
 """
 def CustomAttributeSelectForm(

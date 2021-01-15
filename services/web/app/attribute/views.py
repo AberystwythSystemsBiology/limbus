@@ -38,7 +38,6 @@ class AttributeSearchSchema(masql.SQLAlchemySchema):
 
     element_type = EnumField(AttributeElementType, required=False)
     type = EnumField(AttributeType, required=False)
-    author = ma.Nested(UserAccountSearchSchema)
 
 
 class BasicAttributeSchema(masql.SQLAlchemySchema):

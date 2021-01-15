@@ -73,3 +73,4 @@ from .protocol import *
 from .sample import *
 from .aliquot import *
 from .review import *
+from .attribute import *
