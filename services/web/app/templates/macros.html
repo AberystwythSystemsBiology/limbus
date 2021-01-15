@@ -247,7 +247,6 @@
             <tr>
                 <th>Attribute Term</th>
                 <th>Type</th>
-                <th>Required</th>
                 <th>Select</th>
             </tr>
         </thead>
@@ -255,7 +254,11 @@
             {% for field in form %}
             {% if field.type == "BooleanField" %}
             <tr>
-                <td>{{ field.label }}</td>
+                <td>
+                    <a href="{{ url_for('attribute.view', id=field.id) }}" target='_blank'>
+                        <i class="fab fa-buffer"></i> LIMBATTR-{{field.id}}: {{ field.label }}
+                    </a>
+                </td>
                 <td>
                     {% if field.render_kw["_type"] == "Numeric" %}
                     Numeric
@@ -265,7 +268,6 @@
                     Option
                     {% endif %}
                 </td>
-                <td>{{ field.render_kw["required"] }}</td>
                 <td>{{ field }}</td>
             </tr>
             {% endif %}

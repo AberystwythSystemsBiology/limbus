@@ -61,7 +61,9 @@ def attribute_home(tokenuser: UserAccount):
 @use_args(AttributeSearchSchema(), location="json")
 @token_required
 def attribute_query(args, tokenuser: UserAccount):
-    filters, joins = get_filters_and_joins(args, AttributeSearchSchema)
+    print(args)
+
+    filters, joins = get_filters_and_joins(args, Attribute)
 
     return success_with_content_response(
         basic_attributes_schema.dump(
@@ -90,7 +92,10 @@ def attribute_new_option(id, tokenuser: UserAccount):
 
     elif response["content"]["type"] != "Option":
         return (
-            {"success": False, "messages": "Not suitable for request as this is not an Option Attribute Type."},
+            {
+                "success": False,
+                "messages": "Not suitable for request as this is not an Option Attribute Type.",
+            },
             500,
             {"ContentType": "application/json"},
         )
@@ -108,7 +113,6 @@ def attribute_new_option(id, tokenuser: UserAccount):
     new_option = AttributeOption(**option_result)
     new_option.author_id = tokenuser.id
     new_option.attribute_id = id
-
 
     try:
         db.session.add(new_option)

@@ -19,6 +19,8 @@ def get_filters_and_joins(args: dict, model):
     for key, value in args.items():
         if type(value) == dict:
             joins.append(getattr(model, key).has(**value))
+        elif type(value) == list:
+            joins.append(getattr(model, key).in_(value))
         else:
             filters[key] = value
     return filters, joins

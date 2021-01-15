@@ -78,6 +78,7 @@ def auth_new_account():
     else:
         return abort(500)
 
+
 @admin.route("/auth/<id>", methods=["GET", "POST"])
 @check_if_admin
 @login_required
@@ -87,15 +88,14 @@ def auth_view_account(id):
         headers=get_internal_api_header(),
     )
 
-
     if response.status_code == 200:
         form = AccountLockForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
-            
+
             lock_response = requests.put(
                 url_for("api.auth_lock_user", id=id, _external=True),
-                headers=get_internal_api_header()
+                headers=get_internal_api_header(),
             )
 
             if lock_response.status_code == 200:
@@ -107,7 +107,9 @@ def auth_view_account(id):
             else:
                 flash("We were unable to lock the User Account.")
 
-        return render_template("admin/auth/view.html", user=response.json()["content"], form=form)
+        return render_template(
+            "admin/auth/view.html", user=response.json()["content"], form=form
+        )
     else:
         return abort(response.status_code)
 

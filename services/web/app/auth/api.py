@@ -50,6 +50,7 @@ def auth_view_user(id: int):
         full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first_or_404())
     )
 
+
 @api.route("auth/user/<id>/lock", methods=["PUT"])
 @token_required
 def auth_lock_user(id: int, tokenuser: UserAccount):
@@ -65,7 +66,6 @@ def auth_lock_user(id: int, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(full_user_account_schema.dump(user))
-
 
 
 @api.route("/auth/user/new_token", methods=["GET"])

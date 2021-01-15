@@ -64,6 +64,7 @@ class UserAccountRegistrationForm(FlaskForm):
         if UserAccount.query.filter_by(email=field.data).first():
             raise ValidationError("Email address already in use.")
 
+
 def AccountLockForm(email):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")

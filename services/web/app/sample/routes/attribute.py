@@ -12,3 +12,29 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from .. import sample
+from flask import render_template, url_for, abort
+from flask_login import login_required
+
+from ...misc import get_internal_api_header
+from ...attribute.forms import CustomAttributeSelectionForm
+import requests
+
+
+@sample.route("<uuid>/attribute/new", methods=["GET", "POST"])
+@login_required
+def new_custom_attribute(uuid):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        form = CustomAttributeSelectionForm(["SAMPLE", "ALL"])
+
+        return render_template(
+            "sample/attribute/select.html",
+            sample=sample_response.json()["content"],
+            form=form,
+        )

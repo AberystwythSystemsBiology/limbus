@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
+from flask import url_for
 
 from wtforms import (
     StringField,
@@ -182,45 +183,29 @@ def AttributeLockForm(id):
 
 
 def CustomAttributeSelectionForm(element) -> FlaskForm:
-    
     class StaticForm(FlaskForm):
         submit = SubmitField("Continue")
-    
+
     custom_attribute_response = requests.get(
         url_for("api.attribute_query", _external=True),
         headers=get_internal_api_header(),
-        json={"element_type": element}
+        json={"element_type": element},
     )
 
     if custom_attribute_response.status_code == 200:
-        print(custom_attribute_response.json())
+        for attr in custom_attribute_response.json()["content"]:
+            print(attr)
+            setattr(StaticForm,
+                    str(attr["id"]),
+                    BooleanField(
+                        attr["term"],
+                        render_kw={"_type": attr["type"]}
+                    ))
 
     return StaticForm()
+
 
 """
-def CustomAttributeSelectForm(
-    element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL,
-) -> FlaskForm:
-    class StaticForm(FlaskForm):
-        submit = SubmitField("Submit")
-
-    attrs = (
-        db.session.query(CustomAttributes)
-        .filter(
-            CustomAttributes.element.in_([element, CustomAttributeElementTypes.ALL])
-        )
-        .all()
-    )
-
-    for attr in attrs:
-        bf = BooleanField(
-            attr.term, render_kw={"required": attr.required, "_type": attr.type.value}
-        )
-
-        setattr(StaticForm, str(attr.id), bf)
-
-    return StaticForm()
-
 
 def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
     class StaticForm(FlaskForm):

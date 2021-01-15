@@ -36,7 +36,7 @@ class AttributeSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Attribute
 
-    element_type = EnumField(AttributeElementType, required=False)
+    element_type = fields.List(EnumField(AttributeElementType, required=False))
     type = EnumField(AttributeType, required=False)
 
 
