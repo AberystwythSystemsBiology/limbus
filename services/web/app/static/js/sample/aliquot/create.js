@@ -159,7 +159,7 @@ function fill_sample_info() {
 }
 
 function subtract_quantity() {
-    var remaining_quantity = sample["remaining_quantity"];
+    var remaining_quantity = sample["remaining_quantity"].toFixed(4);
 
     var quantities = 0.0;
 
@@ -167,7 +167,8 @@ function subtract_quantity() {
         quantities += parseFloat($(this).val());
     });
 
-    $("#remaining_quantity").attr("value", remaining_quantity-quantities);
+    $("#remaining_quantity").attr("value",
+        parseFloat(((remaining_quantity-quantities).toFixed(4)).toString() ));
     update_graph();
 
     if ((remaining_quantity - quantities) < 0) {
@@ -193,11 +194,21 @@ function generate_container_select(indx) {
 
     var containers_list = containers["container"];
 
+    var lastsel = containers_list[0][0] // Container code for last selection
+    if (indx > 1) {
+        lastsel = $("#container_select_"+(indx-1)).val()
+    }
+
     // Start select
     var select_html = '<select class="form-control" data-live-search=true id="container_select_'+indx+'">';
 
-    for (i in containers_list) { 
-        select_html += '<option value="' + containers_list[i][0] + '">'+containers_list[i][1] + '</option>'
+    for (i in containers_list) {
+        if (containers_list[i][0] == lastsel) {
+            //set the default value to the selection of the row above
+            select_html += '<option value="' + containers_list[i][0] + '" selected>' + containers_list[i][1] + '</option>'
+        } else {
+            select_html += '<option value="' + containers_list[i][0] + '">' + containers_list[i][1] + '</option>'
+        }
     }
 
     // End html
@@ -206,16 +217,25 @@ function generate_container_select(indx) {
 }
 
 
-function generate_fixation_select() {
+function generate_fixation_select(indx) {
     var containers = container_information[sample["base_type"]]
     var fixation_list = containers["fixation_type"]
+    var lastsel = fixation_list[0][0] // Fixation code for last selection
+    if (indx > 1) {
+        lastsel = $("#fixation_select_"+(indx-1)).val()
+    }
 
     // Start select
-    var select_html = '<select class="form-control" data-live-search=true>'
+    var select_html = '<select class="form-control" data-live-search=true id="fixation_select_'+indx+'">';
 
 
     for (i in fixation_list) {
-        select_html += '<option value="' + fixation_list[i][0] + '">'+fixation_list[i][1] + '</option>'
+        if (fixation_list[i][0] == lastsel) {
+            //set the default value to the selection of the row above
+            select_html += '<option value="' + fixation_list[i][0] + '" selected>' + fixation_list[i][1] + '</option>'
+        } else {
+            select_html += '<option value="' + fixation_list[i][0] + '">' + fixation_list[i][1] + '</option>'
+        }
     }
 
     // End select
@@ -225,17 +245,26 @@ function generate_fixation_select() {
 
 function make_new_form(indx) {
     var row_form_html = '';
+    var lastval = 0.01;
+    if (indx > 1) {
+        // Set the default volume to the last value <= remaining quantity
+        lastval = $("#volume_"+(indx-1)).val()
+        lastval = Math.min(lastval, $("#remaining_quantity").val())
+        lastval = Math.max(0.01, lastval)
+    }
 
     // Start Row
     row_form_html += '<tr id="row_'+indx+'">';
     // Container
     row_form_html += '<td>'+generate_container_select(indx)+'</td>'
     if (sample["base_type"] == "Cell") {
-        row_form_html += '<td>'+generate_fixation_select()+'</td>';
+        row_form_html += '<td>'+generate_fixation_select(indx)+'</td>';
     }
     // Volume start
     row_form_html += '<td>';
-    row_form_html += '<input id="volume_'+indx+'" type="number" class="form-control aliquotted-quantity" step="0.05" min="0.01" value="0.01">'
+    //row_form_html += '<input id="volume_'+indx+'" type="number" class="form-control aliquotted-quantity" step="0.05" min="0.01" value="0.01">'
+    row_form_html += '<input id="volume_'+indx+'" type="number" class="form-control aliquotted-quantity" step="0.05" min="0.01" value="'+lastval+'">'
+
     row_form_html += '</td>';
     // Volume end
     row_form_html += '<td>';
@@ -317,15 +346,18 @@ function preprate_data() {
     var a = [];
 
     indexes.forEach(function(i) {
-
         var aliquot = {
             container: $("#container_select_"+i).val(),
             volume: $("#volume_"+i).val(),
             barcode: $("#barcode_"+i).val()
 
         }
-
-        a.push(aliquot);
+        if (sample["base_type"] == "Cell") {
+            aliquot["fixation"] = $("#fixation_select_" + i).val()
+        }
+        if (aliquot["volume"] > 0) {
+            a.push(aliquot);
+        }
 
     });
 
