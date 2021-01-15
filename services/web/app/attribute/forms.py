@@ -204,6 +204,63 @@ def CustomAttributeSelectionForm(element) -> FlaskForm:
     return StaticForm()
 
 
+def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    attributes = []
+
+    for attr_id in attribute_ids:
+        attr_response = requests.get(
+            url_for("api.attribute_view_attribute", id=attr_id, _external=True),
+            headers=get_internal_api_header()
+        )
+
+        if attr_response.status_code == 200:
+            attributes.append(attr_response.json()["content"])
+
+    for attr in attributes:
+        if attr["type"] == "Text":
+            if attr["text_setting"]["type"] == "SF":
+                element = StringField(
+                    attr["term"],
+                    description=attr["description"],
+                    validators=[
+                        DataRequired(),
+                        Length(max=attr["text_setting"]["max_length"])
+                        ],
+                        render_kw={"_custom_val": True}
+                )
+            else:
+                element = TextAreaField(
+                    attr["term"],
+                    description=attr["description"],
+                    validators=[
+                        DataRequired(),
+                        Length(max=attr["text_setting"]["max_length"])
+                    ],
+                    render_kw={"_custom_val": True}
+                )
+        elif attr["type"] == "Option":
+            choices = []
+
+            for choice in attr["options"]:
+                choices.append([int(choice["id"]), choice["term"]])
+
+            element = SelectField(
+                attr["term"],
+                description=attr["description"],
+                choices=choices,
+                coerce=int,
+                render_kw={"_custom_val": True}
+            )
+        
+        element.render_kw = {"_custom_val": True}
+
+        setattr(StaticForm, str(attr["id"]), element)
+
+    return StaticForm()
+
 """
 
 def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:

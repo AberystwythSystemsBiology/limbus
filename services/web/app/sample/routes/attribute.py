@@ -18,7 +18,11 @@ from flask import render_template, url_for, abort, session, redirect
 from flask_login import login_required
 
 from ...misc import get_internal_api_header
-from ...attribute.forms import CustomAttributeSelectionForm
+from ...attribute.forms import (
+    CustomAttributeSelectionForm,
+    CustomAttributeGeneratedForm
+)
+
 import requests
 
 from uuid import uuid4
@@ -67,11 +71,24 @@ def new_custom_attribute_form(uuid, hash):
         headers=get_internal_api_header(),
     )
 
-
     if sample_response.status_code == 200:
-        form = None
+        
+        form = CustomAttributeGeneratedForm(attribute_ids)
+
+        if form.validate_on_submit():
+            
+            for id in attribute_ids:
+                form_element = getattr(form, str(id))
+
+                if form_element.type in ["StringField", "TextAreaField"]:
+                    pass
+                elif form_element.type in ["SelectField"]:
+                    pass 
+
+
         return render_template(
                 "sample/attribute/form.html",
                 sample=sample_response.json()["content"],
                 form=form,
+                hash=hash
             )

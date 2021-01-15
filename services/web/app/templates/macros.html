@@ -182,14 +182,7 @@
 
     {%- endmacro %}
 
-    {% macro new_render_form(form) -%}
-    {% for element in form %}
-    {% if (element.type != "CSRFTokenField") %}
-    {{ form_field(element) }}
-    {% endif %}
-    {% endfor %}
-    {%- endmacro %}
-
+ 
     {% macro render_warning(title, description, button_url, button_text, add, refresh) -%}
     <div class="jumbotron jumbotron-fluid">
         <div class="container text-center">
