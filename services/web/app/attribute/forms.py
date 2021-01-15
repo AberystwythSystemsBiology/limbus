@@ -194,7 +194,6 @@ def CustomAttributeSelectionForm(element) -> FlaskForm:
 
     if custom_attribute_response.status_code == 200:
         for attr in custom_attribute_response.json()["content"]:
-            print(attr)
             setattr(StaticForm,
                     str(attr["id"]),
                     BooleanField(

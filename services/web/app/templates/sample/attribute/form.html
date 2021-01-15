@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Select Custom Attributes :: Sample Acquisition Portal{% endblock %}
+{% block title %}Custom Attribute Form :: Sample Acquisition Portal{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -8,7 +8,7 @@
         <h1><span class="secondary-heading">
             <a href="{{ sample._links.self }}">
                 <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
-        <i class="fab fa-buffer"></i> Custom Attribute Selection </h1>
+        <i class="fab fa-buffer"></i> Custom Attribute Selection Form</h1>
     </div>
 </div>
 <div class="container">
@@ -16,7 +16,6 @@
 
     <form action="{{ url_for('sample.new_custom_attribute', uuid=sample.uuid) }}" method="POST">
         {{ form.csrf_token }}
-        {{ generate_attribute_select_form(form) }}
         {{ form_field(form.submit) }}
     </form>
 

@@ -241,6 +241,9 @@
 
 
     {% macro generate_attribute_select_form(form) -%}
+    {% if form.errors != {} %}
+        {{ form.errors }}
+    {% endif %}
 
     <table id="selectAttribute" class="table table-striped table-bordered" style="width:100%">
         <thead>
@@ -252,6 +255,8 @@
         </thead>
         <tbody>
             {% for field in form %}
+
+            
             {% if field.type == "BooleanField" %}
             <tr>
                 <td>
