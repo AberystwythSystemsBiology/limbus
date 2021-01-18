@@ -21,11 +21,12 @@
         </div>
       </div>
       <div class="container">
+          <form method="POST" action="{{ url_for('storage.associate_document', id=cs.id) }}">
 
-        {{ form.csrf_token() }}
-        {{ form_field(form.document_id) }}
-        {{ form_field(form.submit) }}
-
+            {{ form.csrf_token() }}
+            {{ form_field(form.document_id) }}
+            {{ form_field(form.submit) }}
+          </form>
         </div>
 </div>
 </div>

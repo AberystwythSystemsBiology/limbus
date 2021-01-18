@@ -123,7 +123,7 @@ def new_cold_storage_servicing_report(id: int):
     abort(response.status_code)
 
 
-@storage.route("/coldstorage/LIMBCS-<id>/associate/document", methods=["GET"])
+@storage.route("/coldstorage/LIMBCS-<id>/associate/document", methods=["GET", "POST"])
 @login_required
 def associate_document(id):
     response = requests.get(
@@ -152,6 +152,23 @@ def associate_document(id):
 
             form = ColdStorageToDocumentAssociationForm(documents)
 
+            if form.validate_on_submit():
+
+                new_document_association_response = requests.post(
+                    url_for("api.storage_coldstorage_document", id=id, _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "document_id": form.document_id.data
+                    }
+                )
+
+                if new_document_association_response.status_code == 200:
+
+                    flash("Document Associated")
+                    return redirect(url_for("storage.view_cold_stoage", id=id))
+                else:
+                    print(new_document_association_response.content)
+                    flash("We have a problem:", new_document_association_response.json())
             return render_template(
                 "storage/lts/associate/document.html",
                 cs=response.json()["content"],

@@ -17,7 +17,8 @@ from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-from ...database import ColdStorage, ColdStorageService
+from ...database import ColdStorage, ColdStorageService, DocumentToColdStorage
+
 from ..enums import (
     FixedColdStorageTemps,
     FixedColdStorageType,
@@ -26,6 +27,26 @@ from ..enums import (
 )
 from ..views.shelf import ColdStorageShelfSchema
 from ...auth.views import BasicUserAccountSchema
+
+class DocumentToColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DocumentToColdStorage
+
+    id = masql.auto_field()
+    storage_id = masql.auto_field()
+    document_id = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+document_to_cold_storage_schema = DocumentToColdStorageSchema()
+
+class NewDocumentToColdStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DocumentToColdStorage
+
+    storage_id = masql.auto_field()
+    document_id = masql.auto_field()
+
+new_document_to_cold_storage_schema = NewDocumentToColdStorageSchema()
 
 
 class ColdStorageServiceSchema(masql.SQLAlchemySchema):
