@@ -28,6 +28,8 @@ from ..enums import (
 from ..views.shelf import ColdStorageShelfSchema
 from ...auth.views import BasicUserAccountSchema
 
+from ...document.views import DocumentSchema
+
 class DocumentToColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DocumentToColdStorage
@@ -115,6 +117,7 @@ class ColdStorageSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     status = EnumField(FixedColdStorageStatus, by_value=True)
     service_history = ma.Nested(ColdStorageServiceSchema, many=True)
+    documents = ma.Nested(DocumentSchema(), many=True)
     # room = ma.Nested(BasicRoomSchema, many=False)
 
 

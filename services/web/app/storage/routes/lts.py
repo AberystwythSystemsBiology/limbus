@@ -163,11 +163,9 @@ def associate_document(id):
                 )
 
                 if new_document_association_response.status_code == 200:
-
                     flash("Document Associated")
-                    return redirect(url_for("storage.view_cold_stoage", id=id))
+                    return redirect(url_for("storage.view_cold_storage", id=id))
                 else:
-                    print(new_document_association_response.content)
                     flash("We have a problem:", new_document_association_response.json())
             return render_template(
                 "storage/lts/associate/document.html",

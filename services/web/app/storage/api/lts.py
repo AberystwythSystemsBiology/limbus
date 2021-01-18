@@ -162,19 +162,18 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     coldstorage_response = requests.get(
         url_for("api.storage_coldstorage_view", id=id, _external=True),
-        _external=True,
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(tokenuser)
     )
 
     if coldstorage_response.status_code == 200:
         try:
-            values["sample_id"] = id
+            values["storage_id"] = id
 
-            values = new_document_to_cold_storage_schema.load(values)
+            cs_result = new_document_to_cold_storage_schema.load(values)
         except ValidationError as err:
             return validation_error_response(err)
 
-        dtcs = DocumentToColdStorage(**values)
+        dtcs = DocumentToColdStorage(**cs_result)
         dtcs.author_id = tokenuser.id
 
         try:
@@ -185,8 +184,5 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
-
-
-
     else:
-        return "No."
+        return coldstorage_response.json()

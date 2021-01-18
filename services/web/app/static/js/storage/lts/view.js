@@ -20,6 +20,7 @@ function deactivate_nav() {
     $("#shelves-nav").removeClass("active");
     $("#callibration-nav").removeClass("active");
     $("#service-report-nav").removeClass("active");
+    $("#documents-nav").removeClass("active");
 }
 
 function hide_all() {
@@ -27,6 +28,7 @@ function hide_all() {
     $("#basic-info-div").fadeOut(50);
     $("#shelf-info-div").fadeOut(50);
     $("#service-report-div").fadeOut(50);
+    $("#documents-div").fadeOut(50);
 
 }
 
@@ -51,5 +53,12 @@ $(document).ready(function() {
         hide_all();
         $("#service-report-div").fadeIn(100);
 
+    });
+
+    $("#documents-nav").on("click", function () {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#documents-div").fadeIn(100);
     })
 });
