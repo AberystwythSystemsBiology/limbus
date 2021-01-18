@@ -135,7 +135,6 @@ def add_rerouter(hash):
 def add_step_one():
     consent_templates = []
     collection_protocols = []
-    processing_protocols = []
     collection_sites = []
 
     consent_templates_response = requests.get(
@@ -160,13 +159,6 @@ def add_step_one():
         for protocol in protocols_response.json()["content"]:
             if protocol["type"] == "Sample Acquisition":
                 collection_protocols.append(
-                    [
-                        protocol["id"],
-                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
-                    ]
-                )
-            elif protocol["type"] == "Sample Processing":
-                processing_protocols.append(
                     [
                         protocol["id"],
                         "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
@@ -227,8 +219,7 @@ def add_step_one():
         "sample/add/step_one.html",
         form=form,
         template_count=len(consent_templates),
-        collection_protocol_count=len(collection_protocols),
-        processing_protocols_count=len(processing_protocols),
+        collection_protocol_count=len(collection_protocols)
     )
 
 
