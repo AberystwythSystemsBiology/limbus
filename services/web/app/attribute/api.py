@@ -242,16 +242,23 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/attribute/new_data", methods=["POST"])
+@api.route("/attribute/new/data/<type>", methods=["POST"])
 @token_required
-def attribute_new_data(tokenuser: UserAccount):
+def attribute_new_data(type: str, tokenuser: UserAccount):
+
+    if type not in ["text", "option"]:
+        return validation_error_response({"Error": "type must be one of text or option."})
+
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
     try:
-        result = new_attribute_data_schema.load(values)
+        if type == "text":
+            result = new_attribute_data_schema.load(values)
+        elif type == "option":
+            result = new_attribute_option_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 

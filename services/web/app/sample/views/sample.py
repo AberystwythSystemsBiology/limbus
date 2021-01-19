@@ -29,6 +29,7 @@ from . import (
 )
 
 from ...document.views import BasicDocumentSchema
+from ...attribute.views import AttributeDataSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -121,6 +122,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     storage = ma.Nested(EntityToStorageSchema, many=False)
 
+    attributes = ma.Nested(AttributeDataSchema, many=True)
     documents = ma.Nested(BasicDocumentSchema, many=True)
 
     reviews = ma.Nested(SampleReviewSchema, many=True)

@@ -28,13 +28,13 @@ from datetime import datetime
 
 @sample.route("review/<uuid>/edit", methods=["GET", "POST"])
 @login_required
-def remove_review(uuid):
+def remove_review(uuid: str):
     return "ToDo"
 
 
 @sample.route("<uuid>/associate/review", methods=["GET", "POST"])
 @login_required
-def associate_review(uuid):
+def associate_review(uuid: str) -> str:
 
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),

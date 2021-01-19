@@ -13,31 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from ...extensions import ma
-from ...database import Sample
+from ...database import SampleToCustomAttributeData
 
 import marshmallow_sqlalchemy as masql
 
+from ...auth.views import BasicUserAccountSchema
 
-class SampleUUIDSchema(masql.SQLAlchemySchema):
+
+class NewSampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = Sample
+        model = SampleToCustomAttributeData
 
-    uuid = masql.auto_field(required=False)
+    id = masql.auto_field()
+    sample_id = masql.auto_field()
+    attribute_data_id = masql.auto_field()
 
-    _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
-    )
+new_sample_to_custom_attribute_data_schema = NewSampleToCustomAttributeDataSchema()
 
+class SampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleToCustomAttributeData
 
-from .filter import *
-from .consent import *
-from .disposal import *
-from .document import *
-from .filter import *
-from .protocol import *
-from .review import *
-from .type import *
-from .storage import *
-from .sample import *
-from .attribue import *
+    id = masql.auto_field()
+    sample_id = masql.auto_field()
+    attribute_data_id = masql.auto_field()
+
+sample_to_custom_attribute_data_schema = SampleToCustomAttributeData()

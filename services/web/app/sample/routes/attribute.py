@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .. import sample
-from flask import render_template, url_for, abort, session, redirect
+from flask import render_template, url_for, flash, session, redirect
 from flask_login import login_required
 
 from ...misc import get_internal_api_header
@@ -29,7 +29,7 @@ from uuid import uuid4
 
 @sample.route("<uuid>/attribute/new", methods=["GET", "POST"])
 @login_required
-def new_custom_attribute(uuid):
+def new_custom_attribute(uuid: str) -> str:
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -63,7 +63,7 @@ def new_custom_attribute(uuid):
 
 @sample.route("<uuid>/attribute/new/<hash>", methods=["GET", "POST"])
 @login_required
-def new_custom_attribute_form(uuid, hash):
+def new_custom_attribute_form(uuid:str, hash: str) -> str:
     attribute_ids = session["custom_attr_hash_%s" % (hash)]
     
     sample_response = requests.get(
@@ -72,7 +72,9 @@ def new_custom_attribute_form(uuid, hash):
     )
 
     if sample_response.status_code == 200:
-        
+
+        errors = {}
+
         form = CustomAttributeGeneratedForm(attribute_ids)
 
         if form.validate_on_submit():
@@ -81,10 +83,27 @@ def new_custom_attribute_form(uuid, hash):
                 form_element = getattr(form, str(id))
 
                 if form_element.type in ["StringField", "TextAreaField"]:
-                    pass
+                    attr_type = "text"
+                    json = {"attribute_id": id, "data": form_element.data}
                 elif form_element.type in ["SelectField"]:
-                    pass 
+                    attr_type = "option"
+                    json = {"attribute_id": id, "option_id": form_element.data}
 
+                attribute_response = requests.post(
+                    url_for("api.sample_associate_attribute", uuid=uuid, type=attr_type, _external=True),
+                    headers=get_internal_api_header(),
+                    json=json
+                )
+
+                if attribute_response.status_code != 200:
+                    # TODO: Return error
+
+                    errors[id] = attribute_response.json()
+                    pass
+
+        if len(errors.keys()) > 0:
+            for _id, error in errors.items():
+                flash(error)
 
         return render_template(
                 "sample/attribute/form.html",

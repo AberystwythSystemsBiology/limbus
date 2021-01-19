@@ -23,17 +23,67 @@ from ...decorators import token_required
 from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
-from ..views import (
-    SampleDocument
+
+from ...database import db, UserAccount, SampleToCustomAttributeData
+
+from ...attribute.views import (
+    new_attribute_data_schema,
+    new_attribute_option_schema
 )
-
-from ...database import db, UserAccount
-
-from ..enums import *
 
 import requests
 
-@api.route("/sample/associate/attribute", methods=["POST"])
+@api.route("/sample/<uuid>/associate/attribute/<type>", methods=["POST"])
 @token_required
-def sample_associate_attribute(tokenuser: UserAccount):
-    pass
+def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> str:
+
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(tokenuser)
+    )
+
+    if sample_response.status_code != 200:
+        return sample_response.content
+
+    if type not in ["text", "option"]:
+        return validation_error_response({"Error": "type must be one of text or option"})
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        if type == "text":
+            json = new_attribute_data_schema.load(values)
+        elif type == "option":
+            json = new_attribute_option_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_attribute_data_response = requests.post(
+        url_for("api.attribute_new_data", type=type, _external=True),
+        headers=get_internal_api_header(tokenuser),
+        json=json
+    )
+
+
+    if new_attribute_data_response.status_code == 200:
+
+        stcad = SampleToCustomAttributeData(
+            sample_id=sample_response.json()["content"]["id"],
+            attribute_data_id=new_attribute_data_response.json()["content"]["id"]
+        )
+
+        stcad.author_id = tokenuser.id
+
+        try:
+            db.session.add(stcad)
+            db.session.commit()
+            db.session.flush()
+
+            return success_with_content_response({"msg": "custom_attr_data_added"})
+
+        except Exception as err:
+            return transaction_error_response(err)
+
