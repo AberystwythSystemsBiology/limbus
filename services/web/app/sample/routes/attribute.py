@@ -101,13 +101,16 @@ def new_custom_attribute_form(uuid:str, hash: str) -> str:
                     errors[id] = attribute_response.json()
                     pass
 
-        if len(errors.keys()) > 0:
-            for _id, error in errors.items():
-                flash(error)
 
-        else:
-            flash("Custom Attribute(s) successfully associated!")
-            return redirect(url_for("sample.view", uuid=uuid))
+
+            if len(errors.keys()) > 0:
+                for _id, error in errors.items():
+                    flash(error)
+            else:
+                flash("Custom Attribute(s) successfully associated!")
+                return redirect(url_for("sample.view", uuid=uuid))
+
+
 
         return render_template(
                 "sample/attribute/form.html",
