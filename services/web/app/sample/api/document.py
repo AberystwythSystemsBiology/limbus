@@ -20,18 +20,16 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 
-from ..views import (
-    new_document_to_sample_schema,
-    sample_document_schema
-)
+from ..views import new_document_to_sample_schema, sample_document_schema
 
 from ...database import (
     db,
     SampleDocument,
     SampleConsent,
     SampleConsentAnswer,
-    UserAccount
+    UserAccount,
 )
+
 
 @api.route("/sample/associate/document", methods=["POST"])
 @token_required

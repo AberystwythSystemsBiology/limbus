@@ -47,6 +47,8 @@
                     <i class="fas fa-vial"></i> Sample Actions
                   </button>
                   <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
+
                     <a class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
                       class="fas fa-file"></i> New Review</a>
                     <a class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
@@ -120,8 +122,6 @@
       <div class="row">
         <div class="col-9">
           <table class="table table-striped" id="basic-information"></table>
-
-          <div id="documents"></div>
         </div>
 
         <div class="col-3 text-center">
@@ -137,6 +137,9 @@
       </div>
     </div>
 
+      <div id="custom-attributes-div" style="display: none">
+          <table class="table table-striped" id="custom-attributes-table"></table>
+      </div>
 
     <div id="protocol-event-info" style="display:none;">
       <ul class="timeline"  id="protocol-event-li"></ul>

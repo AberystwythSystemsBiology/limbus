@@ -17,6 +17,7 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
 
+
 def SampleToDocumentAssociatationForm(documents: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")

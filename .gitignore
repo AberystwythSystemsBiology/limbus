@@ -1,6 +1,6 @@
 .vscode/*
 .idea/*
-documents/
+services/web/documents/
 dumps/
 
 
@@ -242,4 +242,4 @@ yarn.lock
 *.owl
 *.xrdf
 
-ontologies/
+services/web/ontologies/

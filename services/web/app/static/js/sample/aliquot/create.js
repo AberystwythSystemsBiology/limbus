@@ -243,6 +243,10 @@ function generate_fixation_select(indx) {
     return select_html;
 }
 
+function copy_row(indx) {
+    $("row_"+indx).clone().appendTo("#aliquoted_sample_table");
+}
+
 function make_new_form(indx) {
     var row_form_html = '';
     var lastval = 0.01;
@@ -289,6 +293,10 @@ function make_new_form(indx) {
         remove_row(to_remove);
         subtract_quantity();
     });
+
+    $(".copy").click(function() {
+        copy_row();
+    })
 
 
 

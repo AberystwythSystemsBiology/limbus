@@ -83,7 +83,7 @@ class DonorSchema(masql.SQLAlchemySchema):
             ),
             "associate_sample": ma.URLFor(
                 "donor.associate_sample", id="<id>", _external=True
-            )
+            ),
         }
     )
 

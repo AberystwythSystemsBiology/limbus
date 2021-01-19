@@ -41,7 +41,7 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
 
     first_name = masql.auto_field()
     last_name = masql.auto_field()
-    
+
     account_type = EnumField(AccountType, by_value=True)
 
     created_on = ma.Date()
@@ -115,6 +115,8 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
 
+    id = masql.auto_field()
+
     title = EnumField(Title, by_value=True)
 
     email = masql.auto_field()
@@ -129,6 +131,7 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
     updated_on = fields.Date()
 
     token = ma.Nested(TokenSchema())
+    is_locked = masql.auto_field()
 
     site = ma.Nested(basic_site_schema)
     document = ma.Nested(BasicDocumentSchema)

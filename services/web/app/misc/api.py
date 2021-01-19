@@ -94,8 +94,6 @@ def get_greeting():
 def get_data(tokenuser: UserAccount):
     # .strftime("%Y:%m:%d")
 
-   
-
     """
     a = db.session.query(
         func.date_trunc("day", Sample.created_on)).group_by(func.date_trunc("day", Sample.created_on)).all()
@@ -144,11 +142,16 @@ def get_data(tokenuser: UserAccount):
             ),
         },
         "sample_statistics": {
-            
-            "added_time" : prepare_for_chart_js([
-                (date.strftime("%Y-%m-%d"), count) for (date, count) in 
-                db.session.query(func.date_trunc("day", Sample.created_on), func.count(Sample.id)).group_by(func.date_trunc("day", Sample.created_on)).all()
-            ]),
+            "added_time": prepare_for_chart_js(
+                [
+                    (date.strftime("%Y-%m-%d"), count)
+                    for (date, count) in db.session.query(
+                        func.date_trunc("day", Sample.created_on), func.count(Sample.id)
+                    )
+                    .group_by(func.date_trunc("day", Sample.created_on))
+                    .all()
+                ]
+            ),
             "sample_type": prepare_for_chart_js(
                 [
                     (type.value, count)

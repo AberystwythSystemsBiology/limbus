@@ -101,37 +101,9 @@ def document_lock_document(id: int, tokenuser: UserAccount):
 def document_edit_document(id: int, tokenuser: UserAccount):
     values = request.get_json()
 
-    return generic_edit(db, Document, id, new_document_schema, basic_document_schema, values, tokenuser)
-    '''
-    document = Document.query.filter_by(id=id).first()
-
-    if not document:
-        return not_found()
-
-    values = request.get_json()
-
-    if not values:
-        return no_values_response()
-
-    try:
-        result = new_document_schema.load(values)
-    except ValidationError as err:
-        return validation_error_response(err)
-
-    for attr, value in values.items():
-        setattr(document, attr, value)
-
-    document.editor_id = tokenuser.id
-
-    try:
-        db.session.add(document)
-        db.session.commit()
-        db.session.flush()
-
-        return success_with_content_response(basic_document_schema.dump(document))
-    except Exception as err:
-        return transaction_error_response(err)
-    '''
+    return generic_edit(
+        db, Document, id, new_document_schema, basic_document_schema, values, tokenuser
+    )
 
 
 @api.route("/document/new", methods=["POST"])

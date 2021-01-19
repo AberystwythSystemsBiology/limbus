@@ -16,12 +16,16 @@
 from ...extensions import ma
 from ...database import SampleDisposal
 
-from ...consent.views import BasicConsentFormQuestionSchema, BasicConsentFormTemplateSchema
+from ...consent.views import (
+    BasicConsentFormQuestionSchema,
+    BasicConsentFormTemplateSchema,
+)
 
 from ..enums import DisposalInstruction
 
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
+
 
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -46,5 +50,3 @@ class NewSampleDisposalSchema(masql.SQLAlchemySchema):
 
 
 new_sample_disposal_schema = NewSampleDisposalSchema()
-
-

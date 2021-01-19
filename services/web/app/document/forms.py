@@ -77,7 +77,6 @@ class DocumentCreationForm(FlaskForm):
 
     file = FileField("File Upload", validators=[DataRequired()])
 
-
     submit = SubmitField("Submit")
 
 

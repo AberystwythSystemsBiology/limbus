@@ -14,7 +14,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-
 from flask import url_for
 from datetime import datetime
 
@@ -49,7 +48,6 @@ class SiteRegistrationForm(FlaskForm):
     )
 
     submit = SubmitField("Register Site")
-
 
 
 def SampleToEntityForm(samples: list) -> FlaskForm:

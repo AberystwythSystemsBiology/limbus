@@ -29,7 +29,12 @@ import requests
 from ...misc import get_internal_api_header
 from flask_login import current_user, login_required
 
-from ..forms import ColdStorageForm, NewShelfForm, ColdStorageServiceReportForm
+from ..forms import (
+    ColdStorageForm,
+    NewShelfForm,
+    ColdStorageServiceReportForm,
+    ColdStorageToDocumentAssociationForm,
+)
 
 
 @storage.route("/coldstorage/new/LIMROOM-<id>", methods=["GET", "POST"])
@@ -84,25 +89,26 @@ def new_cold_storage(id):
 def new_cold_storage_servicing_report(id: int):
     response = requests.get(
         url_for("api.storage_coldstorage_view", id=id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
         form = ColdStorageServiceReportForm()
 
-
         if form.validate_on_submit():
-            
+
             new_response = requests.post(
-                url_for("api.storage_coldstorage_new_service_report", id=id, _external=True),
+                url_for(
+                    "api.storage_coldstorage_new_service_report", id=id, _external=True
+                ),
                 headers=get_internal_api_header(),
                 json={
                     "date": str(form.date.data),
                     "conducted_by": form.conducted_by.data,
                     "temp": float(form.temp.data),
                     "status": form.status.data,
-                    "comments": form.comments.data
-                }
+                    "comments": form.comments.data,
+                },
             )
 
             if new_response.status_code == 200:
@@ -111,15 +117,13 @@ def new_cold_storage_servicing_report(id: int):
             else:
                 flash("We have a problem: %s" % (new_response.json()))
         return render_template(
-            "storage/lts/servicing/new.html", 
-            form=form,
-            cs=response.json()["content"]
+            "storage/lts/servicing/new.html", form=form, cs=response.json()["content"]
         )
 
     abort(response.status_code)
 
 
-@storage.route("/coldstorage/LIMBCS-<id>/associate/document", methods=["GET"])
+@storage.route("/coldstorage/LIMBCS-<id>/associate/document", methods=["GET", "POST"])
 @login_required
 def associate_document(id):
     response = requests.get(
@@ -128,8 +132,48 @@ def associate_document(id):
     )
 
     if response.status_code == 200:
-        return render_template("storage/lts/associate/document.html", cs=response.json()["content"])
+
+        document_response = requests.get(
+            url_for("api.document_home", _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if document_response.status_code == 200:
+
+            documents = []
+
+            for document in document_response.json()["content"]:
+                documents.append(
+                    [
+                        int(document["id"]),
+                        "LIMBDOC-%s: %s" % (document["id"], document["name"]),
+                    ]
+                )
+
+            form = ColdStorageToDocumentAssociationForm(documents)
+
+            if form.validate_on_submit():
+
+                new_document_association_response = requests.post(
+                    url_for("api.storage_coldstorage_document", id=id, _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "document_id": form.document_id.data
+                    }
+                )
+
+                if new_document_association_response.status_code == 200:
+                    flash("Document Associated")
+                    return redirect(url_for("storage.view_cold_storage", id=id))
+                else:
+                    flash("We have a problem:", new_document_association_response.json())
+            return render_template(
+                "storage/lts/associate/document.html",
+                cs=response.json()["content"],
+                form=form,
+            )
     return abort(response.status_code)
+
 
 @storage.route("/coldstorage/LIMBCS-<id>", methods=["GET"])
 @login_required

@@ -20,10 +20,7 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 
-from ..views import (
-    new_sample_protocol_event_schema,
-    sample_protocol_event_schema
-)
+from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema
 
 from ...database import (
     db,
@@ -31,6 +28,7 @@ from ...database import (
     UserAccount,
     Sample
 )
+from ...database import db, SampleProtocolEvent, UserAccount
 
 
 @api.route("/sample/new/protocol_event", methods=["POST"])

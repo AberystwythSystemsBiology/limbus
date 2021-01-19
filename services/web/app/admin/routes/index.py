@@ -20,7 +20,6 @@ from flask import render_template, url_for, redirect, abort
 from flask_login import current_user, login_required
 
 
-
 @admin.route("/", methods=["GET"])
 @check_if_admin
 @login_required

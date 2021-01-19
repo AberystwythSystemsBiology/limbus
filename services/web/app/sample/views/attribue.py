@@ -13,29 +13,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from ...extensions import ma
-from ...database import SampleDocument
+from ...database import SampleToCustomAttributeData
 
 import marshmallow_sqlalchemy as masql
 
+from ...auth.views import BasicUserAccountSchema
 
-class SampleDocumentSchema(masql.SQLAlchemySchema):
+
+class NewSampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleDocument
+        model = SampleToCustomAttributeData
 
+    id = masql.auto_field()
     sample_id = masql.auto_field()
-    document_id = masql.auto_field()
+    attribute_data_id = masql.auto_field()
 
+new_sample_to_custom_attribute_data_schema = NewSampleToCustomAttributeDataSchema()
 
-sample_document_schema = SampleDocumentSchema()
-
-
-class NewDocumentToSampleSchema(masql.SQLAlchemySchema):
+class SampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleDocument
+        model = SampleToCustomAttributeData
 
+    id = masql.auto_field()
     sample_id = masql.auto_field()
-    document_id = masql.auto_field()
+    attribute_data_id = masql.auto_field()
 
-
-new_document_to_sample_schema = NewDocumentToSampleSchema()
+sample_to_custom_attribute_data_schema = SampleToCustomAttributeData()

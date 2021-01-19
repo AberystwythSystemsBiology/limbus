@@ -37,3 +37,11 @@ def validate_barcode(form, field):
 # TODO: If the Sample disposal != No Disposal, then make sure date has information.
 def sample_disposal_date(form, field):
     pass
+
+
+def validate_against_text(text):
+    def _check_attribute_name(form, field):
+        if field.data != text:
+            raise ValidationError("Incorrect entry")
+
+    return _check_attribute_name

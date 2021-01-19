@@ -20,7 +20,7 @@ onto_path.append(os.environ["ONTO_PATH"])
 
 
 def load_doid():
-    onto = get_ontology("file://%s%s" % (os.environ["ONTO_PATH"], "owlapi.xrdf")).load()
+    onto = get_ontology("file://%s%s" % (os.environ["ONTO_PATH"], "doid.xrdf")).load()
     obo = get_namespace("http://purl.obolibrary.org/obo/")
 
     return onto, obo

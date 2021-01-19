@@ -24,7 +24,7 @@ from ...misc import get_internal_api_header
 from ..forms import (
     SampleToDocumentAssociatationForm,
     SampleReviewForm,
-    ProtocolEventForm
+    ProtocolEventForm,
 )
 
 from datetime import datetime
@@ -34,7 +34,6 @@ from datetime import datetime
 @login_required
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
-
 
 
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])

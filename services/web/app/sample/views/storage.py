@@ -17,14 +17,11 @@ from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
-from ...database import (
-    ColdStorageShelf,
-    EntityToStorage,
-    SampleRack
-)
+from ...database import ColdStorageShelf, EntityToStorage, SampleRack
 from ...storage.enums import EntityToStorageType
 
 from flask import url_for
+
 
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -38,6 +35,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("storage.view_rack", id="<id>", _external=True),
         }
     )
+
 
 class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -54,6 +52,7 @@ class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
         }
     )
 
+
 class EntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = EntityToStorage
@@ -63,4 +62,3 @@ class EntityToStorageSchema(masql.SQLAlchemySchema):
 
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
-

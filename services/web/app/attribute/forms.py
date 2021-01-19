@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
+from flask import url_for
 
 from wtforms import (
     StringField,
@@ -27,12 +28,15 @@ from wtforms import (
 )
 
 from wtforms.validators import DataRequired, Length
+from ..validators import validate_against_text
 
+from ..misc import get_internal_api_header
 
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 from .models import Attribute, AttributeOption, AttributeTextSetting
 
+import requests
 
 # Pronto stuff here.
 import pronto
@@ -162,14 +166,6 @@ class AttributeOptionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-def check_attribute_name(id):
-    def _check_attribute_name(form, field):
-        if field.data != "LIMBATTR-%s" % (str(id)):
-            raise ValidationError("Incorrect entry")
-
-    return _check_attribute_name
-
-
 def AttributeLockForm(id):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
@@ -179,37 +175,93 @@ def AttributeLockForm(id):
         "name",
         StringField(
             "Please enter LIMBATTR-%s to continue" % (str(id)),
-            [DataRequired(), check_attribute_name(id=id)],
+            [DataRequired(), validate_against_text("LIMBATTR-%s" % (str(id)))],
         ),
     )
 
     return StaticForm()
 
 
-"""
-def CustomAttributeSelectForm(
-    element: CustomAttributeElementTypes = CustomAttributeElementTypes.ALL,
-) -> FlaskForm:
+def CustomAttributeSelectionForm(element) -> FlaskForm:
     class StaticForm(FlaskForm):
-        submit = SubmitField("Submit")
+        submit = SubmitField("Continue")
 
-    attrs = (
-        db.session.query(CustomAttributes)
-        .filter(
-            CustomAttributes.element.in_([element, CustomAttributeElementTypes.ALL])
-        )
-        .all()
+    custom_attribute_response = requests.get(
+        url_for("api.attribute_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"element_type": element},
     )
 
-    for attr in attrs:
-        bf = BooleanField(
-            attr.term, render_kw={"required": attr.required, "_type": attr.type.value}
-        )
-
-        setattr(StaticForm, str(attr.id), bf)
+    if custom_attribute_response.status_code == 200:
+        for attr in custom_attribute_response.json()["content"]:
+            setattr(StaticForm,
+                    str(attr["id"]),
+                    BooleanField(
+                        attr["term"],
+                        render_kw={"_type": attr["type"]}
+                    ))
 
     return StaticForm()
 
+
+def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        submit = SubmitField("Submit")
+
+    attributes = []
+
+    for attr_id in attribute_ids:
+        attr_response = requests.get(
+            url_for("api.attribute_view_attribute", id=attr_id, _external=True),
+            headers=get_internal_api_header()
+        )
+
+        if attr_response.status_code == 200:
+            attributes.append(attr_response.json()["content"])
+
+    for attr in attributes:
+        if attr["type"] == "Text":
+            if attr["text_setting"]["type"] == "SF":
+                element = StringField(
+                    attr["term"],
+                    description=attr["description"],
+                    validators=[
+                        DataRequired(),
+                        Length(max=attr["text_setting"]["max_length"])
+                        ],
+                        render_kw={"_custom_val": True}
+                )
+            else:
+                element = TextAreaField(
+                    attr["term"],
+                    description=attr["description"],
+                    validators=[
+                        DataRequired(),
+                        Length(max=attr["text_setting"]["max_length"])
+                    ],
+                    render_kw={"_custom_val": True}
+                )
+        elif attr["type"] == "Option":
+            choices = []
+
+            for choice in attr["options"]:
+                choices.append([int(choice["id"]), choice["term"]])
+
+            element = SelectField(
+                attr["term"],
+                description=attr["description"],
+                choices=choices,
+                coerce=int,
+                render_kw={"_custom_val": True}
+            )
+        
+        element.render_kw = {"_custom_val": True}
+
+        setattr(StaticForm, str(attr["id"]), element)
+
+    return StaticForm()
+
+"""
 
 def CustomAttributeGeneratedForm(form, attribute_ids: [] = []) -> FlaskForm:
     class StaticForm(FlaskForm):

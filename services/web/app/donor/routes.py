@@ -32,7 +32,7 @@ from .forms import (
     DonorCreationForm,
     DonorFilterForm,
     DonorAssignDiagnosisForm,
-    DonorSampleAssociationForm
+    DonorSampleAssociationForm,
 )
 
 from ..misc import get_internal_api_header
@@ -91,7 +91,7 @@ def associate_sample(id):
         sample_response = requests.get(
             url_for("api.sample_query", _external=True),
             headers=get_internal_api_header(),
-            json={"source": "NEW"}
+            json={"source": "NEW"},
         )
 
         if sample_response.status_code == 200:
@@ -101,15 +101,20 @@ def associate_sample(id):
                 association_response = requests.post(
                     url_for("api.donor_associate_sample", id=id, _external=True),
                     headers=get_internal_api_header(),
-                    json={"sample_id": form.sample.data}
+                    json={"sample_id": form.sample.data},
                 )
 
                 if association_response.status_code == 200:
                     return redirect(url_for("donor.view", id=id))
 
-            return render_template("donor/sample/associate.html", donor=response.json()["content"], form=form)
+            return render_template(
+                "donor/sample/associate.html",
+                donor=response.json()["content"],
+                form=form,
+            )
         abort(sample_response.status_code)
     abort(response.status_code)
+
 
 @donor.route("/LIMBDON-<id>/associate/diagnosis", methods=["GET", "POST"])
 @login_required

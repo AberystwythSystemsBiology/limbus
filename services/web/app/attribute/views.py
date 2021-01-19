@@ -32,13 +32,13 @@ from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 
+
 class AttributeSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Attribute
 
-    element_type = EnumField(AttributeElementType, required=False)
+    element_type = fields.List(EnumField(AttributeElementType, required=False))
     type = EnumField(AttributeType, required=False)
-    author = ma.Nested(UserAccountSearchSchema)
 
 
 class BasicAttributeSchema(masql.SQLAlchemySchema):
@@ -120,20 +120,6 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
 new_attribute_option_schema = NewAttributeOptionSchema()
 new_attribute_options_schema = NewAttributeOptionSchema(many=True)
 
-
-# class NewAttributeOptionSchema(masql.SQLAlchemySchema):
-#     class Meta:
-#         model = AttributeOption
-#
-#     term = masql.auto_field()
-#     accession = masql.auto_field()
-#     ref = masql.auto_field()
-#
-#
-# new_attribute_option_schema = NewAttributeOptionSchema()
-# new_attribute_options_schema = NewAttributeOptionSchema(many=True)
-
-
 class AttributeOptionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeOption
@@ -178,19 +164,17 @@ class NewAttributeDataSchema(masql.SQLAlchemySchema):
     attribute_id = masql.auto_field()
     data = masql.auto_field()
 
-
 new_attribute_data_schema = NewAttributeDataSchema()
 
 
-# class NewAttributeOptionSchema(masql.SQLAlchemySchema):
-#     class Meta:
-#         model = AttributeData
-#
-#     attribute_id = masql.auto_field()
-#     option_id = masql.auto_field()
+class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = AttributeData
 
+    attribute_id = masql.auto_field()
+    option_id = masql.auto_field()
 
-# new_attribute_option_schema = NewAttributeDataSchema()
+new_attribute_option_schema = NewAttributeOptionSchema()
 
 
 class AttributeDataSchema(masql.SQLAlchemySchema):
@@ -199,7 +183,9 @@ class AttributeDataSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     attribute_id = masql.auto_field()
+    attribute = ma.Nested(AttributeSchema, many=False)
     option_id = masql.auto_field()
+    option = ma.Nested(AttributeOptionSchema(), many=False)
     data = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     created_on = fields.Date()

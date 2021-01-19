@@ -22,7 +22,7 @@ from wtforms import (
     TextAreaField,
     SubmitField,
     DateField,
-    TimeField
+    TimeField,
 )
 
 from wtforms.validators import DataRequired, Optional

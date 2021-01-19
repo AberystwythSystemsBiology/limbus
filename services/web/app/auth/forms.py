@@ -64,11 +64,11 @@ class UserAccountEditForm(FlaskForm):
 
 
 def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
-
-
     class StaticForm(FlaskForm):
 
-        title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
+        title = SelectField(
+            "Title", validators=[DataRequired()], choices=Title.choices()
+        )
 
         first_name = StringField("First Name", validators=[DataRequired()])
         middle_name = StringField("Middle Name")
@@ -98,13 +98,13 @@ def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
                 raise ValidationError("Email address already in use.")
 
     if len(sites) > 0:
-        setattr(StaticForm, "site", SelectField(
-            "Site", choices=sites, coerce=int
-        ))
+        setattr(StaticForm, "site", SelectField("Site", choices=sites, coerce=int))
 
     if with_type:
-        setattr(StaticForm, "type", SelectField(
-            "Account Type", choices=AccountType.choices()
-        ))
+        setattr(
+            StaticForm,
+            "type",
+            SelectField("Account Type", choices=AccountType.choices()),
+        )
 
     return StaticForm()

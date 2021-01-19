@@ -14,16 +14,21 @@
         <div class="jumbotron">
             <div class="container">
                 <h1><span class="secondary-heading">
-                        <a href="{{ url_for('storage.view_room', id=cs.room_id) }}">
-                            <i class="fa fa-door-closed"></i> LIMBROOM-{{ cs.room_id }}</a>
-                    </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}: {{ cs.alias}}</h1>
+                        <a href="{{ url_for('storage.view_cold_storage', id=cs.id) }}">
+                            <i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}</a>
+                    </span><i class="fa fa-temperature-low"></i> Associate Document</h1>
 
         </div>
+      </div>
+      <div class="container">
+          <form method="POST" action="{{ url_for('storage.associate_document', id=cs.id) }}">
 
-
-        <div class="container">
-        
-    </div>
+            {{ form.csrf_token() }}
+            {{ form_field(form.document_id) }}
+            {{ form_field(form.submit) }}
+          </form>
+        </div>
+</div>
 </div>
 {% endblock %}
 

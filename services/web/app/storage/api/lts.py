@@ -21,9 +21,13 @@ from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 
+import requests
+
+from ...misc import get_internal_api_header
+
 from marshmallow import ValidationError
 
-from ...database import db, UserAccount, ColdStorage, ColdStorageService
+from ...database import db, UserAccount, ColdStorage, ColdStorageService, DocumentToColdStorage
 
 from ..views import *
 
@@ -46,7 +50,7 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
-def storage_coldstorage_new_service_report(id, tokenuser:UserAccount):
+def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
     values = request.get_json()
 
     if not values:
@@ -66,12 +70,9 @@ def storage_coldstorage_new_service_report(id, tokenuser:UserAccount):
         db.session.add(csr)
         db.session.commit()
 
-        return success_with_content_response(
-            cold_storage_service_schema.dump(csr)
-        )
+        return success_with_content_response(cold_storage_service_schema.dump(csr))
     except Exception as err:
         return transaction_error_response(err)
-
 
 
 @api.route("/storage/coldstorage/new", methods=["POST"])
@@ -150,3 +151,38 @@ def storage_coldstorage_lock(id, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(basic_cold_storage_schema.dump(cs))
+
+@api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])
+@token_required
+def storage_coldstorage_document(id, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    coldstorage_response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header(tokenuser)
+    )
+
+    if coldstorage_response.status_code == 200:
+        try:
+            values["storage_id"] = id
+
+            cs_result = new_document_to_cold_storage_schema.load(values)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        dtcs = DocumentToColdStorage(**cs_result)
+        dtcs.author_id = tokenuser.id
+
+        try:
+            db.session.add(dtcs)
+            db.session.commit()
+
+            return success_with_content_response(document_to_cold_storage_schema.dump(dtcs))
+        except Exception as err:
+            return transaction_error_response(err)
+
+    else:
+        return coldstorage_response.json()

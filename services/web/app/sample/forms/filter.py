@@ -18,6 +18,7 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, SubmitField
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
 
+
 class SampleFilterForm(FlaskForm):
 
     biohazard_level = SelectField(

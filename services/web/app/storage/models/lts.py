@@ -15,7 +15,12 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
-from ..enums import FixedColdStorageTemps, FixedColdStorageType, ColdStorageServiceResult, FixedColdStorageStatus
+from ..enums import (
+    FixedColdStorageTemps,
+    FixedColdStorageType,
+    ColdStorageServiceResult,
+    FixedColdStorageStatus,
+)
 
 
 class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
@@ -33,6 +38,7 @@ class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     documents = db.relationship("Document", secondary="documenttocoldstorage")
     service_history = db.relationship("ColdStorageService")
 
+
 class ColdStorageService(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
@@ -44,6 +50,7 @@ class ColdStorageService(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorM
 
     storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
 
+
 class DocumentToColdStorageService(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     service_id = db.Column(db.Integer, db.ForeignKey("coldstorageservice.id"))
@@ -51,6 +58,5 @@ class DocumentToColdStorageService(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class DocumentToColdStorage(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
     storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
     document_id = db.Column(db.Integer, db.ForeignKey("document.id"))

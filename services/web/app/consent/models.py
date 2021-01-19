@@ -31,7 +31,7 @@ class ConsentFormTemplate(Base, RefAuthorMixin, RefEditorMixin):
 
 class ConsentFormTemplateQuestion(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    
+
     question = db.Column(db.String(2048), nullable=False)
     type = db.Column(db.Enum(QuestionType), nullable=False)
 

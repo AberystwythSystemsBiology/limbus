@@ -61,7 +61,9 @@ def attribute_home(tokenuser: UserAccount):
 @use_args(AttributeSearchSchema(), location="json")
 @token_required
 def attribute_query(args, tokenuser: UserAccount):
-    filters, joins = get_filters_and_joins(args, AttributeSearchSchema)
+    print(args)
+
+    filters, joins = get_filters_and_joins(args, Attribute)
 
     return success_with_content_response(
         basic_attributes_schema.dump(
@@ -88,9 +90,12 @@ def attribute_new_option(id, tokenuser: UserAccount):
     if status_code != 200:
         return response.status_code
 
-    elif response["content"]["type"] != "OPTION":
+    elif response["content"]["type"] != "Option":
         return (
-            {"success": False, "messages": "Not an option value"},
+            {
+                "success": False,
+                "messages": "Not suitable for request as this is not an Option Attribute Type.",
+            },
             500,
             {"ContentType": "application/json"},
         )
@@ -112,6 +117,8 @@ def attribute_new_option(id, tokenuser: UserAccount):
     try:
         db.session.add(new_option)
         db.session.commit()
+
+        print(">>>>>>>>>>> WE ARE HERE")
 
         return success_with_content_response(
             attribute_schema.dump(Attribute.query.filter_by(id=id).first())
@@ -235,16 +242,23 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/attribute/new_data", methods=["POST"])
+@api.route("/attribute/new/data/<type>", methods=["POST"])
 @token_required
-def attribute_new_data(tokenuser: UserAccount):
+def attribute_new_data(type: str, tokenuser: UserAccount):
+
+    if type not in ["text", "option"]:
+        return validation_error_response({"Error": "type must be one of text or option."})
+
     values = request.get_json()
 
     if not values:
         return no_values_response()
 
     try:
-        result = new_attribute_data_schema.load(values)
+        if type == "text":
+            result = new_attribute_data_schema.load(values)
+        elif type == "option":
+            result = new_attribute_option_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 

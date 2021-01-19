@@ -24,17 +24,12 @@ from ...enums import (
     CellSampleType,
     FixationType,
     CellContainer,
-    FluidContainer
+    FluidContainer,
 )
 
-from wtforms import (
-    SelectField,
-    FloatField,
-    SubmitField
-)
+from wtforms import SelectField, FloatField, SubmitField
 
 from wtforms.validators import DataRequired, Optional
-
 
 
 class SampleTypeSelectForm(FlaskForm):

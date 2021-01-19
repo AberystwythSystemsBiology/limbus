@@ -117,6 +117,30 @@ function fill_consent_information(consent_information) {
 
 }
 
+function fill_custom_attributes(custom_attributes) {
+
+    var html = "";
+
+    for (i in custom_attributes) {
+        var attribute = custom_attributes[i];
+
+        var label = attribute["attribute"]["term"];
+
+        if (attribute["option"] == null) {
+            var content = attribute["data"];
+        }
+
+        else {
+            var content = attribute["option"]["term"];
+
+        }
+
+        html += render_content(label, content);
+    }
+
+    $("#custom-attributes-table").html(html);
+}
+
 function fill_basic_information(sample_information) {
     var html = "";
 
@@ -381,6 +405,7 @@ function hide_all() {
     $("#lineage-info").fadeOut(50);
     $("#protocol-event-info").fadeOut(50);
     $("#sample-review-info").fadeOut(50);
+    $("#custom-attributes-div").fadeOut(50);
 }
 
 
@@ -392,6 +417,7 @@ $(document).ready(function () {
 
     fill_title(sample_info);
     fill_basic_information(sample_info);
+    fill_custom_attributes(sample_info["attributes"]);
     fill_quantity_chart(sample_info["base_type"], sample_info["quantity"], sample_info["remaining_quantity"]);
     fill_consent_information(sample_info["consent_information"]);
     fill_lineage_table(sample_info["subsamples"]);
@@ -424,6 +450,13 @@ $(document).ready(function () {
         $("#basic-info").fadeIn(100);
     });
 
+    $("#custom-attr-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#custom-attributes-div").fadeIn(100);
+    });
+
     $("#protocol-events-nav").on("click", function () {
         deactivate_nav();
         $(this).addClass("active");
@@ -437,7 +470,7 @@ $(document).ready(function () {
         hide_all();
         $("#sample-review-info").fadeIn(100);
 
-    })
+    });
 
     $("#associated-documents-nav").on("click", function () {
         deactivate_nav();

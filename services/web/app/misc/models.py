@@ -17,10 +17,11 @@ from ..database import db, Base
 
 from ..mixins import RefAuthorMixin
 
+
 class Transaction(Base):
     issued_at = db.Column(db.DateTime(), nullable=True)
     remote_addr = db.Column(db.String(50), nullable=True)
-    
+
 
 class Address(Base, RefAuthorMixin):
     __versioned__ = {}

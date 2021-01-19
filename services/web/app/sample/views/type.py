@@ -26,16 +26,19 @@ from ..enums import (
     TissueSampleType,
     FixationType,
     CellContainer,
-    MolecularSampleType
+    MolecularSampleType,
 )
 
 from ...auth.views import BasicUserAccountSchema
+
 
 class NewFluidSampleSchema(ma.Schema):
     fluid_type = EnumField(FluidSampleType)
     fluid_container = EnumField(FluidContainer)
 
+
 new_fluid_sample_schema = NewFluidSampleSchema()
+
 
 class NewCellSampleSchema(ma.Schema):
     cellular_type = EnumField(CellSampleType)
@@ -43,11 +46,14 @@ class NewCellSampleSchema(ma.Schema):
     fixation_type = EnumField(FixationType)
     cellular_container = EnumField(CellContainer)
 
+
 new_cell_sample_schema = NewCellSampleSchema()
+
 
 class NewMolecularSampleSchema(ma.Schema):
     molecular_type = EnumField(MolecularSampleType)
     fluid_container = EnumField(FluidContainer)
+
 
 new_molecular_sample_schema = NewMolecularSampleSchema()
 

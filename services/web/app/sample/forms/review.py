@@ -14,22 +14,23 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, DateField, TimeField, TextAreaField
+from wtforms import (
+    SelectField,
+    StringField,
+    SubmitField,
+    DateField,
+    TimeField,
+    TextAreaField,
+)
 from ..enums import SampleQuality, ReviewType, ReviewResult
 from datetime import datetime
 
 
 class SampleReviewForm(FlaskForm):
-    
-    review_type = SelectField(
-        "Review Type",
-        choices=ReviewType.choices()
-    )
 
-    result = SelectField(
-        "Review Result",
-        choices=ReviewResult.choices()
-    )
+    review_type = SelectField("Review Type", choices=ReviewType.choices())
+
+    result = SelectField("Review Result", choices=ReviewResult.choices())
 
     quality = SelectField(
         "Sample Quality",
@@ -40,12 +41,12 @@ class SampleReviewForm(FlaskForm):
     date = DateField(
         "Review Date",
         description="The date in which the Sample Review was undertaken.",
-        default=datetime.today()
+        default=datetime.today(),
     )
     time = TimeField(
         "Review Time",
         description="The time in which the Sample Review was undertaken.",
-        default=datetime.now()
+        default=datetime.now(),
     )
     conducted_by = StringField(
         "Review Conducted By",

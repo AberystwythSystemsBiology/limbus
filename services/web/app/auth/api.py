@@ -51,6 +51,23 @@ def auth_view_user(id: int):
     )
 
 
+@api.route("auth/user/<id>/lock", methods=["PUT"])
+@token_required
+def auth_lock_user(id: int, tokenuser: UserAccount):
+    user = UserAccount.query.filter_by(id=id).first()
+
+    if not user:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    user.is_locked = not user.is_locked
+    user.editor_id = tokenuser.id
+    db.session.add(user)
+    db.session.commit()
+    db.session.flush()
+
+    return success_with_content_response(full_user_account_schema.dump(user))
+
+
 @api.route("/auth/user/new_token", methods=["GET"])
 @token_required
 def auth_new_token(tokenuser: UserAccount):

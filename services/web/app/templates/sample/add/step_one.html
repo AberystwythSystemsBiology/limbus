@@ -15,7 +15,7 @@
 
 <div class="container">
 
-    {% if collection_protocol_count > 0 and template_count > 0 and processing_protocols_count >0 %}
+    {% if collection_protocol_count > 0 and template_count > 0 %}
 
     <form action="{{ url_for('sample.add_step_one') }}" method="POST">
         {{ form.csrf_token }}
@@ -61,11 +61,11 @@
 
     {% else %}
     <div class="row">
-        <div class="col-4">
+        <div class="col-6">
             {% if template_count == 0 %}
             <div class="jumbotron alert-danger full-width text-center container">
                 <h1>😔</h1>
-                <h2>No Consent Form Templates Found</h2>
+                <h2>No Suitable Consent Form Template Found</h2>
                 <p>There doesn't seem to be any form templates available.</p>
                 <a href="{{ url_for('consent.add') }}">
                     <div class="btn btn-outline-dark">
@@ -75,17 +75,17 @@
             </div>
             {% else %}
             <div class="jumbotron alert-success full-width text-center container">
-                <h1>:D</h1>
-                <h2>Consent Form Template(s) Found!</h2>
+                <h1>✅</h1>
+                <h2>Consent Form Template Found!</h2>
             </div>
             {% endif %}
 
         </div>
-        <div class="col-4">
+        <div class="col-6">
             {% if collection_protocol_count == 0 %}
             <div class="jumbotron alert-danger full-width text-center container">
                 <h1>😔</h1>
-                <h2>No Acquisition Protocol(s) Found</h2>
+                <h2>No Suitable Acquisition ProtocolFound</h2>
                 <p>There doesn't seem to be any acquisition protocols available.</p>
                 <a href="{{ url_for('protocol.new') }}">
                     <div class="btn btn-outline-dark">
@@ -95,30 +95,10 @@
             </div>
             {% else %}
             <div class="jumbotron alert-success full-width text-center">
-                <h1>:D</h1>
-                <h2>Collection Protocol(s) Found!</h2>
-
+                <h1>✅</h1>
+                <h2>Collection Protocol Found!</h2>
             </div>
             {% endif %}
-        </div>
-        <div class="col-4">
-            {% if processing_protocols_count == 0 %}
-            <div class="jumbotron alert-danger full-width text-center">
-                <h1>😔</h1>
-                <h2>No Processing Protocol(s) Found</h2>
-                <p>There doesn't seem to be any processing protocols available.</p>
-                <a href="{{ url_for('protocol.new') }}">
-                    <div class="btn btn-outline-dark">
-                        New Protocol
-                    </div>
-                </a>
-            </div>
-            {% else %}
-            <div class="jumbotron alert-success full-width text-center">
-                <h1>:D</h1>
-                <h2>Processing Protocol(s) Found!</h2>
-            </div>
-            {% endif  %}
         </div>
     </div>
 
