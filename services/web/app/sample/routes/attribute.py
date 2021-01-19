@@ -105,6 +105,10 @@ def new_custom_attribute_form(uuid:str, hash: str) -> str:
             for _id, error in errors.items():
                 flash(error)
 
+        else:
+            flash("Custom Attribute(s) successfully associated!")
+            return redirect(url_for("sample.view", uuid=uuid))
+
         return render_template(
                 "sample/attribute/form.html",
                 sample=sample_response.json()["content"],
