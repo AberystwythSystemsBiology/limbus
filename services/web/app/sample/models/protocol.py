@@ -15,6 +15,7 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
+from uuid import uuid4
 
 
 class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
@@ -28,3 +29,4 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
 
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
     protocol = db.relationship("ProtocolTemplate")
+

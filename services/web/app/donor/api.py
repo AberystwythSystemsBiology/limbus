@@ -34,6 +34,7 @@ from .views import (
     donor_schema,
     donors_schema,
     new_donor_schema,
+    edit_donor_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,
@@ -68,6 +69,13 @@ def donor_view(id, tokenuser: UserAccount):
         donor_schema.dump(Donor.query.filter_by(id=id).first())
     )
 
+
+@api.route("/donor/LIMBDON-<id>/view")
+@token_required
+def donor_edit_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        new_donor_schema.dump(Donor.query.filter_by(id=id).first())
+    )
 
 @api.route("/donor/LIMBDON-<id>/edit", methods=["PUT"])
 @token_required

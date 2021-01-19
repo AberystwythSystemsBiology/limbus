@@ -36,7 +36,7 @@ from .forms import (
 )
 
 from ..misc import get_internal_api_header
-
+strconv = lambda i: i or None
 
 @donor.route("/")
 @login_required
@@ -185,6 +185,12 @@ def add():
 
         form = DonorCreationForm(sites_response.json()["content"])
         if form.validate_on_submit():
+            death_date = None
+
+            if form.status.data == "DE":
+                death_date = str(
+                    datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
+                )
 
             form_information = {
                 "dob": str(
@@ -203,12 +209,15 @@ def add():
                 "status": form.status.data,
                 "mpn": form.mpn.data,
                 "race": form.race.data,
-                "death_date": str(
-                    datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
-                ),
+
+                "death_date": death_date,
                 "weight": form.weight.data,
                 "height": form.height.data,
             }
+
+            # Set empty field to Null
+            for i in form_information:
+                form_information[i] = strconv(form_information[i])
 
             response = requests.post(
                 url_for("api.donor_new", _external=True),
@@ -230,30 +239,38 @@ def add():
 @donor.route("/edit/LIMBDON-<id>", methods=["GET", "POST"])
 def edit(id):
     response = requests.get(
-        url_for("api.donor_view", id=id, _external=True),
+        url_for("api.donor_edit_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
 
         donor_info = response.json()["content"]
-
-        donor_info["death_date"] = datetime.strptime(
-            donor_info["death_date"], "%Y-%m-%d"
-        )
+        print(donor_info)
+        donor_info['site'] = donor_info['enrollment_site_id']
+        donor_info['year']=datetime.strptime(
+            donor_info["dob"], "%Y-%m-%d").year
+        donor_info['month'] = datetime.strptime(
+            donor_info["dob"], "%Y-%m-%d").month
+        donor_info['registration_date'] = datetime.strptime(
+            donor_info['registration_date'], "%Y-%m-%d")
+        if donor_info['status'] == 'DE' and donor_info["death_date"] is not None:
+            donor_info["death_date"] = datetime.strptime(
+                donor_info["death_date"], "%Y-%m-%d")
+        else:
+            donor_info["death_date"] = None
 
         sites_response = requests.get(
             url_for("api.site_home", _external=True), headers=get_internal_api_header()
         )
 
         if sites_response.status_code == 200:
-
             form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
-            if form.validate_on_submit():
 
+            if form.validate_on_submit():
                 death_date = None
                 if form.status.data == "DE":
-                    death_date = str(form.death_date.data)
+                    death_date = str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date())
 
                 form_information = {
                     "dob": str(
@@ -272,12 +289,15 @@ def edit(id):
                     "status": form.status.data,
                     "mpn": form.mpn.data,
                     "race": form.race.data,
-                    "death_date": str(
-                        datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
-                    ),
+
+                    "death_date": death_date,
                     "weight": form.weight.data,
                     "height": form.height.data,
                 }
+
+                # Set empty field to Null
+                for i in form_information:
+                    form_information[i] = strconv(form_information[i])
 
                 edit_response = requests.put(
                     url_for("api.donor_edit", id=id, _external=True),
@@ -290,6 +310,7 @@ def edit(id):
                 else:
                     flash("We have a problem: %s" % (edit_response.json()))
                 return redirect(url_for("donor.view", id=id))
+
             return render_template(
                 "donor/edit.html", donor=response.json()["content"], form=form
             )

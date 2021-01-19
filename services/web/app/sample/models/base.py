@@ -73,6 +73,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         secondary="subsampletosample",
         primaryjoin="Sample.id==SubSampleToSample.parent_id",
         secondaryjoin="Sample.id==SubSampleToSample.subsample_id",
+        viewonly=True,
     )
 
     parent = db.relationship(
@@ -80,7 +81,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         secondary="subsampletosample",
         primaryjoin="Sample.id==SubSampleToSample.subsample_id",
         secondaryjoin="Sample.id==SubSampleToSample.parent_id",
-        uselist=False,
+        uselist=False, viewonly=True,
     )
 
     attributes = db.relationship(
@@ -95,6 +96,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
     subsample_id = db.Column(
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True

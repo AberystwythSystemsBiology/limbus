@@ -301,7 +301,9 @@ function fill_protocol_events(events) {
         html += "<a href='" + event_info["_links"]["edit"] + "'>"
         html += "<div class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
+        html += "<a href='" + event_info["_links"]["remove"] + "'>"
         html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
+        html += "</a>"
         html += "</div>"
         html += "</div>"
 

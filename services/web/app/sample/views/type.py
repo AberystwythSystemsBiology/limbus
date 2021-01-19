@@ -58,6 +58,19 @@ class NewMolecularSampleSchema(ma.Schema):
 new_molecular_sample_schema = NewMolecularSampleSchema()
 
 
+class NewSampleTypeSchema(ma.Schema):
+    fluid_type = EnumField(FluidSampleType)
+    molecular_type = EnumField(MolecularSampleType)
+    cellular_type = EnumField(CellSampleType)
+    tissue_type = EnumField(TissueSampleType)
+
+    fluid_container = EnumField(FluidContainer)
+    cellular_container = EnumField(CellContainer)
+    fixation_type = EnumField(FixationType)
+
+new_sample_type_schema = NewSampleTypeSchema()
+
+
 class SampleTypeSchema(ma.SQLAlchemySchema):
     class Meta:
         model = SampleToType

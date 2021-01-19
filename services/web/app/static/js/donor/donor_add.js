@@ -21,6 +21,7 @@ function check_status() {
     } 
     else {
         $("#death_date_div").hide();
+        // $('#death_date').val('');
     }
 }   
 
@@ -32,7 +33,6 @@ function assign_age() {
     var year = $("#year").val();
     $("#years").html(calculate_age(month, year));
 }
-
 
 
 $(document).ready(function(){
@@ -49,7 +49,8 @@ $(document).ready(function(){
     });
 
     $("#status").change(function() {
-        assign_age();
+        //assign_age();
+        check_status();
       });
 
 });

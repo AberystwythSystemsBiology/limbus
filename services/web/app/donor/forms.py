@@ -46,7 +46,7 @@ from .enums import (
     Condition,
 )
 from ..sample.enums import Colour
-from datetime import datetime
+from datetime import datetime, date
 import requests
 from flask import url_for
 from ..misc import get_internal_api_header
@@ -106,7 +106,12 @@ def DonorSampleAssociationForm(samples: dict):
 
 
 def DonorCreationForm(sites: dict, data={}):
+    site_choices = []
+    for site in sites:
+        site_choices.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
+
     class StaticForm(FlaskForm):
+        id = StringField("id", default=None)
         colour = SelectField("Colour", choices=Colour.choices())
 
         month = SelectField(
@@ -122,41 +127,39 @@ def DonorCreationForm(sites: dict, data={}):
 
         mpn = StringField("Master Patient Number")
 
-        registration_date = DateField("Registration Date", default=datetime.today())
+        registration_date = DateField("Registration Date", default=date.today())
 
         status = SelectField("Status", choices=DonorStatusTypes.choices())
 
-        death_date = DateField("Date of Death", default=datetime.today())
+        death_date = DateField("Date of Death", default=date.today(), validators=[Optional()])
 
-        weight = StringField("Weight (kg)", validators=[DataRequired()])
-        height = StringField("Height (cm)", validators=[DataRequired()])
+        weight = StringField("Weight (kg)", default='')
+        height = StringField("Height (cm)", default='')
 
         race = SelectField(
             "Race",
             choices=RaceTypes.choices(),
         )
 
+        site = SelectField(
+            "Site",
+            description="The site in which the sample was taken",
+            coerce=int,
+            validators=[Optional()],
+            choices=site_choices,
+        )
         submit = SubmitField("Submit")
 
         def validate(self):
             if not FlaskForm.validate(self):
                 return False
-
-            if self.status == "DE":
-                if not self.death_date.data:
+            
+            if self.status.data == "DE":
+                if self.death_date.data is None:
                     self.death_date.errors.append("Date required.")
                     return False
 
             return True
 
-    site_choices = []
-    for site in sites:
-        site_choices.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
-
-    setattr(
-        StaticForm,
-        "site",  # enrollment site
-        SelectField("Enrollment Site", choices=site_choices, coerce=int),
-    )
-
     return StaticForm(data=data)
+
