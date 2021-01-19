@@ -70,6 +70,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         valid = True
         if len(aliquots) == 0:
             return False
+
         for aliquot in aliquots:
             for key in ["container", "volume", "barcode"]:
                 try:
@@ -79,7 +80,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         return valid
 
     values = request.get_json()
-    print('values: ', values)
 
     if not values:
         return no_values_response()
@@ -130,15 +130,13 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
+
+    # TODO: Use existing API endpoint.
     # T1: new protocol event for parent sample
     new_event = SampleProtocolEvent(**event_result)
-    new_event.is_locked = True # ??to indicate events involving new sample creation
     db.session.add(new_event)
     db.session.flush()
-    print('new_event id: ', new_event.id)
 
-    print('base_type: ', base_type)
-    print('type_values: ', type_values)
     for aliquot in values["aliquots"]:
         # T2. New sampletotypes for subsamples: store data on sample type and container
         ali_sampletotype = SampleToType(**type_values)
@@ -161,7 +159,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
-        # T3. New subsuamples
+        # T3. New subsamples
         ali_sample = Sample(**sample_values)
 
         ali_sample.id = None
@@ -175,7 +173,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
         db.session.add(ali_sample)
         db.session.flush()
-        print('ali_sample.id: ', ali_sample.id)
 
         # T4. New subsampletosample
         ssts = SubSampleToSample(
