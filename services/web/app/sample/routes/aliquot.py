@@ -33,27 +33,16 @@ def aliquot(uuid: str):
     protocol_response = requests.get(
         url_for("api.protocol_query", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False},
+        json={"is_locked": False, "type": "ALD"},
     )
 
     if protocol_response.status_code != 200:
         abort(400)
 
-    user_response = requests.get(
-        url_for("api.auth_home", _external=True),
-        headers=get_internal_api_header(),
-        json={},
-    )
-
-    if user_response.status_code != 200:
-        abort(400)
-
     processing_templates = protocol_response.json()["content"]
-    users = user_response.json()["content"]
-
     form = SampleAliquotingForm(processing_templates)
 
-    return render_template("sample/aliquot/create.html", form=form)
+    return render_template("sample/aliquot/create.html", form=form, aliquot_proc_count=len(processing_templates))
 
 
 @sample.route("query", methods=["POST"])
