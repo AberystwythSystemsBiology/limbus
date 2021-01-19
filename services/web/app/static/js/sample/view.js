@@ -131,6 +131,7 @@ function fill_custom_attributes(custom_attributes) {
         }
 
         else {
+            var content = attribute["option"]["term"];
 
         }
 
