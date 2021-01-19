@@ -96,12 +96,7 @@ def new_custom_attribute_form(uuid:str, hash: str) -> str:
                 )
 
                 if attribute_response.status_code != 200:
-                    # TODO: Return error
-
                     errors[id] = attribute_response.json()
-                    pass
-
-
 
             if len(errors.keys()) > 0:
                 for _id, error in errors.items():
