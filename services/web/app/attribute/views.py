@@ -174,7 +174,7 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     attribute_id = masql.auto_field()
     option_id = masql.auto_field()
 
-new_attribute_option_schema = NewAttributeDataSchema()
+new_attribute_option_schema = NewAttributeOptionSchema()
 
 
 class AttributeDataSchema(masql.SQLAlchemySchema):
