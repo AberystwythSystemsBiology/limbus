@@ -173,7 +173,6 @@ function subtract_quantity() {
 
     if ((remaining_quantity - quantities) < 0) {
         $("#quantityalert").show();
-
         $("#submit").attr("disabled", true);
     }
 
@@ -275,7 +274,6 @@ function make_new_form(indx) {
     row_form_html += '<input id="barcode_'+indx+'" type="text" class="form-control barcode" placeholder="Sample Barcode"></td>'
     row_form_html += '<td>'
     row_form_html += '<div id="trash_'+indx+'" class="btn btn-danger windows"><i class="fa fa-trash"></i></div>';
-    row_form_html += '<div id="cpy_'+indx+'" class="btn btn-primary copy"><i class="fa fa-copy"></i></div>';
 
     row_form_html += '</td>'
     // End Row
@@ -294,9 +292,6 @@ function make_new_form(indx) {
         subtract_quantity();
     });
 
-    $(".copy").click(function() {
-        copy_row();
-    })
 
 
 

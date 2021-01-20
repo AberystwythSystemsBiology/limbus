@@ -89,13 +89,13 @@ function render_sample_table(d) {
                     return col_data
                 }
             },
-            
+
             {data: "base_type"},
             {
                 "mData" : {},
                 "mRender": function (data, type, row) {
                     var sample_type_information = data["sample_type_information"];
-                    
+
                     console.log(sample_type_information)
 
                     if (data["base_type"] == "Fluid") {
@@ -104,8 +104,8 @@ function render_sample_table(d) {
                     else if (data["base_type"] == "Cell") {
                         return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
                     }
-                    
-    
+
+
                 }
             },
             {
@@ -114,16 +114,16 @@ function render_sample_table(d) {
                     var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
                     var col_data = '';
                     col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["base_type"]); 
+                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["base_type"]);
                     col_data += '</span>';
                     return col_data
                 }
         }
 
-        
+
 
         ],
-        
+
     });
 }
 
