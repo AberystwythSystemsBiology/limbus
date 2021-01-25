@@ -43,7 +43,7 @@ services:
   web:
     build:
       context: ./services/web
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile
     expose:
       - "5000"
     volumes:

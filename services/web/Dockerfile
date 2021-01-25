@@ -4,7 +4,7 @@ MAINTAINER "Keiron O'Shea <keo7@aber.ac.uk>"
 
 RUN apt update
 RUN apt upgrade -y
-RUN apt install -y curl python3 python3-pip gv libffi-dev libcairo2-dev libpango1.0-dev
+RUN apt install -y curl python3 python3-pip python3-wheel python3-setuptools gv libffi-dev libcairo2-dev libpango1.0-dev
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -17,5 +17,3 @@ RUN npm install yarn -g
 
 WORKDIR /limbus
 ADD . /limbus
-
-RUN pip3 install wheel && pip3 install blabel && pip3 install -r requirements.txt
