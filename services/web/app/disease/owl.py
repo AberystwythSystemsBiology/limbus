@@ -16,6 +16,8 @@
 from owlready2 import get_ontology, onto_path, get_namespace
 import os
 
+onto_path.append(os.environ["ONTO_PATH"])
+
 
 def load_doid():
     onto = get_ontology(os.environ["DOID_PATH"]).load()
