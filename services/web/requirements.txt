@@ -29,7 +29,7 @@ html5lib==1.1
 idna==2.9
 importlib-metadata==2.0.0
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 keyring==10.6.0
 keyrings.alt==3.0
 Mako==1.1.2
