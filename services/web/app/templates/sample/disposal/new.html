@@ -7,11 +7,51 @@
     <div class="container">
         <h1><span class="secondary-heading">
             <a href="{{ sample._links.self }}">
-                <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
+                <i class="fas fa-vial"></i> <span id="sample-uuid">{{ sample.uuid }}</span></a></span>
         <i class="fa fa-trash"></i> Sample Dipsosal </h1>
     </div>
 </div>
 <div class="container">
+    <form method="POST" action="{{ url_for('sample.dispose', uuid=sample.uuid ) }}"></form>
+        {{ form.csrf_token }}
+
+        {{ form_field(form.instruction) }}
+        {{ form_field(form.comments) }}
+
+        {{ form_field(form.time) }}
+        {{ form_field(form.date) }}
+
+        <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#submit-modal">
+            <i class="fa fa-check"></i> Submit
+        </button>
+
+
+    </form>
+
+
+<div class="modal modal-large fade" id="submit-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="exampleModalLabel">Submit Disposal Event</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <p><b>Warning:</b> Please ensure that you want to dispose of <a href="{{ sample._links.self }}">
+                <i class="fas fa-vial"></i> <span id="sample-uuid">{{ sample.uuid }}</span></a>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Dialog</button>
+          <button type="button" class="btn  btn-success" data-dismiss="modal"><i class="fa fa-check"></i> Submit</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+        
 
 </div>
 {% endblock %}

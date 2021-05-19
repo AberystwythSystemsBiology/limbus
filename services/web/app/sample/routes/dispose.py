@@ -14,13 +14,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from .. import sample
-from flask import render_template, url_for, flash, session, redirect
+from flask import render_template, url_for, flash, session, redirect, abort
 from flask_login import login_required
 
 from ...misc import get_internal_api_header
 import requests
 
 from uuid import uuid4
+
+from ..forms import SampleDisposalForm
 
 
 @sample.route("<uuid>/dispose", methods=["GET", "POST"])
@@ -32,7 +34,13 @@ def dispose(uuid: str) -> str:
     )
 
     if sample_response.status_code == 200:
+
+        form = SampleDisposalForm()
+
         return render_template(
             "sample/disposal/new.html",
-            sample=sample_response.json()["content"]
-    )
+            sample=sample_response.json()["content"],
+            form=form
+        )
+    else:
+        abort(sample_response.status_code)
