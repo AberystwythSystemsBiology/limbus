@@ -74,3 +74,4 @@ from .sample import *
 from .aliquot import *
 from .review import *
 from .attribute import *
+from .dispose import *

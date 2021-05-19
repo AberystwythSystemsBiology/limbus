@@ -20,6 +20,10 @@ nav img {
     
 }
 
+.pb {
+    padding-bottom: 2em;
+}
+
 .nav-link .active {
     font-weight: bold;
 }

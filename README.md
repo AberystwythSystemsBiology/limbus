@@ -35,7 +35,7 @@ The goal of this project is to develop a Biobank Information Management System (
 
 Please report all bugs or feature suggestions to the [issues tracker](https://www.github.com/AberystwythSystemsBiology/limbus/issues). Please do not email me directly as I'm struggling to keep track of what needs to be fixed.
 
-We welcome all sorts of contribution, so please be as candid as you want(!)
+We welcome all sorts of contribution, so please be as candid as you want.
 
 ## 📜 License
 
