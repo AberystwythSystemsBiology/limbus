@@ -1,0 +1,17 @@
+{% extends "template.html" %}
+
+{% block title %}New Diposal Event :: Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ sample._links.self }}">
+                <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
+        <i class="fa fa-trash"></i> Sample Dipsosal </h1>
+    </div>
+</div>
+<div class="container">
+
+</div>
+{% endblock %}
