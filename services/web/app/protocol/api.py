@@ -52,7 +52,11 @@ def protocol_home(tokenuser: UserAccount):
 @use_args(ProtocolTemplateSearchSchema(), location="json")
 @token_required
 def protocol_query(args, tokenuser: UserAccount):
+
     filters, joins = get_filters_and_joins(args, ProtocolTemplate)
+
+    
+
     return success_with_content_response(
         basic_protocol_templates_schema.dump(
             ProtocolTemplate.query.filter_by(**filters).filter(*joins).all()

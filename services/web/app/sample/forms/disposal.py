@@ -16,28 +16,41 @@
 
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Optional
-from wtforms import SelectField, SubmitField, DateField, TimeField, TextAreaField
-from ..enums import DisposalInstruction
+from wtforms import SelectField, SubmitField, DateField, TimeField, TextAreaField, StringField
+from ..enums import DisposalReason
 from datetime import datetime
 
-class SampleDisposalForm(FlaskForm):
+def SampleDisposalEventForm(protocols: list) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
 
-    instruction = SelectField("Disposal Instructions", choices=DisposalInstruction.choices())
-    comments = TextAreaField("Comments")
+        reason = SelectField(
+            "Disposal Reason",
+            description="Reason for disposal",
+            choices=DisposalReason.choices()
+            )
+        
+        comments = TextAreaField("Comments")
 
-    date = DateField(
-            "Disposal Event Date",
+        date = DateField(
+                "Disposal Event Date",
+                validators=[DataRequired()],
+                description="The date in which the disposal was undertaken.",
+                default=datetime.today(),
+            )
+
+        time = TimeField(
+            "Disposal Event Time",
+            default=datetime.now(),
             validators=[DataRequired()],
-            description="The date in which the disposal was undertaken.",
-            default=datetime.today(),
+            description="The time at which the disposal was undertaken.",
         )
 
-    time = TimeField(
-        "Disposal Event Time",
-         default=datetime.now(),
-        validators=[Optional()],
-        description="The time at which the disposal was undertaken.",
-    )
+        undertaken_by = StringField(
+            "Undertaken By",
+            description="The initials of the individual who undertook the disposal event.",
+        )
 
-    submit = SubmitField("Submit")
-
+        submit = SubmitField("Submit")
+    
+    return StaticForm()

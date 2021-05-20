@@ -126,6 +126,12 @@ class TissueSampleType(FormEnum):
     FROTS = "Frozen Tissue Slide"
     MDS = "Microdissected"
 
+class DisposalReason(FormEnum):
+    DES = "Procedural"
+    FAI = "Failed Sample Review"
+    TRA = "Transferred"
+    UNA = "Not Retrievable"
+    UNK = "Unknown"
 
 class DisposalInstruction(FormEnum):
     NAP = "No Disposal"

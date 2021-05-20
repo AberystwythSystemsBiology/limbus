@@ -8,25 +8,32 @@
         <h1><span class="secondary-heading">
             <a href="{{ sample._links.self }}">
                 <i class="fas fa-vial"></i> <span id="sample-uuid">{{ sample.uuid }}</span></a></span>
-        <i class="fa fa-trash"></i> Sample Dipsosal </h1>
+        <i class="fa fa-trash"></i> New Sample Dipsosal Event </h1>
     </div>
 </div>
 <div class="container">
     <form method="POST" action="{{ url_for('sample.dispose', uuid=sample.uuid ) }}"></form>
         {{ form.csrf_token }}
+        {{ form_field(form.protocol_id) }}
 
-        {{ form_field(form.instruction) }}
+        {{ form_field(form.reason) }}
         {{ form_field(form.comments) }}
 
-        {{ form_field(form.time) }}
-        {{ form_field(form.date) }}
+        <div class="row">
+            <div class="col-6">{{ form_field(form.date) }}</div>
+            <div class="col-6">{{ form_field(form.time) }}</div>
+
+        </div>
+
+        {{ form_field(form.undertaken_by) }}
+
+        
 
         <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#submit-modal">
             <i class="fa fa-check"></i> Submit
         </button>
 
 
-    </form>
 
 
 <div class="modal modal-large fade" id="submit-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -39,19 +46,20 @@
           </button>
         </div>
         <div class="modal-body">
-            <p><b>Warning:</b> Please ensure that you want to dispose of <a href="{{ sample._links.self }}">
+            <p><b>Warning:</b> Please ensure that you want to dispose of: <br> <a href="{{ sample._links.self }}">
                 <i class="fas fa-vial"></i> <span id="sample-uuid">{{ sample.uuid }}</span></a>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close Dialog</button>
-          <button type="button" class="btn  btn-success" data-dismiss="modal"><i class="fa fa-check"></i> Submit</button>
+          <button type="button" type="submit" class="btn  btn-success" data-dismiss="modal"><i class="fa fa-check"></i> Submit</button>
 
         </div>
       </div>
     </div>
   </div>
 
-        
+</form>
+
 
 </div>
 {% endblock %}

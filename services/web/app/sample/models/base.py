@@ -108,3 +108,6 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
+
+class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
+    pass

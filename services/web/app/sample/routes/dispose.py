@@ -22,7 +22,7 @@ import requests
 
 from uuid import uuid4
 
-from ..forms import SampleDisposalForm
+from ..forms import SampleDisposalEventForm
 
 
 @sample.route("<uuid>/dispose", methods=["GET", "POST"])
@@ -35,7 +35,27 @@ def dispose(uuid: str) -> str:
 
     if sample_response.status_code == 200:
 
-        form = SampleDisposalForm()
+        # Limit protocols response so that we only retrieve SDE (Sample Disposal)
+        protocols_response = requests.get(
+            url_for("api.protocol_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"is_locked": False, "type": ["SDE", "STR"]},
+        )
+
+
+
+        protocols = []
+
+        if protocols_response.status_code == 200:
+            for protocol in protocols_response.json()["content"]:
+                protocols.append(
+                    (
+                        int(protocol["id"]),
+                        "LIMBPRO-%s: %s" % (protocol["id"], protocol["name"]),
+                    )
+                )
+
+        form = SampleDisposalEventForm(protocols)
 
         return render_template(
             "sample/disposal/new.html",

@@ -14,8 +14,10 @@ def _post():
 
 
 def get_filters_and_joins(args: dict, model):
+
     filters = {}
     joins = []
+
     for key, value in args.items():
         if type(value) == dict:
             joins.append(getattr(model, key).has(**value))
