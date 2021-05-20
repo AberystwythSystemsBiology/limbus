@@ -31,15 +31,13 @@ function get_metric(type) {
 
 function render_sample_table(samples, div_id) {
 
-    console.log(samples);
 
     $('#' + div_id).DataTable( {
         data: samples,
         dom: 'Bfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
-            { targets: -3,
-            visible:false}, { targets: -2, visible: false}
+            { targets: -2, visible: false},
         ],
         columns: [
             {
@@ -118,7 +116,17 @@ function render_sample_table(samples, div_id) {
                 }
                 return data["storage"]
             }
+        },
+        
+      {
+        "mData": {},
+        "mRender": function (data, type, row) {
+            return data["created_on"]
+
+        
         }
+    },
+    
 
 
 
