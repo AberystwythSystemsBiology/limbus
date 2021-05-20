@@ -57,34 +57,87 @@
                 If the file contains additional attribute information, it will be <b>disregarded entirely</b>.
             </p>
 
+            
+            <h2>How do I export as CSV?</h2>
+
             <p>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-libre"
+                    aria-expanded="false" aria-controls="collapse-libre">
+                    LibreOffice
+            </button>
 
-                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample"
-                    aria-expanded="false" aria-controls="collapseExample">
-                    How to export XLSX to CSV (LibreOffice)?
-                </button>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-officethreesixfive"
+                    aria-expanded="false" aria-controls="collapse-officethreesixfive">
+                    Microsoft Office 365
+            </button>
+
+
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-officetwentyten"
+                    aria-expanded="false" aria-controls="collapse-officetwentyten">
+                    Microsoft Office 2010
+            </button>
+
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse-apple-numbers"
+                    aria-expanded="false" aria-controls="collapse-apple-numbers">
+                    Apple Numbers
+            </button>
+
             </p>
-            <div class="collapse" id="collapseExample">
-                <div class="card card-body">
-                    <h2>Export as a CSV file in LibreOffice</h2>
 
-                    <p>
-                        1. Open the XLSX file in LibreOffice Calc. You may be asked to convert to the open document
-                        foundations
-                        recommended format. Whether you want to is up to you, but there are a lot of advantages to using
-                        file
-                        formats that comply with open standards.
-                    </p>
-                    <p>
-                        2. Click <b>File</b> and then <b>Save As</b>.
-                    </p>
-                    <p>
-                        3. In the Save As dialogue, select the <b>Text CSV (.csv) file type</b> option and click that.
-                        One done
-                        click <b>Save As</b> and <b>accept the default encoding options</b>.
-                    </p>
+
+
+            <div class="collapse" id="collapse-libre">
+                <div class="card card-body">
+                    <h2>LibreOffice</h2>
+
+                    <ol>
+                        <li>Open the XLSX file in LibreOffice Calc. You may be asked to convert to the open document
+                        foundations recommended format. Whether you want to is up to you, but there are a lot of advantages
+                        to using file formats that comply with open standards.</li>
+                        <li>Click <b>File</b> and then <b>Save As</b>.</li>
+                        <li>In the Save As dialogue, select the <b>Text CSV (.csv) file type</b> option and click that.
+                        One done click <b></b>Save As</b> and <b>accept the default encoding options</b>.</li>
+                    </ol>
                 </div>
             </div>
+
+            <div class="collapse" id="collapse-officethreesixfive">
+                <div class="card card-body">
+                    <h2>Microsoft Office 365</h2>
+
+                    <ol>
+                        <li>Open the XLSX file in Microsoft Office 365.</li>
+                        <li>Click <b>File</b> and then <b>Export</b>.</li>
+                        <li>In the Export dialogue, select the <b>CSV (.csv) file type</b> option and click that.
+                        One done click <b></b>Export</b> and <b>accept the default encoding options</b>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="collapse" id="collapse-officetwentyten">
+                <div class="card card-body">
+                    <h2>Microsoft Office 2010</h2>
+
+                    <ol>
+                        <li>Open the XLSX file in Microsoft Office 2010.</li>
+                        <li>Click <b>File</b> and then <b>Save As</b>.</li>
+                        <li>In the Export dialogue, select the <b>CSV</b> option and click that.
+                        One done click <b></b>Save As</b> and <b>accept the default encoding options</b>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="collapse" id="collapse-apple-numbers">
+                <div class="card card-body">
+                    <h2>Apple Numbers</h2>
+
+                    <ol>
+                        <li>Download LibreOffice for free via the <a href="https://www.libreoffice.org/">Document Foundation's Website</a>.</li>
+                        <li>Follow the LibreOffice instructions.</li>
+                    </ol>
+                </div>
+            </div>
+            <br>
 
             <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_automatic_entry') }}">
                 {{ form.csrf_token() }}
