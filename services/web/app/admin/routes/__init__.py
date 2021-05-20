@@ -15,3 +15,4 @@
 
 from .index import *
 from .auth import *
+from .sites import *
