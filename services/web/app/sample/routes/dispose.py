@@ -16,8 +16,9 @@
 from .. import sample
 from flask import render_template, url_for, flash, session, redirect, abort
 from flask_login import login_required
+from datetime import datetime
 
-from ...misc import get_internal_api_header
+from ...misc import get_internal_api_header, flask_return_union
 import requests
 
 from uuid import uuid4
@@ -27,7 +28,7 @@ from ..forms import SampleDisposalEventForm
 
 @sample.route("<uuid>/dispose", methods=["GET", "POST"])
 @login_required
-def dispose(uuid: str) -> str:
+def dispose(uuid: str) -> flask_return_union:
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -43,7 +44,6 @@ def dispose(uuid: str) -> str:
         )
 
 
-
         protocols = []
 
         if protocols_response.status_code == 200:
@@ -56,6 +56,39 @@ def dispose(uuid: str) -> str:
                 )
 
         form = SampleDisposalEventForm(protocols)
+
+        if form.validate_on_submit():
+
+            # These to be done in a single API call.
+
+            ## Create new Protocol Event: Done
+            ## Create new Disposal Event
+            ## Close Sample
+
+            new_disposal_event_response = requests.post(
+                url_for("api.sample_new_disposal_event", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "protocol_id": form.protocol_id.data,
+                    "reason": form.reason.data,
+                    "comments": form.comments.data,
+                    "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )),
+                    "undertaken_by": form.undertaken_by.data,
+                    "sample_uuid": sample_response.json()["content"]["uuid"]
+
+                }
+            )
+
+            if new_disposal_event_response.status_code == 200:
+                flash("Sample Disposed Successfully")
+                return redirect("sample.index")
+
+            else:
+                return new_disposal_event_response.content
 
         return render_template(
             "sample/disposal/new.html",

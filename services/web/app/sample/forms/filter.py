@@ -15,7 +15,7 @@
 
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField
+from wtforms import SelectField, StringField, SubmitField, BooleanField
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
 
 

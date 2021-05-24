@@ -22,6 +22,7 @@ from ..enums import (
     Colour,
     SampleSource,
     BiohazardLevel,
+    DisposalReason,
 )
 
 
@@ -76,6 +77,11 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         viewonly=True,
     )
 
+    disposal_event = db.relationship(
+        "SampleDisposalEvent",
+        primaryjoin="Sample.id==SampleDisposalEvent.sample_id"
+    )
+
     parent = db.relationship(
         "Sample",
         secondary="subsampletosample",
@@ -110,4 +116,6 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     disposal_date = db.Column(db.Date, nullable=True)
 
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
-    pass
+    __versioned__ = {}
+    reason = db.Column(db.Enum(DisposalReason))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)

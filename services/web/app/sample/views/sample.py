@@ -24,6 +24,7 @@ from . import (
     SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
     ConsentSchema,
+    BasicSampleDiposalEventSchema,
     SampleReviewSchema,
     EntityToStorageSchema,
 )
@@ -116,6 +117,8 @@ class SampleSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
     protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
+
+    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
 
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)

@@ -14,18 +14,38 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import SampleDisposal
+from ...database import SampleDisposal, SampleDisposalEvent
 
 from ...consent.views import (
     BasicConsentFormQuestionSchema,
     BasicConsentFormTemplateSchema,
 )
 
-from ..enums import DisposalInstruction
+from ..enums import DisposalInstruction, DisposalReason
 
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
+
+class NewSampleDiposalEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDisposalEvent
+
+    reason = EnumField(DisposalReason)
+    sample_id = masql.auto_field()
+
+new_sample_disposal_event_schema = NewSampleDiposalEventSchema()
+
+
+class BasicSampleDiposalEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDisposalEvent
+
+    id = masql.auto_field()
+    reason = EnumField(DisposalReason)
+
+
+basic_sample_disposal_event_schema = BasicSampleDiposalEventSchema()
 
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
