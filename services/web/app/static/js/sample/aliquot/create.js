@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2020 Keiron O'Shea <keo7@aber.ac.uk>
+Copyright (C) 2020-2021 Keiron O'Shea <keo7@aber.ac.uk>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -174,6 +174,7 @@ function subtract_quantity() {
     if ((remaining_quantity - quantities) < 0) {
         $("#quantityalert").show();
         $("#submit").attr("disabled", true);
+        $(window).scrollTop(0);
     }
 
     else {
@@ -314,6 +315,7 @@ function make_new_form(indx) {
             if (check_barcode_database($(this).val()) == true ) {
                 $("#submit").attr("disabled", true);
                 $("#database_error").show();
+                $(window).scrollTop(0);
             }
             else {
                 $("#submit").attr("disabled", false);
@@ -325,6 +327,7 @@ function make_new_form(indx) {
         if (check_barcode_form() == true) {
             $("#submit").attr("disabled", true);
             $("#duplicate_barcode").show();
+            $(window).scrollTop(0);
         }
 
         else {
@@ -344,7 +347,7 @@ function remove_row(indx) {
 
 }
 
-function preprate_data() {
+function prepare_data() {
 
     var a = [];
 
@@ -375,7 +378,12 @@ function preprate_data() {
 
     }
 
+    return data
 
+    
+}
+
+function post_data(data) {
     var json = (function () {
         var json = null;
         $.post({
@@ -412,12 +420,17 @@ $(document).ready(function () {
 
 
     $("#submit").click(function() {
+        var data = prepare_data();
+
         $('#confirmationModal').modal("toggle");
+
+        $("#modalSubmit").click(function() {
+            post_data(data);
+        });
+
     });
 
-    $("#modalSubmit").click(function() {
-        preprate_data();
-    })
+
 
 });
 
