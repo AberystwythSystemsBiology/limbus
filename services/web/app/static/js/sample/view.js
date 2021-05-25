@@ -265,6 +265,9 @@ function fill_sample_reviews(reviews) {
 
 
 function fill_protocol_events(events) {
+
+    let protocol_events = new Map();
+
     for (e in events) {
         var event_info = events[e];
 
@@ -284,7 +287,7 @@ function fill_protocol_events(events) {
         html += "<h1><i class='fa fa-project-diagram'></i></h1>"
         html += "</div>"
         html += "<div class='media-body'>"
-        html += "<h5 class='mt-0'>" + event_info["uuid"] + "</h5>";
+        html += "<h5 class='mt-0' id='protocol-uuid-" + event_info["id"] +"'>" + event_info["uuid"] + "</h5>";
         html += "<a href='"+ event_info["protocol"]["_links"]["self"] +"'>"
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
@@ -294,6 +297,7 @@ function fill_protocol_events(events) {
         html += "</table>"
         html += "</div>"
 
+
         html += "</div>"
         // End card body
         html += "</div>"
@@ -301,17 +305,44 @@ function fill_protocol_events(events) {
         html += "<a href='" + event_info["_links"]["edit"] + "'>"
         html += "<div class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
-        html += "<a href='" + event_info["_links"]["remove"] + "'>"
-        html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
-        html += "</a>"
+
+        html += "<div id='remove-protocol-"+event_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
         html += "</div>"
         html += "</div>"
 
-    
+        
+        protocol_events.set(event_info["id"].toString(), event_info);
+        
         // End ul
         html += "</li>"
-
         $("#protocol-event-li").append(html);
+
+        $("#remove-protocol-"+event_info["id"]).on("click", function () {
+            var id = $(this).attr("id").split("-")[2];
+            
+            var uuid = $("#protocol-uuid-"+id).text();
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = protocol_events.get(id)["_links"]["remove"];
+
+            $("#protocol-uuid-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+                if (user_entry == uuid) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        window.location.href = removal_link;
+                    });
+                } 
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+        });
+
+
     }
 }
 
