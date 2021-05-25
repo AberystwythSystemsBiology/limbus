@@ -16,10 +16,32 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_containers() {
+    // Not use
     var current_url = encodeURI(window.location);
     var split_url = current_url.split("/");
     var url_stub = split_url.slice(0, 3); // url scheme, "://", domain+port
     var api_url = url_stub.concat(['api', 'sample', 'containers']).join('/')
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'dataType': "json",
+            'success': function (data) {
+                json = data;
+            }
+        });
+        return json;
+    })();
+
+    return json["content"];}
+
+function get_containertypes() {
+    var current_url = encodeURI(window.location);
+    var split_url = current_url.split("/");
+    var url_stub = split_url.slice(0, 3); // url scheme, "://", domain+port
+    var api_url = url_stub.concat(['api', 'sample', 'containertypes']).join('/')
     var json = (function () {
         var json = null;
         $.ajax({
@@ -112,7 +134,7 @@ function check_barcode_database(entered_barcode) {
 
 // Global because I hate myself.
 var sample = get_sample();
-var container_information = get_containers();
+var container_information = get_containertypes();
 var indexes = [];
 
 function update_graph() {
@@ -189,9 +211,12 @@ function update_number() {
 
 function generate_container_select(indx) {
     console.log(container_information);
-    var containers = container_information[sample["base_type"]]
+    //var containers = container_information[sample["base_type"]]
+    var cbt = $("#container_base_type").val()
+    var containers = container_information[cbt]
 
     var containers_list = containers["container"];
+    console.table(containers_list)
 
     var lastsel = containers_list[0][0] // Container code for last selection
     if (indx > 1) {
@@ -217,7 +242,10 @@ function generate_container_select(indx) {
 
 
 function generate_fixation_select(indx) {
-    var containers = container_information[sample["base_type"]]
+    //var containers = container_information[sample["base_type"]]
+    var cbt = $("#container_base_type").val()
+    var containers = container_information[cbt]
+
     var fixation_list = containers["fixation_type"]
     var lastsel = fixation_list[0][0] // Fixation code for last selection
     if (indx > 1) {
@@ -257,6 +285,7 @@ function make_new_form(indx) {
     }
 
     // Start Row
+    console.log('indx', indx)
     row_form_html += '<tr id="row_'+indx+'">';
     // Container
     row_form_html += '<td>'+generate_container_select(indx)+'</td>'
@@ -287,12 +316,15 @@ function make_new_form(indx) {
 
     // Because Windows is trash.
     $(".windows").click(function() {
-        var to_remove = $(this).attr("id").split("_")[1]
-        remove_row(to_remove);
+        var to_remove = $(this).attr("id").split("_")[1];
+        console.log(indexes)
+        console.log('to_remove', to_remove);
+
+        $("#row_" + to_remove).remove();
+        update_number();
+
         subtract_quantity();
     });
-
-
 
 
     $(".aliquotted-quantity").change(function() {
@@ -337,9 +369,10 @@ function make_new_form(indx) {
     });
 }
 
+// Not in use
 function remove_row(indx) {
     $("#row_"+indx).remove();
-    indexes.splice( $.inArray(indx, indexes), 1 );
+    indexes.splice( $.inArray(indx, indexes), 1 ); //buggy when used within make_new_form
     update_number();
 
 }
@@ -348,18 +381,26 @@ function preprate_data() {
 
     var a = [];
 
-    indexes.forEach(function(i) {
-        var aliquot = {
-            container: $("#container_select_"+i).val(),
-            volume: $("#volume_"+i).val(),
-            barcode: $("#barcode_"+i).val()
 
-        }
-        if (sample["base_type"] == "Cell") {
-            aliquot["fixation"] = $("#fixation_select_" + i).val()
-        }
-        if (aliquot["volume"] > 0) {
-            a.push(aliquot);
+    $("tr.item").each(function() {
+        var quantity1 = $(this).find("input.name").val(),
+            quantity2 = $(this).find("input.id").val();
+    });
+
+    indexes.forEach(function(i) {
+        if ($("#container_select_"+i).length) {
+            var aliquot = {
+                container: $("#container_select_" + i).val(),
+                volume: $("#volume_" + i).val(),
+                barcode: $("#barcode_" + i).val()
+
+            }
+            if (sample["base_type"] == "Cell") {
+                aliquot["fixation"] = $("#fixation_select_" + i).val()
+            }
+            if (aliquot["volume"] > 0) {
+                a.push(aliquot);
+            }
         }
 
     });
@@ -371,6 +412,7 @@ function preprate_data() {
         aliquot_time: $("#aliquot_time").val(),
         parent_id: sample["id"],
         comments: $("#comments").val(),
+        container_base_type: $("#container_base_type").val(),
         aliquots: a
 
     }
@@ -402,12 +444,27 @@ $(document).ready(function () {
     fill_sample_info();
     update_graph();
 
-    var indx = 1;
-    make_new_form(indx);
+    var indx = 0;
+    //make_new_form(indx);
 
-    $("[name=new]").click(function(){ 
+    $("[name=new]").click(function(){
         indx += 1;
         make_new_form(indx);
+    });
+
+
+    $("#container_base_type").change(function () {
+        console.log(indexes)
+        var cbt = $("#container_base_type").val();
+        // clear all aliquots
+        indexes.forEach(function(i) {
+            $("#row_"+i).remove();
+            })
+        indexes=[]
+        indx = 0;
+        update_number();
+        subtract_quantity();
+
     });
 
 

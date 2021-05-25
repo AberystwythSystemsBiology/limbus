@@ -56,6 +56,21 @@ def sample_get_containers():
         }
     )
 
+@api.route("/sample/containertypes", methods=["GET"])
+def sample_get_containertypes():
+    # Temporary fix for adding containers for long term preservation
+    #        TYPE: CellContainer = long term storage
+    #        TYPE: FluidContainer = primary container
+    # To DO: manage sample type and container info using database
+    return success_with_content_response(
+        {
+            "PRM": {"container": FluidContainer.choices(),
+                    "fixation_type": FixationType.choices()},
+            "LTS": {"container": CellContainer.choices(),
+                    "fixation_type": FixationType.choices()
+                    },
+        }
+    )
 
 @api.route("/sample", methods=["GET"])
 @token_required
@@ -221,6 +236,7 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         schema = new_molecular_sample_schema
     else:
         return validation_error_response({"base_type": ["Not a valid base_type."]})
+
 
     try:
         new_schema = schema.load(values)

@@ -107,13 +107,14 @@ class MolecularSampleType(FormEnum):
     WGA = "Whole Genome Amplified DNA"
 
 
-class CellSampleType(FormEnum):
-    CYO = "Cyropreserved Cells"
-    FXB = "Fixed Cell Block"
-    FCB = "Frozen Cell Block"
-    FCP = "Frozen Cell Pellet"
-    PRM = "PMRC"
-    SLI = "Slide"
+# More of cell processing methods, to be removed
+# class CellSampleType(FormEnum):
+#     CYO = "Cyropreserved Cells"
+#     FXB = "Fixed Cell Block"
+#     FCB = "Frozen Cell Block"
+#     FCP = "Frozen Cell Pellet"
+#     PRM = "PMRC"
+#     SLI = "Slide"
 
 
 class TissueSampleType(FormEnum):
@@ -135,7 +136,7 @@ class DisposalInstruction(FormEnum):
     PRE = "Preserve"
 
 
-class CellContainer(FormEnum):
+class CellSampleType(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"
     FNA = "Cells from fine needle aspirate"
@@ -164,7 +165,7 @@ class FixationType(FormEnum):
     XXX = "Unknown"
     ZZZ = "Other"
 
-
+# FluidContainer = Primary container
 class FluidContainer(FormEnum):
     ACD = "Acid citrate dextrose"
     ADD = "Additives"
@@ -194,6 +195,84 @@ class FluidContainer(FormEnum):
     XXX = "Unknown"
     ZZZ = "Other"
 
+# Treating sample type cell as solid and tissue types
+# Equivalent to containers for long term preservation.
+# To DO
+class CellContainer(FormEnum):
+    A = "PP tube 0.5-2mL @ -85 to -60°C"
+    B = "PP tube 0.5-2mL @ -35 to -18°C"
+    V = "PP tube 0.5-2mL @ < 135°C"
+    C = "Cryotube 1-2mL in Liquid Nitrogen"
+    D = "Cryotube 1-2mL @ -85 to -60°C"
+    E = "Cryotube 1-2mL @ < 135°C"
+    F = "Plastic cryo straw in Liquid Nitrogen"
+    G = "Straw @ -85 to -60°C"
+    H = "Straw @ -35 to -18°C"
+    I = "Straw @ < -135°C"
+    J = "PP tube > 5mL @ -85 to -60°C"
+    K = "PP tube > 5mL @ -35 to -18°C"
+    L = "Microplate @ -85 to -60°C"
+    M = "Microplate @ -35 to -18°C"
+    N = "Cryotube 1-2mL in Liquid Nitrogen"
+    O = "Plastic cryo straw in Liquid Nitrogen"
+    P = "Paraffin block @ Room Temp or 2 - 10°C"
+    U = "Paraffin block @ -35 to -18°C"
+    Q = "Bag in Liquid Nitrogen"
+    R = "Dry technology medium @ Room Temp"
+    S = "PP tube 40-500 @ -85 to -60°C"
+    T = "PP tube 40-500 @ -35 to -18°C"
+    W = "PP tube 40-500μL @ < 135°C"
+    Y = "Original Container @ -85 to -18°C"
+    X = "Unknown"
+    Z = "Other"
+    Z1 = "falcon tube 50 mL"
+    Z2 = "biobank tube 300 uL"
+    Z3 = "biobank tube 600 uL"
+
+
+class ContainerBaseType(FormEnum):
+    PRM = "Primary container"
+    LTS = "Long-term preservation"
+
+# Same as CellContainer
+class LongTermStorage(FormEnum):
+    A = "PP tube 0.5-2mL @ -85 to -60°C"
+    B = "PP tube 0.5-2mL @ -35 to -18°C"
+    V = "PP tube 0.5-2mL @ < 135°C"
+    C = "Cryotube 1-2mL in Liquid Nitrogen"
+    D = "Cryotube 1-2mL @ -85 to -60°C"
+    E = "Cryotube 1-2mL @ < 135°C"
+    F = "Plastic cryo straw in Liquid Nitrogen"
+    G = "Straw @ -85 to -60°C"
+    H = "Straw @ -35 to -18°C"
+    I = "Straw @ < -135°C"
+    J = "PP tube > 5mL @ -85 to -60°C"
+    K = "PP tube > 5mL @ -35 to -18°C"
+    L = "Microplate @ -85 to -60°C"
+    M = "Microplate @ -35 to -18°C"
+    N = "Cryotube 1-2mL in Liquid Nitrogen"
+    O = "Plastic cryo straw in Liquid Nitrogen"
+    P = "Paraffin block @ Room Temp or 2 - 10°C"
+    U = "Paraffin block @ -35 to -18°C"
+    Q = "Bag in Liquid Nitrogen"
+    R = "Dry technology medium @ Room Temp"
+    S = "PP tube 40-500 @ -85 to -60°C"
+    T = "PP tube 40-500 @ -35 to -18°C"
+    W = "PP tube 40-500μL @ < 135°C"
+    Y = "Original Container @ -85 to -18°C"
+    X = "Unknown"
+    Z = "Other"
+    Z1 = "falcon tube 50 mL"
+    Z2 = "biobank tube 300 uL"
+    Z3 = "biobank tube 600 uL"
+
+
+class AccessStatus(FormEnum):
+    TMP = "Temporary"
+    RES = "Restricted"
+    BB = "Biobank"
+    ZZZ = "Other"
+    XXX = "Unknown"
 
 class SampleStatus(FormEnum):
     AVA = "Available"

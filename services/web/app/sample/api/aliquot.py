@@ -51,6 +51,7 @@ from ..views import basic_sample_schema, new_sample_schema
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     def _validate_values(values: dict) -> bool:
         valid = True
+        print(values)
         for key in [
             "aliquot_date",
             "aliquot_time",
@@ -59,6 +60,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             "parent_id",
             "processed_by",
             "processing_protocol",
+            "container_base_type",
         ]:
             try:
                 values[key]
@@ -91,6 +93,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         return validation_error_response({"messages": "Failed to load aliquot, sorry."})
 
     to_remove = sum([float(a["volume"]) for a in values["aliquots"]])
+    container_base_type = values["container_base_type"]
 
     # Parent Sample Basic Info
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
@@ -139,17 +142,23 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
     for aliquot in values["aliquots"]:
         # T2. New sampletotypes for subsamples: store data on sample type and container
+        # Keep the sample type and drop the container info from the parent sample
+        type_values.pop('fluid_container', None)
+        type_values.pop('cellular_container', None)
+        type_values.pop('fixation_type', None)
+
         ali_sampletotype = SampleToType(**type_values)
         ali_sampletotype.id = None
 
-        if base_type == "FLU":
+        if container_base_type == 'PRM':
             ali_sampletotype.fluid_container = aliquot['container']
-        elif base_type == 'CEL':
+
+        elif container_base_type == "LTS":
             ali_sampletotype.cellular_container = aliquot['container']
+
+        if base_type == 'CEL':
             if 'fixation' in aliquot:
                 ali_sampletotype.fixation_type = aliquot['fixation']
-        elif base_type == 'MOL':
-            ali_sampletotype.fluid_container = aliquot['container']
 
         try:
             db.session.add(ali_sampletotype)
