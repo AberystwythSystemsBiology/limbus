@@ -474,6 +474,19 @@ $(document).ready(function () {
         window.location.href = sample_info["_links"]["label"]
     });
 
+    $("#add-cart-btn").click(function() {
+        
+        $.ajax({
+            type: "POST",
+            url: sample_info["_links"]["add_sample_to_cart"],
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+            }
+          });
+        
+    })
+
     $("#basic-info-nav").on("click", function () {
         deactivate_nav();
         $(this).addClass("active");

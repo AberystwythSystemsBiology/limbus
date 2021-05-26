@@ -21,6 +21,16 @@ from marshmallow_enum import EnumField
 from ..views import BasicSampleSchema
 from ...auth.views import BasicUserAccountSchema
 
+class NewUserCartSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserCart
+
+    sample_id = masql.auto_field()
+
+
+new_cart_sample_schema = NewUserCartSampleSchema()
+
+
 class UserCartSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserCart

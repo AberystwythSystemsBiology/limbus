@@ -15,7 +15,7 @@
 
 from .. import sample
 import requests
-from flask import render_template, url_for, flash, redirect, abort
+from flask import json, render_template, url_for, flash, redirect, abort
 from flask_login import login_required
 
 import requests
@@ -29,12 +29,29 @@ from ..forms import (
 
 from datetime import datetime
 
-
 @sample.route("<uuid>", methods=["GET"])
 @login_required
 def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
+
+@sample.route("<uuid>/cart/add", methods=["POST"])
+@login_required
+def add_sample_to_cart(uuid):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        cart_response = requests.post(
+            url_for("api.add_sample_to_cart", uuid=uuid, _external=True),
+            headers=get_internal_api_header()
+        )
+
+        return cart_response.content
+
+    return sample_response.content
 
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required
