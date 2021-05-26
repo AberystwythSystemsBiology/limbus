@@ -13,9 +13,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import requests
 from .. import sample
 from flask_login import login_required
-from flask import render_template
+from flask import render_template, url_for
+from ...misc import get_internal_api_header
+
+@sample.route("/shipment/cart")
+@login_required
+def shipment_cart():
+    cart_response = requests.get(
+        url_for("api.get_cart", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if cart_response.status_code == 200:
+        
+        return render_template(
+            "sample/shipment/cart.html",
+            cart=cart_response.json()["content"]
+            )
+
+    else:
+        return cart_response.response
+
 
 @sample.route("/shipment")
 @login_required

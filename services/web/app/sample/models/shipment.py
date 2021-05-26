@@ -19,22 +19,30 @@ from ..enums import SampleShipmentStatusStatus
 
 class UserCart(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    sample = db.relationship("Sample", viewonly=True)
 
 
-
-class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):
-    event_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
-    status = db.Column(db.Enum(SampleShipmentStatusStatus))
-    comments = db.Column(db.Text())
-    datetime = db.Column(db.DateTime)
+class SampleShipmentEventToSample(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
 
 
-class SampleShipmentEvent(Base, RefAuthorMixin, RefEditorMixin):
+class SampleShipmentEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
     from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     to_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
     comments = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
+
+
+class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+
+    status = db.Column(db.Enum(SampleShipmentStatusStatus))
+    comments = db.Column(db.Text())
+    tracking_number = db.Column(db.Text())
+    datetime = db.Column(db.DateTime)
+    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"), nullable=False)
+

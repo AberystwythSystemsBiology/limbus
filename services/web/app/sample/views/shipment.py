@@ -1,4 +1,4 @@
-# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2021  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,32 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...database import UserCart
 from ...extensions import ma
-from ...database import Sample
-
 import marshmallow_sqlalchemy as masql
+from marshmallow_enum import EnumField
 
+from ..views import BasicSampleSchema
+from ...auth.views import BasicUserAccountSchema
 
-class SampleUUIDSchema(masql.SQLAlchemySchema):
+class UserCartSampleSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = Sample
+        model = UserCart
 
-    uuid = masql.auto_field(required=False)
+    sample = ma.Nested(BasicSampleSchema, many=False)
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
 
-    _links = ma.Hyperlinks(
-        {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
-    )
-
-
-from .filter import *
-from .consent import *
-from .disposal import *
-from .document import *
-from .filter import *
-from .protocol import *
-from .review import *
-from .type import *
-from .storage import *
-from .sample import *
-from .attribue import *
-from .shipment import *
+user_cart_samples_schema = UserCartSampleSchema(many=True)
