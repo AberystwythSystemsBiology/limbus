@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2021  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,22 +12,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-"""
-class SampleToDonor(Base, RefAuthorMixin, RefEditorMixin):
-    __tablename__ = "sampletodonor"
-
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)
-    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
-"""
-
-
-from .protocol import *
-from .attribute import *
-from .types import *
-from .consent import *
-from .document import *
-from .review import *
-from .base import *
-from .shipment import *

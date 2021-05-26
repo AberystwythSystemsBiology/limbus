@@ -1,0 +1,21 @@
+{% extends "template.html" %}
+
+{% block title %}Samples{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><i class="fa fa-box"></i> Sample Shipments</h1>
+
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('sample.add_step_one') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Shipment</button>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
