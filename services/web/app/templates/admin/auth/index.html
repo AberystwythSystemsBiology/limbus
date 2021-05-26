@@ -15,15 +15,19 @@
 
   <div class="jumbotron">
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fa fa-cog"></i> Administrator Panel</span><i class="fa fa-user"></i> User Accounts</h1>
-  
+        <h1>
+          <a href="{{ url_for('admin.index') }}">
+            <span class="secondary-heading"><i class="fa fa-cog"></i>
+              Administrator Panel
+            </span>
+          </a>
+          <i class="fa fa-user"></i> User Accounts</h1>
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
           <div class="btn-group mr-2" role="group" aria-label="First group">
               <a href="{{ url_for('admin.auth_new_account') }}">
                   <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New User Account</button>
               </a>
           </div>
-
       </div>
       </div>
   </div>

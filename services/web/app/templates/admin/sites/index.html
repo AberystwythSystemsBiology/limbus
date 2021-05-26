@@ -15,7 +15,14 @@
 
   <div class="jumbotron">
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fa fa-cog"></i> Administrator Panel</span><i class="fa fa-home"></i> Sites</h1>
+        <h1><span class="secondary-heading">
+          <a href="{{ url_for('admin.index') }}">
+            <span class="secondary-heading"><i class="fa fa-cog"></i>
+              Administrator Panel
+            </span>
+          </a></span>
+          <i class="fa fa-home"></i> Sites
+        </h1>
   
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
           <div class="btn-group mr-2" role="group" aria-label="First group">
@@ -37,7 +44,6 @@
           <tr>
               <th>Site Name</th>
               <th>Address</th>
-              <th>Locked?</th>
               <th>Created On</th>
           </tr>
       </thead>

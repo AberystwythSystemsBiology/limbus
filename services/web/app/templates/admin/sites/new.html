@@ -1,0 +1,48 @@
+{% extends "template.html" %}
+
+
+{% block head %}
+<link href="{{ url_for('static', filename='css/admin/style.css') }}" rel="stylesheet">
+{% endblock %}
+
+
+{% block title %}New Site : Admininistrator Portal{% endblock %}
+
+
+{% block body %}
+
+
+
+  <div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{ url_for('admin.index') }}">
+                    <i class="fa fa-cog"></i> Administrator Panel
+                </a>
+            </span>
+            <i class="fa fa-home"></i> New Site
+        </h1>
+      </div>
+  </div>
+
+  <div class="container">
+      <form  method="POST" action="{{ url_for('admin.sites_new_site' ) }}">
+        {{ form.csrf_token }}
+
+        {{ form_field(form.name) }}
+        {{ form_field(form.url) }}
+        {{ form_field(form.description) }}
+
+        {{ form_field(form.address_line_one) }}
+        {{ form_field(form.address_line_two) }}
+        {{ form_field(form.city) }}
+        {{ form_field(form.county) }}
+        {{ form_field(form.country) }}
+        {{ form_field(form.post_code) }}
+
+        {{ form_field(form.submit, with_label=False)}}
+      </form>
+  </div>
+
+  {% endblock %}
