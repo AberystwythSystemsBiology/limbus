@@ -12,3 +12,28 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
+from ..enums import SampleShipmentStatusStatus
+
+class SampleShipmentEvent(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
+    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    to_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+
+    comments = db.Column(db.Text())
+    datetime = db.Column(db.DateTime)
+
+    status = db.relationship("SampleShipmentEventStatus")
+
+class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+
+    shipment_event_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
+    status = db.Column(db.Enum(SampleShipmentStatusStatus))
+    comments = db.Column(db.Text())
+    datetime = db.Column(db.DateTime)
+
