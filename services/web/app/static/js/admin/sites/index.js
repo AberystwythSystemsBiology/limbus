@@ -45,8 +45,12 @@ function fill_sites_table(sites) {
             { 
                 mData: {},
                 mRender: function (data, type, row) {
-                    var site = "LIMBSIT-" + data["id"] + ": ";
+                    console.log();
+                    var site = "<a href='" + data["_links"]["view_site"] + "'>"
+                    site += "<i class='fa fa-home'></i> "
+                    site += "LIMBSIT-" + data["id"] + ": ";
                     site += data["name"]
+                    site += "</a>"
                     return site
                 }
             },

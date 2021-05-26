@@ -38,7 +38,7 @@ class SiteSchema(masql.SQLAlchemySchema):
     url = masql.auto_field()
     address = ma.Nested(BasicAddressSchema)
     buildings = ma.Nested(BasicBuildingSchema, many=True)
-
+    
     author = ma.Nested(BasicUserAccountSchema)
 
 

@@ -75,14 +75,19 @@ class BasicSiteSchema(masql.SQLAlchemySchema):
         model = SiteInformation
 
     id = masql.auto_field()
+
     miabis_id = masql.auto_field()
     acronym = masql.auto_field()
+    address = ma.Nested(BasicAddressSchema)
     name = masql.auto_field()
     description = masql.auto_field()
     url = masql.auto_field()
-    address = ma.Nested(BasicAddressSchema)
     created_on = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
+
+    _links = ma.Hyperlinks(
+        {"view_site": ma.URLFor("storage.view_site", id="<id>", _external=True)}
+    )
 
 
 basic_site_schema = BasicSiteSchema()
