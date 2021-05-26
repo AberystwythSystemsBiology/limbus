@@ -37,7 +37,7 @@ function render_sample_table(samples, div_id) {
         dom: 'Bfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
-            { targets: -2, visible: false},
+            { targets: -2, visible: false, "defaultContent": ""},
         ],
         columns: [
             {
@@ -68,18 +68,15 @@ function render_sample_table(samples, div_id) {
                 "mRender": function (data, type, row) {
                     var sample_type_information = data["sample_type_information"];
 
-
                     if (data["base_type"] == "Fluid") {
                         return sample_type_information["fluid_type"];
                     }
                     else if (data["base_type"] == "Cell") {
                         return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
                     }
-                    else if (data["base_type"] == "Molecule") {
+                    else if (data["base_type"] == "Molecular") {
                         return sample_type_information["molecular_type"];
                     }
-
-
 
                 }
             },
