@@ -45,22 +45,21 @@ def SampleFilterForm() -> FlaskForm:
         json={"is_locked": False},
     )
 
-    protocols = [(0, "None")]
+    protocols = [(None, "None")]
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
             protocols.append(
                 (
-                   int(protocol["id"]),
+                   protocol["id"],
                     "<%s>%s - %s" % (protocol["type"], protocol["id"], protocol["name"]),
                 )
             )
 
-    print(protocols)
     setattr(
         StaticForm,
         "protocol_id",
         SelectField(
-            "Protocol/Collection", choices=protocols, coerce=int
+            "Protocol/Collection", choices=protocols,
         ),
     )
 

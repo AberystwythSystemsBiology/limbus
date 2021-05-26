@@ -75,6 +75,10 @@ function render_sample_table(samples, div_id) {
                     else if (data["base_type"] == "Cell") {
                         return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
                     }
+                    else if (data["base_type"] == "Molecule") {
+                        return sample_type_information["molecular_type"];
+                    }
+
 
 
                 }
