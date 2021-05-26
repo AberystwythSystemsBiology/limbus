@@ -58,7 +58,7 @@ def get_greeting():
 
     dictionary = {
         "Hello": "English",
-        "Rite butt?": "the Welsh Valleys",
+        "Rite butt?": "the South Wales Valleys",
         "ghaH 'ej Duvan": "Klingon",
         "Ay 'up mi duck?": "Staffordshire",
         "'Allo, 'Allo": "London Policeman",
@@ -241,6 +241,17 @@ def site_home(tokenuser: UserAccount):
     return success_with_content_response(
         basic_sites_schema.dump(SiteInformation.query.all())
     )
+
+
+@api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])
+@token_required
+def site_view_site(id: id, tokenuser: UserAccount):
+    site = SiteInformation.query.filter_by(id=id).first()
+
+    if site:
+        return success_with_content_response(basic_site_schema.dump(site))
+    else:
+        return abort(404)
 
 
 @api.route("/misc/address/", methods=["GET"])
