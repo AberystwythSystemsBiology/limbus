@@ -69,6 +69,7 @@ function fill_sites_table(sites) {
 
 
     });
+
 }
 
 
