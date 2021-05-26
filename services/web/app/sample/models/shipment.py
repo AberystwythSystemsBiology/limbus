@@ -17,6 +17,18 @@ from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import SampleShipmentStatusStatus
 
+class UserCart(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+
+
+
+class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):
+    event_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
+    status = db.Column(db.Enum(SampleShipmentStatusStatus))
+    comments = db.Column(db.Text())
+    datetime = db.Column(db.DateTime)
+
+
 class SampleShipmentEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
@@ -26,14 +38,3 @@ class SampleShipmentEvent(Base, RefAuthorMixin, RefEditorMixin):
 
     comments = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
-
-    status = db.relationship("SampleShipmentEventStatus")
-
-class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
-
-    shipment_event_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
-    status = db.Column(db.Enum(SampleShipmentStatusStatus))
-    comments = db.Column(db.Text())
-    datetime = db.Column(db.DateTime)
-

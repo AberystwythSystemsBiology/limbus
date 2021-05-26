@@ -21,3 +21,8 @@ from flask import render_template
 @login_required
 def shipment_index():
     return render_template("sample/shipment/index.html")
+
+@sample.route("/shipment/new/trolley")
+@login_required
+def shipment_new_step_one():
+    return render_template("sample/shipment/new/step_one.html")
