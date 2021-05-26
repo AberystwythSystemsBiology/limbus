@@ -10,7 +10,9 @@
 </div>
 
 <div class="container">
-    {{ cart }}
+    {% for sample in cart %}
+        {{ sample["sample"]["uuid"] }}
+    {% endfor %}
 </div>
 
 {% endblock %}

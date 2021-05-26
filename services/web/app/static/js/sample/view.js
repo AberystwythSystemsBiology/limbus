@@ -481,7 +481,19 @@ $(document).ready(function () {
             url: sample_info["_links"]["add_sample_to_cart"],
             dataType: "json",
             success: function (data) {
-                console.log(data);
+                if (data["success"]) {
+                    $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                    $("#cart-confirmation-modal").modal({
+                        show: true
+                    });
+                }
+
+                else {
+                    $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                    $("#cart-confirmation-modal").modal({
+                        show: true
+                    });
+                }
             }
           });
         

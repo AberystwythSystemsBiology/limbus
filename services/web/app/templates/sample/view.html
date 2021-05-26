@@ -17,7 +17,10 @@
 </div>
 
 
+
+
 <div id="content" style="display: none;">
+
 
   <div class="jumbotron" style="">
     <div class="container">
@@ -245,8 +248,25 @@
 </div>
 
 
-<!-- Cart Confirmation -->
-
+<!--- Cart Confirmation -->
+<div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="cart-confirmation-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="cart-confirmation-label">Cart Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="cart-confirmation-msg"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Consent Modal -->
 <div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog"
