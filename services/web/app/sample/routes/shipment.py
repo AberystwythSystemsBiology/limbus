@@ -26,6 +26,7 @@ def shipment_cart():
     return render_template("sample/shipment/cart.html")
 
 @sample.route("/shipment/cart/data")
+@sample.route("/shipment/new/data")
 @login_required
 def shipment_cart_data():
     cart_response = requests.get(
@@ -41,7 +42,8 @@ def shipment_cart_data():
 def shipment_index():
     return render_template("sample/shipment/index.html")
 
-@sample.route("/shipment/new/trolley")
+
+@sample.route("/shipment/new/", methods=["GET", "POST"])
 @login_required
 def shipment_new_step_one():
     sites_response = requests.get(
@@ -56,8 +58,11 @@ def shipment_new_step_one():
             sites.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
 
 
-        # Get Cart
         form = SampleShipmentEventForm(sites)
+
+        if form.validate_on_submit():
+            
+            print(form.comments.data)
 
         return render_template("sample/shipment/new/new.html", form=form)
     else:
