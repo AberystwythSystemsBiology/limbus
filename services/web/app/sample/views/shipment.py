@@ -13,26 +13,54 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import UserCart, SampleShipmentEvent
+from ...database import UserCart, SampleShipmentEvent, SampleShipmentEventToSample
 from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
 from ..views import BasicSampleSchema
+from ...sample.views import SampleUUIDSchema
 from ...auth.views import BasicUserAccountSchema
+
+class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentEventToSample
+
+    sample_id = masql.auto_field()
+    sample = ma.Nested(SampleUUIDSchema, many=False)
 
 class SampleShipmentEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleShipmentEvent
-    
+
+    uuid = masql.auto_field()
     id = masql.auto_field()
     comments = masql.auto_field()
     datetime = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 
+    involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
+
+
+
 sample_shipment_event_schema = SampleShipmentEventSchema()
 sample_shipment_events_schema = SampleShipmentEventSchema(many=True)
+
+class BasicSampleShipmentEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentEvent
+    
+    uuid = masql.auto_field()
+    id = masql.auto_field()
+    datetime = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
+
+basic_sample_shipment_event_schema = BasicSampleShipmentEventSchema()
+basic_sample_shipment_events_schema = BasicSampleShipmentEventSchema(many=True)
+
+
 
 
 class NewSampleShipmentEventSchema(masql.SQLAlchemySchema):

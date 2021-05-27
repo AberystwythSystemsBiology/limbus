@@ -22,19 +22,40 @@ import json
 from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
-from ...database import db, SampleShipmentEventToSample, UserCart, UserAccount, SampleShipmentEvent
+from ...database import (
+    db,
+    SampleShipmentEventToSample,
+    UserCart,
+    UserAccount,
+    SampleShipmentEvent
+)
+
 from ..views import (
     user_cart_samples_schema,
     new_cart_sample_schema,
     new_sample_shipment_event_schema,
-    sample_shipment_event_schema
+    sample_shipment_event_schema,
+    sample_shipment_events_schema,
+    basic_sample_shipment_event_schema,
+    basic_sample_shipment_events_schema
 )
+
+
 
 @api.route("/cart", methods=["GET"])
 @token_required
 def get_cart(tokenuser: UserAccount):
     cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
+
+@api.route("/shipment", methods=["GET"])
+@token_required
+def shipment_index(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_sample_shipment_events_schema.dump(
+            SampleShipmentEvent.query.all()
+            )
+        )
 
 @api.route("/shipment/new", methods=["POST"])
 @token_required
@@ -58,14 +79,17 @@ def shipment_new_shipment(tokenuser: UserAccount):
     
     new_shipment_event = SampleShipmentEvent(**new_shipment_event_values)
     new_shipment_event.author_id = tokenuser.id
-
+    db.session.add(new_shipment_event)
+    db.session.commit()
+    db.session.flush()
 
     for sample in cart:
         s = sample.sample
         ssets = SampleShipmentEventToSample(
             sample_id = s.id,
             from_site_id = s.site_id,
-            author_id = tokenuser.id
+            author_id = tokenuser.id,
+            shipment_id = new_shipment_event.id
         )
 
         db.session.add(ssets)
@@ -76,7 +100,6 @@ def shipment_new_shipment(tokenuser: UserAccount):
         db.session.add(s)
 
     try:
-        db.session.add(new_shipment_event)
 
         db.session.query(UserCart).filter_by(author_id = tokenuser.id).delete()
         db.session.commit()

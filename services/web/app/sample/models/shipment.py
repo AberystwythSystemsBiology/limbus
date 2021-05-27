@@ -26,6 +26,9 @@ class SampleShipmentEventToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
+    site = db.relationship("SiteInformation")
+    sample = db.relationship("Sample")
+
     shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
 
 
@@ -35,6 +38,11 @@ class SampleShipmentEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     comments = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
+
+    involved_samples = db.relationship(
+        "SampleShipmentEventToSample",
+        primaryjoin="SampleShipmentEventToSample.shipment_id == SampleShipmentEvent.id"
+        )
 
 
 class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):

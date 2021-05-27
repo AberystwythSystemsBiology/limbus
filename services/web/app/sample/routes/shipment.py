@@ -43,6 +43,16 @@ def shipment_cart_data():
 def shipment_index():
     return render_template("sample/shipment/index.html")
 
+@sample.route("/shipment/data")
+@login_required
+def shipment_index_data():
+    shipment_response = requests.get(
+        url_for("api.shipment_index", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    return (shipment_response.text, shipment_response.status_code, shipment_response.headers.items())
+
 
 @sample.route("/shipment/new/", methods=["GET", "POST"])
 @login_required
