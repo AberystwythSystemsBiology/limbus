@@ -16,9 +16,10 @@
 import requests
 from .. import sample
 from flask_login import login_required
-from flask import render_template, url_for
+from flask import json, render_template, url_for, redirect, flash
 from ...misc import get_internal_api_header
 from ..forms import SampleShipmentEventForm
+from datetime import datetime
 
 @sample.route("/shipment/cart")
 @login_required
@@ -62,7 +63,27 @@ def shipment_new_step_one():
 
         if form.validate_on_submit():
             
-            print(form.comments.data)
+            new_shipment_response = requests.post(
+                url_for("api.shipment_new_shipment", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "comments": form.comments.data,
+                    "site_id": form.site_id.data,
+                    "datetime": str(
+                        datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S",
+                        )
+                    ),
+                }
+            )
+
+            if new_shipment_response.status_code == 200:
+                flash("Shipment successfully added")
+                return redirect(url_for("sample.shipment_index"))
+
+            else:
+                flash("Oh no.")
 
         return render_template("sample/shipment/new/new.html", form=form)
     else:

@@ -13,13 +13,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import UserCart
+from ...database import UserCart, SampleShipmentEvent
 from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
 from ..views import BasicSampleSchema
 from ...auth.views import BasicUserAccountSchema
+
+class SampleShipmentEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentEvent
+    
+    id = masql.auto_field()
+    comments = masql.auto_field()
+    datetime = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
+
+sample_shipment_event_schema = SampleShipmentEventSchema()
+sample_shipment_events_schema = SampleShipmentEventSchema(many=True)
+
+
+class NewSampleShipmentEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentEvent
+    
+    site_id = masql.auto_field(required=True)
+    comments = masql.auto_field()
+    datetime = masql.auto_field(required=True)
+
+new_sample_shipment_event_schema = NewSampleShipmentEventSchema()
+
 
 class NewUserCartSampleSchema(masql.SQLAlchemySchema):
     class Meta:

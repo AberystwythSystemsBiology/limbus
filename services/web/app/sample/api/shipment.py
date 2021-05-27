@@ -22,14 +22,73 @@ import json
 from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
-from ...database import db, UserCart, UserAccount
-from ..views import user_cart_samples_schema, new_cart_sample_schema
+from ...database import db, SampleShipmentEventToSample, UserCart, UserAccount, SampleShipmentEvent
+from ..views import (
+    user_cart_samples_schema,
+    new_cart_sample_schema,
+    new_sample_shipment_event_schema,
+    sample_shipment_event_schema
+)
 
 @api.route("/cart", methods=["GET"])
 @token_required
 def get_cart(tokenuser: UserAccount):
     cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
+
+@api.route("/shipment/new", methods=["POST"])
+@token_required
+def shipment_new_shipment(tokenuser: UserAccount):
+    
+    cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
+
+    if len(cart) == 0:
+        return validation_error_response("No Samples in Cart")
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        new_shipment_event_values = new_sample_shipment_event_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    
+    new_shipment_event = SampleShipmentEvent(**new_shipment_event_values)
+    new_shipment_event.author_id = tokenuser.id
+
+
+    for sample in cart:
+        s = sample.sample
+        ssets = SampleShipmentEventToSample(
+            sample_id = s.id,
+            from_site_id = s.site_id,
+            author_id = tokenuser.id
+        )
+
+        db.session.add(ssets)
+
+        s.site_id = new_shipment_event.site_id
+        s.editor_id = tokenuser.id
+
+        db.session.add(s)
+
+    try:
+        db.session.add(new_shipment_event)
+
+        db.session.query(UserCart).filter_by(author_id = tokenuser.id).delete()
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            sample_shipment_event_schema.dump(new_shipment_event)
+        )
+
+    except Exception as err:
+        return transaction_error_response(err)
+
 
 @api.route("/cart/remove/<uuid>", methods=["DELETE"])
 @token_required

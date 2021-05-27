@@ -47,7 +47,7 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
         comments = TextAreaField("Comments", description="Any relevant observations.")
         submit = SubmitField("Submit")
     
-    setattr(StaticForm, "site", SelectField("Recieving Site", choices=sites, coerce=int))
+    setattr(StaticForm, "site_id", SelectField("Recieving Site", choices=sites, coerce=int))
 
 
     return StaticForm()

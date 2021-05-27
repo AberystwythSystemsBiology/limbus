@@ -24,15 +24,15 @@ class UserCart(Base, RefAuthorMixin, RefEditorMixin):
 
 class SampleShipmentEventToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+
     shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
 
 
 class SampleShipmentEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    to_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
     comments = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
 
