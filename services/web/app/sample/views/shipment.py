@@ -57,6 +57,13 @@ class BasicSampleShipmentEventSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("sample.shipment_view_shipment", uuid="<uuid>", _external=True),
+            "collection": ma.URLFor("sample.shipment_index", _external=True),
+        }
+    )
+
 basic_sample_shipment_event_schema = BasicSampleShipmentEventSchema()
 basic_sample_shipment_events_schema = BasicSampleShipmentEventSchema(many=True)
 

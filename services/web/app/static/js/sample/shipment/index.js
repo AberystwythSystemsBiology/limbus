@@ -48,7 +48,12 @@ function fill_shipments_table(shipments) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    return data["uuid"]
+                    var uuid = "";
+                    uuid += '<a href="' + data["_links"]["self"] + '">'
+                    uuid += '<i class="fa fa-shipping-fast"></i> ';
+                    uuid += data["uuid"];
+                    uuid += '</a>'
+                    return uuid
                 }
             },
 

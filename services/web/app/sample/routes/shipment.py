@@ -53,6 +53,10 @@ def shipment_index_data():
 
     return (shipment_response.text, shipment_response.status_code, shipment_response.headers.items())
 
+@sample.route("/shipment/view/<uuid>")
+@login_required
+def shipment_view_shipment(uuid):
+    return "Hello World"
 
 @sample.route("/shipment/new/", methods=["GET", "POST"])
 @login_required
