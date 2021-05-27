@@ -22,20 +22,17 @@ from ...misc import get_internal_api_header
 @sample.route("/shipment/cart")
 @login_required
 def shipment_cart():
+    return render_template("sample/shipment/cart.html")
+
+@sample.route("/shipment/cart/data")
+@login_required
+def shipment_cart_data():
     cart_response = requests.get(
         url_for("api.get_cart", _external=True),
         headers=get_internal_api_header(),
     )
 
-    if cart_response.status_code == 200:
-        
-        return render_template(
-            "sample/shipment/cart.html",
-            cart=cart_response.json()["content"]
-            )
-
-    else:
-        return cart_response.response
+    return (cart_response.text, cart_response.status_code, cart_response.headers.items())
 
 
 @sample.route("/shipment")

@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}Sample Shipments {% endblock %}
+{% block title %}My Samples Cart : Sample Shipments {% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -10,9 +10,31 @@
 </div>
 
 <div class="container">
-    {% for sample in cart %}
-        {{ sample["sample"]["uuid"] }}
-    {% endfor %}
+
+    <table id="cart-table" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th>Identifier</th>
+                <th>Base Type</th>
+                <th>Sample Type</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Creation Date</th>
+                <th>Actions</th>
+
+            </tr>
+        </thead>
+        <tbody>
+           
+        </tbody>
+    </table>
+
+    
 </div>
 
 {% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/shipment/cart.js') }}"></script>
+{% endblock %}
+
