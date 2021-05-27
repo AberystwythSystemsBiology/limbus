@@ -205,3 +205,11 @@ class SampleStatus(FormEnum):
     NCO = "Not Collected"
     NPR = "Not Processed"
     NRE = "Pending Review"
+
+class SampleShipmentStatusStatus(FormEnum):
+    TBC = "To Be Collected"
+    COL = "Collected"
+    DES = "Despatched"
+    DEL = "Delivered"
+    PRO = "Problem"
+    UND = "Undelivered"

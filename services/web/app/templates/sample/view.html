@@ -17,9 +17,16 @@
 </div>
 
 
+<div id="error" style="display: none;">
+  <div class="alert alert-danger text-center">
+    <b>Error:</b>We've not been able to find {{ uuid }}, are you sure it exists?
+  </div>
+</div>
+
 <div id="content" style="display: none;">
 
-  <div class="jumbotron" style="">
+
+  <div class="jumbotron">
     <div class="container">
       <div class="row">
         <div class="col-10">
@@ -50,7 +57,6 @@
                     <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
                     <a class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
                       <i class="fa fa-trash"></i> Dispose Sample</a>
-                      
                     <a class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
                       class="fas fa-file"></i> New Review</a>
                       
@@ -65,7 +71,10 @@
                   </div>
                 </div>
               </div>
-
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button type="button" class="btn btn-outline-dark" id="add-cart-btn"><i class="fa fa-cart-plus"></i>
+                  Add to Cart</button>
+              </div>
               <div class="btn-group mr-2" role="group" aria-label="First group">
                 <button type="button" class="btn btn-outline-dark" id="print-label-btn"><i class="fa fa-print"></i>
                   Print
@@ -242,6 +251,26 @@
   </div>
 </div>
 
+
+<!--- Cart Confirmation -->
+<div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="cart-confirmation-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="cart-confirmation-label">Cart Confirmation</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="cart-confirmation-msg"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Consent Modal -->
 <div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog"

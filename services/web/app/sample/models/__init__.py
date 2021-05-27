@@ -30,3 +30,4 @@ from .consent import *
 from .document import *
 from .review import *
 from .base import *
+from .shipment import *
