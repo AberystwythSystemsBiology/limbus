@@ -6,7 +6,7 @@
 {% endblock %}
 
 
-{% block title %}User Accounts : Admin Portal{% endblock %}
+{% block title %}Sites : Administrator Portal{% endblock %}
 
 
 {% block body %}
@@ -15,19 +15,22 @@
 
   <div class="jumbotron">
     <div class="container">
-        <h1>
+        <h1><span class="secondary-heading">
           <a href="{{ url_for('admin.index') }}">
             <span class="secondary-heading"><i class="fa fa-cog"></i>
               Administrator Panel
             </span>
-          </a>
-          <i class="fa fa-user"></i> User Accounts</h1>
+          </a></span>
+          <i class="fa fa-home"></i> Sites
+        </h1>
+  
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
           <div class="btn-group mr-2" role="group" aria-label="First group">
-              <a href="{{ url_for('admin.auth_new_account') }}">
-                  <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New User Account</button>
+              <a href="{{ url_for('admin.sites_new_site') }}">
+                  <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Site</button>
               </a>
           </div>
+
       </div>
       </div>
   </div>
@@ -36,12 +39,11 @@
 
   <div class="container">
 
-    <table id="accounts-table" class="table table-striped table-bordered" style="width:100%">
+    <table id="sites-table" class="table table-striped table-bordered" style="width:100%">
       <thead>
           <tr>
-              <th>Email</th>
-              <th>Account Type</th>
-              <th>Locked?</th>
+              <th>Site Name</th>
+              <th>Address</th>
               <th>Created On</th>
           </tr>
       </thead>
@@ -60,5 +62,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ url_for('static', filename='js/admin/auth/index.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin/sites/index.js') }}"></script>
 {% endblock %}
