@@ -1,0 +1,54 @@
+{% extends "template.html" %}
+
+{% block title %}{{ uuid }}{% endblock %}
+
+{% block body %}
+<div id="loading-screen" class="container text-center">
+    <div class="loading">
+        <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status" style="width: 6rem; height: 6rem;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        </div>
+
+        <h1>Just a sec...</h1>
+        <h2>Getting {{ uuid }} </h2>
+    </div>
+
+</div>
+
+    <div id="content" style="display: none;">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('sample.shipment_index') }}">
+                            <i class="fa fa-shipping-fast"></i> Sample Shipment
+                        </a>
+                    </span>
+                    {{ uuid }}
+                </h1>
+                <div class="row text-muted">
+                    <div class="col-7">
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                           
+
+        
+        
+                        </div>
+                    </div>
+                    <div class="col-5 text-right">
+                        <i class="fa fa-calendar"></i> Created On: <span id="created-on"></span>
+                        <div class="clearfix"></div>
+                        <i class="fa fa-user"></i> Created By: <span id="author"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/shipment/view.js') }}"></script>
+{% endblock %}

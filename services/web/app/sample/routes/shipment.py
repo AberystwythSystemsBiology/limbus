@@ -56,7 +56,18 @@ def shipment_index_data():
 @sample.route("/shipment/view/<uuid>")
 @login_required
 def shipment_view_shipment(uuid):
-    return "Hello World"
+    return render_template("sample/shipment/view.html", uuid=uuid)
+
+@sample.route("/shipment/view/<uuid>/data")
+@login_required
+def shipment_view_shipment_data(uuid):
+    shipment_response = requests.get(
+        url_for("api.shipment_view_shipment", uuid=uuid, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    return (shipment_response.text, shipment_response.status_code, shipment_response.headers.items())
+
 
 @sample.route("/shipment/new/", methods=["GET", "POST"])
 @login_required

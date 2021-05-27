@@ -48,6 +48,18 @@ def get_cart(tokenuser: UserAccount):
     cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
 
+@api.route("/shipment/view/<uuid>", methods=["GET"])
+@token_required
+def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
+    shipment_event = SampleShipmentEvent.query.filter_by(uuid=uuid).first()
+
+    if shipment_event:
+        return success_with_content_response(
+            sample_shipment_event_schema.dump(shipment_event)
+        )
+    else:
+        return abort(404)
+
 @api.route("/shipment", methods=["GET"])
 @token_required
 def shipment_index(tokenuser: UserAccount):
