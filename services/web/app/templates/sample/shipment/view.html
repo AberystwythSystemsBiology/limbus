@@ -17,7 +17,7 @@
 
 </div>
 
-    <div id="content" style="display: none;">
+<div id="content" style="display: none;">
         <div class="jumbotron">
             <div class="container">
                 <h1>
@@ -30,10 +30,7 @@
                 </h1>
                 <div class="row text-muted">
                     <div class="col-7">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                           
-
-        
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">       
         
                         </div>
                     </div>
@@ -45,8 +42,37 @@
                 </div>
             </div>
         </div>
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" id="basic-info-nav">Basic Information</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="involved-samples-nav">Involved Samples</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="shipment-status-nav">Shipment Status</a>
+            </li>
+          </ul>
+
+          <div id="basic-info-div">
+            <table class="table table-striped" id="basic-information"></table>
+          </div>
+
+          <div id="involved-samples-div" style="display:none;">
+            <ul class="list-group" id="involved-samples-list-group">
+                
+              </ul>
+           </div>
+
+          <div id="shipment-status-div" style="display:none;">
+        </div>
+
+        </div>
     </div>
 </div>
+
+
 {% endblock %}
 
 {% block javascript %}

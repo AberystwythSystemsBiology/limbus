@@ -446,11 +446,12 @@ function hide_all() {
 }
 
 
+
 $(document).ready(function () {
     var sample_info = get_sample();
 
     if (sample_info["success"] == false) {
-        $("#loading-screen").fadeOut();
+        $("#screen").fadeOut();
         $("#error").delay(500).fadeIn();
     }
 

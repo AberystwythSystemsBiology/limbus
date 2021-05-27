@@ -21,6 +21,7 @@ from marshmallow_enum import EnumField
 from ..views import BasicSampleSchema
 from ...sample.views import SampleUUIDSchema
 from ...auth.views import BasicUserAccountSchema
+from ...misc.views import BasicSiteSchema
 
 class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -28,6 +29,7 @@ class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
 
     sample_id = masql.auto_field()
     sample = ma.Nested(SampleUUIDSchema, many=False)
+    old_site = ma.Nested(BasicSiteSchema, many=False)
 
 class SampleShipmentEventSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -39,6 +41,7 @@ class SampleShipmentEventSchema(masql.SQLAlchemySchema):
     datetime = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
+    new_site = ma.Nested(BasicSiteSchema, many=False)
 
     involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
 

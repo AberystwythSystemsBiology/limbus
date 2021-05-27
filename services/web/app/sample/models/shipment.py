@@ -26,7 +26,7 @@ class SampleShipmentEventToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
-    site = db.relationship("SiteInformation")
+    old_site = db.relationship("SiteInformation")
     sample = db.relationship("Sample")
 
     shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
@@ -36,6 +36,9 @@ class SampleShipmentEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
     __versioned__ = {}
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    
+    new_site = db.relationship("SiteInformation")
+
     comments = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
 

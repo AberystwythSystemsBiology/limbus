@@ -38,11 +38,85 @@ function get_shipment() {
     return json["content"];
 }
 
+function fill_jumbotron(shipment_data) {
+    $("#created-on").html(shipment_data["created_on"]);
+    $("#author").html(render_author(shipment_data["author"]));
+
+}
+
+function fill_table(shipment_data) {
+    html = ""
+    html += render_content("Date/Time", shipment_data["datetime"]);
+    html += render_content("Comments", shipment_data["comments"]);
+    $("#basic-information").html(html);
+
+}
+
+
+function hide_all() {
+    $("#basic-info-div").fadeOut(50);
+    $("#involved-samples-div").fadeOut(50);
+    $("#shipment-status-div").fadeOut(50);
+}
+
+
+function deactivate_nav() {
+    $("#basic-info-nav").removeClass("active");
+    $("#involved-samples-nav").removeClass("active");
+    $("#shipment-status-nav").removeClass("active");
+}
+
+function fill_involved_samples(involved_samples, new_site) {
+    var html = "";
+    for (i in involved_samples) {
+        var inv = involved_samples[i];
+        html += '<li class="list-group-item"> '
+        html += '<a href="' + inv["sample"]["_links"]["self"] + '">'
+        html += '<i class="fas fa-vial"></i>'
+        html += inv["sample"]["uuid"]
+        html += '</a>'
+        html += '<p>'
+        html +=  inv["old_site"]["name"] + '->' + new_site["name"]
+        html += '</p>'
+
+        html += '</li>'
+    }
+
+    console.log(html)
+
+    $("#involved-samples-list-group").html(html);
+}
+
+
 $(document).ready(function() {
     var shipment_data = get_shipment();
-    $("#loading-screen").fadeOut();
 
+    $("#loading-screen").fadeOut();
+    fill_jumbotron(shipment_data);
+    fill_table(shipment_data);
+    fill_involved_samples(shipment_data["involved_samples"], shipment_data["new_site"]);
+    
     $("#content").delay(500).fadeIn();
 
+    $("#basic-info-nav").on("click", function () {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#basic-info-div").fadeIn(100);
+    });
+
+    $("#involved-samples-nav").on("click", function () {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#involved-samples-div").fadeIn(100);
+    });
+
+    $("#shipment-status-nav").on("click", function () {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#shipment-status-div").fadeIn(100);
+    });
 
 });
