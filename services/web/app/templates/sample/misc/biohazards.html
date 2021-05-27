@@ -3,29 +3,32 @@
 {% block title %}Biohazard Information{% endblock %}
 
 {% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+
+            <span class="secondary-heading"><a href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Samples
+                    Index </a></span>
+                    <i class="fa fa-biohazard"></i> Biohazard Information
+        </h1>
+    </div>
+</div>
+
 <div class="container">
 
-    <h1>
-
-        <span class="secondary-heading"><a href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i> Samples
-                Index </a></span>
-        <i class="fa fa-exclamation-triangle"></i> Biohazard Information
-    </h1>
-
-
-
-    <p>This is considered to be the lowest risk of the four levels. It is suitable for work with the presence of
-        low-risk
-        microbes and agents. These will carry little to no threat of infection to healthy adults.</p>
 
 
     <div class="card">
-        <div class="card-header text-center">
-            <h2>Level One</h2>
+        <div class="card-header text-center bg-success text-white">
+            <h2><i class="fa fa-biohazard"></i> Level One <i class="fa fa-biohazard"></i></h2>
         </div>
         <div class="card-body">
+
+            <p>Biosafety Level 1 (BSL-1) laboratories are working with well-characterised agents that are not known for causing disease in healthy adult humans and are of minimal potential hazard to laboratory personnel and the environment.</p>
             <div class="row">
                 <div class="col-6">
+                    
                     <h3>Procedures and Practices</h3>
 
                     <ol>
@@ -35,9 +38,7 @@
                         <li>Eating, drinking, smoking, the application of contact lenses, storing food are not permitted
                             in areas in
                             which this material is found. Refrigerators and freezers ued to store biospecimens should
-                            have no other
-                            material stored within.</li>
-                        <li>Avoid sharps, such a Pasteur pipettes, needles and scalpels.</li>
+                            have no othertrash, needles and scalpels.</li>
                         <li>Minimise the creation of aerosols and splashes.</li>
                         <li>Decontaminate work surfaces after work using microbial agents.</li>
                     </ol>
@@ -61,45 +62,81 @@
         </div>
     </div>
 
-
+    <br>
 
     <div class="card">
-        <div class="card-header text-center">
-            <h2>Level Two</h2>
+        <div class="card-header text-center bg-info text-white">
+            <h2><i class="fa fa-biohazard"></i> Level Two <i class="fa fa-biohazard"></i></h2>
         </div>
         <div class="card-body">
+            <p>BSL-2 laboratories are working with agents of moderate potential hazard to personnel and the environment. Laboratory personnel have specific training in handling pathogenic agents.</p>
             <div class="row">
                 <div class="col-6">
                     <h3>Procedures and Practices</h3>
 
                     <ol>
-
+                        <li>All persons entering the laboratory must be advised of the potential hazards and meet specific entry/exit requirements.</li>
+                        <li>Laboratory personnel must be provided medical surveillance, as appropriate and offered available immunisations for agents handled or potentially present in the laboratory.</li>
+                        <li>Each institution should consider the need for collection and storage of serum samples from at-risk personnel.</li>
+                        <li>A laboratory-specific biosafety manual must be prepared and adopted as policy. The biosafety manual must be available and accessible.</li>
+                        <li>The laboratory supervisor must ensure that laboratory personnel demonstrate proficiency in standard and special microbiological practices before working with BSL-2 agents.</li>
+                        <li>Potentially infectious materials must be placed in a durable, leak-proof container during collection, handling, processing, storage or transport within a facility.</li>
+                        <li>Laboratory equipment should be routinely decontaminated, as well as after spills, splashes or other potential contamination.</li>
+                        <li>Incidents that may result in exposure to infectious materials must be immediately evaluated and treated according to procedures described in the laboratory biosafety manual. All such incidents must be reported to the laboratory supervisor. Medical evaluation, surveillance and treatment should be provided and appropriate records maintained.</li>
+                        <li>Animals and plants not associated with the work being performed must not be permitted in the laboratory.</li>
+                        <li>All procedures involving the manipulation of infectious materials that may generate an aerosol should be conducted within a biological safety cabinet (BSC) or other physical containment devices.</li>
                     </ol>
                 </div>
                 <div class="col-6">
                     <h3>Safety Equipment</h3>
                     <ol>
-
+                        <li>Properly maintained BSCs, other appropriate personal protective equipment (PPE) or other physical containment devices must be used whenever:</li>
+                        <ol>
+                            <li>Procedures with a potential for creating infectious aerosols or splashes are conducted. These may include pipetting, centrifuging, grinding, blending, shaking, mixing, sonicating, opening containers of infectious materials, inoculating animals intranasally and harvesting infected tissues from animals or eggs.</li>
+                            <li>High concentrations or large volumes of infectious agents are used. Such materials may be centrifuged in the open laboratory using sealed rotor heads or centrifuge safety cups.</li>
+                        </ol>
+                        <li>Protective laboratory coats, gowns, smocks or uniforms designated for laboratory use must be worn while working with hazardous materials. Protective clothing must be removed before leaving for non-laboratory areas. Protective clothing must be disposed of appropriately, or deposited for laundering by the institution. It is suggested that laboratory clothing not be taken home.</li>
+                        <li>Eye and face protection (goggles, mask, faceshield or other splatter guard) is to be used for anticipated splashes or sprays of infectious or other hazardous materials when the microorganisms must be handled outside the BSC or containment device. Eye and face protection must be disposed of with other contaminated laboratory waste or decontaminated before reuse. Persons who wear contact lenses in laboratories should also wear eye protection.</li>
+                        <li>Gloves must be worn to protect hands from exposure to hazardous materials. Glove selection should be based on an appropriate risk assessment. Alternatives to latex gloves should be available.</li>
+                        <li>Gloves must not be worn outside the laboratory. In addition, BSL-2 laboratory workers should:</li>
+                            <ol>
+                                <li>Change gloves when contaminated, glove integrity is compromised or when otherwise necessary.</li>
+                                <li>Remove gloves and wash hands when work with hazardous materials has been completed and before leaving the laboratory.</li>
+                                <li>Not wash or reuse disposable gloves. Used gloves must be disposed of with other contaminated laboratory waste. Hand washing protocols must be rigorously followed.</li>
+                            </ol>
+                            <li>Eye, face and respiratory protection should be used in rooms containing infected animals as determined by the risk assessment.</li>
                     </ol>
                     <h3>Facilities</h3>
                     <ol>
-                        <li>Sink.</li>
-                        <li>Acids-bases-heat-and water resistant laboratory benches should be used.</li>
-                        <li>Autoclave available.</li>
+                        <li>Biological safety cabinets (BSCs) must be installed so that fluctuations of the room air supply and exhaust do not interfere with proper operations. BSCs should be located away from doors, windows that can be opened, heavily traveled laboratory areas and other possible airflow disruptions.</li>
+                        <li>Vacuum lines should be protected with liquid disinfectant traps.</li>
+                        <li>An eyewash station must be readily available.</li>
+                        <li>There are no specific requirements for ventilation systems. However, planning of new facilities should consider mechanical ventilation systems that provide an inward flow of air without recirculation to spaces outside of the laboratory.</li>
+                        <li>High efficiency particulate air (HEPA) filtered exhaust air from a Class II BSC can be safely recirculated back into the laboratory environment if the cabinet is tested and certified at least annually and operated according to manufacturer’s recommendations. BSCs can also be connected to the laboratory exhaust system by either a thimble (canopy) connection or directly exhausted to the outside through a hard connection. Provisions to assure proper safety cabinet performance and air system operation must be verified.</li>
+                        <li>A method for decontaminating all laboratory wastes should be available in the facility (e.g., autoclave, chemical disinfection, incineration or other validated decontamination method).</li>
                     </ol>
                 </div>
             </div>
         </div>
     </div>
+
+    <br>
+
     <div class="card">
-        <div class="card-header text-center">
-            <h2>Level Three</h2>
+        <div class="card-header text-center bg-warning text-white">
+            <h2><i class="fa fa-biohazard"></i> Level Three <i class="fa fa-biohazard"></i></h2>
         </div>
         <div class="card-body">
+            <p>Laboratories that fall under this category include clinical, diagnostic, teaching, research or production facilities working with indigenous or exotic agents that may cause serious or potentially lethal diseases as a result of exposure by inhalation.</p>
             <div class="row">
                 <div class="col-6">
                     <h3>Procedures and Practices</h3>
-
+                    <ol>
+                        <li>Same as BSL-1 and BSL-2, plus:</li>
+                        <li>The laboratory supervisor must ensure that laboratory personnel demonstrate proficiency in standard and special microbiological practices before working with BSL-3 agents.</li>
+                        <li>Controlled access required.</li>
+                        <li>All waste must be decontaminated.</li>
+                        <li>Laboratory clothing must be decontaminated before laundering.</li>
                     <ol>
 
                     </ol>
@@ -107,38 +144,72 @@
                 <div class="col-6">
                     <h3>Safety Equipment</h3>
                     <ol>
-
+                        <li>All procedures involving the manipulation of infectious materials must be conducted within a biological safety cabinet (BSC) (preferably Class II or Class III) or other physical containment devices.</li>
+                        <li>Workers in the laboratory must wear protective laboratory clothing with a solid-front, such as tie-back or wrap-around gowns, scrub suits or coveralls. Protective clothing must not be worn outside of the laboratory. Reusable clothing must be decontaminated before being laundered. Clothing must be changed when contaminated.</li>
+                        <li>Eye and face protection (goggles, mask, faceshield or other splash guard) must be used for anticipated splashes or sprays of infectious or other hazardous materials. Eye and face protection must be disposed of with other contaminated laboratory waste or decontaminated before reuse. Persons who wear contact lenses in laboratories must also wear eye protection.</li>
+                        <li>Gloves must be worn to protect hands from exposure to hazardous materials. Glove selection should be based on an appropriate risk assessment. Alternatives to latex gloves should be available. Gloves must not be worn outside the laboratory. In addition, BSL-3 laboratory workers must:</li>
+                        <ol>
+                            <li>Change gloves when contaminated, glove integrity is compromised or when otherwise necessary. Must wear two pairs of gloves when risk assessment deems it appropriate.</li>
+                            <li>Remove gloves and wash hands when work with hazardous materials has been completed and before leaving the laboratory.</li>
+                            <li>Not wash or reuse disposable gloves. Must dispose of used gloves with other contaminated laboratory waste. Hand washing protocols must be rigorously followed.</li>
+                        </ol>
+                        <li>Eye, face and respiratory protection must be used in rooms containing infected animals.</li>
                     </ol>
                     <h3>Facilities</h3>
                     <ol>
-
+                        <li>Everything in level two, plus..</li>
+                        <li>Physical separation from access corridors.</li>
+                        <li>Self-closing, double-door access.</li>
+                        <li>Exhausted air not recirculated.</li>
+                        <li>Negative airflow into laboratory.</li>
+                        <li>Entry through airlock or anteroom.</li>
+                        <li>Hand washing sink near laboratory exit.</li>
                     </ol>
                 </div>
             </div>
         </div>
     </div>
 
+    <br>
+
     <div class="card">
-        <div class="card-header text-center">
-            <h2>Level Four</h2>
+        <div class="card-header text-center bg-danger text-white">
+            <h2><i class="fa fa-biohazard"></i> Level Four <i class="fa fa-biohazard"></i></h2>
         </div>
         <div class="card-body">
+            <p>This level of protection is required when working with dangerous and exotic agents that pose a high individual risk of aerosol-transmitted laboratory infections and life-threatening diseases. Agents with a close or identical antigenic relationship to known BSL-4 agents and related agents with unknown risk of transmission are handled at this level until sufficient data is obtained to confirm work at BSL-4 or to reclassify them to a lower level.</p>
             <div class="row">
                 <div class="col-6">
                     <h3>Procedures and Practices</h3>
 
                     <ol>
-
+                        <li>Same as BSL-1, BSL-2 and BSL-3, plus</li>
+                        <li>Clothing change before entering.</li>
+                        <li>Shower on exit.</li>
+                        <li>All material decontaminated on exit from facility.</li>
                     </ol>
                 </div>
                 <div class="col-6">
                     <h3>Safety Equipment</h3>
                     <ol>
-
+                        <li>All procedures within these facilities are conducted in a Class III BSC or in a Class II BSC used in conjunction with full-body, air-supplied, positive pressure suits.</li>
+                        <li>There are two models for BSL-4 laboratories and they can follow requirements of either model or a combination of the two:</li>
+                        <ol>
+                            <li>Class III Cabinet laboratory - Handling of agents must be done in a Class III BSC. Exhaust air from the Class III BSC must pass through two HEPA filters prior to release to external environment.</li>
+                            <li>Suit laboratory - Dedicated room air supply and exhaust systems are required. A one-piece positive pressure supplied air protective suit must be worn by the laboratory personnel.</li>
+                        </ol>
                     </ol>
                     <h3>Facilities</h3>
                     <ol>
-
+                        <li>Everything in level three, plus..</li>
+                        <li>Entry must be limited by a secure, locked door. A means of documentation of persons entering and leaving the laboratory must be maintained.</li>
+                        <li>No one should work alone in the laboratory—a two-person rule should apply.</li>
+                        <li>An inner disposable pair of gloves must be worn with an outer pair of gloves.</li>
+                        <li>A method of communication for emergency contacts must be developed between the staff working in the laboratory.</li>
+                        <li>There must be a controlled air system—negative pressure must be maintained in the laboratory.</li>
+                        <li>A double-door, pass-through autoclave must be readily available for the materials passing out from Class III BSC.</li>
+                        <li>A chemical shower must be provided for the decontamination of the positive-pressure suit before the staff leaves the laboratory.</li>
+                        <li>A separate detailed work manual and an emergency program should be developed.</li>
                     </ol>
                 </div>
             </div>

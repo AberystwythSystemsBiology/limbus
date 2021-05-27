@@ -18,7 +18,7 @@ from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm
-from ..forms import AccountLockForm
+from ..forms.auth import AccountLockForm
 
 from flask import render_template, url_for, redirect, abort, flash
 from flask_login import current_user, login_required

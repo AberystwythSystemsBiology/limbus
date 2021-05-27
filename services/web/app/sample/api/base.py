@@ -85,7 +85,7 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
     if sample:
         return success_with_content_response(sample_schema.dump(sample))
     else:
-        return abort(404)
+        return not_found()
 
 
 @api.route("sample/new", methods=["POST"])

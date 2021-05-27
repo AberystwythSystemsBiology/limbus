@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2019-2021  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,12 +23,12 @@ from wtforms import (
     BooleanField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo
-from ..validators import validate_against_text
+from ...validators import validate_against_text
 
-from ..auth.enums import Title
+from ...auth.enums import Title
 
 
-from ..auth.models import UserAccount
+from ...auth.models import UserAccount
 
 
 class UserAccountRegistrationForm(FlaskForm):
