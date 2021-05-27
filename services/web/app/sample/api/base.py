@@ -37,7 +37,7 @@ from ..views import (
 
 )
 
-from ...database import (db, Sample, SampleToType, UserAccount, SampleProtocolEvent, ProtocolTemplate)
+from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, SampleProtocolEvent, ProtocolTemplate)
 
 from ..enums import *
 
@@ -45,11 +45,11 @@ import requests
 
 def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
     # Find all parent samples (id) with matching protocol events (by protocol_template_id)
-    if filter_sample_id is not None:
-        subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
+    if filter_sample_id is None:
+        subq = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
             join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
     else:
-        subq = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+        subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
             join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
 
     protocol_event = db.session.query(ProtocolTemplate).\
@@ -58,14 +58,17 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
     if protocol_event:
         # Protocols of Collection/Study
         if str(protocol_event.type) in ["Collection", "Study", "Temporary Storage"]:
+
             # Find all sub-samples of the matching samples
             # and take the union of parent and sub-sample ID
-            # s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-            #     join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-            #     join(subq, subq.c.id == SubSampleToSample.parent_id)
-            s2 = db.session.query(Sample.id).filter(Sample.id.in_(subq)).\
-                join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                join(subq, subq.c.id == SubSampleToSample.parent_id)
+            if filter_sample_id is None:
+                s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+                    join(subq, subq.c.id == SubSampleToSample.parent_id)
+            else:
+                s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
+                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+                    join(subq, subq.c.id == SubSampleToSample.parent_id)
 
             stmt = db.session.query(subq).union(s2)
 

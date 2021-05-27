@@ -36,6 +36,7 @@ from ..enums import (
 
 
 class ColdStorageServiceReportForm(FlaskForm):
+
     date = DateField(
         "Service Date", validators=[DataRequired()], default=datetime.today()
     )
@@ -70,7 +71,6 @@ def ColdStorageToDocumentAssociationForm(documents: list):
     )
 
     return StaticForm()
-
 
 class ColdStorageForm(FlaskForm):
 
@@ -108,3 +108,56 @@ class ColdStorageForm(FlaskForm):
     )
 
     submit = SubmitField("Register")
+
+
+def ColdStorageEditForm(rooms: list, data={}):
+    room_choices = []
+    for room in rooms:
+        room_choices.append((room["id"], "LIMBROOM-%i: %s" % (room["id"], room["name"])))
+
+    class StaticForm(FlaskForm):
+        id = StringField("id", default=None)
+        alias = StringField("Alias", validators=[DataRequired()])
+
+        serial_number = StringField(
+            "Serial Number",
+            description="Equipment serial number is a serial number that identifies an equipment used in the measuring by its serial number.",
+        )
+
+        manufacturer = StringField(
+            "Manufacturer",
+            validators=[DataRequired()],
+            description="The storage facility manufacturer.",
+        )
+
+        comments = TextAreaField("Comments")
+
+        status = SelectField(
+            "Status", choices=FixedColdStorageStatus.choices(), validators=[DataRequired()],
+            description="Current working status"
+        )
+
+        temperature = SelectField(
+            "Temperature",
+            choices=FixedColdStorageTemps.choices(),
+            validators=[DataRequired()],
+            description="The temperature of the inside of the storage facility.",
+        )
+
+        type = SelectField(
+            "Storage Type",
+            choices=FixedColdStorageType.choices(),
+            validators=[DataRequired()],
+            description="A facility that provides storage for any type of biospecimen and/or biospecimen container.",
+        )
+
+        room_id = SelectField(
+            "Room",
+            choices=room_choices,
+            validators=[DataRequired()],
+            description="Room where the storage is located.", coerce=int,
+        )
+
+        submit = SubmitField("Register")
+
+    return StaticForm(data=data)

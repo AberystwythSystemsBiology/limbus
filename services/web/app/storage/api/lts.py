@@ -27,7 +27,8 @@ from ...misc import get_internal_api_header
 
 from marshmallow import ValidationError
 
-from ...database import db, UserAccount, ColdStorage, ColdStorageService, DocumentToColdStorage
+from ...database import db, UserAccount, ColdStorage, ColdStorageService, DocumentToColdStorage, \
+    Building, SiteInformation, Room
 
 from ..views import *
 
@@ -47,6 +48,12 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
         cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
 
+@api.route("/storage/coldstorage/LIMBCS-<id>/edit/view", methods=["GET"])
+@token_required
+def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        new_cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
+    )
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
@@ -105,8 +112,8 @@ def storage_coldstorage_new(tokenuser: UserAccount):
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
     cs = ColdStorage.query.filter_by(id=id).first()
-
-    if not room:
+    print('cs  -- ', cs)
+    if not cs: #room:
         return not_found()
 
     values = request.get_json()
@@ -186,3 +193,28 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     else:
         return coldstorage_response.json()
+
+
+# @api.route("/storage/coldstorage/rooms_onsite/LIMBCS-<id>", methods=["GET"])
+# @token_required
+# def storage_rooms_onsite(id, tokenuser: UserAccount):
+#     stmt = db.session.query(SiteInformation, Building, Room, ColdStorage).\
+#                             filter(Room.id==id).\
+#                             filter(SiteInformation.id==Building.site_id).\
+#                             filter(Building.id == Room.building_id).all()
+#     #subq = db.session.query(SiteInformation)
+#     subq = db.session.query(Building).join(Room).join(ColdStorage). \
+#        filter(ColdStorage.id == id).all();
+#     #subq1 = db.session.query(ColdStorage).join(Room).join(Building).join(SiteInformation).\
+#     #    filter(ColdStorage.id == id).all(); #first_or_404();
+#     print(subq)
+#     #print(subq1)
+#     print(rooms_schema.dump(subq))
+#     print(rooms_schema.dump('stmt: ', stmt))
+#     #print(subq.id)
+#     #print(subq1.id)
+#     #print(basic_rooms_schema.dump(subq))
+#     #db.session.squery(Building, Room).filter(Building.site_id == subq.c.id)
+#     #SiteInformation.query.join(Room).filter(SiteInformation.id == Room.Site_id).filter(Room.id == id).all()
+#     return success_with_content_response(site_schema.dump(SiteInformation.query.filter(id==subq.id).all())
+#     )
