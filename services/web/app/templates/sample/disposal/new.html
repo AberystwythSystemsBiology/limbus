@@ -7,11 +7,69 @@
     <div class="container">
         <h1><span class="secondary-heading">
             <a href="{{ sample._links.self }}">
-                <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
-        <i class="fa fa-trash"></i> Sample Dipsosal </h1>
+                <i class="fas fa-vial"></i> <span id="sample-uuid">{{ sample.uuid }}</span></a></span>
+        <i class="fa fa-trash"></i> New Sample Disposal Event </h1>
     </div>
 </div>
 <div class="container">
+    <form method="POST" action="{{ url_for('sample.dispose', uuid=sample.uuid ) }}">
+        {{ form.csrf_token }}
+        {{ form_field(form.protocol_id) }}
+
+        {{ form_field(form.reason) }}
+        {{ form_field(form.comments) }}
+
+        <div class="row">
+            <div class="col-6">{{ form_field(form.date) }}</div>
+            <div class="col-6">{{ form_field(form.time) }}</div>
+
+        </div>
+
+        {{ form_field(form.undertaken_by) }}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-warning float-right" data-toggle="modal" data-target="#sample-disposal-modal">
+    Stage Disposal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="sample-disposal-modal" tabindex="-1" role="dialog" aria-labelledby="sample-disposal-modal-title" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="sample-disposal-modal-title">Confirm Sample Destruction</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-danger" role="alert">
+                <b>Warning:</b> This is irreversable, please double check that you are removing the correct sample before
+                continuing!
+            </div>
+
+            <p>To double check, please enter the Sample's UUID below:</p>
+            <input type="text" id="form-check" class="form-control"></input>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success" id="submit" disabled style="margin: 0px;">
+            <i class="fa fa-check"></i> Submit
+        </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</form>
+
+
 
 </div>
+{% endblock %}
+
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/disposal/check.js') }}"></script>
 {% endblock %}

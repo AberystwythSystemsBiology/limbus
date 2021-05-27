@@ -68,7 +68,6 @@ function get_barcode(sample_info, barc_type) {
 }
 
 
-
 function fill_title(sample) {
 
     var author_information = sample["author"];

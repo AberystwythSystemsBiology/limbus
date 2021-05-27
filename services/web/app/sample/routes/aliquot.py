@@ -33,7 +33,7 @@ def aliquot(uuid: str):
     protocol_response = requests.get(
         url_for("api.protocol_query", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type": "ALD"},
+        json={"is_locked": False, "type": ["ALD"]},
     )
 
     if protocol_response.status_code != 200:
