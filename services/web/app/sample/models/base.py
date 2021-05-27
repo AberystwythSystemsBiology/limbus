@@ -19,6 +19,7 @@ from ..enums import (
     SampleBaseType,
     SampleStatus,
     DisposalInstruction,
+    DisposalReason,
     Colour,
     SampleSource,
     BiohazardLevel,
@@ -108,3 +109,9 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
+
+
+class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+    reason = db.Column(db.Enum(DisposalReason))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)

@@ -135,6 +135,12 @@ class DisposalInstruction(FormEnum):
     REV = "Review"
     PRE = "Preserve"
 
+class DisposalReason(FormEnum):
+    DES = "Procedural"
+    FAI = "Failed Sample Review"
+    TRA = "Transferred"
+    UNA = "Not Retrievable"
+    UNK = "Unknown"
 
 class CellSampleType(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"

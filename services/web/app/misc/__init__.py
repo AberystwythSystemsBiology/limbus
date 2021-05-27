@@ -41,3 +41,4 @@ def get_internal_api_header(tokenuser=None):
 
 
 from .routes import *
+from .types import flask_return_union
