@@ -109,8 +109,8 @@ def rack_manual_entry():
 def rack_automatic_entry():
     def _file_to_json(data_stream) -> dict:
         data = {}
-
         csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in data_stream]
+        print(csv_data)
         indexes = {
             "Tube Barcode": csv_data[0].index("Tube Barcode"),
             "Tube Position": csv_data[0].index("Tube Position"),
@@ -374,7 +374,7 @@ def edit_rack(id):
             )
 
             if edit_response.status_code == 200:
-                flash("Shelf Successfully Edited")
+                flash("Rack Successfully Edited")
             else:
                 flash("We have a problem: %s" % (edit_response.json()))
 

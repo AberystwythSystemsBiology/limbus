@@ -193,28 +193,3 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     else:
         return coldstorage_response.json()
-
-
-# @api.route("/storage/coldstorage/rooms_onsite/LIMBCS-<id>", methods=["GET"])
-# @token_required
-# def storage_rooms_onsite(id, tokenuser: UserAccount):
-#     stmt = db.session.query(SiteInformation, Building, Room, ColdStorage).\
-#                             filter(Room.id==id).\
-#                             filter(SiteInformation.id==Building.site_id).\
-#                             filter(Building.id == Room.building_id).all()
-#     #subq = db.session.query(SiteInformation)
-#     subq = db.session.query(Building).join(Room).join(ColdStorage). \
-#        filter(ColdStorage.id == id).all();
-#     #subq1 = db.session.query(ColdStorage).join(Room).join(Building).join(SiteInformation).\
-#     #    filter(ColdStorage.id == id).all(); #first_or_404();
-#     print(subq)
-#     #print(subq1)
-#     print(rooms_schema.dump(subq))
-#     print(rooms_schema.dump('stmt: ', stmt))
-#     #print(subq.id)
-#     #print(subq1.id)
-#     #print(basic_rooms_schema.dump(subq))
-#     #db.session.squery(Building, Room).filter(Building.site_id == subq.c.id)
-#     #SiteInformation.query.join(Room).filter(SiteInformation.id == Room.Site_id).filter(Room.id == id).all()
-#     return success_with_content_response(site_schema.dump(SiteInformation.query.filter(id==subq.id).all())
-#     )
