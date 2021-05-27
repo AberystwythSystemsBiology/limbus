@@ -1,0 +1,41 @@
+{% extends "template.html" %}
+
+{% block title %}Step One: Make Trolley - New Sample Shipment{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                    <i class="fa fa-box"></i> Sample Shipment</span>
+                    <i class="fa fa-shopping-cart"></i> New Sample Shipment
+        </h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-4">
+
+        </div>
+        <div class="col-8">
+            {{ form.csrf_token() }}
+            {{ form_field(form.site) }}
+        
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.date) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.time) }}
+                </div>
+            </div>
+            {{ form_field(form.comments) }}
+            {{ form_field(form.submit) }}
+
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}

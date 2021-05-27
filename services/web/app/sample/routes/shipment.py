@@ -18,6 +18,7 @@ from .. import sample
 from flask_login import login_required
 from flask import render_template, url_for
 from ...misc import get_internal_api_header
+from ..forms import SampleShipmentEventForm
 
 @sample.route("/shipment/cart")
 @login_required
@@ -43,4 +44,21 @@ def shipment_index():
 @sample.route("/shipment/new/trolley")
 @login_required
 def shipment_new_step_one():
-    return render_template("sample/shipment/new/step_one.html")
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+    )
+
+
+    if sites_response.status_code == 200:
+
+        sites = []
+        for site in sites_response.json()["content"]:
+            sites.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
+
+
+        # Get Cart
+        form = SampleShipmentEventForm(sites)
+
+        return render_template("sample/shipment/new/new.html", form=form)
+    else:
+        return sites_response.content
