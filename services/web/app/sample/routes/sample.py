@@ -53,6 +53,24 @@ def add_sample_to_cart(uuid):
 
     return sample_response.content
 
+@sample.route("<uuid>/cart/remove", methods=["DELETE"])
+@login_required
+def remove_sample_from_cart(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        remove_response = requests.delete(
+            url_for("api.remove_sample_from_cart", uuid=uuid, _external=True),
+            headers=get_internal_api_header()
+        )
+
+        return remove_response.content
+
+    return sample_response.content
+
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required
 def associate_document(uuid):

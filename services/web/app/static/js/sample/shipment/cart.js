@@ -20,8 +20,6 @@ function get_cart() {
     var split_url = current_url.split("/");
     var api_url = split_url.join("/") + "/data"
     
-    console.log(api_url)
-
     var json = (function () {
         var json = null;
         $.ajax({
@@ -40,6 +38,9 @@ function get_cart() {
 }
 
 function fill_cart_table(cart) {
+
+    var links_map = {};
+
     $('#cart-table').DataTable( {
         data: cart,
         dom: 'Bfrtip',
@@ -118,7 +119,32 @@ function fill_cart_table(cart) {
     {
         "mData": {},
         "mRender": function (data, type, row) {
-            return "Sadge"
+            
+            links_map[data["sample"]["id"]] = data["sample"]["_links"]
+
+            var remove_id = "remove-cart-" + data["sample"]["id"];
+
+            var actions = ""
+            actions += "<div id='"+remove_id+"' class='btn btn-sm btn-danger'>";
+            actions += "<i class='fa fa-trash'></i>"
+            actions += "</div>"
+
+            $("#"+remove_id).on("click", function () {
+                var id = $(this).attr("id").split("-")[2];
+                $.ajax({
+                    url: links_map[id]["remove_sample_from_cart"],
+                    type: 'DELETE',
+                    success: function (response) {
+                        json = response;
+                        location.reload();
+                    }
+                });
+            });
+
+            return actions
+
+            
+            
         }
     }
     

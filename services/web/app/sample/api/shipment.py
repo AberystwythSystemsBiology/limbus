@@ -31,6 +31,31 @@ def get_cart(tokenuser: UserAccount):
     cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
 
+@api.route("/cart/remove/<uuid>", methods=["DELETE"])
+@token_required
+def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(tokenuser),
+    )
+
+    if sample_response.status_code == 200:
+        sample_id = sample_response.json()["content"]["id"]
+
+        uc = UserCart.query.filter_by(author_id = tokenuser.id, sample_id = sample_id).first()
+
+        if uc:
+            db.session.delete(uc)
+            db.session.commit()
+                
+            return success_with_content_response({"msg": "%s removed from cart" % (uuid)})
+        else:
+            return success_with_content_response({"msg": "%s not in user cart" % (uuid)})
+
+    else:
+        return sample_response.content
+
+
 @api.route("/cart/add/<uuid>", methods=["POST"])
 @token_required
 def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
@@ -71,3 +96,4 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             return transaction_error_response(err)
     else:
         return sample_response.content
+
