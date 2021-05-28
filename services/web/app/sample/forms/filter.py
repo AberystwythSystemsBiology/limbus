@@ -15,11 +15,10 @@
 
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField
 from flask import render_template, redirect, session, url_for, flash, abort
 from ...misc import get_internal_api_header
 import requests
-
+from wtforms import SelectField, StringField, SubmitField, BooleanField
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
 
 def SampleFilterForm() -> FlaskForm:

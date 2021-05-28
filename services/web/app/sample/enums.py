@@ -127,6 +127,12 @@ class TissueSampleType(FormEnum):
     FROTS = "Frozen Tissue Slide"
     MDS = "Microdissected"
 
+class DisposalReason(FormEnum):
+    DES = "Procedural"
+    FAI = "Failed Sample Review"
+    TRA = "Transferred"
+    UNA = "Not Retrievable"
+    UNK = "Unknown"
 
 class DisposalInstruction(FormEnum):
     NAP = "No Disposal"
@@ -135,12 +141,6 @@ class DisposalInstruction(FormEnum):
     REV = "Review"
     PRE = "Preserve"
 
-class DisposalReason(FormEnum):
-    DES = "Procedural"
-    FAI = "Failed Sample Review"
-    TRA = "Transferred"
-    UNA = "Not Retrievable"
-    UNK = "Unknown"
 
 class CellSampleType(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
@@ -262,8 +262,8 @@ class LongTermStorage(FormEnum):
     U = "Paraffin block @ -35 to -18°C"
     Q = "Bag in Liquid Nitrogen"
     R = "Dry technology medium @ Room Temp"
-    S = "PP tube 40-500 @ -85 to -60°C"
-    T = "PP tube 40-500 @ -35 to -18°C"
+    S = "PP tube 40-500μL @ -85 to -60°C"
+    T = "PP tube 40-500μL @ -35 to -18°C"
     W = "PP tube 40-500μL @ < 135°C"
     Y = "Original Container @ -85 to -18°C"
     X = "Unknown"
@@ -290,3 +290,11 @@ class SampleStatus(FormEnum):
     NCO = "Not Collected"
     NPR = "Not Processed"
     NRE = "Pending Review"
+
+class SampleShipmentStatusStatus(FormEnum):
+    TBC = "To Be Collected"
+    COL = "Collected"
+    DES = "Despatched"
+    DEL = "Delivered"
+    PRO = "Problem"
+    UND = "Undelivered"

@@ -23,7 +23,9 @@ import requests
 
 from uuid import uuid4
 
-#from .forms import SampleDisposalEventForm
+from ..forms import SampleDisposalEventForm
+
+
 @sample.route("<uuid>/dispose", methods=["GET", "POST"])
 @login_required
 def dispose(uuid: str) -> flask_return_union:

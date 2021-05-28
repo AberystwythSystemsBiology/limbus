@@ -42,7 +42,7 @@ class ProtocolTemplateSearchSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field(required=False)
     name = masql.auto_field(required=False)
-    type = EnumField(ProtocolType, required=False)
+    type = fields.List(EnumField(ProtocolType, required=False))
     author = ma.Nested(UserAccountSearchSchema)
     is_locked = masql.auto_field(required=False)
 

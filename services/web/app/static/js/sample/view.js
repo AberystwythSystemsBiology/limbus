@@ -27,12 +27,18 @@ function get_sample() {
             'dataType': "json",
             'success': function (data) {
                 json = data;
+            },
+            'failure': function (data) {
+                json = data;
             }
+            
         });
         return json;
     })();
 
-    return json["content"];
+    return json;
+   
+
 }
 
 
@@ -60,7 +66,6 @@ function get_barcode(sample_info, barc_type) {
 
 
 }
-
 
 
 function fill_title(sample) {
@@ -440,80 +445,117 @@ function hide_all() {
 }
 
 
+
 $(document).ready(function () {
     var sample_info = get_sample();
 
-    $("#loading-screen").fadeOut();
-    get_barcode(sample_info, "qrcode");
+    if (sample_info["success"] == false) {
+        $("#screen").fadeOut();
+        $("#error").delay(500).fadeIn();
+    }
 
-    fill_title(sample_info);
-    fill_basic_information(sample_info);
-    fill_custom_attributes(sample_info["attributes"]);
-    fill_quantity_chart(sample_info["base_type"], sample_info["quantity"], sample_info["remaining_quantity"]);
-    fill_consent_information(sample_info["consent_information"]);
-    fill_lineage_table(sample_info["subsamples"]);
-    fill_comments(sample_info["comments"]);
-    fill_document_information(sample_info["documents"]);
-    fill_protocol_events(sample_info["protocol_events"]);
-    fill_sample_reviews(sample_info["reviews"]);
+    else {
+        var sample_info = sample_info["content"];
 
-    $("#content").delay(500).fadeIn();
-
-
-    $("#qrcode").click(function () {
+        $("#loading-screen").fadeOut();
         get_barcode(sample_info, "qrcode");
+    
+        fill_title(sample_info);
+        fill_basic_information(sample_info);
+        fill_custom_attributes(sample_info["attributes"]);
+        fill_quantity_chart(sample_info["base_type"], sample_info["quantity"], sample_info["remaining_quantity"]);
+        fill_consent_information(sample_info["consent_information"]);
+        fill_lineage_table(sample_info["subsamples"]);
+        fill_comments(sample_info["comments"]);
+        fill_document_information(sample_info["documents"]);
+        fill_protocol_events(sample_info["protocol_events"]);
+        fill_sample_reviews(sample_info["reviews"]);
+    
+        $("#content").delay(500).fadeIn();
+    
+    
+        $("#qrcode").click(function () {
+            get_barcode(sample_info, "qrcode");
+    
+        });
+    
+        $("#datamatrix").click(function () {
+            get_barcode(sample_info, "datamatrix");
+    
+        });
+    
+        $("#print-label-btn").click(function () {
+            window.location.href = sample_info["_links"]["label"]
+        });
+    
+        $("#add-cart-btn").click(function() {
+            
+            $.ajax({
+                type: "POST",
+                url: sample_info["_links"]["add_sample_to_cart"],
+                dataType: "json",
+                success: function (data) {
+                    if (data["success"]) {
+                        $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                        $("#cart-confirmation-modal").modal({
+                            show: true
+                        });
+                    }
+    
+                    else {
+                        $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                        $("#cart-confirmation-modal").modal({
+                            show: true
+                        });
+                    }
+                }
+              });
+            
+        })
+    
+        $("#basic-info-nav").on("click", function () {
+            deactivate_nav();
+            $(this).addClass("active");
+            hide_all();
+            $("#basic-info").fadeIn(100);
+        });
+    
+        $("#custom-attr-nav").on("click", function() {
+            deactivate_nav();
+            $(this).addClass("active");
+            hide_all();
+            $("#custom-attributes-div").fadeIn(100);
+        });
+    
+        $("#protocol-events-nav").on("click", function () {
+            deactivate_nav();
+            $(this).addClass("active");
+            hide_all();
+            $("#protocol-event-info").fadeIn(100);
+        });
+    
+        $("#sample-review-nav").on("click", function() {
+            deactivate_nav();
+            $(this).addClass("active");
+            hide_all();
+            $("#sample-review-info").fadeIn(100);
+    
+        });
+    
+        $("#associated-documents-nav").on("click", function () {
+            deactivate_nav();
+            $(this).addClass("active");
+            hide_all();
+            $("#associated-documents").fadeIn(100);
+        });
+    
+        $("#lineage-nav").on("click", function () {
+            deactivate_nav();
+            $(this).addClass("active");
+            hide_all();
+            $("#lineage-info").fadeIn(100);
+        });
+    }
 
-    });
-
-    $("#datamatrix").click(function () {
-        get_barcode(sample_info, "datamatrix");
-
-    });
-
-    $("#print-label-btn").click(function () {
-        window.location.href = sample_info["_links"]["label"]
-    });
-
-    $("#basic-info-nav").on("click", function () {
-        deactivate_nav();
-        $(this).addClass("active");
-        hide_all();
-        $("#basic-info").fadeIn(100);
-    });
-
-    $("#custom-attr-nav").on("click", function() {
-        deactivate_nav();
-        $(this).addClass("active");
-        hide_all();
-        $("#custom-attributes-div").fadeIn(100);
-    });
-
-    $("#protocol-events-nav").on("click", function () {
-        deactivate_nav();
-        $(this).addClass("active");
-        hide_all();
-        $("#protocol-event-info").fadeIn(100);
-    });
-
-    $("#sample-review-nav").on("click", function() {
-        deactivate_nav();
-        $(this).addClass("active");
-        hide_all();
-        $("#sample-review-info").fadeIn(100);
-
-    });
-
-    $("#associated-documents-nav").on("click", function () {
-        deactivate_nav();
-        $(this).addClass("active");
-        hide_all();
-        $("#associated-documents").fadeIn(100);
-    });
-
-    $("#lineage-nav").on("click", function () {
-        deactivate_nav();
-        $(this).addClass("active");
-        hide_all();
-        $("#lineage-info").fadeIn(100);
-    });
+    
 });

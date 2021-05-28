@@ -142,7 +142,7 @@ def sample_query(args, tokenuser: UserAccount):
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     results = basic_samples_schema.dump(stmt.all())
-
+    print(results)
     return success_with_content_response(
         results
     )
@@ -167,7 +167,7 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
     if sample:
         return success_with_content_response(sample_schema.dump(sample))
     else:
-        return abort(404)
+        return not_found()
 
 
 @api.route("sample/new", methods=["POST"])

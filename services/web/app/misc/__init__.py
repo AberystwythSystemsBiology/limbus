@@ -15,6 +15,7 @@
 
 
 from flask import Blueprint
+import inspect
 
 misc = Blueprint("misc", __name__)
 
@@ -32,12 +33,17 @@ def clear_session(hash: str) -> None:
 
 def get_internal_api_header(tokenuser=None):
 
+    print("\tCalled from: ", inspect.stack()[1][3])
+
     if tokenuser == None:
         email = current_user.email
     else:
         email = tokenuser.email
 
     return {"FlaskApp": current_app.config.get("SECRET_KEY"), "Email": email}
+
+
+
 
 
 from .routes import *

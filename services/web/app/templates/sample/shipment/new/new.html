@@ -1,0 +1,52 @@
+{% extends "template.html" %}
+
+{% block title %}Step One: Make Trolley - New Sample Shipment{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                    <i class="fa fa-shipping-fast"></i> Sample Shipment</span>
+                    <i class="fa fa-shopping-cart"></i> New Sample Shipment
+        </h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <ul class="list-group" id="samples-cart-list-group">
+                <a href="{{ url_for('sample.shipment_cart') }}" class="list-group-item bg-primary text-white">
+                    <i class="fa fa-shopping-cart"></i> My Samples Cart
+                </a>
+               
+              </ul>
+              
+        </div>
+        <div class="col-9">
+            <form action="{{ url_for('sample.shipment_new_step_one') }}" method="POST">
+                {{ form.csrf_token() }}
+                {{ form_field(form.site_id) }}
+            
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.time) }}
+                    </div>
+                </div>
+                {{ form_field(form.comments) }}
+                {{ form_field(form.submit) }}
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/shipment/new.js') }}"></script>
+{% endblock %}

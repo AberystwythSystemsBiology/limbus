@@ -31,13 +31,13 @@ function get_metric(type) {
 
 function render_sample_table(samples, div_id) {
 
-
     $('#' + div_id).DataTable( {
         data: samples,
         dom: 'Bfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
-            { targets: -2, visible: false, "defaultContent": ""},
+            {targets: '_all', defaultContent: '-'},
+            { targets: [3,4], visible: false, "defaultContent": ""},
         ],
         columns: [
             {
@@ -62,6 +62,11 @@ function render_sample_table(samples, div_id) {
                 }
             },
 
+
+            {data: "id"},
+            {data: "barcode"},
+            {data: "status"},
+
             {data: "base_type"},
             {
                 "mData" : {},
@@ -81,6 +86,19 @@ function render_sample_table(samples, div_id) {
                 }
             },
             {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
+
+                }
+            },
+            {
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
@@ -91,6 +109,7 @@ function render_sample_table(samples, div_id) {
                     return col_data
                 }
         },
+
         {
             "mData": {},
             "mRender": function(data, type, row) {

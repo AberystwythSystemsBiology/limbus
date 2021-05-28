@@ -20,13 +20,13 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header, flask_return_union
 
-from ..views import new_sample_disposal_schema, basic_disposal_schema, new_sample_disposal_event_schema, \
-    basic_sample_disposal_event_schema
+import requests
+from ..views import new_sample_disposal_schema, basic_disposal_schema, new_sample_disposal_event_schema, basic_sample_disposal_event_schema
 
 from ...database import db, SampleDisposal, UserAccount, SampleDisposalEvent, Sample
 
-import requests
 
+import requests
 
 @api.route("/sample/new/disposal_instructions", methods=["POST"])
 @token_required
@@ -55,7 +55,6 @@ def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_uni
     except Exception as err:
         return transaction_error_response(err)
 
-
 @api.route("/sample/new/disposal_event", methods=["POST"])
 @token_required
 def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
@@ -72,26 +71,26 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
     if sample_response.status_code == 200:
 
         new_protocol_event_response = requests.post(
-            url_for("api.sample_new_sample_protocol_event", _external=True),
-            headers=get_internal_api_header(tokenuser),
-            json={
-                "datetime": values["datetime"],
-                "undertaken_by": values["undertaken_by"],
-                "comments": values["comments"],
-                "protocol_id": values["protocol_id"],
-                "sample_id": sample_response.json()["content"]["id"],
-            },
-        )
+                url_for("api.sample_new_sample_protocol_event", _external=True),
+                headers=get_internal_api_header(tokenuser),
+                json={
+                    "datetime": values["datetime"],
+                    "undertaken_by": values["undertaken_by"],
+                    "comments": values["comments"],
+                    "protocol_id": values["protocol_id"],
+                    "sample_id": sample_response.json()["content"]["id"],
+                },
+            )
 
         if new_protocol_event_response.status_code == 200:
 
             try:
                 disposal_event_values = new_sample_disposal_event_schema.load({
-                    "sample_id": sample_response.json()["content"]["id"],
-                    "reason": values["reason"]})
+                            "sample_id": sample_response.json()["content"]["id"],
+                            "reason": values["reason"]})           
             except ValidationError as err:
                 return validation_error_response(err)
-
+            
             new_disposal_event = SampleDisposalEvent(**disposal_event_values)
             new_disposal_event.author_id = tokenuser.id
 

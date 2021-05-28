@@ -24,6 +24,7 @@ from . import (
     SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
     ConsentSchema,
+    BasicSampleDiposalEventSchema,
     SampleReviewSchema,
     EntityToStorageSchema,
 )
@@ -76,9 +77,11 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     storage = ma.Nested(EntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
-
+    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
     _links = ma.Hyperlinks(
         {
+            "add_sample_to_cart": ma.URLFor("sample.add_sample_to_cart", uuid="<uuid>", _external=True),
+            "remove_sample_from_cart": ma.URLFor("sample.remove_sample_from_cart", uuid="<uuid>", _external=True),
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
             "barcode_generation": ma.URLFor(
@@ -117,6 +120,8 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
 
+    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
+
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
@@ -135,6 +140,8 @@ class SampleSchema(masql.SQLAlchemySchema):
     _links = ma.Hyperlinks(
         {
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "add_sample_to_cart": ma.URLFor("sample.add_sample_to_cart", uuid="<uuid>", _external=True),
+            "remove_sample_from_cart": ma.URLFor("sample.remove_sample_from_cart", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
             "webapp_query": ma.URLFor("sample.query", _external=True),
             "webapp_aliquot": ma.URLFor(

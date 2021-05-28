@@ -69,7 +69,8 @@
                             <a class="dropdown-item"
                                 href="{{ url_for('sample.add_step_one') }}"><i
                                     class="fas fa-plus"></i> New Sample</a>
-
+                                <a class="dropdown-item" href="{{ url_for('sample.shipment_index') }}"><i class="fa fa-shipping-fast"></i>
+                                    Sample Shipments</a>
                         </div>
                     </li>
 
@@ -169,6 +170,9 @@
                                 Profile</a>
                             <a class="dropdown-item" href="{{ url_for('tmpstore.index') }}">
                                 <i class="fa fa-hourglass-end"></i> My TempStore
+                            </a>
+                            <a class="dropdown-item" href="{{ url_for('sample.shipment_cart') }}">
+                                <i class="fa fa-shopping-cart"></i> My Samples Cart
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
@@ -284,12 +288,11 @@
                             </ul>
                         </div>
                     </div>
-                    <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019-2020</small>
+                    <small class="d-block mb-3 text-muted">&copy; AberSystemsBiology 2019-2021</small>
                 </div>
             </div>
         </div>
     </footer>
-
 
     <script src="{{ url_for('static', filename='node_modules/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='node_modules/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>

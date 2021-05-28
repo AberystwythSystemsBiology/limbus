@@ -61,7 +61,6 @@ def attribute_home(tokenuser: UserAccount):
 @use_args(AttributeSearchSchema(), location="json")
 @token_required
 def attribute_query(args, tokenuser: UserAccount):
-    print(args)
 
     filters, joins = get_filters_and_joins(args, Attribute)
 
