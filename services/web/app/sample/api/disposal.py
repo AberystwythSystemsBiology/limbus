@@ -69,7 +69,12 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
     )
 
     if sample_response.status_code == 200:
-
+        # Step 1 Check sample disposal instruction (TO DO: sample disposal instruction UPDATE)
+        # -- if disposal date approached: proceed to step 2 otherwise, stop with warning date
+        # Step 2 add new protocol event
+        # Step 3 update disposal instruction table, disposal status => Disposed,
+        # Step 4 update storage: delete association to lts/rack
+        # Step 5 update sample status set to DES/TRA/.../ accordingly
         new_protocol_event_response = requests.post(
                 url_for("api.sample_new_sample_protocol_event", _external=True),
                 headers=get_internal_api_header(tokenuser),
@@ -97,11 +102,11 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
             try:
 
                 db.session.add(new_disposal_event)
-                db.session.commit()
-                db.session.flush()
+                #db.session.commit()
+                #db.session.flush()
 
                 sample = Sample.query.filter_by(uuid=sample_response.json()["content"]["uuid"]).first()
-
+                print("Sample: ", sample.id)
                 if new_disposal_event.reason in ["DES", "FAI"]:
                     sample.status = "DES"
                 elif new_disposal_event.reason == "TRA":

@@ -193,3 +193,20 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     else:
         return coldstorage_response.json()
+
+
+@api.route("/storage/coldstorage/rooms_onsite/LIMBCS-<id>", methods=["GET"])
+@token_required
+def storage_rooms_onsite(id, tokenuser: UserAccount):
+    # Get the list of rooms of the same site for the given coldstorage id
+    subq = db.session.query(SiteInformation.id).join(Building).\
+            join(Room).join(ColdStorage).filter(ColdStorage.id==id)
+    stmt = db.session.query(SiteInformation.id).join(Building).\
+            join(Room).join(ColdStorage).filter(SiteInformation.id==subq.first().id).\
+            with_entities(Room.id, SiteInformation.name, Building.name, Room.name).\
+            distinct(Room.id).all()
+
+    results = [{'id':roomid,'name':'%s-%s-%s' % (sitename, buildingname, roomname)}
+                for (roomid, sitename, buildingname, roomname) in stmt]
+
+    return success_with_content_response(results)

@@ -209,9 +209,7 @@ def edit_cold_storage(id):
     csinfo['room_id'] = response.json()["content"]['room_id']
 
     response1 = requests.get(
-        url_for("api.storage_room_home", _external=True),
-        #url_for("api.storage_rooms_onsite", id=id, _external=True),
-
+        url_for("api.storage_rooms_onsite", id=id, _external=True),
         headers=get_internal_api_header(),
     )
     print(response1.json()["content"])
