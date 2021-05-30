@@ -206,7 +206,7 @@ def storage_rooms_onsite(id, tokenuser: UserAccount):
             with_entities(Room.id, SiteInformation.name, Building.name, Room.name).\
             distinct(Room.id).all()
 
-    results = [{'id':roomid,'name':'%s-%s-%s' % (sitename, buildingname, roomname)}
+    results = [{'id':roomid,'name':'(%s)%s-%s' % (sitename, buildingname, roomname)}
                 for (roomid, sitename, buildingname, roomname) in stmt]
 
     return success_with_content_response(results)

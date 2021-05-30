@@ -23,6 +23,7 @@ from wtforms import (
     TextAreaField,
     FileField,
     BooleanField,
+    HiddenField,
 )
 
 from wtforms.validators import DataRequired
@@ -37,6 +38,38 @@ class NewSampleRackForm(FlaskForm):
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
     submit = SubmitField("Register")
+
+
+def EditSampleRackForm(shelves: list, data={}):
+    shelf_choices = []
+
+    if (len(shelves) == 0):
+        data["shelf_required"] = False
+    else:
+        for shelf in shelves:
+            shelf_choices.append((shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"])))
+        data["shelf_required"] = True
+
+    class StaticForm(FlaskForm):
+        serial = StringField("Serial Number", validators=[DataRequired()])
+        num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
+        num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
+        description = TextAreaField("Description")
+        colours = SelectField("Colour", choices=Colour.choices())
+
+        storage_id = HiddenField("Entity to storage id")
+        shelf_required = BooleanField('Shelf located or not')
+        shelf_id = SelectField(
+            "Shelf",
+            choices=shelf_choices,
+            validators=[DataRequired()],
+            description="The shelf where the rack is located.", coerce=int,
+        )
+
+        submit = SubmitField("Register")
+
+    return StaticForm(data=data)
+
 
 
 def CryoBoxFileUploadSelectForm(sample_data: dict):

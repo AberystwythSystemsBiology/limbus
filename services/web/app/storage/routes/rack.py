@@ -37,7 +37,7 @@ from ...misc import get_internal_api_header
 from uuid import uuid4
 
 from ..forms import (
-    NewSampleRackForm,
+    NewSampleRackForm, EditSampleRackForm,
     SampleToEntityForm,
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
@@ -344,28 +344,50 @@ def assign_rack_sample(id, row, column):
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_rack(id):
-
     response = requests.get(
-        url_for("api.storage_rack_view", id=id, _external=True),
+        url_for("api.storage_rack_location", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
+        # For SampleRack with location info.
         rack = response.json()["content"]
+        #print("Rack: ", rack)
+        shelves = []
+        shelf_required = False
 
-        form = NewSampleRackForm(
-            data={"serial": rack["serial_number"], "description": rack["description"]}
+        if rack['storage_id']:
+            response1 = requests.get(
+                url_for("api.storage_shelves_onsite", id=id, _external=True),
+                headers=get_internal_api_header(),
+            )
+            if response1.status_code == 200:
+                #print(response1.json()["content"])
+                shelves = response1.json()["content"]
+                shelf_required = len(shelves) > 0
+
+        form = EditSampleRackForm(shelves=shelves,
+            data={"serial": rack["serial_number"], "description": rack["description"],
+                  "storage_id": rack['storage_id'], "shelf_id": rack["shelf_id"]}
         )
 
         delattr(form, "num_cols")
         delattr(form, "num_rows")
         delattr(form, "colours")
+        if not shelf_required:
+            delattr(form, "shelf_id")
 
         if form.validate_on_submit():
             form_information = {
                 "serial_number": form.serial.data,
                 "description": form.description.data,
+                "storage_id": form.storage_id.data
             }
+
+            if shelf_required:
+                form_information["shelf_id"] = form.shelf_id.data
+            else:
+                form_information["shelf_id"] = None
 
             edit_response = requests.put(
                 url_for("api.storage_rack_edit", id=id, _external=True),
@@ -385,3 +407,5 @@ def edit_rack(id):
         )
 
     abort(response.status_code)
+
+

@@ -20,11 +20,13 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, SampleRack, UserAccount, EntityToStorage
+from ...database import db, SampleRack, UserAccount, EntityToStorage, \
+    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation
 
 from ..enums import EntityToStorageType
 
-from sqlalchemy.sql import insert
+from sqlalchemy.sql import insert, func
+from sqlalchemy import or_, and_
 
 from marshmallow import ValidationError
 
@@ -72,10 +74,122 @@ def storage_rack_lock(id, tokenuser: UserAccount):
 @api.route("/storage/rack/LIMBRACK-<id>/edit", methods=["PUT"])
 @token_required
 def storage_rack_edit(id, tokenuser: UserAccount):
+    # Step 1: SampleRack update
+    # Step 2: If shelf_id exist, EntityToStorage update.
+    values = request.get_json()
+    print(values)
+    if not values:
+        return no_values_response()
+
+    rack = SampleRack.query.get(id)
+
+    if not rack:
+        return not_found()
+
+    storage_id = values['storage_id']
+    shelf_id = values['shelf_id']
+    values.pop('storage_id', None)
+    values.pop('shelf_id', None)
+    try:
+        result = new_sample_rack_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    rack.update(values)
+    rack.editor_id = tokenuser.id
+    #rack.updated_on = func.now()
+
+    db.session.add(rack)
+    print("storage_id", storage_id )
+    if storage_id is not None and storage_id != '':
+        storage = EntityToStorage.query.get(storage_id)
+        if not storage:
+            return not_found()
+
+        storage.shelf_id = shelf_id
+        storage.editor_id = tokenuser.id
+        storage.updated_on = func.now()
+        db.session.add(storage)
+
+    try:
+        db.session.commit()
+        #db.session.flush()
+
+        return success_with_content_response(values)
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/storage/rack/LIMBRACK-<id>/editbasic", methods=["PUT"])
+@token_required
+def storage_rack_edit_basic(id, tokenuser: UserAccount):
     values = request.get_json()
     return generic_edit(
         db, SampleRack, id, new_sample_rack_schema, rack_schema, values, tokenuser
     )
+
+
+@api.route("/storage/rack/location/LIMBRACK-<id>", methods=["GET"])
+@token_required
+def storage_rack_location(id, tokenuser: UserAccount):
+    results = ''
+
+    stmt = db.session.query(SampleRack).filter_by(id=id). \
+        with_entities(id, SampleRack.serial_number, SampleRack.description, SampleRack.uuid).first_or_404()
+
+    if stmt is None:
+        return success_with_content_response(results)
+
+    results = [{'id': rackid, 'serial_number': serial_number, 'description': description,
+                    'uuid': uuid, 'storage_id': None, 'shelf_id': None}
+                   for (rackid, serial_number, description, uuid) in [stmt]][0]
+    print("okok-", results)
+
+    try:
+        # Get shelf_id for the give rack id
+        stmt = db.session.query(SampleRack).\
+            outerjoin(EntityToStorage, SampleRack.id==EntityToStorage.rack_id).\
+            join(ColdStorageShelf, EntityToStorage.shelf_id==ColdStorageShelf.id). \
+            filter(SampleRack.id == id, EntityToStorage.storage_type == 'BTS'). \
+            with_entities(EntityToStorage.id, ColdStorageShelf.id).first_or_404()
+
+        if stmt is not None:
+            shelf_results = [{'storage_id': storageid, 'shelf_id': shelfid}
+                       for (storageid, shelfid) in [stmt]][0]
+
+            results.update(shelf_results)
+
+            print('stmt: ', stmt)
+
+    except:
+        pass
+
+    print(results)
+    return success_with_content_response(results)
+
+
+@api.route("/storage/rack/shelves_onsite/LIMBRACK-<id>", methods=["GET"])
+@token_required
+def storage_shelves_onsite(id, tokenuser: UserAccount):
+    # Get the list of shelves of the same site for a given rack id
+    subq = db.session.query(SiteInformation.id).join(Building).\
+            join(Room).join(ColdStorage).join(ColdStorageShelf).\
+            join(EntityToStorage, EntityToStorage.shelf_id==ColdStorageShelf.id).\
+            filter(EntityToStorage.rack_id == id, EntityToStorage.storage_type=='BTS')
+
+    stmt = db.session.query(SiteInformation.id).join(Building).\
+            join(Room).join(ColdStorage).join(ColdStorageShelf).\
+            filter(SiteInformation.id == subq.first().id).\
+            with_entities(ColdStorageShelf.id, SiteInformation.name, Building.name, Room.name,
+                          ColdStorage.alias, ColdStorage.temp, ColdStorageShelf.name).\
+            distinct(ColdStorageShelf.id).all()
+
+    print('stmt: ', stmt)
+    results = [{'id':shelfid,'name':'%s - %s - %s - %s (%s) - %s' % (sitename, buildingname, roomname, csname, cstemp, shelfname)}
+                for (shelfid, sitename, buildingname, roomname, csname, cstemp, shelfname) in stmt]
+    print(results)
+
+    return success_with_content_response(results)
 
 
 @api.route("/storage/rack/assign/sample", methods=["POST"])
