@@ -14,7 +14,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ..database import db, Base
-from .enums import DocumentType
 from ..mixins import RefAuthorMixin, RefEditorMixin
 
 
@@ -24,6 +23,6 @@ class Event(Base, RefAuthorMixin, RefEditorMixin):
     datetime = db.Column(db.DateTime, nullable=False)
     undertaken_by = db.Column(db.String(128))
     comments = db.Column(db.Text())
-    
+
     protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
     protocol = db.relationship("ProtocolTemplate")
