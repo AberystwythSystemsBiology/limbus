@@ -32,6 +32,7 @@ from .procedure import procedure as procedure_blueprint
 from .donor import donor as donor_blueprint
 from .consent import consent as consent_blueprint
 from .protocol import protocol as protocol_blueprint
+from .container import container as container_blueprint
 from .sample import sample as sample_blueprint
 from .tmpstore import tmpstore as tmpstore_blueprint
 from .storage import storage as storage_blueprint
@@ -74,6 +75,7 @@ def register_blueprints(app):
     app.register_blueprint(donor_blueprint, url_prefix="/donor")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
+    app.register_blueprint(container_blueprint, url_prefix="/container")
     app.register_blueprint(sample_blueprint, url_prefix="/sample")
     app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
