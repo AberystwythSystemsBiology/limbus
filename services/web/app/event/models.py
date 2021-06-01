@@ -24,3 +24,6 @@ class Event(Base, RefAuthorMixin, RefEditorMixin):
     datetime = db.Column(db.DateTime, nullable=False)
     undertaken_by = db.Column(db.String(128))
     comments = db.Column(db.Text())
+    
+    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
+    protocol = db.relationship("ProtocolTemplate")

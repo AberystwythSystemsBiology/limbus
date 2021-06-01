@@ -23,7 +23,7 @@ class SampleReview(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     result = db.Column(db.Enum(ReviewResult))
     review_type = db.Column(db.Enum(ReviewType))
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
-    conducted_by = db.Column(db.String(128))
-    datetime = db.Column(db.DateTime, nullable=False)
     quality = db.Column(db.Enum(SampleQuality))
-    comments = db.Column(db.Text)
+
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+    event = db.relationship("Event")
