@@ -35,17 +35,16 @@ class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
 class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))   
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
     
     new_site = db.relationship("SiteInformation")
-    
-    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
     event = db.relationship("Event")
 
     involved_samples = db.relationship(
         "SampleShipmentEventToSample",
         primaryjoin="SampleShipmentEventToSample.shipment_id == SampleShipmentEvent.id"
-        )
+    )
 
 
 class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):

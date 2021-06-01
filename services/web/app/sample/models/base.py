@@ -57,15 +57,14 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
+    events = db.relationship("SampleToEvent")
+
     # Disposal Information
     # Done -> sample_new_disposal_instructions
     disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
     disposal_information = db.relationship("SampleDisposal", uselist=False)
 
-    protocol_events = db.relationship("SampleProtocolEvent")
-
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
-    reviews = db.relationship("SampleReview", uselist=True)
 
     is_closed = db.Column(db.Boolean, default=False)
 
@@ -77,10 +76,6 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         viewonly=True,
     )
 
-    disposal_event = db.relationship(
-        "SampleDisposalEvent",
-        primaryjoin="Sample.id==SampleDisposalEvent.sample_id"
-    )
 
     parent = db.relationship(
         "Sample",
@@ -100,6 +95,10 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     donor = db.relationship("Donor", uselist=False, secondary="donortosample")
 
+
+class SampleToEvent(Base, RefEditorMixin, RefAuthorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
 
 class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
