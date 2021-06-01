@@ -22,7 +22,7 @@ from ..views import BasicSampleSchema
 from ...sample.views import SampleUUIDSchema
 from ...auth.views import BasicUserAccountSchema
 from ...misc.views import BasicSiteSchema
-from ...event.views import NewEventSchema
+from ...event.views import NewEventSchema, EventSchema
 
 class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -59,6 +59,8 @@ class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 
+    event = ma.Nested(EventSchema())
+
     _links = ma.Hyperlinks(
         {
             "self": ma.URLFor("sample.shipment_view_shipment", uuid="<uuid>", _external=True),
@@ -68,8 +70,6 @@ class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
 
 basic_sample_shipment_event_schema = BasicSampleShipmentSchema()
 basic_sample_shipment_events_schema = BasicSampleShipmentSchema(many=True)
-
-
 
 
 class NewSampleShipmentSchema(masql.SQLAlchemySchema):

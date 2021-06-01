@@ -118,10 +118,6 @@ class SampleSchema(masql.SQLAlchemySchema):
     site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
-    protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
-
-    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
-
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
@@ -129,8 +125,6 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     attributes = ma.Nested(AttributeDataSchema, many=True)
     documents = ma.Nested(BasicDocumentSchema, many=True)
-
-    reviews = ma.Nested(SampleReviewSchema, many=True)
 
     parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
