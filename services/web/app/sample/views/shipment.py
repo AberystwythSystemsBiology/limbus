@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import UserCart, SampleShipmentEvent, SampleShipmentEventToSample
+from ...database import UserCart, SampleShipment, SampleShipmentToSample
 from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
@@ -22,23 +22,23 @@ from ..views import BasicSampleSchema
 from ...sample.views import SampleUUIDSchema
 from ...auth.views import BasicUserAccountSchema
 from ...misc.views import BasicSiteSchema
+from ...event.views import NewEventSchema
 
 class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleShipmentEventToSample
+        model = SampleShipmentToSample
 
     sample_id = masql.auto_field()
     sample = ma.Nested(SampleUUIDSchema, many=False)
     old_site = ma.Nested(BasicSiteSchema, many=False)
 
-class SampleShipmentEventSchema(masql.SQLAlchemySchema):
+class SampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleShipmentEvent
+        model = SampleShipment
 
     uuid = masql.auto_field()
     id = masql.auto_field()
     comments = masql.auto_field()
-    datetime = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
     new_site = ma.Nested(BasicSiteSchema, many=False)
@@ -47,16 +47,15 @@ class SampleShipmentEventSchema(masql.SQLAlchemySchema):
 
 
 
-sample_shipment_event_schema = SampleShipmentEventSchema()
-sample_shipment_events_schema = SampleShipmentEventSchema(many=True)
+sample_shipment_event_schema = SampleShipmentSchema()
+sample_shipment_events_schema = SampleShipmentSchema(many=True)
 
-class BasicSampleShipmentEventSchema(masql.SQLAlchemySchema):
+class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleShipmentEvent
+        model = SampleShipment
     
     uuid = masql.auto_field()
     id = masql.auto_field()
-    datetime = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 
@@ -67,21 +66,20 @@ class BasicSampleShipmentEventSchema(masql.SQLAlchemySchema):
         }
     )
 
-basic_sample_shipment_event_schema = BasicSampleShipmentEventSchema()
-basic_sample_shipment_events_schema = BasicSampleShipmentEventSchema(many=True)
+basic_sample_shipment_event_schema = BasicSampleShipmentSchema()
+basic_sample_shipment_events_schema = BasicSampleShipmentSchema(many=True)
 
 
 
 
-class NewSampleShipmentEventSchema(masql.SQLAlchemySchema):
+class NewSampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleShipmentEvent
+        model = SampleShipment
     
     site_id = masql.auto_field(required=True)
-    comments = masql.auto_field()
-    datetime = masql.auto_field(required=True)
+    event = ma.Nested(NewEventSchema())
 
-new_sample_shipment_event_schema = NewSampleShipmentEventSchema()
+new_sample_shipment_schema = NewSampleShipmentSchema()
 
 
 class NewUserCartSampleSchema(masql.SQLAlchemySchema):
