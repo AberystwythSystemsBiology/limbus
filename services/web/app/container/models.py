@@ -19,9 +19,12 @@ from ..sample.enums import Colour
 
 class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     manufacturer = db.Column(db.String(128))
+    description = db.Column(db.Text())
+
     cellular = db.Column(db.Boolean())
     fluid = db.Column(db.Boolean())
     tissue = db.Column(db.Boolean())
+    
     min_temp = db.Column(db.Float())
     max_temp = db.Column(db.Float())
     sample_rack = db.Column(db.Boolean(Colour))

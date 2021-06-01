@@ -16,9 +16,17 @@
 from ..container import container
 from flask import render_template
 from flask_login import current_user, login_required
+from .forms import NewContainerForm
 
 
 @container.route("/")
 @login_required
 def index():
     return render_template("container/index.html")
+
+@container.route("/new")
+@login_required
+def new():
+    form = NewContainerForm()
+
+    return render_template("container/new.html", form=form)

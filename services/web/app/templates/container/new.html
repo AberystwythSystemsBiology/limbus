@@ -1,0 +1,57 @@
+{% extends "template.html" %}
+
+{% block title %}New Container : Container Portal{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h2 class="secondary-heading">
+            <a href="{{ url_for('container.index') }}">
+                <i class="fa fa-dot-circle"></i> Container Portal
+            </a>
+        </h2>
+        <h1>
+            
+        New Container</h1>
+            
+
+    </div>
+</div>
+<div class="container">
+
+    {{ form_field(form.manufacturer) }}
+    {{ form_field(form.identifier) }}
+
+    {{ form_field(form.colour) }}
+    {{ form_field(form.description) }}
+    <div class="row">
+        <div class="col-sm-4">
+            {{ form_field(form.fluid) }}
+        </div>
+        <div class="col-sm-4">
+            {{ form_field(form.cellular) }}
+        </div>
+        <div class="col-sm-4">
+            {{ form_field(form.tissue) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            {{ form_field(form.min_temperature) }}
+        </div>
+        <div class="col-sm-6">
+            {{ form_field(form.max_temperature) }}
+        </div>
+    </div>
+
+    {{ form_field(form.sample_rack) }}
+
+
+    {{ form_field(form.submit) }}
+
+
+</div>
+{% endblock %}
+
