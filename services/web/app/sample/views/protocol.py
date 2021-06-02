@@ -17,6 +17,7 @@ from ...extensions import ma
 from ...database import SampleProtocolEvent
 from ...auth.views import BasicUserAccountSchema
 from ...protocol.views import BasicProtocolTemplateSchema
+from ...event.views import EventSchema, NewEventSchema
 
 import marshmallow_sqlalchemy as masql
 
@@ -26,7 +27,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
         model = SampleProtocolEvent
 
     sample_id = masql.auto_field()
-
+    event = ma.Nested(NewEventSchema())
 
 new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
 
@@ -38,6 +39,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
+    event = ma.Nested(EventSchema)
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
@@ -49,3 +51,4 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
+sample_protocol_events_schema = SampleProtocolEventSchema(many=True)

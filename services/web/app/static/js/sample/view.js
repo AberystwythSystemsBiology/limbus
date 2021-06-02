@@ -273,10 +273,11 @@ function fill_protocol_events(events) {
 
     let protocol_events = new Map();
 
+
     for (e in events) {
         var event_info = events[e];
 
-        
+        console.log(event_info);
 
         // Start ul
         html = "<li>"
@@ -468,7 +469,7 @@ $(document).ready(function () {
         fill_lineage_table(sample_info["subsamples"]);
         fill_comments(sample_info["comments"]);
         fill_document_information(sample_info["documents"]);
-        fill_protocol_events(sample_info["protocol_events"]);
+        fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
     
         $("#content").delay(500).fadeIn();

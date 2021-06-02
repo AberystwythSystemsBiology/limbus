@@ -57,7 +57,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
-    events = db.relationship("SampleToEvent")
+    events = db.relationship("SampleProtocolEvent")
 
     # Disposal Information
     # Done -> sample_new_disposal_instructions

@@ -28,6 +28,7 @@ from . import (
 
 from ...document.views import BasicDocumentSchema
 from ...attribute.views import AttributeDataSchema
+from ..views import SampleProtocolEventSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -125,6 +126,8 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
+
+    events = ma.Nested(SampleProtocolEventSchema, many=True)
 
     created_on = ma.Date()
 
