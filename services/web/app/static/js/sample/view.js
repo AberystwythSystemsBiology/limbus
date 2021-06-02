@@ -277,7 +277,6 @@ function fill_protocol_events(events) {
     for (e in events) {
         var event_info = events[e];
 
-        console.log(event_info);
 
         // Start ul
         html = "<li>"

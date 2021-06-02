@@ -57,17 +57,19 @@ def new_protocol_event(uuid):
                 url_for("api.sample_new_sample_protocol_event", _external=True),
                 headers=get_internal_api_header(),
                 json={
-                    "datetime": str(
-                        datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S",
-                        )
-                    ),
-                    "undertaken_by": form.undertaken_by.data,
-                    "comments": form.comments.data,
+                    "event" : {
+                        "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "undertaken_by": form.undertaken_by.data,
+                        "comments": form.comments.data,
+                    },
                     "protocol_id": form.protocol_id.data,
                     "sample_id": sample_response.json()["content"]["id"],
-                },
+                }
             )
 
             if new_event.status_code == 200:
