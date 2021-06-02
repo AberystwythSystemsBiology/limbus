@@ -42,14 +42,13 @@ def prepare_form_data(data: dict):
     api_data = {
         "collection_information": {
             "event" :{
-                "protocol_id": step_one["collection_protocol_id"],
                 "datetime": "%s %s" % (step_one["collection_date"], step_one["collection_time"]),
                 "undertaken_by": step_one["collected_by"],
                 "comments": step_one["collection_comments"]
-            }
+            },
+            "protocol_id": step_one["collection_protocol_id"],
         },
         "sample_information": {
-            "colour": step_one["colour"],
             "barcode": step_one["barcode"],
             "source": "NEW",
             "base_type": step_three["sample_type"],

@@ -28,6 +28,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
 
     sample_id = masql.auto_field()
     event = ma.Nested(NewEventSchema())
+    protocol_id = masql.auto_field()
 
 new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
 
@@ -41,6 +42,8 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
     event = ma.Nested(EventSchema)
     created_on = ma.Date()
+
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
 
     _links = ma.Hyperlinks(
         {

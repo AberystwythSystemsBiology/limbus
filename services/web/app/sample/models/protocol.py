@@ -23,7 +23,7 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
-    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"))
+    protocol_id = db.Column(db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False)
 
     protocol = db.relationship("ProtocolTemplate")
     event = db.relationship("Event")

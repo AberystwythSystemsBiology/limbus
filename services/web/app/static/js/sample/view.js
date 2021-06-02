@@ -281,7 +281,7 @@ function fill_protocol_events(events) {
 
         // Start ul
         html = "<li>"
-        html += "<p class='text-muted'>Undertaken on " + event_info["datetime"] + "</p>"
+        html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
         // Start card body
         html += "<div class='card'>"
         html += "<div class='card-header'>"

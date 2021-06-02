@@ -37,6 +37,8 @@ from ...database import db, SampleProtocolEvent, UserAccount
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
 
+    print(values)
+
     if not values:
         return no_values_response()
 
@@ -58,7 +60,8 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     new_sample_protocol_event = SampleProtocolEvent(
         sample_id = event_result["sample_id"], 
         event_id = new_event.id,
-        author_id = tokenuser.id
+        author_id = tokenuser.id,
+        protocol_id = event_result["protocol_id"]
     )
 
     try:
