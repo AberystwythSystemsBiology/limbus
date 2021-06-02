@@ -29,7 +29,7 @@ class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     old_site = db.relationship("SiteInformation")
     sample = db.relationship("Sample")
 
-    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
+    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id"))
 
 
 class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
@@ -42,8 +42,8 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
     event = db.relationship("Event")
 
     involved_samples = db.relationship(
-        "SampleShipmentEventToSample",
-        primaryjoin="SampleShipmentEventToSample.shipment_id == SampleShipmentEvent.id"
+        "SampleShipmentToSample",
+        primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id"
     )
 
 

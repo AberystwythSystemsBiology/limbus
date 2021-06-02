@@ -38,7 +38,6 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     id = masql.auto_field()
-    comments = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
     new_site = ma.Nested(BasicSiteSchema, many=False)
@@ -47,8 +46,8 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
 
 
 
-sample_shipment_event_schema = SampleShipmentSchema()
-sample_shipment_events_schema = SampleShipmentSchema(many=True)
+sample_shipment_schema = SampleShipmentSchema()
+sample_shipments_schema = SampleShipmentSchema(many=True)
 
 class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -68,8 +67,8 @@ class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
         }
     )
 
-basic_sample_shipment_event_schema = BasicSampleShipmentSchema()
-basic_sample_shipment_events_schema = BasicSampleShipmentSchema(many=True)
+basic_sample_shipment_schema = BasicSampleShipmentSchema()
+basic_sample_shipments_schema = BasicSampleShipmentSchema(many=True)
 
 
 class NewSampleShipmentSchema(masql.SQLAlchemySchema):

@@ -21,12 +21,9 @@ from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, Biohazar
 from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
-    SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
     ConsentSchema,
-    BasicSampleDiposalEventSchema,
-    SampleReviewSchema,
-    EntityToStorageSchema,
+    EntityToStorageSchema
 )
 
 from ...document.views import BasicDocumentSchema

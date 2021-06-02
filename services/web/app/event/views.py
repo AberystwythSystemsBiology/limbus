@@ -15,11 +15,11 @@
 
 from .models import Event
 import marshmallow_sqlalchemy as masql
-from ...extensions import ma
-from ...auth.views import BasicUserAccountSchema
+from ..extensions import ma
+from ..auth.views import BasicUserAccountSchema
 
 
-class NewEventSchema(masql.SQLALchemySchema):
+class NewEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Event
 
@@ -33,11 +33,11 @@ class EventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Event
 
+    id = masql.auto_field()
     datetime = masql.auto_field()
     undertaken_by = masql.auto_field()
-    comments = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
-
+    created_on = masql.auto_field()
 
 event_schema = EventSchema()
-events_scheme = EventSchema(many=True)
+events_schema = EventSchema(many=True)

@@ -36,6 +36,8 @@ from ...database import db, SampleProtocolEvent, UserAccount
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
 
+    print(values)
+
     if not values:
         return no_values_response()
 

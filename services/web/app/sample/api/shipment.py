@@ -24,20 +24,20 @@ from ...decorators import token_required
 from ...misc import get_internal_api_header
 from ...database import (
     db,
-    SampleShipmentEventToSample,
+    SampleShipmentToSample,
     UserCart,
     UserAccount,
-    SampleShipmentEvent
+    SampleShipment
 )
 
 from ..views import (
     user_cart_samples_schema,
     new_cart_sample_schema,
-    new_sample_shipment_event_schema,
-    sample_shipment_event_schema,
-    sample_shipment_events_schema,
-    basic_sample_shipment_event_schema,
-    basic_sample_shipment_events_schema
+    new_sample_shipment_schema,
+    sample_shipment_schema,
+    sample_shipment_schema,
+    basic_sample_shipment_schema,
+    basic_sample_shipment_schema
 )
 
 
@@ -89,7 +89,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
         return validation_error_response(err)
 
     
-    new_shipment_event = SampleShipmentEvent(**new_shipment_event_values)
+    new_shipment_event = SampleShipment(**new_shipment_event_values)
     new_shipment_event.author_id = tokenuser.id
     db.session.add(new_shipment_event)
     db.session.commit()
@@ -97,7 +97,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     for sample in cart:
         s = sample.sample
-        ssets = SampleShipmentEventToSample(
+        ssets = SampleShipmentToSample(
             sample_id = s.id,
             from_site_id = s.site_id,
             author_id = tokenuser.id,
