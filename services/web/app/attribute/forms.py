@@ -194,12 +194,11 @@ def CustomAttributeSelectionForm(element) -> FlaskForm:
 
     if custom_attribute_response.status_code == 200:
         for attr in custom_attribute_response.json()["content"]:
-            setattr(StaticForm,
-                    str(attr["id"]),
-                    BooleanField(
-                        attr["term"],
-                        render_kw={"_type": attr["type"]}
-                    ))
+            setattr(
+                StaticForm,
+                str(attr["id"]),
+                BooleanField(attr["term"], render_kw={"_type": attr["type"]}),
+            )
 
     return StaticForm()
 
@@ -213,7 +212,7 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
     for attr_id in attribute_ids:
         attr_response = requests.get(
             url_for("api.attribute_view_attribute", id=attr_id, _external=True),
-            headers=get_internal_api_header()
+            headers=get_internal_api_header(),
         )
 
         if attr_response.status_code == 200:
@@ -227,9 +226,9 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                     description=attr["description"],
                     validators=[
                         DataRequired(),
-                        Length(max=attr["text_setting"]["max_length"])
-                        ],
-                        render_kw={"_custom_val": True}
+                        Length(max=attr["text_setting"]["max_length"]),
+                    ],
+                    render_kw={"_custom_val": True},
                 )
             else:
                 element = TextAreaField(
@@ -237,9 +236,9 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                     description=attr["description"],
                     validators=[
                         DataRequired(),
-                        Length(max=attr["text_setting"]["max_length"])
+                        Length(max=attr["text_setting"]["max_length"]),
                     ],
-                    render_kw={"_custom_val": True}
+                    render_kw={"_custom_val": True},
                 )
         elif attr["type"] == "Option":
             choices = []
@@ -252,14 +251,15 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                 description=attr["description"],
                 choices=choices,
                 coerce=int,
-                render_kw={"_custom_val": True}
+                render_kw={"_custom_val": True},
             )
-        
+
         element.render_kw = {"_custom_val": True}
 
         setattr(StaticForm, str(attr["id"]), element)
 
     return StaticForm()
+
 
 """
 

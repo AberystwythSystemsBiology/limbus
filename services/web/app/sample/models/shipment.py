@@ -17,43 +17,44 @@ from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import SampleShipmentStatusStatus
 
+
 class UserCart(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     sample = db.relationship("Sample", viewonly=True)
 
 
-class SampleShipmentEventToSample(Base, RefAuthorMixin, RefEditorMixin):
+class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
 
     old_site = db.relationship("SiteInformation")
     sample = db.relationship("Sample")
 
-    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"))
+    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id"))
 
 
-class SampleShipmentEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    
-    new_site = db.relationship("SiteInformation")
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
 
-    comments = db.Column(db.Text())
-    datetime = db.Column(db.DateTime)
+    new_site = db.relationship("SiteInformation")
+    event = db.relationship("Event")
 
     involved_samples = db.relationship(
-        "SampleShipmentEventToSample",
-        primaryjoin="SampleShipmentEventToSample.shipment_id == SampleShipmentEvent.id"
-        )
+        "SampleShipmentToSample",
+        primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
+    )
 
 
-class SampleShipmentEventStatus(Base, RefAuthorMixin, RefEditorMixin):
+class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
     status = db.Column(db.Enum(SampleShipmentStatusStatus))
     comments = db.Column(db.Text())
     tracking_number = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
-    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipmentevent.id"), nullable=False)
-
+    shipment_id = db.Column(
+        db.Integer, db.ForeignKey("sampleshipment.id"), nullable=False
+    )

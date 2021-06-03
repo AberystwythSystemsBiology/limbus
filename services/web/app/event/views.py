@@ -1,4 +1,4 @@
-# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,34 +13,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-from ...extensions import ma
-from ...database import SampleToCustomAttributeData
-
+from .models import Event
 import marshmallow_sqlalchemy as masql
+from ..extensions import ma
+from ..auth.views import BasicUserAccountSchema
 
-from ...auth.views import BasicUserAccountSchema
 
-
-class NewSampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
+class NewEventSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = SampleToCustomAttributeData
+        model = Event
+
+    datetime = masql.auto_field()
+    undertaken_by = masql.auto_field()
+    comments = masql.auto_field()
+
+
+new_event_schema = NewEventSchema()
+
+
+class EventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Event
 
     id = masql.auto_field()
-    sample_id = masql.auto_field()
-    attribute_data_id = masql.auto_field()
+    datetime = masql.auto_field()
+    undertaken_by = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = masql.auto_field()
 
 
-new_sample_to_custom_attribute_data_schema = NewSampleToCustomAttributeDataSchema()
-
-
-class SampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SampleToCustomAttributeData
-
-    id = masql.auto_field()
-    sample_id = masql.auto_field()
-    attribute_data_id = masql.auto_field()
-
-
-sample_to_custom_attribute_data_schema = SampleToCustomAttributeData()
+event_schema = EventSchema()
+events_schema = EventSchema(many=True)

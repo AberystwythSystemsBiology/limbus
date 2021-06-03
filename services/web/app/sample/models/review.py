@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2019-2021  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ class SampleReview(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     result = db.Column(db.Enum(ReviewResult))
     review_type = db.Column(db.Enum(ReviewType))
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
-    conducted_by = db.Column(db.String(128))
-    datetime = db.Column(db.DateTime, nullable=False)
     quality = db.Column(db.Enum(SampleQuality))
-    comments = db.Column(db.Text)
+
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+    event = db.relationship("Event")
