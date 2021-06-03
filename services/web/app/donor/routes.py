@@ -36,7 +36,9 @@ from .forms import (
 )
 
 from ..misc import get_internal_api_header
+
 strconv = lambda i: i or None
+
 
 @donor.route("/")
 @login_required
@@ -209,7 +211,6 @@ def add():
                 "status": form.status.data,
                 "mpn": form.mpn.data,
                 "race": form.race.data,
-
                 "death_date": death_date,
                 "weight": form.weight.data,
                 "height": form.height.data,
@@ -247,16 +248,16 @@ def edit(id):
 
         donor_info = response.json()["content"]
         print(donor_info)
-        donor_info['site'] = donor_info['enrollment_site_id']
-        donor_info['year']=datetime.strptime(
-            donor_info["dob"], "%Y-%m-%d").year
-        donor_info['month'] = datetime.strptime(
-            donor_info["dob"], "%Y-%m-%d").month
-        donor_info['registration_date'] = datetime.strptime(
-            donor_info['registration_date'], "%Y-%m-%d")
-        if donor_info['status'] == 'DE' and donor_info["death_date"] is not None:
+        donor_info["site"] = donor_info["enrollment_site_id"]
+        donor_info["year"] = datetime.strptime(donor_info["dob"], "%Y-%m-%d").year
+        donor_info["month"] = datetime.strptime(donor_info["dob"], "%Y-%m-%d").month
+        donor_info["registration_date"] = datetime.strptime(
+            donor_info["registration_date"], "%Y-%m-%d"
+        )
+        if donor_info["status"] == "DE" and donor_info["death_date"] is not None:
             donor_info["death_date"] = datetime.strptime(
-                donor_info["death_date"], "%Y-%m-%d")
+                donor_info["death_date"], "%Y-%m-%d"
+            )
         else:
             donor_info["death_date"] = None
 
@@ -270,7 +271,9 @@ def edit(id):
             if form.validate_on_submit():
                 death_date = None
                 if form.status.data == "DE":
-                    death_date = str(datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date())
+                    death_date = str(
+                        datetime.strptime(str(form.death_date.data), "%Y-%m-%d").date()
+                    )
 
                 form_information = {
                     "dob": str(
@@ -289,7 +292,6 @@ def edit(id):
                     "status": form.status.data,
                     "mpn": form.mpn.data,
                     "race": form.race.data,
-
                     "death_date": death_date,
                     "weight": form.weight.data,
                     "height": form.height.data,

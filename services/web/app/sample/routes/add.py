@@ -41,10 +41,11 @@ def prepare_form_data(data: dict):
 
     api_data = {
         "collection_information": {
-            "event" :{
-                "datetime": "%s %s" % (step_one["collection_date"], step_one["collection_time"]),
+            "event": {
+                "datetime": "%s %s"
+                % (step_one["collection_date"], step_one["collection_time"]),
                 "undertaken_by": step_one["collected_by"],
-                "comments": step_one["collection_comments"]
+                "comments": step_one["collection_comments"],
             },
             "protocol_id": step_one["collection_protocol_id"],
         },
@@ -219,7 +220,7 @@ def add_step_one():
         "sample/add/step_one.html",
         form=form,
         template_count=len(consent_templates),
-        collection_protocol_count=len(collection_protocols)
+        collection_protocol_count=len(collection_protocols),
     )
 
 

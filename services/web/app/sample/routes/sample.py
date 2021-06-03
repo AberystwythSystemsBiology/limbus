@@ -29,6 +29,7 @@ from ..forms import (
 
 from datetime import datetime
 
+
 @sample.route("<uuid>", methods=["GET"])
 @login_required
 def view(uuid: str):
@@ -46,12 +47,13 @@ def add_sample_to_cart(uuid):
     if sample_response.status_code == 200:
         cart_response = requests.post(
             url_for("api.add_sample_to_cart", uuid=uuid, _external=True),
-            headers=get_internal_api_header()
+            headers=get_internal_api_header(),
         )
 
         return cart_response.content
 
     return sample_response.content
+
 
 @sample.route("<uuid>/cart/remove", methods=["DELETE"])
 @login_required
@@ -64,12 +66,13 @@ def remove_sample_from_cart(uuid: str):
     if sample_response.status_code == 200:
         remove_response = requests.delete(
             url_for("api.remove_sample_from_cart", uuid=uuid, _external=True),
-            headers=get_internal_api_header()
+            headers=get_internal_api_header(),
         )
 
         return remove_response.content
 
     return sample_response.content
+
 
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required

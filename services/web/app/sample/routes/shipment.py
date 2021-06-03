@@ -21,10 +21,12 @@ from ...misc import get_internal_api_header
 from ..forms import SampleShipmentEventForm
 from datetime import datetime
 
+
 @sample.route("/shipment/cart")
 @login_required
 def shipment_cart():
     return render_template("sample/shipment/cart.html")
+
 
 @sample.route("/shipment/cart/data")
 @sample.route("/shipment/new/data")
@@ -35,7 +37,11 @@ def shipment_cart_data():
         headers=get_internal_api_header(),
     )
 
-    return (cart_response.text, cart_response.status_code, cart_response.headers.items())
+    return (
+        cart_response.text,
+        cart_response.status_code,
+        cart_response.headers.items(),
+    )
 
 
 @sample.route("/shipment")
@@ -43,30 +49,40 @@ def shipment_cart_data():
 def shipment_index():
     return render_template("sample/shipment/index.html")
 
+
 @sample.route("/shipment/data")
 @login_required
 def shipment_index_data():
     shipment_response = requests.get(
-        url_for("api.shipment_index", _external=True),
-        headers=get_internal_api_header()
+        url_for("api.shipment_index", _external=True), headers=get_internal_api_header()
     )
 
-    return (shipment_response.text, shipment_response.status_code, shipment_response.headers.items())
+    return (
+        shipment_response.text,
+        shipment_response.status_code,
+        shipment_response.headers.items(),
+    )
+
 
 @sample.route("/shipment/view/<uuid>")
 @login_required
 def shipment_view_shipment(uuid):
     return render_template("sample/shipment/view.html", uuid=uuid)
 
+
 @sample.route("/shipment/view/<uuid>/data")
 @login_required
 def shipment_view_shipment_data(uuid):
     shipment_response = requests.get(
         url_for("api.shipment_view_shipment", uuid=uuid, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
-    return (shipment_response.text, shipment_response.status_code, shipment_response.headers.items())
+    return (
+        shipment_response.text,
+        shipment_response.status_code,
+        shipment_response.headers.items(),
+    )
 
 
 @sample.route("/shipment/new/", methods=["GET", "POST"])
@@ -76,31 +92,31 @@ def shipment_new_step_one():
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
 
-
     if sites_response.status_code == 200:
 
         sites = []
         for site in sites_response.json()["content"]:
             sites.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
 
-
         form = SampleShipmentEventForm(sites)
 
         if form.validate_on_submit():
-            
+
             new_shipment_response = requests.post(
                 url_for("api.shipment_new_shipment", _external=True),
                 headers=get_internal_api_header(),
                 json={
                     "comments": form.comments.data,
                     "site_id": form.site_id.data,
-                    "datetime": str(
-                        datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S",
+                    "event": {
+                        "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
                         )
-                    ),
-                }
+                    },
+                },
             )
 
             if new_shipment_response.status_code == 200:

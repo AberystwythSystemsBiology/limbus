@@ -80,7 +80,6 @@ def register_blueprints(app):
     app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
     app.register_blueprint(storage_blueprint, url_prefix="/storage")
     app.register_blueprint(admin_blueprint, url_prefix="/admin")
-    
 
 
 def setup_database(app):

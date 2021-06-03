@@ -28,9 +28,7 @@ from ..enums import SampleShipmentStatusStatus
 from datetime import datetime
 
 
-def SampleShipmentEventForm(sites: list) -> FlaskForm: 
-
-
+def SampleShipmentEventForm(sites: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         date = DateField(
             "Shipment Request Date",
@@ -46,9 +44,9 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
 
         comments = TextAreaField("Comments", description="Any relevant observations.")
         submit = SubmitField("Submit")
-    
-    setattr(StaticForm, "site_id", SelectField("Recieving Site", choices=sites, coerce=int))
 
+    setattr(
+        StaticForm, "site_id", SelectField("Recieving Site", choices=sites, coerce=int)
+    )
 
     return StaticForm()
-    

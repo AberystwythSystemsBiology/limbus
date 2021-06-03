@@ -27,7 +27,9 @@ class NewEventSchema(masql.SQLAlchemySchema):
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
 
+
 new_event_schema = NewEventSchema()
+
 
 class EventSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -38,6 +40,7 @@ class EventSchema(masql.SQLAlchemySchema):
     undertaken_by = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = masql.auto_field()
+
 
 event_schema = EventSchema()
 events_schema = EventSchema(many=True)

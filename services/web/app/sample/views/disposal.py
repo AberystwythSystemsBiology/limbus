@@ -34,6 +34,7 @@ class NewSampleDiposalEventSchema(masql.SQLAlchemySchema):
     reason = EnumField(DisposalReason)
     sample_id = masql.auto_field()
 
+
 new_sample_disposal_event_schema = NewSampleDiposalEventSchema()
 
 
@@ -46,6 +47,7 @@ class BasicSampleDiposalEventSchema(masql.SQLAlchemySchema):
 
 
 basic_sample_disposal_event_schema = BasicSampleDiposalEventSchema()
+
 
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:

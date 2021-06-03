@@ -30,6 +30,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     event = ma.Nested(NewEventSchema())
     protocol_id = masql.auto_field()
 
+
 new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
 
 
@@ -47,8 +48,12 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            "edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True),
-            "remove": ma.URLFor("sample.remove_protocol_event", uuid="<uuid>", _external=True)
+            "edit": ma.URLFor(
+                "sample.edit_protocol_event", uuid="<uuid>", _external=True
+            ),
+            "remove": ma.URLFor(
+                "sample.remove_protocol_event", uuid="<uuid>", _external=True
+            ),
         }
     )
 

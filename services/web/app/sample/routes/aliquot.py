@@ -42,7 +42,11 @@ def aliquot(uuid: str):
     processing_templates = protocol_response.json()["content"]
     form = SampleAliquotingForm(processing_templates)
 
-    return render_template("sample/aliquot/create.html", form=form, aliquot_proc_count=len(processing_templates))
+    return render_template(
+        "sample/aliquot/create.html",
+        form=form,
+        aliquot_proc_count=len(processing_templates),
+    )
 
 
 @sample.route("query", methods=["POST"])

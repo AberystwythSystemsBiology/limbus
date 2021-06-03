@@ -57,7 +57,7 @@ def new_protocol_event(uuid):
                 url_for("api.sample_new_sample_protocol_event", _external=True),
                 headers=get_internal_api_header(),
                 json={
-                    "event" : {
+                    "event": {
                         "datetime": str(
                             datetime.strptime(
                                 "%s %s" % (form.date.data, form.time.data),
@@ -69,7 +69,7 @@ def new_protocol_event(uuid):
                     },
                     "protocol_id": form.protocol_id.data,
                     "sample_id": sample_response.json()["content"]["id"],
-                }
+                },
             )
 
             if new_event.status_code == 200:
@@ -89,18 +89,19 @@ def edit_protocol_event(uuid):
     form = ProtocolEventForm([])
     abort(501)
 
+
 @sample.route("/protocol_event/<uuid>/remove", methods=["GET", "POST"])
 @login_required
 def remove_protocol_event(uuid):
-    print('About to remove')
+    print("About to remove")
     remove_response = requests.post(
         url_for("api.sample_remove_sample_protocol_event", uuid=uuid, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if remove_response.status_code == 200:
         flash("Protocol Event Successfully Deleted!")
-        sample_uuid = remove_response.json()['content']
+        sample_uuid = remove_response.json()["content"]
         return redirect(url_for("sample.view", uuid=sample_uuid))
     else:
         flash("We have a problem: %s" % (remove_response.json()))

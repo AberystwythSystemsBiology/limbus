@@ -19,7 +19,7 @@ from ..mixins import RefAuthorMixin, RefEditorMixin
 
 class Event(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    
+
     datetime = db.Column(db.DateTime, nullable=False)
     undertaken_by = db.Column(db.String(128))
     comments = db.Column(db.Text())

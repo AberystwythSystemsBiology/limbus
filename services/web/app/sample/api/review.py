@@ -39,31 +39,29 @@ def sample_new_sample_review(tokenuser: UserAccount):
         return validation_error_response(err)
 
     new_event = Event(
-        datetime = sample_review_values["event"]["datetime"],
-        undertaken_by = sample_review_values["event"]["undertaken_by"],
-        comments = sample_review_values["event"]["comments"],
-        author_id = tokenuser.id
+        datetime=sample_review_values["event"]["datetime"],
+        undertaken_by=sample_review_values["event"]["undertaken_by"],
+        comments=sample_review_values["event"]["comments"],
+        author_id=tokenuser.id,
     )
 
     try:
         db.session.add(new_event)
-        db.session.commit();
+        db.session.commit()
         db.session.flush()
     except Exception as err:
         return transaction_error_response(err)
 
     sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
 
-
     new_sample_review = SampleReview(
-        result = sample_review_values["result"],
-        review_type = sample_review_values["review_type"],
-        sample_id = sample.id,
-        quality = sample_review_values["quality"],
-        author_id = tokenuser.id,
-        event_id = new_event.id
+        result=sample_review_values["result"],
+        review_type=sample_review_values["review_type"],
+        sample_id=sample.id,
+        quality=sample_review_values["quality"],
+        author_id=tokenuser.id,
+        event_id=new_event.id,
     )
-
 
     try:
         db.session.add(new_sample_review)

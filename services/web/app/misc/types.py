@@ -27,24 +27,19 @@ _data_type = typing.Union[
     BaseResponse,
     typing.Dict[str, typing.Any],
     typing.Callable[
-        [typing.Dict[str, typing.Any],
-        typing.Callable[
-            [
-                str, typing.List[typing.Tuple[str, str]]]
-                , None
-                ]
-                ],
-                typing.Iterable[bytes]
+        [
+            typing.Dict[str, typing.Any],
+            typing.Callable[[str, typing.List[typing.Tuple[str, str]]], None],
+        ],
+        typing.Iterable[bytes],
     ],
 ]
 
 _status_type = typing.Union[int, _str_bytes]
 _headers_type = typing.Union[
-    Headers, 
+    Headers,
     typing.Dict[_str_bytes, _str_bytes],
-    typing.Iterable[
-        typing.Tuple[_str_bytes, _str_bytes]
-        ],
+    typing.Iterable[typing.Tuple[_str_bytes, _str_bytes]],
 ]
 
 flask_return_union = typing.Union[

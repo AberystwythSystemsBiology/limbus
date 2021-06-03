@@ -43,8 +43,5 @@ def get_internal_api_header(tokenuser=None):
     return {"FlaskApp": current_app.config.get("SECRET_KEY"), "Email": email}
 
 
-
-
-
 from .routes import *
 from .types import flask_return_union

@@ -246,7 +246,9 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
 def attribute_new_data(type: str, tokenuser: UserAccount):
 
     if type not in ["text", "option"]:
-        return validation_error_response({"Error": "type must be one of text or option."})
+        return validation_error_response(
+            {"Error": "type must be one of text or option."}
+        )
 
     values = request.get_json()
 

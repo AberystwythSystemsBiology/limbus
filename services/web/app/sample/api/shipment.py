@@ -27,7 +27,7 @@ from ...database import (
     SampleShipmentToSample,
     UserCart,
     UserAccount,
-    SampleShipment
+    SampleShipment,
 )
 
 from ..views import (
@@ -37,16 +37,16 @@ from ..views import (
     sample_shipment_schema,
     sample_shipment_schema,
     basic_sample_shipments_schema,
-    basic_sample_shipment_schema
+    basic_sample_shipment_schema,
 )
-
 
 
 @api.route("/cart", methods=["GET"])
 @token_required
 def get_cart(tokenuser: UserAccount):
-    cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
+    cart = UserCart.query.filter_by(author_id=tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
+
 
 @api.route("/shipment/view/<uuid>", methods=["GET"])
 @token_required
@@ -60,20 +60,20 @@ def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
     else:
         return abort(404)
 
+
 @api.route("/shipment", methods=["GET"])
 @token_required
 def shipment_index(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sample_shipments_schema.dump(
-            SampleShipment.query.all()
-            )
-        )
+        basic_sample_shipments_schema.dump(SampleShipment.query.all())
+    )
+
 
 @api.route("/shipment/new", methods=["POST"])
 @token_required
 def shipment_new_shipment(tokenuser: UserAccount):
-    
-    cart = UserCart.query.filter_by(author_id = tokenuser.id).all()
+
+    cart = UserCart.query.filter_by(author_id=tokenuser.id).all()
 
     if len(cart) == 0:
         return validation_error_response("No Samples in Cart")
@@ -88,7 +88,6 @@ def shipment_new_shipment(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    
     new_shipment_event = SampleShipment(**new_shipment_event_values)
     new_shipment_event.author_id = tokenuser.id
     db.session.add(new_shipment_event)
@@ -98,10 +97,10 @@ def shipment_new_shipment(tokenuser: UserAccount):
     for sample in cart:
         s = sample.sample
         ssets = SampleShipmentToSample(
-            sample_id = s.id,
-            from_site_id = s.site_id,
-            author_id = tokenuser.id,
-            shipment_id = new_shipment_event.id
+            sample_id=s.id,
+            from_site_id=s.site_id,
+            author_id=tokenuser.id,
+            shipment_id=new_shipment_event.id,
         )
 
         db.session.add(ssets)
@@ -113,7 +112,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     try:
 
-        db.session.query(UserCart).filter_by(author_id = tokenuser.id).delete()
+        db.session.query(UserCart).filter_by(author_id=tokenuser.id).delete()
         db.session.commit()
         db.session.flush()
 
@@ -136,15 +135,21 @@ def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
     if sample_response.status_code == 200:
         sample_id = sample_response.json()["content"]["id"]
 
-        uc = UserCart.query.filter_by(author_id = tokenuser.id, sample_id = sample_id).first()
+        uc = UserCart.query.filter_by(
+            author_id=tokenuser.id, sample_id=sample_id
+        ).first()
 
         if uc:
             db.session.delete(uc)
             db.session.commit()
-                
-            return success_with_content_response({"msg": "%s removed from cart" % (uuid)})
+
+            return success_with_content_response(
+                {"msg": "%s removed from cart" % (uuid)}
+            )
         else:
-            return success_with_content_response({"msg": "%s not in user cart" % (uuid)})
+            return success_with_content_response(
+                {"msg": "%s not in user cart" % (uuid)}
+            )
 
     else:
         return sample_response.content
@@ -161,23 +166,21 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
     if sample_response.status_code == 200:
         sample_id = sample_response.json()["content"]["id"]
         try:
-            cart_sample_schema = new_cart_sample_schema.load(
-                {"sample_id": sample_id}
-                )
-            
+            cart_sample_schema = new_cart_sample_schema.load({"sample_id": sample_id})
+
         except ValidationError as err:
             return validation_error_response(err)
 
-        check = UserCart.query.filter_by(author_id = tokenuser.id, sample_id = sample_id).first()
-        
+        check = UserCart.query.filter_by(
+            author_id=tokenuser.id, sample_id=sample_id
+        ).first()
+
         if check != None:
-            return success_with_content_response({"msg": "Sample already added to Cart"})
+            return success_with_content_response(
+                {"msg": "Sample already added to Cart"}
+            )
 
-
-        new_uc = UserCart(
-                sample_id = sample_id,
-                author_id = tokenuser.id
-        )
+        new_uc = UserCart(sample_id=sample_id, author_id=tokenuser.id)
 
         try:
             db.session.add(new_uc)
@@ -190,4 +193,3 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             return transaction_error_response(err)
     else:
         return sample_response.content
-

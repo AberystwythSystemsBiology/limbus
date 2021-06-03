@@ -30,7 +30,9 @@ class NewSampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
     sample_id = masql.auto_field()
     attribute_data_id = masql.auto_field()
 
+
 new_sample_to_custom_attribute_data_schema = NewSampleToCustomAttributeDataSchema()
+
 
 class SampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -39,5 +41,6 @@ class SampleToCustomAttributeDataSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     sample_id = masql.auto_field()
     attribute_data_id = masql.auto_field()
+
 
 sample_to_custom_attribute_data_schema = SampleToCustomAttributeData()
