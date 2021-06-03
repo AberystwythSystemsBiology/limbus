@@ -82,8 +82,6 @@ def sample_query(args, tokenuser: UserAccount):
 def sample_view_sample(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
 
-    print(sample.events[0].protocol_id)
-
     if sample:
         return success_with_content_response(sample_schema.dump(sample))
     else:

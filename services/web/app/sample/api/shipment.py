@@ -36,7 +36,7 @@ from ..views import (
     new_sample_shipment_schema,
     sample_shipment_schema,
     sample_shipment_schema,
-    basic_sample_shipment_schema,
+    basic_sample_shipments_schema,
     basic_sample_shipment_schema
 )
 
@@ -51,11 +51,11 @@ def get_cart(tokenuser: UserAccount):
 @api.route("/shipment/view/<uuid>", methods=["GET"])
 @token_required
 def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
-    shipment_event = SampleShipmentEvent.query.filter_by(uuid=uuid).first()
+    shipment_event = SampleShipment.query.filter_by(uuid=uuid).first()
 
     if shipment_event:
         return success_with_content_response(
-            sample_shipment_event_schema.dump(shipment_event)
+            sample_shipment_schema.dump(shipment_event)
         )
     else:
         return abort(404)
@@ -64,8 +64,8 @@ def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
 @token_required
 def shipment_index(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sample_shipment_events_schema.dump(
-            SampleShipmentEvent.query.all()
+        basic_sample_shipments_schema.dump(
+            SampleShipment.query.all()
             )
         )
 
@@ -84,7 +84,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
         return no_values_response()
 
     try:
-        new_shipment_event_values = new_sample_shipment_event_schema.load(values)
+        new_shipment_event_values = new_sample_shipment_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -118,7 +118,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
         db.session.flush()
 
         return success_with_content_response(
-            sample_shipment_event_schema.dump(new_shipment_event)
+            sample_shipment_schema.dump(new_shipment_event)
         )
 
     except Exception as err:
