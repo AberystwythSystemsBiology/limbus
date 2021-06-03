@@ -16,6 +16,7 @@
 from ...extensions import ma
 from ...database import SampleReview
 from ...auth.views import BasicUserAccountSchema
+from ...event.views import NewEventSchema, EventSchema
 
 from ..enums import SampleQuality, ReviewResult, ReviewType
 
@@ -31,6 +32,7 @@ class SampleReviewSchema(masql.SQLAlchemySchema):
     quality = EnumField(SampleQuality, by_value=True)
     review_type = EnumField(ReviewType, by_value=True)
     result = EnumField(ReviewResult, by_value=True)
+    event = ma.Nested(EventSchema)
 
 
 sample_review_schema = SampleReviewSchema()
@@ -41,11 +43,11 @@ class NewSampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleReview
 
-    uuid = masql.auto_field()
     review_type = EnumField(ReviewType)
     result = EnumField(ReviewResult)
     sample_id = masql.auto_field()
     quality = EnumField(SampleQuality)
+    event = ma.Nested(NewEventSchema)
 
 
 new_sample_review_schema = NewSampleReviewSchema()

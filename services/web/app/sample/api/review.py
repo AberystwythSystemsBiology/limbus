@@ -20,9 +20,9 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 
-from ..views import new_sample_review_schema
+from ..views import new_sample_review_schema, sample_review_schema
 
-from ...database import db, Sample, SampleReview, UserAccount
+from ...database import db, Sample, SampleReview, UserAccount, Event
 
 
 @api.route("/sample/new/review", methods=["POST"])
@@ -38,10 +38,32 @@ def sample_new_sample_review(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    new_sample_review = SampleReview(**sample_review_values)
-    new_sample_review.author_id = tokenuser.id
+    new_event = Event(
+        datetime = sample_review_values["event"]["datetime"],
+        undertaken_by = sample_review_values["event"]["undertaken_by"],
+        comments = sample_review_values["event"]["comments"],
+        author_id = tokenuser.id
+    )
+
+    try:
+        db.session.add(new_event)
+        db.session.commit();
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
 
     sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
+
+
+    new_sample_review = SampleReview(
+        result = sample_review_values["result"],
+        review_type = sample_review_values["review_type"],
+        sample_id = sample.id,
+        quality = sample_review_values["quality"],
+        author_id = tokenuser.id,
+        event_id = new_event.id
+    )
+
 
     try:
         db.session.add(new_sample_review)
@@ -50,7 +72,7 @@ def sample_new_sample_review(tokenuser: UserAccount):
         db.session.flush()
 
         return success_with_content_response(
-            new_sample_review_schema.dump(new_sample_review)
+            sample_review_schema.dump(new_sample_review)
         )
     except Exception as err:
         return transaction_error_response(err)

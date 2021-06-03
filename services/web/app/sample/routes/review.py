@@ -53,16 +53,19 @@ def associate_review(uuid: str) -> str:
                     "review_type": form.review_type.data,
                     "result": form.result.data,
                     "sample_id": sample_response.json()["content"]["id"],
-                    "conducted_by": form.conducted_by.data,
-                    "datetime": str(
-                        datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S",
-                        )
-                    ),
-                    "quality": form.quality.data,
-                    "comments": form.comments.data,
-                },
+                    "event" : {
+                        "undertaken_by": form.conducted_by.data,
+                        "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "comments": form.comments.data
+
+                    },
+                    "quality": form.quality.data
+                }
             )
 
             if new_review_event_response.status_code == 200:
