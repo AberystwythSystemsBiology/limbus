@@ -84,8 +84,6 @@ def aliquot_endpoint(uuid: str):
         json=values,
     )
 
-    print(aliquot_response.content)
-
     if aliquot_response.status_code == 200:
         return aliquot_response.json(), aliquot_response.status_code
 

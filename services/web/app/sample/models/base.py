@@ -33,7 +33,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     source = db.Column(db.Enum(SampleSource))
 
     status = db.Column(db.Enum(SampleStatus))
-    colour = db.Column(db.Enum(Colour))
+    colour = db.Column(db.Enum(Colour), nullable=True)
 
     biohazard_level = db.Column(db.Enum(BiohazardLevel))
 
