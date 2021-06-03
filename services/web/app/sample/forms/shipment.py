@@ -42,6 +42,11 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
             default=datetime.now(),
         )
 
+        undertaken_by = StringField(
+            "Undertaken By",
+            description="The initials of the individual who undertook the shipment event.",
+        )
+        
         comments = TextAreaField("Comments", description="Any relevant observations.")
         submit = SubmitField("Submit")
 

@@ -28,6 +28,7 @@ from ...database import (
     UserCart,
     UserAccount,
     SampleShipment,
+    Event
 )
 
 from ..views import (
@@ -80,6 +81,8 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     values = request.get_json()
 
+    print(tokenuser.id)
+
     if not values:
         return no_values_response()
 
@@ -88,11 +91,34 @@ def shipment_new_shipment(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    new_shipment_event = SampleShipment(**new_shipment_event_values)
-    new_shipment_event.author_id = tokenuser.id
-    db.session.add(new_shipment_event)
-    db.session.commit()
-    db.session.flush()
+    new_event = Event(
+        comments = new_shipment_event_values["event"]["comments"],
+        undertaken_by = new_shipment_event_values["event"]["undertaken_by"],
+        datetime = new_shipment_event_values["event"]["datetime"],
+        author_id = tokenuser.id
+    )
+
+    try:
+        db.session.add(new_event)
+        db.session.commit()
+        db.session.flush()
+
+    except Exception as err:
+        return transaction_error_response(err)
+
+    new_shipment_event = SampleShipment(
+        site_id=new_shipment_event_values["site_id"],
+        event_id=new_event.id,
+        author_id=tokenuser.id
+    )
+    
+    try:
+        db.session.add(new_shipment_event)
+        db.session.commit()
+        db.session.flush()
+
+    except Exception as err:
+        return transaction_error_response(err)
 
     for sample in cart:
         s = sample.sample

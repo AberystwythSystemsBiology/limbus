@@ -106,15 +106,16 @@ def shipment_new_step_one():
                 url_for("api.shipment_new_shipment", _external=True),
                 headers=get_internal_api_header(),
                 json={
-                    "comments": form.comments.data,
                     "site_id": form.site_id.data,
                     "event": {
+                        "comments": form.comments.data,
                         "datetime": str(
                             datetime.strptime(
                                 "%s %s" % (form.date.data, form.time.data),
                                 "%Y-%m-%d %H:%M:%S",
                             )
-                        )
+                        ),
+                        "undertaken_by": form.undertaken_by.data
                     },
                 },
             )
