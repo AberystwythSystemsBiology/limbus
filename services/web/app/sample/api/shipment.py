@@ -81,8 +81,6 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     values = request.get_json()
 
-    print(tokenuser.id)
-
     if not values:
         return no_values_response()
 

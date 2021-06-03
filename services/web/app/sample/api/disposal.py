@@ -79,12 +79,9 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
             url_for("api.sample_new_sample_protocol_event", _external=True),
             headers=get_internal_api_header(tokenuser),
             json={
-                "datetime": values["datetime"],
-                "undertaken_by": values["undertaken_by"],
-                "comments": values["comments"],
+                "event" : values["event"],
                 "protocol_id": values["protocol_id"],
-                "sample_id": sample_response.json()["content"]["id"],
-            },
+                "sample_id": sample_response.json()["content"]["id"]            },
         )
 
         if new_protocol_event_response.status_code == 200:
@@ -132,4 +129,4 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
                 return transaction_error_response(err)
 
         else:
-            return new_protocol_event_response.response
+            return new_protocol_event_response.content

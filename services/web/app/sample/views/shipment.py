@@ -84,6 +84,7 @@ class NewSampleShipmentSchema(masql.SQLAlchemySchema):
     event = ma.Nested(NewEventSchema())
 
 
+
 new_sample_shipment_schema = NewSampleShipmentSchema()
 
 

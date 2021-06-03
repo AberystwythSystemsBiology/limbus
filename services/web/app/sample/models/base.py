@@ -118,6 +118,7 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     reason = db.Column(db.Enum(DisposalReason))
-    sample_id = db.Column(
-        db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
-    )
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
+    protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    
+    
