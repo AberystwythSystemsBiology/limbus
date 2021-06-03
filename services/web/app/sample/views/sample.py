@@ -21,16 +21,14 @@ from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, Biohazar
 from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
-    SampleProtocolEventSchema,
     BasicSampleDisposalSchema,
     ConsentSchema,
-    BasicSampleDiposalEventSchema,
-    SampleReviewSchema,
     EntityToStorageSchema,
 )
 
 from ...document.views import BasicDocumentSchema
 from ...attribute.views import AttributeDataSchema
+from ..views import SampleProtocolEventSchema, SampleReviewSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -80,8 +78,12 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            "add_sample_to_cart": ma.URLFor("sample.add_sample_to_cart", uuid="<uuid>", _external=True),
-            "remove_sample_from_cart": ma.URLFor("sample.remove_sample_from_cart", uuid="<uuid>", _external=True),
+            "add_sample_to_cart": ma.URLFor(
+                "sample.add_sample_to_cart", uuid="<uuid>", _external=True
+            ),
+            "remove_sample_from_cart": ma.URLFor(
+                "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
+            ),
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
             "barcode_generation": ma.URLFor(
@@ -118,10 +120,6 @@ class SampleSchema(masql.SQLAlchemySchema):
     site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
-    protocol_events = ma.Nested(SampleProtocolEventSchema, many=True)
-
-    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
-
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
@@ -130,18 +128,23 @@ class SampleSchema(masql.SQLAlchemySchema):
     attributes = ma.Nested(AttributeDataSchema, many=True)
     documents = ma.Nested(BasicDocumentSchema, many=True)
 
-    reviews = ma.Nested(SampleReviewSchema, many=True)
-
     parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
+
+    events = ma.Nested(SampleProtocolEventSchema, many=True)
+    reviews = ma.Nested(SampleReviewSchema, many=True)
 
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
         {
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
-            "add_sample_to_cart": ma.URLFor("sample.add_sample_to_cart", uuid="<uuid>", _external=True),
-            "remove_sample_from_cart": ma.URLFor("sample.remove_sample_from_cart", uuid="<uuid>", _external=True),
+            "add_sample_to_cart": ma.URLFor(
+                "sample.add_sample_to_cart", uuid="<uuid>", _external=True
+            ),
+            "remove_sample_from_cart": ma.URLFor(
+                "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
+            ),
             "collection": ma.URLFor("sample.index", _external=True),
             "webapp_query": ma.URLFor("sample.query", _external=True),
             "webapp_aliquot": ma.URLFor(

@@ -132,7 +132,7 @@ class EditDonorSchema(masql.SQLAlchemySchema):
     weight = masql.auto_field(allow_none=True)
     height = masql.auto_field(allow_none=True)
 
-    race = EnumField(RaceTypes,allow_none=True)
+    race = EnumField(RaceTypes, allow_none=True)
 
 
 edit_donor_schema = EditDonorSchema()

@@ -22,12 +22,7 @@ from ...misc import get_internal_api_header
 
 from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema
 
-from ...database import (
-    db,
-    SampleProtocolEvent,
-    UserAccount,
-    Sample
-)
+from ...database import db, SampleProtocolEvent, UserAccount, Sample, Event
 from ...database import db, SampleProtocolEvent, UserAccount
 
 
@@ -35,6 +30,8 @@ from ...database import db, SampleProtocolEvent, UserAccount
 @token_required
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
+
+    print(values)
 
     if not values:
         return no_values_response()
@@ -44,20 +41,35 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    new_event = SampleProtocolEvent(**event_result)
+    new_event = Event(**event_result["event"])
     new_event.author_id = tokenuser.id
 
     try:
         db.session.add(new_event)
         db.session.commit()
         db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    new_sample_protocol_event = SampleProtocolEvent(
+        sample_id=event_result["sample_id"],
+        event_id=new_event.id,
+        author_id=tokenuser.id,
+        protocol_id=event_result["protocol_id"],
+    )
+
+    try:
+        db.session.add(new_sample_protocol_event)
+        db.session.commit()
+        db.session.flush()
 
         return success_with_content_response(
-            sample_protocol_event_schema.dump(new_event)
+            sample_protocol_event_schema.dump(new_sample_protocol_event)
         )
 
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/sample/protocol_event/<uuid>/remove", methods=["POST"])
 @token_required
@@ -66,14 +78,14 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     try:
         protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
         if protocol_event.is_locked:
-            err = {'messages': 'Protocol Event Locked!'}
+            err = {"messages": "Protocol Event Locked!"}
             return validation_error_response(err)
 
         sample_uuid = Sample.query.filter_by(id=protocol_event.sample_id).first().uuid
         print("sample_uuid: ", sample_uuid)
 
     except:
-        flash('Not found')
+        flash("Not found")
         return no_values_response()
 
     try:
@@ -82,10 +94,8 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         db.session.flush()
         db.session.commit()
 
-        flash('Sample protocol event successfully deleted!'),
-        return success_with_content_response(
-            sample_uuid
-        )
+        flash("Sample protocol event successfully deleted!"),
+        return success_with_content_response(sample_uuid)
 
     except Exception as err:
         return transaction_error_response(err)

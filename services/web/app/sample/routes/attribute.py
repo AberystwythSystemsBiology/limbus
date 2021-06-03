@@ -20,12 +20,13 @@ from flask_login import login_required
 from ...misc import get_internal_api_header
 from ...attribute.forms import (
     CustomAttributeSelectionForm,
-    CustomAttributeGeneratedForm
+    CustomAttributeGeneratedForm,
 )
 
 import requests
 
 from uuid import uuid4
+
 
 @sample.route("<uuid>/attribute/new", methods=["GET", "POST"])
 @login_required
@@ -37,22 +38,21 @@ def new_custom_attribute(uuid: str) -> str:
 
     selected_attributes = []
 
-
     if sample_response.status_code == 200:
 
         form = CustomAttributeSelectionForm(["SAMPLE", "ALL"])
-
 
         if form.validate_on_submit():
             for fieldname, value in form.data.items():
                 if value == True:
                     selected_attributes.append(int(fieldname))
-            
+
             _hash = uuid4()
             session["custom_attr_hash_%s" % (_hash)] = selected_attributes
 
-            return redirect(url_for("sample.new_custom_attribute_form", uuid=uuid, hash=_hash))
-
+            return redirect(
+                url_for("sample.new_custom_attribute_form", uuid=uuid, hash=_hash)
+            )
 
         return render_template(
             "sample/attribute/select.html",
@@ -63,9 +63,9 @@ def new_custom_attribute(uuid: str) -> str:
 
 @sample.route("<uuid>/attribute/new/<hash>", methods=["GET", "POST"])
 @login_required
-def new_custom_attribute_form(uuid:str, hash: str) -> str:
+def new_custom_attribute_form(uuid: str, hash: str) -> str:
     attribute_ids = session["custom_attr_hash_%s" % (hash)]
-    
+
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -78,7 +78,7 @@ def new_custom_attribute_form(uuid:str, hash: str) -> str:
         form = CustomAttributeGeneratedForm(attribute_ids)
 
         if form.validate_on_submit():
-            
+
             for id in attribute_ids:
                 form_element = getattr(form, str(id))
 
@@ -90,9 +90,14 @@ def new_custom_attribute_form(uuid:str, hash: str) -> str:
                     json = {"attribute_id": id, "option_id": form_element.data}
 
                 attribute_response = requests.post(
-                    url_for("api.sample_associate_attribute", uuid=uuid, type=attr_type, _external=True),
+                    url_for(
+                        "api.sample_associate_attribute",
+                        uuid=uuid,
+                        type=attr_type,
+                        _external=True,
+                    ),
                     headers=get_internal_api_header(),
-                    json=json
+                    json=json,
                 )
 
                 if attribute_response.status_code != 200:
@@ -105,11 +110,9 @@ def new_custom_attribute_form(uuid:str, hash: str) -> str:
                 flash("Custom Attribute(s) successfully associated!")
                 return redirect(url_for("sample.view", uuid=uuid))
 
-
-
         return render_template(
-                "sample/attribute/form.html",
-                sample=sample_response.json()["content"],
-                form=form,
-                hash=hash
-            )
+            "sample/attribute/form.html",
+            sample=sample_response.json()["content"],
+            form=form,
+            hash=hash,
+        )

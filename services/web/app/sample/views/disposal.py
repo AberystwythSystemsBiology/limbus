@@ -22,6 +22,7 @@ from ...consent.views import (
 )
 
 from ..enums import DisposalInstruction, DisposalReason
+from ...event.views import NewEventSchema, EventSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
@@ -32,7 +33,10 @@ class NewSampleDiposalEventSchema(masql.SQLAlchemySchema):
         model = SampleDisposalEvent
 
     reason = EnumField(DisposalReason)
+    event = ma.Nested(NewEventSchema)
     sample_id = masql.auto_field()
+    protocol_event_id = masql.auto_field()
+
 
 new_sample_disposal_event_schema = NewSampleDiposalEventSchema()
 
@@ -42,10 +46,13 @@ class BasicSampleDiposalEventSchema(masql.SQLAlchemySchema):
         model = SampleDisposalEvent
 
     id = masql.auto_field()
+    event = ma.Nested(NewEventSchema)
     reason = EnumField(DisposalReason)
+    sample_id = masql.auto_field()
 
 
 basic_sample_disposal_event_schema = BasicSampleDiposalEventSchema()
+
 
 class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:

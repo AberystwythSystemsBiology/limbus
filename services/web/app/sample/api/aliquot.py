@@ -28,14 +28,14 @@ from ...database import (
     UserAccount,
     SubSampleToSample,
     SampleProtocolEvent,
-    SampleToType
+    SampleToType,
 )
 
 from ..views import (
     basic_sample_schema,
     new_sample_schema,
     new_sample_protocol_event_schema,
-    new_sample_type_schema
+    new_sample_type_schema,
 )
 from datetime import datetime
 
@@ -45,6 +45,7 @@ import requests
 from ...database import db, Sample, UserAccount, SubSampleToSample
 
 from ..views import basic_sample_schema, new_sample_schema
+
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
@@ -108,7 +109,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         )
 
     # Parent Sample Type/Container
-    sampletotype = SampleToType.query.filter_by(id=sample.sample_to_type_id).first_or_404()
+    sampletotype = SampleToType.query.filter_by(
+        id=sample.sample_to_type_id
+    ).first_or_404()
     type_values = new_sample_type_schema.dump(sampletotype)
 
     # New sampleprotocol_event
@@ -116,20 +119,19 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         "datetime": str(
             datetime.strptime(
                 "%s %s" % (values["aliquot_date"], values["aliquot_time"]),
-                "%Y-%m-%d %H:%M", #"%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%d %H:%M",  # "%Y-%m-%d %H:%M:%S",
             )
         ),
         "undertaken_by": values["processed_by"],
         "comments": values["comments"],
         "protocol_id": values["processing_protocol"],
-        "sample_id": parent_id
+        "sample_id": parent_id,
     }
 
     try:
         event_result = new_sample_protocol_event_schema.load(event_values)
     except ValidationError as err:
         return validation_error_response(err)
-
 
     # TODO: Use existing API endpoint.
     # T1: new protocol event for parent sample
@@ -143,18 +145,18 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         ali_sampletotype.id = None
 
         if base_type == "FLU":
-            ali_sampletotype.fluid_container = aliquot['container']
-        elif base_type == 'CEL':
-            ali_sampletotype.cellular_container = aliquot['container']
-            if 'fixation' in aliquot:
-                ali_sampletotype.fixation_type = aliquot['fixation']
-        elif base_type == 'MOL':
-            ali_sampletotype.fluid_container = aliquot['container']
+            ali_sampletotype.fluid_container = aliquot["container"]
+        elif base_type == "CEL":
+            ali_sampletotype.cellular_container = aliquot["container"]
+            if "fixation" in aliquot:
+                ali_sampletotype.fixation_type = aliquot["fixation"]
+        elif base_type == "MOL":
+            ali_sampletotype.fluid_container = aliquot["container"]
 
         try:
             db.session.add(ali_sampletotype)
             db.session.flush()
-            print('ali_sampletotype id: ', ali_sampletotype.id)
+            print("ali_sampletotype id: ", ali_sampletotype.id)
 
         except Exception as err:
             return transaction_error_response(err)
@@ -189,7 +191,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        flash('Sample Ailquot Added Successfully!')
+        flash("Sample Ailquot Added Successfully!")
     except Exception as err:
         return transaction_error_response(err)
 

@@ -214,7 +214,7 @@ function fill_sample_reviews(reviews) {
         
         // Start ul
         html = "<li>"
-        html += "<p class='text-muted'>Undertaken on " + review_info["datetime"] + "</p>"
+        html += "<p class='text-muted'>Undertaken on " + review_info["event"]["datetime"] + "</p>"
 
         // Start card body
         html += "<div class='card'>"
@@ -245,8 +245,8 @@ function fill_sample_reviews(reviews) {
         html += "<h5 class='mt-0'>" + review_info["uuid"] + "</h5>";
         html += "<table class='table table-striped'>"
         html += render_content("Quality", review_info["quality"]);
-        html += render_content("Conducted By", review_info["conducted_by"]);
-        html += render_content("Comments", review_info["comments"]);
+        html += render_content("Conducted By", review_info["event"]["undertaken_by"]);
+        html += render_content("Comments", review_info["event"]["comments"]);
         html += "</table>"
         html += "</div>"
 
@@ -273,14 +273,14 @@ function fill_protocol_events(events) {
 
     let protocol_events = new Map();
 
+
     for (e in events) {
         var event_info = events[e];
 
-        
 
         // Start ul
         html = "<li>"
-        html += "<p class='text-muted'>Undertaken on " + event_info["datetime"] + "</p>"
+        html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
         // Start card body
         html += "<div class='card'>"
         html += "<div class='card-header'>"
@@ -297,8 +297,8 @@ function fill_protocol_events(events) {
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
         html += "<table class='table table-striped'>"
-        html += render_content("Undertaken By", event_info["undertaken_by"]);
-        html += render_content("Comments", event_info["comments"]);
+        html += render_content("Undertaken By", event_info["event"]["undertaken_by"]);
+        html += render_content("Comments", event_info["event"]["comments"]);
         html += "</table>"
         html += "</div>"
 
@@ -468,7 +468,7 @@ $(document).ready(function () {
         fill_lineage_table(sample_info["subsamples"]);
         fill_comments(sample_info["comments"]);
         fill_document_information(sample_info["documents"]);
-        fill_protocol_events(sample_info["protocol_events"]);
+        fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
     
         $("#content").delay(500).fadeIn();

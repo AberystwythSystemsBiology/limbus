@@ -26,12 +26,10 @@ from ...webarg_parser import use_args, use_kwargs, parser
 
 from ...database import db, UserAccount, SampleToCustomAttributeData
 
-from ...attribute.views import (
-    new_attribute_data_schema,
-    new_attribute_option_schema
-)
+from ...attribute.views import new_attribute_data_schema, new_attribute_option_schema
 
 import requests
+
 
 @api.route("/sample/<uuid>/associate/attribute/<type>", methods=["POST"])
 @token_required
@@ -39,14 +37,16 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
-        headers=get_internal_api_header(tokenuser)
+        headers=get_internal_api_header(tokenuser),
     )
 
     if sample_response.status_code != 200:
         return sample_response.content
 
     if type not in ["text", "option"]:
-        return validation_error_response({"Error": "type must be one of text or option"})
+        return validation_error_response(
+            {"Error": "type must be one of text or option"}
+        )
 
     values = request.get_json()
 
@@ -64,15 +64,14 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
     new_attribute_data_response = requests.post(
         url_for("api.attribute_new_data", type=type, _external=True),
         headers=get_internal_api_header(tokenuser),
-        json=json
+        json=json,
     )
-
 
     if new_attribute_data_response.status_code == 200:
 
         stcad = SampleToCustomAttributeData(
             sample_id=sample_response.json()["content"]["id"],
-            attribute_data_id=new_attribute_data_response.json()["content"]["id"]
+            attribute_data_id=new_attribute_data_response.json()["content"]["id"],
         )
 
         stcad.author_id = tokenuser.id
@@ -86,4 +85,3 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 
         except Exception as err:
             return transaction_error_response(err)
-
