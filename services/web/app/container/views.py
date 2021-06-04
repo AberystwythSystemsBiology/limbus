@@ -14,8 +14,44 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ..extensions import ma
-from ..database import SampleToCustomAttributeData
-
+from ..database import (
+    GeneralContainer,
+    Container
+)
+from marshmallow_enum import EnumField
 import marshmallow_sqlalchemy as masql
+from .enums import ContainerUsedFor
 
+from ..sample.enums import Colour
 from ..auth.views import BasicUserAccountSchema
+
+
+class NewContainerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Container
+
+
+class NewGeneralContainerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = GeneralContainer
+
+    name = masql.auto_field()
+    manufacturer = masql.auto_field()
+    description = masql.auto_field()
+    colour = EnumField(Colour)
+    used_for = EnumField(ContainerUsedFor)
+    temperature = masql.auto_field()
+
+new_general_container_schema = NewGeneralContainerSchema()
+new_general_containers_schema = NewContainerSchema(many=True)
+
+class GeneralContainerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = GeneralContainer
+
+    name = masql.auto_field()
+    manufacturer = masql.auto_field()
+    description = masql.auto_field()
+    colour = EnumField(Colour)
+    used_for = EnumField(ContainerUsedFor)
+    temperature = masql.auto_field()

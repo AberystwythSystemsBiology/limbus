@@ -24,10 +24,13 @@ from .forms import NewContainerForm, NewFixationType
 def index():
     return render_template("container/index.html")
 
-@container.route("/new/container")
+@container.route("/new/container", methods=["GET", "POST"])
 @login_required
 def new_container():
     form = NewContainerForm()
+
+    if form.validate_on_submit():
+        pass
 
     return render_template("container/new/container.html", form=form)
 

@@ -30,6 +30,8 @@ from .enums import  ContainerUsedFor
 
 
 class NewFixationType(FlaskForm):
+
+
     name = StringField(
         "Container Name",
         validators=[DataRequired()],

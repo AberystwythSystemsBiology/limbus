@@ -29,13 +29,13 @@ class GeneralContainer(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class FixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
-    general_container_id = db.Column(db.Integer, db.ForeignKey("general_container.id"))
+    general_container_id = db.Column(db.Integer, db.ForeignKey("generalcontainer.id"))
     container = db.relationship("GeneralContainer")
 
 
 class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
-    general_container_id = db.Column(db.Integer, db.ForeignKey("general_container.id"))
+    general_container_id = db.Column(db.Integer, db.ForeignKey("generalcontainer.id"))
 
     cellular = db.Column(db.Boolean())
     fluid = db.Column(db.Boolean())

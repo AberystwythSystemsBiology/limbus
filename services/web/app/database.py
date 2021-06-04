@@ -42,6 +42,7 @@ from .tmpstore.models import *
 from .storage.models import *
 from .procedure.models import *
 from .donor.models import *
+from .container.models import *
 
 
 configure_mappers()
