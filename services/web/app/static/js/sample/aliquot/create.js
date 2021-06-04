@@ -286,7 +286,6 @@ function make_new_form(indx) {
     }
 
     // Start Row
-    console.log('indx', indx)
     row_form_html += '<tr id="row_'+indx+'">';
     // Container
     row_form_html += '<td>'+generate_container_select(indx)+'</td>'
@@ -318,8 +317,6 @@ function make_new_form(indx) {
     // Because Windows is trash.
     $(".windows").click(function() {
         var to_remove = $(this).attr("id").split("_")[1];
-        console.log(indexes)
-        console.log('to_remove', to_remove);
 
         $("#row_" + to_remove).remove();
         update_number();

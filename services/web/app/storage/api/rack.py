@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, current_app, jsonify, send_file
+from flask import request, current_app, jsonify, send_file, flash
 from ...api import api
 from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
@@ -65,6 +65,95 @@ def storage_rack_new(tokenuser: UserAccount):
     )
 
 
+@api.route("/storage/rack/new/with_samples", methods=["POST"])
+@token_required
+def storage_rack_new_with_samples(tokenuser: UserAccount):
+
+    values = request.get_json()
+    print(values)
+    if not values:
+        return no_values_response()
+
+    samples_pos = values.pop("samples_pos")
+    entry_datetime = values.pop("entry_datetime")
+    entry = values.pop("entry")
+
+    # Step 1. Validate and add new sample rack
+    try:
+        result = new_sample_rack_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_rack = SampleRack(**result)
+    new_rack.author_id = tokenuser.id
+    try:
+        db.session.add(new_rack)
+        db.session.flush()
+        rack_id = new_rack.id
+        print('new_rack id: ', rack_id)
+
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # Step 2. New entitytostorage with storage_type 'STB'
+    stb_batch = []
+    for sample in samples_pos:
+        print("sample", sample)
+        sample_id = sample['sample_id']
+
+        # Step 2.1 Delete existing entity to storage record for given sample
+        #  Could consider setting removed to True instead of delete the whole record in the future
+        #
+        stbs = EntityToStorage.query.filter(EntityToStorage.sample_id == sample_id,
+                    EntityToStorage.storage_type!='BTS').all()
+                    #(EntityToStorage.removed.is_(None) | EntityToStorage.removed!=True)).all()
+
+        if stbs is not None:
+            for stb in stbs:
+                print('stb', stb)
+                # stb.removed = True
+                # stb.editor_id = tokenuser.id;
+                # stb.updated_on = func.now()
+                try:
+                    db.session.delete(stb)
+                    #db.session.add(stb)
+
+                except Exception as err:
+                    print(err)
+                    return transaction_error_response(err)
+
+        # Step 2.2. Add new sample to rack record
+        stb_values = new_sample_to_sample_rack_schema.load(sample)
+
+        print('stb_values: ', stb_values)
+        new_stb = EntityToStorage(**stb_values)
+        new_stb.storage_type = 'STB'
+        new_stb.author_id = tokenuser.id
+        new_stb.entry_datetime = entry_datetime
+        new_stb.entry = entry
+        new_stb.rack_id = new_rack.id
+        stb_batch.append(new_stb)
+
+    # Postgres dialect, prefetch the id for batch insert
+    identities = [
+        val for val, in db.session.execute(
+            "select nextval('entitytostorage_id_seq') from "
+            "generate_series(1,%s)" % len(stb_batch)
+    )]
+    print("identities: ", identities)
+    for stb_id, new_stb in zip(identities, stb_batch):
+        new_stb.id = stb_id
+
+    try:
+        db.session.add_all(stb_batch)
+        db.session.commit()
+        flash('New Sample Rack with Samples Added Successfully!')
+    except Exception as err:
+        return transaction_error_response(err)
+
+    return success_with_content_response({"id":rack_id})
+
+
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])
 @token_required
 def storage_rack_lock(id, tokenuser: UserAccount):
@@ -97,7 +186,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 
     rack.update(values)
     rack.editor_id = tokenuser.id
-    #rack.updated_on = func.now()
+    rack.updated_on = func.now()
 
     db.session.add(rack)
     print("storage_id", storage_id )
@@ -113,8 +202,6 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        #db.session.flush()
-
         return success_with_content_response(values)
     except Exception as err:
         return transaction_error_response(err)

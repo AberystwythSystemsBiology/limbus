@@ -182,18 +182,42 @@
     <div id="lineage-info" style="display:none;">
 
 
+
+{#    <form name="frm-checkbox" id="frm-checkbox">#}
+{#        method="POST" action="{{ url_for('storage_rack_view', id=1 ) }}">#}
       <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
           <tr>
             <th>Identifier</th>
             <th>Type</th>
             <th>Quantity</th>
+              <th><input type="checkbox" name="checkbox_select_all" value="1" id="checkbox-select-all"></th>
+
           </tr>
         </thead>
         <tbody>
 
         </tbody>
       </table>
+{#        <button type="button" class="btn btn-primary float-right" id="submit">Store</button>#}
+{#        {{ form.csrf_token() }}#}
+{#        {{ form_field(form.serial) }}#}
+{#        {{ form_field }}#}
+        <p class="form-group">
+        <button type="button" class="btn btn-success float-right" id="submit">Store</button>
+{#      <button id="submit" class="btn btn-primary float-right">Store</button>#}
+        </p>
+{#        <p>#}
+{#        <b>Selected rows data:</b><br>#}
+{#        <pre id="checkbox-console-rows"></pre>#}
+{#        </p>#}
+{#        <p>#}
+{#        <b>Form data as submitted to the server:</b><br>#}
+{#        <pre id="checkbox-console-form"></pre>#}
+{#        </p>#}
+{#</form>#}
+
+
     </div>
   </div>
 

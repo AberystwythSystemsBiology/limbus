@@ -24,10 +24,12 @@ from wtforms import (
     FileField,
     BooleanField,
     HiddenField,
+    DateField,
+    TimeField,
 )
 
 from wtforms.validators import DataRequired
-
+from datetime import datetime
 from ...sample.enums import Colour
 
 
@@ -37,6 +39,7 @@ class NewSampleRackForm(FlaskForm):
     num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
+    entry = StringField("Entry by")
     submit = SubmitField("Register")
 
 
@@ -72,8 +75,11 @@ def EditSampleRackForm(shelves: list, data={}):
 
 
 
-def CryoBoxFileUploadSelectForm(sample_data: dict):
+def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
     class StaticForm(FlaskForm):
+        num_rows = IntegerField("Number of Rows", validators=[DataRequired()])
+        num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
+
         submit = SubmitField("Submit Cryovial Box")
 
     for position, info in sample_data.items():
@@ -89,7 +95,7 @@ def CryoBoxFileUploadSelectForm(sample_data: dict):
             ),
         )
 
-    return StaticForm()
+    return StaticForm(data=data)
 
 
 class NewCryovialBoxFileUploadForm(FlaskForm):
@@ -102,4 +108,24 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])
+
+    #entry_datetime = StringField("Entry by")
+    entry_date = DateField(
+        "Sample Rack Creation Date",
+        validators=[DataRequired()],
+        #description="The date in which the sample rack was created.",
+        default=datetime.today(),
+    )
+
+    entry_time = TimeField(
+        "Sample Rack Creation Time",
+        default=datetime.now(),
+        validators=[DataRequired()],
+        #description="The time at which the sample rack was undertaken.",
+    )
+
+    entry = StringField("Created by",
+        description = "The initials of the individual who created the sample rack"
+    )
+
     submit = SubmitField("Upload File")

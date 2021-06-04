@@ -352,10 +352,35 @@ function fill_protocol_events(events) {
 }
 
 function fill_lineage_table(subsamples) {
-    $('#subSampleTable').DataTable({
+    var table = $('#subSampleTable').DataTable({
         data: subsamples,
         pageLength: 5,
+        // columnDefs: [{
+        //     'targets': -1,
+        //     'searchable': false,
+        //     'orderable': false,
+        //     'className': 'dt-body-center',
+        //     'render': function (data, type, full, meta) {
+        //         //return '<input type="checkbox" name="id[]" value=1"' + '">';
+        //         return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+        //     }
+        // }],
+
+      columnDefs: [
+         {
+            'targets': -1,
+            'checkboxes': {
+               'selectRow': true
+            }
+         }
+      ],
+      select: {
+         'style': 'multi'
+      },
+        order: [[1, 'asc']],
+
         columns: [
+
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -390,11 +415,100 @@ function fill_lineage_table(subsamples) {
                 }
             },
 
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                }
+            },
+
+
         ],
 
     });
 
 
+   // Handle click on "Select all" control
+   $('#checkbox-select-all').on('click', function(){
+      // Get all rows with search applied
+      var rows = table.rows({ 'search': 'applied' }).nodes();
+      // Check/uncheck checkboxes for all rows in the table
+      $('input[type="checkbox"]', rows).prop('checked', this.checked);
+   });
+
+   // Handle click on checkbox to set state of "Select all" control
+   $('#checkbox tbody').on('change', 'input[type="checkbox"]', function(){
+      // If checkbox is not checked
+      if(!this.checked){
+         var el = $('#checkbox-select-all').get(0);
+         // If "Select all" control is checked and has 'indeterminate' property
+         if(el && el.checked && ('indeterminate' in el)){
+            // Set visual state of "Select all" control
+            // as 'indeterminate'
+            el.indeterminate = true;
+         }
+      }
+   });
+
+   // Handle form submission event
+   //$('#frm-checkbox').on('submit', function(e){
+//     $("#submit").click(function(e) {
+//       var form = this;
+//
+//       var rows_selected = table.column(4).checkboxes.selected();
+//
+//
+//       // Iterate over all selected checkboxes
+//       $.each(rows_selected, function(index, rowId){
+//          // Create a hidden element
+//          $(form).append(
+//              $('<input>')
+//                 .attr('type', 'hidden')
+//                 .attr('name', 'id[]')
+//                 .val(rowId)
+//          );
+//          //alert(val(rowId));
+//       });
+//
+//       console.table($(form))
+//          //$('#checkbox-console-rows').text(rows_selected.join(","));
+//     $('#checkbox-console-form').text($(form).serialize());
+// // $('input[name="id\[\]"]', form).remove();
+//    });
+
+
+
+   //Handle form submission event
+   //$('#frm-checkbox').on('submit', function(e){
+    $("#submit").click(function(e) {
+      var form = this
+      // Iterate over all checkboxes in the table
+      table.$('input[type="checkbox"]').each(function(){
+         // If checkbox doesn't exist in DOM
+         if(!$.contains(document, this)){
+            // If checkbox is checked
+            if(this.checked){
+               // Create a hidden element
+               $(form).append(
+                  $('<input>')
+                     .attr('type', 'hidden')
+                     .attr('name', this.name)
+                     .val(this.value)
+               );
+            }
+
+         }
+         //console.table($(form));
+      });
+      //$("div").text($(form).serialize());
+
+      var data1 = table.$('input[type="checkbox"]').serialize();
+      console.log(data1)
+   });
+
+
+
+      // Output form data to a console
 
 
 }

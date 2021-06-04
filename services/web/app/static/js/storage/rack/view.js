@@ -55,22 +55,49 @@ function render_subtitle(rack_information) {
 
 }
 
-function render_empty(row_id, rc, count, assign_sample_url) {
+//function render_empty(row_id, rc, count, assign_sample_url) {
+function render_empty(row, col, count, assign_sample_url) {
+    // assign_sample_url = assign_sample_url.replace("rph", rc[0]);
+    // assign_sample_url = assign_sample_url.replace("cph", rc[1]);
+    assign_sample_url = assign_sample_url.replace("rph", row);
+    assign_sample_url = assign_sample_url.replace("cph", col);
 
-    assign_sample_url = assign_sample_url.replace("rph", rc[0]);
-    assign_sample_url = assign_sample_url.replace("cph", rc[1]);
-    var content = '<div class="col" id="tube_' + rc.join("_") + '">'
+    //var content = '<div class="col" id="tube_' + rc.join("_") + '">'
+    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube">'
     content += '<div class="align-middle">'
     content += count
     content += "</div></div></div>"
-    $("#" + row_id).append(content)
+    //$("#" + row_id).append(content)
+    $("#row_" + row).append(content)
 
-    $("#tube_" + rc.join("_")).click(function () {
+    //$("#tube_" + rc.join("_")).click(function () {
+    $("#tube_" + [row, col].join("_")).click(function () {
         window.location = assign_sample_url;
     });
 }
 
+function render_axis(row, col) {
+    var content = '<div class="col" id="axis_' + row+'_'+col + '">'
+
+    if (row==0 & col==0) {
+        tick = '';
+        content += '<div class="float-right">'; // + tick + "</div>"
+        content += '<strong>'+ tick + '</strong></div>';
+    } else if (row>0 & col==0) {
+        //display alphabet letter
+        tick = String.fromCharCode(Number(row)+64);
+        content += '<div class="float-right">';
+        content += '<strong>'+ tick + '</strong></div>'
+    } else {
+        tick = col;
+        //content += tick;
+        content += '<div class="text-center">'; //+ tick + "</div>"
+        content += '<strong>'+ tick + '</strong></div>'
+    }
+    content += "</div>";
+    $("#row_" + row).append(content)
+}
 
 function get_barcode(sample_info, barc_type) {
 
@@ -125,18 +152,22 @@ function render_modal(sample_info) {
 
 }
 
-function render_full(info, row_id, rc, count, assign_sample_url) {
+//function render_full(info, row_id, rc, count, assign_sample_url) {
+function render_full(info, row, col, count, assign_sample_url) {
     var sample_info = info["sample"]
-    var content = '<div class="col" id="tube_' + rc.join("_") + '">'
+    //var content = '<div class="col" id="tube_' + rc.join("_") + '">'
+    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube"><div class="align_middle present-tube">'
     content += '<img width="100%" src="data:image/png;base64,' + get_barcode(sample_info, "qrcode") + '">'
     
     
     content += "</div></div></div>"
-    $("#" + row_id).append(content)
+    //$("#" + row_id).append(content)
+    $("#row_" + row).append(content)
 
 
-    $("#tube_" + rc.join("_")).click(function () {
+    //$("#tube_" + rc.join("_")).click(function () {
+    $("#tube_" + [row, col].join("_")).click(function () {
         //window.location = sample_info["_links"]["self"];
         render_modal(sample_info);
         $("#sampleInfoModal").modal();
@@ -150,7 +181,8 @@ function render_occupancy_chart(counts) {
             labels: ["Occupied", "Empty"],
             datasets: [
                 {
-                    backgroundColor: ["#28a745", "#dc3545"],
+                    //backgroundColor: ["#28a745", "#dc3545"],
+                    backgroundColor: ["#dc3545", "#28a745"],
                     data: [counts["full"], counts["empty"]]
                 }
             ]
@@ -268,16 +300,22 @@ function render_view(view, assign_sample_url) {
         $("#view_area").append('<div id="' + row_id + '" class="row no-gutters"></div>');
         var row = view[r]
         for (c in row) {
-            count += 1
-            var column = row[c];
-            if (column["empty"]) {
-                render_empty(row_id, c.split("\t"), count, assign_sample_url);
-            }
-            else {
-                render_full(column, row_id, c.split("\t"), count, assign_sample_url);
-                column["pos"] = c.split("\t");
-                samples.push(column)
+            if (c==0 || r==0) {
+                render_axis(r, c);
+            } else {
+                count += 1
+                var column = row[c];
+                if (column["empty"]) {
+                    //render_empty(row_id, c.split("\t"), count, assign_sample_url);
+                    render_empty(r, c, count, assign_sample_url);
+                } else {
+                    //render_full(column, row_id, c.split("\t"), count, assign_sample_url);
+                    render_full(column, r, c, count, assign_sample_url);
+                    //column["pos"] = c.split("\t");
+                    column["pos"] = [r, c]
+                    samples.push(column)
 
+                }
             }
         }
     }
