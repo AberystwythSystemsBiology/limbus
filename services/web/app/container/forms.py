@@ -14,33 +14,24 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from flask import url_for
 
 from wtforms import (
     StringField,
-    FloatField,
+    IntegerField,
     SelectField,
     SubmitField,
-    ValidationError,
-    DateField,
     BooleanField,
-    IntegerField,
     TextAreaField,
 )
 
 from wtforms.validators import DataRequired, Length
 from ..sample.enums import Colour
+from .enums import  ContainerUsedFor
 
 
-class NewContainerForm(FlaskForm):
-    manufacturer = StringField(
-        "Manufacturer",
-        validators=[DataRequired()],
-        description="The Manufacturer of the Container.",
-    )
-
-    identifier = StringField(
-        "Canonical Identifier",
+class NewFixationType(FlaskForm):
+    name = StringField(
+        "Container Name",
         validators=[DataRequired()],
         description="The Canonical Identifier of the Container."
 
@@ -50,38 +41,43 @@ class NewContainerForm(FlaskForm):
         "Container Description",
         description="An optional description of the Container.",
     )
+    temperature = IntegerField("Temperature (*C)")
 
-    colour = SelectField(
-        "Colour",
-        choices=Colour.choices()
+    colour = SelectField("Colour", choices=Colour.choices())
+
+    used_for = SelectField(
+        "Container Usage",
+        choices=ContainerUsedFor.choices()
     )
+    submit = SubmitField("Submit")
 
-    fluid = BooleanField(
-        "Suitable for Fluids?"
-    )
 
-    cellular = BooleanField(
-        "Suitable for Cells?"
-    )
+class NewContainerForm(FlaskForm):
 
-    tissue = BooleanField(
-        "Suitable for Tissue?"
-    )
-
-    min_temperature = FloatField(
-        "Minimum Storage Temperature (*C)",
+    name = StringField(
+        "Container Name",
+        validators=[DataRequired()],
+        description="The Canonical Identifier of the Container."
 
     )
 
-    max_temperature = FloatField(
-        "Maximum Storage Temperature (*C)",
-
+    manufacturer = StringField(
+        "Manufacturer",
+        description="The Manufacturer of the Container.",
     )
 
-    sample_rack = BooleanField(
-        "Suitable for use in a Sample Rack?"
+    description = TextAreaField(
+        "Container Description",
+        description="An optional description of the Container.",
     )
-    
 
+    colour = SelectField("Colour", choices=Colour.choices())
 
+    used_for = SelectField("Container Usage", choices=ContainerUsedFor.choices())
+
+    fluid = BooleanField("Suitable for Fluids?")
+    cellular = BooleanField("Suitable for Cells?")
+    tissue = BooleanField("Suitable for Tissue?")
+    temperature = IntegerField("Temperature (°C)", default=0)
+    sample_rack = BooleanField("Suitable for use in a Sample Rack?")
     submit = SubmitField("Submit")

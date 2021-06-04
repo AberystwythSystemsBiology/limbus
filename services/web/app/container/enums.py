@@ -13,27 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..container import container
-from flask import render_template
-from flask_login import current_user, login_required
-from .forms import NewContainerForm, NewFixationType
+from ..FormEnum import FormEnum
 
 
-@container.route("/")
-@login_required
-def index():
-    return render_template("container/index.html")
-
-@container.route("/new/container")
-@login_required
-def new_container():
-    form = NewContainerForm()
-
-    return render_template("container/new/container.html", form=form)
-
-@container.route("/new/fixation")
-@login_required
-def new_fixation_type():
-    form = NewFixationType()
-
-    return render_template("container/new/fixation.html", form=form)
+class ContainerUsedFor(FormEnum):
+    STOR = "Storage"
+    DIST = "Distribution"
+    BOTH = "Both"

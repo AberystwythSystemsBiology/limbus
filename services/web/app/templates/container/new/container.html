@@ -14,17 +14,20 @@
         <h1>
             
         New Container</h1>
-            
 
     </div>
 </div>
 <div class="container">
 
+    {{ form_field(form.name) }}
     {{ form_field(form.manufacturer) }}
-    {{ form_field(form.identifier) }}
+    {{ form_field(form.description) }}
 
     {{ form_field(form.colour) }}
-    {{ form_field(form.description) }}
+    {{ form_field(form.used_for) }}
+
+    {{ form_field(form.temperature) }}
+
     <div class="row">
         <div class="col-sm-4">
             {{ form_field(form.fluid) }}
@@ -34,15 +37,6 @@
         </div>
         <div class="col-sm-4">
             {{ form_field(form.tissue) }}
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-sm-6">
-            {{ form_field(form.min_temperature) }}
-        </div>
-        <div class="col-sm-6">
-            {{ form_field(form.max_temperature) }}
         </div>
     </div>
 

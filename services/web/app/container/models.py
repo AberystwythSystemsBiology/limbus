@@ -16,16 +16,30 @@
 from ..database import db, Base
 from ..mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..sample.enums import Colour
+from .enums import ContainerUsedFor
 
-class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+
+class GeneralContainer(Base, RefAuthorMixin, RefEditorMixin):
+    name = db.Column(db.String(128))
     manufacturer = db.Column(db.String(128))
     description = db.Column(db.Text())
+    colour = db.Column(db.Enum(Colour))
+    used_for = db.Column(db.Enum(ContainerUsedFor))
+    temperature = db.Column(db.Integer())
+
+
+class FixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+    general_container_id = db.Column(db.Integer, db.ForeignKey("general_container.id"))
+    container = db.relationship("GeneralContainer")
+
+
+class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+
+    general_container_id = db.Column(db.Integer, db.ForeignKey("general_container.id"))
 
     cellular = db.Column(db.Boolean())
     fluid = db.Column(db.Boolean())
     tissue = db.Column(db.Boolean())
-    
-    min_temp = db.Column(db.Float())
-    max_temp = db.Column(db.Float())
-    sample_rack = db.Column(db.Boolean(Colour))
-    colour = db.Column(db.Enum())
+
+    sample_rack = db.Column(db.Boolean())
+    container = db.relationship("GeneralContainer")
