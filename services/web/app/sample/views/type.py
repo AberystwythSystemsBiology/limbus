@@ -70,6 +70,7 @@ class NewSampleTypeSchema(ma.Schema):
     cellular_container = EnumField(CellContainer)
     fixation_type = EnumField(FixationType)
 
+
 new_sample_type_schema = NewSampleTypeSchema()
 
 

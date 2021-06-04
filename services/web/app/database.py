@@ -32,6 +32,7 @@ Base.query = db.session.query_property()
 
 from .auth.models import *
 from .misc.models import *
+from .event.models import *
 from .attribute.models import *
 from .consent.models import *
 from .document.models import *

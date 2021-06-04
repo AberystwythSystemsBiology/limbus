@@ -204,7 +204,7 @@ function render_colour(colour) {
 }
 
 function render_content(label, content) {
-  if (content == undefined || content == "" ) {
+  if (content == undefined || content == "" || content == null ) {
       content = "Not Available."
   }
   return '<tr"><td width="30%" style="font-weight:bold">'+ label + ':</td><td>'+content+'</td></tr>';

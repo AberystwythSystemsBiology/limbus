@@ -17,6 +17,7 @@ from ...extensions import ma
 from ...database import SampleProtocolEvent
 from ...auth.views import BasicUserAccountSchema
 from ...protocol.views import BasicProtocolTemplateSchema
+from ...event.views import EventSchema, NewEventSchema
 
 import marshmallow_sqlalchemy as masql
 
@@ -25,11 +26,9 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
 
-    datetime = masql.auto_field()
-    undertaken_by = masql.auto_field()
-    comments = masql.auto_field()
-    protocol_id = masql.auto_field()
     sample_id = masql.auto_field()
+    event = ma.Nested(NewEventSchema())
+    protocol_id = masql.auto_field()
 
 
 new_sample_protocol_event_schema = NewSampleProtocolEventSchema()
@@ -41,19 +40,23 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     id = masql.auto_field()
-    datetime = masql.auto_field(format="%d/%m/%Y")
-    undertaken_by = masql.auto_field()
-    comments = masql.auto_field()
-    protocol = ma.Nested(BasicProtocolTemplateSchema, many=False)
     author = ma.Nested(BasicUserAccountSchema)
+    event = ma.Nested(EventSchema)
     created_on = ma.Date()
+
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
 
     _links = ma.Hyperlinks(
         {
-            "edit": ma.URLFor("sample.edit_protocol_event", uuid="<uuid>", _external=True),
-            "remove": ma.URLFor("sample.remove_protocol_event", uuid="<uuid>", _external=True)
+            "edit": ma.URLFor(
+                "sample.edit_protocol_event", uuid="<uuid>", _external=True
+            ),
+            "remove": ma.URLFor(
+                "sample.remove_protocol_event", uuid="<uuid>", _external=True
+            ),
         }
     )
 
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
+sample_protocol_events_schema = SampleProtocolEventSchema(many=True)

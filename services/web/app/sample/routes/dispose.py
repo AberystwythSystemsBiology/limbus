@@ -43,7 +43,6 @@ def dispose(uuid: str) -> flask_return_union:
             json={"is_locked": False, "type": ["SDE", "STR"]},
         )
 
-
         protocols = []
 
         if protocols_response.status_code == 200:
@@ -69,18 +68,19 @@ def dispose(uuid: str) -> flask_return_union:
                 url_for("api.sample_new_disposal_event", _external=True),
                 headers=get_internal_api_header(),
                 json={
-                    "protocol_id": form.protocol_id.data,
                     "reason": form.reason.data,
-                    "comments": form.comments.data,
+                    "event" : {
                     "datetime": str(
-                            datetime.strptime(
-                                "%s %s" % (form.date.data, form.time.data),
-                                "%Y-%m-%d %H:%M:%S",
-                            )),
-                    "undertaken_by": form.undertaken_by.data,
-                    "sample_uuid": sample_response.json()["content"]["uuid"]
-
-                }
+                        datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S",
+                        )),
+                        "comments": form.comments.data,
+                        "undertaken_by": form.undertaken_by.data
+                    },
+                    "protocol_id": form.protocol_id.data,
+                    "sample_uuid": sample_response.json()["content"]["uuid"],
+                },
             )
 
             if new_disposal_event_response.status_code == 200:
@@ -93,7 +93,7 @@ def dispose(uuid: str) -> flask_return_union:
         return render_template(
             "sample/disposal/new.html",
             sample=sample_response.json()["content"],
-            form=form
+            form=form,
         )
     else:
         abort(sample_response.status_code)

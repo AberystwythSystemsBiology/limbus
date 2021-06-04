@@ -30,6 +30,7 @@ from ...auth.views import BasicUserAccountSchema
 
 from ...document.views import DocumentSchema
 
+
 class DocumentToColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DocumentToColdStorage
@@ -39,7 +40,9 @@ class DocumentToColdStorageSchema(masql.SQLAlchemySchema):
     document_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
 
+
 document_to_cold_storage_schema = DocumentToColdStorageSchema()
+
 
 class NewDocumentToColdStorageSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -47,6 +50,7 @@ class NewDocumentToColdStorageSchema(masql.SQLAlchemySchema):
 
     storage_id = masql.auto_field()
     document_id = masql.auto_field()
+
 
 new_document_to_cold_storage_schema = NewDocumentToColdStorageSchema()
 

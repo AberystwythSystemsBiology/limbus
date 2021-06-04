@@ -36,6 +36,7 @@ from .sample import sample as sample_blueprint
 from .tmpstore import tmpstore as tmpstore_blueprint
 from .storage import storage as storage_blueprint
 from .admin import admin as admin_blueprint
+from .event import event as event_blueprint
 
 from app.errors import error_handlers
 
@@ -71,6 +72,7 @@ def register_blueprints(app):
     app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
     app.register_blueprint(document_blueprint, url_prefix="/document")
     app.register_blueprint(procedure_blueprint, url_prefix="/procedure")
+    app.register_blueprint(event_blueprint, url_prefix="/event")
     app.register_blueprint(donor_blueprint, url_prefix="/donor")
     app.register_blueprint(consent_blueprint, url_prefix="/consent")
     app.register_blueprint(protocol_blueprint, url_prefix="/protocol")

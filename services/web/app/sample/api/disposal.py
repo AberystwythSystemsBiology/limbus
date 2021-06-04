@@ -20,13 +20,18 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header, flask_return_union
 
-import requests
-from ..views import new_sample_disposal_schema, basic_disposal_schema, new_sample_disposal_event_schema, basic_sample_disposal_event_schema
+from ..views import (
+    new_sample_disposal_schema,
+    basic_disposal_schema,
+    new_sample_disposal_event_schema,
+    basic_sample_disposal_event_schema,
+)
 
 from ...database import db, SampleDisposal, UserAccount, SampleDisposalEvent, Sample
 
 
 import requests
+
 
 @api.route("/sample/new/disposal_instructions", methods=["POST"])
 @token_required
@@ -76,26 +81,26 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         # Step 4 update storage: delete association to lts/rack
         # Step 5 update sample status set to DES/TRA/.../ accordingly
         new_protocol_event_response = requests.post(
-                url_for("api.sample_new_sample_protocol_event", _external=True),
-                headers=get_internal_api_header(tokenuser),
-                json={
-                    "datetime": values["datetime"],
-                    "undertaken_by": values["undertaken_by"],
-                    "comments": values["comments"],
-                    "protocol_id": values["protocol_id"],
-                    "sample_id": sample_response.json()["content"]["id"],
-                },
-            )
+            url_for("api.sample_new_sample_protocol_event", _external=True),
+            headers=get_internal_api_header(tokenuser),
+            json={
+                "event" : values["event"],
+                "protocol_id": values["protocol_id"],
+                "sample_id": sample_response.json()["content"]["id"]            },
+        )
 
         if new_protocol_event_response.status_code == 200:
 
             try:
-                disposal_event_values = new_sample_disposal_event_schema.load({
-                            "sample_id": sample_response.json()["content"]["id"],
-                            "reason": values["reason"]})           
+                disposal_event_values = new_sample_disposal_event_schema.load(
+                    {
+                        "sample_id": sample_response.json()["content"]["id"],
+                        "reason": values["reason"],
+                    }
+                )
             except ValidationError as err:
                 return validation_error_response(err)
-            
+
             new_disposal_event = SampleDisposalEvent(**disposal_event_values)
             new_disposal_event.author_id = tokenuser.id
 
@@ -105,8 +110,10 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
                 #db.session.commit()
                 #db.session.flush()
 
-                sample = Sample.query.filter_by(uuid=sample_response.json()["content"]["uuid"]).first()
-                print("Sample: ", sample.id)
+                sample = Sample.query.filter_by(
+                    uuid=sample_response.json()["content"]["uuid"]
+                ).first()
+
                 if new_disposal_event.reason in ["DES", "FAI"]:
                     sample.status = "DES"
                 elif new_disposal_event.reason == "TRA":
@@ -127,4 +134,4 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
                 return transaction_error_response(err)
 
         else:
-            return new_protocol_event_response.response
+            return new_protocol_event_response.content

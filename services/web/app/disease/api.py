@@ -44,7 +44,7 @@ def prepare_instance(thing: ThingClass):
             "UMLS_CUI": "https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI%20Thesaurus&code=%s",
             "OMIM": "https://www.omim.org/entry/%s",
             "SNOMEDCT_US_2020_03_01": "https://snomedbrowser.com/Codes/Details/%s",
-            "SNOMEDCT_US_2018_03_01": "https://snomedbrowser.com/Codes/Details/%s", ##??
+            "SNOMEDCT_US_2018_03_01": "https://snomedbrowser.com/Codes/Details/%s",  ##??
             "MESH": "https://meshb.nlm.nih.gov/record/ui?ui=%s",
             "GARD": "https://rarediseases.info.nih.gov/diseases/%s/index",
             "NCI": "https://nciterms.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=20.07d&code=%s&ns=ncit",
@@ -56,7 +56,7 @@ def prepare_instance(thing: ThingClass):
                 reference_dictionary[reference] = {
                     "self": resolutions[db] % (str(identifier))
                 }
-            except: # ValueError:
+            except:  # ValueError:
                 pass
 
         return reference_dictionary
@@ -81,8 +81,10 @@ def retrieve_by_iri(iri: str) -> dict:
 
 
 def retrieve_by_label(label: str):
-    #results = DOID.search(label="*%s" % (label), subclass_of=obo.DOID_4)
-    results = DOID.search(label="*%s*" % (label), subclass_of=obo.DOID_4, _case_sensitive=False)
+    # results = DOID.search(label="*%s" % (label), subclass_of=obo.DOID_4)
+    results = DOID.search(
+        label="*%s*" % (label), subclass_of=obo.DOID_4, _case_sensitive=False
+    )
 
     results_dict = {}
 

@@ -16,9 +16,17 @@
 
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Optional
-from wtforms import SelectField, SubmitField, DateField, TimeField, TextAreaField, StringField
+from wtforms import (
+    SelectField,
+    SubmitField,
+    DateField,
+    TimeField,
+    TextAreaField,
+    StringField,
+)
 from ..enums import DisposalReason
 from datetime import datetime
+
 
 def SampleDisposalEventForm(protocols: list) -> FlaskForm:
     class StaticForm(FlaskForm):
@@ -27,17 +35,17 @@ def SampleDisposalEventForm(protocols: list) -> FlaskForm:
         reason = SelectField(
             "Disposal Reason",
             description="Reason for disposal",
-            choices=DisposalReason.choices()
-            )
-        
+            choices=DisposalReason.choices(),
+        )
+
         comments = TextAreaField("Comments")
 
         date = DateField(
-                "Disposal Event Date",
-                validators=[DataRequired()],
-                description="The date in which the disposal was undertaken.",
-                default=datetime.today(),
-            )
+            "Disposal Event Date",
+            validators=[DataRequired()],
+            description="The date in which the disposal was undertaken.",
+            default=datetime.today(),
+        )
 
         time = TimeField(
             "Disposal Event Time",
@@ -52,5 +60,5 @@ def SampleDisposalEventForm(protocols: list) -> FlaskForm:
         )
 
         submit = SubmitField("Submit")
-    
+
     return StaticForm()

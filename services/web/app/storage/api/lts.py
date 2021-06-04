@@ -27,8 +27,13 @@ from ...misc import get_internal_api_header
 
 from marshmallow import ValidationError
 
-from ...database import db, UserAccount, ColdStorage, ColdStorageService, DocumentToColdStorage, \
-    Building, SiteInformation, Room
+from ...database import (
+    db,
+    UserAccount,
+    ColdStorage,
+    ColdStorageService,
+    DocumentToColdStorage,
+)
 
 from ..views import *
 
@@ -159,6 +164,7 @@ def storage_coldstorage_lock(id, tokenuser: UserAccount):
 
     return success_with_content_response(basic_cold_storage_schema.dump(cs))
 
+
 @api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])
 @token_required
 def storage_coldstorage_document(id, tokenuser: UserAccount):
@@ -169,7 +175,7 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     coldstorage_response = requests.get(
         url_for("api.storage_coldstorage_view", id=id, _external=True),
-        headers=get_internal_api_header(tokenuser)
+        headers=get_internal_api_header(tokenuser),
     )
 
     if coldstorage_response.status_code == 200:
@@ -187,12 +193,15 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
             db.session.add(dtcs)
             db.session.commit()
 
-            return success_with_content_response(document_to_cold_storage_schema.dump(dtcs))
+            return success_with_content_response(
+                document_to_cold_storage_schema.dump(dtcs)
+            )
         except Exception as err:
             return transaction_error_response(err)
 
     else:
         return coldstorage_response.json()
+
 
 
 @api.route("/storage/coldstorage/rooms_onsite/LIMBCS-<id>", methods=["GET"])
@@ -210,3 +219,4 @@ def storage_rooms_onsite(id, tokenuser: UserAccount):
                 for (roomid, sitename, buildingname, roomname) in stmt]
 
     return success_with_content_response(results)
+
