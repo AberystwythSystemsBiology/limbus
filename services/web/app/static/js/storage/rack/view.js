@@ -66,7 +66,7 @@ function render_empty(row, col, count, assign_sample_url) {
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube">'
     content += '<div class="align-middle">'
-    content += count
+    //content += count
     content += "</div></div></div>"
     //$("#" + row_id).append(content)
     $("#row_" + row).append(content)
@@ -167,6 +167,22 @@ function render_full(info, row, col, count, assign_sample_url) {
 
 
     //$("#tube_" + rc.join("_")).click(function () {
+    $("#tube_" + [row, col].join("_")).click(function () {
+        //window.location = sample_info["_links"]["self"];
+        render_modal(sample_info);
+        $("#sampleInfoModal").modal();
+    });
+}
+
+function render_full_noimg(info, row, col, count, assign_sample_url) {
+    var sample_info = info["sample"]
+    console.log(sample_info)
+    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
+    content += '<div class="square tube" style="background-color: lightpink ;"><div class="align_middle present-tube">'
+    content += sample_info['id']
+    content += "</div></div></div>"
+    $("#row_" + row).append(content)
+
     $("#tube_" + [row, col].join("_")).click(function () {
         //window.location = sample_info["_links"]["self"];
         render_modal(sample_info);
@@ -290,7 +306,7 @@ function render_information(rack_information) {
     $("#col").html(rack_information["num_cols"]);
 }
 
-function render_view(view, assign_sample_url) {
+function render_view(view, assign_sample_url, img_on) {
     var count = 0;
 
     var samples = [];
@@ -309,8 +325,13 @@ function render_view(view, assign_sample_url) {
                     //render_empty(row_id, c.split("\t"), count, assign_sample_url);
                     render_empty(r, c, count, assign_sample_url);
                 } else {
+
                     //render_full(column, row_id, c.split("\t"), count, assign_sample_url);
-                    render_full(column, r, c, count, assign_sample_url);
+                    if (img_on) {
+                        render_full(column, r, c, count, assign_sample_url);
+                    } else {
+                        render_full_noimg(column, r, c, count, assign_sample_url);
+                    }
                     //column["pos"] = c.split("\t");
                     column["pos"] = [r, c]
                     samples.push(column)
@@ -331,7 +352,15 @@ $(document).ready(function () {
 
     render_subtitle(rack_information);
     render_information(rack_information);
-    var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"]);
+
+    var img_on = $('#img_on').prop('checked');
+    var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], img_on);
+    $("#img_on").click(function(){
+        $("#view_area").empty()
+        img_on = $('#img_on').prop('checked');
+        samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], img_on);
+    });
+
     render_occupancy_chart(rack_information["counts"])
     render_sample_table(samples);
     $("#loading-screen").fadeOut();
