@@ -16,7 +16,8 @@
 from ..extensions import ma
 from ..database import (
     GeneralContainer,
-    Container
+    Container,
+    FixationType,
 )
 from marshmallow_enum import EnumField
 import marshmallow_sqlalchemy as masql
@@ -24,11 +25,6 @@ from .enums import ContainerUsedFor
 
 from ..sample.enums import Colour
 from ..auth.views import BasicUserAccountSchema
-
-
-class NewContainerSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = Container
 
 
 class NewGeneralContainerSchema(masql.SQLAlchemySchema):
@@ -42,16 +38,55 @@ class NewGeneralContainerSchema(masql.SQLAlchemySchema):
     used_for = EnumField(ContainerUsedFor)
     temperature = masql.auto_field()
 
+
 new_general_container_schema = NewGeneralContainerSchema()
-new_general_containers_schema = NewContainerSchema(many=True)
+new_general_containers_schema = NewGeneralContainerSchema(many=True)
+
 
 class GeneralContainerSchema(masql.SQLAlchemySchema):
     class Meta:
         model = GeneralContainer
 
+    id = masql.auto_field()
     name = masql.auto_field()
     manufacturer = masql.auto_field()
     description = masql.auto_field()
     colour = EnumField(Colour)
     used_for = EnumField(ContainerUsedFor)
     temperature = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+
+class NewContainerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Container
+
+    cellular = masql.auto_field()
+    fluid = masql.auto_field()
+    tissue = masql.auto_field()
+    container = ma.Nested(NewGeneralContainerSchema)
+
+
+class ContainerSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Container
+
+    id = masql.auto_field()
+    cellular = masql.auto_field()
+    fluid = masql.auto_field()
+    tissue = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema)
+
+
+class FixationTypeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = FixationType
+
+    container = ma.Nested(ContainerSchema)
+
+
+class NewFixationTypeSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = FixationType
+
+    general_container_id = masql.auto_field()
