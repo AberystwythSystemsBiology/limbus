@@ -125,6 +125,4 @@ function fill_containers_table(containers) {
 $(document).ready(function () {
     var containers = get_containers();
     fill_containers_table(containers);
-
-
 });

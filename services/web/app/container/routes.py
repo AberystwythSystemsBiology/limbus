@@ -40,11 +40,11 @@ def index_data():
     )
 
 
-@container.route("/view/container/<id>")
+@container.route("/view/container/LIMBCT-<id>")
 def view_container(id: int):
-    return render_template("container/view/container.html")
+    return render_template("container/view/container.html", id=id)
 
-@container.route("/view/container/<id>/data")
+@container.route("/view/container/LIMBCT-<id>/data")
 def view_container_data(id: int):
     container_response = requests.get(
         url_for("api.container_view_container", id=id, _external=True),
@@ -68,8 +68,8 @@ def new_container():
         data = {
             "container": {
                 "name": form.name.data,
-                "manufacturer": form.name.data,
-                "description": form.name.data,
+                "manufacturer": form.manufacturer.data,
+                "description": form.description.data,
                 "colour": form.colour.data,
                 "used_for": form.used_for.data,
                 "temperature": form.temperature.data

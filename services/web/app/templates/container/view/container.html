@@ -13,13 +13,17 @@
         </h2>
         <h1>
             
-        <i class="fa fa-dot-circle"></i> LIMBCT-{{ id }} Container</h1>
+            <i class="fa fa-dot-circle"></i> LIMBCT-{{ id }}: <span id="name"></span></h1>
 
     </div>
 </div>
 <div class="container">
+    <table class="table table-striped" id="container-information"></table>
 
 
 </div>
 {% endblock %}
 
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/container/view/container.js') }}"></script>
+{% endblock %}

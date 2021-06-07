@@ -87,7 +87,7 @@ class ContainerSchema(masql.SQLAlchemySchema):
     sample_rack = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
     container = ma.Nested(GeneralContainerSchema)
-    created_on = masql.auto_field()
+    created_on = ma.Date()
 
     _links = ma.Hyperlinks(
         {
