@@ -57,8 +57,9 @@ class GeneralContainerSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
 
 
-container_schema = GeneralContainerSchema()
-containers_schema = GeneralContainerSchema(many=True)
+general_container_schema = GeneralContainerSchema()
+general_containers_schema = GeneralContainerSchema(many=True)
+
 
 class NewContainerSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -68,6 +69,10 @@ class NewContainerSchema(masql.SQLAlchemySchema):
     fluid = masql.auto_field()
     tissue = masql.auto_field()
     container = ma.Nested(NewGeneralContainerSchema)
+
+
+new_container_schema = NewContainerSchema()
+
 
 
 class ContainerSchema(masql.SQLAlchemySchema):
@@ -80,6 +85,8 @@ class ContainerSchema(masql.SQLAlchemySchema):
     tissue = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
 
+container_schema = ContainerSchema()
+containers_schema = ContainerSchema(many=True)
 
 class FixationTypeSchema(masql.SQLAlchemySchema):
     class Meta:
