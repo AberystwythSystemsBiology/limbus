@@ -57,6 +57,9 @@ class GeneralContainerSchema(masql.SQLAlchemySchema):
     author = ma.Nested(BasicUserAccountSchema)
 
 
+container_schema = GeneralContainerSchema()
+containers_schema = GeneralContainerSchema(many=True)
+
 class NewContainerSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Container
