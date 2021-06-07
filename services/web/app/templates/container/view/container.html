@@ -1,0 +1,25 @@
+{% extends "template.html" %}
+
+{% block title %}LIMBCT-{{ id }} : Container Portal{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h2 class="secondary-heading">
+            <a href="{{ url_for('container.index') }}">
+                <i class="fa fa-dot-circle"></i> Container Portal
+            </a>
+        </h2>
+        <h1>
+            
+        <i class="fa fa-dot-circle"></i> LIMBCT-{{ id }} Container</h1>
+
+    </div>
+</div>
+<div class="container">
+
+
+</div>
+{% endblock %}
+

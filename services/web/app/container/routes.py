@@ -42,8 +42,7 @@ def index_data():
 
 @container.route("/view/container/<id>")
 def view_container(id: int):
-    return "Hello World"
-
+    return render_template("container/view/container.html")
 
 @container.route("/view/container/<id>/data")
 def view_container_data(id: int):
