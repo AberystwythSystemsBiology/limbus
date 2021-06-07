@@ -40,6 +40,14 @@ function get_containers(query) {
     return json["content"];
 }
 
+function render_check(bool) {
+    if (bool == true) {
+        return '<i class="fa fa-check-circle text-success"></i>'
+    }
+    else {
+        return '<i class="fa fa-minus-circle text-danger"></i>'
+    }
+}
 
 function fill_containers_table(containers) {
     $("#container-table").DataTable( {
@@ -65,6 +73,34 @@ function fill_containers_table(containers) {
                 "mData" : {},
                 "mRender": function (data, type, row) {
                     return data["container"]["used_for"]
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return render_check(data["tissue"])
+
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return render_check(data["fluid"])
+
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return render_check(data["cellular"])
+
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return render_check(data["sample_rack"])
+
                 }
             },
             {
