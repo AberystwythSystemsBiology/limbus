@@ -53,7 +53,7 @@ class GeneralContainerSchema(masql.SQLAlchemySchema):
     manufacturer = masql.auto_field()
     description = masql.auto_field()
     colour = EnumField(Colour)
-    used_for = EnumField(ContainerUsedFor)
+    used_for = EnumField(ContainerUsedFor, by_value=True)
     temperature = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
 
@@ -86,6 +86,8 @@ class ContainerSchema(masql.SQLAlchemySchema):
     tissue = masql.auto_field()
     sample_rack = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
+    container = ma.Nested(GeneralContainerSchema)
+    created_on = masql.auto_field()
 
     _links = ma.Hyperlinks(
         {

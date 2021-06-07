@@ -41,3 +41,5 @@ class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     tissue = db.Column(db.Boolean())
 
     sample_rack = db.Column(db.Boolean())
+
+    container = db.relationship("GeneralContainer")

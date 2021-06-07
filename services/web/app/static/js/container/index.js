@@ -41,10 +41,54 @@ function get_containers(query) {
 }
 
 
-$(document).ready(function () {
+function fill_containers_table(containers) {
+    $("#container-table").DataTable( {
+        data: containers,
+        dom: 'Bfrtip',
+        buttons: [ 'print', 'csv', 'colvis' ],
+        columnDefs: [
+        ],
+        columns: [
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var uuid = "";
+                    uuid += '<a href="' + data["_links"]["self"] + '">'
+                    uuid += '<i class="fa fa-dot-circle"></i> LIMBCT-';
+                    uuid += data["id"];
+                    uuid += ': '+ data["container"]["name"] +'</a>'
+                    return uuid
+                }
+            },
 
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return data["container"]["used_for"]
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return data["created_on"]
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    return render_author(data["author"])
+                }
+        }
+
+        ],
+
+    });
+}
+
+
+$(document).ready(function () {
     var containers = get_containers();
-    console.log(containers);
+    fill_containers_table(containers);
 
 
 });
