@@ -44,9 +44,20 @@ from ..database import (
 
 @api.route("/container", methods=["GET"])
 @token_required
-def container_home(tokenuser: UserAccount):
-    containers = GeneralContainer.query.all()
-    return success_with_content_response(general_containers_schema.dumps(containers))
+def container_index(tokenuser: UserAccount):
+    return success_with_content_response(
+        containers_schema.dump(
+            Container.query.all()
+        )
+    )
+
+@api.route("/container/view/container/<id>", methods=["GET"])
+@token_required
+def view_container(id, tokenuser: UserAccount):
+    return success_with_content_response(container_schema.dump(
+        Container.query.filter_by(id=id).first_or_404()
+    ))
+
 
 
 @api.route("/container/new/container", methods=["POST"])

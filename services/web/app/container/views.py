@@ -17,8 +17,9 @@ from ..extensions import ma
 from ..database import (
     GeneralContainer,
     Container,
-    FixationType,
+    ContainerFixationType,
 )
+
 from marshmallow_enum import EnumField
 import marshmallow_sqlalchemy as masql
 from .enums import ContainerUsedFor
@@ -69,10 +70,10 @@ class NewContainerSchema(masql.SQLAlchemySchema):
     fluid = masql.auto_field()
     tissue = masql.auto_field()
     container = ma.Nested(NewGeneralContainerSchema)
+    sample_rack = masql.auto_field()
 
 
 new_container_schema = NewContainerSchema()
-
 
 
 class ContainerSchema(masql.SQLAlchemySchema):
@@ -83,20 +84,31 @@ class ContainerSchema(masql.SQLAlchemySchema):
     cellular = masql.auto_field()
     fluid = masql.auto_field()
     tissue = masql.auto_field()
+    sample_rack = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor(
+                "container.view_container", id="<id>", _external=True
+            )
+        }
+    )
+
 
 container_schema = ContainerSchema()
 containers_schema = ContainerSchema(many=True)
 
-class FixationTypeSchema(masql.SQLAlchemySchema):
+
+class ContainerFixationTypeSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = FixationType
+        model = ContainerFixationType
 
     container = ma.Nested(ContainerSchema)
 
 
-class NewFixationTypeSchema(masql.SQLAlchemySchema):
+class NewContainerFixationTypeSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = FixationType
+        model = ContainerFixationType
 
     general_container_id = masql.auto_field()

@@ -28,9 +28,8 @@ class GeneralContainer(Base, RefAuthorMixin, RefEditorMixin):
     temperature = db.Column(db.Integer())
 
 
-class FixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+class ContainerFixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     general_container_id = db.Column(db.Integer, db.ForeignKey("generalcontainer.id"))
-    container = db.relationship("GeneralContainer")
 
 
 class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
@@ -42,4 +41,3 @@ class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     tissue = db.Column(db.Boolean())
 
     sample_rack = db.Column(db.Boolean())
-    container = db.relationship("GeneralContainer")
