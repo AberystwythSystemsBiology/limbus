@@ -14,3 +14,37 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+function get_containers(query) {
+    var current_url = encodeURI(window.location);
+    var split_url = current_url.split("/");
+    split_url.pop()
+    var api_url = split_url.join("/") + "/data"
+
+    var json = (function () {
+        var json = null;
+        $.get({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'contentType': 'application/json',
+            'success': function (data) {
+                json = data;
+            }
+        });
+        return json;
+    })();
+
+
+
+    return json["content"];
+}
+
+
+$(document).ready(function () {
+
+    var containers = get_containers();
+    console.log(containers);
+
+
+});
