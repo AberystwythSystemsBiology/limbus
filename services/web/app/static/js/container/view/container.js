@@ -38,16 +38,38 @@ function get_container() {
 }
 
 function fill_content(container) {
-    html = ""
-
-    console.log(container)
-    html += render_content("Name", container["container"]["name"]);
+    html = render_content("Name", container["container"]["name"]);
     html += render_content("Manufacturer", container["container"]["manufacturer"]);
-
     html += render_content("Description", container["container"]["description"]);
-    html += render_content("Temperature (C)", container["container"]["temperature"]);
+    html += render_content("Temperature (°C)", container["container"]["temperature"]);
+    html += render_content("Used For", container["container"]["used_for"]);
 
     $("#container-information").html(html);
+
+}
+
+function fill_suitability(container) {
+    // Fluid, Cellular, Tissue, Sample Rack
+
+    var attrs = ["fluid", "cellular", "tissue", "sample_rack"];
+
+    var html = "";
+
+    for (i in attrs) {
+        var b = container[attrs[i]];
+        if (b == true) {
+            html += '<div class="col-sm-3 text-center"><div class="card"><div class="card-header bg-success text-white">'
+            html += attrs[i]
+            html += '</div></div></div>'
+        }
+        else {
+            html += '<div class="col-sm-3 text-center"><div class="card"><div class="card-header bg-danger text-white">'
+            html += attrs[i]
+            html += '</div></div></div>'
+        }
+    }
+
+    $("#suitability").html(html);
 
 }
 
@@ -56,4 +78,5 @@ $(document).ready(function () {
 
     $("#name").html(container["container"]["name"])
     fill_content(container);
+    fill_suitability(container);
 });
