@@ -53,7 +53,7 @@
     {% if field.type == "BooleanField" %}
     <div class="form-check">
 
-        <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
+        <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox" {% if field.data %}checked{% endif %}>
         <label class="form-check-label" for="{{ field.id }}">
             {{ field.label.text }}
         </label>

@@ -93,6 +93,9 @@ class ContainerSchema(masql.SQLAlchemySchema):
         {
             "self": ma.URLFor(
                 "container.view_container", id="<id>", _external=True
+            ),
+            "edit": ma.URLFor(
+                "container.edit_container", id="<id>", _external=True
             )
         }
     )

@@ -44,12 +44,44 @@ def index_data():
 def view_container(id: int):
     return render_template("container/view/container.html", id=id)
 
+@container.route("/edit/container/LIMBCT-<id>/")
+def edit_container(id: int):
+    container_response = requests.get(
+        url_for("api.container_view_container", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    container_information = container_response.json()["content"]
+
+    if container_response.status_code == 200:
+        form = NewContainerForm(
+            name=container_information["container"]["name"],
+            manufacturer=container_information["container"]["manufacturer"],
+            description=container_information["container"]["description"],
+            temperature=container_information["container"]["temperature"],
+            fluid=container_information["fluid"],
+            cellular=container_information["cellular"],
+            tissue=container_information["tissue"],
+        )
+
+        if form.validate_on_submit():
+            pass
+
+        return render_template("container/edit/container.html", form=form, id=id)
+
+    return (
+            container_response.text,
+            container_response.status_code,
+            container_response.headers.items()
+    )
+
 @container.route("/view/container/LIMBCT-<id>/data")
 def view_container_data(id: int):
     container_response = requests.get(
         url_for("api.container_view_container", id=id, _external=True),
         headers=get_internal_api_header()
     )
+
 
     return (
             container_response.text,

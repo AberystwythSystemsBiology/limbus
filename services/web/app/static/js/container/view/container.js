@@ -75,8 +75,14 @@ function fill_suitability(container) {
 
 $(document).ready(function () {
     var container = get_container();
+    $("#name").html(container["container"]["name"]);
+    $("#created-on").html(container["created_on"]);
+    $("#author").html(render_author(container["author"]));
 
-    $("#name").html(container["container"]["name"])
     fill_content(container);
     fill_suitability(container);
+
+    $("#edit-btn").click(function () {
+        window.location.href = container["_links"]["edit"];
+    })
 });

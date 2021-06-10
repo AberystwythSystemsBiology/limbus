@@ -1,0 +1,50 @@
+{% extends "template.html" %}
+
+{% block title %}Edit LIMBCT-{{ id }} : Container Portal{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h2 class="secondary-heading">
+            <a href="{{ url_for('container.view_container', id=id) }}">
+                <i class="fa fa-dot-circle"></i> LIMBCT-{{ id }}
+            </a>
+        </h2>
+        <h1>
+
+        <i class="fa fa-edit"></i> Edit Container</h1>
+
+    </div>
+</div>
+<div class="container">
+    <form method="POST" action="{{ url_for('container.edit_container', id=id ) }}">
+        {{ form.csrf_token() }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.manufacturer) }}
+        {{ form_field(form.description) }}
+
+        {{ form_field(form.colour) }}
+        {{ form_field(form.used_for) }}
+
+        {{ form_field(form.temperature) }}
+
+        <div class="row">
+            <div class="col-sm-4">
+                {{ form_field(form.fluid) }}
+            </div>
+            <div class="col-sm-4">
+                {{ form_field(form.cellular) }}
+            </div>
+            <div class="col-sm-4">
+                {{ form_field(form.tissue) }}
+            </div>
+        </div>
+
+        {{ form_field(form.sample_rack) }}
+        {{ form_field(form.submit) }}
+    </form>
+
+</div>
+{% endblock %}
+
