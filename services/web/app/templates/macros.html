@@ -52,7 +52,6 @@
 
     {% if field.type == "BooleanField" %}
     <div class="form-check">
-
         <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox" {% if field.data %}checked{% endif %}>
         <label class="form-check-label" for="{{ field.id }}">
             {{ field.label.text }}
@@ -86,7 +85,6 @@
         {% endif %}
         {% elif field.type == "SelectField"  or field.type == "DoidValidatingSelectField" %}
         <label for="{{ field.id }}">{{ field.label.text }} </label>
-
         {{ render_form_error(field) }}
         {% if with_view %}
         <div class="row">
@@ -94,16 +92,16 @@
                 {% endif %}
                 {{ field(class="form-control selectpicker", **{"data-live-search": "true"}) }}
                 {% if with_view %}
-            </div>
-            <div class="col-2">
-                <a href="{{ view_endpoint }}" id="{{ field.id }}_href" target="_blank">
-                    <div class="btn btn-primary full-width">
-                        <i class="fa fa-info-circle"></i> View
                     </div>
-                </a>
-            </div>
-        </div>
-        {% endif %}
+                    <div class="col-2">
+                        <a href="{{ view_endpoint }}" id="{{ field.id }}_href" target="_blank">
+                            <div class="btn btn-primary full-width">
+                                <i class="fa fa-info-circle"></i> View
+                            </div>
+                        </a>
+                    </div>
+                    </div>
+                {% endif %}
         {% elif field.type == "DateField" %}
         <label for="{{ field.id }}">
             {{ field.label.text }}{% if field.flags.required %} <span class="imp">(*)</span>{% endif %}</label>

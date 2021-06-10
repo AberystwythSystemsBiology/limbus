@@ -51,7 +51,7 @@ def container_index(tokenuser: UserAccount):
         )
     )
 
-@api.route("/container/view/container/<id>", methods=["GET"])
+@api.route("/container/view/container/LIMBCT-<id>", methods=["GET"])
 @token_required
 def container_view_container(id, tokenuser: UserAccount):
     return success_with_content_response(container_schema.dump(
@@ -59,6 +59,10 @@ def container_view_container(id, tokenuser: UserAccount):
     ))
 
 
+@api.route("/container/edit/container/LIMBCT-<id>", methods=["PUT"])
+@token_required
+def container_edit_container(id, tokenuser: UserAccount):
+    pass
 
 @api.route("/container/new/container", methods=["POST"])
 @token_required

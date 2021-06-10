@@ -62,10 +62,33 @@ def edit_container(id: int):
             fluid=container_information["fluid"],
             cellular=container_information["cellular"],
             tissue=container_information["tissue"],
+            sample_rack=container_information["sample_rack"]
         )
 
         if form.validate_on_submit():
-            pass
+
+            form_information = {
+                "name": form.name.data,
+                "manufacturer": form.manufacturer.data,
+                "description": form.description.data,
+                "temperature": form.temperature.data,
+                "fluid": form.fluid.data,
+                "cellular": form.cellular.data,
+                "tissue": form.tissue.data,
+                "sample_rack": form.sample_rack.data
+            }
+
+            edit_response = requests.put(
+                url_for("api.container_edit_container", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information
+            )
+
+            if edit_response.status_code == 200:
+                flash("Container Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+            return redirect(url_for("container.view_container", id=id))
 
         return render_template("container/edit/container.html", form=form, id=id)
 
