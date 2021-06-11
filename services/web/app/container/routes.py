@@ -16,7 +16,7 @@
 from ..container import container
 from flask import render_template, url_for, flash, redirect
 from flask_login import current_user, login_required
-from .forms import NewContainerForm, NewFixationType
+from .forms import NewContainerForm, NewFixationType, EditContainerForm
 import requests
 from ..misc import get_internal_api_header
 
@@ -44,7 +44,7 @@ def index_data():
 def view_container(id: int):
     return render_template("container/view/container.html", id=id)
 
-@container.route("/edit/container/LIMBCT-<id>/")
+@container.route("/edit/container/LIMBCT-<id>/", methods=["GET", "POST"])
 def edit_container(id: int):
     container_response = requests.get(
         url_for("api.container_view_container", id=id, _external=True),
@@ -54,7 +54,7 @@ def edit_container(id: int):
     container_information = container_response.json()["content"]
 
     if container_response.status_code == 200:
-        form = NewContainerForm(
+        form = EditContainerForm(
             name=container_information["container"]["name"],
             manufacturer=container_information["container"]["manufacturer"],
             description=container_information["container"]["description"],
@@ -68,12 +68,14 @@ def edit_container(id: int):
         if form.validate_on_submit():
 
             form_information = {
-                "name": form.name.data,
-                "manufacturer": form.manufacturer.data,
-                "description": form.description.data,
-                "temperature": form.temperature.data,
-                "fluid": form.fluid.data,
+                "container": {
+                    "name": form.name.data,
+                    "manufacturer": form.manufacturer.data,
+                    "description": form.description.data,
+                    "temperature": form.temperature.data
+                },
                 "cellular": form.cellular.data,
+                "fluid": form.fluid.data,
                 "tissue": form.tissue.data,
                 "sample_rack": form.sample_rack.data
             }

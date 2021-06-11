@@ -53,6 +53,33 @@ class NewFixationType(FlaskForm):
     submit = SubmitField("Submit")
 
 
+class EditContainerForm(FlaskForm):
+
+    name = StringField(
+        "Container Name",
+        validators=[DataRequired()],
+        description="The Canonical Identifier of the Container."
+
+    )
+
+    manufacturer = StringField(
+        "Manufacturer",
+        description="The Manufacturer of the Container.",
+    )
+
+    description = TextAreaField(
+        "Container Description",
+        description="An optional description of the Container.",
+    )
+    temperature = IntegerField("Temperature (°C)", default=0)
+
+
+    fluid = BooleanField("Suitable for Fluids?")
+    cellular = BooleanField("Suitable for Cells?")
+    tissue = BooleanField("Suitable for Tissue?")
+    sample_rack = BooleanField("Suitable for use in a Sample Rack?")
+    submit = SubmitField("Submit")
+
 class NewContainerForm(FlaskForm):
 
     name = StringField(

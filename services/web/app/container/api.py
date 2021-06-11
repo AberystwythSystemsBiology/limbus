@@ -78,9 +78,10 @@ def container_edit_container(id, tokenuser: UserAccount):
 
     general_container_edit_response = requests.put(
         url_for("api.container_edit_general_container", id=id, _external=True),
-        headers=get_internal_api_header(),
+        headers=get_internal_api_header(tokenuser),
         json=general_container
     )
+
 
     if general_container_edit_response.status_code == 200:
 
