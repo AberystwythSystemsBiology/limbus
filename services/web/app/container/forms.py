@@ -34,14 +34,20 @@ class NewFixationType(FlaskForm):
     name = StringField(
         "Container Name",
         validators=[DataRequired()],
-        description="The Canonical Identifier of the Container."
+        description="The Canonical Identifier of the Fixation Type."
 
     )
 
     description = TextAreaField(
         "Container Description",
-        description="An optional description of the Container.",
+        description="An optional description of the Fixation Type.",
     )
+
+    formulation = TextAreaField(
+        "Fixation Formulation",
+        description="An optional description of the Fixation Type.",
+    )
+
     temperature = IntegerField("Temperature (*C)")
 
     colour = SelectField("Colour", choices=Colour.choices())
@@ -50,6 +56,19 @@ class NewFixationType(FlaskForm):
         "Container Usage",
         choices=ContainerUsedFor.choices()
     )
+
+    start_hour = IntegerField(
+        "Fixation Time: Start Time (hours)",
+        validators=[DataRequired()],
+        default=0
+    )
+
+    end_hour = IntegerField(
+        "Fixation Time: End Type (hours)",
+        validators=[DataRequired()],
+        default=24
+    )
+
     submit = SubmitField("Submit")
 
 
@@ -73,12 +92,12 @@ class EditContainerForm(FlaskForm):
     )
     temperature = IntegerField("Temperature (°C)", default=0)
 
-
     fluid = BooleanField("Suitable for Fluids?")
     cellular = BooleanField("Suitable for Cells?")
     tissue = BooleanField("Suitable for Tissue?")
     sample_rack = BooleanField("Suitable for use in a Sample Rack?")
     submit = SubmitField("Submit")
+
 
 class NewContainerForm(FlaskForm):
 

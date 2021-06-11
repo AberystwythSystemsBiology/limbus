@@ -107,7 +107,6 @@ def view_container_data(id: int):
         headers=get_internal_api_header()
     )
 
-
     return (
             container_response.text,
             container_response.status_code,

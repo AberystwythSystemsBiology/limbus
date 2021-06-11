@@ -20,10 +20,19 @@
 </div>
 <div class="container">
 
-    {{ form_field(form.identifier) }}
-
+    {{ form_field(form.name) }}
     {{ form_field(form.colour) }}
     {{ form_field(form.description) }}
+    {{ form_field(form.formulation) }}
+
+    <div class="row">
+        <div class="col-6">
+            {{  form_field(form.start_hour) }}
+        </div>
+        <div class="col-6">
+            {{ form_field(form.end_hour) }}
+        </div>
+    </div>
     {{ form_field(form.submit) }}
 
 

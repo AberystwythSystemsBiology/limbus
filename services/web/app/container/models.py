@@ -30,6 +30,9 @@ class GeneralContainer(Base, RefAuthorMixin, RefEditorMixin):
 
 class ContainerFixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     general_container_id = db.Column(db.Integer, db.ForeignKey("generalcontainer.id"))
+    formulation = db.Column(db.Text())
+    start_hour = db.Column(db.Integer())
+    end_hour = db.Column(db.Integer())
 
 
 class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):

@@ -82,7 +82,6 @@ def container_edit_container(id, tokenuser: UserAccount):
         json=general_container
     )
 
-
     if general_container_edit_response.status_code == 200:
 
         del values["container"]
