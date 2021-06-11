@@ -58,7 +58,7 @@ def generic_lock(
     view_schema: masql.SQLAlchemySchema,
     tokenuser: UserAccount,
 ):
-    existing = Model.query.filter_by(id=id).first()
+    existing = model.query.filter_by(id=id).first()
 
     if not existing:
         return not_found()
