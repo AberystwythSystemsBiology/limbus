@@ -67,6 +67,42 @@ function get_barcode(sample_info, barc_type) {
 
 }
 
+function get_rack() {
+    //var api_url = encodeURI(window.location + '/data');
+    var current_url = encodeURI(window.location);
+    var split_url = current_url.split("/");
+    console.log('url: ', split_url)
+    split_url.pop()
+    split_url.pop()
+    split_url.push('storage', 'rack')
+    var api_url = split_url.join("/") + "/info"
+    //rack_index
+    console.log('url: ', api_url)
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'dataType': "json",
+            'success': function (data) {
+                json = data;
+            },
+            'failure': function (data) {
+                json = data;
+            }
+
+        });
+    console.log('json', json)
+        return json;
+    })();
+
+    return json;
+
+}
+
+
 
 function fill_title(sample) {
 
@@ -379,33 +415,38 @@ function fill_protocol_events(events) {
     }
 }
 
-function fill_lineage_table(subsamples) {
-    var table = $('#subSampleTable').DataTable({
-        data: subsamples,
-        pageLength: 5,
-        // columnDefs: [{
-        //     'targets': -1,
-        //     'searchable': false,
-        //     'orderable': false,
-        //     'className': 'dt-body-center',
-        //     'render': function (data, type, full, meta) {
-        //         //return '<input type="checkbox" name="id[]" value=1"' + '">';
-        //         return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
-        //     }
-        // }],
 
-      columnDefs: [
-         {
-            'targets': -1,
-            'checkboxes': {
-               'selectRow': true
+function fill_lineage_table(subsamples) {
+    var rack_info = get_rack();
+    if (rack_info["success"] == false) {
+        console.log('No rack data')
+    }  else {
+        var rack_info = rack_info["content"];
+    }
+
+    console.table('rack: ', rack_info)
+
+    let table = $('#subSampleTable').DataTable({
+        data: subsamples,
+
+        //lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+        pageLength: 5,
+        dom: 'Bfrtip',
+        buttons: ['print', 'csv', 'colvis','selectAll', 'selectNone'],
+
+        columnDefs: [
+            {targets: '_all', defaultContent: ''},
+            {targets: [2, 3, 4], visible: false, "defaultContent": ""},
+            {
+                targets:  -1,
+                 orderable: false,
+                 className: 'select-checkbox',
             }
-         }
-      ],
-      select: {
-         'style': 'multi'
-      },
-        order: [[1, 'asc']],
+
+        ],
+        order: [[1, 'desc']],
+        select: {'style': 'multi',
+                'selector': 'td:last-child'},
 
         columns: [
 
@@ -430,7 +471,39 @@ function fill_lineage_table(subsamples) {
                     return col_data
                 }
             },
-            { data: "base_type" },
+            {data: "id"},
+            {data: "barcode"},
+            {data: "status"},
+
+            {data: "base_type"},
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (data["base_type"] == "Fluid") {
+                        return sample_type_information["fluid_type"];
+                    } else if (data["base_type"] == "Cell") {
+                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+                    } else if (data["base_type"] == "Molecular") {
+                        return sample_type_information["molecular_type"];
+                    }
+
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
+
+                }
+            },
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -442,103 +515,81 @@ function fill_lineage_table(subsamples) {
                     return col_data
                 }
             },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var storage_data = data["storage"];
+
+                    if (storage_data == null) {
+                        return "<span class='text-muted'>Not stored.</span>"
+                    } else if (storage_data["storage_type"] == "STB") {
+                        var rack_info = storage_data["rack"];
+                        var html = "<a href='" + rack_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
+                        html += "</a>"
+                        return html
+                    } else if (storage_data["storage_type"] == "STS") {
+                        var shelf_info = storage_data["shelf"];
+                        var html = "<a href='" + shelf_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
+                        html += "</a>"
+                        return html
+                    }
+                    return data["storage"]
+                }
+            },
 
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                return '<input type="checkbox" name="id[]" value="' + $('<div/>').text(data).html() + '">';
+                    return data["created_on"];
                 }
             },
 
+            {} //checkbox select column
 
         ],
 
     });
 
 
-   // Handle click on "Select all" control
-   $('#checkbox-select-all').on('click', function(){
-      // Get all rows with search applied
-      var rows = table.rows({ 'search': 'applied' }).nodes();
-      // Check/uncheck checkboxes for all rows in the table
-      $('input[type="checkbox"]', rows).prop('checked', this.checked);
-   });
-
-   // Handle click on checkbox to set state of "Select all" control
-   $('#checkbox tbody').on('change', 'input[type="checkbox"]', function(){
-      // If checkbox is not checked
-      if(!this.checked){
-         var el = $('#checkbox-select-all').get(0);
-         // If "Select all" control is checked and has 'indeterminate' property
-         if(el && el.checked && ('indeterminate' in el)){
-            // Set visual state of "Select all" control
-            // as 'indeterminate'
-            el.indeterminate = true;
-         }
-      }
-   });
-
-   // Handle form submission event
-   //$('#frm-checkbox').on('submit', function(e){
-//     $("#submit").click(function(e) {
-//       var form = this;
-//
-//       var rows_selected = table.column(4).checkboxes.selected();
-//
-//
-//       // Iterate over all selected checkboxes
-//       $.each(rows_selected, function(index, rowId){
-//          // Create a hidden element
-//          $(form).append(
-//              $('<input>')
-//                 .attr('type', 'hidden')
-//                 .attr('name', 'id[]')
-//                 .val(rowId)
-//          );
-//          //alert(val(rowId));
-//       });
-//
-//       console.table($(form))
-//          //$('#checkbox-console-rows').text(rows_selected.join(","));
-//     $('#checkbox-console-form').text($(form).serialize());
-// // $('input[name="id\[\]"]', form).remove();
-//    });
+    $.each(rack_info, function(index, r) {
+        var optval = '<option value='+ r['id'] + '>'
+        optval += 'LIMBRACK'+r['id'] + " ("+ r['num_rows']+'x'+r['num_cols'] + ", "+ r['serial_number']+') @'
+        optval += r['location']
+        optval += '</option>'
+        $("#select_rack").append(optval);
+        //$("#select_rack").append('<option value=xx >optval</option>');
+    })
 
 
+    $("#submit").click(function (e) {
+        var rows_selected = table.rows( { selected: true } ).data();
+        console.log('rows_selected', rows_selected)
 
-   //Handle form submission event
-   //$('#frm-checkbox').on('submit', function(e){
-    $("#submit").click(function(e) {
-      var form = this
-      // Iterate over all checkboxes in the table
-      table.$('input[type="checkbox"]').each(function(){
-         // If checkbox doesn't exist in DOM
-         if(!$.contains(document, this)){
-            // If checkbox is checked
-            if(this.checked){
-               // Create a hidden element
-               $(form).append(
-                  $('<input>')
-                     .attr('type', 'hidden')
-                     .attr('name', this.name)
-                     .val(this.value)
-               );
-            }
+        // Iterate over all selected checkboxes
+        console.log('rows_selected.length: ', rows_selected.length)
+        if (rows_selected.length>0) {
+           // get rack info
+           var rack_id = $('select[id="select_rack"]').val();
+           var shelf_id = $('select[id="select_shelf"]').val();
 
-         }
-         //console.table($(form));
-      });
-      //$("div").text($(form).serialize());
+           //#("id option:selected").val()
+           console.log('selected rack: ', rack_id)
+           if (rack_id==0 & shelf_id==0) {
+               alert('Select a rack or a shelf to store the sample(s)! ');
+               return false
 
-      var data1 = table.$('input[type="checkbox"]').serialize();
-      console.log(data1)
-   });
+           }
 
+           $.each(rows_selected, function (index, row) {
+                console.log('index: ', index)//, ', dbID: ', rowData)
+                console.log('dbID: ', row['id'])
+           });
 
+        }
 
-      // Output form data to a console
-
-
+    });
 }
 
 
@@ -589,8 +640,11 @@ function hide_all() {
 
 
 $(document).ready(function () {
-    var sample_info = get_sample();
+        $('#myTable').DataTable();
 
+    var versionNo = $.fn.dataTable.version;
+    //alert(versionNo);
+    var sample_info = get_sample();
     if (sample_info["success"] == false) {
         $("#screen").fadeOut();
         $("#error").delay(500).fadeIn();
@@ -598,7 +652,6 @@ $(document).ready(function () {
 
     else {
         var sample_info = sample_info["content"];
-
         $("#loading-screen").fadeOut();
         get_barcode(sample_info, "qrcode");
     

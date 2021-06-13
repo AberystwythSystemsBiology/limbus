@@ -17,7 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 function get_rack_information() {
     var api_url = encodeURI(window.location + '/endpoint');
-
     var json = (function () {
         var json = null;
         $.ajax({
@@ -211,6 +210,7 @@ function render_occupancy_chart(counts) {
     }
     );
 }
+
 
 function render_sample_table(samples) {
 

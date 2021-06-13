@@ -44,7 +44,7 @@ class NewSampleRackForm(FlaskForm):
 
 
 def EditSampleRackForm(shelves: list, data={}):
-    shelf_choices = []
+    shelf_choices = [(0, "-- Select cold storage shelf --")]
 
     if (len(shelves) == 0):
         data["shelf_required"] = False
@@ -72,6 +72,41 @@ def EditSampleRackForm(shelves: list, data={}):
         submit = SubmitField("Register")
 
     return StaticForm(data=data)
+
+
+
+
+def EditRackToShelfForm(shelves: list) -> FlaskForm:
+
+    class StaticForm(FlaskForm):
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
+        entered_by = StringField(
+            "Entered By",
+            description="The initials of the person that entered the sample.",
+        )
+        submit = SubmitField("Submit")
+
+    shelf_choices = []
+    for shelf in shelves:
+        shelf_choices.append((shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"])))
+
+    # shelf_id = SelectField(
+    #     "Shelf",
+    #     choices=shelf_choices,
+    #     #validators=[DataRequired()],
+    #     description="Cold Storage Shelf", coerce=int,
+    # )
+
+    setattr(
+        StaticForm, "shelf_id", SelectField("Cold Storage Shelf", choices=shelf_choices, coerce=int)
+    )
+
+    return StaticForm()
 
 
 
