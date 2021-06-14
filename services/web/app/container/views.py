@@ -109,11 +109,39 @@ class ContainerFixationTypeSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ContainerFixationType
 
-    container = ma.Nested(ContainerSchema)
+    id = masql.auto_field()
+    formulation = masql.auto_field()
+    start_hour = masql.auto_field()
+    end_hour = masql.auto_field()
+    created_on = ma.Date()
+    container = ma.Nested(GeneralContainerSchema)
+    author = ma.Nested(BasicUserAccountSchema)
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor(
+                "container.view_fixation_type", id="<id>", _external=True
+            ),
+            "edit": ma.URLFor(
+                "container.edit_fixation_type", id="<id>", _external=True
+            )
+        }
+    )
+
+
+container_fixation_type_schema = ContainerFixationTypeSchema()
+container_fixation_types_schema = ContainerFixationTypeSchema(many=True)
 
 
 class NewContainerFixationTypeSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ContainerFixationType
 
-    general_container_id = masql.auto_field()
+    container = ma.Nested(NewGeneralContainerSchema)
+    formulation = masql.auto_field()
+    start_hour = masql.auto_field()
+    end_hour = masql.auto_field()
+
+
+new_container_fixation_type_schema = NewContainerFixationTypeSchema()
+

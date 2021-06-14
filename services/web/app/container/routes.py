@@ -26,8 +26,8 @@ def index():
     return render_template("container/index.html")
 
 
-@container.route("/data")
-def index_data():
+@container.route("/data/container")
+def index_container_data():
     container_response = requests.get(
         url_for("api.container_index", _external=True),
         headers=get_internal_api_header()
@@ -40,9 +40,45 @@ def index_data():
     )
 
 
+@container.route("/data/fixation")
+def index_fixation_data():
+    fixation_response = requests.get(
+        url_for("api.container_fixation_index", _external=True),
+        headers=get_internal_api_header()
+    )
+
+    return (
+        fixation_response.text,
+        fixation_response.status_code,
+        fixation_response.headers.items()
+    )
+
 @container.route("/view/container/LIMBCT-<id>")
 def view_container(id: int):
     return render_template("container/view/container.html", id=id)
+
+
+
+@container.route("/view/fixation/LIMBFIX-<id>")
+def view_fixation_type(id: int):
+    return render_template("container/view/fixation.html")
+
+@container.route("/view/fixation/LIMBFIX-<id>/data")
+def view_fixation_data(id: int):
+    fixation_response = requests.get(
+        url_for("api.container_view_fixation", id=id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    return (
+            fixation_response.text,
+            fixation_response.status_code,
+            fixation_response.headers.items()
+    )
+
+@container.route("/edit/fixation/LIMBFIX-<id>/", methods=["GET", "POST"])
+def edit_fixation_type(id: int):
+    return "Hello World"
 
 @container.route("/edit/container/LIMBCT-<id>/", methods=["GET", "POST"])
 def edit_container(id: int):
@@ -150,9 +186,37 @@ def new_container():
     return render_template("container/new/container.html", form=form)
 
 
-@container.route("/new/fixation")
+@container.route("/new/fixation", methods=["GET", "POST"])
 @login_required
 def new_fixation_type():
     form = NewFixationType()
+
+    if form.validate_on_submit():
+
+        data = {
+            "container": {
+                "name": form.name.data,
+                "manufacturer": form.manufacturer.data,
+                "description": form.description.data,
+                "colour": form.colour.data,
+                "used_for": form.used_for.data,
+                "temperature": form.temperature.data
+            },
+            "start_hour": form.start_hour.data,
+            "end_hour": form.end_hour.data,
+            "formulation": form.formulation.data
+        }
+
+        new_container_response = requests.post(
+            url_for("api.new_fixation_type", _external=True),
+            headers=get_internal_api_header(),
+            json=data
+        )
+
+        if new_container_response.status_code == 200:
+            flash("Fixation Type successfully added")
+            return redirect(url_for("container.index"))
+        else:
+            flash(new_container_response.content)
 
     return render_template("container/new/fixation.html", form=form)

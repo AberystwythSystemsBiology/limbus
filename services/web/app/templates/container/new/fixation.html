@@ -19,22 +19,27 @@
     </div>
 </div>
 <div class="container">
+    <form method="POST" action="{{ url_for('container.new_fixation_type' ) }}">
+        {{ form.csrf_token() }}
 
-    {{ form_field(form.name) }}
-    {{ form_field(form.colour) }}
-    {{ form_field(form.description) }}
-    {{ form_field(form.formulation) }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.manufacturer) }}
+        {{ form_field(form.colour) }}
+        {{ form_field(form.used_for) }}
+        {{ form_field(form.temperature) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.formulation) }}
 
-    <div class="row">
-        <div class="col-6">
-            {{  form_field(form.start_hour) }}
+        <div class="row">
+            <div class="col-6">
+                {{  form_field(form.start_hour) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.end_hour) }}
+            </div>
         </div>
-        <div class="col-6">
-            {{ form_field(form.end_hour) }}
-        </div>
-    </div>
-    {{ form_field(form.submit) }}
-
+        {{ form_field(form.submit) }}
+        </form>
 
 </div>
 {% endblock %}

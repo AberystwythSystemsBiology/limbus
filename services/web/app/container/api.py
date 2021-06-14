@@ -32,7 +32,11 @@ from .views import (
     general_container_schema,
     general_containers_schema,
     new_general_container_schema,
-    new_container_schema
+    new_container_schema,
+    new_container_fixation_type_schema,
+    container_fixation_type_schema,
+    container_fixation_types_schema
+
 )
 
 from ..webarg_parser import use_args, use_kwargs, parser
@@ -40,7 +44,8 @@ from ..webarg_parser import use_args, use_kwargs, parser
 from ..database import (
     UserAccount,
     Container,
-    GeneralContainer
+    GeneralContainer,
+    ContainerFixationType
 )
 
 
@@ -53,12 +58,30 @@ def container_index(tokenuser: UserAccount):
         )
     )
 
+@api.route("/fixation", methods=["GET"])
+@token_required
+def container_fixation_index(tokenuser: UserAccount):
+    return success_with_content_response(
+        container_fixation_types_schema.dump(
+            ContainerFixationType.query.all()
+        )
+    )
+
 @api.route("/container/view/container/LIMBCT-<id>", methods=["GET"])
 @token_required
 def container_view_container(id, tokenuser: UserAccount):
     return success_with_content_response(container_schema.dump(
         Container.query.filter_by(id=id).first_or_404()
     ))
+
+
+@api.route("/container/view/fixation/LIMBFIX-<id>", methods=["GET"])
+@token_required
+def container_view_fixation(id, tokenuser: UserAccount):
+    return success_with_content_response(container_fixation_type_schema.dump(
+        ContainerFixationType.query.filter_by(id=id).first_or_404()
+    ))
+
 
 
 @api.route("/container/edit/container/LIMBCT-<id>", methods=["PUT"])
@@ -120,6 +143,60 @@ def container_edit_general_container(id, tokenuser: UserAccount):
         db, GeneralContainer, id, new_general_container_schema, general_container_schema, values, tokenuser
     )
 
+@api.route("/container/new/fixationtype/", methods=["POST"])
+@token_required
+def new_fixation_type(tokenuser: UserAccount):
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        fixation_type = new_container_fixation_type_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    # Container
+
+    g_container_response = requests.post(
+        url_for(
+            "api.new_general_container",
+            _external=True
+        ),
+        headers=get_internal_api_header(tokenuser),
+        json=values["container"],
+    )
+
+    if g_container_response.status_code == 200:
+        general_container_info = g_container_response.json()["content"]
+    else:
+        return (
+            g_container_response.text,
+            g_container_response.status_code,
+            g_container_response.headers.items(),
+        )
+
+    new_fixation_type = ContainerFixationType(
+        formulation=values["formulation"],
+        start_hour=values["start_hour"],
+        end_hour=values["start_hour"],
+        general_container_id=general_container_info["id"],
+        author_id=tokenuser.id
+    )
+
+    try:
+        db.session.add(new_fixation_type)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(
+            container_fixation_type_schema.dump(new_fixation_type)
+        )
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 @api.route("/container/new/container", methods=["POST"])
 @token_required
 def new_container(tokenuser: UserAccount):
@@ -133,7 +210,6 @@ def new_container(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    # Container
 
     g_container_response = requests.post(
         url_for(

@@ -15,11 +15,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-function get_containers(query) {
+function get_containers(endpoint) {
     var current_url = encodeURI(window.location);
     var split_url = current_url.split("/");
     split_url.pop()
-    var api_url = split_url.join("/") + "/data"
+    var api_url = split_url.join("/") + endpoint
 
     var json = (function () {
         var json = null;
@@ -39,6 +39,9 @@ function get_containers(query) {
 
     return json["content"];
 }
+
+
+
 
 function render_check(bool) {
     if (bool == true) {
@@ -121,8 +124,54 @@ function fill_containers_table(containers) {
     });
 }
 
+function fill_fixation_table(fixations) {
+    $("#fixation-table").DataTable( {
+        data: fixations,
+        dom: 'Bfrtip',
+        buttons: [ 'print', 'csv', 'colvis' ],
+        columnDefs: [
+        ],
+        columns: [
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var uuid = "";
+                    uuid += '<a href="' + data["_links"]["self"] + '">'
+                    uuid += '<i class="fa fa-box-open"></i> LIMBFIX-';
+                    uuid += data["id"];
+                    uuid += ': '+ data["container"]["name"] +'</a>'
+                    return uuid
+                }
+            },
+
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return data["container"]["used_for"]
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return data["created_on"]
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    return render_author(data["author"])
+                }
+        }
+
+        ],
+
+    });
+}
+
 
 $(document).ready(function () {
-    var containers = get_containers();
+    var containers = get_containers("/data/container");
+    var fixations = get_containers("/data/fixation");
     fill_containers_table(containers);
+    fill_fixation_table(fixations);
 });

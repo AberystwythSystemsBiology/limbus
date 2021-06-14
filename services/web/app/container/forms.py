@@ -32,14 +32,19 @@ from .enums import  ContainerUsedFor
 class NewFixationType(FlaskForm):
 
     name = StringField(
-        "Container Name",
+        "Fixation Type Name",
         validators=[DataRequired()],
         description="The Canonical Identifier of the Fixation Type."
 
     )
 
+    manufacturer = StringField(
+        "Fixation Type Manufacturer",
+        description="If applicable"
+    )
+
     description = TextAreaField(
-        "Container Description",
+        "Fixation Type Description",
         description="An optional description of the Fixation Type.",
     )
 
@@ -53,7 +58,7 @@ class NewFixationType(FlaskForm):
     colour = SelectField("Colour", choices=Colour.choices())
 
     used_for = SelectField(
-        "Container Usage",
+        "Fixation Type Usage",
         choices=ContainerUsedFor.choices()
     )
 

@@ -1,0 +1,44 @@
+{% extends "template.html" %}
+
+{% block title %}LIMBCT-{{ id }} : Container Portal{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h2 class="secondary-heading">
+            <a href="{{ url_for('container.index') }}">
+                <i class="fa fa-dot-circle"></i> Container Portal
+            </a>
+        </h2>
+        <h1><i class="fa fa-dot-circle"></i> LIMBFIX-{{ id }}: <span id="name"></span></h1>
+
+        <div class="row">
+            <div class="col-7">
+                   <div class="text-muted">
+
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button id="edit-btn" type="button" class="btn btn-outline-dark" id="print-label-btn"><i class="fa fa-edit"></i>
+                  Edit Fixation Type</button>
+              </div>
+            </div>
+            </div>
+            <div class="col-5 text-right">
+                <p>Created By: <span id="author"></span></p>
+                <p>Created On: <span id="created-on"></span></p>
+            </div>
+        </div>
+
+
+            </div>
+    </div>
+</div>
+<div class="fixation-type">
+    <table class="table table-striped" id="container-information"></table>
+
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/container/view/fixation.js') }}"></script>
+{% endblock %}

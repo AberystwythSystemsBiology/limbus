@@ -33,6 +33,7 @@ class ContainerFixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEdit
     formulation = db.Column(db.Text())
     start_hour = db.Column(db.Integer())
     end_hour = db.Column(db.Integer())
+    container = db.relationship("GeneralContainer")
 
 
 class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
