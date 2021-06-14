@@ -27,28 +27,37 @@
 </div>
 <div class="container">
 
-    <h2><i class="fa fa-dot-circle"></i> Containers</h2>
 
-    <table id="container-table" class="table table-striped table-bordered" style="width:100%">
-        <thead>
-            <tr>
-                <th>Identifier</th>
-                <th>Used For</th>
-                <th>Tissue</th>
-                <th>Fluid</th>
-                <th>Cellular</th>
-                <th>Sample Rack</th>
-                <th>Creation Date</th>
-                <th>Created By</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a id="containers-nav" class="nav-link active">Containers</a>
+    </li>
+    <li class="nav-item">
+        <a id="fixation-nav" class="nav-link">Fixation Type</a>
+    </li>
 
-    <h2><i class="fa fa-box-open"></i> Fixation Type</h2>
+</ul>
+    <div id="containers">
 
+        <table id="container-table" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Identifier</th>
+                    <th>Used For</th>
+                    <th>Tissue</th>
+                    <th>Fluid</th>
+                    <th>Cellular</th>
+                    <th>Sample Rack</th>
+                    <th>Creation Date</th>
+                    <th>Created By</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 
+    <div id="fixation" style="display:none">
         <table id="fixation-table" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
@@ -61,6 +70,11 @@
         <tbody>
         </tbody>
     </table>
+    </div>
+
+
+
+
 
 </div>
 {% endblock %}

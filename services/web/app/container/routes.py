@@ -61,7 +61,7 @@ def view_container(id: int):
 
 @container.route("/view/fixation/LIMBFIX-<id>")
 def view_fixation_type(id: int):
-    return render_template("container/view/fixation.html")
+    return render_template("container/view/fixation.html", id=id)
 
 @container.route("/view/fixation/LIMBFIX-<id>/data")
 def view_fixation_data(id: int):

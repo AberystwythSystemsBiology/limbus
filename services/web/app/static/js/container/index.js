@@ -168,10 +168,34 @@ function fill_fixation_table(fixations) {
     });
 }
 
+function deactivate_nav() {
+    $("#fixation-nav").removeClass("active");
+    $("#containers-nav").removeClass("active");
+}
+
+
 
 $(document).ready(function () {
     var containers = get_containers("/data/container");
     var fixations = get_containers("/data/fixation");
     fill_containers_table(containers);
     fill_fixation_table(fixations);
+
+    $("#containers-nav").click(function() {
+        deactivate_nav();
+        $("#fixation").fadeOut(500);
+        $("#containers").fadeIn(500);
+        $(this).addClass("active");
+
+    });
+
+    $("#fixation-nav").click(function () {
+        deactivate_nav();
+        $("#containers").fadeOut(500);
+        $("#fixation").fadeIn(500);
+        $(this).addClass("active");
+
+    })
+
+
 });
