@@ -137,7 +137,7 @@ function fill_fixation_table(fixations) {
                 "mRender": function (data, type, row) {
                     var uuid = "";
                     uuid += '<a href="' + data["_links"]["self"] + '">'
-                    uuid += '<i class="fa fa-box-open"></i> LIMBFIX-';
+                    uuid += '<i class="fab fa-codepen"></i> LIMBFIX-';
                     uuid += data["id"];
                     uuid += ': '+ data["container"]["name"] +'</a>'
                     return uuid

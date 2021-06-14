@@ -19,7 +19,6 @@
 </div>
 <div class="container">
     <form method="POST" action="{{ url_for('container.edit_container', id=id ) }}">
-        {{ form.errors }}
 
         {{ form.csrf_token() }}
         {{ form_field(form.name) }}

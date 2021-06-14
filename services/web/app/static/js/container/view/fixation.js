@@ -43,6 +43,7 @@ function fill_content(fixation) {
     html += render_content("Description", fixation["container"]["description"]);
     html += render_content("Temperature (°C)", fixation["container"]["temperature"]);
     html += render_content("Used For", fixation["container"]["used_for"]);
+    html += render_content("Formulation", fixation["formulation"]);
 
     $("#container-information").html(html);
 

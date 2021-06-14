@@ -51,7 +51,31 @@ function fill_content(container) {
 function fill_suitability(container) {
     // Fluid, Cellular, Tissue, Sample Rack
 
-    var attrs = ["fluid", "cellular", "tissue", "sample_rack"];
+    let attrs_map = new Map();
+
+    attrs_map.set("fluid", {
+        "canonical": "Fluids",
+        "glyphicon": "<i class='fa fa-water'></i>"
+    })
+
+    attrs_map.set("cellular", {
+        "canonical": "Cells",
+        "glyphicon": "<i class='fa fa-egg'></i>"
+    })
+
+    attrs_map.set("tissue", {
+        "canonical": "Tissue",
+        "glyphicon": "<i class='fab fa-envira'></i>"
+    })
+
+    attrs_map.set("sample_rack", {
+        "canonical": "Sample Rack",
+        "glyphicon": "<i class='fa fa-grip-vertical'></i>"
+    })
+
+    var attrs = Array.from(attrs_map.keys());
+
+    console.log(attrs);
 
     var html = "";
 
@@ -59,12 +83,16 @@ function fill_suitability(container) {
         var b = container[attrs[i]];
         if (b == true) {
             html += '<div class="col-sm-3 text-center"><div class="card"><div class="card-header bg-success text-white">'
-            html += attrs[i]
+            var data = attrs_map.get(attrs[i]);
+            html += "<h2>" + data["glyphicon"] + "</h2>";
+            html += "<h4>" + data["canonical"] + "</h4>";
             html += '</div></div></div>'
         }
         else {
             html += '<div class="col-sm-3 text-center"><div class="card"><div class="card-header bg-danger text-white">'
-            html += attrs[i]
+            var data = attrs_map.get(attrs[i]);
+            html += "<h2>" + data["glyphicon"] + "</h2>";
+            html += "<h4>" + data["canonical"] + "</h4>";
             html += '</div></div></div>'
         }
     }
