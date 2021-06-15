@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import SampleDisposal, SampleDisposalEvent
+from ...database import SampleDisposalEvent
 
 from ...consent.views import (
     BasicConsentFormQuestionSchema,
@@ -52,28 +52,3 @@ class BasicSampleDiposalEventSchema(masql.SQLAlchemySchema):
 
 
 basic_sample_disposal_event_schema = BasicSampleDiposalEventSchema()
-
-
-class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SampleDisposal
-
-    id = masql.auto_field()
-    instruction = EnumField(DisposalInstruction)
-    comments = masql.auto_field()
-    disposal_date = masql.auto_field()
-
-
-basic_disposal_schema = BasicSampleDisposalSchema()
-
-
-class NewSampleDisposalSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SampleDisposal
-
-    instruction = EnumField(DisposalInstruction)
-    comments = masql.auto_field()
-    disposal_date = masql.auto_field(allow_none=True)
-
-
-new_sample_disposal_schema = NewSampleDisposalSchema()

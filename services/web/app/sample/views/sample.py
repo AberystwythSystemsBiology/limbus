@@ -21,7 +21,6 @@ from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, Biohazar
 from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
-    BasicSampleDisposalSchema,
     ConsentSchema,
     EntityToStorageSchema,
 )
@@ -47,7 +46,6 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     biohazard_level = EnumField(BiohazardLevel)
     site_id = masql.auto_field()
     quantity = masql.auto_field()
-    disposal_id = masql.auto_field()
     consent_id = masql.auto_field()
     sample_to_type_id = masql.auto_field()
 
@@ -120,7 +118,6 @@ class SampleSchema(masql.SQLAlchemySchema):
     site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
-    disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
     storage = ma.Nested(EntityToStorageSchema, many=False)

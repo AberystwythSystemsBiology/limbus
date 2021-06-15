@@ -53,10 +53,10 @@ def index_fixation_data():
         fixation_response.headers.items()
     )
 
+
 @container.route("/view/container/LIMBCT-<id>")
 def view_container(id: int):
     return render_template("container/view/container.html", id=id)
-
 
 
 @container.route("/view/fixation/LIMBFIX-<id>")
@@ -76,9 +76,11 @@ def view_fixation_data(id: int):
             fixation_response.headers.items()
     )
 
+
 @container.route("/edit/fixation/LIMBFIX-<id>/", methods=["GET", "POST"])
 def edit_fixation_type(id: int):
     return "Hello World"
+
 
 @container.route("/edit/container/LIMBCT-<id>/", methods=["GET", "POST"])
 def edit_container(id: int):
@@ -135,6 +137,7 @@ def edit_container(id: int):
             container_response.status_code,
             container_response.headers.items()
     )
+
 
 @container.route("/view/container/LIMBCT-<id>/data")
 def view_container_data(id: int):

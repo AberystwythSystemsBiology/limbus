@@ -60,11 +60,6 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     events = db.relationship("SampleProtocolEvent", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)
 
-    # Disposal Information
-    # Done -> sample_new_disposal_instructions
-    disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
-    disposal_information = db.relationship("SampleDisposal", uselist=False)
-
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
 
     is_closed = db.Column(db.Boolean, default=False)
@@ -107,12 +102,6 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
     )
 
-
-class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
-    __versioned__ = {}
-    instruction = db.Column(db.Enum(DisposalInstruction))
-    comments = db.Column(db.Text)
-    disposal_date = db.Column(db.Date, nullable=True)
 
 
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
