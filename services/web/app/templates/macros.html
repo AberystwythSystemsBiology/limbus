@@ -228,15 +228,15 @@
         </div>
         <p class="mb-1">{{ field.label.text }}</p>
         {% if field.render_kw["question_type"] == "Standard"  %}
-            <div class="btn btn-sm btn-primary float-right" data-toggle="tooltip" title="A standard question that does not limit any usage of the sample.">
+            <div class="btn btn-sm btn-primary" data-toggle="tooltip" title="A standard question that does not limit any usage of the sample.">
         {% elif field.render_kw["question_type"] == "Electronic Storage" %}
-            <div class="btn btn-sm btn-danger float-right" data-toggle="tooltip" title="The donor has consented for their records to be digitsed.">
+            <div class="btn btn-sm btn-danger" data-toggle="tooltip" title="The donor has consented for their records to be digitsed.">
         {% elif field.render_kw["question_type"] == "Genetic Tests"%}
-            <div class="btn btn-sm btn-warning float-right" data-toggle="tooltip" title="The donor has consented for the Sample has been used for Genetic tests.">
+            <div class="btn btn-sm btn-warning" data-toggle="tooltip" title="The donor has consented for the Sample has been used for Genetic tests.">
         {% elif field.render_kw["question_type"] == "Future Samples" %}
-            <div class="btn btn-sm btn-success float-right" data-toggle="tooltip" title="The donor has consented for the future collection of Samples off this consent form.">
+            <div class="btn btn-sm btn-success" data-toggle="tooltip" title="The donor has consented for the future collection of Samples off this consent form.">
         {% elif field.render_kw["question_type"] == "Available for External Sources" %}
-            <div class="btn btn-sm btn-info float-right" data-toggle="tooltip" title="The donor has consented for the Sample to be used by other institutions besides the biobank">
+            <div class="btn btn-sm btn-info" data-toggle="tooltip" title="The donor has consented for the Sample to be used by other institutions besides the biobank">
 
         {% endif %}
             {{ field.render_kw["question_type"] }}

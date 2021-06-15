@@ -19,7 +19,6 @@
     <form action="{{ url_for('sample.add_step_three', hash=hash) }}" method="POST">
         {{ form.csrf_token }}
 
-        {{ form_field(form.sample_type) }}
         {{ form_field(form.fluid_sample_type) }}
         {{ form_field(form.molecular_sample_type) }}
         {{ form_field(form.cell_sample_type) }}
@@ -28,12 +27,6 @@
         {{ form_field(form.quantity, q=True) }}
         {{ form_field(form.fluid_container) }}
         {{ form_field(form.cell_container) }}
-        {{ form_field(form.biohazard_level) }}
-
-        <div class="alert alert-warning" role="alert">
-            <b>Notice:</b> These reference BSL standards. If you are not sure what to select, feel free to
-            refer to <a href="{{ url_for('sample.biohazard_information') }}" target="_blank">this document</a>.
-        </div>
 
         {{ form_field(form.submit) }}
     </form>

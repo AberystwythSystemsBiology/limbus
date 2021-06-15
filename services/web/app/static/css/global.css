@@ -15,6 +15,10 @@ nav {
     padding:0px;
 }
 
+input[type="checkbox"] {
+  transform:scale(1.75, 1.75);
+}
+
 nav img {
     height:28px;
     

@@ -34,13 +34,8 @@ from wtforms.validators import DataRequired, Optional
 
 class SampleTypeSelectForm(FlaskForm):
 
-    biohazard_level = SelectField(
-        "Biohazard Level",
-        choices=BiohazardLevel.choices(),
-        description="BSL category for the sample.",
-    )
 
-    sample_type = SelectField("Sample Type", choices=SampleBaseType.choices())
+
     fluid_sample_type = SelectField(
         "Fluid Sample Type", choices=FluidSampleType.choices()
     )

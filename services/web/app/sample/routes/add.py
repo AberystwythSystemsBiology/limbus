@@ -183,6 +183,7 @@ def add_step_one():
     if form.validate_on_submit():
 
         route_data = {
+            "sample_type": form.sample_type.data,
             "colour": form.colour.data,
             "sample_status": form.sample_status.data,
             "barcode": form.barcode.data,

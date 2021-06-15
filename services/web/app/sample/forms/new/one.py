@@ -17,7 +17,7 @@
 from flask_wtf import FlaskForm
 
 from ....validators import validate_barcode
-from ...enums import Colour, DisposalInstruction, SampleStatus
+from ...enums import Colour, SampleStatus, SampleBaseType, BiohazardLevel
 from datetime import datetime
 
 from wtforms import (
@@ -36,6 +36,13 @@ def CollectionConsentAndDisposalForm(
     consent_templates: list, collection_protocols: list, collection_sites: list
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
+        biohazard_level = SelectField(
+            "Biohazard Level",
+            choices=BiohazardLevel.choices(),
+            description="BSL category for the sample.",
+        )
+
+        sample_type = SelectField("Sample Type", choices=SampleBaseType.choices())
 
         sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
 
