@@ -24,6 +24,10 @@ from flask import session, current_app
 from flask_login import current_user
 
 
+def prepare_datetime(date: str, time: str):
+    return "%s %s" % (str(date), str(time))
+
+
 def clear_session(hash: str) -> None:
     # Clear cookie session.
     for k, v in list(session.items()):

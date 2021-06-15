@@ -36,8 +36,13 @@ def PatientConsentQuestionnaire(consent_template: dict) -> FlaskForm:
         )
 
         comments = TextAreaField("Comments")
-
+        time = TimeField("Time of Consent", default=datetime.now())
+        undertaken_by = StringField(
+            "Undertaken By",
+            description="The initials of the individual who undertook the consent event.",
+        )
         date = DateField("Date of Consent", default=datetime.today())
+        time = TimeField("Time of Consent", default=datetime.now())
 
         submit = SubmitField("Continue")
 

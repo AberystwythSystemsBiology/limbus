@@ -103,7 +103,7 @@ class BasicConsentFormQuestionSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     question = masql.auto_field()
-    type = EnumField(QuestionType)
+    type = EnumField(QuestionType, by_value=True)
     created_on = fields.Date()
     author = ma.Nested(BasicUserAccountSchema)
 

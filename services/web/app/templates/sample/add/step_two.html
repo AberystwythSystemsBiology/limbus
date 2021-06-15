@@ -23,9 +23,10 @@
             <div class="card-header">
                 <div class="text-center">
                     <h2>{{ consent_template.name }}</h2>
-                    <h3>Version: {{ consent_template.version }}</h3>
+                    <h3>Version: {% if consent_template.version != "" %}
+                        {{ consent_template.version }}
+                    {% else %} N/A {% endif %}</h3>
                 </div>
-
                 {{ form_field(questionnaire.consent_id) }}
             </div>
             <ul id="#questionnaire-list" class="list-group list-group-flush">
@@ -46,7 +47,16 @@
 
             <div class="card-footer">
                 {{ form_field(questionnaire.comments) }}
-                {{ form_field(questionnaire.date) }}
+                {{ form_field(questionnaire.undertaken_by) }}
+
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(questionnaire.date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(questionnaire.time) }}
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -16,7 +16,7 @@
 from flask import render_template, redirect, session, url_for, flash, abort
 from flask_login import login_required, current_user
 
-from ...misc import get_internal_api_header
+from ...misc import get_internal_api_header, prepare_datetime
 
 from .. import sample
 
@@ -60,16 +60,18 @@ def prepare_form_data(data: dict):
         },
         "consent_information": {
             "identifier": step_two["consent_id"],
+            "event": {
+                "datetime": "%s %s"
+                            % (step_one["collection_date"], step_one["collection_time"]),
+                "undertaken_by": step_one["collected_by"],
+                "comments": step_one["collection_comments"],
+            },
             "comments": step_two["comments"],
             "date": step_two["date"],
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"],
-        },
-        "disposal_information": {
-            "instruction": step_one["disposal_instruction"],
-            "comments": step_one["disposal_comments"],
-            "disposal_date": step_one["disposal_date"],
-        },
+        }
+
     }
 
     if step_three["sample_type"] == "FLU":
@@ -184,16 +186,19 @@ def add_step_one():
             "colour": form.colour.data,
             "sample_status": form.sample_status.data,
             "barcode": form.barcode.data,
-            "collection_protocol_id": form.collection_select.data,
-            "collected_by": form.collected_by.data,
+            "collection_information" : {
+                "protocol_id": form.collection_select.data,
+                "event": {
+                    "comments": form.collection_comments.data,
+                    "undertaken_by": form.collected_by.data,
+                    "datetime": prepare_datetime(
+                        form.collection_date.data,
+                        form.collection_time.data
+                    )
+                }
+            },
             "consent_form_id": form.consent_select.data,
             "site_id": form.collection_site.data,
-            "collection_date": str(form.collection_date.data),
-            "collection_time": str(form.collection_time.data),
-            "collection_comments": form.collection_comments.data,
-            "disposal_instruction": form.disposal_instruction.data,
-            "disposal_date": str(form.disposal_date.data),
-            "disposal_comments": form.disposal_comments.data,
         }
 
         # This needs to be broken out to a new module then...
@@ -254,8 +259,14 @@ def add_step_two(hash):
     if questionnaire.validate_on_submit():
         consent_details = {
             "consent_id": questionnaire.consent_id.data,
-            "comments": questionnaire.comments.data,
-            "date": str(questionnaire.date.data),
+            "event": {
+                "datetime": prepare_datetime(
+                    questionnaire.date.data,
+                    questionnaire.time.data
+                ),
+                "comments": questionnaire.comments.data,
+                "undertaken_by": questionnaire.undertaken_by.data,
+            },
             "checked": [],
         }
 
