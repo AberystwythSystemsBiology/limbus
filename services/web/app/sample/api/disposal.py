@@ -21,43 +21,13 @@ from ...decorators import token_required
 from ...misc import get_internal_api_header, flask_return_union
 
 from ..views import (
-    new_sample_disposal_schema,
-    basic_disposal_schema,
     new_sample_disposal_event_schema,
     basic_sample_disposal_event_schema,
 )
 
-from ...database import db, SampleDisposal, UserAccount, SampleDisposalEvent, Sample
+from ...database import db, UserAccount, SampleDisposalEvent, Sample
 
 import requests
-
-
-@api.route("/sample/new/disposal_instructions", methods=["POST"])
-@token_required
-def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_union:
-    values = request.get_json()
-
-    if not values:
-        return no_values_response()
-
-    try:
-        disposal_instructions_values = new_sample_disposal_schema.load(values)
-    except ValidationError as err:
-        return validation_error_response(err)
-
-    new_disposal_instructions = SampleDisposal(**disposal_instructions_values)
-    new_disposal_instructions.author_id = tokenuser.id
-
-    try:
-        db.session.add(new_disposal_instructions)
-        db.session.commit()
-        db.session.flush()
-
-        return success_with_content_response(
-            basic_disposal_schema.dump(new_disposal_instructions)
-        )
-    except Exception as err:
-        return transaction_error_response(err)
 
 
 @api.route("/sample/new/disposal_event", methods=["POST"])

@@ -70,22 +70,6 @@ def CollectionConsentAndDisposalForm(
             description="Comments pertaining to the collection of the Sample.",
         )
 
-        disposal_date = DateField(
-            "Sample Disposal Date (*)",
-            description="The date in which the sample is required to be disposed of.",
-            default=datetime.today,
-            validators=[Optional()],
-        )
-
-        disposal_instruction = SelectField(
-            "Sample Disposal Instruction",
-            choices=DisposalInstruction.choices(),
-            description="The method of sample disposal.",
-            validators=[Optional()],
-        )
-
-        disposal_comments = TextAreaField("Sample Disposal Comments")
-
         consent_select = SelectField(
             "Patient Consent Form Template",
             validators=[DataRequired()],

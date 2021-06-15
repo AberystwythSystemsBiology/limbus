@@ -16,16 +16,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-function disposal_logic() {
-    if ($("#disposal_instruction option:selected").val() == "NAP") {
-        $("#disposal_date_div").hide();
-    }
-    else {
-        $("#disposal_date").val("");
-        $("#disposal_date_div").show();
-
-    }
-}
 
 function view_consent_form() {
     var consent_id = $("#consent_select option:selected").val();
@@ -35,7 +25,6 @@ function view_consent_form() {
 
 
 $(document).ready(function() {
-    disposal_logic();
     view_consent_form();
     view_form_helper("consent_select");
     view_form_helper("collection_select");
@@ -49,8 +38,5 @@ $(document).ready(function() {
     });
 
 
-    $("#disposal_instruction").on("change", function() {
-        disposal_logic();
-    });
 
 });

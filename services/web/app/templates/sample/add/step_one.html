@@ -19,9 +19,13 @@
 
     <form action="{{ url_for('sample.add_step_one') }}" method="POST">
         {{ form.csrf_token }}
+
+        <h2>Basic Information</h2>
         {{ form_field(form.sample_status) }}
         {{ form_field(form.barcode) }}
         {{ form_field(form.colour) }}
+
+        <h2>Collection Information</h2>
 
         {{ form_field(form.collection_select, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
 
@@ -44,16 +48,14 @@
         {{ form_field(form.collected_by) }}
         {{ form_field(form.collection_comments) }}
 
+        <h2>Consent Information</h2>
+
         {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
 
         <div class="alert alert-warning" role="alert">
             <b>Notice:</b> If you are unable to find the patient consent form, it's likely that you have yet to add it.
             <a href="{{ url_for('consent.add')}}">Click here</a> to add a new patient consent form.
         </div>
-
-        {{ form_field(form.disposal_instruction) }}
-        {{ form_field(form.disposal_date) }}
-        {{ form_field(form.disposal_comments) }}
 
         {{ form_field(form.submit) }}
 
