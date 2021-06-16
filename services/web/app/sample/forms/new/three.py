@@ -67,15 +67,63 @@ def FluidSampleInformationForm(fluid_containers: list = []):
     return StaticForm()
 
 
-class CellSampleInformationForm(BaseTypeInformationForm):
-    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
-    tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
-    # Also, the fixation type
-    # Also, the cell container
+def CellSampleInformationForm(cell_containers: list = [], fixation_types: list = []):
+    class StaticForm(BaseTypeInformationForm):
+        cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+        tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
 
-class MolecularSampleInformationForm(BaseTypeInformationForm):
-    # Also, the fluid container.
-    molecular_sample_type = SelectField(
-        "Molecular Sample Type", choices=MolecularSampleType.choices()
+    container_choices = []
+
+    for container in cell_containers:
+        container_choices.append([container["id"], "LIMBCT-%s: %s" % (container["id"], container["container"]["name"])])
+
+    # Also, the cell container
+    setattr(
+        StaticForm,
+        "cell_container",
+        SelectField(
+            "Cell Container",
+            choices=container_choices,
+            coerce=int
+        )
     )
 
+    fixation_type_choices = []
+
+    for fixation in fixation_types:
+        fixation_type_choices.append([fixation["id"], "LIMBCT-%s: %s" % (container["id"], container["container"]["name"])])
+
+    setattr(
+        StaticForm,
+        "fixation_type",
+        SelectField(
+            "Fixation Type",
+            choices=fixation_type_choices,
+            coerce=int
+        )
+    )
+
+    return StaticForm()
+
+
+
+def MolecularSampleInformationForm(molecular_containers: list):
+    class StaticForm(BaseTypeInformationForm):
+        molecular_sample_type = SelectField(
+            "Molecular Sample Type", choices=MolecularSampleType.choices()
+        )
+
+    choices = []
+
+    for container in molecular_containers:
+        choices.append([container["id"], "LIMBCT-%s: %s" % (container["id"], container["container"]["name"])])
+
+    setattr(
+        StaticForm,
+        "fluid_container",
+        SelectField(
+            "Fluid Container",
+            choices=choices,
+            coerce=int
+        )
+    )

@@ -317,8 +317,10 @@ def add_step_three(hash: str):
 
     sample_type = tmpstore_data["step_one"]["sample_type"]
 
-    if sample_type == "FLU":
+    sample_information = {}
+    sample_information["type"] = sample_type
 
+    if sample_type == "FLU":
 
         fluid_containers_response = requests.get(
             url_for("api.container_query", _external=True),
@@ -327,10 +329,34 @@ def add_step_three(hash: str):
         )
 
         if fluid_containers_response.status_code == 200:
-            form = FluidSampleInformationForm(fluid_containers_response.json()["content"])
+            fluid_containers_json = fluid_containers_response.json()["content"]
+            sample_information["num_containers"] = len(fluid_containers_json)
+            form = FluidSampleInformationForm(fluid_containers_json)
+
+    elif sample_type == "CEL":
+        cellular_containers_response = requests.get(
+            url_for("api.container_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"cellular": True}
+        )
 
 
+        fixation_type_response = requests.get(
+            url_for("api.container_fixation_index", _external=True),
+            headers=get_internal_api_header()
+        )
 
+        if cellular_containers_response.status_code == 200 and fixation_type_response.status_code == 200:
+            cellular_containers_json = cellular_containers_response.json()["content"]
+            fixation_type_json = fixation_type_response.json()["content"]
+
+            sample_information["num_containers"] = len(cellular_containers_json)
+            sample_information["num_fixation"] = len(fixation_type_json)
+
+            form = CellSampleInformationForm(cellular_containers_json, fixation_type_json)
+
+    else:
+        pass
 
     if form.validate_on_submit():
 
@@ -364,4 +390,4 @@ def add_step_three(hash: str):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/add/step_three.html", form=form, hash=hash, sample_type=sample_type)
+    return render_template("sample/add/step_three.html", form=form, hash=hash, sample_information=sample_information)

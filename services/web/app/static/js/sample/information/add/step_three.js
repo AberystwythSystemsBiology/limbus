@@ -64,13 +64,13 @@ function check_and_apply() {
 }
 
 $(document).ready(function() {
-    hide_all();
-    fluid_sample();
+    // hide_all();
+    // fluid_sample();
 
-    check_and_apply();
+    //check_and_apply();
 
     $("#sample_type").change(function() {
-        check_and_apply();
+        // check_and_apply();
     });
 
 });

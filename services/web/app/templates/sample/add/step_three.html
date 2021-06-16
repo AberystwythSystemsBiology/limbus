@@ -19,16 +19,19 @@
     <form action="{{ url_for('sample.add_step_three', hash=hash) }}" method="POST">
         {{ form.csrf_token }}
 
-        {% if sample_type == "FLU" %}
-
-            {{ form_field(form.fluid_sample_type) }}
-            {{ form_field(form.fluid_container) }}
-
-        {% endif %}
 
 
         {{ form_field(form.quantity, q=True) }}
+        {% if sample_information["type"] == "FLU" %}
+            {{ form_field(form.fluid_sample_type) }}
+            {{ form_field(form.fluid_container) }}
+        {% elif sample_information["type"] == "CEL" %}
+            {{ form_field(form.cell_sample_type) }}
+            {{ form_field(form.tissue_sample_type) }}
+            {{ form_field(form.cell_container) }}
+            {{ form_field(form.fixation_type) }}
 
+        {% endif %}
         {{ form_field(form.biohazard_level) }}
 
         <div class="alert alert-warning" role="alert">
