@@ -127,3 +127,5 @@ def MolecularSampleInformationForm(molecular_containers: list):
             coerce=int
         )
     )
+
+    return StaticForm()

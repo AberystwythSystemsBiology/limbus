@@ -356,7 +356,19 @@ def add_step_three(hash: str):
             form = CellSampleInformationForm(cellular_containers_json, fixation_type_json)
 
     else:
-        pass
+        molecular_containers_response = requests.get(
+            url_for("api.container_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"fluid": True}
+        )
+
+        print(molecular_containers_response)
+
+        if molecular_containers_response.status_code == 200:
+            molecular_containers_json = molecular_containers_response.json()["content"]
+            sample_information["num_containers"] = len(molecular_containers_json)
+            form = MolecularSampleInformationForm(molecular_containers_json)
+
 
     if form.validate_on_submit():
 
