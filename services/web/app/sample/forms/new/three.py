@@ -17,14 +17,11 @@ from flask_wtf import FlaskForm
 
 from ...enums import (
     BiohazardLevel,
-    SampleBaseType,
     TissueSampleType,
     FluidSampleType,
     MolecularSampleType,
     CellSampleType,
-    FixationType,
-    CellContainer,
-    FluidContainer,
+
 )
 
 from wtforms import SelectField, FloatField, SubmitField
@@ -32,25 +29,53 @@ from wtforms import SelectField, FloatField, SubmitField
 from wtforms.validators import DataRequired, Optional
 
 
-class SampleTypeSelectForm(FlaskForm):
+class BaseTypeInformationForm(FlaskForm):
 
-
-
-    fluid_sample_type = SelectField(
-        "Fluid Sample Type", choices=FluidSampleType.choices()
+    biohazard_level = SelectField(
+        "Biohazard Level",
+        choices=BiohazardLevel.choices(),
+        description="BSL category for the sample.",
     )
 
-    tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
+    quantity = FloatField("Quantity", validators=[DataRequired()])
 
+    submit = SubmitField("Continue")
+
+
+def FluidSampleInformationForm(fluid_containers: list = []):
+
+    class StaticForm(BaseTypeInformationForm):
+        fluid_sample_type = SelectField(
+            "Fluid Sample Type", choices=FluidSampleType.choices()
+        )
+
+    choices = []
+
+    for container in fluid_containers:
+        choices.append([container["id"], "LIMBCT-%s: %s" % (container["id"], container["container"]["name"])])
+
+    setattr(
+        StaticForm,
+        "fluid_container",
+        SelectField(
+            "Fluid Container",
+            choices=choices,
+            coerce=int
+        )
+    )
+
+    return StaticForm()
+
+
+class CellSampleInformationForm(BaseTypeInformationForm):
+    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+    tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
+    # Also, the fixation type
+    # Also, the cell container
+
+class MolecularSampleInformationForm(BaseTypeInformationForm):
+    # Also, the fluid container.
     molecular_sample_type = SelectField(
         "Molecular Sample Type", choices=MolecularSampleType.choices()
     )
-    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
 
-    quantity = FloatField("Quantity", validators=[DataRequired()])
-    fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
-
-    fluid_container = SelectField("Fluid Container", choices=FluidContainer.choices())
-    cell_container = SelectField("Cell Container", choices=CellContainer.choices())
-
-    submit = SubmitField("Continue")

@@ -36,11 +36,7 @@ def CollectionConsentAndDisposalForm(
     consent_templates: list, collection_protocols: list, collection_sites: list
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
-        biohazard_level = SelectField(
-            "Biohazard Level",
-            choices=BiohazardLevel.choices(),
-            description="BSL category for the sample.",
-        )
+
 
         sample_type = SelectField("Sample Type", choices=SampleBaseType.choices())
 

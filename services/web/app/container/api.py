@@ -35,7 +35,8 @@ from .views import (
     new_container_schema,
     new_container_fixation_type_schema,
     container_fixation_type_schema,
-    container_fixation_types_schema
+    container_fixation_types_schema,
+    ContainerSchema
 
 )
 
@@ -55,6 +56,18 @@ def container_index(tokenuser: UserAccount):
     return success_with_content_response(
         containers_schema.dump(
             Container.query.all()
+        )
+    )
+
+
+@api.route("/container/query", methods=["GET"])
+@use_args(ContainerSchema(), location="json")
+@token_required
+def container_query(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, Container)
+    return success_with_content_response(
+        containers_schema.dump(
+            Container.query.filter_by(**filters).filter(*joins).all()
         )
     )
 

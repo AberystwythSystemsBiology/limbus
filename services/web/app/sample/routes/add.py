@@ -23,9 +23,11 @@ from .. import sample
 from ..forms import (
     CollectionConsentAndDisposalForm,
     PatientConsentQuestionnaire,
-    SampleTypeSelectForm,
     SampleReviewForm,
     CustomAttributeSelectForm,
+    FluidSampleInformationForm,
+    CellSampleInformationForm,
+    MolecularSampleInformationForm
 )
 
 from datetime import datetime
@@ -99,7 +101,7 @@ def prepare_form_data(data: dict):
 
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
-def add_rerouter(hash):
+def add_rerouter(hash: str):
 
     query_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
@@ -232,7 +234,7 @@ def add_step_one():
 
 @sample.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
 @login_required
-def add_step_two(hash):
+def add_step_two(hash: str):
 
     tmpstore_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
@@ -302,7 +304,7 @@ def add_step_two(hash):
 
 @sample.route("add/sample_information/<hash>", methods=["GET", "POST"])
 @login_required
-def add_step_three(hash):
+def add_step_three(hash: str):
     tmpstore_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
@@ -313,7 +315,22 @@ def add_step_three(hash):
 
     tmpstore_data = tmpstore_response.json()["content"]["data"]
 
-    form = SampleTypeSelectForm()
+    sample_type = tmpstore_data["step_one"]["sample_type"]
+
+    if sample_type == "FLU":
+
+
+        fluid_containers_response = requests.get(
+            url_for("api.container_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"fluid": True}
+        )
+
+        if fluid_containers_response.status_code == 200:
+            form = FluidSampleInformationForm(fluid_containers_response.json()["content"])
+
+
+
 
     if form.validate_on_submit():
 
@@ -347,4 +364,4 @@ def add_step_three(hash):
 
         flash("We have a problem :( %s" % (store_response.json()))
 
-    return render_template("sample/add/step_three.html", form=form, hash=hash)
+    return render_template("sample/add/step_three.html", form=form, hash=hash, sample_type=sample_type)
