@@ -340,7 +340,6 @@ def add_step_three(hash: str):
             json={"cellular": True}
         )
 
-
         fixation_type_response = requests.get(
             url_for("api.container_fixation_index", _external=True),
             headers=get_internal_api_header()
@@ -361,8 +360,6 @@ def add_step_three(hash: str):
             headers=get_internal_api_header(),
             json={"fluid": True}
         )
-
-        print(molecular_containers_response)
 
         if molecular_containers_response.status_code == 200:
             molecular_containers_json = molecular_containers_response.json()["content"]
