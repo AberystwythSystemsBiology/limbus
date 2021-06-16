@@ -29,7 +29,10 @@ The goal of this project is to develop a Biobank Information Management System (
 - Clinical Disease Annotation
 - Barcode Generation
 - Barcode Label Creation
-- REST API
+- Container and Fixation Type Management
+- Sample Transfer Management
+- Sample Disposal Management
+- Completely open REST API
 
 ## 🤔 Bug reporting and feature suggestions
 
