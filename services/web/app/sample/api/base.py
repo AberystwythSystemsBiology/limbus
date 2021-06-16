@@ -93,13 +93,14 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
 
+    print(values)
+
     if not values:
         return no_values_response()
 
     errors = {}
     for key in [
         "collection_information",
-        "disposal_information",
         "sample_information",
         "sample_type_information",
         "consent_information",

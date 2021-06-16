@@ -19,8 +19,6 @@
     <form action="{{ url_for('sample.add_step_three', hash=hash) }}" method="POST">
         {{ form.csrf_token }}
 
-
-
         {{ form_field(form.quantity, q=True) }}
         {% if sample_information["type"] == "FLU" %}
             {{ form_field(form.fluid_sample_type) }}

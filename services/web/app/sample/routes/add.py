@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import render_template, redirect, session, url_for, flash, abort
-from flask_login import login_required, current_user
+from flask import render_template, redirect, url_for, flash, abort
+from flask_login import login_required
 
 from ...misc import get_internal_api_header, prepare_datetime
 
@@ -23,17 +23,12 @@ from .. import sample
 from ..forms import (
     CollectionConsentAndDisposalForm,
     PatientConsentQuestionnaire,
-    SampleReviewForm,
-    CustomAttributeSelectForm,
     FluidSampleInformationForm,
     CellSampleInformationForm,
     MolecularSampleInformationForm
 )
 
-from datetime import datetime
-
 import requests
-
 
 def prepare_form_data(data: dict):
 
@@ -42,19 +37,11 @@ def prepare_form_data(data: dict):
     step_three = data["step_three"]
 
     api_data = {
-        "collection_information": {
-            "event": {
-                "datetime": "%s %s"
-                % (step_one["collection_date"], step_one["collection_time"]),
-                "undertaken_by": step_one["collected_by"],
-                "comments": step_one["collection_comments"],
-            },
-            "protocol_id": step_one["collection_protocol_id"],
-        },
+        "collection_information": step_one["collection_information"],
         "sample_information": {
             "barcode": step_one["barcode"],
             "source": "NEW",
-            "base_type": step_three["sample_type"],
+            "base_type": step_one["sample_type"],
             "status": step_one["sample_status"],
             "site_id": step_one["site_id"],
             "biohazard_level": step_three["biohazard_level"],
@@ -62,39 +49,16 @@ def prepare_form_data(data: dict):
         },
         "consent_information": {
             "identifier": step_two["consent_id"],
-            "event": {
-                "datetime": "%s %s"
-                            % (step_one["collection_date"], step_one["collection_time"]),
-                "undertaken_by": step_one["collected_by"],
-                "comments": step_one["collection_comments"],
-            },
-            "comments": step_two["comments"],
-            "date": step_two["date"],
+            "event": step_two["event"],
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"],
         }
 
     }
 
-    if step_three["sample_type"] == "FLU":
-        sample_type_information = {
-            "fluid_type": step_three["fluid_sample_type"],
-            "fluid_container": step_three["fluid_container"],
-        }
-    elif step_three["sample_type"] == "CEL":
-        sample_type_information = {
-            "cellular_type": step_three["cell_sample_type"],
-            "tissue_type": step_three["tissue_sample_type"],
-            "fixation_type": step_three["fixation_type"],
-            "cellular_container": step_three["cell_container"],
-        }
-    elif step_three["sample_type"] == "MOL":
-        sample_type_information = {
-            "molecular_type": step_three["molecular_sample_type"],
-            "fluid_container": step_three["fluid_container"],
-        }
+    del step_three["quantity"]
 
-    api_data["sample_type_information"] = sample_type_information
+    api_data["sample_type_information"] = step_three
 
     return api_data
 
@@ -204,7 +168,6 @@ def add_step_one():
             "site_id": form.collection_site.data,
         }
 
-        # This needs to be broken out to a new module then...
         store_response = requests.post(
             url_for("api.tmpstore_new_tmpstore", _external=True),
             headers=get_internal_api_header(),
@@ -368,19 +331,22 @@ def add_step_three(hash: str):
 
 
     if form.validate_on_submit():
-
         sample_information_details = {
             "biohazard_level": form.biohazard_level.data,
-            "sample_type": form.sample_type.data,
-            "fluid_sample_type": form.fluid_sample_type.data,
-            "molecular_sample_type": form.molecular_sample_type.data,
-            "tissue_sample_type": form.tissue_sample_type.data,
-            "cell_sample_type": form.cell_sample_type.data,
             "quantity": form.quantity.data,
-            "fixation_type": form.fixation_type.data,
-            "fluid_container": form.fluid_container.data,
-            "cell_container": form.cell_container.data,
         }
+
+        if sample_type == "FLU":
+            sample_information_details["fluid_sample_type"] = form.fluid_sample_type.data
+            sample_information_details["fluid_container_id"] = form.fluid_container.data
+        elif sample_type == "CEL":
+            sample_information_details["cell_sample_type"] = form.cell_sample_type.data
+            sample_information_details["tissue_sample_type"] = form.tissue_sample_type.data
+            sample_information_details["cell_container_id"] = form.cell_container.data
+            sample_information_details["fixation_type_id"] = form.fixation_type.data
+        else:
+            sample_information_details["fluid_container_id"] = form.fluid_container.data
+            sample_information_details["molecular_sample_type"] = form.molecular_sample_type.data
 
         tmpstore_data["step_three"] = sample_information_details
 
