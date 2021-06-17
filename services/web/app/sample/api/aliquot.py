@@ -35,7 +35,6 @@ from ..views import (
     basic_sample_schema,
     new_sample_schema,
     new_sample_protocol_event_schema,
-    new_sample_type_schema,
 )
 from datetime import datetime
 
@@ -112,7 +111,10 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     sampletotype = SampleToType.query.filter_by(
         id=sample.sample_to_type_id
     ).first_or_404()
-    type_values = new_sample_type_schema.dump(sampletotype)
+
+    # Need to fix.
+    #type_values = new_sample_type_schema.dump(sampletotype)
+    type_values = None
 
     # New sampleprotocol_event
     event_values = {

@@ -32,44 +32,34 @@ from ..enums import (
 from ...auth.views import BasicUserAccountSchema
 
 
-class NewFluidSampleSchema(ma.Schema):
+
+class NewFluidSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleToType
+
     fluid_type = EnumField(FluidSampleType)
-    fluid_container = EnumField(FluidContainer)
 
 
 new_fluid_sample_schema = NewFluidSampleSchema()
 
+class NewCellSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleToType
 
-class NewCellSampleSchema(ma.Schema):
     cellular_type = EnumField(CellSampleType)
     tissue_type = EnumField(TissueSampleType)
-    fixation_type = EnumField(FixationType)
-    cellular_container = EnumField(CellContainer)
-
 
 new_cell_sample_schema = NewCellSampleSchema()
 
+class NewMolecularSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleToType
 
-class NewMolecularSampleSchema(ma.Schema):
     molecular_type = EnumField(MolecularSampleType)
-    fluid_container = EnumField(FluidContainer)
-
 
 new_molecular_sample_schema = NewMolecularSampleSchema()
 
 
-class NewSampleTypeSchema(ma.Schema):
-    fluid_type = EnumField(FluidSampleType)
-    molecular_type = EnumField(MolecularSampleType)
-    cellular_type = EnumField(CellSampleType)
-    tissue_type = EnumField(TissueSampleType)
-
-    fluid_container = EnumField(FluidContainer)
-    cellular_container = EnumField(CellContainer)
-    fixation_type = EnumField(FixationType)
-
-
-new_sample_type_schema = NewSampleTypeSchema()
 
 
 class SampleTypeSchema(ma.SQLAlchemySchema):
@@ -82,10 +72,6 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
     molecular_type = EnumField(MolecularSampleType, by_value=True)
     cellular_type = EnumField(CellSampleType, by_value=True)
     tissue_type = EnumField(TissueSampleType, by_value=True)
-
-    fluid_container = EnumField(FluidContainer, by_value=True)
-    fixation_type = EnumField(FixationType, by_value=True)
-    cellular_container = EnumField(CellContainer, by_value=True)
 
     author = ma.Nested(BasicUserAccountSchema)
 

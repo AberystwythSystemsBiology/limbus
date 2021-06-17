@@ -146,25 +146,9 @@ def sample_new_sample(tokenuser: UserAccount):
             consent_response.headers.items(),
         )
 
-    disposal_response = requests.post(
-        url_for("api.sample_new_disposal_instructions", _external=True),
-        headers=get_internal_api_header(tokenuser),
-        json=values["disposal_information"],
-    )
-
-    if disposal_response.status_code == 200:
-        disposal_information = disposal_response.json()["content"]
-    else:
-        return (
-            disposal_response.text,
-            disposal_response.status_code,
-            disposal_response.headers.items(),
-        )
-
     sample_information = values["sample_information"]
     sample_information["consent_id"] = consent_information["id"]
     sample_information["sample_to_type_id"] = sample_type_information["id"]
-    sample_information["disposal_id"] = disposal_information["id"]
 
     try:
         sample_values = new_sample_schema.load(sample_information)
