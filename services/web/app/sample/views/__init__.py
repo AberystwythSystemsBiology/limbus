@@ -42,3 +42,4 @@ from .storage import *
 from .sample import *
 from .attribue import *
 from .shipment import *
+from .container import *

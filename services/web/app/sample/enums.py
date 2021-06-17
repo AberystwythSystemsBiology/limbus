@@ -15,6 +15,10 @@
 
 from ..FormEnum import FormEnum
 
+class SampleToContainerType(FormEnum):
+    PRI = "Primary"
+    SEC = "Secondary"
+    NA = "Not applicable"
 
 class SampleQuality(FormEnum):
     GOO = "Good"

@@ -13,3 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ...database import db, Base
+from ...mixins import RefAuthorMixin, RefEditorMixin
+
+from ..enums import SampleToContainerType
+
+class SampleToContainer(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    container_id = db.Column(db.Integer, db.ForeignKey("container.id"))
+    fixation_type_id = db.Column(db.Integer, db.ForeignKey("containerfixationtype.id"))
+    type = db.Column(db.Enum(SampleToContainerType))
