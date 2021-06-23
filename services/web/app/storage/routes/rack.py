@@ -82,7 +82,7 @@ def rack_info():
     )
 
     if response.status_code == 200:
-        print(response.json())
+        #print(response.json())
         return response.json()
     return response.content
 
@@ -372,10 +372,8 @@ def view_rack(id):
 def view_rack_endpoint(id):
     def _assign_view(sample, rack_view):
         try:
-            row, col = sample["row"], sample["col"] # position for a sample in the rack
-            print('row:', row , 'col: ', col)
-            #rack_view["content"]["view"][row]["%i\t%i" % (row, col)] = { #row-1:index in array starting from 0
-            rack_view["content"]["view"][row][col] = {  # row-1:index in array starting from 0
+            row, col = sample["row"], sample["col"]
+            rack_view["content"]["view"][row][col] = {
                 "empty": False,
                 "sample": sample["sample"],
             }
@@ -467,6 +465,27 @@ def assign_rack_sample(id, row, column):
             )
 
     abort(view_response.status_code)
+
+
+@storage.route("/rack/LIMBRACK-<id>/auto_assign_sample_to_rack", methods=["GET", "POST"])
+@login_required
+def auto_assign_sample_to_rack(id):
+    return render_template("storage/rack/view_sample_to_rack.html", id=id)
+
+@storage.route("/rack/fill_with_samples", methods=["GET", "POST"])
+@login_required
+def storage_rack_fill_with_samples():
+    if request.method == 'POST':
+       values = request.json
+    else:
+       return validation_error_response({'messages': 'Sample and storage info needed!'})
+
+    response = requests.post(
+        url_for("api.storage_rack_fill_with_samples", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
 
 
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])

@@ -68,16 +68,10 @@ function get_barcode(sample_info, barc_type) {
 }
 
 function get_rack() {
-    //var api_url = encodeURI(window.location + '/data');
-    var current_url = encodeURI(window.location);
-    var split_url = current_url.split("/");
-    console.log('url: ', split_url)
-    split_url.pop()
-    split_url.pop()
-    split_url.push('storage', 'rack')
-    var api_url = split_url.join("/") + "/info"
-    //rack_index
-    console.log('url: ', api_url)
+    var split_url = encodeURI(window.location).split("/");
+    split_url = split_url.slice(0, -2)
+    split_url.push("storage", "rack", "info")
+    var api_url = split_url.join("/")
 
     var json = (function () {
         var json = null;
@@ -94,7 +88,6 @@ function get_rack() {
             }
 
         });
-    console.log('json', json)
         return json;
     })();
 
@@ -102,6 +95,39 @@ function get_rack() {
 
 }
 
+function fill_sample_pos(rack_id, sampletostore, commit) {
+    var split_url = encodeURI(window.location).split("/");
+    split_url = split_url.slice(0, -2)
+    split_url.push("storage", "rack", "fill_with_samples")
+    var api_url = split_url.join("/")
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'type': 'POST',
+            'dataType': "json",
+            'data': JSON.stringify({'rack_id': rack_id,
+                'samples':(sampletostore), 'commit': commit
+            }),
+            'contentType': 'application/json; charset=utf-8',
+            'success': function (data) {
+                json = data
+            },
+            'failure': function (data) {
+                json = data;
+            }
+
+        });
+        console.log('json', json)
+        return json;
+    })();
+
+    return json;
+
+}
 
 
 function fill_title(sample) {
@@ -419,20 +445,17 @@ function fill_protocol_events(events) {
 function fill_lineage_table(subsamples) {
     var rack_info = get_rack();
     if (rack_info["success"] == false) {
-        console.log('No rack data')
+        alert('No rack data!')
     }  else {
-        var rack_info = rack_info["content"];
+        rack_info = rack_info["content"];
     }
-
-    console.table('rack: ', rack_info)
 
     let table = $('#subSampleTable').DataTable({
         data: subsamples,
-
-        //lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
-        pageLength: 5,
-        dom: 'Bfrtip',
+        dom: 'Blfrtip',
         buttons: ['print', 'csv', 'colvis','selectAll', 'selectNone'],
+        lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+        //pageLength: 5,
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
@@ -562,33 +585,59 @@ function fill_lineage_table(subsamples) {
         //$("#select_rack").append('<option value=xx >optval</option>');
     })
 
-
-    $("#submit").click(function (e) {
+    $("#subsample_to_storage").click(function (event) {
         var rows_selected = table.rows( { selected: true } ).data();
-        console.log('rows_selected', rows_selected)
 
-        // Iterate over all selected checkboxes
-        console.log('rows_selected.length: ', rows_selected.length)
         if (rows_selected.length>0) {
-           // get rack info
+           // select rack id or shelf id. TO DO: ?? sample to shelf
            var rack_id = $('select[id="select_rack"]').val();
            var shelf_id = $('select[id="select_shelf"]').val();
-
-           //#("id option:selected").val()
            console.log('selected rack: ', rack_id)
-           if (rack_id==0 & shelf_id==0) {
+           if (rack_id==0 && shelf_id==0) {
                alert('Select a rack or a shelf to store the sample(s)! ');
                return false
-
            }
 
+           var formdata = [];
            $.each(rows_selected, function (index, row) {
-                console.log('index: ', index)//, ', dbID: ', rowData)
-                console.log('dbID: ', row['id'])
+               delete row['__proto__'];
+               formdata.push(row)
            });
+
+           var split_url = encodeURI(window.location).split("/");
+           split_url = split_url.slice(0,-2)
+           split_url.push('storage', 'rack', 'LIMBRACK-'+rack_id, 'auto_assign_sample_to_rack')
+           var api_url = split_url.join("/")
+           console.log('api_url', api_url)
+           // /storage/rack/fill_with_samples"
+           var sampletostore = fill_sample_pos(rack_id, formdata, commit=false)
+           console.log('sampletostore', sampletostore)
+           if (sampletostore.success == false){
+                alert(sampletostore.message)
+                return false
+           } else {
+               if (sampletostore.content.length==0) {
+                   alert('All selected samples have been stored in the selected rack!');
+                   return false;
+               }
+               if (sampletostore.message != '') {
+                   if (confirm(sampletostore.message)) {
+
+                   } else {
+                       return false
+                   }
+               }
+           }
+           samplestore =  sampletostore['content']
+           sessionStorage.setItem("rack_id", rack_id);
+           sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
+           //window.open("view_sample_to_rack.html");
+           //window.open(api_url, "_blank"); //, "_self");
+           window.open(api_url, "_self");
 
         }
 
+    //e.preventDefault()
     });
 }
 
@@ -632,7 +681,7 @@ function hide_all() {
     $("#protocol-event-info").fadeOut(50);
     $("#associated-documents").fadeOut(50);
     $("#lineage-info").fadeOut(50);
-    $("#protocol-event-info").fadeOut(50);
+    //$("#protocol-event-info").fadeOut(50);
     $("#sample-review-info").fadeOut(50);
     $("#custom-attributes-div").fadeOut(50);
 }
