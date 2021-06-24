@@ -71,7 +71,7 @@ def storage_rack_new(tokenuser: UserAccount):
 def storage_rack_new_with_samples(tokenuser: UserAccount):
 
     values = request.get_json()
-    print(values)
+    #print(values)
     if not values:
         return no_values_response()
 
@@ -111,7 +111,7 @@ def storage_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccoun
     # Update entitytostorage with storage_type 'STB'
     stb_batch = []
     for sample in samples_pos:
-        print("sample", sample)
+        #print("sample", sample)
         sample_id = sample['sample_id']
 
         # Step 1 Delete existing entity to storage record for given sample
@@ -246,7 +246,7 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
 def storage_rack_fill_with_samples(tokenuser: UserAccount):
     if request.method == 'POST':
       values = request.get_json()
-      print('request data', values)
+      #print('request data', values)
       samples = values['samples']
 
     else:
@@ -275,7 +275,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.\
             filter(EntityToStorage.rack_id==rack_id, EntityToStorage.storage_type=='STB',
                    or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
-        print("stbs", stbs)
+        #print("stbs", stbs)
         occupancies = [(stb1.row, stb1.col) for stb1 in stbs]
 
         num_rows = rack.num_rows
@@ -332,7 +332,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     # Step 1: SampleRack update
     # Step 2: If shelf_id exist, EntityToStorage update.
     values = request.get_json()
-    print('values: ', values)
+    #print('values: ', values)
     if not values:
         return no_values_response()
 
@@ -460,7 +460,7 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
 
     results = [{'id':shelfid,'name':'%s - %s - %s - %s (%s) - %s' % (sitename, buildingname, roomname, csname, cstemp, shelfname)}
                 for (shelfid, sitename, buildingname, roomname, csname, cstemp, shelfname) in stmt]
-    print(results)
+    #print(results)
 
     return success_with_content_response(results)
 
@@ -486,9 +486,9 @@ def storage_rack_info(tokenuser: UserAccount):
     results = [{'id': rackid, 'num_rows': num_rows, 'num_cols': num_cols, 'serial_number': serial_number,
                 'description': description or '',
                 'location': '%s - %s - %s - %s (%s) - %s' %
-           (sitename or '', buildingname or '', roomname or '', csname or '', cstemp or '', shelfname or '')}
-        for (rackid, num_rows, num_cols, serial_number, description,
-             shelfid, sitename, buildingname, roomname, csname, cstemp, shelfname) in stmt]
+        (sitename or '', buildingname or '', roomname or '', csname or '', cstemp or '', shelfname or '')}
+            for (rackid, num_rows, num_cols, serial_number, description,
+                 shelfid, sitename, buildingname, roomname, csname, cstemp, shelfname) in stmt]
 
 
     return success_with_content_response(results)

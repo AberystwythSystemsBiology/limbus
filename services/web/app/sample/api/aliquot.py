@@ -52,7 +52,7 @@ from ..views import basic_sample_schema, new_sample_schema
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     def _validate_values(values: dict) -> bool:
         valid = True
-        print(values)
+        #print(values)
         for key in [
             "aliquot_date",
             "aliquot_time",
@@ -166,7 +166,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         try:
             db.session.add(ali_sampletotype)
             db.session.flush()
-            print("ali_sampletotype id: ", ali_sampletotype.id)
+            #print("ali_sampletotype id: ", ali_sampletotype.id)
 
         except Exception as err:
             return transaction_error_response(err)

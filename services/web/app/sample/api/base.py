@@ -125,7 +125,7 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    print('fj: ', filters, joins)
+    # print('fj: ', filters, joins)
 
     flag_protocol = False
 
@@ -142,7 +142,7 @@ def sample_query(args, tokenuser: UserAccount):
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     results = basic_samples_schema.dump(stmt.all())
-    print(results)
+    # print(results)
     return success_with_content_response(
         results
     )
@@ -150,8 +150,8 @@ def sample_query(args, tokenuser: UserAccount):
 
 def sample_query_basic(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    print("filters: ", filters)
-    print("joins: ", joins)
+    #print("filters: ", filters)
+    #print("joins: ", joins)
     return success_with_content_response(
         basic_samples_schema.dump(
             Sample.query.filter_by(**filters).filter(*joins).all()
