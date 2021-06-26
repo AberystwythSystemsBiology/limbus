@@ -459,7 +459,6 @@ $(document).ready(function () {
 
 
     $("#container_base_type").change(function () {
-        console.log(indexes)
         var cbt = $("#container_base_type").val();
         // clear all aliquots
         indexes.forEach(function(i) {
@@ -475,7 +474,6 @@ $(document).ready(function () {
 
     $("#submit").click(function() {
         var data = prepare_data();
-
         $('#confirmationModal').modal("toggle");
 
         $("#modalSubmit").click(function() {
