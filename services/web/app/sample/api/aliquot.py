@@ -129,33 +129,27 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         ),
         "undertaken_by": values["processed_by"],
         "comments": values["comments"],
-        # "protocol_id": values["processing_protocol"],
-        # "sample_id": parent_id,
     }
 
-    new_event = Event(**event_values)
-    new_event.author_id = tokenuser.id
     try:
+        new_event = Event(**event_values)
+        new_event.author_id = tokenuser.id
         db.session.add(new_event)
         db.session.flush()
         event_id = new_event.id
     except Exception as err:
         return transaction_error_response(err)
 
-    event_values["protocol_id"] = values["processing_protocol"]
-    event_values["sample_id"] = parent_id
-    event_values["event_id"] = event_id
-
-    try:
-        event_result = new_sample_protocol_event_schema.load(event_values, unknown='EXCLUDE')
-    except ValidationError as err:
-        return validation_error_response(err)
-
     # TODO: Use existing API endpoint.
     # T1: new protocol event for parent sample
     try:
-        new_event = SampleProtocolEvent(**event_result)
-        db.session.add(new_event)
+        new_sample_protocol_event = SampleProtocolEvent(
+            sample_id=parent_id,
+            protocol_id=values["processing_protocol"],
+            event_id=event_id,
+        )
+        new_sample_protocol_event.author_id = tokenuser.id
+        db.session.add(new_sample_protocol_event)
         db.session.flush()
     except ValidationError as err:
         return validation_error_response(err)

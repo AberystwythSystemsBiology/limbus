@@ -52,6 +52,7 @@ def prepare_form_data(data: dict):
         "sample_information": {
             "barcode": step_one["barcode"],
             "source": "NEW",
+            "colour": step_one["colour"],
             "base_type": step_three["sample_type"],
             "status": step_one["sample_status"],
             "site_id": step_one["site_id"],

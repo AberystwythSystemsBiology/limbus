@@ -77,7 +77,7 @@ def aliquot_endpoint(uuid: str):
     if not values:
 
         return {"Err": "No values provided."}
-    print('values: ', values)
+
     aliquot_response = requests.post(
         url_for("api.sample_new_aliquot", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
