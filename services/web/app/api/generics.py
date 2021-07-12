@@ -106,3 +106,26 @@ def generic_edit(
         return success_with_content_response(view_schema.dump(existing))
     except Exception as err:
         return transaction_error_response(err)
+
+def generic_delete(
+    db,
+    model: Base,
+    id: int,
+    tokenuser: UserAccount,
+):
+    existing = model.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked()
+
+    existing.editor_id = tokenuser.id
+
+    db.session.delete(existing)
+    db.session.commit()
+
+    #return success_with_content_response()
+    return success_without_content_response()
+

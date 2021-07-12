@@ -21,7 +21,12 @@ def not_found():
         {"ContentType": "application/json"},
     )
 
-
+def locked():
+    return (
+        {"success": False, "message": "Data locked"},
+        404,
+        {"ContentType": "application/json"},
+    )
 def no_values_response():
     return (
         {"success": False, "message": "No input data provided"},

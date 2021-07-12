@@ -77,6 +77,15 @@ def storage_room_edit(id, tokenuser: UserAccount):
         db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
     )
 
+@api.route("/storage/room/LIMBROOM-<id>/delete", methods=["PUT"])
+@token_required
+def storage_room_delete(id, tokenuser: UserAccount):
+
+    values = request.get_json()
+
+    return generic_delete(
+        db, Room, id, tokenuser
+    )
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
 @token_required
