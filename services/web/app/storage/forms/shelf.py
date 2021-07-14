@@ -39,6 +39,8 @@ class NewShelfForm(FlaskForm):
     )
 
     submit = SubmitField("Register Shelf")
+    cancel= SubmitField("Cancel")
+
 
 
 def RackToShelfForm(racks: list) -> FlaskForm:

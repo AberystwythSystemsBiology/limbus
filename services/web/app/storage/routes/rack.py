@@ -385,3 +385,20 @@ def edit_rack(id):
         )
 
     abort(response.status_code)
+
+
+@storage.route("/rack/LIMBRACK-<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_rack(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_rack_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if edit_response.status_code == 200:
+        flash("Rack Successfully Deleted")
+    else:
+        flash("We have a problem: %s" % (id))
+
+    return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))

@@ -111,3 +111,21 @@ def edit_building(id):
         )
 
     return abort(response.status_code)
+
+@storage.route("/buildings/LIMBBUILD-<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_building(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_building_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if edit_response.status_code == 200:
+        flash("Building Successfully Deleted")
+    else:
+        flash("We have a problem: %s" % (id))
+
+    # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
+    return redirect(url_for("storage.index",_external=True))
+

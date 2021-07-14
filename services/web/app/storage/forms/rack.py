@@ -25,15 +25,20 @@ from wtforms import (
     BooleanField,
 )
 
+<<<<<<< Updated upstream
 from wtforms.validators import DataRequired
 
+=======
+from wtforms.validators import DataRequired, NumberRange
+from datetime import datetime
+>>>>>>> Stashed changes
 from ...sample.enums import Colour
 
 
 class NewSampleRackForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
-    num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
-    num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
+    num_rows = IntegerField("Number of Rows", validators=[DataRequired(),NumberRange(1,None,None)], default=1)
+    num_cols = IntegerField("Number of Columns", validators=[DataRequired(),NumberRange(1,None,None)], default=1)
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
     submit = SubmitField("Register")

@@ -20,7 +20,8 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, ColdStorageShelf, UserAccount
+from ...database import db, UserAccount,EntityToStorage,SampleRack
+from ..api.rack import delete_rack_func
 
 from marshmallow import ValidationError
 from ..views.shelf import *
@@ -57,6 +58,36 @@ def storage_shelf_edit(id, tokenuser: UserAccount):
         tokenuser,
     )
 
+@api.route("/storage/shelf/LIMBSHF-<id>/delete", methods=["PUT"])
+@token_required
+def storage_shelf_delete(id, tokenuser: UserAccount):
+    existing = ColdStorageShelf.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked()
+
+    existing.editor_id = tokenuser.id
+    storageID = existing.storage_id
+
+    delete_shelf_func(existing)
+
+    return success_with_content_response(storageID)
+
+def delete_shelf_func(record):
+    entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==record.id).all()
+
+    for ESRecord in entityStorageRecords:
+        rackRecord = SampleRack.query.filter(SampleRack.id==ESRecord.rack_id).first()
+        entityStorageRackRecords = EntityToStorage.query.filter(EntityToStorage.rack_id==rackRecord.id).all()
+        delete_rack_func(rackRecord,entityStorageRackRecords)
+
+    db.session.delete(record)
+    db.session.commit()
+
+
 
 @api.route("/storage/shelf/new/", methods=["POST"])
 @token_required
@@ -72,7 +103,7 @@ def storage_shelf_new(tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/LIMBSHELF-<id>/lock", methods=["POST"])
+@api.route("/storage/LIMBSHF-<id>/lock", methods=["POST"])
 @token_required
 def storage_shelf_lock(id, tokenuser: UserAccount):
     return generic_lock(db, ColdStorageShelf, id, basic_shelf_schema, tokenuser)

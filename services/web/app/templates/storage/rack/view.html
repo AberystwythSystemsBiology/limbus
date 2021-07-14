@@ -44,10 +44,13 @@
                                         </button>
                                     </a>
                                 </div>
-
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <a href="{{ url_for('storage.delete_rack', id=id) }}">
+                                        <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </a>
+                                </div>
                             </div>
-
-
 
                         </div>
                         <div class="col-5 text-right">

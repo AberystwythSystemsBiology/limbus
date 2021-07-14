@@ -52,6 +52,15 @@
                                     Unl{% else %}L{% endif %}ock
                                 </button>
                             </div>
+
+                            {% if not building.is_locked %}
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.delete_building', id=building.id) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </a>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-5 text-right">

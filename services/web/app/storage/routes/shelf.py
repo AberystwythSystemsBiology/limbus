@@ -104,6 +104,7 @@ def edit_shelf(id):
         shelf = response.json()["content"]
         form = NewShelfForm(data=shelf)
 
+
         if form.validate_on_submit():
             form_information = {
                 "name": form.name.data,
@@ -127,6 +128,22 @@ def edit_shelf(id):
 
     return abort(response.status_code)
 
+
+@storage.route("/shelf/LIMBSHF-<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_shelf(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_shelf_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if edit_response.status_code == 200:
+        flash("Shelf Successfully Deleted")
+    else:
+        flash("We have a problem: %s" % (id))
+
+    return redirect(url_for("storage.view_cold_storage", id=edit_response.json()["content"], _external=True))
 
 @storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
 @login_required

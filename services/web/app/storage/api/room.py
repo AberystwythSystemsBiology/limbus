@@ -13,19 +13,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, current_app, jsonify, send_file
+from flask import request, current_app, jsonify, send_file,url_for,redirect
 
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, Room, UserAccount
+from ...database import db, Room, UserAccount,ColdStorage
+import requests
+from .lts import storage_coldstorage_delete
+from ...misc import get_internal_api_header
+from ..api.lts import delete_coldstorage_func
+
 
 from marshmallow import ValidationError
 
 from ..views import basic_room_schema, basic_rooms_schema, new_room_schema, room_schema
 from ...api.generics import *
+
 
 
 @api.route("/storage/room", methods=["GET"])
@@ -77,6 +83,45 @@ def storage_room_edit(id, tokenuser: UserAccount):
         db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
     )
 
+<<<<<<< Updated upstream
+=======
+@api.route("/storage/room/LIMBROOM-<id>/delete", methods=["PUT"])
+@token_required
+def storage_room_delete(id, tokenuser: UserAccount):
+    existing = Room.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked()
+
+    existing.editor_id = tokenuser.id
+
+    # attachedCS = ColdStorage.query.filter(ColdStorage.room_id == id).all()
+    #
+    # for CSs in attachedCS:
+    #     CSs.editor_id = tokenuser.id
+    #     db.session.delete(CSs)
+    # db.session.commit()
+
+
+
+    buildingID = existing.building_id
+
+    delete_room_func(existing)
+
+    return success_with_content_response(buildingID)
+
+def delete_room_func(record):
+    attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).all()
+    for CSs in attachedCS:
+        delete_coldstorage_func(CSs)
+
+    db.session.delete(record)
+    db.session.commit()
+
+>>>>>>> Stashed changes
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
 @token_required

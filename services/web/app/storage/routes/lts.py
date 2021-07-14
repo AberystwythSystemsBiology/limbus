@@ -225,3 +225,19 @@ def edit_cold_storage(id):
         )
 
     return abort(response.status_code)
+
+@storage.route("/coldstorage/LIMBCS-<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_cold_storage(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_coldstorage_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if edit_response.status_code == 200:
+        flash("Cold Storage Successfully Deleted")
+    else:
+        flash("We have a problem: %s" % (id))
+
+    return redirect(url_for("storage.view_room", id=edit_response.json()["content"], _external=True))

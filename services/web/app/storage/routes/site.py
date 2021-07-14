@@ -44,3 +44,19 @@ def view_site(id):
         )
 
     return abort(response.status_code)
+
+@storage.route("/site/LIMBSITE-<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_site(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_site_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if edit_response.status_code == 200:
+        flash("Site Successfully Deleted")
+    else:
+        flash("We have a problem: %s" % (id))
+
+    return redirect(url_for("storage.index", _external=True))

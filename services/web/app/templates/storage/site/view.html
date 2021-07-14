@@ -30,7 +30,7 @@
                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                 <a href="{{ url_for('storage.new_building', id=site.id) }}">
                                     <button type="button" class="btn btn-outline-dark">
-                                        <i class="fas fa-vial"></i> Add Building
+                                        <i class="fas fa-plus"></i> Add Building
                                     </button>
                                 </a>
                             </div>
@@ -43,6 +43,16 @@
                                     Unl{% else %}L{% endif %}ock
                                 </button>
                             </div>
+
+                            {% if not site.is_locked %}
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.delete_site', id=site.id) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </a>
+                            </div>
+                            {% endif %}
+
                         </div>
                     </div>
                     <div class="col-5 text-right">

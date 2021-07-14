@@ -15,19 +15,47 @@
 
 from ...api import api
 from ...api.responses import *
+from ..api.building import delete_buildings_func
 
 from flask import request, send_file
 from ...decorators import token_required
 from marshmallow import ValidationError
 
-from ...database import SiteInformation, UserAccount
+from ...database import db,SiteInformation, UserAccount,Sample,Building
 
 from ..views import site_schema
 
 
-@api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])
+@api.route("/misc/site/LIMBSITE-<id>", methods=["GET"])
 @token_required
 def site_view(id, tokenuser: UserAccount):
     return success_with_content_response(
         site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
     )
+
+@api.route("/storage/site/LIMBSITE-<id>/delete", methods=["PUT"])
+@token_required
+def storage_site_delete(id, tokenuser: UserAccount):
+    siteTableRecord = SiteInformation.query.filter_by(id=id).first()
+    sampleTableRecord = Sample.query.filter(Sample.site_id==id).all()
+
+
+    if not siteTableRecord:
+        return not_found()
+
+    if siteTableRecord.is_locked:
+        return locked()
+
+    siteTableRecord.editor_id = tokenuser.id
+
+    for record in sampleTableRecord:
+        db.session.delete(record)
+
+    attachedBuildings = Building.query.filter(Building.site_id==id).all()
+    for building in attachedBuildings:
+        delete_buildings_func(building)
+
+    db.session.commit()
+    db.session.delete(siteTableRecord)
+    db.session.commit()
+    return success_without_content_response()

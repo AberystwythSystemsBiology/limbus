@@ -20,6 +20,7 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
+from ..api.shelf import delete_shelf_func
 
 import requests
 
@@ -53,6 +54,32 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
         cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
 
+
+
+@api.route("/storage/coldstorage/LIMBCS-<id>/delete", methods=["PUT"])
+@token_required
+def storage_coldstorage_delete(id, tokenuser: UserAccount):
+    existing = ColdStorage.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked()
+
+    existing.editor_id = tokenuser.id
+    roomID = existing.room_id
+
+    delete_coldstorage_func(existing)
+
+    return success_with_content_response(roomID)
+
+def delete_coldstorage_func(record):
+    attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==record.id).all()
+    for shelves in attachedShelves:
+        delete_shelf_func(shelves)
+    db.session.delete(record)
+    db.session.commit()
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required

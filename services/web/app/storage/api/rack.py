@@ -77,6 +77,32 @@ def storage_rack_edit(id, tokenuser: UserAccount):
         db, SampleRack, id, new_sample_rack_schema, rack_schema, values, tokenuser
     )
 
+@api.route("/storage/RACK/LIMBRACK-<id>/delete", methods=["PUT"])
+@token_required
+def storage_rack_delete(id, tokenuser: UserAccount):
+    rackTableRecord = SampleRack.query.filter_by(id=id).first()
+    entityStorageTableRecord = EntityToStorage.query.filter(EntityToStorage.rack_id==id).all()
+    shelfID = entityStorageTableRecord[0].shelf_id
+
+    if not rackTableRecord:
+        return not_found()
+
+    if rackTableRecord.is_locked:
+        return locked()
+
+    rackTableRecord.editor_id = tokenuser.id
+
+    delete_rack_func(rackTableRecord,entityStorageTableRecord)
+
+    return success_with_content_response(shelfID)
+
+def delete_rack_func(record,entityStorageTableRecord):
+    for ESRecord in entityStorageTableRecord:
+        db.session.delete(ESRecord)
+    db.session.commit()
+    db.session.delete(record)
+    db.session.commit()
+
 
 @api.route("/storage/rack/assign/sample", methods=["POST"])
 @token_required

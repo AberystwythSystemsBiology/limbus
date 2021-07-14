@@ -24,8 +24,17 @@
         <div class="container">
             <form method="POST" action="{{ url_for('storage.edit_room', id=room.id) }}">
                 {{ form.csrf_token }}
-                {{ form_field(form.name) }}
+                {{ form_field(form.name)}}
+                <div>
+<!--                <div class="btn-group mr-2" role="group" aria-label="First group">-->
+<!--                    <a href="{{ url_for('storage.view_room', id=room.id) }}">-->
+<!--                        <button type="button" class="btn btn-outline-dark"> Cancel-->
+<!--                        </button>-->
+<!--                    </a>-->
+<!--                </div>-->
                 {{ form_field(form.submit) }}
+                </div>
+
             </form>
         </div>
 
