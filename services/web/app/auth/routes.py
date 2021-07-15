@@ -31,16 +31,15 @@ from uuid import uuid4
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
-
     if form.validate_on_submit():
         user = (
             db.session.query(UserAccount)
             .filter(UserAccount.email == form.email.data)
             .first()
         )
+
         if user is not None and user.verify_password(form.password.data):
             login_user(user)
-            flash("Successfuly logged in.")
             return redirect(url_for("misc.index"))
         else:
             flash("Incorrect email or password.")

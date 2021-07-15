@@ -36,6 +36,7 @@ def view_site(id):
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
+        json={"is_locked": False},
     )
 
     if response.status_code == 200:

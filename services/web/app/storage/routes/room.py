@@ -113,10 +113,59 @@ def edit_room(id):
             else:
                 flash("We have a problem: %s" % (edit_response.json()))
 
-            return redirect(url_for("storage.view_room", id=id))
+            #return redirect(url_for("storage.view_room", id=id))
+            return redirect(url_for("storage.view_building", id=id))
 
         return render_template(
             "storage/room/edit.html", room=response.json()["content"], form=form
         )
 
     return abort(response.status_code)
+
+
+@storage.route("/rooms/LIMBROOM-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock_room(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_room_lock", id=id, _external=True),
+        headers=get_internal_api_header(),
+        #json=form_information,
+    )
+
+    if edit_response.status_code == 200:
+        flash("Room Successfully Locked")
+    else:
+        flash("We have a problem: %s" % (edit_response.json()))
+
+    return redirect(url_for("storage.view_room", id=id))
+
+    #return render_template(
+    #    "storage/room/edit.html", room=response.json()["content"], form=form
+    #)
+
+    return abort(response.status_code)
+
+@storage.route("/rooms/LIMBROOM-<id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_room(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_room_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if edit_response.status_code == 200:
+        flash("Room Successfully Deleted")
+    else:
+        flash("We have a problem: %s" % (edit_response.json()))
+
+    #return redirect(url_for("storage.view_room", id=id))
+    #return render_template("storage/index.html")
+    return redirect(url_for("storage.index", _external=True))
+
+    #return render_template(
+    #    "storage/room/edit.html", room=response.json()["content"], form=form
+    #)
+
+    #return abort(response.status_code)

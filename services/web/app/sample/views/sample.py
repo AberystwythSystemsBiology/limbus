@@ -24,6 +24,7 @@ from . import (
     BasicSampleDisposalSchema,
     ConsentSchema,
     EntityToStorageSchema,
+    BasicSampleDiposalEventSchema,
 )
 
 from ...document.views import BasicDocumentSchema
@@ -75,7 +76,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     storage = ma.Nested(EntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
-
+    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
     _links = ma.Hyperlinks(
         {
             "add_sample_to_cart": ma.URLFor(

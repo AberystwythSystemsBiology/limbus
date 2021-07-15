@@ -52,6 +52,7 @@ def prepare_form_data(data: dict):
         "sample_information": {
             "barcode": step_one["barcode"],
             "source": "NEW",
+            "colour": step_one["colour"],
             "base_type": step_three["sample_type"],
             "status": step_one["sample_status"],
             "site_id": step_one["site_id"],
@@ -75,20 +76,30 @@ def prepare_form_data(data: dict):
     if step_three["sample_type"] == "FLU":
         sample_type_information = {
             "fluid_type": step_three["fluid_sample_type"],
-            "fluid_container": step_three["fluid_container"],
+            #"fluid_container": step_three["fluid_container"],
         }
     elif step_three["sample_type"] == "CEL":
         sample_type_information = {
             "cellular_type": step_three["cell_sample_type"],
             "tissue_type": step_three["tissue_sample_type"],
             "fixation_type": step_three["fixation_type"],
-            "cellular_container": step_three["cell_container"],
+            #"cellular_container": step_three["cell_container"],
         }
     elif step_three["sample_type"] == "MOL":
         sample_type_information = {
             "molecular_type": step_three["molecular_sample_type"],
-            "fluid_container": step_three["fluid_container"],
+            #"fluid_container": step_three["fluid_container"],
         }
+
+    if step_three["container_base_type"] == "PRM":
+        sample_type_information.update({
+            "fluid_container": step_three["fluid_container"],
+        })
+    else:
+        sample_type_information.update({
+            "cellular_container": step_three["cell_container"],
+        })
+
 
     api_data["sample_type_information"] = sample_type_information
 
@@ -314,6 +325,7 @@ def add_step_three(hash):
             "cell_sample_type": form.cell_sample_type.data,
             "quantity": form.quantity.data,
             "fixation_type": form.fixation_type.data,
+            "container_base_type": form.container_base_type.data,
             "fluid_container": form.fluid_container.data,
             "cell_container": form.cell_container.data,
         }

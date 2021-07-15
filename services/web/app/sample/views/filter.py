@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import marshmallow_sqlalchemy as masql
+from marshmallow import fields
 
 from ...extensions import ma
 from ...database import Sample
@@ -30,3 +31,4 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
     biohazard_level = masql.auto_field()
     source = masql.auto_field()
     status = masql.auto_field()
+    protocol_id = fields.Int()

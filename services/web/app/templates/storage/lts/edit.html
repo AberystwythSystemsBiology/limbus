@@ -27,11 +27,22 @@
             <form method="POST" action="{{ url_for('storage.edit_cold_storage', id=cs.id ) }}">
                 {{ form.csrf_token }}
                 {{ form_field(form.alias) }}
-                {{ form_field(form.manufacturer) }}
-                {{ form_field(form.temperature) }}
                 {{ form_field(form.type) }}
-                {{ form_field(form.serial_number) }}
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.status) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.temperature) }}
+                    </div>
+                </div>
                 {{ form_field(form.comments) }}
+                {{ form_field(form.room_id) }}
+
+{#                {{ form_field(form.temperature) }}#}
+{#                {{ form_field(form.type) }}#}
+                {{ form_field(form.manufacturer) }}
+                {{ form_field(form.serial_number) }}
                 {{ form_field(form.submit) }}
             </form>
         </div>

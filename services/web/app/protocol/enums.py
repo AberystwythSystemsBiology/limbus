@@ -32,6 +32,9 @@ class ProtocolType(FormEnum):
     ALD = "Sample Aliquot / Derivation"
     STR = "Sample Transfer"
     SDE = "Sample Destruction"
+    COL = "Collection"
+    STU = "Study"
+    TMP = "Temporary Storage"
 
 
 class FluidLongTermStorage(FormEnum):

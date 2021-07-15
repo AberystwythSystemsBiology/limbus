@@ -29,6 +29,7 @@ from ...database import (
     SubSampleToSample,
     SampleProtocolEvent,
     SampleToType,
+    Event
 )
 
 from ..views import (
@@ -52,6 +53,7 @@ from ..views import basic_sample_schema, new_sample_schema
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     def _validate_values(values: dict) -> bool:
         valid = True
+        #print(values)
         for key in [
             "aliquot_date",
             "aliquot_time",
@@ -60,6 +62,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             "parent_id",
             "processed_by",
             "processing_protocol",
+            "container_base_type",
         ]:
             try:
                 values[key]
@@ -92,6 +95,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         return validation_error_response({"messages": "Failed to load aliquot, sorry."})
 
     to_remove = sum([float(a["volume"]) for a in values["aliquots"]])
+    container_base_type = values["container_base_type"]
 
     # Parent Sample Basic Info
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
@@ -114,7 +118,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     ).first_or_404()
     type_values = new_sample_type_schema.dump(sampletotype)
 
-    # New sampleprotocol_event
+    # New event and sampleprotocol_event
+    # each event consists of (i.e. is linked to) a batch of sampleprotocl_event(s) for aliquot
     event_values = {
         "datetime": str(
             datetime.strptime(
@@ -124,34 +129,50 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         ),
         "undertaken_by": values["processed_by"],
         "comments": values["comments"],
-        "protocol_id": values["processing_protocol"],
-        "sample_id": parent_id,
     }
 
     try:
-        event_result = new_sample_protocol_event_schema.load(event_values)
-    except ValidationError as err:
-        return validation_error_response(err)
+        new_event = Event(**event_values)
+        new_event.author_id = tokenuser.id
+        db.session.add(new_event)
+        db.session.flush()
+        event_id = new_event.id
+    except Exception as err:
+        return transaction_error_response(err)
 
     # TODO: Use existing API endpoint.
     # T1: new protocol event for parent sample
-    new_event = SampleProtocolEvent(**event_result)
-    db.session.add(new_event)
-    db.session.flush()
+    try:
+        new_sample_protocol_event = SampleProtocolEvent(
+            sample_id=parent_id,
+            protocol_id=values["processing_protocol"],
+            event_id=event_id,
+        )
+        new_sample_protocol_event.author_id = tokenuser.id
+        db.session.add(new_sample_protocol_event)
+        db.session.flush()
+    except ValidationError as err:
+        return validation_error_response(err)
 
     for aliquot in values["aliquots"]:
         # T2. New sampletotypes for subsamples: store data on sample type and container
+        # Keep the sample type and drop the container info from the parent sample
+        type_values.pop('fluid_container', None)
+        type_values.pop('cellular_container', None)
+        type_values.pop('fixation_type', None)
+
         ali_sampletotype = SampleToType(**type_values)
         ali_sampletotype.id = None
 
-        if base_type == "FLU":
-            ali_sampletotype.fluid_container = aliquot["container"]
-        elif base_type == "CEL":
-            ali_sampletotype.cellular_container = aliquot["container"]
-            if "fixation" in aliquot:
-                ali_sampletotype.fixation_type = aliquot["fixation"]
-        elif base_type == "MOL":
-            ali_sampletotype.fluid_container = aliquot["container"]
+        if container_base_type == 'PRM':
+            ali_sampletotype.fluid_container = aliquot['container']
+
+        elif container_base_type == "LTS":
+            ali_sampletotype.cellular_container = aliquot['container']
+
+        if base_type == 'CEL':
+            if 'fixation' in aliquot:
+                ali_sampletotype.fixation_type = aliquot['fixation']
 
         try:
             db.session.add(ali_sampletotype)

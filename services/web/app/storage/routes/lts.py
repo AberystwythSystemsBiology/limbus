@@ -31,6 +31,7 @@ from flask_login import current_user, login_required
 
 from ..forms import (
     ColdStorageForm,
+    ColdStorageEditForm,
     NewShelfForm,
     ColdStorageServiceReportForm,
     ColdStorageToDocumentAssociationForm,
@@ -192,24 +193,44 @@ def view_cold_storage(id):
 @login_required
 def edit_cold_storage(id):
     response = requests.get(
-        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        url_for("api.storage_coldstorage_edit_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
-    if response.status_code == 200:
-        form = ColdStorageForm(data=response.json()["content"])
+    csinfo = {}
+    csinfo['id']=id
+    csinfo['alias']=response.json()["content"]['alias']
+    csinfo['status'] = response.json()["content"]['status']
+    csinfo['manufacturer'] = response.json()["content"]['manufacturer']
+    csinfo['serial_number'] = response.json()["content"]['serial_number']
+    csinfo['temperature'] = response.json()["content"]['temp']
+    csinfo['type'] = response.json()["content"]['type']
+    csinfo['comments'] = response.json()["content"]['comments']
+    csinfo['room_id'] = response.json()["content"]['room_id']
+
+    response1 = requests.get(
+        url_for("api.storage_rooms_onsite", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    print(response1.json()["content"])
+
+    if response.status_code == 200 and response1.status_code == 200:
+        form = ColdStorageEditForm(rooms=response1.json()["content"], data=csinfo)
         if form.validate_on_submit():
             form_information = {
                 "alias": form.alias.data,
+                "status": form.status.data,
                 "serial_number": form.serial_number.data,
                 "manufacturer": form.manufacturer.data,
                 "comments": form.comments.data,
                 "temp": form.temperature.data,
                 "type": form.type.data,
+                "room_id": form.room_id.data,
             }
 
             edit_response = requests.put(
                 url_for("api.storage_coldstorage_edit", id=id, _external=True),
+
                 headers=get_internal_api_header(),
                 json=form_information,
             )
@@ -220,8 +241,10 @@ def edit_cold_storage(id):
                 flash("We have a problem: %s" % (edit_response.json()))
 
             return redirect(url_for("storage.view_cold_storage", id=id))
+
         return render_template(
-            "storage/lts/edit.html", cs=response.json()["content"], form=form
+            "storage/lts/edit.html", cs=csinfo, form=form
         )
+
 
     return abort(response.status_code)

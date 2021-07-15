@@ -53,6 +53,12 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
         cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
 
+@api.route("/storage/coldstorage/LIMBCS-<id>/edit/view", methods=["GET"])
+@token_required
+def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        new_cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
+    )
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
@@ -111,8 +117,8 @@ def storage_coldstorage_new(tokenuser: UserAccount):
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
     cs = ColdStorage.query.filter_by(id=id).first()
-
-    if not room:
+    print('cs  -- ', cs)
+    if not cs: #room:
         return not_found()
 
     values = request.get_json()
@@ -195,3 +201,22 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     else:
         return coldstorage_response.json()
+
+
+
+@api.route("/storage/coldstorage/rooms_onsite/LIMBCS-<id>", methods=["GET"])
+@token_required
+def storage_rooms_onsite(id, tokenuser: UserAccount):
+    # Get the list of rooms of the same site for the given coldstorage id
+    subq = db.session.query(SiteInformation.id).join(Building).\
+            join(Room).join(ColdStorage).filter(ColdStorage.id==id)
+    stmt = db.session.query(SiteInformation.id).join(Building).\
+            join(Room).join(ColdStorage).filter(SiteInformation.id==subq.first().id).\
+            with_entities(Room.id, SiteInformation.name, Building.name, Room.name).\
+            distinct(Room.id).all()
+
+    results = [{'id':roomid,'name':'(%s)%s-%s' % (sitename, buildingname, roomname)}
+                for (roomid, sitename, buildingname, roomname) in stmt]
+
+    return success_with_content_response(results)
+

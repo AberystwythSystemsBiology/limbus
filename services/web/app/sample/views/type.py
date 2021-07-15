@@ -35,7 +35,7 @@ from ...auth.views import BasicUserAccountSchema
 class NewFluidSampleSchema(ma.Schema):
     fluid_type = EnumField(FluidSampleType)
     fluid_container = EnumField(FluidContainer)
-
+    cellular_container = EnumField(CellContainer)
 
 new_fluid_sample_schema = NewFluidSampleSchema()
 
@@ -44,6 +44,7 @@ class NewCellSampleSchema(ma.Schema):
     cellular_type = EnumField(CellSampleType)
     tissue_type = EnumField(TissueSampleType)
     fixation_type = EnumField(FixationType)
+    fluid_container = EnumField(FluidContainer)
     cellular_container = EnumField(CellContainer)
 
 
@@ -53,6 +54,7 @@ new_cell_sample_schema = NewCellSampleSchema()
 class NewMolecularSampleSchema(ma.Schema):
     molecular_type = EnumField(MolecularSampleType)
     fluid_container = EnumField(FluidContainer)
+    cellular_container = EnumField(CellContainer)
 
 
 new_molecular_sample_schema = NewMolecularSampleSchema()
