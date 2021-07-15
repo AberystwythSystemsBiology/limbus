@@ -58,6 +58,17 @@ nav img {
     color: #000;
 }
 
+.btn-cancel {
+    background-color: #eb4034;
+    color: #ffffff;
+    margin-right:0.5em;
+}
+
+.btn-cancel:hover {
+    background-color:#a62b23;
+    color: #ffffff;
+}
+
 #wmd-preview {
     background-color: #f5f5f5;
     padding:1em;

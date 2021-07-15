@@ -106,6 +106,7 @@ def edit_shelf(id):
 
 
         if form.validate_on_submit():
+
             form_information = {
                 "name": form.name.data,
                 "description": form.description.data,

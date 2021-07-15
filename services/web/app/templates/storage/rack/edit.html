@@ -22,7 +22,17 @@
                 {{ form.csrf_token() }}
                 {{ form_field(form.serial) }}
                 {{ form_field(form.description) }}
-                {{ form_field(form.submit) }}
+                <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        {{ form_field(form.submit) }}
+                    </div>
+                    <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+                        <a href="{{ url_for('storage.view_rack', id=rack.id) }}">
+                            <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                                Cancel
+                            </button></a>
+                    </div>
+                </div>
             </form>
 
         </div>

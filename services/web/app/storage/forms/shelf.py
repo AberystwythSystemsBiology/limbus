@@ -39,7 +39,6 @@ class NewShelfForm(FlaskForm):
     )
 
     submit = SubmitField("Register Shelf")
-    cancel= SubmitField("Cancel")
 
 
 
