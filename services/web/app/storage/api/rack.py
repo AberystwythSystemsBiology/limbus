@@ -98,6 +98,8 @@ def storage_rack_delete(id, tokenuser: UserAccount):
 
 def delete_rack_func(record,entityStorageTableRecord):
     for ESRecord in entityStorageTableRecord:
+        if ESRecord.sample_id is None:
+            return no_values_response()
         db.session.delete(ESRecord)
     db.session.commit()
     db.session.delete(record)

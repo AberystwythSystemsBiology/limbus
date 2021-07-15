@@ -31,7 +31,9 @@
                     <h1>
                         <span class="secondary-heading">
                             <span id="storage-href">
-                                <i class="fa fa-temperature-low"></i> LIMBCS-<span id="storage-id"></span></span></span>
+                                <!-- no link back to cold storage -->
+                                <i class="fa fa-temperature-low"></i> LIMBCS-<span id="storage-id"></span>
+                            </span></span>
                         <i class="fa fa-bars"></i> LIMBSHF-{{ id }}</span></h1>
 
 
@@ -58,11 +60,38 @@
                                 </div>
 
                                 <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                    <a href="{{ url_for('storage.delete_shelf', id=id) }}">
-                                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+<!--                                    <a href="{{ url_for('storage.delete_shelf', id=id) }}">-->
+                                        <button type="button" onclick="document.getElementById('delete-confirmation').style.display='flex'"
                                                 class="btn btn-outline-dark"><i class="fa fa-trash"></i> Delete
                                         </button>
-                                    </a>
+<!--                                    </a>-->
+                                </div>
+
+                                <div id="delete-confirmation" class="modal-delete">
+                                    <form class="modal-delete-content" action="/action_page.php">
+                                        <div class="container">
+                                            <h1>Are you sure you want to delete the LIMBSHF-{{ id }}?</h1>
+                                            <p>Deleting a shelf will delete associated racks.</p>
+                                            <p style="padding-top: 50px"/>
+                                            <div class="btn-toolbar form-group" style="float:right" role="toolbar"
+                                                 aria-label="Toolbar with button groups">
+                                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                                    <a href="{{ url_for('storage.delete_shelf', id=id) }}">
+                                                        <button type="button" class="btn btn-outline-dark"><i
+                                                                class="fa fa-trash"></i> Delete
+                                                        </button>
+                                                    </a>
+                                                </div>
+                                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                                    <button type="button"
+                                                            onclick="document.getElementById('delete-confirmation').style.display='none'"
+                                                            class="btn btn-outline-dark" title="Close Modal"><i
+                                                            class="fa fa-times"></i> Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
 
 
@@ -127,4 +156,6 @@
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/storage/shelf/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+
 {% endblock %}

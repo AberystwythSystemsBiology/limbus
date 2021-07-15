@@ -398,7 +398,11 @@ def delete_rack(id):
 
     if edit_response.status_code == 200:
         flash("Rack Successfully Deleted")
+        return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))
+    elif edit_response.status_code == 500:
+        flash("Rack cannot be deleted with samples")
     else:
-        flash("We have a problem: %s" % (id))
+        flash("We have a problem: %s" % edit_response.status_code)
+    return redirect(url_for("storage.view_rack",id=id, _external=True))
 
-    return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))
+
