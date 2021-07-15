@@ -113,20 +113,17 @@ def edit_room(id):
             else:
                 flash("We have a problem: %s" % (edit_response.json()))
 
-<<<<<<< Updated upstream
             return redirect(url_for("storage.view_room", id=id))
-=======
             #return redirect(url_for("storage.view_room", id=id))
             return redirect(url_for("storage.view_building", id=id)) #DOESNT WORK ID DOESNT REFER TO BUILDING ID
->>>>>>> Stashed changes
+
 
         return render_template(
             "storage/room/edit.html", room=response.json()["content"], form=form
         )
 
     return abort(response.status_code)
-<<<<<<< Updated upstream
-=======
+
 
 
 @storage.route("/rooms/LIMBROOM-<id>/lock", methods=["GET", "POST"])
@@ -176,4 +173,4 @@ def delete_room(id):
 
     #return abort(response.status_code)
 
->>>>>>> Stashed changes
+

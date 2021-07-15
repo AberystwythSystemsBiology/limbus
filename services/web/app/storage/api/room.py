@@ -83,8 +83,7 @@ def storage_room_edit(id, tokenuser: UserAccount):
         db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
     )
 
-<<<<<<< Updated upstream
-=======
+
 @api.route("/storage/room/LIMBROOM-<id>/delete", methods=["PUT"])
 @token_required
 def storage_room_delete(id, tokenuser: UserAccount):
@@ -121,7 +120,6 @@ def delete_room_func(record):
     db.session.delete(record)
     db.session.commit()
 
->>>>>>> Stashed changes
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
 @token_required

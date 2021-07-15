@@ -49,16 +49,9 @@
                             {% endif %}
 
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-<<<<<<< Updated upstream
-                                <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
-                                    Unl{% else %}L{% endif %}ock
-                                </button>
-                            </div>
-=======
                                 <a href="{{ url_for('storage.lock_room', id=room.id) }}">
                                     <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
+                                            class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
                                         Unl{% else %}L{% endif %}ock
                                     </button>
                                 </a>
@@ -68,14 +61,13 @@
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
                                 <a href="{{ url_for('storage.delete_room', id=room.id) }}">
                                     <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-trash"></i> Delete
+                                            class="btn btn-outline-dark"><i class="fa fa-trash"></i> Delete
                                     </button>
                                 </a>
                             </div>
 
                             {% endif %}
 
->>>>>>> Stashed changes
                         </div>
                     </div>
                     <div class="col-5 text-right">

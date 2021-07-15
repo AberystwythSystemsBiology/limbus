@@ -24,14 +24,8 @@ from wtforms import (
     FileField,
     BooleanField,
 )
-
-<<<<<<< Updated upstream
-from wtforms.validators import DataRequired
-
-=======
 from wtforms.validators import DataRequired, NumberRange
 from datetime import datetime
->>>>>>> Stashed changes
 from ...sample.enums import Colour
 
 

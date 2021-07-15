@@ -106,8 +106,7 @@ def generic_edit(
         return success_with_content_response(view_schema.dump(existing))
     except Exception as err:
         return transaction_error_response(err)
-<<<<<<< Updated upstream
-=======
+
 
 # def generic_delete(
 #     db,
@@ -130,4 +129,3 @@ def generic_edit(
 #
 #     return success_without_content_response()
 
->>>>>>> Stashed changes
