@@ -93,15 +93,15 @@ def edit_room(id):
         headers=get_internal_api_header(),
     )
 
+
     if response.status_code == 200:
 
         form = RoomRegistrationForm(data=response.json()["content"])
-
+        flash(form.validate_on_submit())
         if form.validate_on_submit():
             form_information = {
                 "name": form.name.data,
             }
-
             edit_response = requests.put(
                 url_for("api.storage_room_edit", id=id, _external=True),
                 headers=get_internal_api_header(),
@@ -115,7 +115,7 @@ def edit_room(id):
 
             return redirect(url_for("storage.view_room", id=id))
             #return redirect(url_for("storage.view_room", id=id))
-            return redirect(url_for("storage.view_building", id=id)) #DOESNT WORK ID DOESNT REFER TO BUILDING ID
+            # return redirect(url_for("storage.view_building", id=id)) #DOESNT WORK ID DOESNT REFER TO BUILDING ID
 
 
         return render_template(

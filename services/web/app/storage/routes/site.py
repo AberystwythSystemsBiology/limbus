@@ -28,7 +28,7 @@ from flask_login import current_user, login_required
 from .. import storage
 import requests
 from ...misc import get_internal_api_header
-
+from ..forms import SiteRegistrationForm
 
 @storage.route("/site/LIMBSITE-<id>", methods=["GET"])
 @login_required
@@ -56,7 +56,53 @@ def delete_site(id):
 
     if edit_response.status_code == 200:
         flash("Site Successfully Deleted")
+        return redirect(url_for("storage.index", _external=True))
+    # elif edit_response.json()["message"]== "Can't delete assigned samples":
+    #     flash("Cannot delete rack with assigned samples")
     else:
         flash("We have a problem: %s" % (id))
+    return redirect(url_for("storage.view_site", id=id, _external=True))
 
-    return redirect(url_for("storage.index", _external=True))
+@storage.route("/site/LIMBSITE-<id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_site(id):
+
+    response = requests.get(
+        url_for("api.site_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+
+        form = SiteRegistrationForm(data=response.json()["content"])
+
+        if form.validate_on_submit():
+            form_information = {
+                "name": form.name.data,
+            }
+
+            edit_response = requests.put(
+                url_for("api.storage_site_edit", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=form_information,
+            )
+
+
+            if edit_response.status_code == 200:
+                flash("Site Successfully Edited")
+            else:
+                flash("We have a problem: %s" % (edit_response.json()))
+
+            return redirect(url_for("storage.view_site", id=id))
+            #return redirect(url_for("storage.view_room", id=id))
+            # return redirect(url_for("storage.view_building", id=id)) #DOESNT WORK ID DOESNT REFER TO BUILDING ID
+
+
+        return render_template(
+            "storage/site/edit.html", room=response.json()["content"], form=form
+        )
+
+    return abort(response.status_code)
+
+
+

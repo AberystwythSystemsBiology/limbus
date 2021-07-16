@@ -25,7 +25,16 @@
                     <div class="col-7">
                         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                             {% if not site.is_locked %}
-
+                            <!-- Edit button not functioning -->
+<!--                            {% if current_user.is_admin == true  %}-->
+<!--                            <div class="btn-group mr-2" role="group" aria-label="First group">-->
+<!--                                <a href="{{ url_for('storage.edit_site', id=site.id) }}">-->
+<!--                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit-->
+<!--                                        Details-->
+<!--                                    </button>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                            {% endif %}-->
 
                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                 <a href="{{ url_for('storage.new_building', id=site.id) }}">
@@ -45,6 +54,7 @@
                             </div>
 
                             {% if not site.is_locked %}
+                            {% if current_user.is_admin == true  %}
                             <div class="btn-group mr-2" role="group" aria-label="First group">
 <!--                                <a href="{{ url_for('storage.delete_site', id=site.id) }}">-->
                                     <button type="button" class="btn btn-outline-dark" onclick="document.getElementById('delete-confirmation').style.display='flex'"><i class="fa fa-trash"></i> Delete
@@ -81,6 +91,7 @@
                                 </form>
                             </div>
 
+                            {% endif %}
                             {% endif %}
 
                         </div>

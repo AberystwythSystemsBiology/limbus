@@ -44,3 +44,24 @@ class SiteSchema(masql.SQLAlchemySchema):
 
 site_schema = SiteSchema()
 sites_schema = SiteSchema(many=True)
+
+class BasicSiteSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SiteInformation
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+
+
+basic_site_schema = BasicSiteSchema()
+basic_sites_schema = BasicSiteSchema(many=True)
+
+class NewSiteSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SiteInformation
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+
+new_site_schema = NewSiteSchema()
+
