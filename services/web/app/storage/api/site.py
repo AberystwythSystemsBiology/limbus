@@ -26,7 +26,6 @@ from ...database import db,SiteInformation, UserAccount,Sample,Building
 from ..views import site_schema, new_site_schema, basic_site_schema
 from ...api.generics import *
 
-
 @api.route("/misc/site/LIMBSITE-<id>", methods=["GET"])
 @token_required
 def site_view(id, tokenuser: UserAccount):

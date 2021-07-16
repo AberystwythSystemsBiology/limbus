@@ -124,9 +124,9 @@ def delete_building(id):
 
     if edit_response.status_code == 200:
         flash("Building Successfully Deleted")
-        return redirect(url_for("storage.index",_external=True))
-    elif edit_response.json()["message"]== "Can't delete assigned samples":
-        flash("Cannot delete rack with assigned samples")
+        return redirect(url_for("storage.view_site",id=edit_response.json()["content"],_external=True))
+    elif edit_response.json()["message"]== "Has associated cold storage":
+        flash("Cannot delete building with associated cold storage")
     else:
         flash("We have a problem: %s" % (id))
 

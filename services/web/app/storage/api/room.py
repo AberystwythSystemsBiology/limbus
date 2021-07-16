@@ -113,15 +113,14 @@ def storage_room_delete(id, tokenuser: UserAccount):
     if code == 200:
         return success_with_content_response(buildingID)
     elif code == 400:
-        return sample_assigned_delete_response()
+        return has_cold_storage_response()
     else:
         return no_values_response()
 
 def delete_room_func(record):
-    attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).all()
-    for CSs in attachedCS:
-        if delete_coldstorage_func(CSs) == 400:
-            return 400
+    attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).first()
+    if not attachedCS is None:
+        return 400
 
     db.session.delete(record)
     db.session.commit()

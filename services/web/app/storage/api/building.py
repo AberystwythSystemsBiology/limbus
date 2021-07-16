@@ -126,7 +126,7 @@ def storage_building_delete(id, tokenuser: UserAccount):
     if code == 200:
         return success_with_content_response(siteID)
     elif code == 400:
-        return sample_assigned_delete_response()
+        return has_cold_storage_response()
     else:
         return no_values_response()
 

@@ -239,7 +239,7 @@ def delete_cold_storage(id):
         flash("Cold Storage Successfully Deleted")
         return redirect(url_for("storage.view_room", id=edit_response.json()["content"], _external=True))
     elif edit_response.json()["message"]== "Can't delete assigned samples":
-        flash("Cannot delete rack with assigned samples")
+        flash("Cannot delete a cold storage associated with a rack with assigned samples")
     else:
         flash("We have a problem: %s" % (id))
 

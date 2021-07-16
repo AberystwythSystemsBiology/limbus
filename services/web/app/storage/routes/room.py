@@ -161,11 +161,11 @@ def delete_room(id):
     if edit_response.status_code == 200:
         flash("Room Successfully Deleted")
         return redirect(url_for("storage.view_building", id=edit_response.json()["content"], _external=True))
-    elif edit_response.json()["message"]== "Can't delete assigned samples":
-        flash("Cannot delete rack with assigned samples")
+    elif edit_response.json()["message"]== "Has associated cold storage":
+        flash("Cannot delete room with associated cold storage")
     else:
         flash("We have a problem: %s" % (id))
-    return redirect(url_for("view_room", id=id,_external=True))
+    return redirect(url_for("storage.view_room", id=id,_external=True))
 
 
 

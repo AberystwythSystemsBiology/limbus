@@ -143,7 +143,7 @@ def delete_shelf(id):
         flash("Shelf Successfully Deleted")
         return redirect(url_for("storage.view_cold_storage", id=edit_response.json()["content"], _external=True))
     elif edit_response.json()["message"]== "Can't delete assigned samples":
-        flash("Cannot delete rack with assigned samples")
+        flash("Cannot delete a shelf associated with a rack with assigned samples")
     else:
         flash("We have a problem: %s" % (id))
     return redirect(url_for("view_rack", id=id,_external=True))

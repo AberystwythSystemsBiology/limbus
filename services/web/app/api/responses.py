@@ -28,6 +28,13 @@ def sample_assigned_delete_response():
         {"ContentType":"application/json"}
     )
 
+def has_cold_storage_response():
+    return(
+        {"success": False, "message":"Has associated cold storage"},
+        400,
+        {"ContentType":"application/json"}
+    )
+
 def no_values_response():
     return (
         {"success": False, "message": "No input data provided"},
