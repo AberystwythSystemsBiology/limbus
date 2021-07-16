@@ -160,17 +160,12 @@ def delete_room(id):
 
     if edit_response.status_code == 200:
         flash("Room Successfully Deleted")
+        return redirect(url_for("storage.view_building", id=edit_response.json()["content"], _external=True))
+    elif edit_response.json()["message"]== "Can't delete assigned samples":
+        flash("Cannot delete rack with assigned samples")
     else:
         flash("We have a problem: %s" % (id))
+    return redirect(url_for("view_room", id=id,_external=True))
 
-    # return redirect(url_for("storage.index", _external=True))
-    #return render_template("storage/index.html")
-    return redirect(url_for("storage.view_building", id=edit_response.json()["content"], _external=True))
-
-    #return render_template(
-    #    "storage/room/edit.html", room=response.json()["content"], form=form
-    #)
-
-    #return abort(response.status_code)
 
 

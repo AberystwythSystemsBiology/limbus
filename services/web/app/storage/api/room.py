@@ -108,17 +108,24 @@ def storage_room_delete(id, tokenuser: UserAccount):
 
     buildingID = existing.building_id
 
-    delete_room_func(existing)
+    code = delete_room_func(existing)
 
-    return success_with_content_response(buildingID)
+    if code == 200:
+        return success_with_content_response(buildingID)
+    elif code == 400:
+        return sample_assigned_delete_response()
+    else:
+        return no_values_response()
 
 def delete_room_func(record):
     attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).all()
     for CSs in attachedCS:
-        delete_coldstorage_func(CSs)
+        if delete_coldstorage_func(CSs) == 400:
+            return 400
 
     db.session.delete(record)
     db.session.commit()
+    return 200
 
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])

@@ -70,16 +70,23 @@ def storage_coldstorage_delete(id, tokenuser: UserAccount):
     existing.editor_id = tokenuser.id
     roomID = existing.room_id
 
-    delete_coldstorage_func(existing)
+    code = delete_coldstorage_func(existing)
 
-    return success_with_content_response(roomID)
+    if code == 200:
+        return success_with_content_response(roomID)
+    elif code == 400:
+        return sample_assigned_delete_response()
+    else:
+        return no_values_response()
 
 def delete_coldstorage_func(record):
     attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==record.id).all()
     for shelves in attachedShelves:
-        delete_shelf_func(shelves)
+        if delete_shelf_func(shelves) == 400:
+            return 400
     db.session.delete(record)
     db.session.commit()
+    return 200
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required

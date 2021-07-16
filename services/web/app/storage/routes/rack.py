@@ -390,19 +390,24 @@ def edit_rack(id):
 @storage.route("/rack/LIMBRACK-<id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_rack(id):
-
-    edit_response = requests.put(
-        url_for("api.storage_rack_delete", id=id, _external=True),
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
-    if edit_response.status_code == 200:
-        flash("Rack Successfully Deleted")
-        return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))
-    elif edit_response.status_code == 500:
-        flash("Rack cannot be deleted with samples")
-    else:
-        flash("We have a problem: %s" % edit_response.status_code)
-    return redirect(url_for("storage.view_rack",id=id, _external=True))
+    if response.status_code == 200:
+        edit_response = requests.post(
+            url_for("api.storage_rack_delete", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+        if edit_response.status_code == 200:
+            flash("Rack Successfully Deleted")
+            return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))
+        elif(edit_response.json()["message"]=="Can't delete assigned samples"):
+            flash("Cannot delete rack with assigned samples")
+        else:
+            flash("We have a problem: %s" % edit_response.status_code)
+        return redirect(url_for("storage.view_rack",id=id,_external=True))
+    abort(response.status_code)
 
 

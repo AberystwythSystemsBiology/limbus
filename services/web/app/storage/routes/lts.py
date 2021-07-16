@@ -237,7 +237,10 @@ def delete_cold_storage(id):
 
     if edit_response.status_code == 200:
         flash("Cold Storage Successfully Deleted")
+        return redirect(url_for("storage.view_room", id=edit_response.json()["content"], _external=True))
+    elif edit_response.json()["message"]== "Can't delete assigned samples":
+        flash("Cannot delete rack with assigned samples")
     else:
         flash("We have a problem: %s" % (id))
 
-    return redirect(url_for("storage.view_room", id=edit_response.json()["content"], _external=True))
+    return redirect(url_for("storage.view_cold_storage", id=id, _external=True))

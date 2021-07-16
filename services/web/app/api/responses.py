@@ -21,6 +21,12 @@ def not_found():
         {"ContentType": "application/json"},
     )
 
+def sample_assigned_delete_response():
+    return(
+        {"success": False, "message":"Can't delete assigned samples"},
+        400,
+        {"ContentType":"application/json"}
+    )
 
 def no_values_response():
     return (

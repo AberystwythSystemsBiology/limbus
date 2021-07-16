@@ -119,19 +119,26 @@ def storage_building_delete(id, tokenuser: UserAccount):
 
     existing.editor_id = tokenuser.id
 
-    delete_buildings_func(existing)
+    code = delete_buildings_func(existing)
 
     siteID = existing.site_id
 
-    return success_with_content_response(siteID)
+    if code == 200:
+        return success_with_content_response(siteID)
+    elif code == 400:
+        return sample_assigned_delete_response()
+    else:
+        return no_values_response()
 
 def delete_buildings_func(record):
     attachedRooms = Room.query.filter(Room.building_id == record.id).all()
     for rooms in attachedRooms:
-        delete_room_func(rooms)
+        if delete_room_func(rooms) == 400:
+            return 400
 
     db.session.delete(record)
     db.session.commit()
+    return 200
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/edit", methods=["PUT"])

@@ -72,9 +72,14 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
     existing.editor_id = tokenuser.id
     storageID = existing.storage_id
 
-    delete_shelf_func(existing)
+    code = delete_shelf_func(existing)
 
-    return success_with_content_response(storageID)
+    if code == 200:
+        return success_with_content_response(storageID)
+    elif code == 400:
+        return sample_assigned_delete_response()
+    else:
+        return no_values_response()
 
 def delete_shelf_func(record):
     entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==record.id).all()
@@ -82,10 +87,12 @@ def delete_shelf_func(record):
     for ESRecord in entityStorageRecords:
         rackRecord = SampleRack.query.filter(SampleRack.id==ESRecord.rack_id).first()
         entityStorageRackRecords = EntityToStorage.query.filter(EntityToStorage.rack_id==rackRecord.id).all()
-        delete_rack_func(rackRecord,entityStorageRackRecords)
+        if delete_rack_func(rackRecord,entityStorageRackRecords) == 400:
+            return 400
 
     db.session.delete(record)
     db.session.commit()
+    return 200
 
 
 
