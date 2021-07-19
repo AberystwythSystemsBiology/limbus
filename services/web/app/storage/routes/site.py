@@ -104,5 +104,32 @@ def edit_site(id):
 
     return abort(response.status_code)
 
+@storage.route("/site/LIMBSITE-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock_site(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_site_lock", id=id, _external=True),
+        headers=get_internal_api_header(),
+        #json=form_information,
+    )
+
+    if edit_response.status_code == 200:
+        if edit_response.json()["content"]:
+            flash("Site Successfully Locked")
+        else:
+            flash("Site Successfully Unlocked")
+    else:
+        flash("We have a problem: %s" % (edit_response.status_code))
+
+    return redirect(url_for("storage.view_site", id=id))
+
+    #return render_template(
+    #    "storage/room/edit.html", room=response.json()["content"], form=form
+    #)
+
+    return abort(response.status_code)
+
+
 
 

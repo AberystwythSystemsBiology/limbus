@@ -71,4 +71,25 @@ def storage_site_delete(id, tokenuser: UserAccount):
     db.session.commit()
     return success_without_content_response()
 
+@api.route("/storage/site/LIMBSITE-<id>/lock", methods=["PUT"])
+@token_required
+def storage_site_lock(id, tokenuser: UserAccount):
+
+    site = SiteInformation.query.filter_by(id=id).first()
+
+    if not site:
+        return not_found()
+
+    site.is_locked = not site.is_locked
+    site.editor_id = tokenuser.id
+
+    # db.session.update(room)
+    try:
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(site.is_locked)
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 

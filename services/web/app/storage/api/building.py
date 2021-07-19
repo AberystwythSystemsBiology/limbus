@@ -103,7 +103,7 @@ def storage_lock_building(id: int, tokenuser: UserAccount):
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(basic_building_schema.dump(building))
+    return success_with_content_response(building.is_locked)
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/delete", methods=["PUT"])
@@ -123,22 +123,27 @@ def storage_building_delete(id, tokenuser: UserAccount):
 
     siteID = existing.site_id
 
-    if code == 200:
+    if code == "success":
         return success_with_content_response(siteID)
-    elif code == 400:
+    elif code == "cold storage":
         return has_cold_storage_response()
+    elif code == "locked":
+        return locked()
     else:
         return no_values_response()
 
 def delete_buildings_func(record):
     attachedRooms = Room.query.filter(Room.building_id == record.id).all()
     for rooms in attachedRooms:
-        if delete_room_func(rooms) == 400:
-            return 400
+        code = delete_room_func(rooms)
+        if code == "cold storage":
+            return "cold storage"
+        elif code == "locked" or record.is_locked:
+            return "locked"
 
     db.session.delete(record)
     db.session.commit()
-    return 200
+    return "success"
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/edit", methods=["PUT"])

@@ -104,27 +104,28 @@ def storage_room_delete(id, tokenuser: UserAccount):
     #     db.session.delete(CSs)
     # db.session.commit()
 
-
-
     buildingID = existing.building_id
 
     code = delete_room_func(existing)
 
-    if code == 200:
+    if code == "success":
         return success_with_content_response(buildingID)
-    elif code == 400:
+    elif code == "cold storage":
         return has_cold_storage_response()
+    elif code == "locked":
+        return locked()
     else:
         return no_values_response()
 
 def delete_room_func(record):
     attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).first()
     if not attachedCS is None:
-        return 400
-
+        return "cold storage"
+    if record.is_locked:
+        return "locked"
     db.session.delete(record)
     db.session.commit()
-    return 200
+    return "success"
 
 
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
@@ -136,11 +137,17 @@ def storage_room_lock(id, tokenuser: UserAccount):
     if not room:
         return not_found()
 
-    room.is_locked = not room.is_locked
+    if room.is_locked:
+        room.is_locked = False
+    else:
+        room.is_locked = True
     room.editor_id = tokenuser.id
 
-    db.session.add(room)
-    db.session.commit()
-    db.session.flush()
+    # db.session.update(room)
+    try:
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(room.is_locked)
+    except Exception as err:
+        return transaction_error_response(err)
 
-    return success_with_content_response(basic_room_schema.dump(room))

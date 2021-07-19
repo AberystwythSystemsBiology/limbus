@@ -176,7 +176,7 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
 @token_required
-def storage_coldstorage_lock(id, tokenuser: UserAccount):
+def storage_cold_storage_lock(id, tokenuser: UserAccount):
 
     cs = ColdStorage.query.filter_by(id=id).first()
 
@@ -190,7 +190,7 @@ def storage_coldstorage_lock(id, tokenuser: UserAccount):
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(basic_cold_storage_schema.dump(cs))
+    return success_with_content_response(cs.is_locked)
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])

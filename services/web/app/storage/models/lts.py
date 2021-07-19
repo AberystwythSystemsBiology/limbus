@@ -26,6 +26,7 @@ from ..enums import (
 class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     alias = db.Column(db.String(128))
+    is_locked = db.Column(db.Boolean,default=False)
     serial_number = db.Column(db.String(128))
     manufacturer = db.Column(db.String(128))
     comments = db.Column(db.Text)

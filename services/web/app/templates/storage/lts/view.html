@@ -52,10 +52,12 @@
                             {% endif %}
 
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <a href=" {{ url_for('storage.lock_cold_storage', id = cs.id) }}">
                                 <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                     class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if cs.is_locked %}
                                     Unl{% else %}L{% endif %}ock
                                 </button>
+                                </a>
                             </div>
 
                             {% if not cs.is_locked %}

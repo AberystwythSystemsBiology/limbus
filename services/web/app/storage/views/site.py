@@ -31,6 +31,7 @@ class SiteSchema(masql.SQLAlchemySchema):
         model = SiteInformation
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     miabis_id = masql.auto_field()
     acronym = masql.auto_field()
     name = masql.auto_field()

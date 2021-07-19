@@ -42,6 +42,11 @@ def no_values_response():
         {"ContentType": "application/json"},
     )
 
+def locked():
+        return({"success": False, "message": "Item is locked"},
+               400,
+               {"ContentType": "application/json"})
+
 
 def invalid_query_response():
     return (

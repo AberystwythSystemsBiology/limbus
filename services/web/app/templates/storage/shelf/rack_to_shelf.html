@@ -15,8 +15,8 @@
             <div class="container">
                 <h1><span class="secondary-heading">
                         <a href="{{ url_for('storage.view_shelf', id=shelf.id) }}">
-                            <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</span>
-                    </a>
+                            <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}
+                    </a></span>
                     <i class="fa fa-grip-vertical"></i> Assign Rack
                 </h1>
             </div>
@@ -26,8 +26,18 @@
 
             <form method="POST" action="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id ) }}">
                 {{ form.csrf_token }}
-
-                {{ form_field(form.racks) }}
+                <div class="row">
+                    <div class="col-10">
+                    {{ form_field(form.racks) }}
+                    </div>
+                    <div class="col-2">
+                        <a href="{{url_for('storage.add_rack')}}">
+                            <button id="new-rack-btn" type="button" style="margin-top:33px;width:100%;" class="btn btn-form" >
+                                New Rack
+                            </button>
+                        </a>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-sm-6">
                         {{ form_field(form.date) }}

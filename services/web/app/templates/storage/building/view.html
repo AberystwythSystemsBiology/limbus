@@ -18,8 +18,8 @@
                 <h1><span class="secondary-heading">
                         <a href="{{ url_for('storage.index') }}">
                             <i class="fa fa-hospital"></i> LIMBSIT-{{ building.site.id }}:
-                            {{ building.site.name }}</span>
-                    </a>
+                            {{ building.site.name }}
+                    </a></span>
                     <i class="fa fa-home"></i> LIMBBUILD-{{ building.id }}: {{ building.name }}</h1>
 
 
@@ -47,11 +47,13 @@
                             {% endif %}
 
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                <a href="{{ url_for('storage.lock_building', id=building.id) }}">
                                 <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                         class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if building.is_locked
                                     %}
                                     Unl{% else %}L{% endif %}ock
                                 </button>
+                                </a>
                             </div>
 
                             {% if not building.is_locked %}

@@ -238,9 +238,35 @@ def delete_cold_storage(id):
     if edit_response.status_code == 200:
         flash("Cold Storage Successfully Deleted")
         return redirect(url_for("storage.view_room", id=edit_response.json()["content"], _external=True))
-    elif edit_response.json()["message"]== "Can't delete assigned samples":
+    elif edit_response.status_code == 400 and edit_response.json()["message"]== "Can't delete assigned samples":
         flash("Cannot delete a cold storage associated with a rack with assigned samples")
     else:
         flash("We have a problem: %s" % (id))
 
     return redirect(url_for("storage.view_cold_storage", id=id, _external=True))
+
+@storage.route("/coldstorage/LIMBCS-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock_cold_storage(id):
+
+    edit_response = requests.put(
+        url_for("api.storage_cold_storage_lock", id=id, _external=True),
+        headers=get_internal_api_header(),
+        #json=form_information,
+    )
+
+    if edit_response.status_code == 200:
+        if edit_response.json()["content"]:
+            flash("Cold Storage Successfully Locked")
+        else:
+            flash("Cold Storage Successfully Unlocked")
+    else:
+        flash("We have a problem: %s" % (edit_response.status_code))
+
+    return redirect(url_for("storage.view_cold_storage", id=id))
+
+    #return render_template(
+    #    "storage/room/edit.html", room=response.json()["content"], form=form
+    #)
+
+    return abort(response.status_code)
