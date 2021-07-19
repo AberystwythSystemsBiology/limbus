@@ -93,8 +93,6 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
 
-    print(values)
-
     if not values:
         return no_values_response()
 
@@ -194,7 +192,6 @@ def sample_new_sample(tokenuser: UserAccount):
 @token_required
 def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     values = request.get_json()
-
     if not values:
         return no_values_response()
 
@@ -210,7 +207,6 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     try:
         new_schema = schema.load(values)
     except ValidationError as err:
-        print(err, values)
         return validation_error_response(err)
 
     sampletotype = SampleToType(**new_schema)

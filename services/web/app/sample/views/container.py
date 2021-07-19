@@ -35,6 +35,16 @@ class SampleToContainerSchema(ma.SQLAlchemySchema):
 
 sample_to_container_schema = SampleToContainerSchema()
 
+class NewSampleToFixationSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = SampleToContainer
+
+    fixation_type_id = masql.auto_field()
+    type = EnumField(SampleToContainerType)
+    sample_id = masql.auto_field()
+
+new_sample_to_fixation_schema = NewSampleToFixationSchema()
+
 
 class NewSampleToContainerSchema(ma.SQLAlchemySchema):
     class Meta:
@@ -42,7 +52,6 @@ class NewSampleToContainerSchema(ma.SQLAlchemySchema):
 
     sample_id = masql.auto_field()
     container_id = masql.auto_field()
-    fixation_type_id = masql.auto_field()
     type = EnumField(SampleToContainerType)
 
 new_sample_to_container_schema = NewSampleToContainerSchema()

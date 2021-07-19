@@ -16,6 +16,7 @@
 from .base import *
 from .consent import *
 from .protocol import *
+from .container import *
 from .disposal import *
 from .review import *
 from .document import *

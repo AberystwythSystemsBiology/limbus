@@ -38,6 +38,8 @@ def prepare_form_data(data: dict):
 
     api_data = {
         "collection_information": step_one["collection_information"],
+        "sample_type_information": {
+        },
         "sample_information": {
             "barcode": step_one["barcode"],
             "source": "NEW",
@@ -53,10 +55,10 @@ def prepare_form_data(data: dict):
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"],
         }
-
     }
 
     del step_three["quantity"]
+
 
     api_data["sample_type_information"] = step_three
 

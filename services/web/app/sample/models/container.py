@@ -18,6 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 from ..enums import SampleToContainerType
 
+
 class SampleToContainer(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     container_id = db.Column(db.Integer, db.ForeignKey("container.id"))

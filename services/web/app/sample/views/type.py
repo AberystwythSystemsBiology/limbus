@@ -37,10 +37,11 @@ class NewFluidSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleToType
 
-    fluid_type = EnumField(FluidSampleType)
+    fluid_sample_type = EnumField(FluidSampleType)
 
 
 new_fluid_sample_schema = NewFluidSampleSchema()
+
 
 class NewCellSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -49,13 +50,16 @@ class NewCellSampleSchema(masql.SQLAlchemySchema):
     cellular_type = EnumField(CellSampleType)
     tissue_type = EnumField(TissueSampleType)
 
+
 new_cell_sample_schema = NewCellSampleSchema()
 
-class NewMolecularSampleSchema(masql.SQLAlchemySchema):
+
+class NewMolecula   rSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleToType
 
     molecular_type = EnumField(MolecularSampleType)
+
 
 new_molecular_sample_schema = NewMolecularSampleSchema()
 
