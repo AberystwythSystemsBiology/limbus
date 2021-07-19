@@ -34,15 +34,23 @@
             {{ show_value(session_data["serial_number"], "Serial Number", "text")  }}
             {{ show_value(render_colour(session_data["colour"]), "Colour", "text")  }}
             {{ show_value(session_data["description"], "Description", "text")  }}
-            {{ show_value(session_data["json"]["num_rows"], "Number of Rows", "text")  }}
-            {{ show_value(session_data["json"]["num_cols"], "Number of Columns", "text")  }}
+{#            {{ show_value(session_data["json"]["num_rows"], "Number of Rows", "text")  }}#}
+{#            {{ show_value(session_data["json"]["num_cols"], "Number of Columns", "text")  }}#}
+
             </table>
             
             <form method="POST" enctype="multipart/form-data"
                 action="{{ url_for('storage.rack_automatic_entry_validation', _hash=hash) }}">
 
                 {{ form.csrf_token() }}
-
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.num_rows) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.num_cols) }}
+                    </div>
+                </div>
                 <table class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>

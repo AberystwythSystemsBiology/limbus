@@ -58,16 +58,16 @@ def invalid_query_response():
 
 def validation_error_response(err):
     try:
-        messages = err.messages
+        message = err.messages
 
     except AttributeError:
         if "messages" in err.keys():
-            messages = err["messages"]
+            message = err["messages"]
         else:
-            messages = err
+            message = err
 
     return (
-        {"success": False, "messages": messages, "type": "Validation Error"},
+        {"success": False, "message": message, "type": "Validation Error"},
         417,
         {"ContentType": "application/json"},
     )
@@ -102,6 +102,13 @@ def not_allowed():
 def success_with_content_response(content):
     return (
         {"success": True, "content": content},
+        200,
+        {"ContentType": "application/json"},
+    )
+
+def success_with_content_message_response(content, message=""):
+    return (
+        {"success": True, "content": content, "message": message},
         200,
         {"ContentType": "application/json"},
     )

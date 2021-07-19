@@ -171,6 +171,3 @@ def delete_room(id):
     else:
         flash("We have a problem: %s" % edit_response.status_code)
     return redirect(url_for("storage.view_room", id=id,_external=True))
-
-
-

@@ -145,6 +145,17 @@
                 {{ form_field(form.barcode_type )}}
                 {{ form_field(form.colour) }}
                 {{ form_field(form.description) }}
+
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.entry_date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.entry_time) }}
+                    </div>
+                </div>
+                {{ form_field(form.entry) }}
+
                 {{ form_field(form.file) }}
                 <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="Second group">

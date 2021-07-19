@@ -46,6 +46,11 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
             "Aliquot Time", validators=[DataRequired()], default=datetime.now()
         )
         comments = TextAreaField("Comments")
+        container_base_type = SelectField(
+            "Container base type",
+            choices=ContainerBaseType.choices()
+        )
+
         processed_by = StringField(
             "Processed By",
             description="The initials of the individual who collected the sample.",

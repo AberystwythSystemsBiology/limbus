@@ -27,11 +27,12 @@
             {{ form.csrf_token }}
             {{ form_field(form.barcode) }}
             {{ form_field(form.biohazard_level) }}
-            {{ form_field(form.type) }}
+            {{ form_field(form.base_type) }}
             {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
 
             {{ form_field(form.status) }}
+            {{ form_field(form.protocol_id) }}
 
             <div class="row">
                 <div class="col-6">
@@ -66,8 +67,12 @@
                     <thead>
                         <tr>
                             <th>Identifier</th>
+                            <th>DBid</th>
+                            <th>Barcode</th>
+                            <th>Status</th>
                             <th>Base Type</th>
                             <th>Sample Type</th>
+                            <th>Container</th>
                             <th>Quantity</th>
                             <th>Location</th>
                             <th>Creation Date</th>

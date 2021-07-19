@@ -158,4 +158,3 @@ def storage_room_lock(id, tokenuser: UserAccount):
         return success_with_content_response(room.is_locked)
     except Exception as err:
         return transaction_error_response(err)
-

@@ -67,6 +67,68 @@ function get_barcode(sample_info, barc_type) {
 
 }
 
+function get_rack() {
+    var split_url = encodeURI(window.location).split("/");
+    split_url = split_url.slice(0, -2)
+    split_url.push("storage", "rack", "info")
+    var api_url = split_url.join("/")
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'dataType': "json",
+            'success': function (data) {
+                json = data;
+            },
+            'failure': function (data) {
+                json = data;
+            }
+
+        });
+        return json;
+    })();
+
+    return json;
+
+}
+
+function fill_sample_pos(rack_id, sampletostore, commit) {
+    var split_url = encodeURI(window.location).split("/");
+    split_url = split_url.slice(0, -2)
+    split_url.push("storage", "rack", "fill_with_samples")
+    var api_url = split_url.join("/")
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'type': 'POST',
+            'dataType': "json",
+            'data': JSON.stringify({'rack_id': rack_id,
+                'samples':(sampletostore), 'commit': commit
+            }),
+            'contentType': 'application/json; charset=utf-8',
+            'success': function (data) {
+                json = data
+            },
+            'failure': function (data) {
+                json = data;
+            }
+
+        });
+        console.log('json', json)
+        return json;
+    })();
+
+    return json;
+
+}
+
 
 function fill_title(sample) {
 
@@ -211,10 +273,24 @@ function fill_document_information(document_information) {
 function fill_sample_reviews(reviews) {
     for (r in reviews) {
         var review_info = reviews[r];
-        
         // Start ul
+        var event_datetime = '';
+        var undertaken_by = '';
+        var comments = '';
+        if (review_info["event"] != null || review_info["event"] != undefined) {
+            if (review_info["event"].hasOwnProperty('datetime')) {
+                event_datetime = review_info["event"]["datetime"];
+            }
+            if (review_info["event"].hasOwnProperty('undertaken_by')) {
+                undertaken_by = review_info["event"]["undertaken_by"];
+            }
+            if (review_info["event"].hasOwnProperty('comments')) {
+                comments = review_info["event"]["datetime"];
+            }
+        }
         html = "<li>"
-        html += "<p class='text-muted'>Undertaken on " + review_info["event"]["datetime"] + "</p>"
+        //html += "<p class='text-muted'>Undertaken on " + review_info["event"]["datetime"] + "</p>"
+        html += "<p class='text-muted'>Undertaken on " + event_datetime + "</p>"
 
         // Start card body
         html += "<div class='card'>"
@@ -245,8 +321,8 @@ function fill_sample_reviews(reviews) {
         html += "<h5 class='mt-0'>" + review_info["uuid"] + "</h5>";
         html += "<table class='table table-striped'>"
         html += render_content("Quality", review_info["quality"]);
-        html += render_content("Conducted By", review_info["event"]["undertaken_by"]);
-        html += render_content("Comments", review_info["event"]["comments"]);
+        html += render_content("Conducted By", undertaken_by); //, review_info["event"]["undertaken_by"]);
+        html += render_content("Comments", comments); //review_info["event"]["comments"]);
         html += "</table>"
         html += "</div>"
 
@@ -277,10 +353,24 @@ function fill_protocol_events(events) {
     for (e in events) {
         var event_info = events[e];
 
-
+        var event_datetime = '';
+        var undertaken_by = '';
+        var comments = '';
+        if (event_info["event"] != null || event_info["event"] != undefined) {
+            if (event_info["event"].hasOwnProperty('datetime')) {
+                event_datetime = event_info["event"]["datetime"];
+            }
+            if (event_info["event"].hasOwnProperty('undertaken_by')) {
+                undertaken_by = event_info["event"]["undertaken_by"];
+            }
+            if (event_info["event"].hasOwnProperty('comments')) {
+                comments = event_info["event"]["datetime"];
+            }
+        }
         // Start ul
         html = "<li>"
-        html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
+        //html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
+        html += "<p class='text-muted'>Undertaken on " + event_datetime + "</p>"
         // Start card body
         html += "<div class='card'>"
         html += "<div class='card-header'>"
@@ -297,8 +387,8 @@ function fill_protocol_events(events) {
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
         html += "<table class='table table-striped'>"
-        html += render_content("Undertaken By", event_info["event"]["undertaken_by"]);
-        html += render_content("Comments", event_info["event"]["comments"]);
+        html += render_content("Undertaken By", undertaken_by); //event_info["event"]["undertaken_by"]);
+        html += render_content("Comments", comments); //event_info["event"]["comments"]);
         html += "</table>"
         html += "</div>"
 
@@ -351,11 +441,38 @@ function fill_protocol_events(events) {
     }
 }
 
+
 function fill_lineage_table(subsamples) {
-    $('#subSampleTable').DataTable({
+    var rack_info = get_rack();
+    if (rack_info["success"] == false) {
+        alert('No rack data!')
+    }  else {
+        rack_info = rack_info["content"];
+    }
+
+    let table = $('#subSampleTable').DataTable({
         data: subsamples,
-        pageLength: 5,
+        dom: 'Blfrtip',
+        buttons: ['print', 'csv', 'colvis','selectAll', 'selectNone'],
+        lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+        //pageLength: 5,
+
+        columnDefs: [
+            {targets: '_all', defaultContent: ''},
+            {targets: [2, 3, 4], visible: false, "defaultContent": ""},
+            {
+                targets:  -1,
+                 orderable: false,
+                 className: 'select-checkbox',
+            }
+
+        ],
+        order: [[1, 'desc']],
+        select: {'style': 'multi',
+                'selector': 'td:last-child'},
+
         columns: [
+
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -377,7 +494,39 @@ function fill_lineage_table(subsamples) {
                     return col_data
                 }
             },
-            { data: "base_type" },
+            {data: "id"},
+            {data: "barcode"},
+            {data: "status"},
+
+            {data: "base_type"},
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (data["base_type"] == "Fluid") {
+                        return sample_type_information["fluid_type"];
+                    } else if (data["base_type"] == "Cell") {
+                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+                    } else if (data["base_type"] == "Molecular") {
+                        return sample_type_information["molecular_type"];
+                    }
+
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
+
+                }
+            },
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -389,14 +538,107 @@ function fill_lineage_table(subsamples) {
                     return col_data
                 }
             },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var storage_data = data["storage"];
+
+                    if (storage_data == null) {
+                        return "<span class='text-muted'>Not stored.</span>"
+                    } else if (storage_data["storage_type"] == "STB") {
+                        var rack_info = storage_data["rack"];
+                        var html = "<a href='" + rack_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
+                        html += "</a>"
+                        return html
+                    } else if (storage_data["storage_type"] == "STS") {
+                        var shelf_info = storage_data["shelf"];
+                        var html = "<a href='" + shelf_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
+                        html += "</a>"
+                        return html
+                    }
+                    return data["storage"]
+                }
+            },
+
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    return data["created_on"];
+                }
+            },
+
+            {} //checkbox select column
 
         ],
 
     });
 
 
+    $.each(rack_info, function(index, r) {
+        var optval = '<option value='+ r['id'] + '>'
+        optval += 'LIMBRACK'+r['id'] + " ("+ r['num_rows']+'x'+r['num_cols'] + ", "+ r['serial_number']+') @'
+        optval += r['location']
+        optval += '</option>'
+        $("#select_rack").append(optval);
+        //$("#select_rack").append('<option value=xx >optval</option>');
+    })
 
+    $("#subsample_to_storage").click(function (event) {
+        var rows_selected = table.rows( { selected: true } ).data();
 
+        if (rows_selected.length>0) {
+           // select rack id or shelf id. TO DO: ?? sample to shelf
+           var rack_id = $('select[id="select_rack"]').val();
+           var shelf_id = $('select[id="select_shelf"]').val();
+           console.log('selected rack: ', rack_id)
+           if (rack_id==0 && shelf_id==0) {
+               alert('Select a rack or a shelf to store the sample(s)! ');
+               return false
+           }
+
+           var formdata = [];
+           $.each(rows_selected, function (index, row) {
+               delete row['__proto__'];
+               formdata.push(row)
+           });
+
+           var split_url = encodeURI(window.location).split("/");
+           split_url = split_url.slice(0,-2)
+           split_url.push('storage', 'rack', 'LIMBRACK-'+rack_id, 'auto_assign_sample_to_rack')
+           var api_url = split_url.join("/")
+           console.log('api_url', api_url)
+           // /storage/rack/fill_with_samples"
+           var sampletostore = fill_sample_pos(rack_id, formdata, commit=false)
+           console.log('sampletostore', sampletostore)
+           if (sampletostore.success == false){
+                alert(sampletostore.message)
+                return false
+           } else {
+               if (sampletostore.content.length==0) {
+                   alert('All selected samples have been stored in the selected rack!');
+                   return false;
+               }
+               if (sampletostore.message != '') {
+                   if (confirm(sampletostore.message)) {
+
+                   } else {
+                       return false
+                   }
+               }
+           }
+           samplestore =  sampletostore['content']
+           sessionStorage.setItem("rack_id", rack_id);
+           sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
+           //window.open("view_sample_to_rack.html");
+           //window.open(api_url, "_blank"); //, "_self");
+           window.open(api_url, "_self");
+
+        }
+
+    //e.preventDefault()
+    });
 }
 
 
@@ -439,7 +681,7 @@ function hide_all() {
     $("#protocol-event-info").fadeOut(50);
     $("#associated-documents").fadeOut(50);
     $("#lineage-info").fadeOut(50);
-    $("#protocol-event-info").fadeOut(50);
+    //$("#protocol-event-info").fadeOut(50);
     $("#sample-review-info").fadeOut(50);
     $("#custom-attributes-div").fadeOut(50);
 }
@@ -447,8 +689,11 @@ function hide_all() {
 
 
 $(document).ready(function () {
-    var sample_info = get_sample();
+        $('#myTable').DataTable();
 
+    var versionNo = $.fn.dataTable.version;
+    //alert(versionNo);
+    var sample_info = get_sample();
     if (sample_info["success"] == false) {
         $("#screen").fadeOut();
         $("#error").delay(500).fadeIn();
@@ -456,7 +701,6 @@ $(document).ready(function () {
 
     else {
         var sample_info = sample_info["content"];
-
         $("#loading-screen").fadeOut();
         get_barcode(sample_info, "qrcode");
     

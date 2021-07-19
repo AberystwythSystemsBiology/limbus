@@ -34,14 +34,55 @@ from ..views import (
     new_cell_sample_schema,
     new_molecular_sample_schema,
     new_sample_schema,
+
 )
 
-from ...database import db, Sample, SampleToType, UserAccount
+from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, SampleProtocolEvent, ProtocolTemplate)
 
 from ..enums import *
 
 import requests
 
+def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
+    # Find all parent samples (id) with matching protocol events (by protocol_template_id)
+    if filter_sample_id is None:
+        subq = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+            join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+    else:
+        subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
+            join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+
+    protocol_event = db.session.query(ProtocolTemplate).\
+        join(SampleProtocolEvent).filter_by(**filters_protocol).first()
+
+    if protocol_event:
+        # Protocols of Collection/Study
+        if str(protocol_event.type) in ["Collection", "Study", "Temporary Storage"]:
+
+            # Find all sub-samples of the matching samples
+            # and take the union of parent and sub-sample ID
+            if filter_sample_id is None:
+                s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+                    join(subq, subq.c.id == SubSampleToSample.parent_id)
+            else:
+                s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
+                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+                    join(subq, subq.c.id == SubSampleToSample.parent_id)
+
+            stmt = db.session.query(subq).union(s2)
+
+        else:
+            stmt = db.session.query(subq)
+
+    else:
+        stmt = db.session.query(subq)
+
+    return (stmt)
+
+def sample_sampletype_query_stmt(filters, joins, filters_sampletype):
+    pass
+    abort(402)
 
 @api.route("/sample/containers", methods=["GET"])
 def sample_get_containers():
@@ -56,6 +97,21 @@ def sample_get_containers():
         }
     )
 
+@api.route("/sample/containertypes", methods=["GET"])
+def sample_get_containertypes():
+    # Temporary fix for adding containers for long term preservation
+    #        TYPE: CellContainer = long term storage
+    #        TYPE: FluidContainer = primary container
+    # To DO: manage sample type and container info using database
+    return success_with_content_response(
+        {
+            "PRM": {"container": FluidContainer.choices(),
+                    "fixation_type": FixationType.choices()},
+            "LTS": {"container": CellContainer.choices(),
+                    "fixation_type": FixationType.choices()
+                    },
+        }
+    )
 
 @api.route("/sample", methods=["GET"])
 @token_required
@@ -63,13 +119,39 @@ def sample_home(tokenuser: UserAccount):
     return success_with_content_response(basic_samples_schema.dump(Sample.query.all()))
 
 
+
 @api.route("/sample/query", methods=["GET"])
 @use_args(SampleFilterSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    print("filters: ", filters)
-    print("joins: ", joins)
+    # print('fj: ', filters, joins)
+
+    flag_protocol = False
+
+    if "protocol_id" in filters:
+        flag_protocol = True
+        protocol_id = filters["protocol_id"]
+        filters_protocol = {"protocol_id": protocol_id}
+        filters.pop("protocol_id")
+
+    stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
+
+    if flag_protocol:
+        stmt = sample_protocol_query_stmt(filters_protocol=filters_protocol, filter_sample_id=stmt)
+
+    stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
+    results = basic_samples_schema.dump(stmt.all())
+    # print(results)
+    return success_with_content_response(
+        results
+    )
+
+
+def sample_query_basic(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, Sample)
+    #print("filters: ", filters)
+    #print("joins: ", joins)
     return success_with_content_response(
         basic_samples_schema.dump(
             Sample.query.filter_by(**filters).filter(*joins).all()
@@ -221,6 +303,7 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         schema = new_molecular_sample_schema
     else:
         return validation_error_response({"base_type": ["Not a valid base_type."]})
+
 
     try:
         new_schema = schema.load(values)

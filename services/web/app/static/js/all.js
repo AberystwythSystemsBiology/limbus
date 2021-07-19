@@ -31,13 +31,13 @@ function get_metric(type) {
 
 function render_sample_table(samples, div_id) {
 
-
     $('#' + div_id).DataTable( {
         data: samples,
         dom: 'Bfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
-            { targets: -2, visible: false},
+            {targets: '_all', defaultContent: '-'},
+            { targets: [3,4], visible: false, "defaultContent": ""},
         ],
         columns: [
             {
@@ -62,12 +62,16 @@ function render_sample_table(samples, div_id) {
                 }
             },
 
+
+            {data: "id"},
+            {data: "barcode"},
+            {data: "status"},
+
             {data: "base_type"},
             {
                 "mData" : {},
                 "mRender": function (data, type, row) {
                     var sample_type_information = data["sample_type_information"];
-
 
                     if (data["base_type"] == "Fluid") {
                         return sample_type_information["fluid_type"];
@@ -75,7 +79,22 @@ function render_sample_table(samples, div_id) {
                     else if (data["base_type"] == "Cell") {
                         return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
                     }
+                    else if (data["base_type"] == "Molecular") {
+                        return sample_type_information["molecular_type"];
+                    }
 
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
 
                 }
             },
@@ -90,6 +109,7 @@ function render_sample_table(samples, div_id) {
                     return col_data
                 }
         },
+
         {
             "mData": {},
             "mRender": function(data, type, row) {
@@ -184,7 +204,7 @@ function render_colour(colour) {
 }
 
 function render_content(label, content) {
-  if (content == undefined || content == "" ) {
+  if (content == undefined || content == "" || content == null ) {
       content = "Not Available."
   }
   return '<tr"><td width="30%" style="font-weight:bold">'+ label + ':</td><td>'+content+'</td></tr>';

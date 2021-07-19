@@ -19,6 +19,7 @@ from ..enums import (
     SampleBaseType,
     SampleStatus,
     DisposalInstruction,
+    DisposalReason,
     Colour,
     SampleSource,
     BiohazardLevel,

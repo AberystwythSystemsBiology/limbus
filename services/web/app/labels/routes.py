@@ -47,23 +47,27 @@ def sample_label(uuid: str):
         )
 
         sample = sample_response.json()["content"]
+        print('sample', sample)
+        base_type = sample["base_type"]
 
-        sample_type = sample["base_type"]
-
-        if sample_type == "Fluid":
+        if base_type == "Fluid":
             measurement = "mL"
+            sample_type = sample["sample_type_information"]["fluid_type"];
 
-        elif sample_type == "Cell":
+        elif base_type == "Cell":
             measurement = "Cells"
+            sample_type = sample["sample_type_information"]["cellular_type"];
 
-        elif sample_type == "Molecular":
+        elif base_type == "Molecular":
             measurement = "μg/mL"
+            sample_type = sample["sample_type_information"]["molecular_type"];
 
         records = [
             dict(
                 sample_id=sample["uuid"],
                 sample_name=sample["uuid"],
-                sample_type=sample["base_type"],
+                #sample_type=sample["base_type"],
+                sample_type=sample_type,
                 measurement=measurement,
                 sample_quantity=sample["remaining_quantity"],
             )
