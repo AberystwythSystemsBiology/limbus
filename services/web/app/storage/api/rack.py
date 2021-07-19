@@ -90,24 +90,29 @@ def storage_rack_delete(id, tokenuser: UserAccount):
         return not_found()
 
     if rackTableRecord.is_locked:
-        return locked()
+        return locked_response()
 
     rackTableRecord.editor_id = tokenuser.id
 
-    response = delete_rack_func(rackTableRecord,entityStorageTableRecord)
-    if response == 200:
+    response = func_rack_delete(rackTableRecord,entityStorageTableRecord)
+    if response == "success":
         return success_with_content_response(shelfID)
     return sample_assigned_delete_response()
 
-def delete_rack_func(record,entityStorageTableRecord):
+#change to func_rack_delete
+def func_rack_delete(record,entityStorageTableRecord):
     for ESRecord in entityStorageTableRecord:
         if not ESRecord.sample_id is None:
-            return 400
+            return "has sample"
         db.session.delete(ESRecord)
-    db.session.commit()
-    db.session.delete(record)
-    db.session.commit()
-    return 200
+
+    try:
+        db.session.flush()
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/storage/rack/assign/sample", methods=["POST"])

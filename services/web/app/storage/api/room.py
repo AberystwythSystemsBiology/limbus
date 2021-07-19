@@ -83,7 +83,9 @@ def storage_room_edit(id, tokenuser: UserAccount):
         db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
     )
 
-
+#*
+# Route for deleting a room
+#*
 @api.route("/storage/room/LIMBROOM-<id>/delete", methods=["PUT"])
 @token_required
 def storage_room_delete(id, tokenuser: UserAccount):
@@ -93,41 +95,47 @@ def storage_room_delete(id, tokenuser: UserAccount):
         return not_found()
 
     if existing.is_locked:
-        return locked()
+        return locked_response()
 
     existing.editor_id = tokenuser.id
 
-    # attachedCS = ColdStorage.query.filter(ColdStorage.room_id == id).all()
-    #
-    # for CSs in attachedCS:
-    #     CSs.editor_id = tokenuser.id
-    #     db.session.delete(CSs)
-    # db.session.commit()
-
     buildingID = existing.building_id
 
-    code = delete_room_func(existing)
+    code = func_room_delete(existing)
 
+    # Type of error
     if code == "success":
         return success_with_content_response(buildingID)
     elif code == "cold storage":
-        return has_cold_storage_response()
+        return in_use_response(code)
     elif code == "locked":
-        return locked()
+        return locked_response()
     else:
         return no_values_response()
 
-def delete_room_func(record):
+#*
+# Deletes the room passed in.
+# Includes validation for deleting.
+#*
+def func_room_delete(record):
     attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).first()
     if not attachedCS is None:
         return "cold storage"
     if record.is_locked:
         return "locked"
-    db.session.delete(record)
-    db.session.commit()
-    return "success"
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 
+
+#*
+# Function changes the state of the lock variable for the room.
+# Locking a room reduces the functionality to the user.
+#*
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
 @token_required
 def storage_room_lock(id, tokenuser: UserAccount):
@@ -137,13 +145,13 @@ def storage_room_lock(id, tokenuser: UserAccount):
     if not room:
         return not_found()
 
+    # Updates the attribute
     if room.is_locked:
         room.is_locked = False
     else:
         room.is_locked = True
     room.editor_id = tokenuser.id
 
-    # db.session.update(room)
     try:
         db.session.commit()
         db.session.flush()

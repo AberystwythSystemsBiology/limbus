@@ -43,10 +43,16 @@ def storage_site_edit(id, tokenuser: UserAccount):
         db, SiteInformation, id, new_site_schema, basic_site_schema, values, tokenuser
     )
 
+#*
+# Route for deleting a site.
+# Includes validation for deleting.
+#*
 @api.route("/storage/site/LIMBSITE-<id>/delete", methods=["PUT"])
 @token_required
 def storage_site_delete(id, tokenuser: UserAccount):
+    # Finds the site in the site table
     siteTableRecord = SiteInformation.query.filter_by(id=id).first()
+    # Finds sample records which ref the site to delete and preserve foreign key integrity.
     sampleTableRecord = Sample.query.filter(Sample.site_id==id).all()
 
 
@@ -54,23 +60,24 @@ def storage_site_delete(id, tokenuser: UserAccount):
         return not_found()
 
     if siteTableRecord.is_locked:
-        return locked()
+        return locked_response()
 
     siteTableRecord.editor_id = tokenuser.id
 
     for record in sampleTableRecord:
         db.session.delete(record)
+    try:
+        db.session.flush()
+        db.session.delete(siteTableRecord)
+        db.session.commit()
+        return success_without_content_response()
+    except Exception as err:
+        return transaction_error_response(err)
 
-    attachedBuildings = Building.query.filter(Building.site_id==id).all()
-    for building in attachedBuildings:
-        if delete_buildings_func(building) == 400:
-            return sample_assigned_delete_response()
-
-    db.session.commit()
-    db.session.delete(siteTableRecord)
-    db.session.commit()
-    return success_without_content_response()
-
+#*
+# Function changes the state of the lock variable for the site.
+# Locking a site reduces the functionality to the admin.
+#*
 @api.route("/storage/site/LIMBSITE-<id>/lock", methods=["PUT"])
 @token_required
 def storage_site_lock(id, tokenuser: UserAccount):
@@ -83,7 +90,6 @@ def storage_site_lock(id, tokenuser: UserAccount):
     site.is_locked = not site.is_locked
     site.editor_id = tokenuser.id
 
-    # db.session.update(room)
     try:
         db.session.commit()
         db.session.flush()

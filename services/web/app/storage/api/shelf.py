@@ -21,7 +21,7 @@ from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, UserAccount,EntityToStorage,SampleRack
-from ..api.rack import delete_rack_func
+from ..api.rack import func_rack_delete
 
 from marshmallow import ValidationError
 from ..views.shelf import *
@@ -67,32 +67,35 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
         return not_found()
 
     if existing.is_locked:
-        return locked()
+        return locked_response()
 
     existing.editor_id = tokenuser.id
     storageID = existing.storage_id
 
-    code = delete_shelf_func(existing)
+    code = func_shelf_delete(existing)
 
-    if code == 200:
+    if code == "success":
         return success_with_content_response(storageID)
-    elif code == 400:
+    elif code == "has sample":
         return sample_assigned_delete_response()
     else:
         return no_values_response()
 
-def delete_shelf_func(record):
+def func_shelf_delete(record):
     entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==record.id).all()
 
     for ESRecord in entityStorageRecords:
         rackRecord = SampleRack.query.filter(SampleRack.id==ESRecord.rack_id).first()
         entityStorageRackRecords = EntityToStorage.query.filter(EntityToStorage.rack_id==rackRecord.id).all()
-        if delete_rack_func(rackRecord,entityStorageRackRecords) == 400:
-            return 400
+        if func_rack_delete(rackRecord,entityStorageRackRecords) == "has sample":
+            return "has sample"
 
-    db.session.delete(record)
-    db.session.commit()
-    return 200
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 

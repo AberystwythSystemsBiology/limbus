@@ -155,10 +155,10 @@ def delete_building(id):
         return redirect(url_for("storage.view_site",id=edit_response.json()["content"],_external=True))
     elif edit_response.status_code == 400 and edit_response.json()["message"] == "Has associated cold storage":
         flash("Cannot delete building with associated cold storage")
-    elif edit_response.status_code == 400 and edit_response.json()["message"] == "Item is locked":
+    elif edit_response.status_code == 400 and edit_response.json()["message"] == "Entity is locked":
         flash("Cannot delete building with associated rooms which are locked")
     else:
-        flash("We have a problem: %s" % edit_response.status_code)
+        flash("We have a problem: %s" % edit_response.status_code )
 
     # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
     return redirect(url_for("storage.view_building", id=id, _external=True))

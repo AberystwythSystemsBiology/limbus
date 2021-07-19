@@ -21,7 +21,7 @@ from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, Building, UserAccount,Room
-from ..api.room import delete_room_func
+from ..api.room import func_room_delete
 
 
 import requests
@@ -99,7 +99,6 @@ def storage_lock_building(id: int, tokenuser: UserAccount):
     building.is_locked = not building.is_locked
     building.editor_id = tokenuser.id
 
-    db.session.add(building)
     db.session.commit()
     db.session.flush()
 
@@ -115,7 +114,7 @@ def storage_building_delete(id, tokenuser: UserAccount):
         return not_found()
 
     if existing.is_locked:
-        return locked()
+        return locked_response()
 
     existing.editor_id = tokenuser.id
 
@@ -126,24 +125,27 @@ def storage_building_delete(id, tokenuser: UserAccount):
     if code == "success":
         return success_with_content_response(siteID)
     elif code == "cold storage":
-        return has_cold_storage_response()
+        return in_use_response(code)
     elif code == "locked":
-        return locked()
+        return locked_response()
     else:
         return no_values_response()
 
 def delete_buildings_func(record):
     attachedRooms = Room.query.filter(Room.building_id == record.id).all()
     for rooms in attachedRooms:
-        code = delete_room_func(rooms)
+        code = func_room_delete(rooms)
         if code == "cold storage":
             return "cold storage"
         elif code == "locked" or record.is_locked:
             return "locked"
 
-    db.session.delete(record)
-    db.session.commit()
-    return "success"
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/edit", methods=["PUT"])

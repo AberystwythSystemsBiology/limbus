@@ -20,7 +20,7 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ..api.shelf import delete_shelf_func
+from ..api.shelf import func_shelf_delete
 
 import requests
 
@@ -65,16 +65,16 @@ def storage_coldstorage_delete(id, tokenuser: UserAccount):
         return not_found()
 
     if existing.is_locked:
-        return locked()
+        return locked_response()
 
     existing.editor_id = tokenuser.id
     roomID = existing.room_id
 
     code = delete_coldstorage_func(existing)
 
-    if code == 200:
+    if code == "success":
         return success_with_content_response(roomID)
-    elif code == 400:
+    elif code == "has sample":
         return sample_assigned_delete_response()
     else:
         return no_values_response()
@@ -82,11 +82,14 @@ def storage_coldstorage_delete(id, tokenuser: UserAccount):
 def delete_coldstorage_func(record):
     attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==record.id).all()
     for shelves in attachedShelves:
-        if delete_shelf_func(shelves) == 400:
-            return 400
-    db.session.delete(record)
-    db.session.commit()
-    return 200
+        if func_shelf_delete(shelves) == "has sample":
+            return "has sample"
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
@@ -186,7 +189,6 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
     cs.is_locked = not cs.is_locked
     cs.editor_id = tokenuser.id
 
-    db.session.add(cs)
     db.session.commit()
     db.session.flush()
 

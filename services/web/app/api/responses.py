@@ -28,9 +28,9 @@ def sample_assigned_delete_response():
         {"ContentType":"application/json"}
     )
 
-def has_cold_storage_response():
+def in_use_response(entity):
     return(
-        {"success": False, "message":"Has associated cold storage"},
+        {"success": False, "message":"Has associated " + entity},
         400,
         {"ContentType":"application/json"}
     )
@@ -42,10 +42,10 @@ def no_values_response():
         {"ContentType": "application/json"},
     )
 
-def locked():
-        return({"success": False, "message": "Item is locked"},
-               400,
-               {"ContentType": "application/json"})
+def locked_response():
+    return({"success": False, "message": "Entity is locked"},
+            400,
+            {"ContentType": "application/json"})
 
 
 def invalid_query_response():

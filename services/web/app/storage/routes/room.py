@@ -164,12 +164,12 @@ def delete_room(id):
     if edit_response.status_code == 200:
         flash("Room Successfully Deleted")
         return redirect(url_for("storage.view_building", id=edit_response.json()["content"], _external=True))
-    elif edit_response.json()["message"] == "Item is locked":
+    elif edit_response.status_code == 400 and edit_response.json()["message"] == "Entity is locked":
         flash("Cannot delete room as it is locked")
-    elif edit_response.json()["message"]== "Has associated cold storage":
+    elif edit_response.status_code == 400 and edit_response.json()["message"]== "Has associated cold storage":
         flash("Cannot delete room with associated cold storage")
     else:
-        flash("We have a problem: %s" % (id))
+        flash("We have a problem: %s" % edit_response.status_code)
     return redirect(url_for("storage.view_room", id=id,_external=True))
 
 
