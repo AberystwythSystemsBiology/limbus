@@ -96,23 +96,6 @@
 
                             {% endif %}
 
-                            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <a href="{{ url_for('storage.lock_room', id=room.id) }}">
-                                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked %}
-                                        Unl{% else %}L{% endif %}ock
-                                    </button>
-                                </a>
-                            </div>
-
-                            <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <a href="{{ url_for('storage.delete_room', id=room.id) }}">
-                                    <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                        class="btn btn-outline-dark"><i class="fa fa-delete"></i> Delete
-                                    </button>
-                                </a>
-                            </div>
-
                         </div>
                     </div>
                     <div class="col-5 text-right">
