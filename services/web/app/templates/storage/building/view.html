@@ -16,7 +16,7 @@
 
 
                 <h1><span class="secondary-heading">
-                        <a href="{{ url_for('storage.index') }}">
+                        <a href="{{ url_for('storage.view_site',id=building.site.id) }}">
                             <i class="fa fa-hospital"></i> LIMBSIT-{{ building.site.id }}:
                             {{ building.site.name }}
                     </a></span>

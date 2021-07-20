@@ -4,7 +4,7 @@
 <link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMBRACK-{{ id }}{% endblock %}
+{% block title %}LIMBRACK-{{ rack.id }}{% endblock %}
 
 
 {% block body %}
@@ -31,13 +31,14 @@
             <div class="jumbotron">
                 <div class="container">
                     <h1><span id="sh" class="secondary-heading"></span>
-                        <span id="colour"></span>LIMBRACK-{{ id }}
+                        <span id="colour"></span>LIMBRACK-{{ rack.id }}
                     </h1>
                     <div class="row text-muted">
                         <div class="col-7">
                             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                                {% if not rack.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.edit_rack', id=id) }}">
+                                    <a href="{{ url_for('storage.edit_rack', id=rack.id) }}">
                                         <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i>
                                             Edit
                                             Details
@@ -54,13 +55,13 @@
                                 <div id="delete-confirmation" class="modal-delete">
                                     <form class="modal-delete-content" action="/action_page.php">
                                         <div class="container">
-                                            <h1>Are you sure you want to delete the LIMBRACK-{{ id }}?</h1>
+                                            <h1>Are you sure you want to delete the LIMBRACK-{{ rack.id }}?</h1>
                                             <p>Deleting a rack will delete this rack from rack storage as well.</p>
                                             <p style="padding-top: 50px"/>
                                             <div class="btn-toolbar form-group" style="float:right" role="toolbar"
                                                  aria-label="Toolbar with button groups">
                                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                                    <a href="{{ url_for('storage.delete_rack', id=id) }}">
+                                                    <a href="{{ url_for('storage.delete_rack', id=rack.id) }}">
                                                         <button type="button" class="btn btn-outline-dark"><i
                                                                 class="fa fa-trash"></i> Delete
                                                         </button>
@@ -77,6 +78,7 @@
                                         </div>
                                     </form>
                                 </div>
+                                {% endif %}
 
                             </div>
 

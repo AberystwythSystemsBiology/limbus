@@ -364,7 +364,18 @@ def rack_automatic_entry_validation_div(_hash: str):
 @storage.route("/rack/LIMBRACK-<id>")
 @login_required
 def view_rack(id):
-    return render_template("storage/rack/view.html", id=id)
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return render_template(
+        "storage/rack/view.html", rack=response.json()["content"]
+        )
+
+    return abort(response.status_code)
+    # return render_template("storage/rack/view.html", id=id)
 
 
 @storage.route("/rack/LIMBRACK-<id>/endpoint")
@@ -420,6 +431,8 @@ def assign_rack_sample(id, row, column):
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if view_response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if view_response.status_code == 200:
 
@@ -492,10 +505,13 @@ def storage_rack_fill_with_samples():
 @login_required
 def edit_rack(id):
     response = requests.get(
-        url_for("api.storage_rack_location", id=id, _external=True),
-        #url_for("api.storage_rack_view", id=id, _external=True),
+        # url_for("api.storage_rack_location", id=id, _external=True),
+        url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
         # For SampleRack with location info.
@@ -563,6 +579,9 @@ def delete_rack(id):
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
         edit_response = requests.post(

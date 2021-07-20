@@ -32,14 +32,18 @@
                         <span class="secondary-heading">
                             <span id="storage-href">
                                 <!-- no link back to cold storage -->
-                                <i class="fa fa-temperature-low"></i> LIMBCS-<span id="storage-id"></span>
-                            </span></span>
-                        <i class="fa fa-bars"></i> LIMBSHF-{{ id }}</span></h1>
+                                <a href="{{ url_for('storage.view_cold_storage',id=shelf.storage_id) }}">
+                                <i class="fa fa-temperature-low"></i> LIMBCS-{{ shelf.storage_id }}
+                                </a>
+                            </span>
+                        </span>
+                        <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</span></h1>
 
 
                     <div class="row text-muted">
                         <div class="col-7">
                             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                                {% if not shelf.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
                                     <button id="edit-details-btn" type="button" class="btn btn-outline-dark"><i
                                             class="fa fa-edit"></i> Edit
@@ -70,13 +74,13 @@
                                 <div id="delete-confirmation" class="modal-delete">
                                     <form class="modal-delete-content" action="/action_page.php">
                                         <div class="container">
-                                            <h1>Are you sure you want to delete the LIMBSHF-{{ id }}?</h1>
+                                            <h1>Are you sure you want to delete the LIMBSHF-{{ shelf.id }}?</h1>
                                             <p>Deleting a shelf will delete associated racks.</p>
                                             <p style="padding-top: 50px"/>
                                             <div class="btn-toolbar form-group" style="float:right" role="toolbar"
                                                  aria-label="Toolbar with button groups">
                                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                                    <a href="{{ url_for('storage.delete_shelf', id=id) }}">
+                                                    <a href="{{ url_for('storage.delete_shelf', id=shelf.id) }}">
                                                         <button type="button" class="btn btn-outline-dark"><i
                                                                 class="fa fa-trash"></i> Delete
                                                         </button>
@@ -93,7 +97,7 @@
                                         </div>
                                     </form>
                                 </div>
-
+                                {% endif %}
 
                             </div>
                         </div>

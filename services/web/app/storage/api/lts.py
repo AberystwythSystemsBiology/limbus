@@ -195,6 +195,16 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
     cs.is_locked = not cs.is_locked
     cs.editor_id = tokenuser.id
 
+    attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==cs.id).all()
+    for shelf in attachedShelves:
+        shelf.is_locked = cs.is_locked
+        shelf.editor_id = tokenuser.id
+        entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==shelf.id).all()
+        for ES in entityStorageRecords:
+            rack = SampleRack.query.filter(SampleRack.id==ES.rack_id).first()
+            rack.is_locked = cs.is_locked
+            rack.editor_id = tokenuser.id
+
     db.session.commit()
     db.session.flush()
 

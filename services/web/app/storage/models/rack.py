@@ -23,6 +23,7 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     serial_number = db.Column(db.String(256))
     description = db.Column(db.Text)
+    is_locked = db.Column(db.Boolean, default=False)
     colour = db.Column(db.Enum(Colour))
     num_rows = db.Column(db.Integer)
     num_cols = db.Column(db.Integer)

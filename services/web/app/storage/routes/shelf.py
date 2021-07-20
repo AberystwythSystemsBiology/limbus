@@ -75,7 +75,18 @@ def new_shelf(id):
 @storage.route("/shelf/LIMBSHF-<id>", methods=["GET"])
 @login_required
 def view_shelf(id):
-    return render_template("storage/shelf/view.html", id=id)
+    # return render_template("storage/shelf/view.html", id=id)
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return render_template(
+            "storage/shelf/view.html", shelf=response.json()["content"]
+        )
+
+    return abort(response.status_code)
 
 
 @storage.route("/shelf/LIMBSHF-<id>/endpoint", methods=["GET"])
@@ -99,6 +110,8 @@ def edit_shelf(id):
         url_for("api.storage_shelf_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
         shelf = response.json()["content"]
@@ -133,20 +146,28 @@ def edit_shelf(id):
 @storage.route("/shelf/LIMBSHF-<id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_shelf(id):
-
-    edit_response = requests.put(
-        url_for("api.storage_shelf_delete", id=id, _external=True),
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
-    if edit_response.status_code == 200:
-        flash("Shelf Successfully Deleted")
-        return redirect(url_for("storage.view_cold_storage", id=edit_response.json()["content"], _external=True))
-    elif edit_response.status_code == 400 and edit_response.json()["message"]== "Can't delete assigned samples":
-        flash("Cannot delete a shelf associated with a rack with assigned samples")
-    else:
-        flash("We have a problem: %s" % edit_response.status_code)
-    return redirect(url_for("view_rack", id=id,_external=True))
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
+    if response.status_code == 200:
+        edit_response = requests.put(
+            url_for("api.storage_shelf_delete", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if edit_response.status_code == 200:
+            flash("Shelf Successfully Deleted")
+            return redirect(url_for("storage.view_cold_storage", id=edit_response.json()["content"], _external=True))
+        elif edit_response.status_code == 400 and edit_response.json()["message"]== "Can't delete assigned samples":
+            flash("Cannot delete a shelf associated with a rack with assigned samples")
+        else:
+            flash("We have a problem: %s" % edit_response.status_code)
+        return redirect(url_for("view_rack", id=id,_external=True))
+    return abort(response.status_code)
 
 
 @storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
@@ -156,6 +177,8 @@ def assign_rack_to_shelf(id):
         url_for("api.storage_shelf_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
 
@@ -205,6 +228,9 @@ def assign_sample_to_shelf(id):
         url_for("api.storage_shelf_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
 
