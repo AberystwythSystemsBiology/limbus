@@ -20,6 +20,7 @@ from .. import storage
 from flask import render_template, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
+from ...decorators import check_if_admin, check_if_locked
 
 
 @storage.route("site/LIMBSITE-<id>/new_building", methods=["GET", "POST"])
@@ -30,6 +31,10 @@ def new_building(id):
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
+
 
     if response.status_code == 200:
         form = BuildingRegistrationForm()
@@ -59,7 +64,7 @@ def new_building(id):
     abort(response.status_code)
 
 
-@storage.route("/building/LIMBUILD-<id>", methods=["GET"])
+@storage.route("/building/LIMBBUILDING-<id>", methods=["GET"])
 @login_required
 def view_building(id):
     response = requests.get(
@@ -77,7 +82,7 @@ def view_building(id):
 
 
 
-@storage.route("/building/LIMBUILD-<id>/edit", methods=["GET", "POST"])
+@storage.route("/building/LIMBBUILDING-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_building(id):
 
@@ -85,6 +90,8 @@ def edit_building(id):
         url_for("api.storage_building_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
 
@@ -117,6 +124,7 @@ def edit_building(id):
 
 @storage.route("/buildings/LIMBBUILDING-<id>/lock", methods=["GET", "POST"])
 @login_required
+@check_if_admin
 def lock_building(id):
 
     edit_response = requests.put(
@@ -139,29 +147,39 @@ def lock_building(id):
     #    "storage/room/edit.html", room=response.json()["content"], form=form
     #)
 
-    return abort(response.status_code)
+    # return abort(response.status_code)
 
-@storage.route("/buildings/LIMBBUILD-<id>/delete", methods=["GET", "POST"])
+@storage.route("/buildings/LIMBBUILDING-<id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_building(id):
 
-    edit_response = requests.put(
-        url_for("api.storage_building_delete", id=id, _external=True),
+    response = requests.get(
+        url_for("api.storage_building_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
-    if edit_response.status_code == 200:
-        flash("Building Successfully Deleted")
-        return redirect(url_for("storage.view_site",id=edit_response.json()["content"],_external=True))
-    elif edit_response.status_code == 400 and edit_response.json()["message"] == "Has associated cold storage":
-        flash("Cannot delete building with associated cold storage")
-    elif edit_response.status_code == 400 and edit_response.json()["message"] == "Entity is locked":
-        flash("Cannot delete building with associated rooms which are locked")
-    else:
-        flash("We have a problem: %s" % edit_response.status_code )
+    if response.status_code == 200:
 
-    # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
-    return redirect(url_for("storage.view_building", id=id, _external=True))
+        edit_response = requests.put(
+        url_for("api.storage_building_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+        )
+
+        if edit_response.status_code == 200:
+            flash("Building Successfully Deleted")
+            return redirect(url_for("storage.view_site",id=edit_response.json()["content"],_external=True))
+        elif edit_response.status_code == 400 and edit_response.json()["message"] == "Has associated cold storage":
+            flash("Cannot delete building with associated cold storage")
+        elif edit_response.status_code == 400 and edit_response.json()["message"] == "Entity is locked":
+            flash("Cannot delete building with associated rooms which are locked")
+        else:
+            flash("We have a problem: %s" % edit_response.status_code )
+
+        # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
+        return redirect(url_for("storage.view_building", id=id, _external=True))
+    return abort(response.status_code)
 
 # @storage.route("/buildings/LIMBBUILD-<id>/delete", methods=["GET", "POST"])
 # @login_required

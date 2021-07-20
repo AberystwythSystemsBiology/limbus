@@ -50,19 +50,29 @@ def view_site(id):
 @login_required
 def delete_site(id):
 
-    edit_response = requests.put(
-        url_for("api.storage_site_delete", id=id, _external=True),
+    response = requests.get(
+        url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
-    if edit_response.status_code == 200:
-        flash("Site Successfully Deleted")
-        return redirect(url_for("storage.index", _external=True))
-    # elif edit_response.json()["message"]== "Can't delete assigned samples":
-    #     flash("Cannot delete rack with assigned samples")
-    else:
-        flash("We have a problem: %s" % (id))
-    return redirect(url_for("storage.view_site", id=id, _external=True))
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
+
+    if response.status_code == 200:
+        edit_response = requests.put(
+        url_for("api.storage_site_delete", id=id, _external=True),
+        headers=get_internal_api_header(),
+        )
+
+        if edit_response.status_code == 200:
+            flash("Site Successfully Deleted")
+            return redirect(url_for("storage.index", _external=True))
+        # elif edit_response.json()["message"]== "Can't delete assigned samples":
+        #     flash("Cannot delete rack with assigned samples")
+        else:
+            flash("We have a problem: %s" % (id))
+        return redirect(url_for("storage.view_site", id=id, _external=True))
+    return abort(response.status_code)
 
 @storage.route("/site/LIMBSITE-<id>/edit", methods=["GET", "POST"])
 @login_required
@@ -72,6 +82,9 @@ def edit_site(id):
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
 

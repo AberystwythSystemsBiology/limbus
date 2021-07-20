@@ -30,6 +30,7 @@ class BasicBuildingSchema(masql.SQLAlchemySchema):
         model = Building
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     name = masql.auto_field()
     site_id = masql.auto_field()
 

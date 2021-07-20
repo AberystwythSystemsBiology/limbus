@@ -46,6 +46,7 @@
 
                             {% endif %}
 
+                            {% if current_user.is_admin == true %}
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
                                 <a href=" {{ url_for('storage.lock_site',id=site.id) }} ">
                                 <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
@@ -53,6 +54,7 @@
                                     Unl{% else %}L{% endif %}ock
                                 </button></a>
                             </div>
+                            {% endif %}
 
                             {% if not site.is_locked and current_user.is_admin == true and site.buildings == []%}
                             <div class="btn-group mr-2" role="group" aria-label="First group">

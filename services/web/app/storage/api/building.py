@@ -18,7 +18,7 @@ from flask import request, current_app, jsonify, send_file,url_for
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required,check_if_locked
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, Building, UserAccount,Room
 from ..api.room import func_room_delete
@@ -156,6 +156,8 @@ def storage_edit_building(id: int, tokenuser: UserAccount):
 
     if not building:
         return not_found()
+    if building.is_locked:
+        return not_allowed()
 
     values = request.get_json()
 
