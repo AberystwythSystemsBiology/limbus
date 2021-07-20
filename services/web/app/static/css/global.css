@@ -68,6 +68,15 @@ nav img {
     background-color:#a62b23;
     color: #ffffff;
 }
+
+.btn-delete{
+    background-color: #ffffff;
+    color: #eb4034;
+    border: 1px #eb4034 solid;
+}
+
+
+
 .btn-form{
     background-color: #007bff;
     color:white
