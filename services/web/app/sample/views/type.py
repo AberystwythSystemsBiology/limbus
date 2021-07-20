@@ -35,47 +35,11 @@ from ..enums import (
 
 from ...auth.views import BasicUserAccountSchema
 
-class UserCreatedContainer(fields.Field):
-    """User Created Container that serialises and deserialises a Container."""
-
-    def _deserialize(
-        self,
-        value: typing.Any,
-        attr: typing.Optional[str],
-        data: typing.Optional[typing.Mapping[str, typing.Any]],
-        **kwargs
-    ):
-
-        container = Container.query.filter_by(id=value).first()
-
-        if container is None:
-            raise ValidationError("Not a valid container id")
-        else:
-            return int(value)
-
-class UserCreatedFixationType(fields.Field):
-    """User Created Container that serialises and deserialises a Container."""
-
-    def _deserialize(
-        self,
-        value: typing.Any,
-        attr: typing.Optional[str],
-        data: typing.Optional[typing.Mapping[str, typing.Any]],
-        **kwargs
-    ):
-
-        fixation = FixationType.query.filter_by(id=value).first()
-
-        if fixation is None:
-            raise fixation("Not a valid fixation id")
-        else:
-            return int(value)
 class NewFluidSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleToType
 
     fluid_sample_type = EnumField(FluidSampleType)
-    fluid_container_id = UserCreatedContainer(required=True)
 
 
 new_fluid_sample_schema = NewFluidSampleSchema()
@@ -86,8 +50,6 @@ class NewCellSampleSchema(masql.SQLAlchemySchema):
 
     cellular_type = EnumField(CellSampleType)
     tissue_type = EnumField(TissueSampleType)
-    cell_container_id = UserCreatedContainer(required=True)
-    fixation_type_id = UserCreatedFixationType(required=True)
 
 new_cell_sample_schema = NewCellSampleSchema()
 
@@ -97,13 +59,8 @@ class NewMolecularSampleSchema(masql.SQLAlchemySchema):
         model = SampleToType
 
     molecular_type = EnumField(MolecularSampleType)
-    fluid_container_id = UserCreatedContainer(required=True)
-
 
 new_molecular_sample_schema = NewMolecularSampleSchema()
-
-
-
 
 class SampleTypeSchema(ma.SQLAlchemySchema):
     class Meta:

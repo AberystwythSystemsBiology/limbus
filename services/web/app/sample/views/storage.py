@@ -15,12 +15,50 @@
 
 from ...extensions import ma
 import marshmallow_sqlalchemy as masql
-from marshmallow import fields
+from marshmallow import fields, ValidationError
 from marshmallow_enum import EnumField
-from ...database import ColdStorageShelf, EntityToStorage, SampleRack
+from ...database import ColdStorageShelf, EntityToStorage, SampleRack, Container, FixationType
 from ...storage.enums import EntityToStorageType
 
-from flask import url_for
+import typing
+
+
+
+class UserCreatedContainer(fields.Field):
+    """User Created Container that serialises and deserialises a Container."""
+
+    def _deserialize(
+        self,
+        value: typing.Any,
+        attr: typing.Optional[str],
+        data: typing.Optional[typing.Mapping[str, typing.Any]],
+        **kwargs
+    ):
+
+        container = Container.query.filter_by(id=value).first()
+
+        if container is None:
+            raise ValidationError("Not a valid container id")
+        else:
+            return int(value)
+
+class UserCreatedFixationType(fields.Field):
+    """User Created Container that serialises and deserialises a Container."""
+
+    def _deserialize(
+        self,
+        value: typing.Any,
+        attr: typing.Optional[str],
+        data: typing.Optional[typing.Mapping[str, typing.Any]],
+        **kwargs
+    ):
+
+        fixation = FixationType.query.filter_by(id=value).first()
+
+        if fixation is None:
+            raise fixation("Not a valid fixation id")
+        else:
+            return int(value)
 
 
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
