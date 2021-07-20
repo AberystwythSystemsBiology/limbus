@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from flask import render_template, redirect, url_for, flash, abort
 from flask_login import login_required
 
@@ -58,7 +59,7 @@ def prepare_form_data(data: dict):
     }
 
     del step_three["quantity"]
-
+    del step_three["biohazard_level"]
 
     api_data["sample_type_information"] = step_three
 
