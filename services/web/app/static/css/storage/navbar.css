@@ -12,7 +12,7 @@
     overflow: auto;
     top: 30px;
     left: 0;
-    z-index: 998;
+    z-index: 997;
     transition: all 0.3s;
 }
 
@@ -23,7 +23,7 @@
 #sidebar-collapse {
     float: right;
     margin: 0;
-    z-index: 999;
+    z-index: 998;
     position: relative;
     margin-top: 50%;
     right: -1em;
@@ -36,4 +36,29 @@
 
 #sidebar.active #sidebar-collapse {
     right: -3em;
+}
+
+/* The Modal (background) */
+.modal-delete {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 999; /* Sit on top */
+    left: 0;
+    top: 15%;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    /*background-color: #474e5d;*/
+    padding-top: 50px;
+}
+
+/* Modal Content/Box */
+.modal-delete-content {
+    color:black;
+    background-color: #fefefe;
+    margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+    border: 2px solid #000;
+    border-radius: 0;
+    width: 70%; /* Could be more or less, depending on screen size */
+    height: fit-content;
 }

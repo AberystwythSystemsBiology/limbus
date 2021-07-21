@@ -58,6 +58,34 @@ nav img {
     color: #000;
 }
 
+.btn-cancel {
+    background-color: #eb4034;
+    color: #ffffff;
+    margin-right:0.5em;
+}
+
+.btn-cancel:hover {
+    background-color:#a62b23;
+    color: #ffffff;
+}
+
+.btn-delete{
+    background-color: #ffffff;
+    color: #eb4034;
+    border: 1px #eb4034 solid;
+}
+
+
+
+.btn-form{
+    background-color: #007bff;
+    color:white
+}
+.btn-form:hover{
+    background-color: #0062cc;
+    color: white;
+}
+
 #wmd-preview {
     background-color: #f5f5f5;
     padding:1em;

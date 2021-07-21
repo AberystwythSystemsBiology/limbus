@@ -4,42 +4,51 @@
 <link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}Editing LIMBRACK-{{ rack.id }}{% endblock %}
+{% block title %}Edit Site{% endblock %}
+
 {% block body %}
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
     <div class="storage">
         <div class="jumbotron">
             <div class="container">
-                <h1><span class="secondary-heading"><i class="fa fa-grip-vertical"></i> LIMBRACK-{{ rack.id }}</span>
-                    <i class="fa fa-edit"></i> Edit Rack</h1>
+                <h1>
+                    <span class="secondary-heading">
+                        <a href="{{ url_for('storage.view_site', id=room.id) }}">
+                            <i class="fa fa-door-closed"></i> LIMBSITE-{{room.id}}
+                        </a>
+                    </span>Edit Site</h1>
             </div>
         </div>
 
         <div class="container">
-
-            <form method="POST" action="{{ url_for('storage.edit_rack', id=rack.id ) }}">
-                {{ form.csrf_token() }}
-                {{ form_field(form.serial) }}
-                {{ form_field(form.description) }}
+            <form method="POST" action="{{ url_for('storage.edit_site', id=room.id) }}">
+                {{ form_field(form.name) }}
+                {{ form_field(form.address_line_one) }}
+                {{ form_field(form.address_line_two) }}
+                {{ form_field(form.city) }}
+                {{ form_field(form.country) }}
+                {{ form_field(form.post_code) }}
                 <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
                         {{ form_field(form.submit) }}
                     </div>
                     <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
-                        <a href="{{ url_for('storage.view_rack', id=rack.id) }}">
+                        <a href="{{ url_for('storage.view_site', id=room.id) }}">
                             <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
                                 Cancel
                             </button></a>
                     </div>
                 </div>
-            </form>
 
+            </form>
         </div>
+
+
+
     </div>
 </div>
 {% endblock %}
-
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>

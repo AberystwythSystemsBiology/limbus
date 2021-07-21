@@ -21,18 +21,31 @@ def not_found():
         {"ContentType": "application/json"},
     )
 
-def locked():
-    return (
-        {"success": False, "message": "Data locked"},
-        404,
-        {"ContentType": "application/json"},
+def sample_assigned_delete_response():
+    return(
+        {"success": False, "message":"Can't delete assigned samples"},
+        400,
+        {"ContentType":"application/json"}
     )
+
+def in_use_response(entity):
+    return(
+        {"success": False, "message":"Has associated " + entity},
+        400,
+        {"ContentType":"application/json"}
+    )
+
 def no_values_response():
     return (
         {"success": False, "message": "No input data provided"},
         400,
         {"ContentType": "application/json"},
     )
+
+def locked_response():
+    return({"success": False, "message": "Entity is locked"},
+            400,
+            {"ContentType": "application/json"})
 
 
 def invalid_query_response():

@@ -4,7 +4,7 @@
 <link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMBRACK-{{ id }}{% endblock %}
+{% block title %}LIMBRACK-{{ rack.id }}{% endblock %}
 
 
 {% block body %}
@@ -31,23 +31,68 @@
             <div class="jumbotron">
                 <div class="container">
                     <h1><span id="sh" class="secondary-heading"></span>
-                        <span id="colour"></span>LIMBRACK-{{ id }}
+                        <span id="colour"></span>LIMBRACK-{{ rack.id }}
                     </h1>
                     <div class="row text-muted">
                         <div class="col-7">
                             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                                {% if not rack.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <a href="{{ url_for('storage.edit_rack', id=id) }}">
+                                    <a href="{{ url_for('storage.edit_rack', id=rack.id) }}">
                                         <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i>
                                             Edit
                                             Details
                                         </button>
                                     </a>
                                 </div>
+                                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                    <button type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                            data-target="#delete-confirmation">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </button>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="delete-confirmation" tabindex="-1" role="dialog"
+                                     aria-labelledby="delete-confirmation-modal-title" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title" id="delete-confirmation-modal-title">Delete LIMBRACK-{{ rack.id }}?</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="alert alert-danger" role="alert">
+                                                    <b>Warning:</b> Deleting a room cannot be reversed.
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <div class="btn-toolbar form-group" style="float:right" role="toolbar"
+                                                     aria-label="Toolbar with button groups">
+                                                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                                                        <a href="{{ url_for('storage.delete_rack', id=rack.id) }}">
+                                                            <button type="button" class="btn btn-outline-dark"><i
+                                                                    class="fa fa-trash"></i> Delete
+                                                            </button>
+                                                        </a>
+                                                    </div>
+                                                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                                                        <button type="button"
+                                                                data-dismiss="modal"
+                                                                class="btn btn-outline-dark" title="Close Modal"><i
+                                                                class="fa fa-times"></i> Cancel
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
 
                             </div>
-
-
 
                         </div>
                         <div class="col-5 text-right">
@@ -197,4 +242,6 @@
 <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/rack/view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+
 {% endblock %}

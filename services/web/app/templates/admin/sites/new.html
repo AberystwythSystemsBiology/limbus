@@ -41,7 +41,17 @@
         {{ form_field(form.country) }}
         {{ form_field(form.post_code) }}
 
-        {{ form_field(form.submit, with_label=False)}}
+          <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+              <div class="btn-group mr-2" role="group" aria-label="Second group">
+                  {{ form_field(form.submit, with_label=false) }}
+              </div>
+              <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+                  <a href="{{ url_for('admin.sites_index') }}">
+                      <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                          Cancel
+                      </button></a>
+              </div>
+          </div>
       </form>
   </div>
 

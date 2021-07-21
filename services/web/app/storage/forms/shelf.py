@@ -41,6 +41,7 @@ class NewShelfForm(FlaskForm):
     submit = SubmitField("Register Shelf")
 
 
+
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         date = DateField(

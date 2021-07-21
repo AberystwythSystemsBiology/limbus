@@ -110,6 +110,7 @@ class ColdStorageSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     alias = masql.auto_field()
+    is_locked = masql.auto_field()
     uuid = masql.auto_field()
     serial_number = masql.auto_field()
     manufacturer = masql.auto_field()
@@ -133,6 +134,7 @@ class NewColdStorageSchema(masql.SQLAlchemySchema):
         model = ColdStorage
 
     alias = masql.auto_field()
+    is_locked = masql.auto_field()
     serial_number = masql.auto_field()
     manufacturer = masql.auto_field()
     comments = masql.auto_field()

@@ -12,6 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from __future__ import print_function
 
 from flask import request, current_app, jsonify, send_file, flash
 from ...api import api
@@ -398,6 +399,48 @@ def storage_rack_edit_basic(id, tokenuser: UserAccount):
     return generic_edit(
         db, SampleRack, id, new_sample_rack_schema, rack_schema, values, tokenuser
     )
+
+@api.route("/storage/RACK/LIMBRACK-<id>/delete", methods=["POST"])
+@token_required
+def storage_rack_delete(id, tokenuser: UserAccount):
+    rackTableRecord = SampleRack.query.filter_by(id=id).first()
+    entityStorageTableRecord = EntityToStorage.query.filter(EntityToStorage.rack_id==id).all()
+
+    if not rackTableRecord:
+        return not_found()
+
+    if rackTableRecord.is_locked:
+        return locked_response()
+
+    rackTableRecord.editor_id = tokenuser.id
+    if not entityStorageTableRecord:
+        try:
+            db.session.delete(rackTableRecord)
+            db.session.commit()
+            return success_with_content_response(None)
+        except Exception as err:
+            return transaction_error_response(err)
+    shelfID = entityStorageTableRecord[0].shelf_id
+
+    response = func_rack_delete(rackTableRecord,entityStorageTableRecord)
+    if response == "success":
+        return success_with_content_response(shelfID)
+    return sample_assigned_delete_response()
+
+#change to func_rack_delete
+def func_rack_delete(record,entityStorageTableRecord):
+    for ESRecord in entityStorageTableRecord:
+        if not ESRecord.sample_id is None:
+            return "has sample"
+        db.session.delete(ESRecord)
+
+    try:
+        db.session.flush()
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/storage/rack/location/LIMBRACK-<id>", methods=["GET"])

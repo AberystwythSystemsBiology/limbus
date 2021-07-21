@@ -20,6 +20,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     __versioned__ = {}
     name = db.Column(db.String, nullable=False)
+    is_locked = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
     z = db.Column(db.Integer)
     storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))

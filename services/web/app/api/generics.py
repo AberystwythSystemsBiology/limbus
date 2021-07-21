@@ -58,7 +58,7 @@ def generic_lock(
     view_schema: masql.SQLAlchemySchema,
     tokenuser: UserAccount,
 ):
-    existing = Model.query.filter_by(id=id).first()
+    existing = model.query.filter_by(id=id).first()
 
     if not existing:
         return not_found()
@@ -66,11 +66,10 @@ def generic_lock(
     existing.is_locked = not existing.is_locked
     existing.editor_id = tokenuser.id
 
-    db.session.add(existing)
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(view_schema.dump(existing))
+    return success_with_content_response(existing.is_locked)
 
 
 def generic_edit(
@@ -128,4 +127,3 @@ def generic_delete(
 
     #return success_with_content_response()
     return success_without_content_response()
-

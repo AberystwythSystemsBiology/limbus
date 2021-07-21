@@ -84,6 +84,7 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema, many=True)
     shelf = ma.Nested(ShelfViewSchema)
+    is_locked = masql.auto_field()
 
     _links = ma.Hyperlinks(
         {

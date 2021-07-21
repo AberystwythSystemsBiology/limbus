@@ -30,6 +30,7 @@ class BasicBuildingSchema(masql.SQLAlchemySchema):
         model = Building
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     name = masql.auto_field()
     site_id = masql.auto_field()
 
@@ -44,6 +45,7 @@ class BuildingSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
+    is_locked = masql.auto_field()
     site = ma.Nested(BasicSiteSchema)
     rooms = ma.Nested(BasicRoomSchema, many=True)
     author = ma.Nested(BasicUserAccountSchema)

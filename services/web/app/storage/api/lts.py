@@ -20,6 +20,7 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
+from ..api.shelf import func_shelf_delete
 
 import requests
 
@@ -59,6 +60,42 @@ def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
     return success_with_content_response(
         new_cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
+
+
+@api.route("/storage/coldstorage/LIMBCS-<id>/delete", methods=["PUT"])
+@token_required
+def storage_coldstorage_delete(id, tokenuser: UserAccount):
+    existing = ColdStorage.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked_response()
+
+    existing.editor_id = tokenuser.id
+    roomID = existing.room_id
+
+    code = delete_coldstorage_func(existing)
+
+    if code == "success":
+        return success_with_content_response(roomID)
+    elif code == "has sample":
+        return sample_assigned_delete_response()
+    else:
+        return no_values_response()
+
+def delete_coldstorage_func(record):
+    attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==record.id).all()
+    for shelves in attachedShelves:
+        if func_shelf_delete(shelves) == "has sample":
+            return "has sample"
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
@@ -148,7 +185,7 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
 @token_required
-def storage_coldstorage_lock(id, tokenuser: UserAccount):
+def storage_cold_storage_lock(id, tokenuser: UserAccount):
 
     cs = ColdStorage.query.filter_by(id=id).first()
 
@@ -158,11 +195,20 @@ def storage_coldstorage_lock(id, tokenuser: UserAccount):
     cs.is_locked = not cs.is_locked
     cs.editor_id = tokenuser.id
 
-    db.session.add(cs)
+    attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==cs.id).all()
+    for shelf in attachedShelves:
+        shelf.is_locked = cs.is_locked
+        shelf.editor_id = tokenuser.id
+        entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==shelf.id).all()
+        for ES in entityStorageRecords:
+            rack = SampleRack.query.filter(SampleRack.id==ES.rack_id).first()
+            rack.is_locked = cs.is_locked
+            rack.editor_id = tokenuser.id
+
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(basic_cold_storage_schema.dump(cs))
+    return success_with_content_response(cs.is_locked)
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])
@@ -173,8 +219,7 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    coldstorage_response = requests.get(
-        url_for("api.storage_coldstorage_view", id=id, _external=True),
+    coldstorage_response = requests.get(url_for("api.storage_coldstorage_view", id=id, _external=True),
         headers=get_internal_api_header(tokenuser),
     )
 
