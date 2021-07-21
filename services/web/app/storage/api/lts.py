@@ -219,8 +219,7 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    coldstorage_response = requests.get(
-        url_for("api.storage_coldstorage_view", id=id, _external=True),
+    coldstorage_response = requests.get(url_for("api.storage_coldstorage_view", id=id, _external=True),
         headers=get_internal_api_header(tokenuser),
     )
 

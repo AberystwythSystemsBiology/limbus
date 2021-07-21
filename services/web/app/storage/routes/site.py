@@ -29,6 +29,7 @@ from .. import storage
 import requests
 from ...misc import get_internal_api_header
 from ..forms import SiteRegistrationForm
+from ...decorators import check_if_admin
 
 @storage.route("/site/LIMBSITE-<id>", methods=["GET"])
 @login_required
@@ -120,6 +121,7 @@ def edit_site(id):
 
 @storage.route("/site/LIMBSITE-<id>/lock", methods=["GET", "POST"])
 @login_required
+@check_if_admin
 def lock_site(id):
 
     edit_response = requests.put(

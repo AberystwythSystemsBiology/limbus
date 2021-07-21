@@ -166,7 +166,7 @@ def delete_shelf(id):
             flash("Cannot delete a shelf associated with a rack with assigned samples")
         else:
             flash("We have a problem: %s" % edit_response.status_code)
-        return redirect(url_for("view_rack", id=id,_external=True))
+        return redirect(url_for("storage.view_shelf", id=id,_external=True))
     return abort(response.status_code)
 
 

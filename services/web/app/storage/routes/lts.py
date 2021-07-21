@@ -28,6 +28,7 @@ from .. import storage
 import requests
 from ...misc import get_internal_api_header
 from flask_login import current_user, login_required
+from ...decorators import check_if_admin
 
 from ..forms import (
     ColdStorageForm,
@@ -289,26 +290,28 @@ def delete_cold_storage(id):
 
 @storage.route("/coldstorage/LIMBCS-<id>/lock", methods=["GET", "POST"])
 @login_required
+@check_if_admin
 def lock_cold_storage(id):
 
-    edit_response = requests.put(
+    response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code==200:
+        edit_response = requests.put(
         url_for("api.storage_cold_storage_lock", id=id, _external=True),
         headers=get_internal_api_header(),
         #json=form_information,
-    )
+        )
 
-    if edit_response.status_code == 200:
-        if edit_response.json()["content"]:
-            flash("Cold Storage Successfully Locked")
+        if edit_response.status_code == 200:
+            if edit_response.json()["content"]:
+                flash("Cold Storage Successfully Locked")
+            else:
+                flash("Cold Storage Successfully Unlocked")
         else:
-            flash("Cold Storage Successfully Unlocked")
-    else:
-        flash("We have a problem: %s" % (edit_response.status_code))
+            flash("We have a problem: %s" % (edit_response.status_code))
 
-    return redirect(url_for("storage.view_cold_storage", id=id))
-
-    #return render_template(
-    #    "storage/room/edit.html", room=response.json()["content"], form=form
-    #)
+        return redirect(url_for("storage.view_cold_storage", id=id))
 
     return abort(response.status_code)
