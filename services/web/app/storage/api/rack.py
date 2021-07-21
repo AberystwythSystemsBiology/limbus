@@ -102,12 +102,12 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
         sample['entry'] = entry
 
     # insert confirmed data to database
-    return storage_transfer_samples_to_rack(
+    return func_transfer_samples_to_rack(
         samples_pos, rack_id, tokenuser
     )
 
 
-def storage_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
+def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     # Update entitytostorage with storage_type 'STB'
     stb_batch = []
     for sample in samples_pos:
@@ -314,7 +314,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col']}
                    for sample in samples]
     # insert confirmed data to database
-    return storage_transfer_samples_to_rack(
+    return func_transfer_samples_to_rack(
         samples_pos, rack_id, tokenuser
     )
 
@@ -434,7 +434,7 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
     # Get the list of shelves of the same site for a given rack id
     # if rack id is None, then list the shelves from the same site of the user site
 
-    if id is not None:
+    if id is not None
         subq = db.session.query(SiteInformation.id).join(Building).\
                 join(Room).join(ColdStorage).join(ColdStorageShelf).\
                 join(EntityToStorage, EntityToStorage.shelf_id==ColdStorageShelf.id).\
