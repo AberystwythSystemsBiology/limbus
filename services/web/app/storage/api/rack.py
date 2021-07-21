@@ -405,7 +405,6 @@ def storage_rack_edit_basic(id, tokenuser: UserAccount):
 def storage_rack_delete(id, tokenuser: UserAccount):
     rackTableRecord = SampleRack.query.filter_by(id=id).first()
     entityStorageTableRecord = EntityToStorage.query.filter(EntityToStorage.rack_id==id).all()
-    shelfID = entityStorageTableRecord[0].shelf_id
 
     if not rackTableRecord:
         return not_found()
@@ -414,6 +413,14 @@ def storage_rack_delete(id, tokenuser: UserAccount):
         return locked_response()
 
     rackTableRecord.editor_id = tokenuser.id
+    if not entityStorageTableRecord:
+        try:
+            db.session.delete(rackTableRecord)
+            db.session.commit()
+            return success_with_content_response(None)
+        except Exception as err:
+            return transaction_error_response(err)
+    shelfID = entityStorageTableRecord[0].shelf_id
 
     response = func_rack_delete(rackTableRecord,entityStorageTableRecord)
     if response == "success":

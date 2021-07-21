@@ -590,6 +590,8 @@ def delete_rack(id):
         )
         if edit_response.status_code == 200:
             flash("Rack Successfully Deleted")
+            if edit_response.json()["content"] is None:
+                return redirect(url_for("storage.rack_index"))
             return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))
         elif edit_response.status_code == 400 and edit_response.json()["message"]=="Can't delete assigned samples":
             flash("Cannot delete rack with assigned samples")
