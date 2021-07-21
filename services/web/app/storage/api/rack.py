@@ -434,7 +434,7 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
     # Get the list of shelves of the same site for a given rack id
     # if rack id is None, then list the shelves from the same site of the user site
 
-    if id is not None
+    if id is not None:
         subq = db.session.query(SiteInformation.id).join(Building).\
                 join(Room).join(ColdStorage).join(ColdStorageShelf).\
                 join(EntityToStorage, EntityToStorage.shelf_id==ColdStorageShelf.id).\
