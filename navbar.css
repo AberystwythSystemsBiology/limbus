@@ -1,0 +1,39 @@
+#sidebar-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebar {
+    min-width: 23em;
+    max-width: auto;
+    height: 100%;
+    min-height: 100vh;
+    overflow: auto;
+    top: 30px;
+    left: 0;
+    z-index: 998;
+    transition: all 0.3s;
+}
+
+#sidebar.active {
+    margin-left: -20em;
+}
+
+#sidebar-collapse {
+    float: right;
+    margin: 0;
+    z-index: 999;
+    position: relative;
+    margin-top: 50%;
+    right: -1em;
+}
+
+#sidebar-collapse button {
+    height: 3em;
+    width: 3em;
+}
+
+#sidebar.active #sidebar-collapse {
+    right: -3em;
+}

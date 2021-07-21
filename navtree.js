@@ -42,7 +42,8 @@ function sap2tree(sap) {
 
                 for (var l = 0; l < room["storage"].length; l++) {
                     var storage = room["storage"][l];
-                    storage["text"] = "(" + `${building['name']}` + "F" + l + ") " + " " + `${storage["manufacturer"]}` ;
+                    //storage["text"] = "(" + `${building['name']}` + "F" + l + ") " + " " + `${storage["manufacturer"]}` ;
+                    storage["text"] = `${storage["alias"]} (${storage["temp"]})`;
                     storage["type"] = "fridge";
                     storage["id"] = storage["_links"]["self"];
                     storage["children"] = storage["shelves"];
@@ -107,13 +108,12 @@ $(function() {
     //Function which controls button to collapse side bar/nav bar
     $('#sidebar-collapse').on('click', function () {
         collapse_sidebar();
-
     });
 
     function selectElement(element) {
         location.href=element.id;
     }
-    
+    //Below code displays nav tree
     $.get( "/storage/overview", function( data ) {
         $('#jstree').jstree(sap2tree(data));
         
@@ -131,4 +131,6 @@ $(function() {
             }
         });
     });
+    
 });
+
