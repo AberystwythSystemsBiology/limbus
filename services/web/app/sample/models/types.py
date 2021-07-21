@@ -27,12 +27,6 @@ from ..enums import (
 )
 
 
-'''
-    fluid_container = db.Column(db.Enum(FluidContainer), nullable=True)
-    fixation_type = db.Column(db.Enum(FixationType), nullable=True)
-    cellular_container = db.Column(db.Enum(CellContainer), nullable=True)
-'''
-
 class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     fluid_type = db.Column(db.Enum(FluidSampleType), nullable=True)

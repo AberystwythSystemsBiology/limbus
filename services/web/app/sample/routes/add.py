@@ -283,8 +283,10 @@ def add_step_three(hash: str):
 
     sample_type = tmpstore_data["step_one"]["sample_type"]
 
-    sample_information = {}
-    sample_information["type"] = sample_type
+    sample_information = {
+        "type": sample_type
+    }
+    container_information = {}
 
     if sample_type == "FLU":
 
@@ -340,18 +342,24 @@ def add_step_three(hash: str):
         }
 
         if sample_type == "FLU":
+
+            container_information["fluid_container_id"] = form.fluid_container.data
             sample_information_details["fluid_sample_type"] = form.fluid_sample_type.data
-            sample_information_details["fluid_container_id"] = form.fluid_container.data
+
         elif sample_type == "CEL":
             sample_information_details["cell_sample_type"] = form.cell_sample_type.data
             sample_information_details["tissue_sample_type"] = form.tissue_sample_type.data
-            sample_information_details["cell_container_id"] = form.cell_container.data
-            sample_information_details["fixation_type_id"] = form.fixation_type.data
+
+            container_information["cell_container_id"] = form.cell_container.data
+            container_information["fixation_type_id"] = form.fixation_type.data
         else:
-            sample_information_details["fluid_container_id"] = form.fluid_container.data
+            container_information["fluid_container_id"] = form.fluid_container.data
             sample_information_details["molecular_sample_type"] = form.molecular_sample_type.data
 
-        tmpstore_data["step_three"] = sample_information_details
+        tmpstore_data["step_three"] = {
+            "sample_information": sample_information_details,
+            "container_information": container_information
+        }
 
         store_response = requests.put(
             url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),

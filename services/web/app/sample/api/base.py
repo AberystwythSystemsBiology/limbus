@@ -103,7 +103,7 @@ def sample_new_sample(tokenuser: UserAccount):
         "collection_information",
         "sample_information",
         "sample_type_information",
-        "consent_information",
+        "consent_information"
     ]:
         if key not in values.keys():
             errors[key] = ["Not found."]
