@@ -35,8 +35,6 @@ from ..views.misc import (
 @api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
-    # TODO: Need to check if Rack in table, and if it is - move.
-
     values = request.get_json()
 
     if not values:
@@ -47,7 +45,7 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    ets = EntityToStorage.query.filter_by(rack_id=values["rack_id"]).first()
+    ets = EntityToStorage.query.filter_by(rack_id=values["rack_id"], storage_type='BTS').first()
 
     if ets is not None:
         ets.box_id = None
@@ -81,12 +79,17 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
+    ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STB').first()
+    if ets != None:
+        # warning, confirmation
+        db.session.delete(ets)
 
+    ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STS').first()
     if ets != None:
         ets.box_id = None
         ets.shelf_id = values["shelf_id"]
         ets.editor_id = tokenuser.id
+        ets.updated_on = func.now()
         ets.storage_type = "STS"
 
     else:
