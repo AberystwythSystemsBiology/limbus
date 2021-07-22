@@ -49,7 +49,7 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
 
     ets = EntityToStorage.query.filter_by(rack_id=values["rack_id"]).first()
 
-    if ets != None:
+    if ets is not None:
         ets.box_id = None
         ets.shelf_id = values["shelf_id"]
         ets.editor_id = tokenuser.id
@@ -59,9 +59,9 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
         ets = EntityToStorage(**rack_to_shelf_result)
         ets.author_id = tokenuser.id
         ets.storage_type = "BTS"
+        db.session.add(ets)
 
     try:
-        db.session.add(ets)
         db.session.commit()
         return success_with_content_response({"success": True})
     except Exception as err:
