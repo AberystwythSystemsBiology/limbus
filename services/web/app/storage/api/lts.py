@@ -205,8 +205,12 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
             rack.is_locked = cs.is_locked
             rack.editor_id = tokenuser.id
 
-    db.session.commit()
-    db.session.flush()
+    try:
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(cs.is_locked)
+    except Exception as err:
+        return transaction_error_response(err)
 
     return success_with_content_response(cs.is_locked)
 
