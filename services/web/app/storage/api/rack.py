@@ -402,6 +402,15 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 @token_required
 def storage_rack_to_cart(id, tokenuser: UserAccount):
     ESRecord = EntityToStorage.query.filter_by(rack_id=id).all()
+
+    # Locks rack, currently no unlock button so has been disabled.
+    # rack = SampleRack.query.filter_by(id=id).first()
+    # rack.is_locked = True
+    # try:
+    #     db.session.commit()
+    # except Exception as err:
+    #     return transaction_error_response(err)
+
     for es in ESRecord:
         if es.sample_id is not None:
             sample = Sample.query.filter_by(id=es.sample_id).first()
@@ -409,6 +418,7 @@ def storage_rack_to_cart(id, tokenuser: UserAccount):
                 url_for("api.add_sample_to_cart", uuid=sample.uuid, _external=True),
                 headers=get_internal_api_header(tokenuser),
             )
+
     return success_without_content_response()
 
 @api.route("/storage/rack/LIMBRACK-<id>/editbasic", methods=["PUT"])
