@@ -103,12 +103,12 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
         sample['entry'] = entry
 
     # insert confirmed data to database
-    return storage_transfer_samples_to_rack(
+    return func_transfer_samples_to_rack(
         samples_pos, rack_id, tokenuser
     )
 
 
-def storage_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
+def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     # Update entitytostorage with storage_type 'STB'
     stb_batch = []
     for sample in samples_pos:
@@ -315,7 +315,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col']}
                    for sample in samples]
     # insert confirmed data to database
-    return storage_transfer_samples_to_rack(
+    return func_transfer_samples_to_rack(
         samples_pos, rack_id, tokenuser
     )
 
