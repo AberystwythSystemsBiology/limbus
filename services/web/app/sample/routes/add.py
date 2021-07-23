@@ -39,29 +39,26 @@ def prepare_form_data(data: dict):
 
     api_data = {
         "collection_information": step_one["collection_information"],
-        "sample_type_information": {
-        },
+        "sample_type_information": step_three["sample_information"],
         "sample_information": {
             "barcode": step_one["barcode"],
             "source": "NEW",
             "base_type": step_one["sample_type"],
             "status": step_one["sample_status"],
             "site_id": step_one["site_id"],
-            "biohazard_level": step_three["biohazard_level"],
-            "quantity": step_three["quantity"],
+            "biohazard_level": step_one["biohazard_level"],
+            "quantity": step_three["sample_information"]["quantity"],
         },
         "consent_information": {
             "identifier": step_two["consent_id"],
             "event": step_two["event"],
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"],
-        }
+        },
+        "container_information": step_three["container_information"]
     }
 
-    del step_three["quantity"]
-    del step_three["biohazard_level"]
-
-    api_data["sample_type_information"] = step_three
+    del step_three["sample_information"]["quantity"]
 
     return api_data
 
@@ -156,6 +153,7 @@ def add_step_one():
             "colour": form.colour.data,
             "sample_status": form.sample_status.data,
             "barcode": form.barcode.data,
+            "biohazard_level": form.biohazard_level.data,
             "collection_information" : {
                 "protocol_id": form.collection_select.data,
                 "event": {
@@ -337,7 +335,6 @@ def add_step_three(hash: str):
 
     if form.validate_on_submit():
         sample_information_details = {
-            "biohazard_level": form.biohazard_level.data,
             "quantity": form.quantity.data,
         }
 

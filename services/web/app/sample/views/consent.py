@@ -24,35 +24,7 @@ from ...consent.views import (
 )
 from ...auth.views import BasicUserAccountSchema
 
-
-class NewConsentSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SampleConsent
-
-    identifier = masql.auto_field()
-    comments = masql.auto_field()
-    template_id = masql.auto_field()
-    date = masql.auto_field()
-
-
-new_consent_schema = NewConsentSchema()
-
-
-class ConsentSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SampleConsent
-
-    id = masql.auto_field()
-    identifier = masql.auto_field()
-    comments = masql.auto_field()
-    template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
-    author = ma.Nested(BasicUserAccountSchema, many=False)
-    created_on = ma.Date()
-    answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
-
-
-consent_schema = ConsentSchema()
-
+from ...event.views import EventSchema, NewEventSchema
 
 class NewConsentAnswerSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -64,3 +36,33 @@ class NewConsentAnswerSchema(masql.SQLAlchemySchema):
 
 new_consent_answer_schema = NewConsentAnswerSchema()
 new_consent_answers_schema = NewConsentAnswerSchema(many=True)
+
+class NewConsentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsent
+
+    identifier = masql.auto_field()
+    template_id = masql.auto_field()
+    event = ma.Nested(NewEventSchema)
+
+
+new_consent_schema = NewConsentSchema()
+
+
+class ConsentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsent
+
+    id = masql.auto_field()
+    identifier = masql.auto_field()
+    template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
+    event = ma.Nested(EventSchema)
+    answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
+
+
+consent_schema = ConsentSchema()
+
+
+

@@ -22,7 +22,12 @@
 
         <h2>Basic Information</h2>
         {{ form_field(form.sample_type) }}
+        {{ form_field(form.biohazard_level) }}
 
+        <div class="alert alert-warning" role="alert">
+            <b>Notice:</b> These reference BSL standards. If you are not sure what to select, feel free to
+            refer to <a href="{{ url_for('sample.biohazard_information') }}" target="_blank">this document</a>.
+        </div>
         {{ form_field(form.sample_status) }}
         {{ form_field(form.barcode) }}
         {{ form_field(form.colour) }}

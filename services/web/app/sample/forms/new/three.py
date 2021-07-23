@@ -31,11 +31,7 @@ from wtforms.validators import DataRequired, Optional
 
 class BaseTypeInformationForm(FlaskForm):
 
-    biohazard_level = SelectField(
-        "Biohazard Level",
-        choices=BiohazardLevel.choices(),
-        description="BSL category for the sample.",
-    )
+
 
     quantity = FloatField("Quantity", validators=[DataRequired()])
 

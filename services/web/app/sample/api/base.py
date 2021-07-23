@@ -93,8 +93,6 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
 
-    print(values)
-
     if not values:
         return no_values_response()
 
@@ -183,6 +181,9 @@ def sample_new_sample(tokenuser: UserAccount):
             protocol_event_response.headers.items(),
         )
 
+    if "container_information" in values:
+        pass
+
     return success_with_content_response(
         basic_sample_schema.dump(
             Sample.query.filter_by(id=new_sample.id).first_or_404()
@@ -194,6 +195,7 @@ def sample_new_sample(tokenuser: UserAccount):
 @token_required
 def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     values = request.get_json()
+
     if not values:
         return no_values_response()
 

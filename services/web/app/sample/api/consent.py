@@ -22,7 +22,7 @@ from ...misc import get_internal_api_header
 
 from ..views import new_consent_schema, consent_schema, new_consent_answer_schema
 
-from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount
+from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount, Event
 
 
 @api.route("/sample/new/consent", methods=["POST"])
@@ -33,14 +33,6 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    errors = {}
-    for key in ["identifier", "comments", "template_id", "date", "answers"]:
-        if key not in values.keys():
-            errors[key] = ["Not found."]
-
-    if len(errors.keys()) > 0:
-        return validation_error_response(errors)
-
     answers = values["answers"]
     values.pop("answers")
 
@@ -49,15 +41,31 @@ def sample_new_sample_consent(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    new_consent = SampleConsent(**consent_result)
-    new_consent.author_id = tokenuser.id
+
+    # Make a new event and link
+    new_event = Event(**consent_result["event"])
+    new_event.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_event)
+        db.session.commit()
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    new_consent = SampleConsent(
+        identifier = consent_result["identifier"],
+        template_id = consent_result["template_id"],
+        author_id = tokenuser.id,
+        event_id=new_event.id
+    )
 
     try:
         db.session.add(new_consent)
         db.session.commit()
         db.session.flush()
     except Exception as err:
-        return transation_error_response(err)
+        return transaction_error_response(err)
 
     for answer in answers:
         try:

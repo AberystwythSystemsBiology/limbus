@@ -20,8 +20,6 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     identifier = db.Column(db.String(128))
-    comments = db.Column(db.Text)
-    date = db.Column(db.Date, nullable=False)
 
     file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
     file = db.relationship("Document")
@@ -31,6 +29,10 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
     template = db.relationship("ConsentFormTemplate", uselist=False)
+
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+
+    event = db.relationship("Event")
 
     answers = db.relationship(
         "ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer"

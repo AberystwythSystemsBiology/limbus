@@ -29,8 +29,8 @@ from ..enums import (
 
 class SampleToType(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    fluid_type = db.Column(db.Enum(FluidSampleType), nullable=True)
-    molecular_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
-    cellular_type = db.Column(db.Enum(CellSampleType), nullable=True)
-    tissue_type = db.Column(db.Enum(TissueSampleType), nullable=True)
+    fluid_sample_type = db.Column(db.Enum(FluidSampleType), nullable=True)
+    molecular_sample_type = db.Column(db.Enum(MolecularSampleType), nullable=True)
+    cellular_sample_type = db.Column(db.Enum(CellSampleType), nullable=True)
+    tissue_sample_type = db.Column(db.Enum(TissueSampleType), nullable=True)
 
