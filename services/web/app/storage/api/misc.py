@@ -98,9 +98,9 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
             entry_datetime=values["entry_datetime"],
             author_id=tokenuser.id,
         )
+        db.session.add(ets)
 
     try:
-        db.session.add(ets)
         db.session.commit()
         return success_with_content_response({"success": True})
     except Exception as err:

@@ -28,9 +28,13 @@
                 {{ form.csrf_token }}
                 <div class="row">
                     <div class="col-10">
-                    {{ form_field(form.racks) }}
+                        {{ form_field(form.racks) }}
+                        <div id="rack-warning">
+                            <p class="alert-warning" style="width:100%;padding: 1px 6px;">Warning: This will move the rack from its current shelf</p>
+                        </div>
                     </div>
                     <div class="col-2">
+{#                        <div id="rack-spacer"> </div>#}
                         <a href="{{url_for('storage.add_rack')}}">
                             <button id="new-rack-btn" type="button" style="margin-top:33px;width:100%;" class="btn btn-form" >
                                 New Rack
@@ -66,5 +70,6 @@
 {% endblock %}
 
 {% block javascript %}
+    <script src="{{ url_for('static', filename='js/storage/rack/racktoshelf_view.js')}}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

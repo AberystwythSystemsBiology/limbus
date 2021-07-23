@@ -319,6 +319,11 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         samples_pos, rack_id, tokenuser
     )
 
+@api.route("/storage/rack/LIMBRACK-<id>/query",methods=["GET"])
+@token_required
+def storage_rack_check(id,tokenuser:UserAccount):
+    ets = EntityToStorage.query.filter_by(rack_id=id).first()
+    return success_with_content_response(ets is not None)
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])

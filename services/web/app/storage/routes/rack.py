@@ -360,6 +360,18 @@ def rack_automatic_entry_validation_div(_hash: str):
         hash=_hash,
     )
 
+@storage.route("/rack/query", methods=["GET","POST"])
+def check_rack():
+    data = {}
+    data['id'] = request.json['id']
+    response = requests.get(
+        url_for("api.storage_rack_check", id=int(data['id']), _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    data['in_ets'] = response.json()["content"]
+
+    return jsonify(data)
 
 @storage.route("/rack/LIMBRACK-<id>")
 @login_required

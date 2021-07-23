@@ -68,7 +68,7 @@ def RackToShelfForm(racks: list) -> FlaskForm:
         )
 
     setattr(
-        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int)
+        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int, render_kw={'onchange': "check_rack()"})
     )
 
     return StaticForm()
