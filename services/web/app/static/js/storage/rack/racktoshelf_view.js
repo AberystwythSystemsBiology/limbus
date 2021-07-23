@@ -1,3 +1,5 @@
+
+
 function check_rack() {
     var rackSelect = {"id":document.getElementById("racks").value};
     var res;

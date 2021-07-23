@@ -70,6 +70,11 @@
 {% endblock %}
 
 {% block javascript %}
+    <script>
+        window.onload = function() {
+            check_rack();
+        };
+    </script>
     <script src="{{ url_for('static', filename='js/storage/rack/racktoshelf_view.js')}}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}
