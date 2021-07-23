@@ -38,7 +38,7 @@ function get_panel_information() {
 
 function render_counts(basic_statistics) {
     $("#site_count").html(basic_statistics["site_count"]);
-    $("#room_count").html(basic_statistics["site_count"]);
+    $("#room_count").html(basic_statistics["room_count"]);
     $("#building_count").html(basic_statistics["building_count"]);
     $("#cold_storage_count").html(basic_statistics["cold_storage_count"]);
 

@@ -29,6 +29,7 @@ class BasicRoomSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
+    is_locked = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 
@@ -43,6 +44,7 @@ class RoomSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     name = masql.auto_field()
+    is_locked = masql.auto_field()
     building_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()

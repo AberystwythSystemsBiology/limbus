@@ -20,7 +20,8 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, ColdStorageShelf, UserAccount
+from ...database import db, UserAccount,EntityToStorage,SampleRack
+from ..api.rack import func_rack_delete
 
 from marshmallow import ValidationError
 from ..views.shelf import *
@@ -57,6 +58,46 @@ def storage_shelf_edit(id, tokenuser: UserAccount):
         tokenuser,
     )
 
+@api.route("/storage/shelf/LIMBSHF-<id>/delete", methods=["PUT"])
+@token_required
+def storage_shelf_delete(id, tokenuser: UserAccount):
+    existing = ColdStorageShelf.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked_response()
+
+    existing.editor_id = tokenuser.id
+    storageID = existing.storage_id
+
+    code = func_shelf_delete(existing)
+
+    if code == "success":
+        return success_with_content_response(storageID)
+    elif code == "has sample":
+        return sample_assigned_delete_response()
+    else:
+        return no_values_response()
+
+def func_shelf_delete(record):
+    entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==record.id).all()
+
+    for ESRecord in entityStorageRecords:
+        rackRecord = SampleRack.query.filter(SampleRack.id==ESRecord.rack_id).first()
+        entityStorageRackRecords = EntityToStorage.query.filter(EntityToStorage.rack_id==rackRecord.id).all()
+        if func_rack_delete(rackRecord,entityStorageRackRecords) == "has sample":
+            return "has sample"
+
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 
 @api.route("/storage/shelf/new/", methods=["POST"])
 @token_required
@@ -72,7 +113,7 @@ def storage_shelf_new(tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/LIMBSHELF-<id>/lock", methods=["POST"])
+@api.route("/storage/LIMBSHF-<id>/lock", methods=["POST"])
 @token_required
 def storage_shelf_lock(id, tokenuser: UserAccount):
     return generic_lock(db, ColdStorageShelf, id, basic_shelf_schema, tokenuser)

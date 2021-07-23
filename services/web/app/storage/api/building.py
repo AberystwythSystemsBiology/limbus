@@ -13,14 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, current_app, jsonify, send_file
+from flask import request, current_app, jsonify, send_file,url_for
 
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required,check_if_locked
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, Building, UserAccount
+from ...database import db, Building, UserAccount,Room
+from ..api.room import func_room_delete
+
+
+import requests
+from ...misc import get_internal_api_header
+
 
 
 from marshmallow import ValidationError
@@ -93,11 +99,53 @@ def storage_lock_building(id: int, tokenuser: UserAccount):
     building.is_locked = not building.is_locked
     building.editor_id = tokenuser.id
 
-    db.session.add(building)
     db.session.commit()
     db.session.flush()
 
-    return success_with_content_response(basic_building_schema.dump(building))
+    return success_with_content_response(building.is_locked)
+
+
+@api.route("/storage/building/LIMBBUILD-<id>/delete", methods=["PUT"])
+@token_required
+def storage_building_delete(id, tokenuser: UserAccount):
+    existing = Building.query.filter_by(id=id).first()
+
+    if not existing:
+        return not_found()
+
+    if existing.is_locked:
+        return locked_response()
+
+    existing.editor_id = tokenuser.id
+
+    code = delete_buildings_func(existing)
+
+    siteID = existing.site_id
+
+    if code == "success":
+        return success_with_content_response(siteID)
+    elif code == "cold storage":
+        return in_use_response(code)
+    elif code == "locked":
+        return locked_response()
+    else:
+        return no_values_response()
+
+def delete_buildings_func(record):
+    attachedRooms = Room.query.filter(Room.building_id == record.id).all()
+    for rooms in attachedRooms:
+        code = func_room_delete(rooms)
+        if code == "cold storage":
+            return "cold storage"
+        elif code == "locked" or record.is_locked:
+            return "locked"
+
+    try:
+        db.session.delete(record)
+        db.session.commit()
+        return "success"
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/edit", methods=["PUT"])
@@ -108,6 +156,8 @@ def storage_edit_building(id: int, tokenuser: UserAccount):
 
     if not building:
         return not_found()
+    if building.is_locked:
+        return not_allowed()
 
     values = request.get_json()
 

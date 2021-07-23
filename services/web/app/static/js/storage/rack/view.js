@@ -265,9 +265,12 @@ function render_sample_table(samples) {
                             return sample_type_information["fluid_type"];
                         }
                         else if (data["sample"]["base_type"] == "Cellular") {
-                            return sample_type_information["cellular_type"] + " > " + sample_type_information["tiss_type"];
+                            return sample_type_information["cellular_type"]; // + " > " + sample_type_information["tissue_type"];
                         }
-                        
+                        else if (data["sample"]["base_type"] == "Molecular") {
+                            return sample_type_information["molecular_type"]; // + " > " + sample_type_information["tissue_type"];
+                        }
+
         
                     }
                 },
