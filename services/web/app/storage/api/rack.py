@@ -14,15 +14,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import print_function
 
-from flask import request, current_app, jsonify, send_file, flash
+from flask import request, current_app, jsonify, send_file, flash, url_for
 from ...api import api
+from ...misc import get_internal_api_header
 from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, SampleRack, UserAccount, EntityToStorage, \
-    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation
+    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation,Sample
 
 from ..enums import EntityToStorageType
 
@@ -396,6 +397,19 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
+@api.route("/storage/rack/LIMBRACK-<id>/to_cart", methods=["PUT"])
+@token_required
+def storage_rack_to_cart(id, tokenuser: UserAccount):
+    ESRecord = EntityToStorage.query.filter_by(rack_id=id).all()
+    for es in ESRecord:
+        if es.sample_id is not None:
+            sample = Sample.query.filter_by(id=es.sample_id).first()
+            cart_response = requests.post(
+                url_for("api.add_sample_to_cart", uuid=sample.uuid, _external=True),
+                headers=get_internal_api_header(tokenuser),
+            )
+    return success_without_content_response()
 
 @api.route("/storage/rack/LIMBRACK-<id>/editbasic", methods=["PUT"])
 @token_required

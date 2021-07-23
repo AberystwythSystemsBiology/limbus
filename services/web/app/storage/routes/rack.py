@@ -512,6 +512,28 @@ def storage_rack_fill_with_samples():
     )
     return response.json()
 
+@storage.route("rack/LIMBRACK-<id>/to_cart", methods=["GET", "POST"])
+@login_required
+def add_rack_to_cart(id):
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if view_response.status_code == 200:
+        to_cart_response = requests.put(
+            url_for("api.storage_rack_to_cart", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+        if to_cart_response.status_code == 200:
+            flash("Successfully Added All Samples To Cart")
+        else:
+            flash("We have a problem: %s" % (to_cart_response.status_code))
+        return redirect(url_for("storage.view_rack", id=id))
+    abort(view_response.status_code)
+
+
+
+
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_rack(id):
