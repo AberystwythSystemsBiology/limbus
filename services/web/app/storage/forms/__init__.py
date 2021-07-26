@@ -73,7 +73,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
         StaticForm,
         "samples",
         SelectField(
-            "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int
+            "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int,render_kw={'onchange': "check_sample()"}
         ),
     )
 

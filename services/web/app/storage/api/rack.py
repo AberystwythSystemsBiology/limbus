@@ -320,10 +320,16 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         samples_pos, rack_id, tokenuser
     )
 
-@api.route("/storage/rack/LIMBRACK-<id>/query",methods=["GET"])
+@api.route("/storage/rack/LIMBRACK-<id>/query/rack",methods=["GET"])
 @token_required
-def storage_rack_check(id,tokenuser:UserAccount):
+def storage_rack_to_shelf_check(id,tokenuser:UserAccount):
     ets = EntityToStorage.query.filter_by(rack_id=id).first()
+    return success_with_content_response(ets is not None)
+
+@api.route("/storage/rack/LIMBRACK-<id>/query/sample",methods=["GET"])
+@token_required
+def storage_sample_to_rack_check(id,tokenuser:UserAccount):
+    ets = EntityToStorage.query.filter_by(sample_id=id).first()
     return success_with_content_response(ets is not None)
 
 
