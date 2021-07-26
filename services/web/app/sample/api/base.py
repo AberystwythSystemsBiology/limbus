@@ -181,7 +181,7 @@ def sample_new_sample(tokenuser: UserAccount):
             protocol_event_response.headers.items(),
         )
 
-    if "container_information" in values:
+    if "container_information" in values.keys():
         pass
 
     return success_with_content_response(
