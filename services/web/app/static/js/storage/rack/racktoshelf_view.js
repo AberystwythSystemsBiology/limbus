@@ -2,6 +2,11 @@
 
 function check_rack() {
     var rackSelect = {"id":document.getElementById("racks").value};
+    // console.log(rackSelect['id'])
+    if (rackSelect['id']===""){
+        document.getElementById("rack-warning").style.display = "none";
+        return;
+    }
     var res;
     var api_url = window.location.origin + "/storage/rack/query";
     $.post({
@@ -12,7 +17,7 @@ function check_rack() {
         'data': JSON.stringify(rackSelect),
         'success': function (data) {
             res = data;
-            console.log(res)
+            // console.log(res)
         }
     });
 
