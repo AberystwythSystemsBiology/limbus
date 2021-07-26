@@ -74,7 +74,20 @@ function fill_cart_table(cart) {
 
 
                 }
-            },            {
+            },
+            {
+              "mData":{},
+              "mRender": function (data,type,row){
+                  if(data["rack"] == null)
+                      return "No Rack"
+                  var col_data = '';
+                  col_data += "<a href='"+data["rack"]["_links"]["self"]+ "'>";
+                  col_data += data["rack"]["serial_number"]
+                  col_data += "</a>"
+                  return col_data
+              }
+            },
+            {
                 "mData" : {},
                 "mRender": function (data, type, row) {
                     var sample_type_information = data["sample"]["sample_type_information"];

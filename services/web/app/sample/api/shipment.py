@@ -28,7 +28,8 @@ from ...database import (
     UserCart,
     UserAccount,
     SampleShipment,
-    Event
+    Event,
+    EntityToStorage
 )
 
 from ..views import (
@@ -194,7 +195,6 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
 
         except ValidationError as err:
             return validation_error_response(err)
-
         check = UserCart.query.filter_by(
             author_id=tokenuser.id, sample_id=sample_id
         ).first()
@@ -204,7 +204,11 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
                 {"msg": "Sample already added to Cart"}
             )
 
+        es = EntityToStorage.query.filter_by(sample_id=sample_id).first()
         new_uc = UserCart(sample_id=sample_id, author_id=tokenuser.id)
+
+        if not es is None:
+            new_uc.rack_id = es.rack_id
 
         try:
             db.session.add(new_uc)

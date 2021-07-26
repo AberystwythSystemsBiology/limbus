@@ -19,6 +19,7 @@ import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
 from ..views import BasicSampleSchema
+from ...storage.views import BasicSampleRackSchema
 from ...sample.views import SampleUUIDSchema
 from ...auth.views import BasicUserAccountSchema
 from ...misc.views import BasicSiteSchema
@@ -103,6 +104,7 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
         model = UserCart
 
     sample = ma.Nested(BasicSampleSchema, many=False)
+    rack = ma.Nested(BasicSampleRackSchema, many=False)
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 
