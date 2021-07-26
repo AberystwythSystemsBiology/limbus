@@ -83,6 +83,7 @@ class ContainerSchema(masql.SQLAlchemySchema):
         model = Container
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     cellular = masql.auto_field()
     fluid = masql.auto_field()
     tissue = masql.auto_field()
@@ -112,6 +113,7 @@ class ContainerFixationTypeSchema(masql.SQLAlchemySchema):
         model = ContainerFixationType
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     formulation = masql.auto_field()
     start_hour = masql.auto_field()
     end_hour = masql.auto_field()

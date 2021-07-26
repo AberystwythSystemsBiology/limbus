@@ -147,6 +147,58 @@ def container_edit_container(id, tokenuser: UserAccount):
             general_container_edit_response.headers.items(),
         )
 
+@api.route("/container/edit/fixationtype/LIMBFIX-<id>", methods=["PUT"])
+@token_required
+def container_edit_fixation(id, tokenuser: UserAccount):
+    values = request.get_json()
+    record = ContainerFixationType.query.get(id)
+
+    if not values:
+        return no_values_response()
+
+    try:
+        container_result = new_container_fixation_type_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    general_container = values["container"]
+
+    general_container_edit_response = requests.put(
+        url_for("api.container_edit_general_container", id=record.container.id, _external=True),
+        headers=get_internal_api_header(tokenuser),
+        json=general_container
+    )
+
+    if general_container_edit_response.status_code == 200:
+
+        del values["container"]
+
+        existing = ContainerFixationType.query.get(id)
+
+        if not existing:
+            return not_found()
+
+        existing.update(values)
+        existing.editor_id = tokenuser.id
+
+        try:
+            db.session.commit()
+            db.session.flush()
+
+            return success_with_content_response(
+                container_fixation_type_schema.dump(existing)
+            )
+        except Exception as err:
+            return transaction_error_response(err)
+
+    else:
+        return (
+            general_container_edit_response.text,
+            general_container_edit_response.status_code,
+            general_container_edit_response.headers.items(),
+        )
+
+
 @api.route("/container/edit/general_container/<id>", methods=["PUT"])
 @token_required
 def container_edit_general_container(id, tokenuser: UserAccount):
@@ -288,6 +340,36 @@ def new_general_container(tokenuser: UserAccount):
         return success_with_content_response(
             general_container_schema.dump(general_container)
         )
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/container/lock/container/LIMBCT-<id>", methods=["GET","POST"])
+@token_required
+def container_lock_container(id, tokenuser: UserAccount):
+    existing = Container.query.get(id)
+    if existing is None:
+        no_values_response()
+    existing.is_locked = not existing.is_locked
+
+    try:
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(existing.is_locked)
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/container/lock/fixationtype/LIMBFIX-<id>", methods=["GET","POST"])
+@token_required
+def container_lock_fixation(id, tokenuser: UserAccount):
+    existing = ContainerFixationType.query.get(id)
+    if existing is None:
+        no_values_response()
+    existing.is_locked = not existing.is_locked
+
+    try:
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(existing.is_locked)
     except Exception as err:
         return transaction_error_response(err)
 

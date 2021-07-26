@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}LIMBCT-{{ id }} : Container Portal{% endblock %}
+{% block title %}LIMBCT-{{ fixation.id }} : Container Portal{% endblock %}
 
 {% block body %}
 
@@ -11,17 +11,30 @@
                 <i class="fa fa-dot-circle"></i> Container Portal
             </a>
         </h2>
-        <h1><i class="fab fa-codepen"></i> LIMBFIX-{{ id }}: <span id="name"></span></h1>
+        <h1><i class="fab fa-codepen"></i> LIMBFIX-{{ fixation.id }}: <span id="name"></span></h1>
 
         <div class="row">
             <div class="col-7">
-                   <div class="text-muted">
-
-              <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button id="edit-btn" type="button" class="btn btn-outline-dark" id="print-label-btn"><i class="fa fa-edit"></i>
-                  Edit Fixation Type</button>
-              </div>
-            </div>
+                <div class="text-muted">
+                    {% if not fixation.is_locked %}
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <button id="edit-btn" type="button" class="btn btn-outline-dark" id="print-label-btn"><i
+                                    class="fa fa-edit"></i>
+                                Edit Fixation Type
+                            </button>
+                        </div>
+                    {% endif %}
+                    {% if current_user.is_admin == true %}
+                        <div class="btn-group mr-2" role="group" aria-label="Second group">
+                            <a href="{{ url_for('container.lock_fixation', id=fixation.id) }}">
+                                <button type="button"
+                                        class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if fixation.is_locked %}
+                                    Unl{% else %}L{% endif %}ock
+                                </button>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
             <div class="col-5 text-right">
                 <p>Created By: <span id="author"></span></p>

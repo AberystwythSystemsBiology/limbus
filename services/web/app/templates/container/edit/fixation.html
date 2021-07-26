@@ -1,0 +1,45 @@
+{% extends "template.html" %}
+
+{% block title %}Edit LIMBFIX-{{ id }} : Container Portal{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h2 class="secondary-heading">
+            <a href="{{ url_for('container.view_fixation_type', id=id) }}">
+                <i class="fa fa-dot-circle"></i> LIMBFIX-{{ id }}
+            </a>
+        </h2>
+        <h1>
+
+        <i class="fa fa-edit"></i> Edit Fixation</h1>
+
+    </div>
+</div>
+<div class="container">
+    <form method="POST" action="{{ url_for('container.edit_fixation_type',id=id ) }}">
+        {{ form.csrf_token() }}
+
+        {{ form_field(form.name) }}
+        {{ form_field(form.manufacturer) }}
+        {{ form_field(form.colour) }}
+        {{ form_field(form.used_for) }}
+        {{ form_field(form.temperature) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.formulation) }}
+
+        <div class="row">
+            <div class="col-6">
+                {{  form_field(form.start_hour) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.end_hour) }}
+            </div>
+        </div>
+        {{ form_field(form.submit) }}
+    </form>
+
+</div>
+{% endblock %}
+

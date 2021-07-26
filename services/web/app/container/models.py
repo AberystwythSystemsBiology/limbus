@@ -30,6 +30,7 @@ class GeneralContainer(Base, RefAuthorMixin, RefEditorMixin):
 
 class ContainerFixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     general_container_id = db.Column(db.Integer, db.ForeignKey("generalcontainer.id"))
+    is_locked = db.Column(db.Boolean(), default=False)
     formulation = db.Column(db.Text())
     start_hour = db.Column(db.Integer())
     end_hour = db.Column(db.Integer())
@@ -39,7 +40,7 @@ class ContainerFixationType(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEdit
 class Container(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     general_container_id = db.Column(db.Integer, db.ForeignKey("generalcontainer.id"))
-
+    is_locked = db.Column(db.Boolean(), default=False)
     cellular = db.Column(db.Boolean())
     fluid = db.Column(db.Boolean())
     tissue = db.Column(db.Boolean())
