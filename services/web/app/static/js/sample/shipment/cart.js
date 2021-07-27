@@ -19,7 +19,7 @@ function get_cart() {
     var current_url = encodeURI(window.location);
     var split_url = current_url.split("/");
     var api_url = split_url.join("/") + "/data"
-    
+
     var json = (function () {
         var json = null;
         $.ajax({
@@ -77,14 +77,18 @@ function fill_cart_table(cart) {
             },
             {
               "mData":{},
-              "mRender": function (data,type,row){
-                  if(data["rack"] == null)
-                      return "No Rack"
-                  var col_data = '';
-                  col_data += "<a href='"+data["rack"]["_links"]["self"]+ "'>";
-                  col_data += data["rack"]["serial_number"]
-                  col_data += "</a>"
-                  return col_data
+              "mRender": function (data,type,row) {
+                  // console.log(data)
+                  if (data["storage_type"] === "RUC"){
+                      var col_data = '';
+                      col_data += "<a href='" + data["rack"]["_links"]["self"] + "'>";
+                      col_data += data["rack"]["serial_number"]
+                      col_data += "</a>"
+                      return col_data
+              }
+                  else{
+                      return "Not Stored"
+                  }
               }
             },
             {
@@ -126,13 +130,13 @@ function fill_cart_table(cart) {
         "mRender": function (data, type, row) {
             return data["created_on"]
 
-        
+
         }
     },
     {
         "mData": {},
         "mRender": function (data, type, row) {
-            
+
             links_map[data["sample"]["id"]] = data["sample"]["_links"]
 
             var remove_id = "remove-cart-" + data["sample"]["id"];
@@ -156,11 +160,11 @@ function fill_cart_table(cart) {
 
             return actions
 
-            
-            
+
+
         }
     }
-    
+
 
 
 

@@ -25,6 +25,8 @@ from ...auth.views import BasicUserAccountSchema
 from ...misc.views import BasicSiteSchema
 from ...event.views import NewEventSchema, EventSchema
 
+from ..enums import CartSampleStorageType
+
 
 class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -105,6 +107,7 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
 
     sample = ma.Nested(BasicSampleSchema, many=False)
     rack = ma.Nested(BasicSampleRackSchema, many=False)
+    storage_type = EnumField(CartSampleStorageType)
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()
 

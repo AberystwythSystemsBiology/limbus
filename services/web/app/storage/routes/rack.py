@@ -35,6 +35,7 @@ from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
 from uuid import uuid4
+from ...decorators import check_if_admin
 
 from ..forms import (
     NewSampleRackForm, EditSampleRackForm,
@@ -369,7 +370,7 @@ def check_rack_to_shelf():
         headers=get_internal_api_header(),
     )
 
-    data['in_ets'] = response.json()["content"]
+    data['warning'] = response.json()["content"]
 
     return jsonify(data)
 
@@ -533,12 +534,14 @@ def add_rack_to_cart(id):
         headers=get_internal_api_header(),
     )
     if view_response.status_code == 200:
-        to_cart_response = requests.put(
-            url_for("api.storage_rack_to_cart", id=id, _external=True),
+        to_cart_response = requests.post(
+            url_for("api.add_rack_to_cart", id=id, _external=True),
             headers=get_internal_api_header(),
         )
         if to_cart_response.status_code == 200:
             flash("Successfully Added All Samples To Cart")
+        elif to_cart_response.status_code == 400 and to_cart_response.json()["message"] == "No input data provided":
+            flash("Rack Has No Samples")
         else:
             flash("We have a problem: %s" % (to_cart_response.status_code))
         return redirect(url_for("storage.view_rack", id=id))
@@ -712,5 +715,37 @@ def delete_rack(id):
             flash("We have a problem: %s" % edit_response.status_code)
         return redirect(url_for("storage.view_rack",id=id,_external=True))
     abort(response.status_code)
+
+@storage.route("/rack/LIMBRACK-<id>/lock", methods=["GET", "POST"])
+@login_required
+@check_if_admin
+def lock_rack(id):
+
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code == 200:
+        edit_response = requests.post(
+            url_for("api.storage_rack_lock", id=id, _external=True),
+            headers=get_internal_api_header(),
+            #json=form_information,
+        )
+
+        if edit_response.status_code == 200:
+            if edit_response.json()["content"]:
+                flash("Rack Successfully Locked")
+            else:
+                flash("Rack Successfully Unlocked")
+        else:
+            flash("We have a problem: %s" % (edit_response.status_code))
+
+        return redirect(url_for("storage.view_rack", id=id))
+
+    #return render_template(
+    #    "storage/room/edit.html", room=response.json()["content"], form=form
+    #)
+
+    return abort(response.status_code)
 
 

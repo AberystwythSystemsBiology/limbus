@@ -46,6 +46,10 @@ nav img {
     background-color: #FFCE00;
     color:#000 !important;
 }
+.alert-error{
+    background-color:  #eb4034;
+    color:#000 !important;
+}
 
 .btn-secondary {
     background-color: #ffffff;

@@ -22,6 +22,7 @@ import json
 from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
+from ..enums import CartSampleStorageType
 from ...database import (
     db,
     SampleShipmentToSample,
@@ -29,7 +30,8 @@ from ...database import (
     UserAccount,
     SampleShipment,
     Event,
-    EntityToStorage
+    EntityToStorage,
+    SampleRack
 )
 
 from ..views import (
@@ -204,11 +206,13 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
                 {"msg": "Sample already added to Cart"}
             )
 
-        es = EntityToStorage.query.filter_by(sample_id=sample_id).first()
-        new_uc = UserCart(sample_id=sample_id, author_id=tokenuser.id)
+        ESrecords = EntityToStorage.query.filter_by(sample_id=sample_id).all()
+        new_uc = UserCart(sample_id=sample_id,storage_type=None, author_id=tokenuser.id)
 
-        if not es is None:
-            new_uc.rack_id = es.rack_id
+        for es in ESrecords:
+            db.session.delete(es)
+            db.session.flush()
+            # new_uc.rack_id = es.rack_id
 
         try:
             db.session.add(new_uc)
@@ -221,3 +225,59 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             return transaction_error_response(err)
     else:
         return sample_response.content
+
+@api.route("/cart/add/LIMBRACK-<id>", methods=["POST"])
+@token_required
+def add_rack_to_cart(id: int, tokenuser: UserAccount):
+    rack_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(tokenuser),
+    )
+
+    if rack_response.status_code == 200:
+        esCheck = EntityToStorage.query.filter_by(rack_id=id,shelf_id=None).all()
+        if esCheck == []:
+            return no_values_response()
+        ESRecords = EntityToStorage.query.filter_by(rack_id=id).all()
+        rackRecord = SampleRack.query.filter_by(id=id).first()
+        rackRecord.is_locked = True
+        for es in ESRecords:
+            if es.sample_id is None and es.shelf_id is not None:
+                db.session.delete(es)
+                db.session.flush()
+            elif es.sample_id is not None:
+                try:
+                    cart_sample_schema = new_cart_sample_schema.load({"sample_id": es.sample_id})
+                except ValidationError as err:
+                    return validation_error_response(err)
+
+                check = UserCart.query.filter_by(
+                    author_id=tokenuser.id, sample_id=es.sample_id
+                ).first()
+
+                if check != None:
+                    return success_with_content_response(
+                        {"msg": "Sample already added to Cart"}
+                    )
+
+                # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
+                new_uc = UserCart(sample_id=es.sample_id,rack_id=id,storage_type=CartSampleStorageType.RUC, author_id=tokenuser.id)
+                new_uc.rack_id = id
+                try:
+                    db.session.add(new_uc)
+                    db.session.commit()
+                    db.session.flush()
+                    return success_with_content_response({"msg": "Sample added to Cart"})
+
+                except Exception as err:
+                    return transaction_error_response(err)
+        # sample_id = sample_response.json()["content"]["id"]
+
+
+        #
+        # if not es is None:
+        #         #     new_uc.rack_id = es.rack_id
+
+
+    else:
+        return rack_response.content

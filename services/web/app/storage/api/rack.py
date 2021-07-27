@@ -23,7 +23,7 @@ from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, SampleRack, UserAccount, EntityToStorage, \
-    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation,Sample
+    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation,Sample,UserCart
 
 from ..enums import EntityToStorageType
 
@@ -323,8 +323,13 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
 @api.route("/storage/rack/LIMBRACK-<id>/query/rack",methods=["GET"])
 @token_required
 def storage_rack_to_shelf_check(id,tokenuser:UserAccount):
-    ets = EntityToStorage.query.filter_by(rack_id=id).first()
-    return success_with_content_response(ets is not None)
+    ets = EntityToStorage.query.filter_by(rack_id=id, sample_id=None).first()
+    if ets is not None:
+        return success_with_content_response("RST")
+    uc = UserCart.query.filter_by(rack_id=id).first()
+    if uc is not None:
+        return success_with_content_response("RCT")
+    return success_with_content_response("RIV")
 
 @api.route("/storage/rack/LIMBRACK-<id>/query/sample",methods=["GET"])
 @token_required
@@ -336,7 +341,7 @@ def storage_sample_to_rack_check(id,tokenuser:UserAccount):
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])
 @token_required
 def storage_rack_lock(id, tokenuser: UserAccount):
-    return generic_lock(db, SampleRack, id, basic_sample_wrack_schema, tokenuser)
+    return generic_lock(db, SampleRack, id, basic_sample_rack_schema, tokenuser)
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/edit", methods=["PUT"])
@@ -403,29 +408,6 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-
-@api.route("/storage/rack/LIMBRACK-<id>/to_cart", methods=["PUT"])
-@token_required
-def storage_rack_to_cart(id, tokenuser: UserAccount):
-    ESRecord = EntityToStorage.query.filter_by(rack_id=id).all()
-
-    # Locks rack, currently no unlock button so has been disabled.
-    # rack = SampleRack.query.filter_by(id=id).first()
-    # rack.is_locked = True
-    # try:
-    #     db.session.commit()
-    # except Exception as err:
-    #     return transaction_error_response(err)
-
-    for es in ESRecord:
-        if es.sample_id is not None:
-            sample = Sample.query.filter_by(id=es.sample_id).first()
-            cart_response = requests.post(
-                url_for("api.add_sample_to_cart", uuid=sample.uuid, _external=True),
-                headers=get_internal_api_header(tokenuser),
-            )
-
-    return success_without_content_response()
 
 @api.route("/storage/rack/LIMBRACK-<id>/editbasic", methods=["PUT"])
 @token_required
@@ -608,3 +590,23 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     except Exception as err:
         print(">>>>>>>>>>>>>>>", err)
         return transaction_error_response(err)
+
+# @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["PUT"])
+# @token_required
+# def storage_rack_lock(id, tokenuser: UserAccount):
+#
+#     rack = SampleRack.query.filter_by(id=id).first()
+#
+#     if not rack:
+#         return not_found()
+#
+#     # Updates the attribute
+#     rack.is_locked = not rack.is_locked
+#     rack.editor_id = tokenuser.id
+#
+#     try:
+#         db.session.commit()
+#         db.session.flush()
+#         return success_with_content_response(rack.is_locked)
+#     except Exception as err:
+#         return transaction_error_response(err)
