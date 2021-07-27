@@ -324,18 +324,25 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
 @token_required
 def storage_rack_to_shelf_check(id,tokenuser:UserAccount):
     ets = EntityToStorage.query.filter_by(rack_id=id, sample_id=None).first()
-    if ets is not None:
-        return success_with_content_response("RST")
     uc = UserCart.query.filter_by(rack_id=id).first()
     if uc is not None:
         return success_with_content_response("RCT")
+    if ets is not None:
+        return success_with_content_response("RST")
+
     return success_with_content_response("RIV")
 
 @api.route("/storage/rack/LIMBRACK-<id>/query/sample",methods=["GET"])
 @token_required
 def storage_sample_to_rack_check(id,tokenuser:UserAccount):
+    uc = UserCart.query.filter_by(sample_id=id).first()
+    if uc is not None:
+        return success_with_content_response("SCT")
     ets = EntityToStorage.query.filter_by(sample_id=id).first()
-    return success_with_content_response(ets is not None)
+    if ets is not None:
+        return success_with_content_response("SRT")
+
+    return success_with_content_response("SIV")
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])

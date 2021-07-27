@@ -383,7 +383,7 @@ def check_sample_to_rack():
         headers=get_internal_api_header(),
     )
 
-    data['in_ets'] = response.json()["content"]
+    data['warning'] = response.json()["content"]
 
     return jsonify(data)
 
