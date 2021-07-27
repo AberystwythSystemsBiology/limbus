@@ -52,7 +52,7 @@ class SiteRegistrationForm(FlaskForm):
 
 def SampleToEntityForm(samples: list) -> FlaskForm:
 
-    samples_choices = []
+    samples_choices = [[0, '--- Select a sample ---']]
     for sample in samples:
         samples_choices.append([int(sample["id"]), sample["uuid"]])
 
