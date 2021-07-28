@@ -5,7 +5,18 @@
 {% block body %}
 <div class="jumbotron">
     <div class="container">
-        <h1><i class="fa fa-shopping-cart"></i> My Samples Cart</h1>        
+        <h1><i class="fa fa-shopping-cart"></i> My Samples Cart</h1>
+    <div class="row text-muted">
+    <div class="col-7">
+        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-cart-plus"></i>
+                        Ship Selected Samples</button></a>
+            </div>
+        </div>
+    </div>
+    </div>
     </div>
 </div>
 
@@ -23,13 +34,14 @@
                 <th>Creation Date</th>
                 <th>Location</th>
                 <th>Actions</th>
-
+                <th></th>
             </tr>
         </thead>
         <tbody>
            
         </tbody>
     </table>
+
     <!-- Delete Modal -->
     <div class="modal fade" id="delete-confirmation" tabindex="-1" role="dialog"
          aria-labelledby="delete-confirmation-modal-title" aria-hidden="true">

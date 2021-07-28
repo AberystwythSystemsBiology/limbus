@@ -41,9 +41,26 @@ function fill_cart_table(cart) {
 
     var links_map = {};
 
-    $('#cart-table').DataTable( {
+    let table = $('#cart-table').DataTable( {
         data: cart,
         dom: 'Bfrtip',
+        buttons: ['colvis','selectAll', 'selectNone'],
+        lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+        //pageLength: 5,
+
+        columnDefs: [
+            {targets: '_all', defaultContent: ''},
+            // {targets: [2, 3, 4], visible: false, "defaultContent": ""},
+            {
+                targets:  -1,
+                orderable: false,
+                className: 'select-checkbox',
+            }
+
+        ],
+        order: [[1, 'desc']],
+        select: {'style': 'multi',
+            'selector': 'td:last-child',},
         columns: [
             {
                 "mData": {},
@@ -165,17 +182,6 @@ function fill_cart_table(cart) {
                     $('#delete-confirmation').modal('show')
                     document.getElementById("delete-confirmation-modal-title").innerHTML = "Remove LIMBRACK-"+data["rack"]["id"]+ " From Cart?";
                     document.getElementById("delete-confirmation-modal-submit").href = links_map[data["rack"]["id"]]["remove_rack_from_cart"];
-                    // console.log("{{ url_for('sample.remove_rack_from_cart', id="+data["rack"]["id"]+") }};");
-
-                    // var id = $(this).attr("id").split("-")[2];
-                    // $.ajax({
-                    //     url: links_map[id]["remove_rack_from_cart"],
-                    //     type: 'DELETE',
-                    //     success: function (response) {
-                    //         json = response;
-                    //         location.reload();
-                    //     }
-                    // });
                 });
             }
             else {
@@ -192,19 +198,43 @@ function fill_cart_table(cart) {
                 });
             }
             return actions
-
-
-
         }
-    }
-
-
-
-
+    },
+            {} //check-box column
         ],
 
     });
+    table.on( 'select', function ( e, dt, type, indexes ) {
+            var rowData = table.rows(indexes).data().toArray();
+            if (rowData[0]["storage_type"] === "RUC") {
+                serial_num = rowData[0]["sample"]["storage"]["rack"]["serial_number"];
+                unselected_rows = table.rows({selected: false});
+                unselected_rows.every(
+                    function (){
+                        if(this.data() !== undefined&&this.data().storage_type === "RUC"  && this.data().sample.storage.rack.serial_number === serial_num){
+                            this.select()
+                        }
+                    }
+                );
+            }
+    } )
+.on( 'deselect', function ( e, dt, type, indexes ) {
+        var rowData = table.rows(indexes).data().toArray();
+        if (rowData[0]["storage_type"] === "RUC") {
+            serial_num = rowData[0]["sample"]["storage"]["rack"]["serial_number"];
+            selected_rows = table.rows({selected: true});
+            selected_rows.every(
+                function (){
+                    if(this.data() !== undefined && this.data().sample.storage.rack.serial_number === serial_num){
+                        this.deselect()
+                    }
+                }
+            );
+        }
+    } );
+
 }
+
 
 $(document).ready(function() {
     var cart = get_cart();
