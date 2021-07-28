@@ -16,11 +16,12 @@
             <tr>
                 <th>Identifier</th>
                 <th>Base Type</th>
-                <th>Location</th>
                 <th>Sample Type</th>
+                <th>Container Type</th>
                 <th>Quantity</th>
                 <th>Status</th>
                 <th>Creation Date</th>
+                <th>Location</th>
                 <th>Actions</th>
 
             </tr>
@@ -29,7 +30,44 @@
            
         </tbody>
     </table>
-
+    <!-- Delete Modal -->
+    <div class="modal fade" id="delete-confirmation" tabindex="-1" role="dialog"
+         aria-labelledby="delete-confirmation-modal-title" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="delete-confirmation-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <b>Warning:</b> Removing this sample will remove all other samples in the same rack.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-toolbar form-group" style="float:right" role="toolbar"
+                         aria-label="Toolbar with button groups">
+                        <div  class="btn-group mr-2" role="group" aria-label="First group">
+                            <a id="delete-confirmation-modal-submit" href="">
+                                <button type="button" class="btn btn-outline-dark"><i
+                                        class="fa fa-trash"></i> Delete
+                                </button>
+                            </a>
+                        </div>
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <button type="button"
+                                    data-dismiss="modal"
+                                    class="btn btn-outline-dark" title="Close Modal"><i
+                                    class="fa fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
 </div>
 

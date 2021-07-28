@@ -75,22 +75,7 @@ function fill_cart_table(cart) {
 
                 }
             },
-            {
-              "mData":{},
-              "mRender": function (data,type,row) {
-                  // console.log(data)
-                  if (data["storage_type"] === "RUC"){
-                      var col_data = '';
-                      col_data += "<a href='" + data["rack"]["_links"]["self"] + "'>";
-                      col_data += data["rack"]["serial_number"]
-                      col_data += "</a>"
-                      return col_data
-              }
-                  else{
-                      return "Not Stored"
-                  }
-              }
-            },
+
             {
                 "mData" : {},
                 "mRender": function (data, type, row) {
@@ -110,10 +95,23 @@ function fill_cart_table(cart) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample"]["sample_type_information"];
+
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
+
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
                     var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
                     var col_data = '';
                     col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                    col_data += data["sample"]["remaining_quantity"]+"/"+data["sample"]["quantity"]+get_metric(data["sample"]["base_type"]);
+                    col_data += data["sample"]["remaining_quantity"]+get_metric(data["sample"]["base_type"]); //+"/"+data["sample"]["quantity"]
                     col_data += '</span>';
                     return col_data
                 }
@@ -133,6 +131,23 @@ function fill_cart_table(cart) {
 
         }
     },
+
+            {
+                "mData":{},
+                "mRender": function (data,type,row) {
+                    // console.log(data)
+                    if (data["storage_type"] === "RUC"){
+                        var col_data = '';
+                        col_data += "<a href='" + data["rack"]["_links"]["self"] + "'>";
+                        col_data += data["rack"]["serial_number"]
+                        col_data += "</a>"
+                        return col_data
+                    }
+                    else{
+                        return "Not Stored"
+                    }
+                }
+            },
     {
         "mData": {},
         "mRender": function (data, type, row) {
@@ -145,19 +160,37 @@ function fill_cart_table(cart) {
             actions += "<div id='"+remove_id+"' class='btn btn-sm btn-danger'>";
             actions += "<i class='fa fa-trash'></i>"
             actions += "</div>"
+            if(data["storage_type"] === "RUC"){
+                $("#" + remove_id).on("click", function () {
+                    $('#delete-confirmation').modal('show')
+                    document.getElementById("delete-confirmation-modal-title").innerHTML = "Remove LIMBRACK-"+data["rack"]["id"]+ " From Cart?";
+                    document.getElementById("delete-confirmation-modal-submit").href = links_map[data["rack"]["id"]]["remove_rack_from_cart"];
+                    // console.log("{{ url_for('sample.remove_rack_from_cart', id="+data["rack"]["id"]+") }};");
 
-            $("#"+remove_id).on("click", function () {
-                var id = $(this).attr("id").split("-")[2];
-                $.ajax({
-                    url: links_map[id]["remove_sample_from_cart"],
-                    type: 'DELETE',
-                    success: function (response) {
-                        json = response;
-                        location.reload();
-                    }
+                    // var id = $(this).attr("id").split("-")[2];
+                    // $.ajax({
+                    //     url: links_map[id]["remove_rack_from_cart"],
+                    //     type: 'DELETE',
+                    //     success: function (response) {
+                    //         json = response;
+                    //         location.reload();
+                    //     }
+                    // });
                 });
-            });
-
+            }
+            else {
+                $("#" + remove_id).on("click", function () {
+                    var id = $(this).attr("id").split("-")[2];
+                    $.ajax({
+                        url: links_map[id]["remove_sample_from_cart"],
+                        type: 'DELETE',
+                        success: function (response) {
+                            json = response;
+                            location.reload();
+                        }
+                    });
+                });
+            }
             return actions
 
 

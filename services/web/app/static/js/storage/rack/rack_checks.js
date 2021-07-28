@@ -28,7 +28,7 @@ function check_rack() {
         document.getElementById("rack-warning").className = "alert alert-warning"
     }
     else if(res['warning'] === "RCT"){
-        document.getElementById("rack-warning").innerHTML = "<b>Error:</b> Rack is currently in the cart"
+        document.getElementById("rack-warning").innerHTML = "<b>Warning:</b> Rack is currently in the cart"
         document.getElementById("submit").style.display = "none"
         document.getElementById("rack-warning").style.display = "block";
         // document.getElementById("rack-warning").style.backgroundColor = "red";
@@ -64,13 +64,13 @@ function check_sample(){
     });
 
     if (res['warning'] === "SRT"){
-        document.getElementById("rack-warning").innerHTML = "<b>Warning:</b> This will move the Sample from its current Rack"
+        document.getElementById("rack-warning").innerHTML = "<b>Warning:</b> This will move the sample from its current location"
         document.getElementById("rack-warning").style.display = "block";
         document.getElementById("submit").style.display = "block"
         document.getElementById("rack-warning").className = "alert alert-warning"
     }
     else if(res['warning'] === "SCT"){
-        document.getElementById("rack-warning").innerHTML = "<b>Error:</b> Sample is currently in the cart"
+        document.getElementById("rack-warning").innerHTML = "<b>Warning:</b> This sample is currently in the cart"
         document.getElementById("submit").style.display = "none"
         document.getElementById("rack-warning").style.display = "block";
         // document.getElementById("rack-warning").style.backgroundColor = "red";

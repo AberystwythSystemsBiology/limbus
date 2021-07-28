@@ -181,6 +181,34 @@ def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
     else:
         return sample_response.content
 
+@api.route("/cart/remove/LIMBRACK-<id>", methods=["DELETE"])
+@token_required
+def remove_rack_from_cart(id: int, tokenuser: UserAccount):
+    rack_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(tokenuser),
+    )
+
+    if rack_response.status_code == 200:
+        esRecord = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
+        for es in esRecord:
+            uc= UserCart.query.filter_by(author_id=tokenuser.id, sample_id=es.sample_id).first()
+            if uc is not None:
+                db.session.delete(uc)
+                db.session.flush()
+        rackRecord = SampleRack.query.filter_by(id=id).first()
+        rackRecord.is_locked = False
+        try:
+            db.session.commit()
+        except Exception as err:
+            return transaction_error_response(err)
+        return success_with_content_response(
+                {"msg": " All samples in rack %s removed from cart" % (id)}
+            )
+
+    else:
+        return rack_response.content
+
 
 @api.route("/cart/add/<uuid>", methods=["POST"])
 @token_required
@@ -263,14 +291,14 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                 # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
                 new_uc = UserCart(sample_id=es.sample_id,rack_id=id,storage_type=CartSampleStorageType.RUC, author_id=tokenuser.id)
                 new_uc.rack_id = id
-                try:
-                    db.session.add(new_uc)
-                    db.session.commit()
-                    db.session.flush()
-                    return success_with_content_response({"msg": "Sample added to Cart"})
+                db.session.add(new_uc)
+                db.session.flush()
+        try:
+            db.session.commit()
+            return success_with_content_response({"msg": "Sample added to Cart"})
 
-                except Exception as err:
-                    return transaction_error_response(err)
+        except Exception as err:
+            return transaction_error_response(err)
         # sample_id = sample_response.json()["content"]["id"]
 
 

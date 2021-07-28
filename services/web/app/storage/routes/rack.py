@@ -379,7 +379,7 @@ def check_sample_to_rack():
     data = {}
     data['id'] = request.json['id']
     response = requests.get(
-        url_for("api.storage_sample_to_rack_check", id=int(data['id']), _external=True),
+        url_for("api.storage_sample_to_entity_check", id=int(data['id']), _external=True),
         headers=get_internal_api_header(),
     )
 
