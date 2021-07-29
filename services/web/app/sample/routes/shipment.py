@@ -16,7 +16,7 @@
 import requests
 from .. import sample
 from flask_login import login_required
-from flask import json, render_template, url_for, redirect, flash
+from flask import json, render_template, url_for, redirect, flash,request,jsonify
 from ...misc import get_internal_api_header
 from ..forms import SampleShipmentEventForm
 from datetime import datetime
@@ -130,3 +130,21 @@ def shipment_new_step_one():
         return render_template("sample/shipment/new/new.html", form=form)
     else:
         return sites_response.content
+
+@sample.route("/shipment/cart/select",methods=["GET","POST"])
+def shipment_cart_select():
+    sampleID=request.json['sample']['id']
+    cart_response = requests.post(
+        url_for("api.select_record_cart",sample_id=sampleID, _external=True),
+        headers=get_internal_api_header(),
+    )
+    return jsonify(cart_response.status_code)
+
+@sample.route("/shipment/cart/deselect",methods=["GET","POST"])
+def shipment_cart_deselect():
+    sampleID=request.json['sample']['id']
+    cart_response = requests.post(
+        url_for("api.deselect_record_cart",sample_id=sampleID, _external=True),
+        headers=get_internal_api_header(),
+    )
+    return jsonify(cart_response.status_code)

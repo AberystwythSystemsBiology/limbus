@@ -107,6 +107,7 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
 
     sample = ma.Nested(BasicSampleSchema, many=False)
     rack = ma.Nested(BasicSampleRackSchema, many=False)
+    selected = masql.auto_field()
     storage_type = EnumField(CartSampleStorageType)
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = ma.Date()

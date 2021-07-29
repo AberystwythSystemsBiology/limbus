@@ -309,3 +309,27 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
 
     else:
         return rack_response.content
+
+@api.route("/cart/select/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def select_record_cart(sample_id: int, tokenuser: UserAccount):
+    ucRecord=UserCart.query.filter_by(sample_id=sample_id).first()
+    ucRecord.selected = True
+    try:
+        db.session.commit()
+        return success_without_content_response()
+
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/cart/deselect/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def deselect_record_cart(sample_id: int, tokenuser: UserAccount):
+    ucRecord=UserCart.query.filter_by(sample_id=sample_id).first()
+    ucRecord.selected = False
+    try:
+        db.session.commit()
+        return success_without_content_response()
+
+    except Exception as err:
+        return transaction_error_response(err)

@@ -40,18 +40,19 @@ function get_cart() {
 function fill_cart(cart) {
     for (i in cart) {
         var sample = cart[i];
-        
-        var href = sample["sample"]["_links"]["self"]
+        if (sample["selected"]) {
+
+            var href = sample["sample"]["_links"]["self"]
 
 
-        var li_data = "";
-        li_data +=  "<a href='" + href + "' target='_blank' class='list-group-item'>";
-        li_data += "<i class='fas fa-vial'></i> "
-        li_data += sample["sample"]["uuid"];
-        li_data += "</a>"
+            var li_data = "";
+            li_data += "<a href='" + href + "' target='_blank' class='list-group-item'>";
+            li_data += "<i class='fas fa-vial'></i> "
+            li_data += sample["sample"]["uuid"];
+            li_data += "</a>"
 
-        $("#samples-cart-list-group").append(li_data)
-
+            $("#samples-cart-list-group").append(li_data)
+        }
     }
 }
 
