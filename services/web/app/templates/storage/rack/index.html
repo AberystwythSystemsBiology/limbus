@@ -66,7 +66,7 @@
                     <td>{{ rack.created_on }}</td>
                     <td>{{ rack.uuid }}</td>
                     <td> <a href="{{ url_for('storage.view_shelf', id=rack.shelf.id) }}">
-                        {{ rack.shelf.id }}</td>
+                        {{ rack.shelf.name }}</td>
                     <td>{{ rack.sample_count}}/{{ rack.num_rows * rack.num_cols }}</td>
                 </tr>
                 {% endfor %}
