@@ -55,7 +55,7 @@ def prepare_form_data(data: dict):
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"],
         },
-        "container_information": step_three["container_information"]
+        "containers": step_three["container_information"]
     }
 
     del step_three["sample_information"]["quantity"]
