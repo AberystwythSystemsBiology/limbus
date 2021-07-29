@@ -46,6 +46,8 @@
                     <th>Dimensions</th>
                     <th>Author</th>
                     <th>Created On</th>
+                    <th>UUID</th>
+                    <th>Shelf</th>
 
                 </tr>
             </thead>
@@ -61,6 +63,9 @@
                     <td>{{ rack.num_rows }}x{{ rack.num_cols }}</td>
                     <td>{{ render_author_for_table(rack.author) }}</td>
                     <td>{{ rack.created_on }}</td>
+                    <td>{{ rack.uuid}}</td>
+                    <td> <a href="{{ url_for('storage.view_shelf', id=rack.id) }}">
+                        {{ rack.id }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
