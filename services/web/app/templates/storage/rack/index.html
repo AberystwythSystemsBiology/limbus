@@ -48,6 +48,7 @@
                     <th>Created On</th>
                     <th>UUID</th>
                     <th>Shelf</th>
+                    
 
                 </tr>
             </thead>
@@ -64,8 +65,8 @@
                     <td>{{ render_author_for_table(rack.author) }}</td>
                     <td>{{ rack.created_on }}</td>
                     <td>{{ rack.uuid}}</td>
-                    <td> <a href="{{ url_for('storage.view_shelf', id=rack.id) }}">
-                        {{ rack.id }}</td>
+                    <td> <a href="{{ url_for('storage.view_shelf', id=rack.shelf.id) }}">
+                        {{ rack.shelf.id }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
