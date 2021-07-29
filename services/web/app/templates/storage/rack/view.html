@@ -96,15 +96,6 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% if current_user.is_admin == true and rack.is_locked == true%}
-                                    <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                        <a href="{{ url_for('storage.lock_rack', id=rack.id) }}">
-                                            <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                                                    class="btn btn-outline-dark"><i class="fa fa-lock"></i> Unlock
-                                            </button>
-                                        </a>
-                                    </div>
-                                {% endif %}
 
                             </div>
 

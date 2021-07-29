@@ -25,6 +25,8 @@ from wtforms import (
     DateField,
     TimeField,
 )
+import requests
+from ...misc import get_internal_api_header
 
 import pycountry
 
@@ -54,7 +56,9 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
     samples_choices = []
     for sample in samples:
-        samples_choices.append([int(sample["id"]), sample["uuid"]])
+        sample_check_response = requests.get(url_for("api.storage_sample_to_entity_check",id=int(sample["id"]), _external=True),headers=get_internal_api_header())
+        if not sample_check_response.json()["content"] == "SCT":
+            samples_choices.append([int(sample["id"]), sample["uuid"]])
 
     class StaticForm(FlaskForm):
         date = DateField(

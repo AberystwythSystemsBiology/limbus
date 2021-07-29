@@ -235,7 +235,7 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             )
 
         ESrecords = EntityToStorage.query.filter_by(sample_id=sample_id).all()
-        new_uc = UserCart(sample_id=sample_id,storage_type=None, author_id=tokenuser.id)
+        new_uc = UserCart(sample_id=sample_id,storage_type=None,selected=True, author_id=tokenuser.id)
 
         for es in ESrecords:
             db.session.delete(es)
@@ -289,8 +289,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                     )
 
                 # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
-                new_uc = UserCart(sample_id=es.sample_id,rack_id=id,storage_type=CartSampleStorageType.RUC, author_id=tokenuser.id)
-                new_uc.rack_id = id
+                new_uc = UserCart(sample_id=es.sample_id,rack_id=id,storage_type=CartSampleStorageType.RUC,selected=True, author_id=tokenuser.id)
                 db.session.add(new_uc)
                 db.session.flush()
         try:
