@@ -131,6 +131,28 @@ def shipment_new_step_one():
     else:
         return sites_response.content
 
+@sample.route("/shipment/cart/select/info",methods=["GET","POST"])
+def shipment_cart_select_info():
+    sampleUUID=request.json['UUID']
+    sample_respose=requests.get(url_for("api.sample_view_sample",uuid=sampleUUID,_external=True),headers=get_internal_api_header(),)
+    cart_response = requests.post(
+        url_for("api.select_record_cart",sample_id=sample_respose.json()["content"]["id"], _external=True),
+        headers=get_internal_api_header(),
+    )
+    return jsonify(cart_response.status_code)
+
+@sample.route("/shipment/cart/deselect/info",methods=["GET","POST"])
+def shipment_cart_deselect_info():
+    sampleUUID=request.json['UUID']
+    sample_respose=requests.get(url_for("api.sample_view_sample",uuid=sampleUUID,_external=True),headers=get_internal_api_header(),)
+    if sample_respose.status_code == 200:
+        cart_response = requests.post(
+            url_for("api.deselect_record_cart",sample_id=sample_respose.json()["content"]["id"], _external=True),
+            headers=get_internal_api_header(),
+        )
+        return jsonify(cart_response.status_code)
+    return jsonify(sample_respose.status_code)
+
 @sample.route("/shipment/cart/select",methods=["GET","POST"])
 def shipment_cart_select():
     sampleID=request.json['sample']['id']

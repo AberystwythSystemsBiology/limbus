@@ -77,7 +77,7 @@ def shipment_index(tokenuser: UserAccount):
 @token_required
 def shipment_new_shipment(tokenuser: UserAccount):
 
-    cart = UserCart.query.filter_by(author_id=tokenuser.id).all()
+    cart = UserCart.query.filter_by(author_id=tokenuser.id,selected=True).all()
 
     if len(cart) == 0:
         return validation_error_response("No Samples in Cart")
@@ -139,7 +139,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     try:
 
-        db.session.query(UserCart).filter_by(author_id=tokenuser.id).delete()
+        db.session.query(UserCart).filter_by(author_id=tokenuser.id,selected=True).delete()
         db.session.commit()
         db.session.flush()
 

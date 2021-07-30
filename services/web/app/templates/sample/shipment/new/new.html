@@ -20,15 +20,14 @@
                 <a href="{{ url_for('sample.shipment_cart') }}" class="list-group-item bg-primary text-white">
                     <i class="fa fa-shopping-cart"></i> My Samples Cart
                 </a>
-               
+
               </ul>
-              
         </div>
         <div class="col-9">
             <form action="{{ url_for('sample.shipment_new_step_one') }}" method="POST">
                 {{ form.csrf_token() }}
                 {{ form_field(form.site_id) }}
-            
+
                 <div class="row">
                     <div class="col-6">
                         {{ form_field(form.date) }}
@@ -44,7 +43,7 @@
             </form>
         </div>
     </div>
-    
+
 </div>
 
 {% endblock %}
