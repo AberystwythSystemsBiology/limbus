@@ -28,8 +28,9 @@
 
             <form action="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}" method="post">
                 {{ form.csrf_token }}
-
-                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid="6dc0d26f-f039-4362-abb4-c61b8842401b"))}}
+            
+                <!--Need to get sample uuid and store below as string variable and pass to function belowb-->
+                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=sfouuid))}}
 
                 <div class="row">
                     <div class="col-sm-6">
@@ -51,5 +52,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}">var fouuid = form.uuid; var sfouuid = "6dc0d26f-f039-4362-abb4-c61b8842401b"; </script>
 {% endblock %}
