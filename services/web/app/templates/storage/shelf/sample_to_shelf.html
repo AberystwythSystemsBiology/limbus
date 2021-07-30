@@ -29,7 +29,7 @@
             <form action="{{ url_for('storage.assign_sample_to_shelf', id=shelf.id) }}" method="post">
                 {{ form.csrf_token }}
 
-                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
+                {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid="6dc0d26f-f039-4362-abb4-c61b8842401b"))}}
 
                 <div class="row">
                     <div class="col-sm-6">
