@@ -182,7 +182,7 @@ function fill_cart_table(cart) {
                         $("#" + remove_id).on("click", function () {
                             $('#delete-confirmation').modal('show')
                             document.getElementById("delete-confirmation-modal-title").innerHTML = "Remove LIMBRACK-" + data["rack"]["id"] + " From Cart?";
-                            document.getElementById("delete-confirmation-modal-submit").href = links_map[data["rack"]["id"]]["remove_rack_from_cart"];
+                            document.getElementById("delete-confirmation-modal-submit").href = links_map[data["sample"]["id"]]["remove_rack_from_cart"];
                         });
                     } else {
                         $("#" + remove_id).on("click", function () {

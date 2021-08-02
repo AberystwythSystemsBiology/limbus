@@ -59,8 +59,8 @@ function fill_cart(cart) {
 
 
             var li_data = "";
-            li_data += "<a class='list-group-item selected' style='background-color:white;'>";//href='" + href + "' target='_blank'
-            li_data += "<i class='fas fa-vial'></i> "
+            li_data += "<a class='list-group-item selected_cart_item' style='text-decoration: none'>";//href='" + href + "' target='_blank'
+            li_data += "<i class='fas fa-vial'></i>"
             li_data += sample["sample"]["uuid"];
             li_data += "</a>"
 
@@ -71,22 +71,20 @@ function fill_cart(cart) {
 
 
             var li_data = "";
-            li_data += "<a class='list-group-item unselected' style='background-color: #e0e0e0;text-decoration: line-through;'>";//href='" + href + "' target='_blank'
-            li_data += "<i class='fas fa-vial'></i> "
+            li_data += "<a class='list-group-item unselected_cart_item' style='text-decoration: line-through'>";//href='" + href + "' target='_blank'
+            li_data += "<i class='fas fa-vial'></i>"
             li_data += sample["sample"]["uuid"];
             li_data += "</a>"
 
             $("#samples-cart-list-group").append(li_data)
         }
     }
-    // if (document.getElementById("unselected") != null) {
-        // document.getElementById("unselected").addEventListener("click", select_sample);
-        $('.unselected').on("click", function() {
-            this.style = "background-color:white; text-decoration:none;";
-            var UUID_text = this.text.substring(1)
+        $('.unselected_cart_item').on("click", function() {
+            // this.style = "text-decoration:none;";
+            var UUID_text = this.text;//.substring(1)
             var UUID = {"UUID": UUID_text};
             var res;
-            var api_url = window.location.origin + "/sample/shipment/cart/select/info";
+            var api_url = window.location.origin + "/sample/shipment/cart/select/shipment";
             $.post({
                 'async': false,
                 'global': false,
@@ -101,14 +99,11 @@ function fill_cart(cart) {
             reset_cart();
         });
     // }
-    // if (document.getElementById("selected") != null){
-        // document.getElementById("selected").addEventListener("click", deselect_sample);
-        $('.selected').on("click", function() {
-            this.style = "background-color:#e0e0e0; text-decoration:line-through;";
-            var UUID_text = this.text.substring(1)
+        $('.selected_cart_item').on("click", function() {
+            var UUID_text = this.text;//.substring(1)
             var UUID = {"UUID": UUID_text};
             var res;
-            var api_url = window.location.origin + "/sample/shipment/cart/deselect/info";
+            var api_url = window.location.origin + "/sample/shipment/cart/deselect/shipment";
             $.post({
                 'async': false,
                 'global': false,

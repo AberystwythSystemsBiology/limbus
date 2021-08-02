@@ -207,7 +207,7 @@ def remove_rack_from_cart(id: int, tokenuser: UserAccount):
             )
 
     else:
-        return rack_response.content
+        return success_with_content_response(rack_response.content)
 
 
 @api.route("/cart/add/<uuid>", methods=["POST"])
@@ -309,6 +309,25 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
     else:
         return rack_response.content
 
+@api.route("/cart/select/shipment/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def select_record_cart_shipment(sample_id: int,tokenuser:UserAccount):
+    es_record=EntityToStorage.query.filter_by(sample_id=sample_id).first()
+    if es_record is not None and es_record.rack_id is not None:
+        sample_records = EntityToStorage.query.filter_by(rack_id=es_record.rack_id, shelf_id=None)
+        for sample in sample_records:
+            cart_response = requests.post(
+                url_for("api.select_record_cart",sample_id=sample.sample_id, _external=True),
+                headers=get_internal_api_header(tokenuser),
+            )
+        return success_without_content_response()
+    else:
+        cart_response = requests.post(
+            url_for("api.select_record_cart",sample_id=sample_id, _external=True),
+            headers=get_internal_api_header(tokenuser),
+        )
+        return success_with_content_response(cart_response.status_code)
+
 @api.route("/cart/select/LIMBSAMPLE-<sample_id>", methods=["POST"])
 @token_required
 def select_record_cart(sample_id: int, tokenuser: UserAccount):
@@ -320,6 +339,26 @@ def select_record_cart(sample_id: int, tokenuser: UserAccount):
 
     except Exception as err:
         return transaction_error_response(err)
+
+@api.route("/cart/deselect/shipment/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def deselect_record_cart_shipment(sample_id: int, tokenuser: UserAccount):
+    es_record=EntityToStorage.query.filter_by(sample_id=sample_id).first()
+    if es_record is not None and es_record.rack_id is not None:
+        sample_records = EntityToStorage.query.filter_by(rack_id=es_record.rack_id, shelf_id=None)
+        for sample in sample_records:
+            if sample is not None:
+                cart_response = requests.post(
+                url_for("api.deselect_record_cart",sample_id=sample.sample_id, _external=True),
+                    headers=get_internal_api_header(tokenuser)
+            )
+        return success_without_content_response()
+
+    cart_response = requests.post(
+            url_for("api.deselect_record_cart",sample_id=sample_id, _external=True),
+            headers=get_internal_api_header(tokenuser)
+        )
+    return success_with_content_response(cart_response.status_code)
 
 @api.route("/cart/deselect/LIMBSAMPLE-<sample_id>", methods=["POST"])
 @token_required

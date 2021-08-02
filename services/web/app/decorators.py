@@ -30,15 +30,6 @@ def check_if_admin(f):
 
     return decorated_function
 
-def check_if_locked(model):
-    def inner(f):
-        def wrapper(*args,**kwargs):
-            if(model.query.filter_by(id=kwargs["id"]).is_locked):
-                return abort(401)
-            return f(*args,**kwargs)
-        return wrapper
-    return inner
-
 
 def requires_access_level(f):
     @wraps(f)

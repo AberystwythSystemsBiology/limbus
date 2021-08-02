@@ -10,6 +10,25 @@ body {
     max-width: 1280px;
 }
 
+.selected_cart_item{
+    background-color: white;
+    text-decoration: none;
+}
+
+.selected_cart_item:hover{
+    background-color: #e8e8e8;
+    text-decoration: line-through;
+}
+
+.unselected_cart_item{
+    background-color: #e0e0e0;
+    text-decoration: line-through;
+}
+.unselected_cart_item:hover{
+    background-color: #c9c9c9;
+    text-decoration: none;
+}
+
 nav {
     height:65px;
     padding:0px;
