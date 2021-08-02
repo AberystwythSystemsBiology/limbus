@@ -31,7 +31,7 @@
             <div class="jumbotron">
                 <div class="container">
                     <h1><span id="sh" class="secondary-heading"></span>
-                        <span id="colour"></span>LIMBRACK-{{ rack.id }}
+                        <span id="colour"></span>LIMBRACK-{{ rack.id }} {% if rack.is_locked %}<i class="fa fa-lock" style="padding-left: 3px;"></i>{% endif %}
                     </h1>
                     <div class="row text-muted">
                         <div class="col-7">
@@ -78,7 +78,7 @@
                                                      aria-label="Toolbar with button groups">
                                                     <div class="btn-group mr-2" role="group" aria-label="First group">
                                                         <a href="{{ url_for('storage.delete_rack', id=rack.id) }}">
-                                                            <button type="button" class="btn btn-outline-dark"><i
+                                                            <button type="button" class="btn btn-delete"><i
                                                                     class="fa fa-trash"></i> Delete
                                                             </button>
                                                         </a>

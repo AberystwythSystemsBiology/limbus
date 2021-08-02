@@ -19,7 +19,7 @@
                             <i class="fa fa-building"></i> LIMBBUILD-{{ room.building_id }}
                         </a>
                     </span>
-                    <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }}
+                    <i class="fa fa-door-closed"></i> LIMBROOM-{{ room.id }} {% if room.is_locked %}<i class="fa fa-lock" style="padding-left: 3px;"></i>{% endif %}
                 </h1>
 
 
@@ -87,7 +87,7 @@
                                                  aria-label="Toolbar with button groups">
                                                 <div class="btn-group mr-2" role="group" aria-label="First group">
                                                     <a href="{{ url_for('storage.delete_room', id=room.id) }}">
-                                                        <button type="button" class="btn btn-outline-dark"><i
+                                                        <button type="button" class="btn btn-delete"><i
                                                                 class="fa fa-trash"></i> Delete
                                                         </button>
                                                     </a>

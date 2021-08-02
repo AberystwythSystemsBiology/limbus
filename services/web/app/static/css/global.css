@@ -98,6 +98,12 @@ nav img {
     border: 1px #eb4034 solid;
 }
 
+.btn-delete:hover{
+    color: black;
+    background-color: #ffff00!important;
+    border: 1px black solid;
+}
+
 
 
 .btn-form{

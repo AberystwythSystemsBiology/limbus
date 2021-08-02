@@ -554,12 +554,19 @@ def add_rack_to_cart(id):
 @login_required
 def edit_rack(id):
     response = requests.get(
-        url_for("api.storage_rack_location", id=id, _external=True),
-        #url_for("api.storage_rack_view", id=id, _external=True),
+        # url_for("api.storage_rack_location", id=id, _external=True),
+        url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
+        response = requests.get(
+            url_for("api.storage_rack_location", id=id, _external=True),
+            # url_for("api.storage_rack_view", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
         # For SampleRack with location info.
         rack = response.json()["content"]
         print("Rack: ", rack)

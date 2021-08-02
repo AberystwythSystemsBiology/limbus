@@ -37,7 +37,7 @@
                                 </a>
                             </span>
                         </span>
-                        <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }}</span></h1>
+                        <i class="fa fa-bars"></i> LIMBSHF-{{ shelf.id }} {% if shelf.is_locked %}<i class="fa fa-lock" style="padding-left: 3px;"></i>{% endif %}</h1>
 
 
                     <div class="row text-muted">
@@ -91,7 +91,7 @@
                                                      aria-label="Toolbar with button groups">
                                                     <div class="btn-group mr-2" role="group" aria-label="First group">
                                                         <a href="{{ url_for('storage.delete_shelf', id=shelf.id) }}">
-                                                            <button type="button" class="btn btn-outline-dark"><i
+                                                            <button type="button" class="btn btn-delete"><i
                                                                     class="fa fa-trash"></i> Delete
                                                             </button>
                                                         </a>

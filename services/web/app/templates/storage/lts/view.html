@@ -16,7 +16,7 @@
                 <h1><span class="secondary-heading">
                         <a href="{{ url_for('storage.view_room', id=cs.room_id) }}">
                             <i class="fa fa-door-closed"></i> LIMBROOM-{{ cs.room_id }}</a>
-                    </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}: {{ cs.alias}}</h1>
+                    </span><i class="fa fa-temperature-low"></i> LIMBCS-{{ cs.id }}: {{ cs.alias}} {% if cs.is_locked %}<i class="fa fa-lock" style="padding-left: 3px;"></i>{% endif %}</h1>
 
                 <div class="row text-muted">
                     <div class="col-7">
@@ -86,7 +86,7 @@
                                                  aria-label="Toolbar with button groups">
                                                 <div class="btn-group mr-2" role="group" aria-label="First group">
                                                     <a href=" {{ url_for('storage.lock_cold_storage', id = cs.id) }}">
-                                                        <button type="button" class="btn btn-outline-dark"><i
+                                                        <button type="button" class="btn btn-delete"><i
                                                                 class="fa fa-trash"></i> Lock
                                                         </button>
                                                     </a>

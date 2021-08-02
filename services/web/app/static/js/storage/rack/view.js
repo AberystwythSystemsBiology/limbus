@@ -176,7 +176,7 @@ function render_full(info, row, col, count, assign_sample_url) {
 
 function render_full_noimg(info, row, col, count, assign_sample_url) {
     var sample_info = info["sample"]
-    console.log(sample_info)
+    // console.log(sample_info)
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube" style="background-color: lightpink ;"><div class="align_middle present-tube">'
     content += sample_info['id']
