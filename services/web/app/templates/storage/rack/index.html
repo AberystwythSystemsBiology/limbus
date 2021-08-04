@@ -38,8 +38,10 @@
 
 
         <div class="container">
-
-        <table class="table table-striped">
+            <div id="sample-rack-div"></div>
+                <h2><i class="fa fa-grip-vertical"></i> Stored Sample Racks</h2>
+         <div id="sample-rack-div"></div>
+            <table id="rack-table" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
                     <th>Rack</th>
@@ -72,11 +74,12 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-    </div>
+        </div>
+        </div>
 </div>
 {% endblock %}
 
 {% block javascript %}
+<script src="{{ url_for('static', filename='js/storage/shelf/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}
