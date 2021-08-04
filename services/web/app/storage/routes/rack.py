@@ -538,14 +538,9 @@ def add_rack_to_cart(id):
             url_for("api.add_rack_to_cart", id=id, _external=True),
             headers=get_internal_api_header(),
         )
-        if to_cart_response.status_code == 200:
-            flash("Successfully Added All Samples To Cart")
-        elif to_cart_response.status_code == 400 and to_cart_response.json()["message"] == "No input data provided":
-            flash("Rack Has No Samples")
-        else:
-            flash("We have a problem: %s" % (to_cart_response.status_code))
-        return redirect(url_for("storage.view_rack", id=id))
-    abort(view_response.status_code)
+        redirect(url_for("storage.view_rack", id=id))
+        return to_cart_response.content
+    return abort(view_response.status_code)
 
 
 

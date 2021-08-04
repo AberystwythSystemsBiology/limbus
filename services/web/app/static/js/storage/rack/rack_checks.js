@@ -2,7 +2,6 @@
 
 function check_rack() {
     var rackSelect = {"id":document.getElementById("racks").value};
-    console.log(rackSelect['id'])
     if (rackSelect['id']===""){
         document.getElementById("rack-warning").style.display = "none";
         return;

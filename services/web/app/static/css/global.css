@@ -99,8 +99,12 @@ nav img {
 }
 
 .btn-delete:hover{
-    color: black;
-    background-color: #ffff00!important;
+    color: white;
+    background-color: #eb4034!important;
+}
+.btn-delete:active{
+    color: white;
+    background-color:#333333!important;
     border: 1px black solid;
 }
 
@@ -311,10 +315,39 @@ canvas {
     font-size: 18px;
 }
 
-.modal {
-    border-radius: 0px;
+.btn-close{
+    float :right;
+    font-size: 27px;
+    color: white;
+    margin: -10px 0px;
+    height: fit-content;
+    border:none;
+    background: none;
+}
+.btn-close-black{
+    color: #333333;!important;
+}
+.btn-close:hover{
+    color: black;
 }
 
+
+.modal {
+    border-radius: 0px;!important;
+}
+.modal-content{
+    border-radius: 0px;!important;
+}
+.modal-body{
+
+}
+.modal-header{
+    border-radius: 0px;!important;
+}
+
+.modal-footer-delete{
+    margin-bottom: -14px;!important;
+}
 .secondary-heading {
     font-weight: 400;
     text-transform: none;
