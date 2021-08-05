@@ -310,7 +310,7 @@ function render_information(rack_information) {
 function render_rack_table(racks) {
     if (racks.length > 0) {
         
-        $('#rack-table').DataTable( {
+        $('#rack-table-in').DataTable( {
             data: racks,
             dom: 'Bfrtip',
             buttons: [ 'print', 'csv', 'colvis' ],
@@ -335,6 +335,12 @@ function render_rack_table(racks) {
                     }
                 },
                 {
+                "mData": {},
+                    "mRender": function(data, type,row) {
+                        return data["num_rows"] + "x" + data["num_cols"];
+                    }
+                },
+                {
                     "mData": {},
                     "mRender": function(data, type,row) {
                         return data["sample_count"] + " / " + data["num_rows"]*data["num_cols"]; 
@@ -353,7 +359,14 @@ function render_rack_table(racks) {
                         return data["author"]["first_name"] + " " + data["author"]["last_name"]
                 
                     }
-                },         
+                },
+                    {
+                        "mData": {},
+                        "mRender": function (data, type, row) {
+                            return data["created_on"]
+                        }
+                    },   
+                         
     
             ],
             

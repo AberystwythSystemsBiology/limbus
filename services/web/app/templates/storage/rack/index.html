@@ -41,20 +41,18 @@
             <div id="sample-rack-div"></div>
                 <h2><i class="fa fa-grip-vertical"></i> Stored Sample Racks</h2>
          <div id="sample-rack-div"></div>
-            <table id="rack-table" class="table table-striped table-bordered" style="width:100%">
+            <table id="rack-table-in" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
                     
                     <th>Rack</th>
                     <th>Serial Number</th>
                     <th>Dimensions</th>
-                   <!-- <th>Author</th>-->
                     <th>UUID</th>
                     <th>Occupancy</th>
                     <th>Shelf</th>
-                    
-                    
                     <th>Created On</th>
+                    <th>Created By</th>
                     
 
 
@@ -72,19 +70,19 @@
                     </td>
                     <!--SerialNumber-->
                     <td>{{ rack.serial_number }}</td>
-                    <!--Dumensions-->
+                    <!--Dimensions-->
                     <td>{{ rack.num_rows }}x{{ rack.num_cols }}</td>
-                    <!--Author-->
-                    <!--<td>{{ render_author_for_table(rack.author) }}</td>-->
                     <!--UUID-->
                     <td>{{ rack.uuid }}</td>
                     <!--Occupancy-->
                     <td>{{ rack.sample_count}}/{{ rack.num_rows * rack.num_cols }}</td>
                     <!--Shelf-->
                     <td> <a href="{{ url_for('storage.view_shelf', id=rack.shelf.id) }}">
-                        {{ rack.shelf.name }}</td>-->
+                        {{ rack.shelf.name }}</td>
                    <!--CreatedOn-->
                    <td>{{ rack.created_on }}</td>
+                   <!--Author-->
+                    <td>{{ render_author_for_table(rack.author) }}</td>
                     
                 </tr>
                 {% endfor %}
