@@ -307,6 +307,63 @@ function render_information(rack_information) {
     $("#col").html(rack_information["num_cols"]);
 }
 
+function render_rack_table(racks) {
+    if (racks.length > 0) {
+        
+        $('#rack-table').DataTable( {
+            data: racks,
+            dom: 'Bfrtip',
+            buttons: [ 'print', 'csv', 'colvis' ],
+            columnDefs: [
+                { targets: -3,
+                visible:false}, { targets: -2, visible: false}
+            ],
+            columns: [
+                {
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        var render_html = "<a href='" + data["_links"]["self"] + "'>"
+                        render_html += render_colour(data["colour"]) + "LIMBRACK-" + data["id"];
+                        render_html += "</a>"
+                        return render_html
+                    }
+                },
+                {
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        return data["serial_number"];
+                    }
+                },
+                {
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        return data["sample_count"] + " / " + data["num_rows"]*data["num_cols"]; 
+                    }
+                },
+             {
+                    "mData": {},
+                    "mRender": function (data, type, row) {
+                        return data["uuid"];
+                    }
+                },
+                
+                {
+                    "mData" : {},
+                    "mRender": function (data, type, row) {
+                        return data["author"]["first_name"] + " " + data["author"]["last_name"]
+                
+                    }
+                },         
+    
+            ],
+            
+        });
+    }
+    else {
+        $("#sample-rack-div").hide();
+    }
+}
+
 function render_view(view, assign_sample_url, img_on) {
     var count = 0;
 
