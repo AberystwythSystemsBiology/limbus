@@ -15,6 +15,7 @@
 
 
 from flask import request, abort, url_for
+from sqlalchemy.sql import func
 from marshmallow import ValidationError
 from ...api import api, generics
 import requests
@@ -68,6 +69,8 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
         return no_values_response()
     for attr, value in values.items():
         setattr(shipment_event, attr, value)
+
+    shipment_event.updated_on = func.now()
     try:
         db.session.add(shipment_event)
         db.session.commit()
