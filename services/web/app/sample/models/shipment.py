@@ -63,3 +63,4 @@ class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     shipment_id = db.Column(
         db.Integer, db.ForeignKey("sampleshipment.id"), nullable=False
     )
+    shipment = db.relationship("SampleShipment",viewonly=True)

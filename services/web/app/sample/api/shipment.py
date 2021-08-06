@@ -22,7 +22,7 @@ import json
 from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
-from ..enums import CartSampleStorageType
+from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
 from ...database import (
     db,
     SampleShipmentToSample,
@@ -31,7 +31,8 @@ from ...database import (
     SampleShipment,
     Event,
     EntityToStorage,
-    SampleRack
+    SampleRack,
+    SampleShipmentStatus
 )
 
 from ..views import (
@@ -42,6 +43,7 @@ from ..views import (
     sample_shipment_schema,
     basic_sample_shipments_schema,
     basic_sample_shipment_schema,
+    sample_shipment_status_schema,
 )
 
 
@@ -51,15 +53,42 @@ def get_cart(tokenuser: UserAccount):
     cart = UserCart.query.filter_by(author_id=tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
 
+@api.route("/shipment/update_status/<uuid>", methods=["PUT"])
+@token_required
+def shipment_update_status(uuid:str, tokenuser:UserAccount):
+    shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+    shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
+
+    if not shipment_event:
+        return not_found()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+    for attr, value in values.items():
+        setattr(shipment_event, attr, value)
+    try:
+        db.session.add(shipment_event)
+        db.session.commit()
+        db.session.flush()
+
+        return success_with_content_response(sample_shipment_status_schema.dump(shipment_event))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
 
 @api.route("/shipment/view/<uuid>", methods=["GET"])
 @token_required
 def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
-    shipment_event = SampleShipment.query.filter_by(uuid=uuid).first()
+    shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+    shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
 
     if shipment_event:
         return success_with_content_response(
-            sample_shipment_schema.dump(shipment_event)
+            sample_shipment_status_schema.dump(shipment_event)
         )
     else:
         return abort(404)
@@ -136,6 +165,9 @@ def shipment_new_shipment(tokenuser: UserAccount):
         s.editor_id = tokenuser.id
 
         db.session.add(s)
+
+    new_shipment_status = SampleShipmentStatus(status=SampleShipmentStatusStatus.TBC,datetime=new_shipment_event_values["event"]["datetime"],shipment_id=new_shipment_event.id)
+    db.session.add(new_shipment_status)
 
     try:
 
