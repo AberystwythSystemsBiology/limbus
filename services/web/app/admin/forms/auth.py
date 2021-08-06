@@ -58,6 +58,7 @@ class UserAccountRegistrationForm(FlaskForm):
 
     confirm_password = PasswordField("Confirm Password")
 
+    #Button to attatch to e-mail regisration
     submit = SubmitField("Register")
 
     def validate_email(self, field):
