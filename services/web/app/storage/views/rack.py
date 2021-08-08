@@ -119,6 +119,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
     author = ma.Nested(BasicUserAccountSchema)
     created_on = ma.Date()
+    shelf = ma.Nested(ShelfViewSchema)
 
     # entity_to_storage_instances = ma.Method(deserialize="_sample_count")
 

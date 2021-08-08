@@ -75,13 +75,13 @@ basic_shelf_schema = BasicColdStorageShelfSchema()
 basic_shelves_schema = BasicColdStorageShelfSchema(many=True)
 
 
-class ColdStorageShelfSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = ColdStorageShelf
-
-    id = masql.auto_field()
-    name = masql.auto_field()
-    description = masql.auto_field()
+# class ColdStorageShelfSchema(masql.SQLAlchemySchema):
+#     class Meta:
+#         model = ColdStorageShelf
+#
+#     id = masql.auto_field()
+#     name = masql.auto_field()
+#     description = masql.auto_field()
 
 
 class NewColdStorageShelfSchema(masql.SQLAlchemySchema):
