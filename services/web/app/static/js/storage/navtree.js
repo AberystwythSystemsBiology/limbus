@@ -72,10 +72,10 @@ function sap2tree(sap) {
             'shelf': { 'icon': 'fa fa-bars' },
             'box': { 'icon': 'fa fa-box' },
             'sample': { 'icon': 'fa fa-flask' },
-            'shelf': { 'icon': 'fa fa-bars' }
         },
         'state': { 'key': 'storage' },
-        'plugins' : ['types', 'state', 'wholerow', 'search'],
+        'plugins' : ['types', 'state', 'wholerow', 'search', "cookies"],
+        'cookies': {"cookie_options": {"path": '/'}},
         'core': {
             'data': {
                 'text': 'Show Sites',
@@ -118,7 +118,7 @@ $(function() {
         
         $('#jstree').on("changed.jstree", function(e, data) {
             // Don't process event if not triggered by user (e.g. page state reload)
-            if(!data.event) { return; }
+            //if(!data.event) { return; }
 
             switch (data.node.type) {
                 case 'home':
