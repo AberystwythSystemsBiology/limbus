@@ -37,7 +37,7 @@ def view_site(id):
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False},
+        #json={"is_locked": False},
     )
 
     if response.status_code == 200:
@@ -109,7 +109,6 @@ def edit_site(id):
                 flash("We have a problem: %s" % (edit_response.json()))
 
             return redirect(url_for("storage.view_site", id=id))
-            #return redirect(url_for("storage.view_room", id=id))
             # return redirect(url_for("storage.view_building", id=id)) #DOESNT WORK ID DOESNT REFER TO BUILDING ID
 
 
@@ -139,10 +138,6 @@ def lock_site(id):
         flash("We have a problem: %s" % (edit_response.status_code))
 
     return redirect(url_for("storage.view_site", id=id))
-
-    #return render_template(
-    #    "storage/room/edit.html", room=response.json()["content"], form=form
-    #)
 
     return abort(response.status_code)
 

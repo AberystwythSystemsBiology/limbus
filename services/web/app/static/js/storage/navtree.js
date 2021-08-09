@@ -16,10 +16,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 function sap2tree(sap) {
     var sites = sap["content"];
 
-
     for (var i = 0; i < sites.length; i++) {
         var site = sites[i];
-        site["text"] = `LIMBSIT-${site['id']}: ${site['name']}`; 
+        site["text"] = `LIMBSITE-${site['id']}: ${site['name']}`;
         site["type"] = "site";
         site["children"] = site["buildings"];
         site["id"] = site["_links"]["self"]
@@ -74,8 +73,7 @@ function sap2tree(sap) {
             'sample': { 'icon': 'fa fa-flask' },
         },
         'state': { 'key': 'storage' },
-        'plugins' : ['types', 'state', 'wholerow', 'search', "cookies"],
-        'cookies': {"cookie_options": {"path": '/'}},
+        'plugins' : ['state', 'types', 'wholerow', 'search'],
         'core': {
             'data': {
                 'text': 'Show Sites',
@@ -114,11 +112,16 @@ $(function() {
     }
     //Below code displays nav tree
     $.get( "/storage/overview", function( data ) {
-        $('#jstree').jstree(sap2tree(data));
-        
+        last_selected = sessionStorage.getItem("last_selected");
+        $('#jstree').jstree(sap2tree(data))
+            .bind('ready.jstree', function (e, data) {
+                $("#jstree").jstree("deselect_all");
+                $("#jstree").jstree("select_node", last_selected);})
+
         $('#jstree').on("changed.jstree", function(e, data) {
             // Don't process event if not triggered by user (e.g. page state reload)
-            //if(!data.event) { return; }
+            sessionStorage.setItem("last_selected", data.selected)
+            if(!data.event) { return; }
 
             switch (data.node.type) {
                 case 'home':
@@ -129,6 +132,7 @@ $(function() {
                     break;
             }
         });
+
     });
-    
+
 });
