@@ -20,7 +20,7 @@ from .. import storage
 from flask import render_template, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 from ..forms import BuildingRegistrationForm
-from ...decorators import check_if_admin, check_if_locked
+from ...decorators import check_if_admin
 
 
 @storage.route("site/LIMBSITE-<id>/new_building", methods=["GET", "POST"])
