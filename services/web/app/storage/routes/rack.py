@@ -35,6 +35,7 @@ from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
 from uuid import uuid4
+from ...decorators import check_if_admin
 
 from ..forms import (
     NewSampleRackForm, EditSampleRackForm,
@@ -360,6 +361,31 @@ def rack_automatic_entry_validation_div(_hash: str):
         hash=_hash,
     )
 
+@storage.route("/rack/query/rack", methods=["GET","POST"])
+def check_rack_to_shelf():
+    data = {}
+    data['id'] = request.json['id']
+    response = requests.get(
+        url_for("api.storage_rack_to_shelf_check", id=int(data['id']), _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    data['warning'] = response.json()["content"]
+
+    return jsonify(data)
+
+@storage.route("/rack/query/sample", methods=["GET","POST"])
+def check_sample_to_rack():
+    data = {}
+    data['id'] = request.json['id']
+    response = requests.get(
+        url_for("api.storage_sample_to_entity_check", id=int(data['id']), _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    data['warning'] = response.json()["content"]
+
+    return jsonify(data)
 
 @storage.route("/rack/LIMBRACK-<id>")
 @login_required
@@ -500,16 +526,42 @@ def storage_rack_fill_with_samples():
     )
     return response.json()
 
+@storage.route("rack/LIMBRACK-<id>/to_cart", methods=["GET", "POST"])
+@login_required
+def add_rack_to_cart(id):
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if view_response.status_code == 200:
+        to_cart_response = requests.post(
+            url_for("api.add_rack_to_cart", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+        redirect(url_for("storage.view_rack", id=id))
+        return to_cart_response.content
+    return abort(view_response.status_code)
+
+
+
+
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_rack(id):
     response = requests.get(
-        url_for("api.storage_rack_location", id=id, _external=True),
-        #url_for("api.storage_rack_view", id=id, _external=True),
+        # url_for("api.storage_rack_location", id=id, _external=True),
+        url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
 
     if response.status_code == 200:
+        response = requests.get(
+            url_for("api.storage_rack_location", id=id, _external=True),
+            # url_for("api.storage_rack_view", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
         # For SampleRack with location info.
         rack = response.json()["content"]
         print("Rack: ", rack)
@@ -665,5 +717,37 @@ def delete_rack(id):
             flash("We have a problem: %s" % edit_response.status_code)
         return redirect(url_for("storage.view_rack",id=id,_external=True))
     abort(response.status_code)
+
+@storage.route("/rack/LIMBRACK-<id>/lock", methods=["GET", "POST"])
+@login_required
+@check_if_admin
+def lock_rack(id):
+
+    response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.status_code == 200:
+        edit_response = requests.post(
+            url_for("api.storage_rack_lock", id=id, _external=True),
+            headers=get_internal_api_header(),
+            #json=form_information,
+        )
+
+        if edit_response.status_code == 200:
+            if edit_response.json()["content"]:
+                flash("Rack Successfully Locked")
+            else:
+                flash("Rack Successfully Unlocked")
+        else:
+            flash("We have a problem: %s" % (edit_response.status_code))
+
+        return redirect(url_for("storage.view_rack", id=id))
+
+    #return render_template(
+    #    "storage/room/edit.html", room=response.json()["content"], form=form
+    #)
+
+    return abort(response.status_code)
 
 

@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from flask import url_for
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
@@ -22,6 +23,10 @@ from wtforms import (
     TimeField,
     SelectField,
 )
+
+import requests
+from ...misc import get_internal_api_header
+
 from wtforms.validators import DataRequired
 
 from datetime import datetime
@@ -59,16 +64,18 @@ def RackToShelfForm(racks: list) -> FlaskForm:
     choices = []
 
     for rack in racks:
-        choices.append(
+        rack_check_response = requests.get(url_for("api.storage_rack_to_shelf_check",id=int(rack["id"]), _external=True),headers=get_internal_api_header())
+        if not rack_check_response.json()["content"] == "RCT":
+            choices.append(
             [
                 rack["id"],
                 "LIMBRACK-%s: %s (%i x %i)"
                 % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
             ]
-        )
+            )
 
     setattr(
-        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int)
+        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int, render_kw={'onchange': "check_rack()"})
     )
 
     return StaticForm()

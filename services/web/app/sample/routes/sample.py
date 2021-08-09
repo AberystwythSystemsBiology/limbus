@@ -73,6 +73,24 @@ def remove_sample_from_cart(uuid: str):
 
     return sample_response.content
 
+@sample.route("/cart/remove/LIMBRACK-<id>", methods=["GET"])
+@login_required
+def remove_rack_from_cart(id: int):
+    sample_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if sample_response.status_code == 200:
+        remove_response = requests.delete(
+            url_for("api.remove_rack_from_cart", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        flash(remove_response.json()["content"]["msg"])
+        return redirect(url_for("sample.shipment_cart"))
+    return sample_response.content
+
+
 
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required

@@ -85,6 +85,9 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
             "remove_sample_from_cart": ma.URLFor(
                 "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
             ),
+            "remove_rack_from_cart": ma.URLFor(
+                "sample.remove_rack_from_cart", id="<storage.rack_id>", _external=True
+            ),
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
             "barcode_generation": ma.URLFor(

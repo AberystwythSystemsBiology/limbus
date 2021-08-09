@@ -30,8 +30,15 @@
                 </h1>
                 <div class="row text-muted">
                     <div class="col-7">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">       
-        
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i
+                                            class="fa fa-truck"></i>
+                                        Update Status
+                                    </button>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="col-5 text-right">
@@ -61,12 +68,12 @@
 
           <div id="involved-samples-div" style="display:none;">
             <ul class="list-group" id="involved-samples-list-group">
-                
-              </ul>
+            </ul>
            </div>
 
           <div id="shipment-status-div" style="display:none;">
-        </div>
+              <table class="table table-striped" id="shipment-status-information"></table>
+          </div>
 
         </div>
     </div>

@@ -38,7 +38,7 @@ from .storage import storage as storage_blueprint
 from .admin import admin as admin_blueprint
 from .event import event as event_blueprint
 
-from app.errors import error_handlers
+from .errors import error_handlers
 
 from .extensions import register_extensions, register_apispec
 

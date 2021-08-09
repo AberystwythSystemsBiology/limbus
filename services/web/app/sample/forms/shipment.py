@@ -24,6 +24,7 @@ from wtforms import (
     TimeField,
     TextAreaField,
 )
+from wtforms.validators import DataRequired
 from ..enums import SampleShipmentStatusStatus
 from datetime import datetime
 
@@ -55,3 +56,10 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
     )
 
     return StaticForm()
+
+def SampleShipmentStatusUpdateform(data={}) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        status = SelectField("Shipment Status", validators=[DataRequired()], choices=SampleShipmentStatusStatus.choices(),)
+        submit = SubmitField("Update Status")
+
+    return StaticForm(data=data)

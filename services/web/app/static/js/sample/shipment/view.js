@@ -39,17 +39,20 @@ function get_shipment() {
 }
 
 function fill_jumbotron(shipment_data) {
-    $("#created-on").html(shipment_data["created_on"]);
-    $("#author").html(render_author(shipment_data["author"]));
+    $("#created-on").html(shipment_data["shipment"]["created_on"]);
+    $("#author").html(render_author(shipment_data["shipment"]["author"]));
 
 }
 
 function fill_table(shipment_data) {
     html = ""
-    html += render_content("Date/Time", shipment_data["datetime"]);
+    html += render_content("Date/Time", shipment_data["datetime"].split("T").join(" "));
     html += render_content("Comments", shipment_data["comments"]);
     $("#basic-information").html(html);
 
+    html= ""
+    html += render_content("Status",shipment_data["status"])
+    $('#shipment-status-information').html(html);
 }
 
 
@@ -90,6 +93,7 @@ function fill_involved_samples(involved_samples, new_site) {
 
 $(document).ready(function() {
     var shipment_data = get_shipment();
+    console.log(shipment_data);
 
     $("#loading-screen").fadeOut();
     fill_jumbotron(shipment_data);

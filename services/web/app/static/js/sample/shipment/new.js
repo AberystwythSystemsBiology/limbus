@@ -37,23 +37,89 @@ function get_cart() {
     return json["content"];
 }
 
+function compare_samples(a,b){
+    return a["sample"]["id"]-b["sample"]["id"];
+}
+
+function reset_cart(){
+    $("#samples-cart-list-group").empty();
+    // var url = "{{ url_for('sample.shipment_cart') }}";
+    $("#samples-cart-list-group").append("<a href='/sample/shipment/cart' class='list-group-item bg-primary text-white'>"+"<i class='fa fa-shopping-cart'></i> My Samples Cart</a>");
+    cart = get_cart();
+    fill_cart(cart);
+}
+
 function fill_cart(cart) {
+    cart.sort(compare_samples);
     for (i in cart) {
         var sample = cart[i];
-        
-        var href = sample["sample"]["_links"]["self"]
+        if (sample["selected"]) {
+
+            var href = sample["sample"]["_links"]["self"]
 
 
-        var li_data = "";
-        li_data +=  "<a href='" + href + "' target='_blank' class='list-group-item'>";
-        li_data += "<i class='fas fa-vial'></i> "
-        li_data += sample["sample"]["uuid"];
-        li_data += "</a>"
+            var li_data = "";
+            li_data += "<a class='list-group-item selected_cart_item' style='text-decoration: none'>";//href='" + href + "' target='_blank'
+            li_data += "<i class='fas fa-vial'></i>"
+            li_data += sample["sample"]["uuid"];
+            li_data += "</a>"
 
-        $("#samples-cart-list-group").append(li_data)
 
+            $("#samples-cart-list-group").append(li_data)
+        } else {
+            var href = sample["sample"]["_links"]["self"]
+
+
+            var li_data = "";
+            li_data += "<a class='list-group-item unselected_cart_item' style='text-decoration: line-through'>";//href='" + href + "' target='_blank'
+            li_data += "<i class='fas fa-vial'></i>"
+            li_data += sample["sample"]["uuid"];
+            li_data += "</a>"
+
+            $("#samples-cart-list-group").append(li_data)
+        }
     }
+        $('.unselected_cart_item').on("click", function() {
+            // this.style = "text-decoration:none;";
+            var UUID_text = this.text;//.substring(1)
+            var UUID = {"UUID": UUID_text};
+            var res;
+            var api_url = window.location.origin + "/sample/shipment/cart/select/shipment";
+            $.post({
+                'async': false,
+                'global': false,
+                'url': api_url,
+                'contentType': 'application/json',
+                'data': JSON.stringify(UUID),
+                'success': function (data) {
+                    res = data;
+                }
+            });
+            // console.log(res);
+            reset_cart();
+        });
+    // }
+        $('.selected_cart_item').on("click", function() {
+            var UUID_text = this.text;//.substring(1)
+            var UUID = {"UUID": UUID_text};
+            var res;
+            var api_url = window.location.origin + "/sample/shipment/cart/deselect/shipment";
+            $.post({
+                'async': false,
+                'global': false,
+                'url': api_url,
+                'contentType': 'application/json',
+                'data': JSON.stringify(UUID),
+                'success': function (data) {
+                    res = data;
+                }
+            });
+            // console.log(res);
+            reset_cart();
+        });
+// }
 }
+
 
 $(document).ready(function() {
     var cart = get_cart();

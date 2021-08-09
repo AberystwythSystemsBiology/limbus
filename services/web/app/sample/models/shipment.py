@@ -15,12 +15,17 @@
 
 from ...database import db, Base
 from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
-from ..enums import SampleShipmentStatusStatus
+from ..enums import SampleShipmentStatusStatus,CartSampleStorageType
+
 
 
 class UserCart(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    rack_id = db.Column(db.Integer, db.ForeignKey("samplerack.id"))
+    storage_type = db.Column(db.Enum(CartSampleStorageType))
+    selected = db.Column(db.Boolean,default=False)
     sample = db.relationship("Sample", viewonly=True)
+    rack = db.relationship("SampleRack",viewonly=True)
 
 
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
@@ -58,3 +63,4 @@ class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     shipment_id = db.Column(
         db.Integer, db.ForeignKey("sampleshipment.id"), nullable=False
     )
+    shipment = db.relationship("SampleShipment",viewonly=True)

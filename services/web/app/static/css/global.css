@@ -10,6 +10,25 @@ body {
     max-width: 1280px;
 }
 
+.selected_cart_item{
+    background-color: white;
+    text-decoration: none;
+}
+
+.selected_cart_item:hover{
+    background-color: #e8e8e8;
+    text-decoration: line-through;
+}
+
+.unselected_cart_item{
+    background-color: #e0e0e0;
+    text-decoration: line-through;
+}
+.unselected_cart_item:hover{
+    background-color: #c9c9c9;
+    text-decoration: none;
+}
+
 nav {
     height:65px;
     padding:0px;
@@ -46,6 +65,10 @@ nav img {
     background-color: #FFCE00;
     color:#000 !important;
 }
+.alert-error{
+    background-color:  #eb4034;
+    color:#000 !important;
+}
 
 .btn-secondary {
     background-color: #ffffff;
@@ -73,6 +96,16 @@ nav img {
     background-color: #ffffff;
     color: #eb4034;
     border: 1px #eb4034 solid;
+}
+
+.btn-delete:hover{
+    color: white;
+    background-color: #eb4034!important;
+}
+.btn-delete:active{
+    color: white;
+    background-color:#333333!important;
+    border: 1px black solid;
 }
 
 
@@ -282,10 +315,39 @@ canvas {
     font-size: 18px;
 }
 
-.modal {
-    border-radius: 0px;
+.btn-close{
+    float :right;
+    font-size: 27px;
+    color: white;
+    margin: -10px 0px;
+    height: fit-content;
+    border:none;
+    background: none;
+}
+.btn-close-black{
+    color: #333333;!important;
+}
+.btn-close:hover{
+    color: black;
 }
 
+
+.modal {
+    border-radius: 0px;!important;
+}
+.modal-content{
+    border-radius: 0px;!important;
+}
+.modal-body{
+
+}
+.modal-header{
+    border-radius: 0px;!important;
+}
+
+.modal-footer-delete{
+    margin-bottom: -14px;!important;
+}
 .secondary-heading {
     font-weight: 400;
     text-transform: none;

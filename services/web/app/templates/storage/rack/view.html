@@ -31,7 +31,7 @@
             <div class="jumbotron">
                 <div class="container">
                     <h1><span id="sh" class="secondary-heading"></span>
-                        <span id="colour"></span>LIMBRACK-{{ rack.id }}
+                        <span id="colour"></span>LIMBRACK-{{ rack.id }} {% if rack.is_locked %}<i class="fa fa-lock" style="padding-left: 3px;"></i>{% endif %}
                     </h1>
                     <div class="row text-muted">
                         <div class="col-7">
@@ -45,50 +45,19 @@
                                         </button>
                                     </a>
                                 </div>
+                                    <div class="btn-group mr-2" role="group" aria-label="First group">
+{#                                        <a href="{{ url_for('storage.add_rack_to_cart',id=rack.id) }}">#}
+                                        <button type="button" class="btn btn-outline-dark" id="add-rack-cart-btn"><i class="fa fa-cart-plus"></i>
+                                            Rack to Cart</button>
+{#                                        </a>#}
+                                    </div>
+
+
                                 <div class="btn-group mr-2" role="group" aria-label="Second group">
                                     <button type="button" class="btn btn-delete float-right" data-toggle="modal"
                                             data-target="#delete-confirmation">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
-                                </div>
-
-                                <!-- Modal -->
-                                <div class="modal fade" id="delete-confirmation" tabindex="-1" role="dialog"
-                                     aria-labelledby="delete-confirmation-modal-title" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-danger text-white">
-                                                <h5 class="modal-title" id="delete-confirmation-modal-title">Delete LIMBRACK-{{ rack.id }}?</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="alert alert-danger" role="alert">
-                                                    <b>Warning:</b> Deleting a room cannot be reversed.
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <div class="btn-toolbar form-group" style="float:right" role="toolbar"
-                                                     aria-label="Toolbar with button groups">
-                                                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                                                        <a href="{{ url_for('storage.delete_rack', id=rack.id) }}">
-                                                            <button type="button" class="btn btn-outline-dark"><i
-                                                                    class="fa fa-trash"></i> Delete
-                                                            </button>
-                                                        </a>
-                                                    </div>
-                                                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                                                        <button type="button"
-                                                                data-dismiss="modal"
-                                                                class="btn btn-outline-dark" title="Close Modal"><i
-                                                                class="fa fa-times"></i> Cancel
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 {% endif %}
 
@@ -210,12 +179,32 @@
 
 </div>
 
+    <!--- Cart Confirmation Modal-->
+    <div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="cart-confirmation-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="cart-confirmation-label">Cart Confirmation</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="cart-confirmation-msg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cart-confirmation-close" data-dismiss="modal" >Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="sampleInfoModal" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="sampleName"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -236,6 +225,45 @@
         </div>
     </div>
 </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="delete-confirmation" tabindex="-1" role="dialog"
+         aria-labelledby="delete-confirmation-modal-title" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="delete-confirmation-modal-title">Delete LIMBRACK-{{ rack.id }}?</h5>
+                    <button type="button" class="btn-close " data-dismiss="modal">
+                        &times;
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <b>Warning:</b> Deleting a rack cannot be reversed and requires the rack to have no associated samples.
+                    </div>
+                </div>
+                <div class="modal-footer modal-footer-delete">
+                    <div class="btn-toolbar form-group" style="float:right" role="toolbar"
+                         aria-label="Toolbar with button groups">
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <a href="{{ url_for('storage.delete_rack', id=rack.id) }}">
+                                <button type="button" class="btn btn-delete"><i
+                                        class="fa fa-trash"></i> Delete
+                                </button>
+                            </a>
+                        </div>
+                        <div class="btn-group mr-2" role="group" aria-label="First group">
+                            <button type="button"
+                                    data-dismiss="modal"
+                                    class="btn btn-outline-dark" title="Close Modal"><i
+                                    class="fa fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascript %}
@@ -243,5 +271,4 @@
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/rack/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
-
 {% endblock %}

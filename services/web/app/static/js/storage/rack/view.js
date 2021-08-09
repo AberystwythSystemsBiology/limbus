@@ -176,7 +176,7 @@ function render_full(info, row, col, count, assign_sample_url) {
 
 function render_full_noimg(info, row, col, count, assign_sample_url) {
     var sample_info = info["sample"]
-    console.log(sample_info)
+    // console.log(sample_info)
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube" style="background-color: lightpink ;"><div class="align_middle present-tube">'
     content += sample_info['id']
@@ -348,6 +348,38 @@ function render_view(view, assign_sample_url, img_on) {
     return samples;
 
 }
+
+$("#add-rack-cart-btn").click(function() {
+    var api_url = window.location.href + "/to_cart";
+    $.ajax({
+        type: "POST",
+        url: api_url,
+        dataType: "json",
+        success: function (data) {
+            if (data["success"]) {
+                $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                $("#cart-confirmation-modal").modal({
+                    show: true
+                });
+            }
+
+            else {
+                $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                $("#cart-confirmation-modal").modal({
+                    show: true
+                });
+            }
+        }
+    });
+})
+
+$('#cart-confirmation-modal').on('hidden.bs.modal', function () {
+    location.reload();
+})
+
+// $("#cart-confirmation-close").click(function(){
+//     location.reload();
+// })
 
 $(document).ready(function () {
     collapse_sidebar();
