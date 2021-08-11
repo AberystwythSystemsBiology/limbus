@@ -17,8 +17,6 @@ from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
 import requests
 
-from flask_mail import Mail, Message
-
 from . import auth
 
 from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm
@@ -27,7 +25,13 @@ from .models import UserAccount, UserAccountToken
 from ..database import db
 from ..misc import get_internal_api_header
 
+from flask_mail import Mail, Message
+
 from uuid import uuid4
+
+from config import EmailConfig
+
+#from flask_mail import Mail, Message
 
 
 @auth.route("/login", methods=["GET", "POST"])
@@ -120,6 +124,20 @@ def change_password():
 
     return render_template("auth/password.html", form=form)
 
+
+@auth.route('/send-mail')
+@login_required
+def send_mail():
+    try:
+        msg = Message("Send Mail Tutorial!",
+          sender="3dglprinting@gmail.com",
+          recipients=["dglwwe98@gmail.com"])
+        msg.body = "Yo!\nHave you heard the good word of Python???"           
+        mail.send(msg)
+        return 'Mail sent!'
+
+    except Exception as e:
+        return str(e)
 
 @auth.route("/token", methods=["GET"])
 @login_required
