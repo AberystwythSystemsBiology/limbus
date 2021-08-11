@@ -17,6 +17,8 @@ from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
 import requests
 
+from flask_mail import Mail, Message
+
 from . import auth
 
 from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm

@@ -13,21 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from app import create_app
+
 from flask_mail import Mail, Message
-class Config:
-    SUPPORTED_LANGUAGES = {"en": "English", "cy": "Cymraeg"}
-    BABEL_DEFAULT_LOCALE = "en"
 
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-    SQLALCHEMY_ECHO = True
-
-
-class ProductionConfig(Config):
-    DEBUG = False
-
-class EmailConfig(Config):
+app = Flask(__name__)
+app.config.update(
     DEBUG=True,
     #EMAIL SETTINGS
     MAIL_SERVER='smtp.gmail.com',
@@ -35,5 +26,18 @@ class EmailConfig(Config):
     MAIL_USE_SSL=True,
     MAIL_USERNAME = '3dglprinting@gmail.com',
     MAIL_PASSWORD = 'ilA4lifeathD'
+    )
+mail = Mail(app)
 
-app_config = {"dev": DevelopmentConfig, "prod": ProductionConfig, "email": EmailConfig}
+@app.route('/admin/auth/sendmail')
+@login_required
+def send_mail():
+    try:
+        msg = Message("Send Mail Tutorial!",
+          sender="3dglprinting@gmail.com",
+          recipients=["dglwwe98@gmail.com"])
+        msg.body = "Yo!\nHave you heard the good word of Python???"           
+        mail.send(msg)
+        return 'Mail sent!'
+    except Exception, e:
+        return(str(e)) 
