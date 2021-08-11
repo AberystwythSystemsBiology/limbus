@@ -13,28 +13,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask_mail import Mail, Message
-
-app = Flask(__name__)
-app.config.update(
-	DEBUG=True,
-	#EMAIL SETTINGS
-	MAIL_SERVER='smtp.gmail.com',
-	MAIL_PORT=465,
-	MAIL_USE_SSL=True,
-	MAIL_USERNAME = 'your@gmail.com',
-	MAIL_PASSWORD = 'yourpassword'
-	)
-mail = Mail(app)
-
-@app.route('/send-mail/')
-def send_mail():
-	try:
-		msg = Message("Send Mail Tutorial!",
-		  sender="yoursendingemail@gmail.com",
-		  recipients=["recievingemail@email.com"])
-		msg.body = "Yo!\nHave you heard the good word of Python???"           
-		mail.send(msg)
-		return 'Mail sent!'
-	except Exception, e:
-		return(str(e)) 

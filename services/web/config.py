@@ -27,5 +27,13 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
 
+class EmailConfig(Config):
+    DEBUG=True,
+    #EMAIL SETTINGS
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME = '3dglprinting@gmail.com',
+    MAIL_PASSWORD = 'ilA4lifeathD'
 
-app_config = {"dev": DevelopmentConfig, "prod": ProductionConfig}
+app_config = {"dev": DevelopmentConfig, "prod": ProductionConfig, "email": EmailConfig}
