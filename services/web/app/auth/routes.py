@@ -130,8 +130,8 @@ def change_password():
 def send_mail():
     try:
         msg = Message("Send Mail Tutorial!",
-          sender="3dglprinting@gmail.com",
-          recipients=["dglwwe98@gmail.com"])
+          sender="sender@gmail.com",
+          recipients=["receiver@gmail.com"])
         msg.body = "Yo!\nHave you heard the good word of Python???"           
         mail.send(msg)
         return 'Mail sent!'
