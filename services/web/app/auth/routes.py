@@ -29,7 +29,8 @@ from flask_mail import Mail, Message
 
 from uuid import uuid4
 
-from config import EmailConfig
+from run import mail
+
 
 #from flask_mail import Mail, Message
 
@@ -126,7 +127,6 @@ def change_password():
 
 
 @auth.route('/send-mail')
-@login_required
 def send_mail():
     try:
         msg = Message("Send Mail Tutorial!",

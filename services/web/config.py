@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_mail import Mail, Message
+
 class Config:
     SUPPORTED_LANGUAGES = {"en": "English", "cy": "Cymraeg"}
     BABEL_DEFAULT_LOCALE = "en"
@@ -27,13 +28,4 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
 
-class EmailConfig(Config):
-        DEBUG=True,
-        #EMAIL SETTINGS
-        MAIL_SERVER='smtp.gmail.com',
-        MAIL_PORT=465,
-        MAIL_USE_SSL=True,
-        MAIL_USERNAME = '3dglprinting@gmail.com',
-        MAIL_PASSWORD = 'ilA4lifeathD'
-
-app_config = {"dev": DevelopmentConfig, "prod": ProductionConfig, "email": EmailConfig}
+app_config = {"dev": DevelopmentConfig, "prod": ProductionConfig}

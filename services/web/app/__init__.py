@@ -20,6 +20,8 @@ from .database import db
 
 from flask import Flask
 
+from flask_mail import Mail, Message
+
 from .commands import cmd_setup as cmd_setup_blueprint
 from .api import api as api_blueprint
 from .labels import labels as label_blueprint
@@ -46,7 +48,6 @@ from .extensions import register_extensions, register_apispec
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile("config.py")
-
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
