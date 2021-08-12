@@ -26,8 +26,8 @@ if __name__ == "__main__":
         MAIL_SERVER='smtp.gmail.com',
         MAIL_PORT=465,
         MAIL_USE_SSL=True,
-        MAIL_USERNAME = '3dglprinting@gmail.com',
-        MAIL_PASSWORD = 'ilA4lifeathD'
+        MAIL_USERNAME = 'sender@gmail.com',
+        MAIL_PASSWORD = 'password'
     )
     mail = Mail(app)
     app.run(host="0.0.0.0")
