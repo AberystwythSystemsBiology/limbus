@@ -458,6 +458,7 @@ def assign_rack_sample(id, row, column):
         headers=get_internal_api_header(),
     )
     if view_response.json()["content"]["is_locked"]:
+        flash('The rack is locked!')
         return abort(401)
 
     if view_response.status_code == 200:
