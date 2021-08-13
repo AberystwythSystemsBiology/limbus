@@ -45,6 +45,17 @@
             <form method="POST" action="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">
                 {{ form.csrf_token }}
                 {{ form_field(form.status) }}
+                {{ form_field(form.tracking_number) }}
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.time) }}
+                    </div>
+                </div>
+                {{ form_field(form.comments) }}
+
                 <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
                         {{ form_field(form.submit) }}

@@ -36,6 +36,13 @@ class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     sample = ma.Nested(SampleUUIDSchema, many=False)
     old_site = ma.Nested(BasicSiteSchema, many=False)
 
+class SampleShipmentToSampleInfoSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentToSample
+
+    sample_id = masql.auto_field()
+    sample = ma.Nested(BasicSampleSchema, many=False)
+    old_site = ma.Nested(BasicSiteSchema, many=False)
 
 class SampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -48,11 +55,20 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     new_site = ma.Nested(BasicSiteSchema, many=False)
 
-    involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
-
+    #involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
+    involved_samples = ma.Nested(SampleShipmentToSampleInfoSchema, many=True)
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor(
+                "sample.shipment_view_shipment", uuid="<uuid>", _external=True
+            ),
+            "collection": ma.URLFor("sample.shipment_index", _external=True),
+        }
+    )
 
 sample_shipment_schema = SampleShipmentSchema()
 sample_shipments_schema = SampleShipmentSchema(many=True)
+
 
 class SampleShipmentStatusSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -62,11 +78,22 @@ class SampleShipmentStatusSchema(masql.SQLAlchemySchema):
     datetime=masql.auto_field()
     comments=masql.auto_field()
     tracking_number = masql.auto_field()
-    shipment = ma.Nested(SampleShipmentSchema,many=False)
+    shipment = ma.Nested(SampleShipmentSchema, many=False)
 
 sample_shipment_status_schema = SampleShipmentStatusSchema()
 sample_shipments_status_schema = SampleShipmentStatusSchema(many=True)
 
+class NewSampleShipmentStatusSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentStatus
+
+    shipment_id=masql.auto_field()
+    status=EnumField(SampleShipmentStatusStatus, by_value=False)
+    datetime=masql.auto_field()
+    comments=masql.auto_field()
+    tracking_number = masql.auto_field()
+
+new_sample_shipment_status_schema = NewSampleShipmentStatusSchema()
 
 class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:

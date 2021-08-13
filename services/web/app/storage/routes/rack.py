@@ -533,6 +533,7 @@ def add_rack_to_cart(id):
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+    print('view_response: ', view_response)
     if view_response.status_code == 200:
         to_cart_response = requests.post(
             url_for("api.add_rack_to_cart", id=id, _external=True),

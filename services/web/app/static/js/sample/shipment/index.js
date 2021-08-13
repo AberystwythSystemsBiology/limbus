@@ -42,12 +42,15 @@ function fill_shipments_table(shipments) {
         data: shipments,
         dom: 'Bfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
+        order: [[ 6, 'desc' ]],
         columnDefs: [
+            {targets: '_all', defaultContent: ''},
         ],
         columns: [
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
+                    data = data["shipment"]
                     var uuid = "";
                     uuid += '<a href="' + data["_links"]["self"] + '">'
                     uuid += '<i class="fa fa-shipping-fast"></i> ';
@@ -57,15 +60,57 @@ function fill_shipments_table(shipments) {
                 }
             },
 
+            {//To site Column
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    data = data["shipment"]
+                    var col_data = '';
+                    col_data += "<a href='" + data["new_site"]["_links"]["view_site"] + "'>";
+                    col_data += "<i class='fa fa-hospital'></i>";
+                    col_data += data["new_site"]["name"];
+                    col_data += "</a>";
+                    return col_data;
+                }
+            },
             {
                 "mData" : {},
                 "mRender": function (data, type, row) {
+                    data = data["shipment"]
+                    return data["involved_samples"].length
+                }
+            },
+
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    data = data["shipment"]
+                    return data["comments"]
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return data["status"]
+                }
+            },
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    return data["tracking_number"]
+                }
+            },
+
+            {
+                "mData" : {},
+                "mRender": function (data, type, row) {
+                    data = data["shipment"]
                     return data["created_on"]
                 }
             },
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
+                    data = data["shipment"]
                     return render_author(data["author"])
                 }
         }

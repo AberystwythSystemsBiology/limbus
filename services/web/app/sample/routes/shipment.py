@@ -81,13 +81,24 @@ def shipment_update_status(uuid):
 
     if shipment_response.status_code == 200:
         shipment_info = {}
-        shipment_info["status"] =SampleShipmentStatusStatus(shipment_response.json()["content"]["status"]).name
+        status = shipment_response.json()["content"]["status"]
+        if status in ['', None]:
+            shipment_info["status"] = 'TBC'
+        else:
+            shipment_info["status"] =SampleShipmentStatusStatus(status).name
         form = SampleShipmentStatusUpdateform(data= shipment_info)
-        if form.validate_on_submit():
-            form_information = {
-                "status": form.status.data,
-            }
 
+        if form.validate_on_submit():
+            form_information= {
+                "status": form.status.data,
+                "tracking_number": form.tracking_number.data,
+                "comments": form.comments.data,
+                "datetime": str(
+                    datetime.strptime(
+                        "%s %s" % (form.date.data, form.time.data),
+                        "%Y-%m-%d %H:%M:%S")
+                ),
+            }
             update_response = requests.put(
                 url_for("api.shipment_update_status", uuid=uuid, _external=True),
                 headers=get_internal_api_header(),
@@ -106,16 +117,16 @@ def shipment_update_status(uuid):
 
 @sample.route("/shipment/update_status/<uuid>/data")
 @login_required
-def shipment_update_staus_data(uuid):
+def shipment_update_status_data(uuid):
     shipment_response = requests.get(
         url_for("api.shipment_view_shipment", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
 
     return (
-    shipment_response.text,
-    shipment_response.status_code,
-    shipment_response.headers.items(),
+        shipment_response.text,
+        shipment_response.status_code,
+        shipment_response.headers.items(),
     )
 
 @sample.route("/shipment/view/<uuid>/data")
@@ -125,7 +136,7 @@ def shipment_view_shipment_data(uuid):
         url_for("api.shipment_view_shipment", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
-
+    print('shipment_reponse: ', shipment_response.text)
     return (
         shipment_response.text,
         shipment_response.status_code,

@@ -45,6 +45,8 @@ from ..views import (
     basic_sample_shipments_schema,
     basic_sample_shipment_schema,
     sample_shipment_status_schema,
+    sample_shipments_status_schema,
+    new_sample_shipment_status_schema,
 )
 
 
@@ -60,22 +62,34 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
     shipment = SampleShipment.query.filter_by(uuid=uuid).first()
     shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
 
-    if not shipment_event:
-        return not_found()
-
     values = request.get_json()
 
     if not values:
         return no_values_response()
-    for attr, value in values.items():
-        setattr(shipment_event, attr, value)
 
-    shipment_event.updated_on = func.now()
+    if not shipment_event:
+        try:
+            values['shipment_id'] = shipment.id
+            new_shipment_event_values = new_sample_shipment_status_schema.load(values)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        shipment_event = SampleShipmentStatus(**new_shipment_event_values)
+        shipment_event.author_id = tokenuser.id
+
+    else:
+        try:
+            for attr, value in values.items():
+                setattr(shipment_event, attr, value)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        shipment_event.updated_on = func.now()
+        shipment_event.updated_by = tokenuser.id
+
     try:
         db.session.add(shipment_event)
         db.session.commit()
-        db.session.flush()
-
         return success_with_content_response(sample_shipment_status_schema.dump(shipment_event))
     except Exception as err:
         return transaction_error_response(err)
@@ -87,6 +101,10 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 @token_required
 def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
     shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+
+    if not shipment:
+        return not_found()
+
     shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
 
     if shipment_event:
@@ -94,15 +112,62 @@ def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
             sample_shipment_status_schema.dump(shipment_event)
         )
     else:
-        return abort(404)
+
+        shipment_info = sample_shipment_schema.dump(shipment)
+        shipment_info = {'comments': None,
+                         'datetime': shipment_info['created_on'],
+                         'tracking_number': None,
+                         'shipment': shipment_info,
+                         'status': None}
+        print('shipment info: ', shipment_info)
+        return success_with_content_response(
+            shipment_info
+        )
+
+@api.route("/shipment/view_samples/<uuid>", methods=["GET"])
+@token_required
+def shipment_view_shipment_samples(uuid: str, tokenuser: UserAccount):
+    shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+
+    if not shipment:
+        return not_found()
+
+    shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
+
+    if shipment_event:
+        print('shipment status dump: ', sample_shipment_status_schema.dump(shipment_event))
+        return success_with_content_response(
+            sample_shipment_status_schema.dump(shipment_event)
+        )
+    else:
+
+        shipment_info = sample_shipment_schema.dump(shipment)
+        shipment_info = {'comments': None,
+                         'datetime': shipment_info['created_on'],
+                         'tracking_number': None,
+                         'shipment': shipment_info,
+                         'status': None}
+        print('shipment info: ', shipment_info)
+        return success_with_content_response(
+            shipment_info
+        )
 
 
 @api.route("/shipment", methods=["GET"])
 @token_required
 def shipment_index(tokenuser: UserAccount):
-    return success_with_content_response(
-        basic_sample_shipments_schema.dump(SampleShipment.query.all())
-    )
+    shipment_data = sample_shipments_status_schema.dump(SampleShipmentStatus.query.all())
+
+    ## No need to check shipments without status if all shipments have a shipment_status
+    without_status = db.session.query(SampleShipment).\
+        filter(~SampleShipment.id.in_(db.session.query(SampleShipmentStatus.shipment_id)))
+    for sm in without_status:
+        shipment_data.append({"status":None, "comments":"", "tracking_number":None,"datetime":None,
+                              "shipment": sample_shipment_schema.dump(sm)} )
+
+    return success_with_content_response(shipment_data)
+    #return basic_sample_shipments_schema.dump(SampleShipment.query.all())
+
 
 
 @api.route("/shipment/new", methods=["POST"])
@@ -169,12 +234,14 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
         db.session.add(s)
 
-    new_shipment_status = SampleShipmentStatus(status=SampleShipmentStatusStatus.TBC,datetime=new_shipment_event_values["event"]["datetime"],shipment_id=new_shipment_event.id)
+    new_shipment_status = SampleShipmentStatus(status=SampleShipmentStatusStatus.TBC,
+                            datetime=new_shipment_event_values["event"]["datetime"],
+                            shipment_id=new_shipment_event.id)
     db.session.add(new_shipment_status)
 
     try:
 
-        db.session.query(UserCart).filter_by(author_id=tokenuser.id,selected=True).delete()
+        db.session.query(UserCart).filter_by(author_id=tokenuser.id, selected=True).delete()
         db.session.commit()
         db.session.flush()
 
@@ -298,9 +365,10 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
     )
 
     if rack_response.status_code == 200:
-        esCheck = EntityToStorage.query.filter_by(rack_id=id,shelf_id=None).all()
+        esCheck = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
         if esCheck == []:
             return no_values_response()
+
         ESRecords = EntityToStorage.query.filter_by(rack_id=id).all()
         rackRecord = SampleRack.query.filter_by(id=id).first()
         rackRecord.is_locked = True
@@ -324,7 +392,9 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                     )
 
                 # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
-                new_uc = UserCart(sample_id=es.sample_id,rack_id=id,storage_type=CartSampleStorageType.RUC,selected=True, author_id=tokenuser.id)
+                new_uc = UserCart(sample_id=es.sample_id, rack_id=id,
+                                  storage_type=CartSampleStorageType.RUC,
+                                  selected=True, author_id=tokenuser.id)
                 db.session.add(new_uc)
                 db.session.flush()
         try:

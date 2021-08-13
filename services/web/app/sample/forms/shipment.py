@@ -60,6 +60,20 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
 def SampleShipmentStatusUpdateform(data={}) -> FlaskForm:
     class StaticForm(FlaskForm):
         status = SelectField("Shipment Status", validators=[DataRequired()], choices=SampleShipmentStatusStatus.choices(),)
+
+        tracking_number = TextAreaField("Tracking number")#, description="Tracking number.")
+        comments = TextAreaField("Comments")#, description="Any relevant observations.")
+        date = DateField(
+            "Shipment Status Updated Date",
+            #description="The date in which the shipment status updated.",
+            default=datetime.today(),
+        )
+
+        time = TimeField(
+            "Shipment Status Updated Time",
+            #description="The time in which the shipment status updated.",
+            default=datetime.now(),
+        )
         submit = SubmitField("Update Status")
 
     return StaticForm(data=data)
