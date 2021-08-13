@@ -18,14 +18,4 @@ from app import create_app
 app = create_app()
 
 if __name__ == "__main__":
-    app.config.update(
-        DEBUG=True,
-        #EMAIL SETTINGS
-        MAIL_SERVER='smtp.gmail.com',
-        MAIL_PORT=465,
-        MAIL_USE_SSL=True,
-        MAIL_USERNAME = 'sender@gmail.com',
-        MAIL_PASSWORD = 'password'
-    )
-    mail = Mail(app)
     app.run(host="0.0.0.0")
