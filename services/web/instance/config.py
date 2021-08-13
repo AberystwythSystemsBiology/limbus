@@ -26,6 +26,13 @@ SQLALCHEMY_ECHO = False
 if "SQLALCHEMY_ECHO" in os.environ:
     SQLALCHEMY_ECHO = os.environ["SQLALCHEMY_ECHO"]
 
+DEBUG=True
+#EMAIL SETTINGS
+MAIL_SERVER='smtp.gmail.com'
+MAIL_PORT=465
+MAIL_USE_SSL=True
+MAIL_USERNAME = 'sender@gmail.com'
+MAIL_PASSWORD = 'senderpassword'
 
 SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://{user}:{passwd}@{dbhost}:5432/{db}".format(
     user=os.environ["POSTGRES_USER"],

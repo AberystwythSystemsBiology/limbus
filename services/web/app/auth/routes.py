@@ -29,7 +29,7 @@ from flask_mail import Mail, Message
 
 from uuid import uuid4
 
-from run import mail
+from flask import current_app
 
 
 #from flask_mail import Mail, Message
@@ -126,16 +126,17 @@ def change_password():
     return render_template("auth/password.html", form=form)
 
 
-@auth.route('/send-mail')
+@auth.route('/send-mail/', methods=["GET"])
+@login_required
 def send_mail():
+    mail = Mail(current_app)
     try:
         msg = Message("Send Mail Tutorial!",
-          sender="3dglprinting@gmail.com",
-          recipients=["dglwwe98@gmail.com"])
+          sender="sender@gmail.com",
+          recipients=["recieve@gmail.com"])
         msg.body = "Yo!\nHave you heard the good word of Python???"           
         mail.send(msg)
         return 'Mail sent!'
-
     except Exception as e:
         return str(e)
 

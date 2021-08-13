@@ -13,12 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask_mail import Mail, Message
-
 class Config:
     SUPPORTED_LANGUAGES = {"en": "English", "cy": "Cymraeg"}
     BABEL_DEFAULT_LOCALE = "en"
-
 
 class DevelopmentConfig(Config):
     DEBUG = True
