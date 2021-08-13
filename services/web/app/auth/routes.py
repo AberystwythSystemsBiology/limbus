@@ -133,7 +133,7 @@ def send_mail():
     try:
         msg = Message("Send Mail Tutorial!",
           sender="sender@gmail.com",
-          recipients=["recieve@gmail.com"])
+          recipients=["receiver@gmail.com"])
         msg.body = "Yo!\nHave you heard the good word of Python???"           
         mail.send(msg)
         return 'Mail sent!'
