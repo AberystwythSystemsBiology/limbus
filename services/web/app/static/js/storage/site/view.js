@@ -20,11 +20,10 @@ $(document).ready(function () {
 
     scheduled = $.ajax({
         type: "get",
-        url: $(location).attr('href') + '/get',
+        url: $(location).attr('href'),
         async: false,
         success: function (response) {
             valid = response;
         }
     });
-
 });

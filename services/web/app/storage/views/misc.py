@@ -90,6 +90,7 @@ class TreeColdStorageSchema(masql.SQLAlchemySchema):
         model = ColdStorage
 
     id = masql.auto_field()
+    alias = masql.auto_field()
     manufacturer = masql.auto_field()
     temp = EnumField(FixedColdStorageTemps, by_value=True)
     type = EnumField(FixedColdStorageType, by_value=True)

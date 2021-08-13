@@ -15,6 +15,9 @@
 
 from ..FormEnum import FormEnum
 
+class CartSampleStorageType(FormEnum):
+    RUC = "Rack in User Cart"
+    CUC = "Container in User Cart"
 
 class SampleQuality(FormEnum):
     GOO = "Good"

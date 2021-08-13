@@ -14,15 +14,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import print_function
 
-from flask import request, current_app, jsonify, send_file, flash
+from flask import request, current_app, jsonify, send_file, flash, url_for
 from ...api import api
+from ...misc import get_internal_api_header
 from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, SampleRack, UserAccount, EntityToStorage, \
-    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation
+    ColdStorageShelf, ColdStorage, Room, Building, SiteInformation,Sample,UserCart
 
 from ..enums import EntityToStorageType
 
@@ -319,12 +320,33 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         samples_pos, rack_id, tokenuser
     )
 
+@api.route("/storage/rack/LIMBRACK-<id>/query/rack",methods=["GET"])
+@token_required
+def storage_rack_to_shelf_check(id,tokenuser:UserAccount):
+    uc = UserCart.query.filter_by(rack_id=id).first()
+    if uc is not None:
+        return success_with_content_response("RCT")
+    ets = EntityToStorage.query.filter_by(rack_id=id, sample_id=None).first()
+    if ets is not None:
+        return success_with_content_response("RST")
+    return success_with_content_response("RIV")
+
+@api.route("/storage//query/SAMPLE-<id>",methods=["GET"])
+@token_required
+def storage_sample_to_entity_check(id,tokenuser:UserAccount):
+    uc = UserCart.query.filter_by(sample_id=id).first()
+    if uc is not None:
+        return success_with_content_response("SCT")
+    ets = EntityToStorage.query.filter_by(sample_id=id).first()
+    if ets is not None:
+        return success_with_content_response("SRT")
+    return success_with_content_response("SIV")
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])
 @token_required
 def storage_rack_lock(id, tokenuser: UserAccount):
-    return generic_lock(db, SampleRack, id, basic_sample_wrack_schema, tokenuser)
+    return generic_lock(db, SampleRack, id, basic_sample_rack_schema, tokenuser)
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/edit", methods=["PUT"])
@@ -573,3 +595,23 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     except Exception as err:
         print(">>>>>>>>>>>>>>>", err)
         return transaction_error_response(err)
+
+# @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["PUT"])
+# @token_required
+# def storage_rack_lock(id, tokenuser: UserAccount):
+#
+#     rack = SampleRack.query.filter_by(id=id).first()
+#
+#     if not rack:
+#         return not_found()
+#
+#     # Updates the attribute
+#     rack.is_locked = not rack.is_locked
+#     rack.editor_id = tokenuser.id
+#
+#     try:
+#         db.session.commit()
+#         db.session.flush()
+#         return success_with_content_response(rack.is_locked)
+#     except Exception as err:
+#         return transaction_error_response(err)

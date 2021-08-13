@@ -15,6 +15,7 @@
 
 
 from flask import request, abort, url_for
+from sqlalchemy.sql import func
 from marshmallow import ValidationError
 from ...api import api, generics
 import requests
@@ -22,13 +23,17 @@ import json
 from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
+from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
 from ...database import (
     db,
     SampleShipmentToSample,
     UserCart,
     UserAccount,
     SampleShipment,
-    Event
+    Event,
+    EntityToStorage,
+    SampleRack,
+    SampleShipmentStatus
 )
 
 from ..views import (
@@ -39,6 +44,9 @@ from ..views import (
     sample_shipment_schema,
     basic_sample_shipments_schema,
     basic_sample_shipment_schema,
+    sample_shipment_status_schema,
+    sample_shipments_status_schema,
+    new_sample_shipment_status_schema,
 )
 
 
@@ -48,33 +56,125 @@ def get_cart(tokenuser: UserAccount):
     cart = UserCart.query.filter_by(author_id=tokenuser.id).all()
     return success_with_content_response(user_cart_samples_schema.dump(cart))
 
+@api.route("/shipment/update_status/<uuid>", methods=["PUT"])
+@token_required
+def shipment_update_status(uuid:str, tokenuser:UserAccount):
+    shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+    shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    if not shipment_event:
+        try:
+            values['shipment_id'] = shipment.id
+            new_shipment_event_values = new_sample_shipment_status_schema.load(values)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        shipment_event = SampleShipmentStatus(**new_shipment_event_values)
+        shipment_event.author_id = tokenuser.id
+
+    else:
+        try:
+            for attr, value in values.items():
+                setattr(shipment_event, attr, value)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        shipment_event.updated_on = func.now()
+        shipment_event.updated_by = tokenuser.id
+
+    try:
+        db.session.add(shipment_event)
+        db.session.commit()
+        return success_with_content_response(sample_shipment_status_schema.dump(shipment_event))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
 
 @api.route("/shipment/view/<uuid>", methods=["GET"])
 @token_required
 def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
-    shipment_event = SampleShipment.query.filter_by(uuid=uuid).first()
+    shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+
+    if not shipment:
+        return not_found()
+
+    shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
 
     if shipment_event:
         return success_with_content_response(
-            sample_shipment_schema.dump(shipment_event)
+            sample_shipment_status_schema.dump(shipment_event)
         )
     else:
-        return abort(404)
+
+        shipment_info = sample_shipment_schema.dump(shipment)
+        shipment_info = {'comments': None,
+                         'datetime': shipment_info['created_on'],
+                         'tracking_number': None,
+                         'shipment': shipment_info,
+                         'status': None}
+        print('shipment info: ', shipment_info)
+        return success_with_content_response(
+            shipment_info
+        )
+
+@api.route("/shipment/view_samples/<uuid>", methods=["GET"])
+@token_required
+def shipment_view_shipment_samples(uuid: str, tokenuser: UserAccount):
+    shipment = SampleShipment.query.filter_by(uuid=uuid).first()
+
+    if not shipment:
+        return not_found()
+
+    shipment_event = SampleShipmentStatus.query.filter_by(shipment_id=shipment.id).first()
+
+    if shipment_event:
+        print('shipment status dump: ', sample_shipment_status_schema.dump(shipment_event))
+        return success_with_content_response(
+            sample_shipment_status_schema.dump(shipment_event)
+        )
+    else:
+
+        shipment_info = sample_shipment_schema.dump(shipment)
+        shipment_info = {'comments': None,
+                         'datetime': shipment_info['created_on'],
+                         'tracking_number': None,
+                         'shipment': shipment_info,
+                         'status': None}
+        print('shipment info: ', shipment_info)
+        return success_with_content_response(
+            shipment_info
+        )
 
 
 @api.route("/shipment", methods=["GET"])
 @token_required
 def shipment_index(tokenuser: UserAccount):
-    return success_with_content_response(
-        basic_sample_shipments_schema.dump(SampleShipment.query.all())
-    )
+    shipment_data = sample_shipments_status_schema.dump(SampleShipmentStatus.query.all())
+
+    ## No need to check shipments without status if all shipments have a shipment_status
+    without_status = db.session.query(SampleShipment).\
+        filter(~SampleShipment.id.in_(db.session.query(SampleShipmentStatus.shipment_id)))
+    for sm in without_status:
+        shipment_data.append({"status":None, "comments":"", "tracking_number":None,"datetime":None,
+                              "shipment": sample_shipment_schema.dump(sm)} )
+
+    return success_with_content_response(shipment_data)
+    #return basic_sample_shipments_schema.dump(SampleShipment.query.all())
+
 
 
 @api.route("/shipment/new", methods=["POST"])
 @token_required
 def shipment_new_shipment(tokenuser: UserAccount):
 
-    cart = UserCart.query.filter_by(author_id=tokenuser.id).all()
+    cart = UserCart.query.filter_by(author_id=tokenuser.id,selected=True).all()
 
     if len(cart) == 0:
         return validation_error_response("No Samples in Cart")
@@ -134,9 +234,14 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
         db.session.add(s)
 
+    new_shipment_status = SampleShipmentStatus(status=SampleShipmentStatusStatus.TBC,
+                            datetime=new_shipment_event_values["event"]["datetime"],
+                            shipment_id=new_shipment_event.id)
+    db.session.add(new_shipment_status)
+
     try:
 
-        db.session.query(UserCart).filter_by(author_id=tokenuser.id).delete()
+        db.session.query(UserCart).filter_by(author_id=tokenuser.id, selected=True).delete()
         db.session.commit()
         db.session.flush()
 
@@ -178,6 +283,34 @@ def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
     else:
         return sample_response.content
 
+@api.route("/cart/remove/LIMBRACK-<id>", methods=["DELETE"])
+@token_required
+def remove_rack_from_cart(id: int, tokenuser: UserAccount):
+    rack_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(tokenuser),
+    )
+
+    if rack_response.status_code == 200:
+        esRecord = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
+        for es in esRecord:
+            uc= UserCart.query.filter_by(author_id=tokenuser.id, sample_id=es.sample_id).first()
+            if uc is not None:
+                db.session.delete(uc)
+                db.session.flush()
+        rackRecord = SampleRack.query.filter_by(id=id).first()
+        rackRecord.is_locked = False
+        try:
+            db.session.commit()
+        except Exception as err:
+            return transaction_error_response(err)
+        return success_with_content_response(
+                {"msg": " All samples in rack %s removed from cart" % (id)}
+            )
+
+    else:
+        return success_with_content_response(rack_response.content)
+
 
 @api.route("/cart/add/<uuid>", methods=["POST"])
 @token_required
@@ -194,7 +327,6 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
 
         except ValidationError as err:
             return validation_error_response(err)
-
         check = UserCart.query.filter_by(
             author_id=tokenuser.id, sample_id=sample_id
         ).first()
@@ -204,7 +336,13 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
                 {"msg": "Sample already added to Cart"}
             )
 
-        new_uc = UserCart(sample_id=sample_id, author_id=tokenuser.id)
+        ESrecords = EntityToStorage.query.filter_by(sample_id=sample_id).all()
+        new_uc = UserCart(sample_id=sample_id,storage_type=None,selected=True, author_id=tokenuser.id)
+
+        for es in ESrecords:
+            db.session.delete(es)
+            db.session.flush()
+            # new_uc.rack_id = es.rack_id
 
         try:
             db.session.add(new_uc)
@@ -217,3 +355,124 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             return transaction_error_response(err)
     else:
         return sample_response.content
+
+@api.route("/cart/add/LIMBRACK-<id>", methods=["POST"])
+@token_required
+def add_rack_to_cart(id: int, tokenuser: UserAccount):
+    rack_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(tokenuser),
+    )
+
+    if rack_response.status_code == 200:
+        esCheck = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
+        if esCheck == []:
+            return no_values_response()
+
+        ESRecords = EntityToStorage.query.filter_by(rack_id=id).all()
+        rackRecord = SampleRack.query.filter_by(id=id).first()
+        rackRecord.is_locked = True
+        for es in ESRecords:
+            if es.sample_id is None and es.shelf_id is not None:
+                db.session.delete(es)
+                db.session.flush()
+            elif es.sample_id is not None:
+                try:
+                    cart_sample_schema = new_cart_sample_schema.load({"sample_id": es.sample_id})
+                except ValidationError as err:
+                    return validation_error_response(err)
+
+                check = UserCart.query.filter_by(
+                    author_id=tokenuser.id, sample_id=es.sample_id
+                ).first()
+
+                if check != None:
+                    return success_with_content_response(
+                        {"msg": "Sample already added to Cart"}
+                    )
+
+                # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
+                new_uc = UserCart(sample_id=es.sample_id, rack_id=id,
+                                  storage_type=CartSampleStorageType.RUC,
+                                  selected=True, author_id=tokenuser.id)
+                db.session.add(new_uc)
+                db.session.flush()
+        try:
+            db.session.commit()
+            return success_with_content_response({"msg": "Sample added to Cart"})
+
+        except Exception as err:
+            return transaction_error_response(err)
+        # sample_id = sample_response.json()["content"]["id"]
+
+
+        #
+        # if not es is None:
+        #         #     new_uc.rack_id = es.rack_id
+
+
+    else:
+        return rack_response.content
+
+@api.route("/cart/select/shipment/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def select_record_cart_shipment(sample_id: int,tokenuser:UserAccount):
+    es_record=EntityToStorage.query.filter_by(sample_id=sample_id).first()
+    if es_record is not None and es_record.rack_id is not None:
+        sample_records = EntityToStorage.query.filter_by(rack_id=es_record.rack_id, shelf_id=None)
+        for sample in sample_records:
+            cart_response = requests.post(
+                url_for("api.select_record_cart",sample_id=sample.sample_id, _external=True),
+                headers=get_internal_api_header(tokenuser),
+            )
+        return success_without_content_response()
+    else:
+        cart_response = requests.post(
+            url_for("api.select_record_cart",sample_id=sample_id, _external=True),
+            headers=get_internal_api_header(tokenuser),
+        )
+        return success_with_content_response(cart_response.status_code)
+
+@api.route("/cart/select/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def select_record_cart(sample_id: int, tokenuser: UserAccount):
+    ucRecord=UserCart.query.filter_by(sample_id=sample_id).first()
+    ucRecord.selected = True
+    try:
+        db.session.commit()
+        return success_without_content_response()
+
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/cart/deselect/shipment/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def deselect_record_cart_shipment(sample_id: int, tokenuser: UserAccount):
+    es_record=EntityToStorage.query.filter_by(sample_id=sample_id).first()
+    if es_record is not None and es_record.rack_id is not None:
+        sample_records = EntityToStorage.query.filter_by(rack_id=es_record.rack_id, shelf_id=None)
+        for sample in sample_records:
+            if sample is not None:
+                cart_response = requests.post(
+                url_for("api.deselect_record_cart",sample_id=sample.sample_id, _external=True),
+                    headers=get_internal_api_header(tokenuser)
+            )
+        return success_without_content_response()
+
+    cart_response = requests.post(
+            url_for("api.deselect_record_cart",sample_id=sample_id, _external=True),
+            headers=get_internal_api_header(tokenuser)
+        )
+    return success_with_content_response(cart_response.status_code)
+
+@api.route("/cart/deselect/LIMBSAMPLE-<sample_id>", methods=["POST"])
+@token_required
+def deselect_record_cart(sample_id: int, tokenuser: UserAccount):
+    ucRecord=UserCart.query.filter_by(sample_id=sample_id).first()
+    ucRecord.selected = False
+    try:
+        db.session.commit()
+        return success_without_content_response()
+
+    except Exception as err:
+        return transaction_error_response(err)

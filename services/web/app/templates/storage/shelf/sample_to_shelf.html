@@ -30,7 +30,9 @@
                 {{ form.csrf_token }}
 
                 {{ form_field(form.samples, with_view=True, view_endpoint=url_for('sample.view', uuid=" ", _external=True)) }}
-
+                <div id="rack-warning" class="alert alert-warning" style="display:none;" role="alert">
+                    <b>Warning:</b> This will move the sample from its current rack
+                </div>
                 <div class="row">
                     <div class="col-sm-6">
                         {{ form_field(form.date) }}
@@ -61,5 +63,11 @@
 {% endblock %}
 
 {% block javascript %}
+    <script>
+        window.onload = function () {
+            check_sample();
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/storage/rack/rack_checks.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

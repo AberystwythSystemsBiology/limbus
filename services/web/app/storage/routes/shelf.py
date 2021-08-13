@@ -274,3 +274,16 @@ def assign_sample_to_shelf(id):
             )
 
     return abort(response.status_code)
+
+@storage.route("/shelf/query/sample", methods=["GET","POST"])
+def check_sample_to_shelf():
+    data = {}
+    data['id'] = request.json['id']
+    response = requests.get(
+        url_for("api.storage_sample_to_entity_check", id=int(data['id']), _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    data['warning'] = response.json()["content"]
+
+    return jsonify(data)

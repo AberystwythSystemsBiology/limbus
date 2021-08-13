@@ -30,8 +30,15 @@
                 </h1>
                 <div class="row text-muted">
                     <div class="col-7">
-                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">       
-        
+                        <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i
+                                            class="fa fa-truck"></i>
+                                        Update Status
+                                    </button>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="col-5 text-right">
@@ -60,13 +67,34 @@
           </div>
 
           <div id="involved-samples-div" style="display:none;">
-            <ul class="list-group" id="involved-samples-list-group">
-                
-              </ul>
+{#            <ul class="list-group" id="involved-samples-list-group">#}
+{#            </ul>#}
+            <table id="involved-samples-table" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Identifier</th>
+                        <th>DBid</th>
+                        <th>Barcode</th>
+                        <th>Base Type</th>
+                        <th>Sample Type</th>
+                        <th>Container Type</th>
+                        <th>Source</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Rack</th>
+                        <th>From Site</th>
+                        <th>Creation Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
            </div>
 
           <div id="shipment-status-div" style="display:none;">
-        </div>
+              <table class="table table-striped" id="shipment-status-information"></table>
+          </div>
 
         </div>
     </div>
