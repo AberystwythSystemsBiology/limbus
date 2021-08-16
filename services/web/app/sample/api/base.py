@@ -322,3 +322,43 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         return success_with_content_response(sample_type_schema.dump(sampletotype))
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/sample/status/<uuid>", methods=["GET"])
+@token_required
+def sample_update_status(uuid: str, tokenuser: UserAccount):
+    sample = Sample.query.filter_by(uuid=uuid).first()
+    # class SampleStatus(FormEnum):
+    #     AVA = "Available"
+    #     DES = "Destroyed"
+    #     UNU = "Unusable"
+    #     TRA = "Transferred"
+    #     MIS = "Missing"
+    #     TMP = "Temporary Storage"
+    #     NCO = "Not Collected"
+    #     NPR = "Not Processed"
+    #     NRE = "Pending Review"
+    # Protocol event
+    #
+    # if protocol = acquisition and with date: status = collected
+    # if protocol = process: status = processed
+    #               destruction: if disposal_instruction= destroyed: => destroyed, transferred=> transferred
+    #    review results < not passed/low volumn/... : Unusable / Missing /Available
+    #     if processed and no review: pending review
+    #     if shipment status: is not null or not 'TBC', then transferred.
+    # Access status: TMP (entered in when new sample).
+    # TO DO protocol event action:
+    #  remove transfer/disposal protocol,
+
+    # subq = db.session.query(Sample.id). \
+    #     join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+    # protocol_event = db.session.query(ProtocolTemplate). \
+    #     join(SampleProtocolEvent).filter_by(**filters_protocol).first()
+    # s2 = db.session.query(Sample.id). \
+    #     join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id). \
+    #     join(subq, subq.c.id == SubSampleToSample.parent_id)
+
+    if sample:
+        return success_with_content_response(sample_schema.dump(sample))
+    else:
+        return not_found()

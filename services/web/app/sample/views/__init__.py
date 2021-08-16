@@ -14,9 +14,18 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import Sample
-
+from ...database import (
+    Sample,
+    SampleShipmentStatus,
+    SampleShipment,
+    SampleShipmentToSample
+)
 import marshmallow_sqlalchemy as masql
+from marshmallow_enum import EnumField
+
+from ...auth.views import BasicUserAccountSchema
+from ...misc.views import BasicSiteSchema
+from ..enums import SampleShipmentStatusStatus
 
 
 class SampleUUIDSchema(masql.SQLAlchemySchema):
@@ -28,6 +37,53 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
     _links = ma.Hyperlinks(
         {"self": ma.URLFor("sample.view", uuid="<uuid>", _external=True)}
     )
+
+
+
+class BasicSampleShipmentStatusSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentStatus
+
+    status=EnumField(SampleShipmentStatusStatus, by_value=True)
+    datetime=masql.auto_field()
+    comments=masql.auto_field()
+    tracking_number = masql.auto_field()
+    #shipment = ma.Nested(SampleShipmentSchema, many=False)
+
+basic_sample_shipment_status_schema = BasicSampleShipmentStatusSchema()
+basic_sample_shipments_status_schema = BasicSampleShipmentStatusSchema(many=True)
+
+
+class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipment
+
+    uuid = masql.auto_field()
+    id = masql.auto_field()
+    author = ma.Nested(BasicUserAccountSchema, many=False)
+    created_on = ma.Date()
+    shipment_status = ma.Nested(BasicSampleShipmentStatusSchema, many=False)
+    #event = ma.Nested(EventSchema())
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor(
+                "sample.shipment_view_shipment", uuid="<uuid>", _external=True
+            ),
+            "collection": ma.URLFor("sample.shipment_index", _external=True),
+        }
+    )
+
+basic_sample_shipment_schema = BasicSampleShipmentSchema()
+basic_sample_shipments_schema = BasicSampleShipmentSchema(many=True)
+
+
+class SampleShipmentToSampleInfoSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleShipmentToSample
+
+    shipments = ma.Nested(BasicSampleShipmentSchema, many=False)
+    old_site = ma.Nested(BasicSiteSchema, many=False)
 
 
 from .filter import *

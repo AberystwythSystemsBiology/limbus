@@ -25,6 +25,7 @@ from . import (
     ConsentSchema,
     EntityToStorageSchema,
     BasicSampleDiposalEventSchema,
+    SampleShipmentToSampleInfoSchema
 )
 
 from ...document.views import BasicDocumentSchema
@@ -137,6 +138,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     events = ma.Nested(SampleProtocolEventSchema, many=True)
     reviews = ma.Nested(SampleReviewSchema, many=True)
+    shipments = ma.Nested(SampleShipmentToSampleInfoSchema, many=True)
 
     created_on = ma.Date()
 

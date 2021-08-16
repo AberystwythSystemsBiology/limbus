@@ -151,5 +151,6 @@ def view_data(uuid: str):
     )
 
     if sample_response.status_code == 200:
+        print("sample_response: ", sample_response.text)
         return sample_response.json()
     return sample_response.content

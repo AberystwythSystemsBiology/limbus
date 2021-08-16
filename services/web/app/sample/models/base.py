@@ -60,6 +60,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     events = db.relationship("SampleProtocolEvent", uselist=True)
     reviews = db.relationship("SampleReview", uselist=True)
+    shipments = db.relationship("SampleShipmentToSample", uselist=True)
 
     # Disposal Information
     # Done -> sample_new_disposal_instructions
@@ -114,6 +115,11 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
+
+# class DisposalReminder(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+#     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+#     sample_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+#     instruction = db.Column(db.Enum(DisposalInstruction))
 
 
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):

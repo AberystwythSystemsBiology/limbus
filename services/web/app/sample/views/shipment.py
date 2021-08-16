@@ -26,9 +26,9 @@ from ...misc.views import BasicSiteSchema
 from ...event.views import NewEventSchema, EventSchema
 
 from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-
-class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
+class SampleShipmentToSampleUUIDSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleShipmentToSample
 
@@ -36,7 +36,7 @@ class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     sample = ma.Nested(SampleUUIDSchema, many=False)
     old_site = ma.Nested(BasicSiteSchema, many=False)
 
-class SampleShipmentToSampleInfoSchema(masql.SQLAlchemySchema):
+class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleShipmentToSample
 
@@ -55,8 +55,8 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
     new_site = ma.Nested(BasicSiteSchema, many=False)
 
-    #involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
-    involved_samples = ma.Nested(SampleShipmentToSampleInfoSchema, many=True)
+    #involved_samples = ma.Nested(SampleShipmentToSampleUUIDSchema, many=True)
+    involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
     _links = ma.Hyperlinks(
         {
             "self": ma.URLFor(
@@ -83,6 +83,8 @@ class SampleShipmentStatusSchema(masql.SQLAlchemySchema):
 sample_shipment_status_schema = SampleShipmentStatusSchema()
 sample_shipments_status_schema = SampleShipmentStatusSchema(many=True)
 
+
+
 class NewSampleShipmentStatusSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleShipmentStatus
@@ -94,30 +96,6 @@ class NewSampleShipmentStatusSchema(masql.SQLAlchemySchema):
     tracking_number = masql.auto_field()
 
 new_sample_shipment_status_schema = NewSampleShipmentStatusSchema()
-
-class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
-    class Meta:
-        model = SampleShipment
-
-    uuid = masql.auto_field()
-    id = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
-    created_on = ma.Date()
-
-    event = ma.Nested(EventSchema())
-
-    _links = ma.Hyperlinks(
-        {
-            "self": ma.URLFor(
-                "sample.shipment_view_shipment", uuid="<uuid>", _external=True
-            ),
-            "collection": ma.URLFor("sample.shipment_index", _external=True),
-        }
-    )
-
-
-basic_sample_shipment_schema = BasicSampleShipmentSchema()
-basic_sample_shipments_schema = BasicSampleShipmentSchema(many=True)
 
 
 class NewSampleShipmentSchema(masql.SQLAlchemySchema):

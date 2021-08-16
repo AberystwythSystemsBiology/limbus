@@ -28,16 +28,6 @@ class UserCart(Base, RefAuthorMixin, RefEditorMixin):
     rack = db.relationship("SampleRack", viewonly=True)
 
 
-class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-
-    old_site = db.relationship("SiteInformation")
-    sample = db.relationship("Sample")
-
-    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id"))
-
-
 class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
@@ -51,6 +41,18 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
         "SampleShipmentToSample",
         primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
     )
+
+class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+
+    old_site = db.relationship("SiteInformation")
+    sample = db.relationship("Sample")
+
+    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id"))
+    shipment = db.relationship("SampleShipment")
+
+    #protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
 
 class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
