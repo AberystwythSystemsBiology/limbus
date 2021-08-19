@@ -42,6 +42,9 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
         primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
     )
 
+    shipment_status = db.relationship("SampleShipmentStatus", uselist=False)
+    #    primaryjoin="SampleShipmentStatus.shipment_id == SampleShipment.id")#, uselist=False)
+
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
@@ -65,4 +68,4 @@ class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     shipment_id = db.Column(
         db.Integer, db.ForeignKey("sampleshipment.id"), nullable=False
     )
-    shipment = db.relationship("SampleShipment",viewonly=True)
+    shipment = db.relationship("SampleShipment", viewonly=True)

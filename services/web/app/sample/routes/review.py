@@ -42,37 +42,97 @@ def associate_review(uuid: str) -> str:
     )
 
     if sample_response.status_code == 200:
-        form = SampleReviewForm()
+        disposal_info = {}
+        #disposal_id = None
 
-        if form.validate_on_submit():
-
-            new_review_event_response = requests.post(
-                url_for("api.sample_new_sample_review", uuid=uuid, _external=True),
-                headers=get_internal_api_header(),
-                json={
-                    "review_type": form.review_type.data,
-                    "result": form.result.data,
-                    "sample_id": sample_response.json()["content"]["id"],
-                    "event": {
-                        "undertaken_by": form.conducted_by.data,
-                        "datetime": str(
-                            datetime.strptime(
-                                "%s %s" % (form.date.data, form.time.data),
-                                "%Y-%m-%d %H:%M:%S",
-                            )
-                        ),
-                        "comments": form.comments.data,
-                    },
-                    "quality": form.quality.data,
-                },
-            )
-
-            if new_review_event_response.status_code == 200:
-                flash("Sample Review Successfully Added!")
-                return redirect(url_for("sample.view", uuid=uuid))
-
+        try:
+            disposal_info = sample_response.json()["content"]["disposal_information"]
+            disposal_date = disposal_info["disposal_date"]
+            print("disposal: ", disposal_info)
+            if disposal_info["instruction"] in ["DES", "TRA"]:
+                disposal_date = datetime.strptime(disposal_info["disposal_date"], "%Y-%m-%d").date()
+                print("disposal date: ", disposal_date)
             else:
-                flash("Error")
+                disposal_date = None
+
+            disposal_info = {
+                "disposal_edit_on": True,
+                "disposal_date": disposal_date,
+                "disposal_instruction": disposal_info["instruction"],
+                "disposal_comments": disposal_info["comments"],
+            }
+
+        except:
+            pass
+
+        form = SampleReviewForm(data=disposal_info)
+
+        if not form.validate_on_submit():
+            flash("Invalid data!")
+        else:
+            review_info = {
+                "review_type": form.review_type.data,
+                "result": form.result.data,
+                "sample_id": sample_response.json()["content"]["id"],
+                "event": {
+                    "undertaken_by": form.conducted_by.data,
+                    "datetime": str(
+                        datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S",
+                        )
+                    ),
+                    "comments": form.comments.data,
+                },
+                "quality": form.quality.data,
+            }
+
+            if form.disposal_edit_on.data:
+                disposal_info = {
+                        #"id": disposal_id or None,
+                        #"disposal_date": disposal_date,
+                        "instruction": form.disposal_instruction.data,
+                        "comments": form.disposal_comments.data,
+                }
+
+                disposal_date = None
+                if form.disposal_instruction.data in ["DES", "TRA"]:
+                    disposal_date = str(
+                        datetime.strptime(str(form.disposal_date.data), "%Y-%m-%d").date()
+                    )
+                    disposal_info["disposal_date"] = disposal_date
+
+                else:
+                    disposal_info["disposal_date"] = None
+
+                print("disposal date:", disposal_date)
+
+                review_info["disposal_info"] = disposal_info
+                new_review_event_response = requests.post(
+                    url_for("api.sample_new_sample_review_disposal", uuid=uuid, _external=True),
+                    headers=get_internal_api_header(),
+                    json=review_info
+                )
+
+                if new_review_event_response.status_code == 200:
+                    flash("Sample Review and Disposal Instruction Successfully Added!")
+                    return redirect(url_for("sample.view", uuid=uuid))
+
+                else:
+                    flash("Error")
+            else:
+                new_review_event_response = requests.post(
+                    url_for("api.sample_new_sample_review", uuid=uuid, _external=True),
+                    headers=get_internal_api_header(),
+                    json=review_info,
+                )
+
+                if new_review_event_response.status_code == 200:
+                    flash("Sample Review Successfully Added!")
+                    return redirect(url_for("sample.view", uuid=uuid))
+
+                else:
+                    flash("Error")
 
         return render_template(
             "sample/associate/review.html",

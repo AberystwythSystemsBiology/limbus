@@ -24,6 +24,7 @@ from ..enums import (
     SampleSource,
     BiohazardLevel,
     DisposalReason,
+    AccessStatus
 )
 
 
@@ -44,6 +45,8 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     remaining_quantity = db.Column(db.Float, nullable=False)
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    current_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    access_status = db.Column(db.Enum(AccessStatus))
 
     base_type = db.Column(db.Enum(SampleBaseType))
 
@@ -65,7 +68,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     # Disposal Information
     # Done -> sample_new_disposal_instructions
     disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
-    disposal_information = db.relationship("SampleDisposal", uselist=False)
+    disposal_information = db.relationship("SampleDisposal", foreign_keys=(disposal_id), uselist=False)
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
 
@@ -108,18 +111,23 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     subsample_id = db.Column(
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
     )
+    protocol_event_id = db.Column(
+        db.Integer, db.ForeignKey("sampleprotocolevent.id"), primary_key=True
+    )
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)#, primary_key=True)
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
+    review_event_id = db.Column(db.Integer, db.ForeignKey("samplereview.id"))
+    approval_file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    approval_file = db.relationship("Document")
+    approval_event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+    disposal_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"), unique=True)
 
-# class DisposalReminder(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
-#     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
-#     sample_id = db.Column(db.Integer, db.ForeignKey("event.id"))
-#     instruction = db.Column(db.Enum(DisposalInstruction))
 
 
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
@@ -127,5 +135,4 @@ class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     reason = db.Column(db.Enum(DisposalReason))
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
     protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-    
-    
+

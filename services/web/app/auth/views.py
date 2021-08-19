@@ -31,8 +31,17 @@ class UserAccountSearchSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     email = masql.auto_field()
 
-
 class BasicUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    id = masql.auto_field()
+    email = masql.auto_field()
+    first_name = masql.auto_field()
+    last_name = masql.auto_field()
+
+
+class BasicUserAccountInfoSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
 

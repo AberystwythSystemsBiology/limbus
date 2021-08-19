@@ -25,10 +25,13 @@ from ..views import (
     basic_disposal_schema,
     new_sample_disposal_event_schema,
     basic_sample_disposal_event_schema,
+    new_sample_protocol_event_schema,
 )
 
-from ...database import db, SampleDisposal, UserAccount, SampleDisposalEvent, Sample
-
+from ...database import (
+    db, SampleDisposal, UserAccount,
+    SampleDisposalEvent, Sample,
+    Event, SampleProtocolEvent)
 
 import requests
 
@@ -60,6 +63,48 @@ def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_uni
     except Exception as err:
         return transaction_error_response(err)
 
+# def func_new_sample_protocol_event(values):
+#     values = request.get_json()
+#
+#     print(values)
+#
+#     if not values:
+#         return no_values_response()
+#
+#     try:
+#         event_result = new_sample_protocol_event_schema.load(values)
+#     except ValidationError as err:
+#         return validation_error_response(err)
+#
+#     new_event = Event(**event_result["event"])
+#     new_event.author_id = tokenuser.id
+#
+#     try:
+#         db.session.add(new_event)
+#         #db.session.commit()
+#         db.session.flush()
+#     except Exception as err:
+#         return transaction_error_response(err)
+#
+#     new_sample_protocol_event = SampleProtocolEvent(
+#         sample_id=event_result["sample_id"],
+#         event_id=new_event.id,
+#         author_id=tokenuser.id,
+#         protocol_id=event_result["protocol_id"],
+#     )
+#
+#     try:
+#         db.session.add(new_sample_protocol_event)
+#         db.session.commit()
+#
+#         return success_with_content_response(
+#             sample_protocol_event_schema.dump(new_sample_protocol_event)
+#         )
+#
+#     except Exception as err:
+#         return transaction_error_response(err)
+
+
 @api.route("/sample/new/disposal_event", methods=["POST"])
 @token_required
 def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
@@ -80,58 +125,102 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         # Step 3 update disposal instruction table, disposal status => Disposed,
         # Step 4 update storage: delete association to lts/rack
         # Step 5 update sample status set to DES/TRA/.../ accordingly
-        new_protocol_event_response = requests.post(
-            url_for("api.sample_new_sample_protocol_event", _external=True),
-            headers=get_internal_api_header(tokenuser),
-            json={
-                "event" : values["event"],
-                "protocol_id": values["protocol_id"],
-                "sample_id": sample_response.json()["content"]["id"]            },
+        # new_protocol_event_response = requests.post(
+        #     url_for("api.sample_new_sample_protocol_event", _external=True),
+        #     headers=get_internal_api_header(tokenuser),
+        #     json={
+        #         "event" : values["event"],
+        #         "protocol_id": values["protocol_id"],
+        #         "sample_id": sample_response.json()["content"]["id"]            },
+        # )
+
+        sample_id = sample_response.json()["content"]["id"]
+        protocolevent_values = {"event" : values["event"],
+                  "protocol_id": values["protocol_id"],
+                  "sample_id": sample_id
+                  }
+
+        try:
+            event_result = new_sample_protocol_event_schema.load(protocolevent_values)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        new_event = Event(**event_result["event"])
+        new_event.author_id = tokenuser.id
+
+        try:
+            db.session.add(new_event)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+        new_sample_protocol_event = SampleProtocolEvent(
+            sample_id=event_result["sample_id"],
+            event_id=new_event.id,
+            author_id=tokenuser.id,
+            protocol_id=event_result["protocol_id"],
         )
 
-        if new_protocol_event_response.status_code == 200:
+        try:
+            db.session.add(new_sample_protocol_event)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
 
-            try:
-                disposal_event_values = new_sample_disposal_event_schema.load(
-                    {
-                        "sample_id": sample_response.json()["content"]["id"],
-                        "reason": values["reason"],
-                    }
-                )
-            except ValidationError as err:
-                return validation_error_response(err)
 
-            new_disposal_event = SampleDisposalEvent(**disposal_event_values)
-            new_disposal_event.author_id = tokenuser.id
+        try:
+            disposal_event_values = new_sample_disposal_event_schema.load(
+                {
+                    "sample_id" : sample_id,
+                    "reason": values["reason"],
+                    "protocol_event_id": new_sample_protocol_event.id
+                }
+            )
+        except ValidationError as err:
+            return validation_error_response(err)
 
-            try:
+        new_disposal_event = SampleDisposalEvent(**disposal_event_values)
+        new_disposal_event.author_id = tokenuser.id
 
-                db.session.add(new_disposal_event)
-                #db.session.commit()
-                #db.session.flush()
+        try:
+            db.session.add(new_disposal_event)
 
-                sample = Sample.query.filter_by(
-                    uuid=sample_response.json()["content"]["uuid"]
-                ).first()
+            sample = Sample.query.filter_by(
+                uuid=sample_response.json()["content"]["uuid"]
+            ).first()
 
-                if new_disposal_event.reason in ["DES", "FAI"]:
-                    sample.status = "DES"
-                elif new_disposal_event.reason == "TRA":
-                    sample.status = "TRA"
-                elif new_disposal_event.reason == "UNA":
-                    sample.status = "MIS"
-                else:
-                    sample.status = "UNU"
+            disposal_instruction = SampleDisposal.query.filter_by(id = sample.disposal_id).first()
+            disposal_instruction.disposal_event_id = new_sample_protocol_event.id
+            disposal_instruction.editor_id = tokenuser.id
 
-                db.session.add(sample)
-                db.session.commit()
+            if new_disposal_event.reason in ["DES", "FAI"]:
+                sample.status = "DES"
+            elif new_disposal_event.reason == "TRA":
+                sample.status = "TRA"
+            elif new_disposal_event.reason == "UNA":
+                sample.status = "MIS"
+            else:
+                sample.status = "UNU"
 
-                return success_with_content_response(
-                    basic_sample_disposal_event_schema.dump(new_disposal_event)
-                )
+            sample.editor_id = tokenuser.id
+            sample.is_locked = True
+            sample.is_closed = True
+            db.session.add(sample)
 
-            except Exception as err:
-                return transaction_error_response(err)
+            ets = EntityToStorage.query.filter_by(
+                sample_id=values["sample_id"]).all()
+            if ets: #and len(ets) > 0:
+                for et in ets:
+                    db.session.delete(et)
 
-        else:
-            return new_protocol_event_response.content
+            db.session.commit()
+
+            return success_with_content_response(
+                basic_sample_disposal_event_schema.dump(new_disposal_event)
+            )
+
+        except Exception as err:
+            return transaction_error_response(err)
+
+    else:
+        return sample_response.content

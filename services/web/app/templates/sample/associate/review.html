@@ -29,9 +29,33 @@
         </div>
         {{ form_field(form.conducted_by) }}
         {{ form_field(form.comments) }}
+
+        <div class="alert alert-warning" role="alert">
+             <botton class="btn btn-secondary" >
+                 {{ form_field(form.disposal_edit_on) }}
+             </botton>
+             Check the box to view and edit disposal instruction.
+        </div>
+
+        <div id="disposal_edit_fields">
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.disposal_instruction) }}
+
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.disposal_date) }}
+                </div>
+            </div>
+            {{ form_field(form.disposal_comments) }}
+        </div>
         {{ form_field(form.submit) }}
     </form>
 
 
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/disposal/review_disposal.js') }}"></script>
 {% endblock %}

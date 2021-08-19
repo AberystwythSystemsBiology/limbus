@@ -23,8 +23,9 @@ from ...database import (
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
-from ...auth.views import BasicUserAccountSchema
-from ...misc.views import BasicSiteSchema
+from ...auth.views import UserAccountSearchSchema
+from ...misc.views import SiteNameSchema
+from ...event.views import NewEventSchema
 from ..enums import SampleShipmentStatusStatus
 
 
@@ -48,7 +49,6 @@ class BasicSampleShipmentStatusSchema(masql.SQLAlchemySchema):
     datetime=masql.auto_field()
     comments=masql.auto_field()
     tracking_number = masql.auto_field()
-    #shipment = ma.Nested(SampleShipmentSchema, many=False)
 
 basic_sample_shipment_status_schema = BasicSampleShipmentStatusSchema()
 basic_sample_shipments_status_schema = BasicSampleShipmentStatusSchema(many=True)
@@ -60,10 +60,11 @@ class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     id = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
+    author = ma.Nested(UserAccountSearchSchema, many=False)
+    new_site = ma.Nested(SiteNameSchema, many=False)
     created_on = ma.Date()
-    shipment_status = ma.Nested(BasicSampleShipmentStatusSchema, many=False)
-    #event = ma.Nested(EventSchema())
+    shipment_status = ma.Nested(BasicSampleShipmentStatusSchema)#, many=False)
+    event = ma.Nested(NewEventSchema())
 
     _links = ma.Hyperlinks(
         {
@@ -82,8 +83,8 @@ class SampleShipmentToSampleInfoSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleShipmentToSample
 
-    shipments = ma.Nested(BasicSampleShipmentSchema, many=False)
-    old_site = ma.Nested(BasicSiteSchema, many=False)
+    shipment = ma.Nested(BasicSampleShipmentSchema, many=False)
+    old_site = ma.Nested(SiteNameSchema, many=False)
 
 
 from .filter import *

@@ -27,6 +27,28 @@ from wtforms import (
 from ..enums import DisposalReason
 from datetime import datetime
 
+def SampleDisposalInstructionForm(protocols: list) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        disposal_date = DateField(
+            "Sample Disposal Date (*)",
+            description="The date in which the sample is required to be disposed of.",
+            default=datetime.today,
+            validators=[Optional()],
+        )
+
+        disposal_instruction = SelectField(
+            "Sample Disposal Instruction",
+            choices=DisposalInstruction.choices(),
+            description="The method of sample disposal.",
+            validators=[Optional()],
+        )
+
+        disposal_comments = TextAreaField("Sample Disposal Comments")
+        # approved_by = TextAreaField("To be approved by ")
+        submit = SubmitField("Submit")
+
+    return StaticForm()
+
 
 def SampleDisposalEventForm(protocols: list) -> FlaskForm:
     class StaticForm(FlaskForm):

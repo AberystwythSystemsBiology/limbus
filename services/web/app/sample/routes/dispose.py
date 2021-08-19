@@ -35,12 +35,47 @@ def dispose(uuid: str) -> flask_return_union:
     )
 
     if sample_response.status_code == 200:
+        disposal_approved = False
+        try:
+            disposal_info = sample_response.json()["content"]["disposal_information"]
+            print("disposal_info", disposal_info)
+
+            message = "No disposal instruction!"
+            if disposal_info is not None:
+                disposal_instruction = disposal_info["instruction"]
+                print('inst:', disposal_instruction)
+
+                if disposal_instruction not in ['DES','TRA']:
+                    message = "No disposal instruction for sample destruction or transfer!"
+                else:
+                    print("disposal_date", disposal_date)
+                    print("date", disposal_info["disposal_date"])
+                    disposal_date = datetime.strptime(str(
+                        disposal_info["disposal_date"]), "%Y-%m-%d").date()
+
+                    if disposal_date > \
+                            datetime.now().date():
+                        message = "Too early! Expected disposal date %s", disposal_instruction["disposal_date"]
+                    else:
+                        disposal_approved = True
+
+        except:
+            message = "Disposal instruction retrieving error!"
+
+        if not disposal_approved:
+            flash(message)
+            return redirect(url_for("sample.view", uuid=uuid))
 
         # Limit protocols response so that we only retrieve SDE (Sample Disposal)
+        if disposal_instruction == 'DES':
+            disposal_type = "SDE"
+        else:
+            disposal_type = "STR"
         protocols_response = requests.get(
             url_for("api.protocol_query", _external=True),
             headers=get_internal_api_header(),
-            json={"is_locked": False, "type": ["SDE", "STR"]},
+            #json={"is_locked": False, "type": ["SDE", "STR"]},
+            json={"is_locked": False, "type": [disposal_type]},
         )
 
         protocols = []
