@@ -48,10 +48,10 @@ def dispose(uuid: str) -> flask_return_union:
                 if disposal_instruction not in ['DES','TRA']:
                     message = "No disposal instruction for sample destruction or transfer!"
                 else:
-                    print("disposal_date", disposal_date)
-                    print("date", disposal_info["disposal_date"])
                     disposal_date = datetime.strptime(str(
                         disposal_info["disposal_date"]), "%Y-%m-%d").date()
+                    print("date", disposal_info["disposal_date"])
+                    print("disposal_date", disposal_date)
 
                     if disposal_date > \
                             datetime.now().date():

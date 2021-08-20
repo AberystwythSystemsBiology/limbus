@@ -118,15 +118,18 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True)#, primary_key=True)
+
+    sample_id = db.Column(db.ForeignKey("sample.id"))
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
     review_event_id = db.Column(db.Integer, db.ForeignKey("samplereview.id"))
+
+    approved = db.Column(db.Boolean, nullable=True)
     approval_file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
     approval_file = db.relationship("Document")
     approval_event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
-    disposal_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"), unique=True)
+    disposal_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
 
 

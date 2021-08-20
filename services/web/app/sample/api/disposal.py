@@ -125,14 +125,6 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         # Step 3 update disposal instruction table, disposal status => Disposed,
         # Step 4 update storage: delete association to lts/rack
         # Step 5 update sample status set to DES/TRA/.../ accordingly
-        # new_protocol_event_response = requests.post(
-        #     url_for("api.sample_new_sample_protocol_event", _external=True),
-        #     headers=get_internal_api_header(tokenuser),
-        #     json={
-        #         "event" : values["event"],
-        #         "protocol_id": values["protocol_id"],
-        #         "sample_id": sample_response.json()["content"]["id"]            },
-        # )
 
         sample_id = sample_response.json()["content"]["id"]
         protocolevent_values = {"event" : values["event"],

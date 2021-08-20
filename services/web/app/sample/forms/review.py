@@ -31,7 +31,6 @@ from datetime import datetime
 
 
 def SampleReviewForm(data={}):
-    print("data: ", data)
     class StaticForm(FlaskForm):
 
         review_type = SelectField("Review Type", choices=ReviewType.choices())
@@ -88,8 +87,8 @@ def SampleReviewForm(data={}):
             if self.disposal_edit_on.data:
                 if self.disposal_instruction.data in ["DES", "TRA"]:
                     if self.disposal_date.data is None:
-                        self.disposal_date.errors.append("Expected action date required.")
-                        self.disposal_edit_on.errors.append("Expected action date required.")
+                        self.disposal_date.errors.append("Expected disposal date required.")
+                        self.review_type.errors.append("Disposal instruction edit error! Expected action date required!!")
                         return False
 
             return True

@@ -28,11 +28,23 @@ class SampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleReview
 
+    id = masql.auto_field()
     uuid = masql.auto_field()
     quality = EnumField(SampleQuality, by_value=True)
     review_type = EnumField(ReviewType, by_value=True)
     result = EnumField(ReviewResult, by_value=True)
     event = ma.Nested(EventSchema)
+
+    _links = ma.Hyperlinks(
+        {
+            "edit": ma.URLFor(
+                "sample.edit_review", uuid="<uuid>", _external=True
+            ),
+            "remove": ma.URLFor(
+                "sample.remove_review", uuid="<uuid>", _external=True
+            ),
+        }
+    )
 
 
 sample_review_schema = SampleReviewSchema()

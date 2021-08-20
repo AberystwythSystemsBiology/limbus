@@ -36,10 +36,22 @@ function disposal_edit_switch() {
     }
 }
 
+function review_failed_logic() {
+    if ($("#result").val() == 'FA') {
+        $('#disposal_edit_on').prop("checked", true)
+        disposal_edit_switch();
+    }
+}
 
 $(document).ready(function() {
     disposal_logic();
     disposal_edit_switch();
+    review_failed_logic();
+
+    $("#result").on("change", function() {
+        review_failed_logic();
+    });
+
     $("#disposal_edit_on").on("change", function() {
         disposal_edit_switch();
     });

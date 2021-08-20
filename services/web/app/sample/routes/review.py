@@ -26,10 +26,29 @@ from ..forms import SampleReviewForm
 from datetime import datetime
 
 
-@sample.route("review/<uuid>/edit", methods=["GET", "POST"])
+@sample.route("/review/<uuid>/remove", methods=["GET", "POST"])
 @login_required
 def remove_review(uuid: str):
-    return "ToDo"
+    print("About to remove")
+    remove_response = requests.post(
+        url_for("api.sample_remove_sample_review", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+    print("remove_response: ", remove_response.text)
+    if remove_response.status_code == 200:
+        flash("Review/disposal instruction Successfully Deleted!")
+        sample_uuid = remove_response.json()["content"]
+        return redirect(url_for("sample.view", uuid=sample_uuid))
+    else:
+        flash("We have a problem: %s" % (remove_response.json()))
+        abort(501)
+
+
+@sample.route("/review/<uuid>/edit", methods=["GET", "POST"])
+@login_required
+def edit_review(uuid: str):
+    #form = ProtocolEventForm([])
+    abort(501)
 
 
 @sample.route("<uuid>/associate/review", methods=["GET", "POST"])
@@ -47,7 +66,6 @@ def associate_review(uuid: str) -> str:
 
         try:
             disposal_info = sample_response.json()["content"]["disposal_information"]
-            disposal_date = disposal_info["disposal_date"]
             print("disposal: ", disposal_info)
             if disposal_info["instruction"] in ["DES", "TRA"]:
                 disposal_date = datetime.strptime(disposal_info["disposal_date"], "%Y-%m-%d").date()
@@ -67,9 +85,7 @@ def associate_review(uuid: str) -> str:
 
         form = SampleReviewForm(data=disposal_info)
 
-        if not form.validate_on_submit():
-            flash("Invalid data!")
-        else:
+        if form.validate_on_submit():
             review_info = {
                 "review_type": form.review_type.data,
                 "result": form.result.data,
@@ -122,7 +138,7 @@ def associate_review(uuid: str) -> str:
                     flash("Error")
             else:
                 new_review_event_response = requests.post(
-                    url_for("api.sample_new_sample_review", uuid=uuid, _external=True),
+                    url_for("api.sample_new_sample_review_disposal", uuid=uuid, _external=True),
                     headers=get_internal_api_header(),
                     json=review_info,
                 )

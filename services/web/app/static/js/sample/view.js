@@ -271,6 +271,7 @@ function fill_document_information(document_information) {
 }
 
 function fill_sample_reviews(reviews) {
+    let review_events = new Map();
     for (r in reviews) {
         var review_info = reviews[r];
         // Start ul
@@ -318,7 +319,7 @@ function fill_sample_reviews(reviews) {
         html += "<h1><i class='"+ glyphicon + "'></i></h1>"
         html += "</div>"
         html += "<div class='media-body'>"
-        html += "<h5 class='mt-0'>" + review_info["uuid"] + "</h5>";
+        html += "<h5 class='mt-0' id='review-uuid-"+ review_info["id"] +"'>" + review_info["uuid"] + "</h5>";
         html += "<table class='table table-striped'>"
         html += render_content("Quality", review_info["quality"]);
         html += render_content("Conducted By", undertaken_by); //, review_info["event"]["undertaken_by"]);
@@ -331,17 +332,48 @@ function fill_sample_reviews(reviews) {
         html += "</div>"
         html += "<div class='card-footer'>"
         //html += "<a href='" + review_info["_links"]["edit"] + "'>"
-        html += "<div class='btn btn-warning float-left'>Edit</div>"
+        html += "<div class='btn btn-warning float-left disabled'>Edit</div>"
         //html += "</a>"
-        html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
+        //html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
+        //html += "<a href='" + review_info["_links"]["remove"] + "'>"
+        html += "<div id='remove-review-"+review_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        //html += "</a>"
         html += "</div>"
+
         html += "</div>"
 
         // End ul
         html += "</li>"
 
+        review_events.set(review_info["id"].toString(), review_info);
         $("#sample-review-li").append(html);
+
+        $("#remove-review-"+review_info["id"]).on("click", function () {
+            var id = $(this).attr("id").split("-")[2];
+
+            var uuid = $("#review-uuid-"+id).text();
+            $("#delete-review-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = review_events.get(id)["_links"]["remove"];
+
+            $("#review-uuid-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+                if (user_entry == uuid) {
+                    $("#review-remove-confirm-button").prop("disabled", false);
+                    $('#review-remove-confirm-button').click(function() {
+                        window.location.href = removal_link;
+                    });
+                }
+                else {
+                    $("#review-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+        });
     }
+
 }
 
 

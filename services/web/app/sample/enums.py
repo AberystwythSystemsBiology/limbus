@@ -29,7 +29,7 @@ class SampleQuality(FormEnum):
 
 class ReviewType(FormEnum):
     PC = "Purity Check"
-    QC = "Quality Check"
+    QC = "Quantity Check"
     IC = "Identity Check"
 
 
