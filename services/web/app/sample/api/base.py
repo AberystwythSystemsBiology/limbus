@@ -37,7 +37,9 @@ from ..views import (
 
 )
 
-from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, SampleProtocolEvent, ProtocolTemplate)
+from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
+                         SampleProtocolEvent, ProtocolTemplate, SampleDisposal, SampleReview,
+                         SampleShipment, SampleShipmentToSample, SampleShipmentStatus)
 
 from ..enums import *
 
@@ -324,41 +326,172 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id=None, sample=None,
+                              events={}):
+    # - Update sample status when new events added or events are removed!
+    # - events: a dictionary of event objects, with keys from the list:
+    #  ["sample_disposal", "shipment_status", "shipment_to_sample", "sample_review"]
+    #   "shipment_to_sample" can be added only of it is paired with "shipment_status"
+    # - auto_query: Boolean, set to True if automated search of relevant objects are needed,
+    #                         otherwise update status based on the given objects only.
+    # sample_id and sample, the id and the sample object that need to be examined and updated.
+    # ########
+
+    if not sample:
+        if sample_id:
+            sample = Sample.query.filter_by(id=sample_id).first()
+    else:
+        sample_id = sample.id
+
+    if not sample:
+        return {'sample': None, 'message': "Sample/sample_id not found! ", "success": False}
+
+    if sample.is_locked is True or sample.is_closed is True:
+        return {'sample': None, 'message': "Sample locked/closed! ", "success": True}
+
+    if events is None or len(events) is 0 :
+        auto_query = True
+        for e in ["sample_review", "sample_disposal", "disposal_event", "shipment_status"]:
+            events[e] = None
+
+    if "shipment_to_sample" in events:
+        if "shipment_status" not in events:
+            return {'sample': None, 'message': "Shipment_status key missing! ", "success": False}
+
+    if "sample_disposal" in events:
+        sample_disposal = events["sample_disposal"]
+        if sample_disposal:
+            if sample_disposal.sample_id != sample.id:
+                return {'sample': None, 'message': "Non-matched sample_review! ", "success": False}
+        elif auto_query:
+            if sample.disposal_id:
+                sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
+            else:
+                sample_disposal = SampleDisposal.query.join(SampleReview).join(Event).\
+                    filter_by(id=sample.disposal_id).order_by(Event.datetime.desc()).first()
+
+        res = {'sample': None, 'message': "No related sample_disposal! ", "success": True}
+        if sample_disposal:
+            sample.disposal_id = sample_disposal.id
+            if sample_disposal.instruction == DisposalInstruction.REV:
+                # Pending review
+                sample.status = SampleStatus.NRE
+
+            elif sample_disposal.instruction == DisposalInstruction.DES:
+                if sample_disposal.protocol_event_id is not None:
+                    # sample.status = SampleStatus.DES
+                    # sample.is_locked = True
+                    # sample.is_closed = True
+                    # sample.editor_id = tokenuser.id
+                    # sample.updated_on = func.now()
+                    sample.update({"is_locked": True, "is_closed": True, "editor_id": tokenuser.id})
+                    return {'sample': sample, 'message': "Sample destructed! ", "success": True}
+
+            elif sample_disposal.instruction == DisposalInstruction.TRA:
+                if sample_disposal.protocol_event_id is not None:
+                    # sample.status = SampleStatus.DES
+                    # sample.is_locked = True
+                    # sample.is_close = True
+                    # sample.status = SampleStatus.TRA
+                    # sample.editor_id = tokenuser.id
+                    sample.update({"is_locked": True, "is_closed": True, "editor_id": tokenuser.id})
+                    return {'sample': sample, 'message': "sample disposed via transfer", "success": True}
+            else:
+                res = {'sample': None, 'message': "No related sample_disposal for update! ", "success": True}
+
+
+    if "shipment_status" in events:
+        shipment_status = events["shipment_status"]
+
+        shipment_to_sample = None
+        if "shipment_to_sample" in events:
+            shipment_to_sample = events["shipment_to_sample"]
+
+        if shipment_status and shipment_to_sample:
+            if shipment_to_sample.sample_id != sample.id:
+                return {'sample': None, 'message': "Non-matched sample id in shipment info! ", "success": False}
+
+        elif auto_query:
+            shipment_status = SampleShipmentStatus.query.\
+                join(SampleShipmentToSample, SampleShipmentToSample.shipment_id==SampleShipmentStatus.shipment_id).\
+                filter(SampleShipmentToSample.sample_id==sample_id).\
+                order_by(SampleShipmentStatus.datetime.desc()).first()
+
+        res = {'sample': None, 'message': "No related sample shipment status! ", "success": True}
+        if shipment_status:
+            if shipment_status.status not in [None, SampleShipmentStatusStatus.TBC]:
+                sample.status = SampleStatus.TRA
+                shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first_or_404()
+                if shipment:
+                    sample.current_site_id = shipment.site_id
+                else:
+                    sample.current_site_id = None
+
+                sample.editor_id = tokenuser.id
+                return {"sample": sample, "message": "Sample shipped to site %s !" % sample.current_site_id, "success": True}
+            else:
+                res = {'sample': None, 'message': "No related sample shipment status for update!", "success": True}
+
+
+    if "sample_review" in events:
+        sample_review = events["sample_review"]
+        if sample_review:
+            if sample_review.sample_id != sample.id:
+                return {'sample': None, 'message': "non matched sample id for review.", 'success': False}
+        elif auto_query:
+            sample_review = SampleReview.query.join(SampleReview.event).\
+                filter_by(sample_id=sample_id).order_by(Event.datetime.desc()).first()
+
+        res = {'sample': None, 'message': "No related sample_review! ", "success": True}
+        if sample_review:
+            if sample_review.result == ReviewResult.FA:
+                if sample_review.review_type == ReviewType.IC:
+                    print('Id check!')
+                    sample.status = SampleStatus.MIS
+                else:
+                    sample.status = SampleStatus.UNU
+            elif sample_review.result == ReviewResult.PA:
+                print('pass!')
+                if sample_review.quality == SampleQuality.GOO:
+                    sample.status = SampleStatus.AVA
+                elif sample_review.quality == SampleQuality.NOT:
+                    sample.status = SampleStatus.NRE
+            else:
+                sample.status = SampleStatus.UNU
+
+            sample.editor_id = tokenuser.id
+            return {"sample": sample, "message": "sample updated according to review!", "success": True}
+
+    if not res:
+        res = {"sample": None, "message": "No update for sample!", "success": True}
+    return res
+
+
 @api.route("/sample/status/<uuid>", methods=["GET"])
 @token_required
-def sample_update_status(uuid: str, tokenuser: UserAccount):
+def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
-    # class SampleStatus(FormEnum):
-    #     AVA = "Available"
-    #     DES = "Destroyed"
-    #     UNU = "Unusable"
-    #     TRA = "Transferred"
-    #     MIS = "Missing"
-    #     TMP = "Temporary Storage"
-    #     NCO = "Not Collected"
-    #     NPR = "Not Processed"
-    #     NRE = "Pending Review"
-    # Protocol event
-    #
-    # if protocol = acquisition and with date: status = collected
-    # if protocol = process: status = processed
-    #               destruction: if disposal_instruction= destroyed: => destroyed, transferred=> transferred
-    #    review results < not passed/low volumn/... : Unusable / Missing /Available
-    #     if processed and no review: pending review
-    #     if shipment status: is not null or not 'TBC', then transferred.
-    # Access status: TMP (entered in when new sample).
-    # TO DO protocol event action:
-    #  remove transfer/disposal protocol,
-
-    # subq = db.session.query(Sample.id). \
-    #     join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
-    # protocol_event = db.session.query(ProtocolTemplate). \
-    #     join(SampleProtocolEvent).filter_by(**filters_protocol).first()
-    # s2 = db.session.query(Sample.id). \
-    #     join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id). \
-    #     join(subq, subq.c.id == SubSampleToSample.parent_id)
-
-    if sample:
-        return success_with_content_response(sample_schema.dump(sample))
-    else:
+    if not sample:
         return not_found()
+
+    sample_uuid = sample.uuid
+    res = func_update_sample_status(tokenuser=tokenuser,
+                                    auto_query=True, sample_id=None,
+                                    sample=sample, events={})
+    if res["success"]:
+        sample = res["sample"]
+        if sample:
+            try:
+                db.session.add(sample)
+                db.session.commit()
+                #return success_with_content_response(sample_schema.dump(sample))
+                return success_with_content_message_response(sample_schema.dump(sample), message=res["message"])
+            except Exception as err:
+              return transaction_error_response(err)
+
+        else:
+            #return not_found()
+            return success_with_content_message_response({"uuid": uuid}, message=res["message"])
+
+    else:
+        validation_error_response()

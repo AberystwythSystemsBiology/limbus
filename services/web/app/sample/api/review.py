@@ -17,13 +17,16 @@ from flask import request, abort, url_for
 from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
+from .base import func_update_sample_status
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 
-from ..views import new_sample_review_schema, sample_review_schema, new_sample_disposal_schema
+from ..views import new_sample_review_schema, sample_review_schema, new_sample_disposal_schema, new_sample_schema
 
+from ..enums import SampleStatus, ReviewType, ReviewResult, SampleQuality, DisposalInstruction
 from ...database import db, Sample, SampleReview, SampleDisposal, UserAccount, Event
 from sqlalchemy.sql import func
+
 
 @api.route("/sample/review/<uuid>/edit", methods=["POST"])
 @token_required
@@ -42,18 +45,13 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
 
         # Collection of all relevant records
         sample = Sample.query.filter_by(id=review_event.sample_id).first()
-        print("sample: ", sample)
         if sample.is_locked:
             err = {"messages": "Sample Locked!"}
             return locked_response(err)
 
-        ##sample_uuid = Sample.query.filter_by(id=review_event.sample_id).first().uuid
         sample_uuid = sample.uuid
-        print("sample_uuid: ", sample_uuid)
         disposal_instruction = SampleDisposal.query.filter_by(review_event_id=review_event.id).first()
-        print('disposal: ', disposal_instruction)
         event = Event.query.filter_by(id=review_event.event_id).first()
-        print('Event: ', event)
 
         if disposal_instruction:
             if disposal_instruction.approved is not None:
@@ -71,18 +69,37 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
         return not_found()
 
     try:
-        print('okok1')
         db.session.delete(review_event)
         db.session.flush()
-        print('okok2')
         if event:
             db.session.delete(event)
         db.session.commit()
-
-        return success_with_content_response(sample_uuid)
-
     except Exception as err:
         return transaction_error_response(err)
+
+    # Update sample status
+    res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
+                 events={"sample_disposal": None, "review_event": None})
+
+    message = "Review/disposal instruction successfully deleted! "
+    print("sample", sample, res["message"])
+    if res["success"]:
+        if res["sample"] is None:
+            # return success_with_content_response(sample_uuid)
+            return success_with_content_message_response(sample_uuid, message=message + res["message"])
+
+        try:
+            db.session.add(sample)
+            db.session.commit()
+            #return success_with_content_response(sample_uuid)
+            return success_with_content_message_response(sample_uuid, message=message + res["message"])
+
+        except Exception as err:
+            return success_with_content_message_response(sample_uuid,
+                   message=message + "Transaction error in sample status update")
+    else:
+        #return success_with_content_response(sample_uuid)
+        success_with_content_message_response(sample_uuid, message=message + res["message"])
 
 
 @api.route("/sample/new/review_disposal", methods=["POST"])
@@ -93,7 +110,7 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-
+    print("values: ", values)
     sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
     disposal_id = sample.disposal_id
     disposal_info = None
@@ -142,30 +159,27 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-
     if disposal_info:
         # Add new disposal instruction
-        # TODO Workflow needs to be confirmed: Update if existing instruction hasn't been approved?
+        # TODO: check workflow: Update if existing instruction hasn't been approved?
         new_instruction = True
-        #if disposal_id:
-        # Add new disposal only
-        if False:
-            disposal_instruction = SampleDisposal.query.filter_by(id=disposal_id).\
-                               first_or_404()
-            if disposal_instruction:
-                if not disposal_instruction.approval_event_id:
-                    new_instruction = False
+        # if disposal_id:
+        #     disposal_instruction = SampleDisposal.query.filter_by(id=disposal_id).\
+        #                        first_or_404()
+        #     if disposal_instruction:
+        #         if not disposal_instruction.approval_event_id:
+        #             new_instruction = False
 
         if new_instruction:
             disposal_instruction = SampleDisposal(**disposal_info)
             disposal_instruction.review_event_id = new_sample_review.id
             disposal_instruction.author_id = tokenuser.id
 
-        else:
-            disposal_instruction.update(disposal_info)
-            disposal_instruction.review_event_id = new_sample_review.id
-            disposal_instruction.editor_id = tokenuser.id
-            disposal_instruction.updated_on = func.now()
+        # else:
+        #     disposal_instruction.update(disposal_info)
+        #     disposal_instruction.review_event_id = new_sample_review.id
+        #     disposal_instruction.editor_id = tokenuser.id
+        #     disposal_instruction.updated_on = func.now()
 
         try:
             db.session.add(disposal_instruction)
@@ -174,9 +188,35 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
+        # Update sample status
         sample.disposal_id = disposal_instruction.id
+        if disposal_instruction.instruction == DisposalInstruction.REV:
+            # Pending review
+            sample.status = "NRE"
 
-    # TODO sample.status update!!
+
+    ####  Update sample status
+    # IF review failed: set status to unusable for purity/quantity test
+    #                   and missing for identity test,
+    # IF pass: only set status to available if the review and quality is good
+    #                   otherwise Unusable or Further Review Pending
+    if new_sample_review.result == ReviewResult.FA:
+        if new_sample_review.review_type == ReviewType.IC:
+            print('Id check!')
+            sample.status = SampleStatus.MIS
+        else:
+            sample.status = SampleStatus.UNU
+    elif new_sample_review.result == ReviewResult.PA:
+        print('pass!')
+        if new_sample_review.quality == SampleQuality.GOO:
+            sample.status = SampleStatus.AVA
+        elif new_sample_review.quality == SampleQuality.NOT:
+            sample.status = SampleStatus.NRE
+    else:
+        sample.status = SampleStatus.UNU
+
+    sample.editor_id = tokenuser.id
+    sample.update_on = func.now()
 
     try:
         db.session.add(sample)
@@ -189,7 +229,7 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-
+# not updating sample status or disposal instruction
 @api.route("/sample/new/review", methods=["POST"])
 @token_required
 def sample_new_sample_review(tokenuser: UserAccount):

@@ -36,12 +36,16 @@ def remove_review(uuid: str):
     )
     print("remove_response: ", remove_response.text)
     if remove_response.status_code == 200:
-        flash("Review/disposal instruction Successfully Deleted!")
+        #flash("Review/disposal instruction Successfully Deleted!")
         sample_uuid = remove_response.json()["content"]
+        #message_status_update = remove_response.json()["message"]
+        #flash("Review/disposal instruction Successfully Deleted!" + message_status_update)
+        flash(remove_response.json()["message"])
         return redirect(url_for("sample.view", uuid=sample_uuid))
     else:
         flash("We have a problem: %s" % (remove_response.json()))
-        abort(501)
+        #abort(501)
+        abort(remove_response.status_code)
 
 
 @sample.route("/review/<uuid>/edit", methods=["GET", "POST"])

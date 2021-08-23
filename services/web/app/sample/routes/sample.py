@@ -154,3 +154,16 @@ def view_data(uuid: str):
         print("sample_response: ", sample_response.text)
         return sample_response.json()
     return sample_response.content
+
+@sample.route("<uuid>/update_status", methods=["GET"])
+@login_required
+def update_sample_status(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_update_sample_status", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        print("sample_response: ", sample_response.text)
+        return sample_response.json()
+    return sample_response.content

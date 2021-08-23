@@ -48,6 +48,8 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
     site_id = masql.auto_field()
+    #current_site_id = masql.auto_field()
+
     quantity = masql.auto_field()
     disposal_id = masql.auto_field()
     consent_id = masql.auto_field()
@@ -123,6 +125,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     biohazard_level = EnumField(BiohazardLevel, by_value=True)
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
+    current_site_id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
 
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)

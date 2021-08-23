@@ -15,10 +15,26 @@
     
     <form action="{{ url_for('sample.associate_review', uuid=sample.uuid) }}" method="POST">
         {{ form.csrf_token() }}
-        {{ form_field(form.review_type) }}
-        {{ form_field(form.result) }}
 
-        {{ form_field(form.quality) }}
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.review_type) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.result) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.quality) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.conducted_by) }}
+            </div>
+        </div>
+
+
         <div class="row">
             <div class="col-6">
                 {{ form_field(form.date) }}
@@ -27,7 +43,7 @@
                 {{ form_field(form.time) }}
             </div>
         </div>
-        {{ form_field(form.conducted_by) }}
+
         {{ form_field(form.comments) }}
 
         <div class="alert alert-warning" role="alert">

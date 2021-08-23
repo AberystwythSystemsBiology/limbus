@@ -293,7 +293,7 @@ class SampleStatus(FormEnum):
     MIS = "Missing"
     TMP = "Temporary Storage"
     NCO = "Not Collected"
-    NPR = "Not Processed"
+    #NPR = "Not Processed"
     NRE = "Pending Review"
 
 

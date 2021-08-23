@@ -42,6 +42,7 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
         primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
     )
 
+    #shipment_status_id = db.Column(db.Integer, db.ForeignKey("SampleShipmentStatus.id"))
     shipment_status = db.relationship("SampleShipmentStatus", uselist=False)
     #    primaryjoin="SampleShipmentStatus.shipment_id == SampleShipment.id")#, uselist=False)
 
