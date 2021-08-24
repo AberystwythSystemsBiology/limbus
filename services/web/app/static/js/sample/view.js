@@ -363,7 +363,24 @@ function fill_sample_reviews(reviews) {
                 if (user_entry == uuid) {
                     $("#review-remove-confirm-button").prop("disabled", false);
                     $('#review-remove-confirm-button').click(function() {
-                        window.location.href = removal_link;
+                        //window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-review-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                window.location.reload();
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                return false
+                            }
+                            }
+                        });
                     });
                 }
                 else {
@@ -373,8 +390,8 @@ function fill_sample_reviews(reviews) {
             })
         });
     }
-
 }
+
 
 
 function fill_protocol_events(events) {
@@ -459,7 +476,25 @@ function fill_protocol_events(events) {
                 if (user_entry == uuid) {
                     $("#protocol-remove-confirm-button").prop("disabled", false);
                     $('#protocol-remove-confirm-button').click(function() {
-                        window.location.href = removal_link;
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+
+                            if (data["success"]) {
+                                window.location.reload();
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                return false
+                            }
+                            }
+                        });
                     });
                 } 
                 else {

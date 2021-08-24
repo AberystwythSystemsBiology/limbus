@@ -39,7 +39,8 @@ from ..views import (
 
 from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
                          SampleProtocolEvent, ProtocolTemplate, SampleDisposal, SampleReview,
-                         SampleShipment, SampleShipmentToSample, SampleShipmentStatus)
+                         SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
+                         EntityToStorage)
 
 from ..enums import *
 
@@ -362,13 +363,18 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         sample_disposal = events["sample_disposal"]
         if sample_disposal:
             if sample_disposal.sample_id != sample.id:
-                return {'sample': None, 'message': "Non-matched sample_review! ", "success": False}
+                return {'sample': None, 'message': "Non-matched sample_disposal! ", "success": False}
         elif auto_query:
-            if sample.disposal_id:
-                sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
-            else:
-                sample_disposal = SampleDisposal.query.join(SampleReview).join(Event).\
-                    filter_by(id=sample.disposal_id).order_by(Event.datetime.desc()).first()
+            # if sample.disposal_id:
+            #     sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
+            # else:
+            sample_disposal = SampleDisposal.query.join(SampleReview).join(Event).\
+                filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
+            if not sample_disposal:
+                # No linked sample review
+                #sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
+                sample_disposal = SampleDisposal.query.\
+                    filter_by(sample_id=sample_id).order_by(SampleDisposal.updated_on.desc()).first()
 
         res = {'sample': None, 'message': "No related sample_disposal! ", "success": True}
         if sample_disposal:
@@ -376,25 +382,22 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             if sample_disposal.instruction == DisposalInstruction.REV:
                 # Pending review
                 sample.status = SampleStatus.NRE
+                sample.update({"editor_id": tokenuser.id})
 
             elif sample_disposal.instruction == DisposalInstruction.DES:
-                if sample_disposal.protocol_event_id is not None:
-                    # sample.status = SampleStatus.DES
-                    # sample.is_locked = True
-                    # sample.is_closed = True
-                    # sample.editor_id = tokenuser.id
-                    # sample.updated_on = func.now()
-                    sample.update({"is_locked": True, "is_closed": True, "editor_id": tokenuser.id})
+                if sample_disposal.disposal_event_id is not None:
+                    sample.status = SampleStatus.DES
+                    sample.is_locked = True
+                    sample.is_close = True
+                    sample.update({"editor_id": tokenuser.id})
                     return {'sample': sample, 'message': "Sample destructed! ", "success": True}
 
             elif sample_disposal.instruction == DisposalInstruction.TRA:
-                if sample_disposal.protocol_event_id is not None:
-                    # sample.status = SampleStatus.DES
-                    # sample.is_locked = True
-                    # sample.is_close = True
-                    # sample.status = SampleStatus.TRA
-                    # sample.editor_id = tokenuser.id
-                    sample.update({"is_locked": True, "is_closed": True, "editor_id": tokenuser.id})
+                if sample_disposal.disposal_event_id is not None:
+                    sample.status = SampleStatus.TRA
+                    sample.is_locked = True
+                    sample.is_close = True
+                    sample.update({"editor_id": tokenuser.id})
                     return {'sample': sample, 'message': "sample disposed via transfer", "success": True}
             else:
                 res = {'sample': None, 'message': "No related sample_disposal for update! ", "success": True}
@@ -421,13 +424,14 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         if shipment_status:
             if shipment_status.status not in [None, SampleShipmentStatusStatus.TBC]:
                 sample.status = SampleStatus.TRA
+
                 shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first_or_404()
                 if shipment:
                     sample.current_site_id = shipment.site_id
                 else:
                     sample.current_site_id = None
 
-                sample.editor_id = tokenuser.id
+                sample.update({"editor_id": tokenuser.id})
                 return {"sample": sample, "message": "Sample shipped to site %s !" % sample.current_site_id, "success": True}
             else:
                 res = {'sample': None, 'message': "No related sample shipment status for update!", "success": True}
@@ -439,8 +443,8 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             if sample_review.sample_id != sample.id:
                 return {'sample': None, 'message': "non matched sample id for review.", 'success': False}
         elif auto_query:
-            sample_review = SampleReview.query.join(SampleReview.event).\
-                filter_by(sample_id=sample_id).order_by(Event.datetime.desc()).first()
+            sample_review = SampleReview.query.join(Event).\
+                filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
 
         res = {'sample': None, 'message': "No related sample_review! ", "success": True}
         if sample_review:
@@ -459,7 +463,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             else:
                 sample.status = SampleStatus.UNU
 
-            sample.editor_id = tokenuser.id
+            sample.update({"editor_id": tokenuser.id})
             return {"sample": sample, "message": "sample updated according to review!", "success": True}
 
     if not res:
@@ -484,14 +488,16 @@ def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
             try:
                 db.session.add(sample)
                 db.session.commit()
-                #return success_with_content_response(sample_schema.dump(sample))
-                return success_with_content_message_response(sample_schema.dump(sample), message=res["message"])
+                return success_with_content_message_response(
+                    sample_schema.dump(sample), message=res["message"]
+                )
             except Exception as err:
               return transaction_error_response(err)
 
         else:
-            #return not_found()
-            return success_with_content_message_response({"uuid": uuid}, message=res["message"])
+            return success_with_content_message_response(
+                {"uuid": uuid}, message=res["message"]
+            )
 
     else:
         validation_error_response()

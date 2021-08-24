@@ -17,6 +17,7 @@ from flask import request, abort, url_for
 from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
+from .base import func_update_sample_status
 from ...decorators import token_required
 from ...misc import get_internal_api_header, flask_return_union
 
@@ -31,7 +32,8 @@ from ..views import (
 from ...database import (
     db, SampleDisposal, UserAccount,
     SampleDisposalEvent, Sample,
-    Event, SampleProtocolEvent)
+    Event, SampleProtocolEvent,
+    EntityToStorage)
 
 import requests
 
@@ -119,12 +121,12 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
     )
 
     if sample_response.status_code == 200:
-        # Step 1 Check sample disposal instruction (TO DO: sample disposal instruction UPDATE)
+        # Step 1 Check sample disposal instruction
         # -- if disposal date approached: proceed to step 2 otherwise, stop with warning date
         # Step 2 add new protocol event
-        # Step 3 update disposal instruction table, disposal status => Disposed,
+        # Step 3 update disposal instruction table
         # Step 4 update storage: delete association to lts/rack
-        # Step 5 update sample status set to DES/TRA/.../ accordingly
+        # Step 5 update sample status
 
         sample_id = sample_response.json()["content"]["id"]
         protocolevent_values = {"event" : values["event"],
@@ -176,43 +178,55 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
 
         try:
             db.session.add(new_disposal_event)
+        except ValidationError as err:
+            return validation_error_response(err)
 
-            sample = Sample.query.filter_by(
-                uuid=sample_response.json()["content"]["uuid"]
-            ).first()
+        sample = Sample.query.filter_by(
+            uuid=sample_response.json()["content"]["uuid"]
+        ).first()
 
-            disposal_instruction = SampleDisposal.query.filter_by(id = sample.disposal_id).first()
-            disposal_instruction.disposal_event_id = new_sample_protocol_event.id
-            disposal_instruction.editor_id = tokenuser.id
+        disposal_instruction = SampleDisposal.query.filter_by(id = sample.disposal_id).first()
+        disposal_instruction.disposal_event_id = new_sample_protocol_event.id
+        disposal_instruction.editor_id = tokenuser.id
 
-            if new_disposal_event.reason in ["DES", "FAI"]:
-                sample.status = "DES"
-            elif new_disposal_event.reason == "TRA":
-                sample.status = "TRA"
-            elif new_disposal_event.reason == "UNA":
-                sample.status = "MIS"
-            else:
-                sample.status = "UNU"
+        ets = EntityToStorage.query.filter_by(sample_id=sample_id).all()
 
-            sample.editor_id = tokenuser.id
-            sample.is_locked = True
-            sample.is_closed = True
-            db.session.add(sample)
-
-            ets = EntityToStorage.query.filter_by(
-                sample_id=values["sample_id"]).all()
-            if ets: #and len(ets) > 0:
+        if ets:
+            try:
                 for et in ets:
                     db.session.delete(et)
+            except ValidationError as err:
+                return validation_error_response(err)
+
+        sample_status_events = {"sample_disposal": disposal_instruction}
+
+        try:
+            res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
+                                            events=sample_status_events)
+
+            message = "Sample successfully disposed! " + res["message"]
+            print("sample", sample, res["message"])
+            if res["success"] is True and res["sample"]:
+                db.session.add(sample)
 
             db.session.commit()
-
-            return success_with_content_response(
-                basic_sample_disposal_event_schema.dump(new_disposal_event)
+            return success_with_content_message_response(
+                basic_sample_disposal_event_schema.dump(new_disposal_event), message
             )
 
         except Exception as err:
             return transaction_error_response(err)
+
+        # try:
+        #     db.session.add(sample)
+        #     db.session.commit()
+        #
+        #     return success_with_content_response(
+        #         basic_sample_disposal_event_schema.dump(new_disposal_event)
+        #     )
+        #
+        # except Exception as err:
+        #     return transaction_error_response(err)
 
     else:
         return sample_response.content

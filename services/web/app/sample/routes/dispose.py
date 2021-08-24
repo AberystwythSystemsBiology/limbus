@@ -71,10 +71,10 @@ def dispose(uuid: str) -> flask_return_union:
             disposal_type = "SDE"
         else:
             disposal_type = "STR"
+
         protocols_response = requests.get(
             url_for("api.protocol_query", _external=True),
             headers=get_internal_api_header(),
-            #json={"is_locked": False, "type": ["SDE", "STR"]},
             json={"is_locked": False, "type": [disposal_type]},
         )
 
@@ -119,8 +119,16 @@ def dispose(uuid: str) -> flask_return_union:
             )
 
             if new_disposal_event_response.status_code == 200:
-                flash("Sample Disposed Successfully")
-                return redirect("sample.index")
+                #flash("Sample Disposed Successfully")
+                flash(new_disposal_event_response.json()["message"])
+                return redirect(url_for("sample.view", uuid=uuid))
+
+                # flash(new_disposal_event_response.json()["message"])
+                # try:
+                #     print("meesage:", new_disposal_event_response.message)
+                # except:
+                #     pass
+                # return redirect("sample.index")
 
             else:
                 return new_disposal_event_response.content

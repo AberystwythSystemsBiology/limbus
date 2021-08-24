@@ -15,7 +15,7 @@
 
 from .. import sample
 import requests
-from flask import render_template, url_for, flash, redirect, abort
+from flask import render_template, url_for, flash, redirect, abort, make_response, jsonify
 from flask_login import login_required
 
 import requests
@@ -29,23 +29,20 @@ from datetime import datetime
 @sample.route("/review/<uuid>/remove", methods=["GET", "POST"])
 @login_required
 def remove_review(uuid: str):
-    print("About to remove")
     remove_response = requests.post(
         url_for("api.sample_remove_sample_review", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
     print("remove_response: ", remove_response.text)
     if remove_response.status_code == 200:
-        #flash("Review/disposal instruction Successfully Deleted!")
         sample_uuid = remove_response.json()["content"]
-        #message_status_update = remove_response.json()["message"]
-        #flash("Review/disposal instruction Successfully Deleted!" + message_status_update)
         flash(remove_response.json()["message"])
-        return redirect(url_for("sample.view", uuid=sample_uuid))
+        #return redirect(url_for("sample.view", uuid=sample_uuid))
+
     else:
-        flash("We have a problem: %s" % (remove_response.json()))
-        #abort(501)
-        abort(remove_response.status_code)
+        flash("We have a problem: %s" % (remove_response.json()["message"]))
+        #abort(remove_response.status_code)
+    return remove_response.json()
 
 
 @sample.route("/review/<uuid>/edit", methods=["GET", "POST"])
@@ -135,11 +132,13 @@ def associate_review(uuid: str) -> str:
                 )
 
                 if new_review_event_response.status_code == 200:
-                    flash("Sample Review and Disposal Instruction Successfully Added!")
+                    #flash("Sample Review and Disposal Instruction Successfully Added!")
+                    flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.view", uuid=uuid))
 
                 else:
-                    flash("Error")
+                    # flash("Error")
+                    flash(new_review_event_response.json()["message"])
             else:
                 new_review_event_response = requests.post(
                     url_for("api.sample_new_sample_review_disposal", uuid=uuid, _external=True),
@@ -148,11 +147,13 @@ def associate_review(uuid: str) -> str:
                 )
 
                 if new_review_event_response.status_code == 200:
-                    flash("Sample Review Successfully Added!")
+                    #flash("Sample Review Successfully Added!")
+                    flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.view", uuid=uuid))
 
                 else:
-                    flash("Error")
+                    # flash("Error")
+                    flash(new_review_event_response.json()["message"])
 
         return render_template(
             "sample/associate/review.html",
