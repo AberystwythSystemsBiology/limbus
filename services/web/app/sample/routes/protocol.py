@@ -48,7 +48,7 @@ def new_protocol_event(uuid):
                     protocols.append(
                         (
                             int(protocol["id"]),
-                            "LIMBPRO-%s: %s" % (protocol["id"], protocol["name"]),
+                            "[%s] LIMBPRO-%s: %s" % (protocol["type"], protocol["id"], protocol["name"]),
                         )
                     )
 

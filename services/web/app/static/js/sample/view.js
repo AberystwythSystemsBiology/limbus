@@ -233,8 +233,28 @@ function fill_basic_information(sample_information) {
     html += render_content("Type", sample_information["base_type"]);
     html += render_content("Sample Type", sample_type);
 
-
     html += render_content("Quantity", sample_information["remaining_quantity"] + " / " + sample_information["quantity"] + " " + measurement);
+    if (sample_information["storage"] != null) {
+        var storage_info = "Not Available"
+        console.log("stor: ", sample_information["storage"])
+        if (sample_information["storage"]["storage_type"] == "STB") {
+            storage_info = sample_information["storage"]["rack"]["id"] +
+                            sample_information["storage"]["rack"]["serial_num"]
+            storage_link = sample_information["storage"]["rack"]["_links"]["self"]
+            storage_info = "<a href='" + storage_link+ "'>" + storage_info + "</a>"
+
+        } else if (sample_information["storage"]["storage_type"] == "STS") {
+            storage_info = sample_information["storage"]["shelf"]["id"] +
+                            sample_information["storage"]["shelf"]["name"]
+            storage_link = sample_information["storage"]["shelf"]["_links"]["self"]
+            storage_info = "<a href='" + storage_link+ "'>" + storage_info + "</a>";
+        }
+    }
+    html += render_content("Location", storage_info);
+    html += render_content("Collection site", sample_information["site_id"]);
+    html += render_content("Current site", sample_information["current_site_id"]);
+
+    //html += render_content("Access status", sample_information["biohazard_level"]);
 
     $("#basic-information").html(html);
 }
