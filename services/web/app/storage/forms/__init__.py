@@ -21,6 +21,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
     SelectField,
+    SelectMultipleField,
     SubmitField,
     DateField,
     TimeField,
@@ -78,6 +79,39 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
         "samples",
         SelectField(
             "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int,render_kw={'onchange': "check_sample()"}
+        ),
+    )
+
+    return StaticForm()
+
+def SamplesToEntityForm(samples: list) -> FlaskForm:
+
+    samples_choices = [[0, '--- Select at least one samples ---']]
+    for sample in samples:
+        samples_choices.append([int(sample["id"]), sample["uuid"]])
+
+    print("samples_choices ", samples_choices)
+
+    class StaticForm(FlaskForm):
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
+        entered_by = StringField(
+            "Entered By",
+            description="The initials of the person that entered the sample.",
+        )
+        submit = SubmitField("Submit")
+
+    default_choices = [int(s[0]) for s in samples_choices if int(s[0]) >0]
+
+    setattr(
+        StaticForm,
+        "samples",
+        SelectMultipleField(
+            "Sample(s)", choices=samples_choices, default=default_choices, validators=[DataRequired()], coerce=int, #render_kw={'onchange': "check_sample()"}
         ),
     )
 

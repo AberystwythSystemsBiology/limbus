@@ -337,7 +337,7 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             )
 
         ESrecords = EntityToStorage.query.filter_by(sample_id=sample_id).all()
-        new_uc = UserCart(sample_id=sample_id,storage_type=None,selected=True, author_id=tokenuser.id)
+        new_uc = UserCart(sample_id=sample_id, storage_type=None, selected=True, author_id=tokenuser.id)
 
         for es in ESrecords:
             db.session.delete(es)

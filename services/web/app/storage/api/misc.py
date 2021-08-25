@@ -31,7 +31,6 @@ from ..views.misc import (
     new_sample_rack_to_shelf_schema,
 )
 
-
 @api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
@@ -65,7 +64,7 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-
+# Not use
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
@@ -102,6 +101,69 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
             author_id=tokenuser.id,
         )
         db.session.add(ets)
+
+    try:
+        db.session.commit()
+        return success_with_content_response({"success": True})
+    except Exception as err:
+        return transaction_error_response(err)
+
+@api.route("/storage/transfer/samples_to_shelf", methods=["POST"])
+@token_required
+def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    sample_ids = values.pop("sample_id")
+    if not sample_ids or len(sample_ids) == 0:
+        return not_found("sample")
+
+    for sample_id in sample_ids:
+        values["sample_id"] = sample_id
+
+        try:
+            sample_to_shelf_result = new_sample_to_shelf_schema.load(values)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STB').first()
+        if ets != None:
+            # warning, confirmation
+            try:
+                db.session.delete(ets)
+            except Exception as err:
+                return transaction_error_response(err)
+
+        ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STS').first()
+        if ets != None:
+            ets.box_id = None
+            ets.shelf_id = values["shelf_id"]
+            ets.editor_id = tokenuser.id
+            ets.updated_on = func.now()
+            ets.storage_type = "STS"
+
+        else:
+            ets = EntityToStorage(
+                sample_id=values["sample_id"],
+                shelf_id=values["shelf_id"],
+                storage_type="STS",
+                entry=values["entry"],
+                entry_datetime=values["entry_datetime"],
+                author_id=tokenuser.id,
+            )
+            try:
+                db.session.add(ets)
+            except Exception as err:
+                return transaction_error_response(err)
+
+        usercart = UserCart.query.filter_by(sample_id=values["sample_id"], author_id=tokenuser.id).first()
+        try:
+            if usercart:
+                db.session.delete(usercart)
+        except Exception as err:
+            return transaction_error_response(err)
 
     try:
         db.session.commit()

@@ -331,7 +331,7 @@ def storage_rack_to_shelf_check(id,tokenuser:UserAccount):
         return success_with_content_response("RST")
     return success_with_content_response("RIV")
 
-@api.route("/storage//query/SAMPLE-<id>",methods=["GET"])
+@api.route("/storage/query/SAMPLE-<id>",methods=["GET"])
 @token_required
 def storage_sample_to_entity_check(id,tokenuser:UserAccount):
     uc = UserCart.query.filter_by(sample_id=id).first()

@@ -25,9 +25,10 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from .. import storage
-from ..forms import NewShelfForm, SampleToEntityForm, RackToShelfForm
+from ..forms import NewShelfForm, SampleToEntityForm, SamplesToEntityForm, RackToShelfForm
 import requests
 from ...misc import get_internal_api_header
+
 from datetime import datetime
 
 
@@ -220,7 +221,7 @@ def assign_rack_to_shelf(id):
 
     return abort(response.status_code)
 
-
+# Not in use
 @storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])
 @login_required
 def assign_sample_to_shelf(id):
@@ -274,6 +275,68 @@ def assign_sample_to_shelf(id):
             )
 
     return abort(response.status_code)
+
+@storage.route("/shelf/LIMBSHF-<id>/assign_samples_in_cart", methods=["GET", "POST"])
+@login_required
+def assign_samples_to_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.json()["content"]["is_locked"]:
+        return abort(401)
+
+    if response.status_code == 200:
+
+        sample_response = requests.get(
+            url_for("api.get_cart", _external=True),
+            headers=get_internal_api_header(),
+        )
+        print("sss: ", sample_response.text)
+        if sample_response.status_code == 200:
+            samples = []
+            for item in sample_response.json()["content"]:
+                if item["selected"]:
+                    samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+
+            print('selected: ', samples)
+
+            #form = SamplesToEntityForm(sample_response.json()["content"])
+            form = SamplesToEntityForm(samples)
+
+            if form.validate_on_submit():
+
+                sample_move_response = requests.post(
+                    url_for("api.storage_transfer_samples_to_shelf", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "sample_id": form.samples.data,
+                        "shelf_id": id,
+                        "entry_datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "entry": form.entered_by.data,
+                    },
+                )
+
+                if sample_move_response.status_code == 200:
+                    return redirect(url_for("storage.view_shelf", id=id))
+
+                else:
+                    flash(sample_move_response.json())
+
+            return render_template(
+                "storage/shelf/sample_to_shelf.html",
+                shelf=response.json()["content"],
+                form=form,
+            )
+
+    return abort(response.status_code)
+
 
 @storage.route("/shelf/query/sample", methods=["GET","POST"])
 def check_sample_to_shelf():
