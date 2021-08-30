@@ -112,6 +112,9 @@
 
 
             <div class="rack-view-area">
+                <div style="visibility: hidden; display: none">
+                    <input type="hidden" name="sampletostore" value="{{ sampletostore }}">
+                </div>
                 <div class="row">
                     <div class="col">
                     <h2><i class="fa fa-grip-vertical"></i> Rack View (<span id="row"></span> x <span id="col"></span>)
@@ -230,8 +233,20 @@
 {% endblock %}
 
 {% block javascript %}
+{#<script>#}
+{#    window.onload = function () {#}
+{#        check_sample();#}
+{#    };#}
+{#</script>#}
+{#<script src="{{ url_for('static', filename='js/storage/rack/rack_checks.js') }}"></script>#}
+<script>
+    //sessionStorage.clear();
+    sessionStorage.removeItem("sampletostore");
+	sampletostore = {{ sampletostore | tojson }};
+    sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore));
+</script>
 <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
-{#<script src="{{ url_for('static', filename='js/storage/rack/view.js') }}"></script>#}
 <script src="{{ url_for('static', filename='js/storage/rack/sampletorack_view.js') }}"></script>
+
 {% endblock %}

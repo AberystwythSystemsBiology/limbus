@@ -117,7 +117,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         sample_id = sample['sample_id']
 
         # Step 1 Delete existing entity to storage record for given sample
-        #  ??Could consider setting removed to True instead of delete the whole record in the future
+        # TODO: Could consider setting removed to True instead of delete the whole record in the future
         #
         stbs = EntityToStorage.query.filter(EntityToStorage.sample_id == sample_id,
                     EntityToStorage.storage_type!='BTS',
@@ -153,6 +153,15 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
         stb_batch.append(new_stb)
 
+        usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
+        #usercart = UserCart.query.filter_by(sample_id=sample_id).first()
+        if usercart:
+            try:
+                db.session.delete(usercart)
+            except Exception as err:
+                return transaction_error_response(err)
+                #pass
+
     # Postgres dialect, prefetch the id for batch insert
     identities = [
         val for val, in db.session.execute(
@@ -171,7 +180,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-    return success_with_content_message_response({"id":rack_id}, message)
+    return success_with_content_message_response({"id": rack_id}, message)
 
 
 def func_rack_vacancies(num_rows, num_cols, occupancies=None):
@@ -181,7 +190,7 @@ def func_rack_vacancies(num_rows, num_cols, occupancies=None):
     return(vacancies)
 
 def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
-    # TO DO: allow change of fillopt
+    # TODO: allow change of fillopt
     fillopt = {'column_first': True, 'num_channels': 0}
 
     n_samples = len(samples)
@@ -246,20 +255,19 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
 @token_required
 def storage_rack_fill_with_samples(tokenuser: UserAccount):
+    samples = []
     if request.method == 'POST':
       values = request.get_json()
-      #print('request data', values)
       samples = values['samples']
 
     else:
         values = None
 
-    if not values:
+    if len(samples) == 0:
         return no_values_response()
 
-    # samples_pos = values.pop("samples_pos")
-    # entry_datetime = values.pop("entry_datetime")
-    # entry = values.pop("entry")
+    entry_datetime = values.pop("entry_datetime", None)
+    entry = values.pop("entry", None)
 
     rack_id = int(values['rack_id'])
     samples = values['samples']
@@ -277,7 +285,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.\
             filter(EntityToStorage.rack_id==rack_id, EntityToStorage.storage_type=='STB',
                    or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
-        #print("stbs", stbs)
+        print("stbs", stbs)
         occupancies = [(stb1.row, stb1.col) for stb1 in stbs]
 
         num_rows = rack.num_rows
@@ -292,15 +300,15 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.\
             filter(EntityToStorage.sample_id.in_(sample_ids), EntityToStorage.storage_type=='STB',
                    or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
-        print("stbs", [(stb1.sample_id, stb1.rack_id) for stb1 in stbs])
+
         sample_ids_stored0 = [stb1.sample_id for stb1 in stbs if stb1.rack_id == rack_id]
         sample_ids_stored1 = [stb1.sample_id for stb1 in stbs if stb1.rack_id != rack_id]
         n_stored1 = len(sample_ids_stored1)
-        print('sample_ids_stored0 ', sample_ids_stored0)
+        #print('sample_ids_stored0 ', sample_ids_stored0)
         samples = [sample for sample in samples if sample['id'] not in sample_ids_stored0]
 
         message = ''
-        print('n_stored1', n_stored1)
+        #print('n_stored1', n_stored1)
         if (n_stored1>0):
             message = "%d sample(s) already stored in a different rack, " \
                       "submit will change the location for these samples" % n_stored1
@@ -311,10 +319,20 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
             err = {'messages': "Errors in assigning a rack position to samples!"}
             return validation_error_response(err)
 
-        return success_with_content_message_response(samples, message)
+        samplestore = {"rack_id": rack_id, "samples": samples}
+        if entry_datetime:
+            samplestore["entry_datetime"] = entry_datetime
+            samplestore["entry"] = entry
+        return success_with_content_message_response(samplestore, message)
 
-    samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col']}
-                   for sample in samples]
+    if entry_datetime:
+        samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col'],
+                        "entry_datetime": entry_datetime, "entry": entry}
+                       for sample in samples]
+    else:
+        samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col']}
+                       for sample in samples]
+
     # insert confirmed data to database
     return func_transfer_samples_to_rack(
         samples_pos, rack_id, tokenuser
@@ -384,7 +402,6 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-    # print("storage_id", storage_id )
 
     stored = False
     if storage_id is not None and storage_id != '':
@@ -402,7 +419,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
         storage_values = {'shelf_id': shelf_id, 'rack_id': rack.id, 'storage_type': 'BTS'}
         storage = EntityToStorage(**storage_values)
         storage.author_id = tokenuser.id
-        # TO DO: add entry date time and by to form
+        # TODO: add entry date time and by to form
         storage.entry_datetime = func.now()
 
     try:
@@ -449,8 +466,8 @@ def storage_rack_delete(id, tokenuser: UserAccount):
         return success_with_content_response(shelfID)
     return sample_assigned_delete_response()
 
-#change to func_rack_delete
-def func_rack_delete(record,entityStorageTableRecord):
+
+def func_rack_delete(record, entityStorageTableRecord):
     for ESRecord in entityStorageTableRecord:
         if not ESRecord.sample_id is None:
             return "has sample"
@@ -525,7 +542,6 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
 
     results = [{'id':shelfid,'name':'%s - %s - %s - %s (%s) - %s' % (sitename, buildingname, roomname, csname, cstemp, shelfname)}
                 for (shelfid, sitename, buildingname, roomname, csname, cstemp, shelfname) in stmt]
-    #print(results)
 
     return success_with_content_response(results)
 
@@ -584,6 +600,14 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         ets.rack_id = None
         ets.storage_type = "STB"
         ets.update(values)
+
+    usercart = UserCart.query.filter_by(sample_id=values["sample_id"], author_id=tokenuser.id).first()
+    if usercart:
+        try:
+            db.session.delete(usercart)
+        except: # Exception as err:
+            pass
+
     try:
         db.session.add(ets)
         db.session.commit()
@@ -595,23 +619,3 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     except Exception as err:
         print(">>>>>>>>>>>>>>>", err)
         return transaction_error_response(err)
-
-# @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["PUT"])
-# @token_required
-# def storage_rack_lock(id, tokenuser: UserAccount):
-#
-#     rack = SampleRack.query.filter_by(id=id).first()
-#
-#     if not rack:
-#         return not_found()
-#
-#     # Updates the attribute
-#     rack.is_locked = not rack.is_locked
-#     rack.editor_id = tokenuser.id
-#
-#     try:
-#         db.session.commit()
-#         db.session.flush()
-#         return success_with_content_response(rack.is_locked)
-#     except Exception as err:
-#         return transaction_error_response(err)

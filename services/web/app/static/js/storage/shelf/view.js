@@ -44,7 +44,7 @@ function render_subtitle(shelf_information) {
     });
 
     $("#add-sample-btn").click(function() {
-        window.location.href = shelf_information["_links"]["assign_sample_to_shelf"];
+        window.location.href = shelf_information["_links"]["assign_samples_to_shelf"];
     });
 
     $("#add-rack-btn").click(function() {
@@ -127,7 +127,7 @@ function render_rack_table(racks) {
 function render_sample_table(samples) {
     if (samples.length > 0) {
         
-        console.log(samples);
+        //console.log(samples);
 
         $('#sample-table').DataTable( {
             data: samples,

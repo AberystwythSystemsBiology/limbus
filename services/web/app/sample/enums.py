@@ -19,6 +19,7 @@ class CartSampleStorageType(FormEnum):
     RUC = "Rack in User Cart"
     CUC = "Container in User Cart"
 
+
 class SampleQuality(FormEnum):
     GOO = "Good"
     BAD = "Bad"
@@ -292,7 +293,7 @@ class SampleStatus(FormEnum):
     TRA = "Transferred"
     MIS = "Missing"
     TMP = "Temporary Storage"
-    NCO = "Not Collected"
+    NCO = "Pending Collection"
     #NPR = "Not Processed"
     NRE = "Pending Review"
 

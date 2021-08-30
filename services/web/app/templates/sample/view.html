@@ -204,17 +204,24 @@
 
         </tbody>
       </table>
-        <div class="col-9 float-left">
-            <select id="select_rack">
-                <option value=0>---- Store to a rack  ----</option>
-            </select>
-        </div>
-        <div class="col-9 float-left">
-            <select id="select_shelf" >
-                <option value=0>---- Store to a shelf ----</option>
-            </select>
-        </div>
-        <button type="button" class="btn btn-success float-right" id="subsample_to_storage">Store</button>
+{#        <div class="col-9 float-left">#}
+{#            <select id="select_rack">#}
+{#                <option value=0>---- Store to a rack  ----</option>#}
+{#            </select>#}
+{#        </div>#}
+{#        <div class="col-9 float-left">#}
+{#            <select id="select_shelf" >#}
+{#                <option value=0>---- Store to a shelf ----</option>#}
+{#            </select>#}
+{#        </div>#}
+
+      <div class="btn-group mr-2 float-right" role="group" aria-label="First group">
+{#        <button type="button" class="btn btn-outline-dark" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>#}
+        <button type="button" class="btn btn-success float-right" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>
+          Add Subsample to Cart</button>
+      </div>
+
+{#        <button type="button" class="btn btn-success float-right" id="subsample_to_storage">Store</button>#}
 
 {#    </form>#}
 

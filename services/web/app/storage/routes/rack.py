@@ -39,11 +39,12 @@ from ...decorators import check_if_admin
 
 from ..forms import (
     NewSampleRackForm, EditSampleRackForm,
-    SampleToEntityForm,
+    SampleToEntityForm, SamplesToEntityForm,
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
 )
 from datetime import datetime
+
 
 def iter_all_strings():
     for size in itertools.count(1):
@@ -83,7 +84,6 @@ def rack_info():
     )
 
     if response.status_code == 200:
-        #print(response.json())
         return response.json()
     return response.content
 
@@ -223,7 +223,6 @@ def rack_automatic_entry_validation(_hash: str):
             "entry_datetime": str(
                      datetime.strptime(
                          "%s %s" % (session_data["entry_date"], session_data["entry_time"]),
-                         #"%Y-%m-%d %H:%M",  #
                          "%Y-%m-%d %H:%M:%S",
                      )
                  ),
@@ -453,6 +452,9 @@ def view_rack_endpoint(id):
 @storage.route("/rack/LIMBRACK-<id>/assign/<row>/<column>", methods=["GET", "POST"])
 @login_required
 def assign_rack_sample(id, row, column):
+    # ------
+    # Select and store a single sample to a rack position from the selected samples in user's Sample Cart.
+    # -----
     view_response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -464,12 +466,23 @@ def assign_rack_sample(id, row, column):
     if view_response.status_code == 200:
 
         sample_response = requests.get(
-            url_for("api.sample_home", _external=True),
+            #url_for("api.sample_home", _external=True),
+            url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
         )
 
         if sample_response.status_code == 200:
-            form = SampleToEntityForm(sample_response.json()["content"])
+            # form = SampleToEntityForm(sample_response.json()["content"])
+            samples = []
+            for item in sample_response.json()["content"]:
+                if item["selected"]:
+                    samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+
+            if len(samples) == 0:
+                flash("Add samples to your sample cart and select from the cart first! ")
+                return redirect(url_for("storage.view_rack", id=id))
+
+            form = SampleToEntityForm(samples)
 
             if form.validate_on_submit():
 
@@ -507,6 +520,82 @@ def assign_rack_sample(id, row, column):
     abort(view_response.status_code)
 
 
+@storage.route("/rack/LIMBRACK-<id>/assign_samples_in_cart", methods=["GET", "POST"])
+@login_required
+def assign_rack_samples(id):
+    # ------
+    # Select and store sample(s) to a rack from the selected samples in user's Sample Cart.
+    # -----
+
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if view_response.json()["content"]["is_locked"]:
+        flash('The rack is locked!')
+        return abort(401)
+
+    if view_response.status_code == 200:
+
+        sample_response = requests.get(
+            url_for("api.get_cart", _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if sample_response.status_code == 200:
+            samples = []
+            for item in sample_response.json()["content"]:
+                if item["selected"]:
+                    samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+
+            if len(samples) == 0:
+                flash("Add samples to your sample cart and select from the cart first! ")
+                return redirect(url_for("storage.view_rack", id=id))
+
+            form = SamplesToEntityForm(samples)
+
+            if form.validate_on_submit():
+                sample_move_response = requests.post(
+                    url_for("api.storage_rack_fill_with_samples", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "samples": [{"id": id1} for id1 in form.samples.data],
+                        "rack_id": id,
+                        "entry_datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "entry": form.entered_by.data,
+                    },
+                )
+
+                if sample_move_response.status_code == 200:
+                    sampletostore = sample_move_response.json()["content"]
+                    for sample in sampletostore["samples"]:
+                        for item in sample_response.json()["content"]:
+                            if item["sample"]["id"] == sample["id"]:
+                                sample.update(item["sample"])
+
+                    return render_template("storage/rack/view_sample_to_rack.html", id=id,
+                                           sampletostore=sampletostore
+                    )
+
+                else:
+                    flash(sample_move_response.json())
+                    return redirect(url_for("storage.view_rack", id=id))
+
+            return render_template(
+                "storage/rack/sample_to_rack.html",
+                rack=view_response.json()["content"],
+                form=form,
+            )
+    return abort(view_response.status_code)
+
+
+
 @storage.route("/rack/LIMBRACK-<id>/auto_assign_sample_to_rack", methods=["GET", "POST"])
 @login_required
 def auto_assign_sample_to_rack(id):
@@ -518,7 +607,7 @@ def storage_rack_fill_with_samples():
     if request.method == 'POST':
        values = request.json
     else:
-       return validation_error_response({'messages': 'Sample and storage info needed!'})
+       return {'messages': 'Sample and storage info needed!', 'success': False}
 
     response = requests.post(
         url_for("api.storage_rack_fill_with_samples", _external=True),
@@ -620,7 +709,7 @@ def edit_rack(id):
         )
 
     abort(response.status_code)
-    #---
+
 # @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 # @login_required
 # def edit_rack(id):
@@ -733,7 +822,6 @@ def lock_rack(id):
         edit_response = requests.post(
             url_for("api.storage_rack_lock", id=id, _external=True),
             headers=get_internal_api_header(),
-            #json=form_information,
         )
 
         if edit_response.status_code == 200:
@@ -745,10 +833,6 @@ def lock_rack(id):
             flash("We have a problem: %s" % (edit_response.status_code))
 
         return redirect(url_for("storage.view_rack", id=id))
-
-    #return render_template(
-    #    "storage/room/edit.html", room=response.json()["content"], form=form
-    #)
 
     return abort(response.status_code)
 

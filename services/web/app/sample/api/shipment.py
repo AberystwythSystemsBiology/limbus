@@ -356,6 +356,58 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
     else:
         return sample_response.content
 
+
+
+@api.route("/cart/add/samples", methods=["POST"])
+@token_required
+def add_samples_to_cart(tokenuser: UserAccount):
+
+    values = request.get_json()
+    samples = []
+    if values:
+        samples = values.pop('samples', [])
+
+    if len(samples) == 0:
+        return no_values_response()
+
+    sample_ids = [sample["id"] for sample in samples]
+    ESRecords = EntityToStorage.query.filter(EntityToStorage.sample_id.in_(sample_ids)).all()
+
+    if len(ESRecords) > 0:
+        try:
+            for es in ESRecords:
+                db.session.delete(es)
+                db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+    for sample_id in sample_ids:
+
+        new_uc = UserCart.query.filter_by(
+            author_id=tokenuser.id, sample_id=sample_id
+        ).first()
+
+        if new_uc is not None:
+            new_uc.selected = True
+            new_uc.updated_on = func.now()
+        else:
+            new_uc = UserCart(sample_id=sample_id, selected=True, author_id=tokenuser.id)
+
+        try:
+            db.session.add(new_uc)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+    try:
+        db.session.commit()
+        return success_with_content_message_response(sample_ids, message="Samples added to Cart")
+
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
 @api.route("/cart/add/LIMBRACK-<id>", methods=["POST"])
 @token_required
 def add_rack_to_cart(id: int, tokenuser: UserAccount):

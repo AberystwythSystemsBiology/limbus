@@ -55,13 +55,19 @@ class SiteRegistrationForm(FlaskForm):
 
 def SampleToEntityForm(samples: list) -> FlaskForm:
 
+    # samples_choices = [[0, '--- Select a sample ---']]
+    # for sample in samples:
+    #     sample_check_response = requests.get(url_for("api.storage_sample_to_entity_check",id=int(sample["id"]), _external=True),headers=get_internal_api_header())
+    #     if not sample_check_response.json()["content"] == "SCT":
+    #         samples_choices.append([int(sample["id"]), sample["uuid"]])
     samples_choices = [[0, '--- Select a sample ---']]
+
     for sample in samples:
-        sample_check_response = requests.get(url_for("api.storage_sample_to_entity_check",id=int(sample["id"]), _external=True),headers=get_internal_api_header())
-        if not sample_check_response.json()["content"] == "SCT":
-            samples_choices.append([int(sample["id"]), sample["uuid"]])
+        samples_choices.append([int(sample["id"]), sample["uuid"]])
+
 
     class StaticForm(FlaskForm):
+
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )
@@ -72,13 +78,15 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
             "Entered By",
             description="The initials of the person that entered the sample.",
         )
+
         submit = SubmitField("Submit")
 
     setattr(
         StaticForm,
         "samples",
         SelectField(
-            "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int,render_kw={'onchange': "check_sample()"}
+            "Sample", choices=samples_choices, validators=[DataRequired()], coerce=int,
+            #render_kw={'onchange': "check_sample()"}
         ),
     )
 
@@ -90,8 +98,6 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
     for sample in samples:
         samples_choices.append([int(sample["id"]), sample["uuid"]])
 
-    print("samples_choices ", samples_choices)
-
     class StaticForm(FlaskForm):
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
@@ -105,13 +111,14 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
         )
         submit = SubmitField("Submit")
 
-    default_choices = [int(s[0]) for s in samples_choices if int(s[0]) >0]
+    default_choices = [int(s[0]) for s in samples_choices if int(s[0]) >0 ]
 
     setattr(
         StaticForm,
         "samples",
         SelectMultipleField(
-            "Sample(s)", choices=samples_choices, default=default_choices, validators=[DataRequired()], coerce=int, #render_kw={'onchange': "check_sample()"}
+            "Sample(s)", choices=samples_choices, default=default_choices, validators=[DataRequired()], coerce=int,
+            #render_kw={'multiple': True},#render_kw={'onchange': "check_sample()"}
         ),
     )
 

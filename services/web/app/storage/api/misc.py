@@ -102,6 +102,13 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
         )
         db.session.add(ets)
 
+    usercart = UserCart.query.filter_by(sample_id=values["sample_id"], author_id=tokenuser.id).first()
+    if usercart:
+        try:
+            db.session.delete(usercart)
+        except: # Exception as err:
+            pass
+
     try:
         db.session.commit()
         return success_with_content_response({"success": True})
@@ -159,12 +166,11 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
                 return transaction_error_response(err)
 
         usercart = UserCart.query.filter_by(sample_id=values["sample_id"], author_id=tokenuser.id).first()
-        try:
-            if usercart:
+        if usercart:
+            try:
                 db.session.delete(usercart)
-        except Exception as err:
-            return transaction_error_response(err)
-
+            except:  # Exception as err:
+                pass
     try:
         db.session.commit()
         return success_with_content_response({"success": True})

@@ -179,6 +179,7 @@ def assign_rack_to_shelf(id):
         headers=get_internal_api_header(),
     )
     if response.json()["content"]["is_locked"]:
+        flash("The shelf is locked!")
         return abort(401)
 
     if response.status_code == 200:
@@ -285,6 +286,7 @@ def assign_samples_to_shelf(id):
     )
 
     if response.json()["content"]["is_locked"]:
+        flash("The shelf is locked!")
         return abort(401)
 
     if response.status_code == 200:
@@ -293,16 +295,18 @@ def assign_samples_to_shelf(id):
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
         )
-        print("sss: ", sample_response.text)
+
         if sample_response.status_code == 200:
             samples = []
             for item in sample_response.json()["content"]:
                 if item["selected"]:
                     samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
 
-            print('selected: ', samples)
+            if len(samples) == 0:
+                flash("Add samples to your sample cart and select from the cart first! ")
+                return redirect(url_for("storage.view_shelf", id=id))
 
-            #form = SamplesToEntityForm(sample_response.json()["content"])
+            # form = SamplesToEntityForm(sample_response.json()["content"])
             form = SamplesToEntityForm(samples)
 
             if form.validate_on_submit():

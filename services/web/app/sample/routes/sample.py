@@ -15,7 +15,7 @@
 
 from .. import sample
 import requests
-from flask import json, render_template, url_for, flash, redirect, abort
+from flask import json, render_template, url_for, flash, redirect, abort, request
 from flask_login import login_required
 
 import requests
@@ -53,6 +53,29 @@ def add_sample_to_cart(uuid):
         return cart_response.content
 
     return sample_response.content
+
+
+@sample.route("to_cart", methods=["POST"])
+@login_required
+def add_samples_to_cart():
+    samples = []
+    if request.method == 'POST':
+        values = request.json
+        samples = values.pop('samples', [])
+
+    if len(samples) == 0:
+       return {'success': False, 'messages': 'No sample selected!'}
+
+    to_cart_response = requests.post(
+        url_for("api.add_samples_to_cart", _external=True),
+        headers=get_internal_api_header(),
+        json={'samples': [{"id": sample["id"]} for sample in samples]},
+    )
+
+    if to_cart_response.status_code == 200:
+        return to_cart_response.json()
+
+    return abort(to_cart_response.status_code)
 
 
 @sample.route("<uuid>/cart/remove", methods=["DELETE"])
@@ -151,7 +174,7 @@ def view_data(uuid: str):
     )
 
     if sample_response.status_code == 200:
-        print("sample_response: ", sample_response.text)
+        #print("sample_response: ", sample_response.text)
         return sample_response.json()
     return sample_response.content
 

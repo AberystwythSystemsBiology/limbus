@@ -95,12 +95,7 @@ function get_rack() {
 
 }
 
-function fill_sample_pos(rack_id, sampletostore, commit) {
-    var split_url = encodeURI(window.location).split("/");
-    split_url = split_url.slice(0, -2)
-    split_url.push("storage", "rack", "fill_with_samples")
-    var api_url = split_url.join("/")
-
+function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
     var json = (function () {
         var json = null;
         $.ajax({
@@ -127,6 +122,45 @@ function fill_sample_pos(rack_id, sampletostore, commit) {
 
     return json;
 
+}
+
+
+function add_samples_to_cart(api_url, samples) {
+    var msg = "Adding a sample to cart will remove it from storage, press OK to proceed!";
+    if (!confirm(msg)) {
+      return false;
+    }
+
+    var json = (function () {
+       var json = null;
+       $.ajax({
+           'async': false,
+           'global': false,
+           'url': api_url,
+           'type': 'POST',
+           'dataType': "json",
+           'data': JSON.stringify({"samples": samples}),
+           'contentType': 'application/json; charset=utf-8',
+           'success': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               },
+           'failure': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               }
+       });
+
+       return json;
+    })();
+
+    return json;
 }
 
 
@@ -235,19 +269,20 @@ function fill_basic_information(sample_information) {
 
     html += render_content("Quantity", sample_information["remaining_quantity"] + " / " + sample_information["quantity"] + " " + measurement);
     if (sample_information["storage"] != null) {
-        var storage_info = "Not Available"
-        console.log("stor: ", sample_information["storage"])
+        var storage_info = ""
+        //"Not Available"
         if (sample_information["storage"]["storage_type"] == "STB") {
-            storage_info = sample_information["storage"]["rack"]["id"] +
-                            sample_information["storage"]["rack"]["serial_num"]
-            storage_link = sample_information["storage"]["rack"]["_links"]["self"]
-            storage_info = "<a href='" + storage_link+ "'>" + storage_info + "</a>"
+            var rack_info = sample_information["storage"]["rack"];
+            var storage_info = "<a href='"+rack_info["_links"]["self"]+"'>";
+            storage_info +=  "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
+            storage_info += ' | '+rack_info["serial_number"] + "</a>";
 
         } else if (sample_information["storage"]["storage_type"] == "STS") {
-            storage_info = sample_information["storage"]["shelf"]["id"] +
-                            sample_information["storage"]["shelf"]["name"]
-            storage_link = sample_information["storage"]["shelf"]["_links"]["self"]
-            storage_info = "<a href='" + storage_link+ "'>" + storage_info + "</a>";
+            var shelf_info = sample_information["storage"]["shelf"];
+            var storage_info = "<a href='"+shelf_info["_links"]["self"]+"'>";
+            storage_info +=  "<i class='fa fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
+            storage_info += ' | '+shelf_info["name"] + "</a>";
+
         }
     }
     html += render_content("Location", storage_info);
@@ -540,7 +575,16 @@ function fill_lineage_table(subsamples) {
     let table = $('#subSampleTable').DataTable({
         data: subsamples,
         dom: 'Blfrtip',
-        buttons: ['print', 'csv', 'colvis','selectAll', 'selectNone'],
+        buttons: ['print', 'csv', 'colvis',
+            //'selectAll',
+            {text: 'Select All', action: function () {
+                table.rows( {search:'applied'} ).select();
+            }},
+            {text: 'Not Stored', action: function () {
+                table.rows('.not-stored').select();
+            }},
+        'selectNone'
+        ],
         lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
         //pageLength: 5,
 
@@ -557,6 +601,12 @@ function fill_lineage_table(subsamples) {
         order: [[1, 'desc']],
         select: {'style': 'multi',
                 'selector': 'td:last-child'},
+
+       'createdRow': function( row, data, dataIndex ) {
+            if ( data["storage"] == null ) {
+              $(row).addClass( 'not-stored' );
+            }
+        },
 
         columns: [
 
@@ -672,14 +722,39 @@ function fill_lineage_table(subsamples) {
         //$("#select_rack").append('<option value=xx >optval</option>');
     })
 
+    $("#subsample-to-cart-btn").click(function (event) {
+        var rows_selected = table.rows( { selected: true } ).data();
+
+        if (rows_selected.length>0) {
+           var formdata = [];
+           $.each(rows_selected, function (index, row) {
+               delete row['__proto__'];
+               formdata.push(row)
+           });
+           //console.log("formdata", formdata)
+           var api_url = window.location.origin+ "/sample/to_cart";
+           res = add_samples_to_cart(api_url, formdata);
+           //var api_url = window.location.origin+ "/sample/shipment/cart"
+           //window.open(api_url, "_blank");
+           //window.open(api_url"_self");
+           if (res.success == true) {
+               table.rows({selected: true}).deselect();
+           }
+
+        } else {
+            alert("No sample selected!")
+        }
+
+    });
+
+    // -- Not use for the moment, selected samples will be added to cart instead.
     $("#subsample_to_storage").click(function (event) {
         var rows_selected = table.rows( { selected: true } ).data();
 
         if (rows_selected.length>0) {
-           // select rack id or shelf id. TO DO: ?? sample to shelf
+           // select rack id or shelf id. TODO: ?? sample to shelf
            var rack_id = $('select[id="select_rack"]').val();
            var shelf_id = $('select[id="select_shelf"]').val();
-           console.log('selected rack: ', rack_id)
            if (rack_id==0 && shelf_id==0) {
                alert('Select a rack or a shelf to store the sample(s)! ');
                return false
@@ -691,14 +766,9 @@ function fill_lineage_table(subsamples) {
                formdata.push(row)
            });
 
-           var split_url = encodeURI(window.location).split("/");
-           split_url = split_url.slice(0,-2)
-           split_url.push('storage', 'rack', 'LIMBRACK-'+rack_id, 'auto_assign_sample_to_rack')
-           var api_url = split_url.join("/")
-           console.log('api_url', api_url)
-           // /storage/rack/fill_with_samples"
-           var sampletostore = fill_sample_pos(rack_id, formdata, commit=false)
-           console.log('sampletostore', sampletostore)
+
+           var api_url = window.location.origin + "/storage/rack/fill_with_samples"
+           var sampletostore = fill_sample_pos(api_url, rack_id, formdata, commit=false)
            if (sampletostore.success == false){
                 alert(sampletostore.message)
                 return false
@@ -715,16 +785,12 @@ function fill_lineage_table(subsamples) {
                    }
                }
            }
-           samplestore =  sampletostore['content']
-           sessionStorage.setItem("rack_id", rack_id);
+           sampletostore =  sampletostore['content']
            sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
-           //window.open("view_sample_to_rack.html");
-           //window.open(api_url, "_blank"); //, "_self");
            window.open(api_url, "_self");
 
         }
 
-    //e.preventDefault()
     });
 }
 
@@ -763,12 +829,11 @@ function deactivate_nav() {
 }
 
 function hide_all() {
-    var tim = 50;
+    var time = 50;
     $("#basic-info").fadeOut(50);
     $("#protocol-event-info").fadeOut(50);
     $("#associated-documents").fadeOut(50);
     $("#lineage-info").fadeOut(50);
-    //$("#protocol-event-info").fadeOut(50);
     $("#sample-review-info").fadeOut(50);
     $("#custom-attributes-div").fadeOut(50);
 }
@@ -778,7 +843,7 @@ function hide_all() {
 $(document).ready(function () {
         $('#myTable').DataTable();
 
-    var versionNo = $.fn.dataTable.version;
+    //var versionNo = $.fn.dataTable.version;
     //alert(versionNo);
     var sample_info = get_sample();
     if (sample_info["success"] == false) {
@@ -820,28 +885,29 @@ $(document).ready(function () {
         });
     
         $("#add-cart-btn").click(function() {
-            
-            $.ajax({
-                type: "POST",
-                url: sample_info["_links"]["add_sample_to_cart"],
-                dataType: "json",
-                success: function (data) {
-                    if (data["success"]) {
-                        $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                        $("#cart-confirmation-modal").modal({
-                            show: true
-                        });
+            var msg = "Adding a sample to cart will remove it from storage, press OK to proceed!";
+            if (confirm(msg)) {
+                $.ajax({
+                    type: "POST",
+                    url: sample_info["_links"]["add_sample_to_cart"],
+                    dataType: "json",
+                    success: function (data) {
+                        if (data["success"]) {
+                            $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                            $("#cart-confirmation-modal").modal({
+                                show: true
+                            });
+                        } else {
+                            $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                            $("#cart-confirmation-modal").modal({
+                                show: true
+                            });
+                        }
                     }
-    
-                    else {
-                        $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                        $("#cart-confirmation-modal").modal({
-                            show: true
-                        });
-                    }
-                }
-              });
-            
+                });
+            } else {
+                return false;
+            }
         })
     
         $("#basic-info-nav").on("click", function () {

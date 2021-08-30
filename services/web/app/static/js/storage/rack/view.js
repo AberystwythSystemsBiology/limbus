@@ -35,7 +35,6 @@ function get_rack_information() {
     return json["content"];
 }
 
-
 function render_subtitle(rack_information) {
     $("#colour").html(render_colour(rack_information["colour"]))
     $("#createdOn").html(rack_information["created_on"]);
@@ -52,26 +51,19 @@ function render_subtitle(rack_information) {
     else {
     }
 
-
 }
 
-//function render_empty(row_id, rc, count, assign_sample_url) {
+
 function render_empty(row, col, count, assign_sample_url) {
-    // assign_sample_url = assign_sample_url.replace("rph", rc[0]);
-    // assign_sample_url = assign_sample_url.replace("cph", rc[1]);
     assign_sample_url = assign_sample_url.replace("rph", row);
     assign_sample_url = assign_sample_url.replace("cph", col);
 
-    //var content = '<div class="col" id="tube_' + rc.join("_") + '">'
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube">'
     content += '<div class="align-middle">'
-    //content += count
     content += "</div></div></div>"
-    //$("#" + row_id).append(content)
     $("#row_" + row).append(content)
 
-    //$("#tube_" + rc.join("_")).click(function () {
     $("#tube_" + [row, col].join("_")).click(function () {
         window.location = assign_sample_url;
     });
@@ -152,23 +144,16 @@ function render_modal(sample_info) {
 
 }
 
-//function render_full(info, row_id, rc, count, assign_sample_url) {
 function render_full(info, row, col, count, assign_sample_url) {
     var sample_info = info["sample"]
-    //var content = '<div class="col" id="tube_' + rc.join("_") + '">'
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube"><div class="align_middle present-tube">'
     content += '<img width="100%" src="data:image/png;base64,' + get_barcode(sample_info, "qrcode") + '">'
     
     
     content += "</div></div></div>"
-    //$("#" + row_id).append(content)
     $("#row_" + row).append(content)
-
-
-    //$("#tube_" + rc.join("_")).click(function () {
     $("#tube_" + [row, col].join("_")).click(function () {
-        //window.location = sample_info["_links"]["self"];
         render_modal(sample_info);
         $("#sampleInfoModal").modal();
     });
@@ -218,7 +203,6 @@ function render_sample_table(samples) {
 
     if (samples.length > 0) {
 
-        console.log(samples)
         
         $('#sampleTable').DataTable( {
             data: samples,
@@ -326,17 +310,14 @@ function render_view(view, assign_sample_url, img_on) {
                 count += 1
                 var column = row[c];
                 if (column["empty"]) {
-                    //render_empty(row_id, c.split("\t"), count, assign_sample_url);
                     render_empty(r, c, count, assign_sample_url);
                 } else {
 
-                    //render_full(column, row_id, c.split("\t"), count, assign_sample_url);
                     if (img_on) {
                         render_full(column, r, c, count, assign_sample_url);
                     } else {
                         render_full_noimg(column, r, c, count, assign_sample_url);
                     }
-                    //column["pos"] = c.split("\t");
                     column["pos"] = [r, c]
                     samples.push(column)
 
@@ -348,6 +329,36 @@ function render_view(view, assign_sample_url, img_on) {
     return samples;
 
 }
+
+function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'type': 'POST',
+            'dataType': "json",
+            'data': JSON.stringify({'rack_id': rack_id,
+                'samples':(sampletostore), 'commit': commit
+            }),
+            'contentType': 'application/json; charset=utf-8',
+            'success': function (data) {
+                json = data
+            },
+            'failure': function (data) {
+                json = data;
+            }
+
+        });
+        console.log('json', json)
+        return json;
+    })();
+
+    return json;
+
+}
+
 
 $("#add-rack-cart-btn").click(function() {
     var api_url = window.location.href + "/to_cart";
@@ -385,6 +396,7 @@ $(document).ready(function () {
     collapse_sidebar();
 
     var rack_information = get_rack_information();
+    var rack_id = rack_information["id"]
 
     render_subtitle(rack_information);
     render_information(rack_information);
@@ -399,6 +411,38 @@ $(document).ready(function () {
 
     render_occupancy_chart(rack_information["counts"])
     render_sample_table(samples);
+
+    $("#add-sample-btn").click(function() {
+    var api_url = window.location.href = rack_information["_links"]["assign_samples"];
+    var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
+           // console.log('sampletostore', sampletostore)
+           // if (sampletostore.success == false){
+           //      alert(sampletostore.message)
+           //      return false
+           // } else {
+           //     if (sampletostore.content.samples.length==0) {
+           //         alert('All selected samples have been stored in the selected rack!');
+           //         return false;
+           //     }
+           //     if (sampletostore.message != '') {
+           //         if (confirm(sampletostore.message)) {
+           //
+           //         } else {
+           //             return false
+           //         }
+           //     }
+           // }
+           // samplestore =  sampletostore['content']
+           // sessionStorage.setItem("rack_id", rack_id);
+           // sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
+           // //window.open("view_sample_to_rack.html");
+           // //window.open(api_url, "_blank"); //, "_self");
+           // window.open(api_url, "_self");
+
+        //}
+
+})
+
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();
 
