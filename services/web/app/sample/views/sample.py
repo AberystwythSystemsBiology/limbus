@@ -113,6 +113,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     base_type = EnumField(SampleBaseType, by_value=True)
     is_locked = masql.auto_field()
+    is_closed = masql.auto_field()
 
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()

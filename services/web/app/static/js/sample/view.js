@@ -168,8 +168,15 @@ function fill_title(sample) {
 
     var author_information = sample["author"];
     var title_html = render_colour(sample["colour"]);
-    title_html += sample["uuid"]
+    title_html += sample["uuid"];
+    if (sample["is_closed"]) {
+        title_html += "<i class=\"fas fa-archive\" style=\"color:yellow;\"></i>"
+    } else if (sample["is_locked"]) {
+        title_html += "<i class=\"fa fa-lock\" style=\"color:yellow; padding-left: 3px;\"></i>"
+    }
+
     $("#uuid").html(title_html);
+
     var author_html = "" + author_information["first_name"] + " " + author_information["last_name"]
     $("#created_by").html(author_html);
     $("#created_on").html(sample["created_on"]);
@@ -838,7 +845,13 @@ function hide_all() {
     $("#custom-attributes-div").fadeOut(50);
 }
 
-
+function lock_action() {
+    $("#action-dispose").hide();
+    $("#action-review").hide();
+    $("#action-protocol-event").hide();
+    $("#action-aliquot").hide();
+    $("#action-derive").hide();
+}
 
 $(document).ready(function () {
         $('#myTable').DataTable();
@@ -866,7 +879,11 @@ $(document).ready(function () {
         fill_document_information(sample_info["documents"]);
         fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
-    
+
+        if (sample_info["is_locked"]==true) {
+            lock_action()
+        }
+
         $("#content").delay(500).fadeIn();
     
     
@@ -891,19 +908,33 @@ $(document).ready(function () {
                     type: "POST",
                     url: sample_info["_links"]["add_sample_to_cart"],
                     dataType: "json",
-                    success: function (data) {
-                        if (data["success"]) {
-                            $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                            $("#cart-confirmation-modal").modal({
-                                show: true
-                            });
-                        } else {
-                            $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                            $("#cart-confirmation-modal").modal({
-                                show: true
-                            });
-                        }
-                    }
+           'success': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               },
+           'failure': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               }
+                    // success: function (data) {
+                    //     if (data["success"]) {
+                    //         $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                    //         $("#cart-confirmation-modal").modal({
+                    //             show: true
+                    //         });
+                    //     } else {
+                    //         $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                    //         $("#cart-confirmation-modal").modal({
+                    //             show: true
+                    //         });
+                    //     }
+                    // }
                 });
             } else {
                 return false;

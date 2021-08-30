@@ -27,13 +27,14 @@ from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
 from ...database import (
     db,
     SampleShipmentToSample,
+    Sample,
     UserCart,
     UserAccount,
     SampleShipment,
     Event,
     EntityToStorage,
     SampleRack,
-    SampleShipmentStatus
+    SampleShipmentStatus,
 )
 
 from ..views import (
@@ -322,34 +323,46 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
 
     if sample_response.status_code == 200:
         sample_id = sample_response.json()["content"]["id"]
+
+        sample_locked = Sample.query.filter_by(id=sample_id, is_locked=True).first()
+        if sample_locked:
+            msg_locked = "[LIMBSMP-%s]%s" % (sample_locked.id, sample_locked.uuid)
+            return locked_response(msg_locked)
+
         try:
             cart_sample_schema = new_cart_sample_schema.load({"sample_id": sample_id})
 
         except ValidationError as err:
             return validation_error_response(err)
-        check = UserCart.query.filter_by(
+
+        ESrecords = EntityToStorage.query.filter_by(sample_id=sample_id).all()
+
+        for es in ESrecords:
+            try:
+                db.session.delete(es)
+                db.session.flush()
+                # new_uc.rack_id = es.rack_id
+            except Exception as err:
+                return transaction_error_response(err)
+
+        new_uc = UserCart.query.filter_by(
             author_id=tokenuser.id, sample_id=sample_id
         ).first()
 
-        if check != None:
-            return success_with_content_response(
-                {"msg": "Sample already added to Cart"}
-            )
-
-        ESrecords = EntityToStorage.query.filter_by(sample_id=sample_id).all()
-        new_uc = UserCart(sample_id=sample_id, storage_type=None, selected=True, author_id=tokenuser.id)
-
-        for es in ESrecords:
-            db.session.delete(es)
-            db.session.flush()
-            # new_uc.rack_id = es.rack_id
+        if new_uc != None:
+            new_uc.selected = True
+            new_uc.updated_on = func.now()
+            msg = "Sample in the cart selected!"
+        else:
+            new_uc = UserCart(sample_id=sample_id, storage_type=None, selected=True, author_id=tokenuser.id)
+            msg = "Sample added to Cart!"
 
         try:
             db.session.add(new_uc)
             db.session.commit()
             db.session.flush()
 
-            return success_with_content_response({"msg": "Sample added to Cart"})
+            return success_with_content_message_response(sample_id, message=msg)
 
         except Exception as err:
             return transaction_error_response(err)
@@ -371,8 +384,23 @@ def add_samples_to_cart(tokenuser: UserAccount):
         return no_values_response()
 
     sample_ids = [sample["id"] for sample in samples]
-    ESRecords = EntityToStorage.query.filter(EntityToStorage.sample_id.in_(sample_ids)).all()
+    samples_locked = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==True).\
+        with_entities(Sample.id, Sample.uuid).all()
 
+    if len(samples_locked) >0:
+        ids_locked = [sample.id for sample in samples_locked]
+        sample_ids = [sample_id for sample_id in sample_ids if sample_id not in ids_locked]
+        msg_locked = ["[LIMBSMP-%s]%s" % (sample.id, sample.uuid) for sample in samples_locked]
+    else:
+        ids_locked = []
+        msg_locked = []
+
+    if len(samples) == 0:
+        return locked_response(msg_locked)
+
+    ESRecords = EntityToStorage.query.filter(EntityToStorage.sample_id.in_(sample_ids)).all()
+    n_new = 0
+    n_old = 0
     if len(ESRecords) > 0:
         try:
             for es in ESRecords:
@@ -390,8 +418,10 @@ def add_samples_to_cart(tokenuser: UserAccount):
         if new_uc is not None:
             new_uc.selected = True
             new_uc.updated_on = func.now()
+            n_old = n_old + 1
         else:
             new_uc = UserCart(sample_id=sample_id, selected=True, author_id=tokenuser.id)
+            n_new = n_new + 1
 
         try:
             db.session.add(new_uc)
@@ -399,9 +429,15 @@ def add_samples_to_cart(tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
+    msg = "%d samples added to Cart!" % n_new
+    if (n_old >0 ):
+        msg = msg + " | " + "%d samples updated in Cart!" % n_old
+    if len(msg_locked) >0:
+        msg = msg + " | " +"Locked sample not added: %s" % msg_locked
+
     try:
         db.session.commit()
-        return success_with_content_message_response(sample_ids, message="Samples added to Cart")
+        return success_with_content_message_response(sample_ids, message=msg)
 
     except Exception as err:
         return transaction_error_response(err)

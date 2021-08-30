@@ -291,29 +291,6 @@ function render_sample_table(samples) {
                     return col_data
                 }
             },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var storage_data = data["sample"]["storage"];
-
-                    if (storage_data == null) {
-                        return "<span class='text-muted'>Not stored.</span>"
-                    } else if (storage_data["storage_type"] == "STB") {
-                        var rack_info = storage_data["rack"];
-                        var html = "<a href='" + rack_info["_links"]["self"] + "'>";
-                        html += "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
-                        html += "</a>"
-                        return html
-                    } else if (storage_data["storage_type"] == "STS") {
-                        var shelf_info = storage_data["shelf"];
-                        var html = "<a href='" + shelf_info["_links"]["self"] + "'>";
-                        html += "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
-                        html += "</a>"
-                        return html
-                    }
-                    return data["sample"]["storage"]
-                }
-            },
 
             {
                 "mData": {},
@@ -490,7 +467,7 @@ $(document).ready(function () {
 
         //}
 
-})
+    })
 
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();
