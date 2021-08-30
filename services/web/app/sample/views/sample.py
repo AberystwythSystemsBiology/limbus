@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...database import Sample
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...extensions import ma
 from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
@@ -126,7 +126,8 @@ class SampleSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
     current_site_id = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
+    #author = ma.Nested(BasicUserAccountSchema, many=False)
+    author = ma.Nested(UserAccountSearchSchema, many=False)
 
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
