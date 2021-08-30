@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// - not in use
 function get_rack_information() {
     var api_url = encodeURI(window.location + '/endpoint');
 
@@ -200,15 +201,24 @@ function render_occupancy_chart(counts) {
 
 function render_sample_table(samples) {
 
-
     if (samples.length > 0) {
 
-        
         $('#sampleTable').DataTable( {
             data: samples,
-            dom: 'Bfrtip',
+            rowCallback: function(row, data, index){
+                if(data['tostore']){
+                    $(row).find('td:eq(0)').css('background-color', 'lightblue');
+                } else {
+                    $(row).find('td:eq(0)').css('background-color', 'lightpink');
+                }
+            },
+            dom: 'Blfrtip',
             buttons: [ 'print', 'csv', 'colvis' ],
-            columnDefs: [],
+            lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+            columnDefs: [
+                {targets: '_all', defaultContent: ''},
+                {targets: [3,4,5], visible: false, "defaultContent": ""},
+            ],
             columns: [
                 {
                     "mData": {},
@@ -227,53 +237,93 @@ function render_sample_table(samples) {
                         col_data += data["sample"]["uuid"];
                         col_data += "</a>";
                         if (data["sample"]["source"] != "New") {
-    
+
                         col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
                         col_data += '<a href="'+data["sample"]["parent"]["_links"]["self"]+'" target="_blank">'
                         col_data += '<i class="fas fa-vial"></i> ';
                         col_data += data["sample"]["parent"]["uuid"],
                         col_data += "</a></small>";
                     }
-    
-                        return col_data
-                    }
-                },
-                
-                {
-                    "mData" : {},
-                    "mRender": function (data, type, row) {
-                        var sample_type_information = data["sample"]["sample_type_information"];
-                        
-        
-                        if (data["sample"]["base_type"] == "Fluid") {
-                            return sample_type_information["fluid_type"];
-                        }
-                        else if (data["sample"]["base_type"] == "Cellular") {
-                            return sample_type_information["cellular_type"]; // + " > " + sample_type_information["tissue_type"];
-                        }
-                        else if (data["sample"]["base_type"] == "Molecular") {
-                            return sample_type_information["molecular_type"]; // + " > " + sample_type_information["tissue_type"];
-                        }
 
-        
-                    }
-                },
-                {
-                    "mData": {},
-                    "mRender": function (data, type, row) {
-                        var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
-                        var col_data = '';
-                        col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                        col_data += data["sample"]["remaining_quantity"]+"/"+data["sample"]["quantity"]+get_metric(data["sample"]["base_type"]); 
-                        col_data += '</span>';
                         return col_data
                     }
-            }
-    
-            
-    
+             },
+
+            {"mData": {}, "mRender": function (row) {return row['sample']['id'];}},
+            {"mData": {}, "mRender": function (row) {return row['sample']['barcode'];}},
+            {"mData": {}, "mRender": function (row) {return row['sample']['status'];}},
+            {"mData": {}, "mRender": function (row) {return row['sample']['base_type'];}},
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample"]["sample_type_information"];
+
+                    if (data["sample"]["base_type"] == "Fluid") {
+                        return sample_type_information["fluid_type"];
+                    } else if (data["sample"]["base_type"] == "Cell") {
+                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+                    } else if (data["sample"]["base_type"] == "Molecular") {
+                        return sample_type_information["molecular_type"];
+                    }
+
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample"]["sample_type_information"];
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
+
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
+                    var col_data = '';
+                    col_data += '<span data-toggle="tooltip" data-placement="top" title="' + percentage + ' Available">';
+                    col_data += data["sample"]["remaining_quantity"] + "/" + data["sample"]["quantity"] + get_metric(data["sample"]["base_type"]);
+                    col_data += '</span>';
+                    return col_data
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var storage_data = data["sample"]["storage"];
+
+                    if (storage_data == null) {
+                        return "<span class='text-muted'>Not stored.</span>"
+                    } else if (storage_data["storage_type"] == "STB") {
+                        var rack_info = storage_data["rack"];
+                        var html = "<a href='" + rack_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
+                        html += "</a>"
+                        return html
+                    } else if (storage_data["storage_type"] == "STS") {
+                        var shelf_info = storage_data["shelf"];
+                        var html = "<a href='" + shelf_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
+                        html += "</a>"
+                        return html
+                    }
+                    return data["sample"]["storage"]
+                }
+            },
+
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    return data["sample"]["created_on"];
+                }
+            },
+
             ],
-            
+
         });
     }
 
@@ -351,7 +401,6 @@ function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
             }
 
         });
-        console.log('json', json)
         return json;
     })();
 

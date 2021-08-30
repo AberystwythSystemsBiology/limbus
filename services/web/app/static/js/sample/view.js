@@ -565,12 +565,6 @@ function fill_protocol_events(events) {
 
 
 function fill_lineage_table(subsamples) {
-    var rack_info = get_rack();
-    if (rack_info["success"] == false) {
-        alert('No rack data!')
-    }  else {
-        rack_info = rack_info["content"];
-    }
 
     let table = $('#subSampleTable').DataTable({
         data: subsamples,
@@ -712,15 +706,21 @@ function fill_lineage_table(subsamples) {
 
     });
 
-
-    $.each(rack_info, function(index, r) {
-        var optval = '<option value='+ r['id'] + '>'
-        optval += 'LIMBRACK'+r['id'] + " ("+ r['num_rows']+'x'+r['num_cols'] + ", "+ r['serial_number']+') @'
-        optval += r['location']
-        optval += '</option>'
-        $("#select_rack").append(optval);
-        //$("#select_rack").append('<option value=xx >optval</option>');
-    })
+    // - Not in use -
+    // var rack_info = get_rack();
+    // if (rack_info["success"] == false) {
+    //     alert('No rack data!')
+    // }  else {
+    //     rack_info = rack_info["content"];
+    // }
+    // $.each(rack_info, function(index, r) {
+    //     var optval = '<option value='+ r['id'] + '>'
+    //     optval += 'LIMBRACK'+r['id'] + " ("+ r['num_rows']+'x'+r['num_cols'] + ", "+ r['serial_number']+') @'
+    //     optval += r['location']
+    //     optval += '</option>'
+    //     $("#select_rack").append(optval);
+    //     //$("#select_rack").append('<option value=xx >optval</option>');
+    // })
 
     $("#subsample-to-cart-btn").click(function (event) {
         var rows_selected = table.rows( { selected: true } ).data();
@@ -748,50 +748,50 @@ function fill_lineage_table(subsamples) {
     });
 
     // -- Not use for the moment, selected samples will be added to cart instead.
-    $("#subsample_to_storage").click(function (event) {
-        var rows_selected = table.rows( { selected: true } ).data();
-
-        if (rows_selected.length>0) {
-           // select rack id or shelf id. TODO: ?? sample to shelf
-           var rack_id = $('select[id="select_rack"]').val();
-           var shelf_id = $('select[id="select_shelf"]').val();
-           if (rack_id==0 && shelf_id==0) {
-               alert('Select a rack or a shelf to store the sample(s)! ');
-               return false
-           }
-
-           var formdata = [];
-           $.each(rows_selected, function (index, row) {
-               delete row['__proto__'];
-               formdata.push(row)
-           });
-
-
-           var api_url = window.location.origin + "/storage/rack/fill_with_samples"
-           var sampletostore = fill_sample_pos(api_url, rack_id, formdata, commit=false)
-           if (sampletostore.success == false){
-                alert(sampletostore.message)
-                return false
-           } else {
-               if (sampletostore.content.length==0) {
-                   alert('All selected samples have been stored in the selected rack!');
-                   return false;
-               }
-               if (sampletostore.message != '') {
-                   if (confirm(sampletostore.message)) {
-
-                   } else {
-                       return false
-                   }
-               }
-           }
-           sampletostore =  sampletostore['content']
-           sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
-           window.open(api_url, "_self");
-
-        }
-
-    });
+    // $("#subsample_to_storage").click(function (event) {
+    //     var rows_selected = table.rows( { selected: true } ).data();
+    //
+    //     if (rows_selected.length>0) {
+    //        // select rack id or shelf id. TODO: ?? sample to shelf
+    //        var rack_id = $('select[id="select_rack"]').val();
+    //        var shelf_id = $('select[id="select_shelf"]').val();
+    //        if (rack_id==0 && shelf_id==0) {
+    //            alert('Select a rack or a shelf to store the sample(s)! ');
+    //            return false
+    //        }
+    //
+    //        var formdata = [];
+    //        $.each(rows_selected, function (index, row) {
+    //            delete row['__proto__'];
+    //            formdata.push(row)
+    //        });
+    //
+    //
+    //        var api_url = window.location.origin + "/storage/rack/fill_with_samples"
+    //        var sampletostore = fill_sample_pos(api_url, rack_id, formdata, commit=false)
+    //        if (sampletostore.success == false){
+    //             alert(sampletostore.message)
+    //             return false
+    //        } else {
+    //            if (sampletostore.content.length==0) {
+    //                alert('All selected samples have been stored in the selected rack!');
+    //                return false;
+    //            }
+    //            if (sampletostore.message != '') {
+    //                if (confirm(sampletostore.message)) {
+    //
+    //                } else {
+    //                    return false
+    //                }
+    //            }
+    //        }
+    //        sampletostore =  sampletostore['content']
+    //        sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
+    //        window.open(api_url, "_self");
+    //
+    //     }
+    //
+    // });
 }
 
 
