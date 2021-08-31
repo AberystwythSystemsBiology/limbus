@@ -25,7 +25,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from .. import storage
-from ..forms import NewShelfForm, SampleToEntityForm, SamplesToEntityForm, RackToShelfForm
+from ..forms import NewShelfForm, SampleToEntityForm, SamplesToEntityForm, RackToShelfForm, RacksToShelfForm
 import requests
 from ...misc import get_internal_api_header
 
@@ -118,7 +118,6 @@ def edit_shelf(id):
         shelf = response.json()["content"]
         form = NewShelfForm(data=shelf)
 
-
         if form.validate_on_submit():
 
             form_information = {
@@ -170,9 +169,9 @@ def delete_shelf(id):
         return redirect(url_for("storage.view_shelf", id=id,_external=True))
     return abort(response.status_code)
 
-
-@storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
-@login_required
+# Not in use
+# @storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
+# @login_required
 def assign_rack_to_shelf(id):
     response = requests.get(
         url_for("api.storage_shelf_view", id=id, _external=True),
@@ -211,7 +210,78 @@ def assign_rack_to_shelf(id):
                 )
 
                 if rack_move_response.status_code == 200:
+                    flash(rack_move_response.json()["message"])
                     return redirect(url_for("storage.view_shelf", id=id))
+
+                flash("We have a problem: %s" % (rack_move_response.json()))
+
+            return render_template(
+                "storage/shelf/rack_to_shelf.html",
+                shelf=response.json()["content"],
+                form=form,
+            )
+
+    return abort(response.status_code)
+
+
+@storage.route("/shelf/LIMBSHF-<id>/assign_racks_in_cart", methods=["GET", "POST"])
+@login_required
+def assign_racks_to_shelf(id):
+    response = requests.get(
+        url_for("api.storage_shelf_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+    if response.json()["content"]["is_locked"]:
+        flash("The shelf is locked!")
+        return abort(401)
+
+    if response.status_code == 200:
+        # rack_response = requests.get(
+        #     url_for("api.storage_rack_home", _external=True),
+        #     headers=get_internal_api_header(),
+        # )
+        rack_response = requests.get(
+            url_for("api.get_cart", _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        print("rack_response: ", rack_response.text)
+        if rack_response.status_code == 200:
+            racks = []
+            rack_ids = []
+            for item in rack_response.json()["content"]:
+                if item["selected"] and item["storage_type"] == 'RUC' and item["rack"] is not None:
+                    if item["rack"]["id"] not in rack_ids:
+                        rack_ids.append(item["rack"]["id"])
+                        racks.append(item["rack"])
+
+            if len(racks) == 0:
+                flash("Add racks to your sample cart and select from the cart first! ")
+                return redirect(url_for("storage.view_shelf", id=id))
+
+            form = RacksToShelfForm(racks)
+
+            if form.validate_on_submit():
+                rack_move_response = requests.post(
+                    url_for("api.storage_transfer_racks_to_shelf", _external=True),
+                    headers=get_internal_api_header(),
+                    json={
+                        "rack_id": form.racks.data,
+                        "shelf_id": id,
+                        "entry_datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "entry": form.entered_by.data,
+                    },
+                )
+
+                if rack_move_response.status_code == 200:
+                    flash(rack_move_response.json()["message"])
+                    return redirect(url_for("storage.view_shelf", id=id))
+
                 flash("We have a problem: %s" % (rack_move_response.json()))
 
             return render_template(
@@ -223,8 +293,8 @@ def assign_rack_to_shelf(id):
     return abort(response.status_code)
 
 # Not in use
-@storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])
-@login_required
+# @storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])
+# @login_required
 def assign_sample_to_shelf(id):
     response = requests.get(
         url_for("api.storage_shelf_view", id=id, _external=True),
@@ -264,6 +334,7 @@ def assign_sample_to_shelf(id):
                 )
 
                 if sample_move_response.status_code == 200:
+                    flash(sample_move_response.json()["message"])
                     return redirect(url_for("storage.view_shelf", id=id))
 
                 else:
@@ -299,8 +370,9 @@ def assign_samples_to_shelf(id):
         if sample_response.status_code == 200:
             samples = []
             for item in sample_response.json()["content"]:
-                if item["selected"]:
-                    samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+                if item["selected"] and item["storage_type"] != "RUC":
+                    # samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+                    samples.append(item["sample"])
 
             if len(samples) == 0:
                 flash("Add samples to your sample cart and select from the cart first! ")
@@ -328,6 +400,7 @@ def assign_samples_to_shelf(id):
                 )
 
                 if sample_move_response.status_code == 200:
+                    flash(sample_move_response.json()["message"])
                     return redirect(url_for("storage.view_shelf", id=id))
 
                 else:

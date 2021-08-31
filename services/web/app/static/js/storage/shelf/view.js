@@ -48,7 +48,9 @@ function render_subtitle(shelf_information) {
     });
 
     $("#add-rack-btn").click(function() {
-        window.location.href = shelf_information["_links"]["assign_rack_to_shelf"];
+        //window.location.href = shelf_information["_links"]["assign_rack_to_shelf"];
+        window.location.href = shelf_information["_links"]["assign_racks_to_shelf"];
+
     })
 
 }

@@ -35,6 +35,31 @@ from wtforms.validators import DataRequired, Email, EqualTo, URL, ValidationErro
 from ...setup.forms import post_code_validator
 
 
+def func_label_sample_type(type_info: dict):
+    if type_info is None or type(type_info) is not dict:
+        return ""
+
+    fluid_type = type_info.pop("fluid_type", "") or ""
+    cellular_type = type_info.pop("cellular_type", "") or ""
+    molecular_type = type_info.pop("molecular_type", "") or ""
+    fixation_type = type_info.pop("fixation_type", None) or ""
+    if fixation_type is not None and fixation_type!="":
+        fixation_type = "->"+fixation_type
+
+    sample_type = "%s %s %s %s" % (fluid_type, molecular_type, cellular_type, fixation_type)
+    return sample_type
+
+def func_label_container_type(type_info: dict):
+    if type_info is None or type(type_info) is not dict:
+        return ""
+    fluid_container = type_info.pop("fluid_container", "") or ""
+    cellular_container = type_info.pop("cellular_container", "") or ""
+    container_type = "%s %s" % (fluid_container, cellular_container)
+    if container_type is not None and container_type!="":
+        container_type = "@" + container_type
+    return container_type
+
+
 class SiteRegistrationForm(FlaskForm):
     name = StringField("Site Name", validators=[DataRequired()])
     address_line_one = StringField("Address Line1", validators=[DataRequired()])
@@ -63,8 +88,12 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = [[0, '--- Select a sample ---']]
 
     for sample in samples:
-        samples_choices.append([int(sample["id"]), sample["uuid"]])
-
+        # samples_choices.append([int(sample["id"]), sample["uuid"]])
+        type_info = sample.pop("sample_type_information", "")
+        sample_type = func_label_sample_type(type_info)
+        container_type = func_label_container_type(type_info)
+        sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
+        samples_choices.append([int(sample["id"]), sample_label])
 
     class StaticForm(FlaskForm):
 
@@ -92,11 +121,17 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
     return StaticForm()
 
+
 def SamplesToEntityForm(samples: list) -> FlaskForm:
 
     samples_choices = [[0, '--- Select at least one samples ---']]
     for sample in samples:
-        samples_choices.append([int(sample["id"]), sample["uuid"]])
+        #samples_choices.append([int(sample["id"]), sample["uuid"]])
+        type_info = sample.pop("sample_type_information", "")
+        sample_type = func_label_sample_type(type_info)
+        container_type = func_label_container_type(type_info)
+        sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
+        samples_choices.append([int(sample["id"]), sample_label])
 
     class StaticForm(FlaskForm):
         date = DateField(

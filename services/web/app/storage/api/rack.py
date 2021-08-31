@@ -513,7 +513,7 @@ def storage_rack_location(id, tokenuser: UserAccount):
 @api.route("/storage/rack/shelves_onsite/LIMBRACK-<id>", methods=["GET"])
 @token_required
 def storage_shelves_onsite(id, tokenuser: UserAccount):
-    # Get the list of shelves of the same site for a given rack id
+    # Get the list of shelves (excluding locked ones) of the same site for a given rack id
     # if rack id is None, then list the shelves from the same site of the user site
 
     if id is not None:

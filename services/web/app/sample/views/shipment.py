@@ -21,7 +21,7 @@ from marshmallow_enum import EnumField
 from ..views import BasicSampleSchema
 from ...storage.views import BasicSampleRackSchema
 from ...sample.views import SampleUUIDSchema
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...misc.views import BasicSiteSchema
 from ...event.views import NewEventSchema, EventSchema
 
@@ -51,7 +51,7 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     id = masql.auto_field()
 
-    author = ma.Nested(BasicUserAccountSchema, many=False)
+    author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
     new_site = ma.Nested(BasicSiteSchema, many=False)
 
@@ -128,7 +128,7 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     selected = masql.auto_field()
     storage_type = EnumField(CartSampleStorageType)
-    author = ma.Nested(BasicUserAccountSchema, many=False)
+    author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
 
 

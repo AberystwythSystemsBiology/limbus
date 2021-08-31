@@ -170,9 +170,9 @@ function fill_title(sample) {
     var title_html = render_colour(sample["colour"]);
     title_html += sample["uuid"];
     if (sample["is_closed"]) {
-        title_html += "<i class=\"fas fa-archive\" style=\"color:yellow;\"></i>"
+        title_html += "  <i class=\"fas fa-archive\" style=\"color:yellow;\"></i>"
     } else if (sample["is_locked"]) {
-        title_html += "<i class=\"fa fa-lock\" style=\"color:yellow; padding-left: 3px;\"></i>"
+        title_html += "  <i class=\"fa fa-lock\" style=\"color:yellow; padding-left: 3px;\"></i>"
     }
 
     $("#uuid").html(title_html);

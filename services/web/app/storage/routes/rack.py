@@ -475,9 +475,10 @@ def assign_rack_sample(id, row, column):
             # form = SampleToEntityForm(sample_response.json()["content"])
             samples = []
             for item in sample_response.json()["content"]:
-                if item["selected"]:
-                    samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
-
+                if item["selected"] and item["storage_type"] != "RUC":
+                    # samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+                    samples.append(item["sample"])
+            print("n: ", len(samples), samples)
             if len(samples) == 0:
                 flash("Add samples to your sample cart and select from the cart first! ")
                 return redirect(url_for("storage.view_rack", id=id))
@@ -505,6 +506,7 @@ def assign_rack_sample(id, row, column):
                 )
 
                 if sample_move_response.status_code == 200:
+                    flash("Sample successfully added to rack!")
                     return redirect(url_for("storage.view_rack", id=id))
                 else:
                     flash(sample_move_response.json())
@@ -546,8 +548,10 @@ def assign_rack_samples(id):
         if sample_response.status_code == 200:
             samples = []
             for item in sample_response.json()["content"]:
-                if item["selected"]:
-                    samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+                if item["selected"] and item["storage_type"] != "RUC":
+                    # samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
+                    samples.append(item["sample"])
+
 
             if len(samples) == 0:
                 flash("Add samples to your sample cart and select from the cart first! ")
@@ -623,7 +627,7 @@ def add_rack_to_cart(id):
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
-    print('view_response: ', view_response)
+
     if view_response.status_code == 200:
         to_cart_response = requests.post(
             url_for("api.add_rack_to_cart", id=id, _external=True),

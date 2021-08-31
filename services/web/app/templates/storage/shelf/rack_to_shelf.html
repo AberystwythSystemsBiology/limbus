@@ -24,11 +24,12 @@
 
             <div class="container">
 
-                <form method="POST" action="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id ) }}">
+                <form method="POST" action="{{ url_for('storage.assign_racks_to_shelf', id=shelf.id ) }}">
                     {{ form.csrf_token }}
                     <div class="row">
                         <div class="col-10">
-                            {{ form_field(form.racks) }}
+{#                            {{ form_field(form.racks) }}#}
+                            {{ form.racks }}
                             <div id="rack-warning" class="alert alert-warning" style="display:none;" role="alert">
                                 <b>Warning:</b> This will move the rack from its current shelf
                             </div>
@@ -74,11 +75,11 @@
 {% endblock %}
 
 {% block javascript %}
-    <script>
-        window.onload = function () {
-            check_rack();
-        };
-    </script>
-    <script src="{{ url_for('static', filename='js/storage/rack/rack_checks.js') }}"></script>
+{#    <script>#}
+{#        window.onload = function () {#}
+{#            check_rack();#}
+{#        };#}
+{#    </script>#}
+{#    <script src="{{ url_for('static', filename='js/storage/rack/rack_checks.js') }}"></script>#}
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 {% endblock %}

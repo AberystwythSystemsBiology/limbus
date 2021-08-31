@@ -232,7 +232,9 @@ function render_sample_table(samples) {
                 {
                     "mData": {},
                     "mRender": function(data, type,row) {
-                        return data["pos"][0] + ", " + data["pos"][1]
+                        tick = String.fromCharCode(Number(data["pos"][0])+64);
+                        //return data["pos"][0] + ", " + data["pos"][1]
+                        return tick + ", " + data["pos"][1]                        
                     },
                     "width": "3%"
                 },

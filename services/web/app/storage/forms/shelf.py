@@ -22,6 +22,7 @@ from wtforms import (
     DateField,
     TimeField,
     SelectField,
+    SelectMultipleField,
 )
 
 import requests
@@ -76,6 +77,42 @@ def RackToShelfForm(racks: list) -> FlaskForm:
 
     setattr(
         StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int, render_kw={'onchange': "check_rack()"})
+    )
+
+    return StaticForm()
+
+
+def RacksToShelfForm(racks: list) -> FlaskForm:
+
+    class StaticForm(FlaskForm):
+        date = DateField(
+            "Entry Date", validators=[DataRequired()], default=datetime.today()
+        )
+        time = TimeField(
+            "Entry Time", validators=[DataRequired()], default=datetime.now()
+        )
+        entered_by = StringField(
+            "Entered By",
+            description="The initials of the person that entered the sample.",
+        )
+        submit = SubmitField("Submit")
+
+    choices = [[0, '--- Select at least one racks ---']]
+
+    for rack in racks:
+        choices.append(
+        [
+            rack["id"],
+            "LIMBRACK-%s: %s (%i x %i)"
+            % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
+        ]
+        )
+    print('choices: ', choices)
+    default_choices = [int(s[0]) for s in choices if int(s[0]) > 0]
+    setattr(
+        StaticForm, "racks", SelectMultipleField("Sample Rack(s)", choices=choices,
+                    default=default_choices, coerce=int,)
+                                         #render_kw={'onchange': "check_rack()"})
     )
 
     return StaticForm()

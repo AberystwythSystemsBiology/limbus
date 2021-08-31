@@ -223,7 +223,9 @@ function render_sample_table(samples) {
                 {
                     "mData": {},
                     "mRender": function(data, type,row) {
-                        return data["pos"][0] + ", " + data["pos"][1]
+                        tick = String.fromCharCode(Number(data["pos"][0])+64);
+                        //return data["pos"][0] + ", " + data["pos"][1]
+                        return tick + ", " + data["pos"][1]
                     },
                     "width": "3%"
                 },
@@ -388,6 +390,10 @@ function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
 
 $("#add-rack-cart-btn").click(function() {
     var api_url = window.location.href + "/to_cart";
+    var msg = "Adding a rack to cart will remove the rack, and samples it holds, from storage, press OK to proceed!";
+    if (!confirm(msg)) {
+      return false;
+    }
     $.ajax({
         type: "POST",
         url: api_url,
