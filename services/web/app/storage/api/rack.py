@@ -19,6 +19,7 @@ from ...api import api
 from ...misc import get_internal_api_header
 from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
+from ...sample.api.base import func_update_sample_status
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
@@ -177,6 +178,26 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         db.session.commit()
         flash('Sample stored to rack Successfully!')
         message = "Sample(s) stored to rack Successfully!"
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # Update sample current_site_id
+    sample_ids_not_updated = []
+    for sample in samples_pos:
+        sample_id = sample['sample_id']
+        res = func_update_sample_status(tokenuser=tokenuser, auto_query=True,
+                    sample_id=sample_id, events={"sample_storage": None})
+
+        print("sample", sample, res["message"])
+        if res["success"] is True and res["sample"]:
+            try:
+                db.session.add(res["sample"])
+            except:
+                sample_ids_not_updated.append(sample_id)
+                pass
+
+    try:
+        db.session.commit()
     except Exception as err:
         return transaction_error_response(err)
 
@@ -573,6 +594,7 @@ def storage_rack_info(tokenuser: UserAccount):
 
 
     return success_with_content_response(results)
+
 
 
 @api.route("/storage/rack/assign/sample", methods=["POST"])

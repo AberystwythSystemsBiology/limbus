@@ -75,8 +75,29 @@ def add_samples_to_cart():
     if to_cart_response.status_code == 200:
         return to_cart_response.json()
 
-    return abort(to_cart_response.status_code)
+    return to_cart_response.json()
 
+@sample.route("with_rack_to_cart", methods=["POST"])
+@login_required
+def add_samples_with_rack_to_cart():
+    samples = []
+    if request.method == 'POST':
+        values = request.json
+        samples = values.pop('samples', [])
+
+    if len(samples) == 0:
+       return {'success': False, 'messages': 'No sample selected!'}
+
+    to_cart_response = requests.post(
+        url_for("api.add_samples_racks_to_cart", _external=True),
+        headers=get_internal_api_header(),
+        json={'samples': [{"id": sample["id"]} for sample in samples]},
+    )
+
+    if to_cart_response.status_code == 200:
+        return to_cart_response.json()
+
+    return to_cart_response.json()
 
 @sample.route("<uuid>/cart/remove", methods=["DELETE"])
 @login_required
@@ -174,7 +195,6 @@ def view_data(uuid: str):
     )
 
     if sample_response.status_code == 200:
-        #print("sample_response: ", sample_response.text)
         return sample_response.json()
     return sample_response.content
 

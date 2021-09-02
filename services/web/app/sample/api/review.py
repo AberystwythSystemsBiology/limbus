@@ -223,14 +223,13 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
 
     # Update sample status
     res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample, events=sample_status_events)
-                 #events={"sample_disposal": disposal_instruction, "review_event": None})
 
     message = "Review/disposal instruction successfully added! " + res["message"]
     print("sample", sample, res["message"])
 
     try:
         if res["success"] is True and res["sample"]:
-            db.session.add(sample)
+            db.session.add(res["sample"])
 
         db.session.commit()
         return success_with_content_message_response(

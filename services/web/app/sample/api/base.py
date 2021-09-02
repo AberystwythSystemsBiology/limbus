@@ -40,7 +40,10 @@ from ..views import (
 from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
                          SampleProtocolEvent, ProtocolTemplate, SampleDisposal, SampleReview,
                          SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
-                         EntityToStorage)
+                         EntityToStorage,
+                         SiteInformation, Building, Room, ColdStorage, ColdStorageShelf )
+
+from sqlalchemy import or_
 
 from ..enums import *
 
@@ -87,6 +90,33 @@ def sample_sampletype_query_stmt(filters, joins, filters_sampletype):
     pass
     abort(402)
 
+
+#@storage.route("/shelf/LIMBSHF-<id>/location", methods=["GET"])
+def func_shelf_location(id):
+    location = db.session.query(SiteInformation).join(Building).join(Room).join(ColdStorage).\
+        join(ColdStorageShelf).with_entities(
+            SiteInformation.id, SiteInformation.name,
+            Building.id, Building.name,
+            Room.id, Room.name,
+            ColdStorage.id, ColdStorage.alias,ColdStorage.type,ColdStorage.temp,
+            ColdStorageShelf.id, ColdStorageShelf.name).\
+        filter(ColdStorageShelf.id==id).first()
+
+    pretty = ""
+    if location:
+        names = [str(item) for item in location if type(item) is not int]
+        pretty = "%s-%s-%s-%s(%s@%s)-%s" % tuple(names)
+        colnames = ["site_id", "site_name",
+                    "building_id", "building_name",
+                    "room_id", "room_name",
+                    "coldstorage_id", "coldstorage_name", "coldstorage_type", "coldstorage_temp",
+                    "shelf_id", "shelf_name"]
+        location = dict(zip(colnames, location))
+        print("site_id: ", pretty, location)
+
+    return {"location": location, "pretty": pretty}
+
+
 @api.route("/sample/containers", methods=["GET"])
 def sample_get_containers():
     return success_with_content_response(
@@ -128,7 +158,7 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    # print('fj: ', filters, joins)
+    print('fj: ', filters, joins)
 
     flag_protocol = False
 
@@ -327,32 +357,130 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+def func_sample_shipment_status(sample_id):
+        shipment_status = SampleShipmentStatus.query.\
+            join(SampleShipmentToSample, SampleShipmentToSample.shipment_id==SampleShipmentStatus.shipment_id).\
+            filter(SampleShipmentToSample.sample_id==sample_id).\
+            order_by(SampleShipmentStatus.datetime.desc()).first()
+
+        msg = "No related sample shipment status! "
+        if shipment_status:
+            shipment_status_info = SampleShipmentStatusSchema.dump(shipment_status)
+            shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+            if shipment:
+                # shipment_status_info["old_site"] =
+                shipment_status_info["new_site"] = shipment.site_id
+
+            return {"shipment_status_info": shipment_status_info, message: msg, success: True}
+        else:
+            return {"shipment_status_info": None, message: msg, success: True}
+
+
+def func_sample_storage_location(sample_id):
+    stored_flag = False
+    sample_storage = EntityToStorage.query.\
+        filter(EntityToStorage.sample_id==sample_id,
+               EntityToStorage.removed is not True).\
+        order_by(EntityToStorage.entry_datetime.desc()).first()
+
+    sample_storage_info = None
+    msg = "No sample storage info! "
+    if sample_storage:
+        shelf_id = sample_storage.shelf_id
+
+        if shelf_id is None:
+            shelf_storage = EntityToStorage.query.filter(EntityToStorage.rack_id==sample_storage.rack_id,
+                EntityToStorage.shelf_id!=None, EntityToStorage.removed is not True). \
+                order_by(EntityToStorage.entry_datetime.desc()).first()
+            if shelf_storage:
+                shelf_id = shelf_storage.shelf_id
+
+                sample_storage_info = NewSampleRackToShelfSchema.dump(shelf_storage)
+                sample_storage_info["sample_id"] = sample_id
+        else:
+            sample_storage_info = NewSampleRackToShelfSchema.dump(sample_storage)
+            sample_storage_info["sample_id"] = sample_id
+
+        msg = "No sample storage location info! "
+        if shelf_id:
+            shelf_loc = func_shelf_location(shelf_id)
+            if shelf_loc["location"]:
+                sample_storage_info.update(shelf_loc["location"])
+                msg = "Sample stored in %s! " % shelf_loc["pretty"]
+
+        return {"sample_storage_info": sample_storage_info, "message": msg}
+
+
+
 def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id=None, sample=None,
                               events={}):
     # - Update sample status when new events added or events are removed!
     # - events: a dictionary of event objects, with keys from the list:
-    #  ["sample_disposal", "shipment_status", "shipment_to_sample", "sample_review"]
+    #  ["sample_disposal", "sample_storage", "shipment_status", "shipment_to_sample", "sample_review"]
     #   "shipment_to_sample" can be added only of it is paired with "shipment_status"
     # - auto_query: Boolean, set to True if automated search of relevant objects are needed,
     #                         otherwise update status based on the given objects only.
     # sample_id and sample, the id and the sample object that need to be examined and updated.
     # ########
+    # TODO refactoring
 
     if not sample:
         if sample_id:
             sample = Sample.query.filter_by(id=sample_id).first()
     else:
         sample_id = sample.id
-
+    msgs = []; updated = False
     if not sample:
-        return {'sample': None, 'message': "Sample/sample_id not found! ", "success": False}
+        msg = "Sample/sample_id not found! "
+        res = {'sample': None, 'message': msg, "success": False}
+
+        if "shipment_status" in events and auto_query:
+            # involved in multiple samples
+            msg = "No related samples! "
+            shipment_status = events["shipment_status"]
+
+            if shipment_status:
+                subq = db.session.query(SampleShipmentToSample.sample_id).\
+                    filter(SampleShipmentToSample.shipment_id == shipment_status.shipment_id)
+                samples = Sample.query.filter(Sample.id.in_(subq)).all()
+                if not samples:
+                    msg = "No involved samples found for the shipment status! "
+                    return {'sample': None, 'message': msg, "success": True}
+
+                if shipment_status.status not in [None, "TBC"]:
+                    updated = True
+                    for sample in samples:
+                        sample.status = SampleStatus.TRA
+
+                    # if Delievered change the current_site_id to new site
+                    if shipment_status.status == "DEL":
+                        shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+
+                        if shipment:
+                            for sample in samples:
+                                sample.current_site_id = shipment.site_id
+                        else:
+
+                            for sample in samples:
+                                sample.current_site_id = None
+
+                    for sample in samples:
+                        sample.update({"editor_id": tokenuser.id})
+
+                    msg = "%d samples shipped!" % (len(samples))
+                    res = {"sample": samples, "message": msg, "success": True}
+                else:
+                    msg = "No related sample shipment status for update!"
+                    res = {'sample': None, 'message': msg, "success": True}
+
+            return res
 
     if sample.is_locked is True or sample.is_closed is True:
         return {'sample': None, 'message': "Sample locked/closed! ", "success": True}
 
     if events is None or len(events) is 0 :
         auto_query = True
-        for e in ["sample_review", "sample_disposal", "disposal_event", "shipment_status"]:
+        for e in ["sample_review", "sample_disposal", "disposal_event", "shipment_status", "sample_storage"]:
             events[e] = None
 
     if "shipment_to_sample" in events:
@@ -365,9 +493,6 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             if sample_disposal.sample_id != sample.id:
                 return {'sample': None, 'message': "Non-matched sample_disposal! ", "success": False}
         elif auto_query:
-            # if sample.disposal_id:
-            #     sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
-            # else:
             sample_disposal = SampleDisposal.query.join(SampleReview).join(Event).\
                 filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
             if not sample_disposal:
@@ -375,35 +500,87 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                 #sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
                 sample_disposal = SampleDisposal.query.\
                     filter_by(sample_id=sample_id).order_by(SampleDisposal.updated_on.desc()).first()
+        msg = "No related sample_disposal! "
+        res = {'sample': None, 'message': msg, "success": True}
 
-        res = {'sample': None, 'message': "No related sample_disposal! ", "success": True}
         if sample_disposal:
             sample.disposal_id = sample_disposal.id
             if sample_disposal.instruction == DisposalInstruction.REV:
                 # Pending review
                 sample.status = SampleStatus.NRE
                 sample.update({"editor_id": tokenuser.id})
+                updated = True
 
             elif sample_disposal.instruction == DisposalInstruction.DES:
                 if sample_disposal.disposal_event_id is not None:
+                    msg = "Sample destructed! "
+                    if sample.status == "DES":
+                        return {'sample': None, 'message': msg, "success": True}
+
                     sample.status = SampleStatus.DES
                     sample.is_locked = True
                     sample.is_close = True
                     sample.update({"editor_id": tokenuser.id})
-                    return {'sample': sample, 'message': "Sample destructed! ", "success": True}
+                    return {'sample': sample, 'message': msg, "success": True}
 
             elif sample_disposal.instruction == DisposalInstruction.TRA:
                 if sample_disposal.disposal_event_id is not None:
+                    msg = "sample disposed via transfer"
+                    if sample.status == "TRA":
+                        return {'sample': sample, 'message': msg, "success": True}
                     sample.status = SampleStatus.TRA
                     sample.is_locked = True
                     sample.is_close = True
                     sample.update({"editor_id": tokenuser.id})
-                    return {'sample': sample, 'message': "sample disposed via transfer", "success": True}
+                    return {'sample': sample, 'message': msg, "success": True}
             else:
-                res = {'sample': None, 'message': "No related sample_disposal for update! ", "success": True}
+                msg = "No related sample_disposal for update! "
 
+        msgs.append(msg)
 
-    if "shipment_status" in events:
+    # current_site_id = None
+    stored_flag = False
+    if "sample_storage" in events:
+        sample_storage = events["sample_storage"]
+
+        if sample_storage:
+            if sample_storage.sample_id != sample.id:
+                return {'sample': None, 'message': "Non-matched sample id in storage info! ", "success": False}
+
+        elif auto_query:
+            sample_storage = EntityToStorage.query.\
+                filter(EntityToStorage.sample_id==sample_id,
+                       EntityToStorage.removed is not True).\
+                order_by(EntityToStorage.entry_datetime.desc()).first()
+
+            msg = "No sample storage info! "
+            res = {'sample': None, 'message': msg, "success": True}
+            if sample_storage:
+                shelf_id = sample_storage.shelf_id
+                if shelf_id is None:
+                    shelf_storage = EntityToStorage.query.filter(EntityToStorage.rack_id==sample_storage.rack_id,
+                        EntityToStorage.shelf_id!=None, EntityToStorage.removed is not True). \
+                        order_by(EntityToStorage.entry_datetime.desc()).first()
+                    if shelf_storage:
+                        shelf_id = shelf_storage.shelf_id
+
+                msg = "No sample storage location info! "
+                res = {'sample': None, 'message': msg, "success": True}
+                print("1shelf_id ", res, shelf_id)
+                if shelf_id:
+                    shelf_loc = func_shelf_location(shelf_id)
+                    if shelf_loc["location"]:
+                        if sample.current_site_id != shelf_loc["location"]["site_id"]:
+                            sample.current_site_id = shelf_loc["location"]["site_id"]
+                            sample.update({"editor_id": tokenuser.id})
+                            updated = True
+
+                        stored_flag = True
+                        msg = "Sample stored in %s! " % shelf_loc["pretty"]
+
+        msgs.append(msg)
+
+    if not stored_flag and "shipment_status" in events:
         shipment_status = events["shipment_status"]
 
         shipment_to_sample = None
@@ -412,7 +589,8 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
         if shipment_status and shipment_to_sample:
             if shipment_to_sample.sample_id != sample.id:
-                return {'sample': None, 'message': "Non-matched sample id in shipment info! ", "success": False}
+                msg = "Non-matched sample id in shipment info! "
+                return {'sample': None, 'message': msg, "success": False}
 
         elif auto_query:
             shipment_status = SampleShipmentStatus.query.\
@@ -420,33 +598,43 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                 filter(SampleShipmentToSample.sample_id==sample_id).\
                 order_by(SampleShipmentStatus.datetime.desc()).first()
 
-        res = {'sample': None, 'message': "No related sample shipment status! ", "success": True}
+        msg = "No related sample shipment status! "
+        res = {'sample': None, 'message': msg, "success": False}
         if shipment_status:
-            if shipment_status.status not in [None, SampleShipmentStatusStatus.TBC]:
-                sample.status = SampleStatus.TRA
+            print("shipment_status.status", shipment_status.status, ", zzDEL", shipment_status.status=="DEL")
+            #if shipment_status.status not in [None, SampleShipmentStatusStatus.TBC]:
+            if shipment_status.status not in [None, "TBC"]:
+                if sample.status != "TRA":
+                    sample.status = SampleStatus.TRA
+                    updated = True
 
-                shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first_or_404()
-                if shipment:
-                    sample.current_site_id = shipment.site_id
-                else:
-                    sample.current_site_id = None
+                #if shipment_status.status == SampleShipmentStatusStatus.DEL:  # Delievered
+                if shipment_status.status == "DEL":  # Delievered
+                    shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+                    if shipment:
+                        if sample.current_site_id != shipment.site_id:
+                            sample.current_site_id = shipment.site_id
+                            updated = True
 
-                sample.update({"editor_id": tokenuser.id})
-                return {"sample": sample, "message": "Sample shipped to site %s !" % sample.current_site_id, "success": True}
+                msg = "Sample shipped to site %s !" % sample.current_site_id
+                return {"sample": sample, "message": msg, "success": True}
             else:
-                res = {'sample': None, 'message': "No related sample shipment status for update!", "success": True}
+                msg = "No related sample shipment status for update!"
 
+        msgs.append(msg)
 
     if "sample_review" in events:
         sample_review = events["sample_review"]
-        if sample_review:
+        if sample_review and not res["success"]:
             if sample_review.sample_id != sample.id:
                 return {'sample': None, 'message': "non matched sample id for review.", 'success': False}
+
         elif auto_query:
             sample_review = SampleReview.query.join(Event).\
                 filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
 
-        res = {'sample': None, 'message': "No related sample_review! ", "success": True}
+        msg = "No related sample_review! "
+        res = {'sample': None, 'message': msg, "success": True}
         if sample_review:
             if sample_review.result == ReviewResult.FA:
                 if sample_review.review_type == ReviewType.IC:
@@ -463,12 +651,17 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             else:
                 sample.status = SampleStatus.UNU
 
-            sample.update({"editor_id": tokenuser.id})
-            return {"sample": sample, "message": "sample updated according to review!", "success": True}
+            updated = True
+            msg = "sample updated according to review!"
+            res = {"sample": sample, "message": msg, "success": True}
 
-    if not res:
-        res = {"sample": None, "message": "No update for sample!", "success": True}
-    return res
+        msgs.append(msg)
+
+    if updated:
+        sample.update({"editor_id": tokenuser.id})
+        return {"sample": sample, "message": msgs, "success": True }
+
+    return {"sample": None, "message": "No update for sample!", "success": True}
 
 
 @api.route("/sample/status/<uuid>", methods=["GET"])

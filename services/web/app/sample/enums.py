@@ -305,3 +305,4 @@ class SampleShipmentStatusStatus(FormEnum):
     DEL = "Delivered"
     PRO = "Problem"
     UND = "Undelivered"
+    CAN = "Cancelled"

@@ -18,12 +18,15 @@ from flask import request, abort, url_for
 from sqlalchemy.sql import func
 from marshmallow import ValidationError
 from ...api import api, generics
+
 import requests
 import json
 from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
+from .base import func_update_sample_status
+
 from ...database import (
     db,
     SampleShipmentToSample,
@@ -90,10 +93,34 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 
     try:
         db.session.add(shipment_event)
-        db.session.commit()
-        return success_with_content_response(sample_shipment_status_schema.dump(shipment_event))
     except Exception as err:
         return transaction_error_response(err)
+
+    sample_status_events = {"shipment_status": shipment_event}
+    res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=None, events=sample_status_events)
+
+    message = "Shipment status successfully updated! " + res["message"]
+    print("sample", res["message"])
+
+    try:
+        if res["success"] is True and res["sample"]:
+            for sample in res["sample"]:
+                db.session.add(sample)
+
+        db.session.commit()
+        return success_with_content_message_response(
+            sample_shipment_status_schema.dump(shipment_event), message
+        )
+
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # try:
+    #     db.session.add(shipment_event)
+    #     db.session.commit()
+    #     return success_with_content_response(sample_shipment_status_schema.dump(shipment_event))
+    # except Exception as err:
+    #     return transaction_error_response(err)
 
 
 
@@ -374,7 +401,7 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
 @api.route("/cart/add/samples", methods=["POST"])
 @token_required
 def add_samples_to_cart(tokenuser: UserAccount):
-
+    print(tokenuser.site_id)
     values = request.get_json()
     samples = []
     if values:
@@ -383,19 +410,39 @@ def add_samples_to_cart(tokenuser: UserAccount):
     if len(samples) == 0:
         return no_values_response()
 
-    sample_ids = [sample["id"] for sample in samples]
+    sample_ids = [smpl["id"] for smpl in samples]
+
+    # Site access control
     samples_locked = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==True).\
-        with_entities(Sample.id, Sample.uuid).all()
+        with_entities(Sample.id).all()
+
+    if tokenuser.account_type != "Administrator":
+        samples_other = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
+                        Sample.current_site_id!=tokenuser.site_id).\
+                    with_entities(Sample.id).all()
+
+        if len(samples_other)>0:
+            samples_locked = set(samples_locked).union(set(samples_other))
+
+    # Samples in transit can't be added to cart
+    samples_transit = SampleShipmentStatus.query. \
+        join(SampleShipmentToSample, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
+        filter(~SampleShipmentStatus.status.in_(["DEL","UND"])). \
+        with_entities(SampleShipmentToSample.sample_id).distinct().all()
+
+    if len(samples_transit) > 0:
+        samples_locked = set(samples_locked).union(set(samples_transit))
+
 
     if len(samples_locked) >0:
         ids_locked = [sample.id for sample in samples_locked]
         sample_ids = [sample_id for sample_id in sample_ids if sample_id not in ids_locked]
-        msg_locked = ["[LIMBSMP-%s]%s" % (sample.id, sample.uuid) for sample in samples_locked]
+        msg_locked = ', '.join(["LIMBSMP-%s" % (sample.id) for sample in samples_locked])
     else:
         ids_locked = []
         msg_locked = []
 
-    if len(samples) == 0:
+    if len(sample_ids) == 0:
         return locked_response(msg_locked)
 
     ESRecords = EntityToStorage.query.filter(EntityToStorage.sample_id.in_(sample_ids)).all()
@@ -442,6 +489,102 @@ def add_samples_to_cart(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+@api.route("/cart/add/samples_racks", methods=["POST"])
+@token_required
+def add_samples_with_racks_to_cart(tokenuser: UserAccount):
+    print(tokenuser.site_id)
+    values = request.get_json()
+    samples = []
+    if values:
+        samples = values.pop('samples', [])
+
+    if len(samples) == 0:
+        return no_values_response()
+
+    sample_ids = [smpl["id"] for smpl in samples]
+
+    # Site access control
+    samples_locked = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==True).\
+        with_entities(Sample.id).all()
+
+    if tokenuser.account_type != "Administrator":
+        samples_other = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
+                        Sample.current_site_id!=tokenuser.site_id).\
+                    with_entities(Sample.id).all()
+
+        if len(samples_other)>0:
+            samples_locked = set(samples_locked).union(set(samples_other))
+
+    # Samples in transit can't be added to cart
+    samples_transit = SampleShipmentStatus.query. \
+        join(SampleShipmentToSample, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
+        filter(~SampleShipmentStatus.status.in_(["DEL","UND"])). \
+        with_entities(SampleShipmentToSample.sample_id).distinct().all()
+
+    if len(samples_transit) > 0:
+        samples_locked = set(samples_locked).union(set(samples_transit))
+
+
+    if len(samples_locked) >0:
+        ids_locked = [sample.id for sample in samples_locked]
+        sample_ids = [sample_id for sample_id in sample_ids if sample_id not in ids_locked]
+        msg_locked = ', '.join(["LIMBSMP-%s" % (sample.id) for sample in samples_locked])
+    else:
+        ids_locked = []
+        msg_locked = []
+
+    if len(sample_ids) == 0:
+        return locked_response(msg_locked)
+    #
+    # ESRecords = EntityToStorage.query.filter(EntityToStorage.sample_id.in_(sample_ids)).all()
+    # n_new = 0
+    # n_old = 0
+    # if len(ESRecords) > 0:
+    #     try:
+    #         for es in ESRecords:
+    #             db.session.delete(es)
+    #             db.session.flush()
+    #     except Exception as err:
+    #         return transaction_error_response(err)
+
+    for sample_id in sample_ids:
+        new_uc = UserCart.query.filter_by(
+            author_id=tokenuser.id, sample_id=sample_id
+        ).first()
+
+        if new_uc is not None:
+            new_uc.selected = True
+            new_uc.updated_on = func.now()
+            n_old = n_old + 1
+        else:
+            new_uc = UserCart(sample_id=sample_id, selected=True, author_id=tokenuser.id)
+            n_new = n_new + 1
+
+        ets = EntityToStorage.query.filter(sample_id==sample_id,
+                        rack_id is not None, removed is not True).\
+                    order_by(EntityToStorage.datetime.desc()).first()
+        if ets:
+            new_uc.rack_id = ets.rack_id
+            new_uc.storage_type = "RUC"
+
+        try:
+            db.session.add(new_uc)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+    msg = "%d samples added to Cart!" % n_new
+    if (n_old >0 ):
+        msg = msg + " | " + "%d samples updated in Cart!" % n_old
+    if len(msg_locked) >0:
+        msg = msg + " | " +"Locked sample not added: %s" % msg_locked
+
+    try:
+        db.session.commit()
+        return success_with_content_message_response(sample_ids, message=msg)
+
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/cart/add/LIMBRACK-<id>", methods=["POST"])
@@ -452,6 +595,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
         headers=get_internal_api_header(tokenuser),
     )
 
+    # TODO check if rack in transit?
     if rack_response.status_code == 200:
         esCheck = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
         if esCheck == []:

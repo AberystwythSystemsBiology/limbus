@@ -102,3 +102,20 @@ class NewColdStorageShelfSchema(masql.SQLAlchemySchema):
 
 
 new_shelf_schema = NewColdStorageShelfSchema()
+
+class ColdStorageShelfInfoSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    uuid = masql.auto_field()
+    description = masql.auto_field()
+    z = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema)
+    created_on = ma.Date()
+    updated_on = ma.Date()
+    samples = ma.Nested(BasicSampleSchema, many=True)
+    racks = ma.Nested(BasicSampleRackSchema, many=True)
+    is_locked = masql.auto_field()
+    storage_id = masql.auto_field()

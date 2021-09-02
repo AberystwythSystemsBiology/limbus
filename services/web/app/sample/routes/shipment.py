@@ -86,6 +86,11 @@ def shipment_update_status(uuid):
             shipment_info["status"] = 'TBC'
         else:
             shipment_info["status"] =SampleShipmentStatusStatus(status).name
+
+        if shipment_info["status"] in ["DEL", 'UND', "CAN"]:
+            flash("The shipment has been closed! ")
+            return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
+
         form = SampleShipmentStatusUpdateform(data= shipment_info)
 
         if form.validate_on_submit():

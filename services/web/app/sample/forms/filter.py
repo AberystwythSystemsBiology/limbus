@@ -37,6 +37,30 @@ def SampleFilterForm() -> FlaskForm:
 
         submit = SubmitField("Filter")
 
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    sites = [(None, "None")]
+    if sites_response.status_code == 200:
+        for site in sites_response.json()["content"]:
+            sites.append(
+                (
+                    site["id"],
+                    "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+                )
+            )
+
+    setattr(
+        StaticForm,
+        "current_site_id",
+        SelectField(
+            "Site", choices=sites,
+        ),
+    )
+
     # Get protocol template list
     protocols_response = requests.get(
         url_for("api.protocol_query", _external=True),

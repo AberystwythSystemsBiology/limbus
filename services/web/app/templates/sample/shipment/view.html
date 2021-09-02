@@ -33,12 +33,21 @@
                         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                 <a href="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">
-                                    <button type="button" class="btn btn-outline-dark"><i
+                                    <button id="update-status-btn"  type="button" class="btn btn-outline-dark"><i
                                             class="fa fa-truck"></i>
                                         Update Status
                                     </button>
                                 </a>
                             </div>
+                            <div class="btn-group mr-2" role="group" aria-label="First group">
+{#                                <a href="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">#}
+                                    <button id="add-cart-btn" type="button" class="btn btn-outline-dark">
+                                        <i class="fa fa-cart-plus"></i>
+                                        Add to Cart
+                                    </button>
+{#                                </a>#}
+                            </div>
+
                         </div>
                     </div>
                     <div class="col-5 text-right">
@@ -100,7 +109,25 @@
     </div>
 </div>
 
-
+<!--- Cart Confirmation -->
+<div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="cart-confirmation-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="cart-confirmation-label">Cart Confirmation</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="cart-confirmation-msg"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
