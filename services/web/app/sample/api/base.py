@@ -175,7 +175,6 @@ def sample_query(args, tokenuser: UserAccount):
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     results = basic_samples_schema.dump(stmt.all())
-    # print(results)
     return success_with_content_response(
         results
     )
@@ -527,7 +526,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                 if sample_disposal.disposal_event_id is not None:
                     msg = "sample disposed via transfer"
                     if sample.status == "TRA":
-                        return {'sample': sample, 'message': msg, "success": True}
+                        return {'sample': None, 'message': msg, "success": True}
                     sample.status = SampleStatus.TRA
                     sample.is_locked = True
                     sample.is_close = True
@@ -625,7 +624,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
     if "sample_review" in events:
         sample_review = events["sample_review"]
-        if sample_review and not res["success"]:
+        if sample_review:
             if sample_review.sample_id != sample.id:
                 return {'sample': None, 'message': "non matched sample id for review.", 'success': False}
 
@@ -656,7 +655,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             res = {"sample": sample, "message": msg, "success": True}
 
         msgs.append(msg)
-
+        msgs = " | ".join(msgs)
     if updated:
         sample.update({"editor_id": tokenuser.id})
         return {"sample": sample, "message": msgs, "success": True }

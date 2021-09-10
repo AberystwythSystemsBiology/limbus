@@ -33,7 +33,7 @@ def remove_review(uuid: str):
         url_for("api.sample_remove_sample_review", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
-    print("remove_response: ", remove_response.text)
+
     if remove_response.status_code == 200:
         sample_uuid = remove_response.json()["content"]
         flash(remove_response.json()["message"])

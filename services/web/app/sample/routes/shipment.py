@@ -141,7 +141,7 @@ def shipment_view_shipment_data(uuid):
         url_for("api.shipment_view_shipment", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
-    print('shipment_reponse: ', shipment_response.text)
+    # print('shipment_reponse: ', shipment_response.text)
     return (
         shipment_response.text,
         shipment_response.status_code,
@@ -189,7 +189,8 @@ def shipment_new_step_one():
                 return redirect(url_for("sample.shipment_index"))
 
             else:
-                flash("Oh no.")
+                #flash("Oh no.")
+                flash(new_shipment_response.json()['message'])
 
         return render_template("sample/shipment/new/new.html", form=form)
     else:

@@ -31,8 +31,6 @@ from ...protocol.enums import ProtocolType
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
 
-    print(values)
-
     if not values:
         return no_values_response()
 
@@ -86,8 +84,7 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
 
     if sample:
         if sample.is_locked:
-            print("sample_uuid: ", sample_uuid)
-            return locked_response("sample(%s)" % sample_uuid)
+            return locked_response("sample(%s)" % sample.uuid)
     else:
         return not_found("related sample")
 
@@ -95,13 +92,12 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
 
     protocol_type = ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
     if protocol_type in [ProtocolType.ACQ, ProtocolType.ALD, ProtocolType.SDE, ProtocolType.STR]:
-        err = "Type of protocol events (%s) not allowed!", protocol_type
+        err = {"messages": "Type of protocol events (%s) not allowed!" % protocol_type}
         return validation_error_response(err)
 
     event = None
     if protocol_event.event_id:
         event = Event.query.filter_by(id=protocol_event.event_id).first()
-        #print("event", event.id)
 
     try:
         db.session.add(protocol_event)
