@@ -148,6 +148,12 @@ class DisposalInstruction(FormEnum):
     PRE = "Preserve"
 
 
+class ConsentWithdrawalRequester(FormEnum):
+    DON = "Donor"
+    KIN = "Next of Kin"
+    REP = "Legal Representative"
+    UNK = "Unknown"
+
 class CellSampleType(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"

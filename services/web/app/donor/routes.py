@@ -159,6 +159,48 @@ def new_diagnosis(id):
     else:
         return response.content
 
+@donor.route("/LIMBDON-<id>/new/consent", methods=["GET", "POST"])
+@login_required
+def new_consent(id):
+    response = requests.get(
+        url_for("api.donor_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+
+        form = DonorConsentForm()
+
+        if form.validate_on_submit():
+
+            consent_response = requests.post(
+                url_for("api.donor_new_consent", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "doid_ref": form.disease_select.data,
+                    "stage": form.stage.data,
+                    "diagnosis_date": str(
+                        datetime.strptime(
+                            str(form.diagnosis_date.data), "%Y-%m-%d"
+                        ).date()
+                    ),
+                    "comments": form.comments.data,
+                },
+            )
+
+            if consent_response.status_code == 200:
+                flash("Donor Consent Added!")
+                return redirect(url_for("donor.view", id=id))
+
+            flash("Error!: %s" % consent_response.json()["message"])
+
+        return render_template(
+            "donor/new_consent.html", donor=response.json()["content"], form=form
+        )
+    else:
+        return response.content
+
+
 
 @donor.route("/disease/api/label_filter", methods=["POST"])
 @login_required
