@@ -133,6 +133,10 @@ function render_dob(dob) {
     return [month + " " + date.getFullYear(), calculate_age(date.getMonth(), date.getFullYear()), date];
 }
 
+function render_action_links(self_link) {
+    $("#action-new-consent").attr("href", self_link+"/new/consent")
+}
+
 function fill_basic_information(donor_information, age, dob) {
 
     html = render_content("Date of Birth", dob);
@@ -208,6 +212,7 @@ $(document).ready(function () {
 
     $("#donor-id").html(donor_information["id"]);
 
+    render_action_links(donor_information["_links"]["self"])
 
     $("#edit-donor-btn").on("click", function() {
         window.location.href = donor_information["_links"]["edit"];

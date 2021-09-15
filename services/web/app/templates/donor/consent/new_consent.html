@@ -1,0 +1,46 @@
+{% extends "template.html" %}
+
+{% block title %}New Sample Consent{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ donor._links.self }}">
+                <i class="fas fa-vial"></i>
+                <span id="donor-id">{{ donor.uuid }}</span>
+            </a></span>
+        <i class="fa fa-trash"></i> New Sample Consent </h1>
+    </div>
+</div>
+<div class="container">
+    <form method="POST" >
+        {{ form.csrf_token }}
+
+        {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
+
+        <div class="alert alert-warning" role="alert">
+            <b>Notice:</b> If you are unable to find the consent form template, it's likely that you have yet to add it.
+            <a href="{{ url_for('consent.add')}}">Click here</a> to add a new patient consent form.
+        </div>
+
+<!-- Button trigger modal -->
+{#<button type="button" class="btn btn-warning float-right" data-toggle="modal" data-target="#sample-consent-modal">#}
+
+{#<button type="button" class="btn btn-warning float-right">#}
+{#    Submit Consent#}
+{#  </button>#}
+
+        {{ form_field(form.submit) }}
+</form>
+
+
+
+</div>
+{% endblock %}
+
+
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/donor/donor_consent.js') }}"></script>
+{% endblock %}

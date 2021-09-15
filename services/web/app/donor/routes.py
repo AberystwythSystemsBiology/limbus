@@ -33,8 +33,13 @@ from .forms import (
     DonorFilterForm,
     DonorAssignDiagnosisForm,
     DonorSampleAssociationForm,
+    ConsentTemplateSelectForm,
+    ConsentAnswerForm,
+    DonorConsentForm,
+    ConsentQuestionnaire,
 )
 
+from ..consent.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 from ..misc import get_internal_api_header
 
 strconv = lambda i: i or None
@@ -168,37 +173,84 @@ def new_consent(id):
     )
 
     if response.status_code == 200:
+        consent_templates = []
 
-        form = DonorConsentForm()
+        consent_templates_response = requests.get(
+            url_for("api.consent_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"is_locked": False},
+        )
+        print("template: ", consent_templates_response.text)
+        if consent_templates_response.status_code == 200:
+            for template in consent_templates_response.json()["content"]:
+                consent_templates.append(
+                    [template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"])]
+                )
+
+        form = ConsentTemplateSelectForm(consent_templates)
 
         if form.validate_on_submit():
+            return redirect(url_for("donor.add_consent_answers", donor_id=id, template_id=form.consent_select.data))
 
-            consent_response = requests.post(
-                url_for("api.donor_new_consent", id=id, _external=True),
-                headers=get_internal_api_header(),
-                json={
-                    "doid_ref": form.disease_select.data,
-                    "stage": form.stage.data,
-                    "diagnosis_date": str(
-                        datetime.strptime(
-                            str(form.diagnosis_date.data), "%Y-%m-%d"
-                        ).date()
-                    ),
-                    "comments": form.comments.data,
-                },
-            )
-
-            if consent_response.status_code == 200:
-                flash("Donor Consent Added!")
-                return redirect(url_for("donor.view", id=id))
-
-            flash("Error!: %s" % consent_response.json()["message"])
+            #flash("Error!: %s" % consent_response.json()["message"])
 
         return render_template(
-            "donor/new_consent.html", donor=response.json()["content"], form=form
+            "donor/consent/new_consent.html", donor=response.json()["content"], form=form
         )
     else:
         return response.content
+
+#@donor.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
+@donor.route("/LIMBDON-<donor_id>/new/digital_consent_form-<template_id>", methods=["GET", "POST"])
+@login_required
+def add_consent_answers(donor_id, template_id):
+    #template_id = request.json['consent_select']
+    consent_response = requests.get(
+        url_for("api.consent_view_template", id=template_id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if consent_response.status_code != 200:
+        return consent_response.response
+
+    consent_template = consent_response.json()["content"]
+
+    consent_data = {'template_name': consent_template['name'],
+                     'template_version': consent_template['version'],
+                     'questions': consent_template['questions']}
+
+    form = ConsentQuestionnaire(data=consent_data)
+
+    if form.validate_on_submit():
+        consent_details = {
+            "donor_id": donor_id,
+            "identifier": form.identifier.data,
+            "template_id": consent_template['id'],
+            "comments": form.comments.data,
+            "date": str(form.date.data),
+            "answers": [],
+        }
+
+        for question in consent_template["questions"]:
+            if getattr(form, str(question["id"])).data:
+                consent_details["answers"].append(question["id"])
+        print('consent_details:', consent_details)
+        consent_response = requests.post(
+            url_for("api.donor_new_consent", _external=True),
+            headers=get_internal_api_header(),
+            json=consent_details,
+        )
+
+        if consent_response.status_code == 200:
+            return redirect(url_for("donor.view", id=donor_id))
+
+        #print('json', consent_response.text)
+
+        flash("We have a problem :( %s" % (consent_response.json()))
+
+    return render_template(
+        "donor/consent/donor_consent_answers.html", form=form, donor_id=donor_id, template_id=template_id
+    )
 
 
 

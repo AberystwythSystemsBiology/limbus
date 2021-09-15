@@ -1,0 +1,58 @@
+{% extends "template.html" %}
+
+
+{% block title %}Enter Donor Consent Form Details{% endblock %}
+
+{% block body %}
+
+
+<div class="container">
+
+    <form id="consent-form" method="POST">
+
+        {{ form.csrf_token() }}
+        <div class="card">
+            <div class="card-header">
+                <div class="text-center">
+
+                    <h2>{{  form.template_name.data }}</h2>
+                    <h3>Version: {{ form.template_version.data }}</h3>
+                </div>
+
+                {{ form_field(form.identifier)}}
+
+            </div>
+            <ul id="#questionnaire-list" class="list-group list-group-flush">
+                {% set count = namespace(value=0) %}
+                {% for question in form %}
+                {% if (question.type == "BooleanField") %}
+                {% set count.value = count.value + 1 %}
+                {{ render_question( question, count.value ) }}
+                {% endif %}
+                {% endfor %}
+            </ul>
+
+
+            <div class="card-body">
+                <div id="check-button" class="btn btn-success full-width">
+                    <span id="check-status">Check</span> All
+                </div>
+            </div>
+
+            <div class="card-footer">
+                {{ form_field(form.comments) }}
+                {{ form_field(form.date) }}
+            </div>
+        </div>
+
+        {{ form_field(form.submit) }}
+
+    </form>
+</div>
+{% endblock %}
+
+
+{% block javascript %}
+{#<script src="{{ url_for('static', filename='js/sample/information/add/consent.js') }}"></script>#}
+<script src="{{ url_for('static', filename='js/donor/donor_consent.js') }}"></script>
+{% endblock %}

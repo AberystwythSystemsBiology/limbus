@@ -26,6 +26,8 @@ from wtforms import (
     IntegerField,
     TextAreaField,
     HiddenField,
+    FieldList,
+    FormField
 )
 
 # from wtforms.fields.html5 import DateField
@@ -162,5 +164,92 @@ def DonorCreationForm(sites: dict, data={}):
                     return False
 
             return True
+
+    return StaticForm(data=data)
+
+
+
+def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
+    class StaticForm(FlaskForm):
+
+        consent_select = SelectField(
+            "Donor Consent Form Template",
+            validators=[DataRequired()],
+            choices=consent_templates,
+            description="The consent form template that reflects the consent form the sample donor signed.",
+            coerce=int,
+        )
+
+        submit = SubmitField("Continue")
+
+    return StaticForm()
+
+
+
+
+def ConsentQuestionnaire(data={})-> FlaskForm:
+
+    class StaticForm(FlaskForm):
+
+        template_name = TextAreaField("template_name")
+
+        template_version = StringField("version")
+
+        identifier = StringField(
+            "Donor Consent Form ID/Code",
+            description="The identifying code of the signed patient consent form.",
+        )
+
+        comments = TextAreaField("Comments")
+
+        date = DateField("Date of Consent", default=datetime.today())
+
+        submit = SubmitField("Continue")
+
+    for question in data["questions"]:
+        setattr(
+            StaticForm,
+            str(question["id"]),
+            BooleanField(
+                question["question"], render_kw={"question_type": question["type"]}
+            ),
+        )
+
+    return StaticForm(data=data)
+
+
+class ConsentAnswerForm(FlaskForm):
+    question = TextAreaField(
+        "Consent Item",
+        description="The item that has been consented.",
+    )
+    answer = BooleanField("Consented", default="checked")
+
+def DonorConsentForm(data={}):
+    class StaticForm(FlaskForm):
+
+        template_name = TextAreaField(
+            "Consent Comments",
+            description="Comments related to the consent.",
+        )
+
+        template_version = StringField("identifier")
+
+        consent_date = DateField(
+            "Date of consent",
+            validators=[DataRequired()],
+            description="The date in which the consent form was signed.",
+            default=datetime.today(),
+        )
+
+        identifier = StringField("identifier")
+        questionnaire = FieldList(FormField(ConsentAnswerForm))
+
+        comments = TextAreaField(
+            "Consent Comments",
+            description="Comments related to the consent.",
+        )
+
+        submit = SubmitField("Submit")
 
     return StaticForm(data=data)

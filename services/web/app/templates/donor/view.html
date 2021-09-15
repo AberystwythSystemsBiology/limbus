@@ -19,6 +19,30 @@
                     <div class="btn-group mr-2" role="group" aria-label="First group">
                         <button type="button" id="edit-donor-btn" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
                     </div>
+
+                  <div class="btn-btn-group mr-2" role="group">
+                    <div class="dropdown">
+                      <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-question"></i> Consent
+                      </button>
+                      <div class="dropdown-menu">
+{#                <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i#}
+{#                    class="fa fa-question"></i> View Consent</button>#}
+{#                        <a class="dropdown-item" href="{{ url_for('donor.new_consent', uuid=uuid) }}"><i class="fab fa-buffer"></i> New Consent</a>#}
+{#                        <a class="dropdown-item" href="{{ url_for('donor.edit_consent', uuid=uuid) }}"><i class="fab fa-buffer"></i> Edit Consent</a>#}
+{#                        <a id="action-withdraw" class="dropdown-item" href="{{ url_for('donor.withdraw_consent', uuid=uuid) }}">#}
+{#                          <i class="fa fa-trash"></i> Withdraw Consent</a>#}
+                        <a class="dropdown-item"><i class="fa fa-list"></i> View </a>
+                        <a id="action-new-consent" class="dropdown-item"><i class="fa fa-file"></i> New </a>
+                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>
+                        <a id="action-withdraw-consent" class="dropdown-item">
+                          <i class="fas fa-trash-alt"></i> Withdraw </a>
+
+                      </div>
+                    </div>
+                  </div>
+
                     <div class="btn-group mr-2" role="group" aria-label="First group">
                         <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Associate Diagnosis</button>
                     </div>

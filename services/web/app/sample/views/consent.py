@@ -30,6 +30,7 @@ class NewConsentSchema(masql.SQLAlchemySchema):
         model = SampleConsent
 
     identifier = masql.auto_field()
+    donor_id = masql.auto_field()
     comments = masql.auto_field()
     template_id = masql.auto_field()
     date = masql.auto_field()
@@ -44,6 +45,8 @@ class ConsentSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     identifier = masql.auto_field()
+    donor_id = masql.auto_field()
+
     comments = masql.auto_field()
     template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
     author = ma.Nested(BasicUserAccountSchema, many=False)
