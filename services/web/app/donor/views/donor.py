@@ -26,7 +26,7 @@ from marshmallow_enum import EnumField
 from ...auth.views import BasicUserAccountSchema
 from ..enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
 from ...sample.enums import Colour
-from ...sample.views import BasicSampleSchema
+from ...sample.views import BasicSampleSchema, ConsentSchema
 
 from .diagnosis import DonorDiagnosisEventSchema
 
@@ -68,6 +68,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     updater = ma.Nested(BasicUserAccountSchema)
     colour = EnumField(Colour, by_value=True)
 
+    consents = ma.Nested(ConsentSchema, many=True)
     samples = ma.Nested(BasicSampleSchema, many=True)
 
     created_on = ma.Date()

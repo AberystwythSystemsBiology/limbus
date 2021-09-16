@@ -33,9 +33,9 @@
 {#                        <a class="dropdown-item" href="{{ url_for('donor.edit_consent', uuid=uuid) }}"><i class="fab fa-buffer"></i> Edit Consent</a>#}
 {#                        <a id="action-withdraw" class="dropdown-item" href="{{ url_for('donor.withdraw_consent', uuid=uuid) }}">#}
 {#                          <i class="fa fa-trash"></i> Withdraw Consent</a>#}
-                        <a class="dropdown-item"><i class="fa fa-list"></i> View </a>
+{#                        <a class="dropdown-item"><i class="fa fa-list"></i> View </a>#}
                         <a id="action-new-consent" class="dropdown-item"><i class="fa fa-file"></i> New </a>
-                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>
+{#                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>#}
                         <a id="action-withdraw-consent" class="dropdown-item">
                           <i class="fas fa-trash-alt"></i> Withdraw </a>
 
@@ -67,6 +67,11 @@
         <li class="nav-item">
           <a class="nav-link" id="diagnosis-nav">Diagnosis Information</a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link" id="consent-nav">Consent Information</a>
+        </li>
+
         <li class="nav-item">
           <a class="nav-link" id="samples-nav">Samples</a>
         </li>
@@ -79,6 +84,10 @@
         <table class="table table-striped" id="basic-information-table">
             
         </table>
+    </div>
+
+    <div id="consent-div" style="display:none;">
+      <ul class="timeline"  id="consent-li"></ul>
     </div>
 
     <div id="diagnosis-div" style="display: none;">
@@ -104,6 +113,70 @@
 
 
 </div>
+
+
+<!-- Delete Protocol Modal -->
+<div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="delete-protocol-confirm-modal-title">Confirm Donor Consent Removal</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <B>Warning:</B> This action cannot be undone!
+        </div>
+        <p>Please enter the Donor Consent ID in form of LIMBDC-xx to confirm that you want to remove this consent:</p>
+        <input type="text" class="form-control" id="protocol-id-remove-confirmation-input"></input>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+        <button type="button" id="protocol-remove-confirm-button" class="btn btn-success" disabled>Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Consent Modal -->
+<div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog"
+  aria-labelledby="consentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="consentModalLabel">Digital Consent Form</h5>
+        <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="text-center">
+            <h2><span id="consent_name"></span></h2>
+            <h3>Version: <span id="consent_version"></span></h3>
+          </div>
+
+          <label>Donor Consent Form ID/Code</label>
+          <p><span id="consent_identifier"></span></p>
+        </div>
+        <ul id="questionnaire-list" class="list-group list-group-flush">
+
+        </ul>
+        <div class="card-footer">
+          <label>Comments</label>
+
+          <label>Date Signed</label>
+          <p><span id="consent_date"></span></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}
 

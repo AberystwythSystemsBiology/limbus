@@ -371,7 +371,6 @@ function fill_sample_reviews(reviews) {
             var glyphicon = "fa fa-times-circle"
         }
 
-
         html += "<div class='card-header "+header_colour+"'>"
         html += review_info["review_type"];
         html += "</div>";

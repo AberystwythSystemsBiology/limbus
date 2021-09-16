@@ -1,0 +1,112 @@
+{% extends "template.html" %}
+
+{% block title %}New Sample: Collection and Consent Information{% endblock %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span>
+            Step One: Collection and Consent Information</h1>
+        {{ render_progress(1, 3) }}
+
+    </div>
+</div>
+
+<div class="container">
+
+    {% if collection_protocol_count > 0 and template_count > 0 %}
+
+    <form action="{{ url_for('sample.add_step_one') }}" method="POST">
+        {{ form.csrf_token }}
+        {{ form_field(form.sample_status) }}
+        {{ form_field(form.barcode) }}
+        {{ form_field(form.colour) }}
+
+        {{ form_field(form.collection_select, with_view=True, view_endpoint=url_for('protocol.view', id=" ", _external=True)) }}
+
+        <div class="alert alert-warning" role="alert">
+            <b>Notice:</b> If you are unable to find the suitable collection protocol, it's likely
+            that you have yet to add it. <a href="{{ url_for('protocol.new') }}">Click here</a> to add a new
+            collection protocol.
+        </div>
+        {{ form_field(form.collection_site) }}
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.collection_date) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.collection_time) }}
+
+            </div>
+        </div>
+        {{ form_field(form.collected_by) }}
+        {{ form_field(form.collection_comments) }}
+
+        {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
+
+        <div class="alert alert-warning" role="alert">
+            <b>Notice:</b> If you are unable to find the patient consent form, it's likely that you have yet to add it.
+            <a href="{{ url_for('consent.add')}}">Click here</a> to add a new patient consent form.
+        </div>
+
+        {{ form_field(form.disposal_instruction) }}
+        {{ form_field(form.disposal_date) }}
+        {{ form_field(form.disposal_comments) }}
+
+        {{ form_field(form.submit) }}
+
+    </form>
+
+    {% else %}
+    <div class="row">
+        <div class="col-6">
+            {% if template_count == 0 %}
+            <div class="jumbotron alert-danger full-width text-center container">
+                <h1>😔</h1>
+                <h2>No Suitable Consent Form Template Found</h2>
+                <p>There doesn't seem to be any form templates available.</p>
+                <a href="{{ url_for('consent.add') }}">
+                    <div class="btn btn-outline-dark">
+                        New Consent Form Template
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="jumbotron alert-success full-width text-center container">
+                <h1>✅</h1>
+                <h2>Consent Form Template Found!</h2>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="col-6">
+            {% if collection_protocol_count == 0 %}
+            <div class="jumbotron alert-danger full-width text-center container">
+                <h1>😔</h1>
+                <h2>No Suitable Acquisition Protocol Found</h2>
+                <p>There doesn't seem to be any acquisition protocols available.</p>
+                <a href="{{ url_for('protocol.new') }}">
+                    <div class="btn btn-outline-dark">
+                        New Protocol
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="jumbotron alert-success full-width text-center">
+                <h1>✅</h1>
+                <h2>Collection Protocol Found!</h2>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/information/add/step_one.js') }}"></script>
+{% endblock %}

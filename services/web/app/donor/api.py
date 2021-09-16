@@ -40,7 +40,7 @@ from .views import (
     donor_diagnosis_event_schema,
 )
 
-from ..sample.models import SampleConsent, SampleConsentAnswer
+from ..sample.models import SampleConsent, SampleConsentAnswer, Sample
 from ..sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
 
 
@@ -244,3 +244,48 @@ def donor_new_consent(tokenuser: UserAccount):
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     )
+
+@api.route("/donor/consent/<id>/remove", methods=["POST"])
+@token_required
+def donor_remove_consent(id, tokenuser: UserAccount):
+    consent = SampleConsent.query.filter_by(id=id).first()
+    if consent:
+        if consent.is_locked:
+            return locked_response("donor consent! ")
+    else:
+        return not_found("donor consent(%s)" % id)
+
+    donor_id = None
+    if consent.donor_id is not None:
+        donor = Donor.query.filter_by(id=consent.donor_id). \
+            with_entities(Donor.uuid, Donor.is_locked).first()
+        donor_id = consent.donor_id
+
+        if donor:
+            if donor.is_locked:
+                return locked_response("donor LIMBDON-(%s)" % donor.id)
+        else:
+            return not_found("related donor")
+
+    samples = Sample.query.filter_by(consent_id=id).all()
+    ns = len(samples)
+    if ns > 0:
+        return in_use_response("%d sample(s)" % ns)
+
+    msg = "";
+    answers = SampleConsentAnswer.query.filter_by(consent_id=id).all()
+    if answers:
+        try:
+            for answer in answers:
+                db.session.delete(answer)
+            db.session.commit()
+            msg = "Consent answers deleted!"
+        except Exception as err:
+            return transaction_error_response(err)
+
+    try:
+        db.session.delete(consent)
+        db.session.commit()
+        return success_with_content_response(donor_id)
+    except Exception as err:
+        return transaction_error_response(msg +" | " + err)

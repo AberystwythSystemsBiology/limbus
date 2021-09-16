@@ -80,7 +80,7 @@ def view_endpoint(id):
         url_for("api.donor_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
-
+    print('response: ', response.text)
     if response.status_code == 200:
         return response.json()
 
@@ -192,19 +192,15 @@ def new_consent(id):
         if form.validate_on_submit():
             return redirect(url_for("donor.add_consent_answers", donor_id=id, template_id=form.consent_select.data))
 
-            #flash("Error!: %s" % consent_response.json()["message"])
-
         return render_template(
             "donor/consent/new_consent.html", donor=response.json()["content"], form=form
         )
     else:
         return response.content
 
-#@donor.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
 @donor.route("/LIMBDON-<donor_id>/new/digital_consent_form-<template_id>", methods=["GET", "POST"])
 @login_required
 def add_consent_answers(donor_id, template_id):
-    #template_id = request.json['consent_select']
     consent_response = requests.get(
         url_for("api.consent_view_template", id=template_id, _external=True),
         headers=get_internal_api_header(),
@@ -244,13 +240,29 @@ def add_consent_answers(donor_id, template_id):
         if consent_response.status_code == 200:
             return redirect(url_for("donor.view", id=donor_id))
 
-        #print('json', consent_response.text)
-
         flash("We have a problem :( %s" % (consent_response.json()))
 
     return render_template(
         "donor/consent/donor_consent_answers.html", form=form, donor_id=donor_id, template_id=template_id
     )
+
+
+@donor.route("/consent/LIMBDC-<id>/remove", methods=["GET", "POST"])
+@login_required
+def remove_donor_consent(id):
+    print("About to remove")
+    remove_response = requests.post(
+        url_for("api.donor_remove_consent", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+        flash("Donor Consent Successfully Deleted!")
+        return remove_response.json()
+    else:
+        flash("We have a problem: %s" % (remove_response.json()["message"]))
+        # abort(403)
+        return remove_response.json()
 
 
 

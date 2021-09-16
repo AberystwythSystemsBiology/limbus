@@ -16,6 +16,7 @@
 from ..database import db, Base
 from .enums import *
 from ..sample.enums import Colour
+from ..sample.models import SampleConsent
 from ..mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 
 
@@ -37,6 +38,7 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     height = db.Column(db.Float)
     race = db.Column(db.Enum(RaceTypes))
 
+    consents = db.relationship("SampleConsent")
     samples = db.relationship("Sample", uselist=True, secondary="donortosample")
 
 

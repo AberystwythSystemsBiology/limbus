@@ -45,6 +45,7 @@ function deactivate_nav() {
 function hide_all() {
     $("#basic-info-div").fadeOut(50);
     $("#diagnosis-div").fadeOut(50);
+    $("#consent-div").fadeOut(50);
     $("#samples-div").fadeOut(50);
     
 }
@@ -95,8 +96,6 @@ function render_sample_table(d) {
                 "mData" : {},
                 "mRender": function (data, type, row) {
                     var sample_type_information = data["sample_type_information"];
-
-                    console.log(sample_type_information)
 
                     if (data["base_type"] == "Fluid") {
                         return sample_type_information["fluid_type"];
@@ -162,9 +161,6 @@ function fill_diagnosis_information(diagnoses, date) {
 
     $.each(diagnoses,function(index, value){
         var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div><div class='media-body'>"
-        
-
-        
 
         media_html += "<h2>"
         media_html += value["doid_ref"]["label"]
@@ -181,13 +177,10 @@ function fill_diagnosis_information(diagnoses, date) {
 
         media_html += "</table>"
 
-    
-
         media_html += "</div>"
 
         media_html += "</div></div></div>"
-        
-        console.log(value)
+
 
         html += media_html;
     });
@@ -201,10 +194,172 @@ function fill_diagnosis_information(diagnoses, date) {
  }
 
 
+function fill_one_consent_information(consent_information) {
+    $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
+    $("#consent_name").html(consent_information["template"]["name"]);
+    $("#consent_version").html(consent_information["template"]["version"]);
+    $("#consent_identifier").html(consent_information["identifier"]);
+    $("#consent_comments").html(consent_information["comments"]);
+
+    for (answer in consent_information["answers"]) {
+        var answer_info = consent_information["answers"][answer];
+
+        var answer_html = '';
+        answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
+        answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
+
+        $("#questionnaire-list").append(answer_html);
+    }
+
+    $("#consent_date").html(consent_information["date"]);
+
+}
+
+function fill_consent_information(consent_information) {
+    let consents = new Map();
+    for (e in consent_information) {
+        var consent_info = consent_information[e];
+        console.log('consent1:', consent_info);
+
+        var consent_date = '';
+        var undertaken_by = '';
+        var comments = '';
+        var template_name = '';
+        var template_version = '';
+        var consent_status = "Active";
+        var withdrawal_date = '';
+
+        if (consent_info["date"] != null || consent_info["date"] != undefined) {
+            consent_date = consent_info["date"];
+            undertaken_by = consent_info["undertaken_by"];
+            comments = consent_info["comments"];
+        }
+        if (consent_info["template"] != null || consent_info["template"] != undefined) {
+            template_name = consent_info["template"]["name"]
+            template_version = consent_info["template"]["version"]
+        }
+
+        if (consent_info["withdrawn"] != null & consent_info["withdrawn"] == true) {
+            consent_status = "Withdrawn"
+            withdrawal_date = consent_info["withdrawal_date"];
+            //consent_status = consent_status + " " + str(withdrawal_date)
+        }
+
+        // Start ul
+        html = "<li>"
+        //html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
+        html += "<p class='text-muted'>Undertaken on " + consent_date + "</p>"
+
+        // Start card body
+        html += "<div class='card'>"
+        var header_colour = "text-white bg-warning"
+        var glyphicon = "fa fa-star";
+
+        if (consent_status == "Active") {
+            var header_colour = "text-white bg-success";
+            var glyphicon = "fa fa-check-circle"
+        } else {
+            var header_colour = "text-white bg-danger";
+            var glyphicon = "fa fa-times-circle"
+        }
+        html += "<div class='card-header "+header_colour+"'>"
+        html += "Status: " + consent_status
+        if (consent_status != 'Active') {
+            html += " on " + withdrawal_date
+        }
+        html += "</div>";
+        html += "<div class=' card-body'>"
+        html += "<div class='media'>"
+        html += "<div class='align-self-center mr-3'>"
+        html += "<h1><i class='"+ glyphicon + "'></i></h1>"
+        //html += "<h1><i class='fa fa-project-diagram'></i></h1>"
+        html += "</div>"
+        html += "<div class='media-body'>"
+        html += "<h5 class='mt-0' id='consent-id-" + consent_info["id"] +"'>" + 'LIMBDC-' + consent_info["id"] + "</h5>";
+        html += "<a href='"+ consent_info["template"]["_links"]["self"] +"'>"
+        html += "<h6 class='mt-0'>LIMBDCF-" + consent_info["template"]["id"] + ": " + template_name + " version " + template_version + "</h6>";
+        html += "</a>"
+        html += "<table class='table table-striped'>"
+        html += render_content("Undertaken By", undertaken_by);
+        html += render_content("Comments", comments);
+        html += "</table>"
+        html += "</div>"
+
+
+        html += "</div>"
+        // End card body
+        html += "</div>"
+        html += "<div class='card-footer'>"
+        //html += "<a href='" + consent_info["_links"]["edit"] + "'>
+        //<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
+        //                     class="fa fa-question"></i> View Consent</button>"
+        //html += '<div class='btn btn-warning float-left' data-toggle='modal' data-target='#consentModal'>View</div>"
+        html += "<div id='view-consent-" + consent_info["id"] + "' class='btn btn-warning float-left'>View</div>"
+        //html += "</a>"
+
+        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "</div>"
+        html += "</div>"
+
+        consents.set(consent_info["id"].toString(), consent_info);
+
+        // End ul
+        html += "</li>"
+        $("#consent-li").append(html);
+
+        $("#view-consent-" + consent_info["id"]).on("click", function () {
+            fill_one_consent_information(consent_info);
+            $("#consentModal").modal('show');
+        });
+        $("#remove-consent-" + consent_info["id"]).on("click", function () {
+            var id = $(this).attr("id").split("-")[2];
+            var limbdc_id = $("#consent-id-" + id).text();
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = consents.get(id)["_links"]["remove"];
+
+            $("#protocol-id-remove-confirmation-input").on("change", function () {
+                var user_entry = $(this).val();
+                if (user_entry == limbdc_id) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function () {
+                        // window.location.href = removal_link;
+                        $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                        $.ajax({
+                            type: "POST",
+                            url: removal_link,
+                            dataType: "json",
+                            success: function (data) {
+                                $("#delete-protocol-confirm-modal").modal({
+                                    show: false
+                                });
+
+                                if (data["success"]) {
+                                    window.location.reload();
+                                } else {
+                                    window.location.reload();
+                                    //alert("We have a problem! "+data["message"]);
+                                    return false
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+                }
+            })
+        });
+    }
+}
+
+
+
 $(document).ready(function () {
 
     var donor_information = get_donor();
-
 
     render_sample_table(donor_information["samples"]);
 
@@ -217,7 +372,6 @@ $(document).ready(function () {
     $("#edit-donor-btn").on("click", function() {
         window.location.href = donor_information["_links"]["edit"];
     });
-
 
     $("#assign-diagnosis-btn").on("click", function() {
         window.location.href = donor_information["_links"]["assign_diagnosis"];
@@ -233,14 +387,22 @@ $(document).ready(function () {
     var age = arr[1];
     var date = arr[2];
 
-    fill_basic_information(donor_information, age, dob)
+    fill_basic_information(donor_information, age, dob);
     fill_diagnosis_information(donor_information["diagnoses"], date);
+    fill_consent_information(donor_information["consents"]);
 
     $("#diagnosis-nav").on("click", function() {
         deactivate_nav();
         $(this).addClass("active");
         hide_all();
         $("#diagnosis-div").fadeIn(1000);
+    });
+
+    $("#consent-nav").on("click", function() {
+        deactivate_nav();
+        $(this).addClass("active");
+        hide_all();
+        $("#consent-div").fadeIn(1000);
     });
 
     $("#basic-info-nav").on("click", function() {

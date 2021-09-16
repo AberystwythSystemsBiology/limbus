@@ -23,23 +23,22 @@ function view_consent_form() {
 }
 
 
-
 $(document).ready(function() {
-    $("#check-button").on("click", function() {
-        var check_status = $("#check-status").html();
-
-        if (check_status == "Check") {
-            $("#check-status").text("Uncheck");
-            $("#check-button").removeClass("btn-success").addClass("btn-danger");
-            $('.form-check-input').prop('checked', true);
-        }
-
-        else {
-            $("#check-status").text("Check");
-            $("#check-button").removeClass("btn-danger").addClass("btn-success");
-            $('.form-check-input').prop('checked', false);
-        }
-    });
+    // $("#check-button").on("click", function() {
+    //     var check_status = $("#check-status").html();
+    //
+    //     if (check_status == "Check") {
+    //         $("#check-status").text("Uncheck");
+    //         $("#check-button").removeClass("btn-success").addClass("btn-danger");
+    //         $('.form-check-input').prop('checked', true);
+    //     }
+    //
+    //     else {
+    //         $("#check-status").text("Check");
+    //         $("#check-button").removeClass("btn-danger").addClass("btn-success");
+    //         $('.form-check-input').prop('checked', false);
+    //     }
+    // });
 
     view_consent_form();
     view_form_helper("consent_select");
