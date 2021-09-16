@@ -13,11 +13,16 @@
             </span>
             <span id="donor-colour"> LIMBDON-<span id="donor-id"></span>
         </h1>
+
         <div class="row">
             <div class="col-sm-8">
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
                         <button type="button" id="edit-donor-btn" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
+                    </div>
+
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Diagnosis</button>
                     </div>
 
                   <div class="btn-btn-group mr-2" role="group">
@@ -44,8 +49,11 @@
                   </div>
 
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Associate Diagnosis</button>
+{#                      <a href="{{ url_for('sample.add_sample_step_one', id=id) }}">#}
+                        <button type="button" id="new-sample-btn" class="btn btn-outline-dark"><i class="fas fa-vial"></i> New Sample</button>
+{#                      </a>#}
                     </div>
+
                     <div class="btn-group mr-2" role="group" aria-label="First group">
                         <button type="button" id="assign-sample-btn" class="btn btn-outline-dark"><i class="fas fa-vial"></i> Assign Sample</button>
                     </div>
@@ -167,9 +175,24 @@
         </ul>
         <div class="card-footer">
           <label>Comments</label>
+        </div>
 
-          <label>Date Signed</label>
-          <p><span id="consent_date"></span></p>
+        <div class="row">
+            <div class="col-6">
+                <p><label>Donor ID:    </label><span id="donor_id"></span></p>
+            </div>
+            <div class="col-6">
+                <p><label>Date Signed: </label><span id="consent_date"></span></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <p><label>Consent Status:    </label><span id="consent_status"></span></p>
+            </div>
+            <div class="col-6">
+            <p><label>Date of Withdrawal: </label><span id="withdrawal_date"></span></p>
+            </div>
         </div>
       </div>
 

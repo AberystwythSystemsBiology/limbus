@@ -204,6 +204,7 @@ function fill_comments(comments) {
 
 function fill_consent_information(consent_information) {
 
+    $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);
     $("#consent_identifier").html(consent_information["identifier"]);
@@ -220,7 +221,17 @@ function fill_consent_information(consent_information) {
         $("#questionnaire-list").append(answer_html);
     }
 
-    $("#consent_date").html(consent_information);
+    var consent_status = "Active"
+    if (consent_information["withdrawn"]==true) {
+        consent_status = "Withdrawn"
+    }
+    var donor_id = "LIMBDON-"+consent_information["donor_id"];
+    donor_link = "<a href= "+window.location.origin+"/donor/"+donor_id+">";
+    donor_link += donor_id+"</a>";
+    $("#donor_id").html(donor_link);
+    $("#consent_date").html(consent_information["date"]);
+    $("#consent_status").html(consent_status);
+    $("#withdrawal_date").html(consent_information["withdrawal_date"]);
 
 
 }

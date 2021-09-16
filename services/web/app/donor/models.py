@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ..database import db, Base
+from sqlalchemy import or_, and_
 from .enums import *
 from ..sample.enums import Colour
 from ..sample.models import SampleConsent
@@ -40,6 +41,9 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     consents = db.relationship("SampleConsent")
     samples = db.relationship("Sample", uselist=True, secondary="donortosample")
+    # samples = db.relationship("Sample", uselist=True, viewonly=True,
+    #                primaryjoin="or_(Sample.id==DonorToSample.sample_id,"
+    #                "and_(Sample.consent_id==SampleConsent.id, Donor.id==SampleConsent.donor_id))")
 
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):

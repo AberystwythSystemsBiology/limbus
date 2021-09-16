@@ -193,13 +193,13 @@ function fill_diagnosis_information(diagnoses, date) {
     
  }
 
-
-function fill_one_consent_information(consent_information) {
+function fill_consent_information(consent_information) {
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);
     $("#consent_identifier").html(consent_information["identifier"]);
     $("#consent_comments").html(consent_information["comments"]);
+
 
     for (answer in consent_information["answers"]) {
         var answer_info = consent_information["answers"][answer];
@@ -211,11 +211,42 @@ function fill_one_consent_information(consent_information) {
         $("#questionnaire-list").append(answer_html);
     }
 
+    var consent_status = "Active"
+    if (consent_information["withdrawn"]==true) {
+        consent_status = "Withdrawn"
+    }
+    var donor_id = "LIMBDON-"+consent_information["donor_id"];
+    donor_link = "<a href="+window.location.origin+"/donor/"+donor_id+">";
+    donor_link += donor_id+"</a>";
+    $("#donor_id").html(donor_link);
     $("#consent_date").html(consent_information["date"]);
+    $("#consent_status").html(consent_status);
+    $("#withdrawal_date").html(consent_information["withdrawal_date"]);
+
 
 }
+// function fill_one_consent_information(consent_information) {
+//     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
+//     $("#consent_name").html(consent_information["template"]["name"]);
+//     $("#consent_version").html(consent_information["template"]["version"]);
+//     $("#consent_identifier").html(consent_information["identifier"]);
+//     $("#consent_comments").html(consent_information["comments"]);
+//
+//     for (answer in consent_information["answers"]) {
+//         var answer_info = consent_information["answers"][answer];
+//
+//         var answer_html = '';
+//         answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
+//         answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
+//
+//         $("#questionnaire-list").append(answer_html);
+//     }
+//
+//     $("#consent_date").html(consent_information["date"]);
+//
+// }
 
-function fill_consent_information(consent_information) {
+function fill_consents_information(consent_information) {
     let consents = new Map();
     for (e in consent_information) {
         var consent_info = consent_information[e];
@@ -377,6 +408,10 @@ $(document).ready(function () {
         window.location.href = donor_information["_links"]["assign_diagnosis"];
     });
 
+    $("#new-sample-btn").on("click", function() {
+        window.location.href = donor_information["_links"]["new_sample"]
+    });
+
     $("#assign-sample-btn").on("click", function() {
         window.location.href = donor_information["_links"]["associate_sample"]
     });
@@ -389,7 +424,7 @@ $(document).ready(function () {
 
     fill_basic_information(donor_information, age, dob);
     fill_diagnosis_information(donor_information["diagnoses"], date);
-    fill_consent_information(donor_information["consents"]);
+    fill_consents_information(donor_information["consents"]);
 
     $("#diagnosis-nav").on("click", function() {
         deactivate_nav();

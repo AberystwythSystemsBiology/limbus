@@ -37,8 +37,11 @@ from .forms import (
     ConsentAnswerForm,
     DonorConsentForm,
     ConsentQuestionnaire,
+    #CollectionDonorConsentAndDisposalForm,
 )
 
+from ..sample.forms.new.one import CollectionDonorConsentAndDisposalForm
+from ..sample.forms.new.three import SampleTypeSelectForm
 from ..consent.models import ConsentFormTemplate, ConsentFormTemplateQuestion
 from ..misc import get_internal_api_header
 
@@ -424,3 +427,262 @@ def edit(id):
             )
         else:
             return response.content
+
+
+@donor.route("/LIMBDON-<id>/new/sample", methods=["GET", "POST"])
+@login_required
+def add_sample_step_one(id):
+    consent_ids = []
+    collection_protocols = []
+    collection_sites = []
+    donor_id = int(id)
+    donor_response = requests.get(
+        url_for("api.donor_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
+    )
+
+    if donor_response.status_code == 200:
+        consents = donor_response.json()["content"]["consents"]
+
+        for consent in consents:
+            consent_ids.append(
+                [consent["id"], "LIMBDC-%d: %s"% (consent["id"], consent["template"]["name"])]
+                # [consent["id"], "LIMBDC-%d [LIMBDCF-%s: %s]" %
+                #     (consent["id"], consent["template"]["id"], consent["template"]["name"])]
+            )
+
+
+    protocols_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
+    )
+
+    if protocols_response.status_code == 200:
+        for protocol in protocols_response.json()["content"]:
+            if protocol["type"] == "Sample Acquisition":
+                collection_protocols.append(
+                    [
+                        protocol["id"],
+                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
+                    ]
+                )
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if sites_response.status_code == 200:
+        for site in sites_response.json()["content"]:
+            collection_sites.append([site["id"], site["name"]])
+
+    form = CollectionDonorConsentAndDisposalForm(
+        consent_ids, collection_protocols, collection_sites, data={"donor_id": donor_id}
+    )
+
+    if form.validate_on_submit():
+
+        route_data = {
+            "colour": form.colour.data,
+            "sample_status": form.sample_status.data,
+            "barcode": form.barcode.data,
+            "collection_protocol_id": form.collection_select.data,
+            "collected_by": form.collected_by.data,
+            "consent_id": form.consent_id.data,
+            "donor_id": donor_id,
+            "site_id": form.collection_site.data,
+            "collection_date": str(form.collection_date.data),
+            "collection_time": str(form.collection_time.data),
+            "collection_comments": form.collection_comments.data,
+            "disposal_instruction": form.disposal_instruction.data,
+            "disposal_date": str(form.disposal_date.data),
+            "disposal_comments": form.disposal_comments.data,
+        }
+
+        # This needs to be broken out to a new module then...
+        store_response = requests.post(
+            url_for("api.tmpstore_new_tmpstore", _external=True),
+            headers=get_internal_api_header(),
+            json={
+                "data": {"step_one": route_data},
+                "type": "SMP",
+            },
+        )
+
+        if store_response.status_code == 200:
+
+            return redirect(
+                url_for(
+                    "donor.add_sample_rerouter", id=id, hash=store_response.json()["content"]["uuid"]
+                )
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
+
+    return render_template(
+        "donor/sample/new_sample_step_one.html",
+        donor_id=donor_id,
+        form=form,
+        consent_count=len(consents),
+        collection_protocol_count=len(collection_protocols),
+    )
+
+
+def prepare_new_sample_form_data(data: dict):
+
+    step_one = data["step_one"]
+    step_three = data["step_three"]
+
+    api_data = {
+        "collection_information": {
+            "event": {
+                "datetime": "%s %s"
+                % (step_one["collection_date"], step_one["collection_time"]),
+                "undertaken_by": step_one["collected_by"],
+                "comments": step_one["collection_comments"],
+            },
+            "protocol_id": step_one["collection_protocol_id"],
+        },
+        "sample_information": {
+            "barcode": step_one["barcode"],
+            "source": "NEW",
+            "colour": step_one["colour"],
+            "base_type": step_three["sample_type"],
+            "status": step_one["sample_status"],
+            "site_id": step_one["site_id"],
+            "biohazard_level": step_three["biohazard_level"],
+            "quantity": step_three["quantity"],
+        },
+        "consent_information": {
+            "donor_id": step_one["donor_id"],
+            "consent_id": step_one["consent_id"],
+            # "identifier": step_one["consent_id"],
+            # "comments": step_two["comments"],
+            # "date": step_two["date"],
+            # "answers": step_two["checked"],
+            # "template_id": step_one["consent_form_id"],
+        },
+        "disposal_information": {
+            "instruction": step_one["disposal_instruction"],
+            "comments": step_one["disposal_comments"],
+            "disposal_date": step_one["disposal_date"],
+        },
+    }
+
+    if step_three["sample_type"] == "FLU":
+        sample_type_information = {
+            "fluid_type": step_three["fluid_sample_type"],
+            #"fluid_container": step_three["fluid_container"],
+        }
+    elif step_three["sample_type"] == "CEL":
+        sample_type_information = {
+            "cellular_type": step_three["cell_sample_type"],
+            "tissue_type": step_three["tissue_sample_type"],
+            "fixation_type": step_three["fixation_type"],
+            #"cellular_container": step_three["cell_container"],
+        }
+    elif step_three["sample_type"] == "MOL":
+        sample_type_information = {
+            "molecular_type": step_three["molecular_sample_type"],
+            #"fluid_container": step_three["fluid_container"],
+        }
+
+    if step_three["container_base_type"] == "PRM":
+        sample_type_information.update({
+            "fluid_container": step_three["fluid_container"],
+        })
+    else:
+        sample_type_information.update({
+            "cellular_container": step_three["cell_container"],
+        })
+
+
+    api_data["sample_type_information"] = sample_type_information
+
+    return api_data
+
+
+@donor.route("/LIMBDON-<id>/new/sample/reroute/<hash>", methods=["GET"])
+@login_required
+def add_sample_rerouter(id, hash):
+    query_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if query_response.status_code == 200 or hash != "new":
+        data = query_response.json()["content"]["data"]
+    else:
+        return redirect(url_for("donor.add_sample_step_one", id=id))
+
+    if "step_one" in data:
+            if "step_three" in data:
+                api_data = prepare_new_sample_form_data(data)
+
+                new_sample_response = requests.post(
+                    url_for("api.sample_new_sample", _external=True),
+                    headers=get_internal_api_header(),
+                    json=api_data,
+                )
+
+                if new_sample_response.status_code == 200:
+                    return redirect(
+                        new_sample_response.json()["content"]["_links"]["self"]
+                    )
+                else:
+                    flash("We have encountered an error.")
+            return redirect(url_for("donor.add_sample_step_three", hash=hash))
+
+
+
+@donor.route("add/sample_information/<hash>", methods=["GET", "POST"])
+@login_required
+def add_sample_step_three(hash):
+    tmpstore_response = requests.get(
+        url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if tmpstore_response.status_code != 200:
+        abort(tmpstore_response.status_code)
+
+    tmpstore_data = tmpstore_response.json()["content"]["data"]
+
+    form = SampleTypeSelectForm()
+
+    if form.validate_on_submit():
+
+        sample_information_details = {
+            "biohazard_level": form.biohazard_level.data,
+            "sample_type": form.sample_type.data,
+            "fluid_sample_type": form.fluid_sample_type.data,
+            "molecular_sample_type": form.molecular_sample_type.data,
+            "tissue_sample_type": form.tissue_sample_type.data,
+            "cell_sample_type": form.cell_sample_type.data,
+            "quantity": form.quantity.data,
+            "fixation_type": form.fixation_type.data,
+            "container_base_type": form.container_base_type.data,
+            "fluid_container": form.fluid_container.data,
+            "cell_container": form.cell_container.data,
+        }
+
+        tmpstore_data["step_three"] = sample_information_details
+
+        store_response = requests.put(
+            url_for("api.tmpstore_edit_tmpstore", hash=hash, _external=True),
+            headers=get_internal_api_header(),
+            json={"data": tmpstore_data},
+        )
+
+        if store_response.status_code == 200:
+            return redirect(
+                url_for(
+                    "donor.add_sample_rerouter", id=tmpstore_data["step_one"]["donor_id"],
+                          hash=store_response.json()["content"]["uuid"]
+                )
+            )
+
+        flash("We have a problem :( %s" % (store_response.json()))
+
+    return render_template("donor/sample/new_sample_step_three.html", form=form, hash=hash)

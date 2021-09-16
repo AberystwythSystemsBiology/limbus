@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 
-{% block title %}New Sample: Collection and Consent Information{% endblock %}
+{% block title %}New Sample for Donor{{ donor_id }}: Collection and Consent Information{% endblock %}
 
 {% block body %}
 
@@ -8,16 +8,16 @@
     <div class="container">
         <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span>
             Step One: Collection and Consent Information</h1>
-        {{ render_progress(1, 3) }}
+        {{ render_progress(1, 2) }}
 
     </div>
 </div>
 
 <div class="container">
 
-    {% if collection_protocol_count > 0 and template_count > 0 %}
+    {% if collection_protocol_count > 0 and consent_count > 0 %}
 
-    <form action="{{ url_for('sample.add_step_one') }}" method="POST">
+    <form method="POST">
         {{ form.csrf_token }}
         {{ form_field(form.sample_status) }}
         {{ form_field(form.barcode) }}
@@ -44,11 +44,13 @@
         {{ form_field(form.collected_by) }}
         {{ form_field(form.collection_comments) }}
 
-        {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}
+{#        {{ form_field(form.consent_select, with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}#}
+        {{ form_field(form.consent_id)}}
+{#                , with_view=True, view_endpoint=url_for('consent.view', id=" ", _external=True)) }}#}
 
         <div class="alert alert-warning" role="alert">
-            <b>Notice:</b> If you are unable to find the patient consent form, it's likely that you have yet to add it.
-            <a href="{{ url_for('consent.add')}}">Click here</a> to add a new patient consent form.
+            <b>Notice:</b> If you are unable to find the donor consent form, it's likely that you have yet to add it.
+            <a href="{{ url_for('donor.new_consent', id=form.donor_id.text)}}">Click here</a> to add a new donor consent form.
         </div>
 
         {{ form_field(form.disposal_instruction) }}
@@ -62,21 +64,21 @@
     {% else %}
     <div class="row">
         <div class="col-6">
-            {% if template_count == 0 %}
+            {% if consent_count == 0 %}
             <div class="jumbotron alert-danger full-width text-center container">
                 <h1>😔</h1>
-                <h2>No Suitable Consent Form Template Found</h2>
-                <p>There doesn't seem to be any form templates available.</p>
-                <a href="{{ url_for('consent.add') }}">
+                <h2>No Suitable Donor Consent Form Found</h2>
+                <p>There doesn't seem to be any available.</p>
+                <a href="{{ url_for('donor.new_consent', id=donor_id) }}">
                     <div class="btn btn-outline-dark">
-                        New Consent Form Template
+                        New Consent Form
                     </div>
                 </a>
             </div>
             {% else %}
             <div class="jumbotron alert-success full-width text-center container">
                 <h1>✅</h1>
-                <h2>Consent Form Template Found!</h2>
+                <h2>Consent Form Found!</h2>
             </div>
             {% endif %}
 
@@ -108,5 +110,5 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ url_for('static', filename='js/sample/information/add/step_one.js') }}"></script>
+<script src="{{ url_for('static', filename='js/donor/new_sample_step_one.js') }}"></script>
 {% endblock %}
