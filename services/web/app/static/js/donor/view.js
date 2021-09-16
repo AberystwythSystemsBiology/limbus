@@ -225,26 +225,6 @@ function fill_consent_information(consent_information) {
 
 
 }
-// function fill_one_consent_information(consent_information) {
-//     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
-//     $("#consent_name").html(consent_information["template"]["name"]);
-//     $("#consent_version").html(consent_information["template"]["version"]);
-//     $("#consent_identifier").html(consent_information["identifier"]);
-//     $("#consent_comments").html(consent_information["comments"]);
-//
-//     for (answer in consent_information["answers"]) {
-//         var answer_info = consent_information["answers"][answer];
-//
-//         var answer_html = '';
-//         answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
-//         answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
-//
-//         $("#questionnaire-list").append(answer_html);
-//     }
-//
-//     $("#consent_date").html(consent_information["date"]);
-//
-// }
 
 function fill_consents_information(consent_information) {
     let consents = new Map();
@@ -339,7 +319,7 @@ function fill_consents_information(consent_information) {
         $("#consent-li").append(html);
 
         $("#view-consent-" + consent_info["id"]).on("click", function () {
-            fill_one_consent_information(consent_info);
+            fill_consent_information(consent_info);
             $("#consentModal").modal('show');
         });
         $("#remove-consent-" + consent_info["id"]).on("click", function () {
