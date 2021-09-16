@@ -413,27 +413,28 @@ def add_samples_to_cart(tokenuser: UserAccount):
 
     # Site access control
     samples_locked = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==True).\
-        with_entities(Sample.id).all()
+        with_entities(Sample.id)
 
     if tokenuser.account_type != "Administrator":
         samples_other = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
                     Sample.current_site_id!=None, Sample.current_site_id!=tokenuser.site_id).\
-                    with_entities(Sample.id).all()
+                    with_entities(Sample.id)
 
-        if len(samples_other)>0:
-            samples_locked = set(samples_locked).union(set(samples_other))
+        if samples_other.count() > 0:
+            samples_locked = samples_locked.union(samples_other)
 
     # Samples in transit can't be added to cart
     samples_transit = SampleShipmentStatus.query. \
         join(SampleShipmentToSample, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
         filter(~SampleShipmentStatus.status.in_(["DEL","UND", "CAN"])). \
-        with_entities(SampleShipmentToSample.sample_id).distinct().all()
+        with_entities(SampleShipmentToSample.sample_id)
 
-    if len(samples_transit) > 0:
-        samples_locked = set(samples_locked).union(set(samples_transit))
+    if samples_transit.count() > 0:
+        samples_locked = samples_locked.union(samples_transit)
 
 
-    if len(samples_locked) >0:
+    if samples_locked.count() > 0:
+        samples_locked = samples_locked.distinct().all()
         ids_locked = [sample.id for sample in samples_locked]
         sample_ids = [sample_id for sample_id in sample_ids if sample_id not in ids_locked]
         msg_locked = ' | '.join(["LIMBSMP-%s" % (sample.id) for sample in samples_locked])
