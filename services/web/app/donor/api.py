@@ -13,7 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..database import db, UserAccount, DonorDiagnosisEvent, Donor, DonorToSample
+from ..database import (db, UserAccount, DonorDiagnosisEvent, Donor, DonorToSample,
+        Event, SampleConsent, SampleConsentAnswer, SampleConsentWithdrawal, SampleDisposal, Sample
+    )
 
 from ..api import api
 from ..api.responses import *
@@ -39,6 +41,8 @@ from .views import (
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,
 )
+
+from ..sample.views.consent import new_consent_schema
 
 from ..sample.models import SampleConsent, SampleConsentAnswer, Sample
 from ..sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
@@ -250,7 +254,7 @@ def donor_new_consent(tokenuser: UserAccount):
 def donor_remove_consent(id, tokenuser: UserAccount):
     consent = SampleConsent.query.filter_by(id=id).first()
     if consent:
-        if consent.is_locked:
+        if consent.is_locked or consent.withdrawn:
             return locked_response("donor consent! ")
     else:
         return not_found("donor consent(%s)" % id)
@@ -272,7 +276,7 @@ def donor_remove_consent(id, tokenuser: UserAccount):
     if ns > 0:
         return in_use_response("%d sample(s)" % ns)
 
-    msg = "";
+    msg = ""
     answers = SampleConsentAnswer.query.filter_by(consent_id=id).all()
     if answers:
         try:
@@ -289,3 +293,127 @@ def donor_remove_consent(id, tokenuser: UserAccount):
         return success_with_content_response(donor_id)
     except Exception as err:
         return transaction_error_response(msg +" | " + err)
+
+
+@api.route("/donor/consent/withdraw", methods=["POST"])
+@token_required
+def donor_withdraw_consent(tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    consent_id = values["consent_id"]
+    consent = SampleConsent.query.filter_by(id=consent_id).first()
+    if consent:
+        if consent.is_locked:
+            return locked_response("donor consent! ")
+    else:
+        return not_found("donor consent(%s)" % consent_id)
+
+    donor_id = None
+    if consent.donor_id is not None:
+        donor = Donor.query.filter_by(id=consent.donor_id). \
+            with_entities(Donor.uuid, Donor.is_locked).first()
+        donor_id = consent.donor_id
+
+        if donor:
+            if donor.is_locked:
+                return locked_response("donor LIMBDON-(%s)" % donor.id)
+        else:
+            return not_found("related donor")
+
+    withdrawal_date = values.pop("withdrawal_date")
+    # Step 1. New Event!
+    #
+    new_event = Event(
+        datetime=withdrawal_date,
+        undertaken_by=values.pop('undertaken_by'),
+        comments=values.pop("comments"),
+        author_id=tokenuser.id,
+    )
+
+    try:
+        db.session.add(new_event)
+        db.session.flush()
+        print("new_event.id: ", new_event.id)
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # Step 2. Modify consent
+    consent.withdrawn = True
+    consent.is_locked = True
+    consent.withdrawal_date = withdrawal_date
+    consent.update({"editor_id": tokenuser.id})
+    try:
+        db.session.add(consent)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    id = values.pop("donor_id")
+    future_consent = values['future_consent']
+    if future_consent:
+        old_values = new_consent_scheme.dump(consent)
+        new_consent = SampleConsent(**old_values)
+        new_consent.date = values['withdrawal_date']
+        new_consent.comments = new_consent.comments + " | replacement consent for future collection."
+        new_consent.author_id = tokenuser.id
+        try:
+            db.session.add(new_consent)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+        answers = SampleConsentAnswer.query.filter_by(consent_id=consent_id)
+        for answer in answers:
+            try:
+                new_answer = SampleConsentAnswer(consent_id=new_consent.id, question_id=answer.question_id)
+                new_answer.author_id = tokenuser.id
+                db.session.add(new_answer)
+                db.session.flush()
+            except Exception as err:
+                return transaction_error_response(err)
+
+    try:
+        new_withdrawal = SampleConsentWithdrawal(**values)
+        new_withdrawal.author_id = tokenuser.id
+        new_withdrawal.event_id = new_event.id
+        if future_consent:
+            new_withdrawal.future_consent_id = new_consent.id
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # Step 4. Step Add disposal instruction
+    samples = Sample.query.filter_by(consent_id=consent_id).all()
+    for sample in samples:
+        new_disposal = SampleDisposal(
+            sample_id=sample.id,
+            instruction="DES",
+            comments="consent withdrawn",
+            disposal_date=withdrawal_date,
+            approved=True,
+            approval_event_id=new_event.id,
+            author_id=tokenuser.id,
+        )
+
+        try:
+            db.session.add(new_disposal)
+            db.session.flush()
+            sample.disposal_id = new_disposal.id
+            sample.update({"editor_id": tokenuser.id})
+            db.session.add(sample)
+            if future_consent:
+                new_withdrawal.future_consent_id = new_consent.id
+        except Exception as err:
+            return transaction_error_response(err)
+
+    try:
+        db.session.commit()
+        return success_with_content_response(donor_id)
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
+

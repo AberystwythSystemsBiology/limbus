@@ -35,9 +35,12 @@ from .forms import (
     DonorSampleAssociationForm,
     ConsentTemplateSelectForm,
     ConsentAnswerForm,
-    DonorConsentForm,
+    #DonorConsentForm,
     ConsentQuestionnaire,
     #CollectionDonorConsentAndDisposalForm,
+    ConsentSelectForm,
+    #ConsentWithdrawalInfoForm,
+    ConsentWithdrawalForm
 )
 
 from ..sample.forms.new.one import CollectionDonorConsentAndDisposalForm
@@ -446,10 +449,10 @@ def add_sample_step_one(id):
         consents = donor_response.json()["content"]["consents"]
 
         for consent in consents:
+            if consent["withdrawn"]:
+                continue
             consent_ids.append(
                 [consent["id"], "LIMBDC-%d: %s"% (consent["id"], consent["template"]["name"])]
-                # [consent["id"], "LIMBDC-%d [LIMBDCF-%s: %s]" %
-                #     (consent["id"], consent["template"]["id"], consent["template"]["name"])]
             )
 
 
@@ -686,3 +689,125 @@ def add_sample_step_three(hash):
         flash("We have a problem :( %s" % (store_response.json()))
 
     return render_template("donor/sample/new_sample_step_three.html", form=form, hash=hash)
+
+
+## Consent withdrawal
+@donor.route("/LIMBDON-<id>/withdraw/consent", methods=["GET", "POST"])
+@login_required
+def withdraw_consent(id):
+    donor_response = requests.get(
+        url_for("api.donor_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
+    )
+    data = donor_response.json()["content"]
+
+    if donor_response.status_code == 200:
+        if len(data['consents'])==0:
+            flash("No consent for this donor!")
+            return redirect(url_for("donor.view", id=id))
+
+        print('start again')
+
+        consent_ids = []
+        for consent in data['consents']:
+            if consent['withdrawn']:
+                data['consents'].remove(consent)
+                continue
+            consent_ids.append(
+                [consent["id"],
+                 "LIMBDC-%d: %s v%s" % (consent["id"], consent["template"]["name"], consent["template"]["version"])]
+            )
+            consent['future'] = False
+            for ans in consent['answers']:
+                if ans['type'] == 'FUTU':
+                    consent['future'] = True
+
+            samples = [sample for sample in data["samples"] if sample['consent_id'] == consent["id"]]
+            consent['num_sample'] = len(samples)
+
+        if len(consent_ids) == 0:
+            flash("No active consent!")
+            return redirect(url_for("donor.view", id=id))
+
+        for consent in data['consents']:
+            if consent['id'] == consent_ids[0]:
+                break
+
+        consent_info = {
+            "consent_id": consent["id"],
+            "template_name": consent["template"]["name"],
+            "template_version": consent["template"]["version"],
+            "donor_id": consent["donor_id"],
+            "identifier": consent["identifier"],
+            "consent_comment": consent["comments"],
+            "num_sample": consent["num_sample"],
+            "consent_date": consent["date"],
+            "future": consent["future"]
+        }
+        form = ConsentWithdrawalForm(consent_ids, consent_info)
+
+        if "select_consent" in request.form:
+            consent_id = form.consent_select.consent_id.data
+            print("consent_id ", consent_id)
+            for consent in data['consents']:
+                if consent['id'] == consent_id:
+                    break
+            consent_info = {
+                "consent_id": consent["id"],
+                "template_name": consent["template"]["name"],
+                "template_version": consent["template"]["version"],
+                "donor_id": consent["donor_id"],
+                "identifier": consent["identifier"],
+                "consent_comment": consent["comments"],
+                "num_sample": consent["num_sample"],
+                "consent_date": consent["date"],
+                "future": consent["future"]
+            }
+
+            form = ConsentWithdrawalForm(consent_ids, consent_info)
+
+        elif "submit_withdrawal" in request.form and form.validate(form):
+            #elif form.validate_on_submit():
+            disposal_required = True
+            if form.future_consent_opt.data == 3:
+                disposal_required = False
+            future_consent = False
+            if form.future_consent_opt.data == 2:
+                future_consent = True
+
+            withdrawal_info = {
+                  "donor_id": id,
+                  "consent_id": form.consent_select.consent_id.data,
+                  "withdrawal_reason": form.withdrawal_reason.data,
+                  "requested_by": form.requested_by.data,
+                  "disposal_required": disposal_required,
+                  "future_consent": future_consent,
+                  "withdrawal_date": str(
+                      datetime.strptime(
+                          "%s" % (form.withdrawal_date.data),
+                          "%Y-%m-%d",
+                      )
+                  ),
+                  "comments": form.comments.data,
+                  "undertaken_by": form.communicated_by.data,
+            }
+            print("withdrawal_info", withdrawal_info)
+            withdrawal_response = requests.post(
+                url_for("api.donor_withdraw_consent", _external=True),
+                headers=get_internal_api_header(),
+                json=withdrawal_info
+            )
+
+            if withdrawal_response.status_code == 200:
+                flash("Consent successfully withdrawn!")
+                return redirect(url_for("donor.view", id=id))
+
+            else:
+                flash(withdrawal_response.json())
+
+        return render_template(
+            "donor/consent/withdraw_consent.html",
+            donor=data,
+            form=form,
+        )

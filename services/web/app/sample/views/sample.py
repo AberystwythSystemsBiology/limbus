@@ -65,6 +65,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
+    consent_id = masql.auto_field()
     base_type = EnumField(SampleBaseType, by_value=True)
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()

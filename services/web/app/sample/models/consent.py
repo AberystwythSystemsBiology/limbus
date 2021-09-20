@@ -63,3 +63,5 @@ class SampleConsentWithdrawal(Base, RefAuthorMixin, RefEditorMixin):
     file = db.relationship("Document")
 
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+
+    event = db.relationship("Event", uselist=False)

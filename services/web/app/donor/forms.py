@@ -30,7 +30,7 @@ from wtforms import (
     FormField
 )
 
-# from wtforms.fields.html5 import DateField
+
 from wtforms.validators import (
     DataRequired,
     Email,
@@ -47,7 +47,8 @@ from .enums import (
     CancerStage,
     Condition,
 )
-from ..sample.enums import Colour
+
+from ..sample.enums import Colour, ConsentWithdrawalRequester
 from datetime import datetime, date
 import requests
 from flask import url_for
@@ -186,7 +187,6 @@ def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
 
 
 
-
 def ConsentQuestionnaire(data={})-> FlaskForm:
 
     class StaticForm(FlaskForm):
@@ -225,121 +225,50 @@ class ConsentAnswerForm(FlaskForm):
     )
     answer = BooleanField("Consented", default="checked")
 
-def DonorConsentForm(data={}):
+
+
+class ConsentSelectForm(FlaskForm):
+        consent_id = SelectField("Select Consent ID", coerce=int)
+
+def ConsentWithdrawalForm(consent_ids, data={})-> FlaskForm:
+    future_choices = [(0, 'Sample disposal required')]
+    if data["future"]:
+        future_choices = [
+            (1, 'Sample disposal required, No more future collection.'),
+            (2, 'Sample disposal required, consent for future collection'),
+            (3, 'Sample disposal not required, no more future collection')
+        ]
+
     class StaticForm(FlaskForm):
+        consent_select = FormField(ConsentSelectForm)
+        donor_id = IntegerField("Donor id")
+        consent_id = IntegerField("Donor Consent ID")
+        identifier = StringField("Identifier")
+        template_name = TextAreaField( "Template name")
 
-        template_name = TextAreaField(
-            "Consent Comments",
-            description="Comments related to the consent.",
-        )
+        template_version = StringField("Template version")
+        consent_comments = TextAreaField("Consent Comments")
+        consent_date = DateField("Date of consent")
+        num_sample = IntegerField("Number of associated samples")
 
-        template_version = StringField("identifier")
+        withdrawal_reason = TextAreaField()
+        requested_by = SelectField("Consent Withdrawal Requested By",
+                                   choices=ConsentWithdrawalRequester.choices())
 
-        consent_date = DateField(
-            "Date of consent",
-            validators=[DataRequired()],
-            description="The date in which the consent form was signed.",
-            default=datetime.today(),
-        )
-
-        identifier = StringField("identifier")
-        questionnaire = FieldList(FormField(ConsentAnswerForm))
-
+        future_consent_opt = SelectField("Option regarding consent for future collection",
+                                         choices=future_choices, coerce=int)
         comments = TextAreaField(
-            "Consent Comments",
-            description="Comments related to the consent.",
+                "Consent Withdrawal Comments",
         )
-
-        submit = SubmitField("Submit")
-
-    return StaticForm(data=data)
-
-
-
-def CollectionDonorConsentAndDisposalForm0(
-    consent_ids: list, collection_protocols: list, collection_sites: list, data={}
-) -> FlaskForm:
-    print('consent_ids', consent_ids)
-    print("coll protol", collection_protocols)
-    class StaticForm(FlaskForm):
-        donor_id = HiddenField("Donor id")
-
-        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
-
-        colour = SelectField(
-            "Colour",
-            choices=Colour.choices(),
-            description="Identifiable colour code for the sample.",
-        )
-
-        barcode = StringField(
-            "Sample Biobank Barcode",
-            validators=[validate_barcode],
-            description="Enter a barcode/identifier for your sample",
-        )
-
-        collection_date = DateField(
-            "Sample Collection Date",
+        communicated_by = StringField("Communicated by")
+        withdrawal_date = DateField(
+            "Date of withdrawal",
             validators=[DataRequired()],
-            description="The date in which the sample was collected.",
             default=datetime.today(),
         )
+        #submit = SubmitField("Submit")
 
-        collection_time = TimeField(
-            "Sample Collection Time",
-            default=datetime.now(),
-            validators=[Optional()],
-            description="The time at which the sample was collected.",
-        )
+    form = StaticForm(data=data)
+    form.consent_select.consent_id.choices = consent_ids
+    return form
 
-        collection_comments = TextAreaField(
-            "Collection Comments",
-            description="Comments pertaining to the collection of the Sample.",
-        )
-
-        disposal_date = DateField(
-            "Sample Disposal Date (*)",
-            description="The date in which the sample is required to be disposed of.",
-            default=datetime.today,
-            validators=[Optional()],
-        )
-
-        disposal_instruction = SelectField(
-            "Sample Disposal Instruction",
-            choices=DisposalInstruction.choices(),
-            description="The method of sample disposal.",
-            validators=[Optional()],
-        )
-
-        disposal_comments = TextAreaField("Sample Disposal Comments")
-
-        consent_id = SelectField(
-            "Donor Consent ID",
-            validators=[DataRequired()],
-            choices=consent_ids,
-            description="The associated consent that the sample donor signed.",
-            coerce=int,
-        )
-
-        collection_select = SelectField(
-            "Collection Protocol",
-            choices=collection_protocols,
-            description="The protocol that details how the sample was taken.",
-            coerce=int,
-        )
-
-        collected_by = StringField(
-            "Collected By",
-            description="The initials of the individual who collected the sample.",
-        )
-
-        collection_site = SelectField(
-            "Collection Site",
-            description="The site in which the sample was taken",
-            coerce=int,
-            choices=collection_sites,
-        )
-
-        submit = SubmitField("Continue")
-
-    return StaticForm()

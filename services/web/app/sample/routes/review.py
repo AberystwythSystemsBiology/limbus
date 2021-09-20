@@ -67,7 +67,7 @@ def associate_review(uuid: str) -> str:
 
         try:
             disposal_info = sample_response.json()["content"]["disposal_information"]
-            print("disposal: ", disposal_info)
+
             if disposal_info["instruction"] in ["DES", "TRA"]:
                 disposal_date = datetime.strptime(disposal_info["disposal_date"], "%Y-%m-%d").date()
                 print("disposal date: ", disposal_date)

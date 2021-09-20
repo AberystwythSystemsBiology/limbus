@@ -134,6 +134,7 @@ function render_dob(dob) {
 
 function render_action_links(self_link) {
     $("#action-new-consent").attr("href", self_link+"/new/consent")
+    $("#action-withdraw-consent").attr("href", self_link+"/withdraw/consent")
 }
 
 function fill_basic_information(donor_information, age, dob) {
@@ -230,7 +231,7 @@ function fill_consents_information(consent_information) {
     let consents = new Map();
     for (e in consent_information) {
         var consent_info = consent_information[e];
-        console.log('consent1:', consent_info);
+        //console.log('consent1:', consent_info);
 
         var consent_date = '';
         var undertaken_by = '';
@@ -322,6 +323,10 @@ function fill_consents_information(consent_information) {
             fill_consent_information(consent_info);
             $("#consentModal").modal('show');
         });
+
+        if (consent_info['withdrawn']==true|consent_information["is_Locked"]==true) {
+            $("#remove-consent-" + consent_info["id"]).hide();
+        }
         $("#remove-consent-" + consent_info["id"]).on("click", function () {
             var id = $(this).attr("id").split("-")[2];
             var limbdc_id = $("#consent-id-" + id).text();
