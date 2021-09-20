@@ -55,7 +55,7 @@ def storage_rack_view(id, tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/rack/new/", methods=["POST"])
+@api.route("/storage/rack/new", methods=["POST"])
 @token_required
 def storage_rack_new(tokenuser: UserAccount):
     values = request.get_json()
