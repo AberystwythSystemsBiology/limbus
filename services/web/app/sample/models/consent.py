@@ -49,7 +49,7 @@ class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
 class SampleConsentWithdrawal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    consent_id = db.Column(db.ForeignKey("SampleConsent.id"))
+    consent_id = db.Column(db.ForeignKey("sampleconsent.id"))
     withdrawal_reason = db.Column(db.Text)
 
     requested_by = db.Column(db.Enum(ConsentWithdrawalRequester))
@@ -57,7 +57,7 @@ class SampleConsentWithdrawal(Base, RefAuthorMixin, RefEditorMixin):
     disposal_required = db.Column(db.Boolean, nullable=False, default=True)
     future_consent = db.Column(db.Boolean, nullable=False, default=False)
 
-    future_consent_id = db.Column(db.ForeignKey("SampleConsent.id"))
+    future_consent_id = db.Column(db.ForeignKey("sampleconsent.id"))
 
     file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
     file = db.relationship("Document")
