@@ -164,7 +164,8 @@ class SampleSchema(masql.SQLAlchemySchema):
             ),
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
             "barcode_generation": ma.URLFor(
-                "api.misc_generate_barcode", _external=True
+                #"api.misc_generate_barcode", _external=True
+                "misc.generate_barcode", _external=True
             ),
         }
     )

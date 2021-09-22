@@ -399,15 +399,16 @@ $("#add-rack-cart-btn").click(function() {
         url: api_url,
         dataType: "json",
         success: function (data) {
+            console.log('data: ', data)
             if (data["success"]) {
-                $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                $("#cart-confirmation-msg").html(data["message"]);
                 $("#cart-confirmation-modal").modal({
                     show: true
                 });
             }
 
             else {
-                $("#cart-confirmation-msg").html(data["content"]["msg"]);
+                $("#cart-confirmation-msg").html(data["message"]);
                 $("#cart-confirmation-modal").modal({
                     show: true
                 });

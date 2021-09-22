@@ -301,11 +301,11 @@ def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
             db.session.commit()
 
             return success_with_content_response(
-                {"msg": "%s removed from cart" % (uuid)}
+                {"message": "%s removed from cart" % (uuid)}
             )
         else:
             return success_with_content_response(
-                {"msg": "%s not in user cart" % (uuid)}
+                {"message": "%s not in user cart" % (uuid)}
             )
 
     else:
@@ -588,7 +588,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
     if rack_response.status_code == 200:
         esCheck = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
         if esCheck == []:
-            return no_values_response()
+            return not_found("for the rack with sample(s)")
 
         ESRecords = EntityToStorage.query.filter_by(rack_id=id).all()
         rackRecord = SampleRack.query.filter_by(id=id).first()
@@ -609,7 +609,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
 
                 if check != None:
                     return success_with_content_response(
-                        {"msg": "Sample already added to Cart"}
+                        {"message": "Sample already added to Cart"}
                     )
 
                 # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
@@ -620,17 +620,10 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                 db.session.flush()
         try:
             db.session.commit()
-            return success_with_content_response({"msg": "Sample added to Cart"})
+            return success_with_content_response({"message": "Sample added to Cart"})
 
         except Exception as err:
             return transaction_error_response(err)
-        # sample_id = sample_response.json()["content"]["id"]
-
-
-        #
-        # if not es is None:
-        #         #     new_uc.rack_id = es.rack_id
-
 
     else:
         return rack_response.content

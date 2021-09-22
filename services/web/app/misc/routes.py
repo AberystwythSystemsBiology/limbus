@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from . import misc, get_internal_api_header
-from flask import render_template, session, current_app, url_for, redirect, abort
+from flask import render_template, session, current_app, url_for, redirect, abort, request
 from flask_login import current_user, login_required
 import requests
 
@@ -52,3 +52,25 @@ def privacy_policy() -> str:
 @misc.route("/team")
 def team() -> str:
     return render_template("misc/team.html")
+
+
+@misc.route("/uuid_barcode", methods=["POST"])
+@login_required
+def generate_barcode():
+    values = request.json
+    if 'data' not in values:
+       return {'success': False, 'messages': 'Missing sample uuid!'}
+
+    if 'type' not in values:
+       return {'success': False, 'messages': 'Missing barcode type!'}
+
+    barcode_response = requests.post(
+        url_for("api.misc_generate_barcode", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+
+    if barcode_response.status_code == 200:
+        return barcode_response.json()
+    else:
+        return barcode_response.json()
