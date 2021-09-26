@@ -177,11 +177,11 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         db.session.add_all(stb_batch)
         db.session.commit()
         flash('Sample stored to rack Successfully!')
-        message = "Sample(s) stored to rack Successfully!"
+        msg = "Sample(s) stored to rack Successfully! "
     except Exception as err:
         return transaction_error_response(err)
 
-    # Update sample current_site_id
+    # Update sample current_site_id/status
     sample_ids_not_updated = []
     for sample in samples_pos:
         sample_id = sample['sample_id']
@@ -195,13 +195,16 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             except:
                 sample_ids_not_updated.append(sample_id)
                 pass
+    if len(sample_ids_not_updated)>0:
+        msg_status = "%d samples " % len(sample_ids_not_updated)
 
     try:
         db.session.commit()
-    except Exception as err:
-        return transaction_error_response(err)
-
-    return success_with_content_message_response({"id": rack_id}, message)
+    except:
+        msg_status = "Errors in updating sample status!"
+        #return transaction_error_response(err)
+    msg = msg + msg_status
+    return success_with_content_message_response({"id": rack_id}, msg)
 
 
 def func_rack_vacancies(num_rows, num_cols, occupancies=None):
@@ -633,11 +636,24 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     try:
         db.session.add(ets)
         db.session.commit()
-        db.session.flush()
-
-        return success_with_content_response(
-            view_sample_to_sample_rack_schema.dump(ets)
-        )
+        msg = "Sample successfully assigned to rack! "
+        #return success_with_content_response(view_sample_to_sample_rack_schema.dump(ets))
     except Exception as err:
         print(">>>>>>>>>>>>>>>", err)
         return transaction_error_response(err)
+
+    # ---- Update sample current_site_id/status
+    res = func_update_sample_status(tokenuser=tokenuser, auto_query=True,
+                sample_id=values["sample_id"], events={"sample_storage": None})
+
+    #print("sample", sample, res["message"])
+    if res["success"] is True and res["sample"]:
+        try:
+            db.session.add(res["sample"])
+            db.session.commit()
+            msg_status = 'Sample status updated! '
+        except:
+            msg_status = "Error in sample status update! "
+
+    msg = msg + msg_status
+    return success_with_content_message_response({"id": rack_id}, msg)

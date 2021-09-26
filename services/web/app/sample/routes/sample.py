@@ -207,6 +207,8 @@ def update_sample_status(uuid: str):
     )
 
     if sample_response.status_code == 200:
-        print("sample_response: ", sample_response.text)
-        return sample_response.json()
-    return sample_response.content
+        flash("Success!" + sample_response.json()["message"])
+    else:
+        flash(sample_response.json()["message"])
+
+    return redirect(url_for("sample.view", uuid=uuid))

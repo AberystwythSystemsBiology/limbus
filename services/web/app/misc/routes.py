@@ -54,12 +54,12 @@ def team() -> str:
     return render_template("misc/team.html")
 
 
-@misc.route("/uuid_barcode", methods=["POST"])
+@misc.route("/uuid_barcode", methods=["GET", "POST"])
 @login_required
 def generate_barcode():
     values = request.json
     if 'data' not in values:
-       return {'success': False, 'messages': 'Missing sample uuid!'}
+       return {'success': False, 'messages': 'Missing uuid!'}
 
     if 'type' not in values:
        return {'success': False, 'messages': 'Missing barcode type!'}

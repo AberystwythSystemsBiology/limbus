@@ -59,51 +59,115 @@ function calculate_bmi(height, weight) {
 }
 
 
-function render_sample_table(d) {
-    $('#donor-samples-table').DataTable( {
-        data: d,
-        dom: 'Bfrtip',
-        buttons: [ 'print', 'csv', 'colvis' ],
-        columnDefs: [
-            { targets: -3,
-            visible:false}, { targets: -2, visible: false}
+function fill_sample_table(samples) {
+    let table = $('#donor-samples-table').DataTable({
+        data: samples,
+        dom: 'Blfrtip',
+        buttons: ['print', 'csv', 'colvis',
+            //'selectAll',
+            {text: 'Select All', action: function () {
+                table.rows( {search:'applied'} ).select();
+            }},
+            {text: 'Not Stored', action: function () {
+                table.rows('.not-stored').select();
+            }},
+        'selectNone'
         ],
+        lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
+        //pageLength: 5,
+
+        columnDefs: [
+            {targets: '_all', defaultContent: ''},
+            {targets: [2, 3, 6], visible: false, "defaultContent": ""},
+            {
+                targets:  -1,
+                 orderable: false,
+                 className: 'select-checkbox',
+            }
+
+        ],
+        order: [[1, 'desc']],
+        select: {'style': 'multi',
+                'selector': 'td:last-child'},
+
+       'createdRow': function( row, data, dataIndex ) {
+            if ( data["storage"] == null ) {
+              $(row).addClass( 'not-stored' );
+            }
+        },
+
         columns: [
+
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var col_data = '';
                     col_data += render_colour(data["colour"])
-                    col_data += "<a href='"+data["_links"]["self"]+ "'>";
+                    col_data += "<a href='" + data["_links"]["self"] + "'>";
                     col_data += '<i class="fas fa-vial"></i> '
                     col_data += data["uuid"];
                     col_data += "</a>";
                     if (data["source"] != "New") {
 
-                    col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                    col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
-                    col_data += '<i class="fas fa-vial"></i> ';
-                    col_data += data["parent"]["uuid"],
-                    col_data += "</a></small>";
-                }
+                        col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
+                        col_data += '<a href="' + data["parent"]["_links"]["self"] + '" target="_blank">'
+                        col_data += '<i class="fas fa-vial"></i> ';
+                        col_data += data["parent"]["uuid"],
+                            col_data += "</a></small>";
+                    }
 
                     return col_data
                 }
             },
+            {data: "id"},
+            {data: "barcode"},
+            { // Consent ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    return 'LIMBDC-' + consent['id'];
+                }
+            },
+            { // Consent status
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    var consent_status = 'Active';
+                    if (consent['withdrawn'] == true) {
+                        consent_status = 'Withdrawn';
+                    }
+                    return consent_status;
+                }
+            },
+
+            {data: "status"},
 
             {data: "base_type"},
             {
-                "mData" : {},
+                "mData": {},
                 "mRender": function (data, type, row) {
                     var sample_type_information = data["sample_type_information"];
 
                     if (data["base_type"] == "Fluid") {
                         return sample_type_information["fluid_type"];
-                    }
-                    else if (data["base_type"] == "Cell") {
+                    } else if (data["base_type"] == "Cell") {
                         return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+                    } else if (data["base_type"] == "Molecular") {
+                        return sample_type_information["molecular_type"];
                     }
 
+                }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var sample_type_information = data["sample_type_information"];
+
+                    if (sample_type_information["cellular_container"] == null) {
+                        return sample_type_information["fluid_container"];
+                    } else {
+                        return sample_type_information["cellular_container"];
+                    }
 
                 }
             },
@@ -112,19 +176,76 @@ function render_sample_table(d) {
                 "mRender": function (data, type, row) {
                     var percentage = data["remaining_quantity"] / data["quantity"] * 100 + "%"
                     var col_data = '';
-                    col_data += '<span data-toggle="tooltip" data-placement="top" title="'+percentage+' Available">';
-                    col_data += data["remaining_quantity"]+"/"+data["quantity"]+get_metric(data["base_type"]);
+                    col_data += '<span data-toggle="tooltip" data-placement="top" title="' + percentage + ' Available">';
+                    col_data += data["remaining_quantity"] + "/" + data["quantity"] + get_metric(data["base_type"]);
                     col_data += '</span>';
                     return col_data
                 }
-        }
+            },
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var storage_data = data["storage"];
 
+                    if (storage_data == null) {
+                        return "<span class='text-muted'>Not stored.</span>"
+                    } else if (storage_data["storage_type"] == "STB") {
+                        var rack_info = storage_data["rack"];
+                        var html = "<a href='" + rack_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
+                        html += "</a>"
+                        return html
+                    } else if (storage_data["storage_type"] == "STS") {
+                        var shelf_info = storage_data["shelf"];
+                        var html = "<a href='" + shelf_info["_links"]["self"] + "'>";
+                        html += "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
+                        html += "</a>"
+                        return html
+                    }
+                    return data["storage"]
+                }
+            },
 
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    return data["created_on"];
+                }
+            },
+
+            {} //checkbox select column
 
         ],
 
     });
+
+    $("#samples-to-cart-btn").click(function (event) {
+        var rows_selected = table.rows( { selected: true } ).data();
+
+        if (rows_selected.length>0) {
+           var formdata = [];
+           $.each(rows_selected, function (index, row) {
+               delete row['__proto__'];
+               formdata.push(row)
+           });
+
+           var api_url = window.location.origin+ "/sample/to_cart";
+           res = add_samples_to_cart(api_url, formdata);
+           //var api_url = window.location.origin+ "/sample/shipment/cart"
+           //window.open(api_url, "_blank");
+           //window.open(api_url"_self");
+           if (res.success == true) {
+               table.rows({selected: true}).deselect();
+           }
+
+        } else {
+            alert("No sample selected!")
+        }
+
+    });
+
 }
+
 
 function render_dob(dob) { 
     var date = new Date(Date.parse(dob));
@@ -155,6 +276,46 @@ function fill_basic_information(donor_information, age, dob) {
     $("#basic-information-table").html(html);
 
 }
+
+
+function add_samples_to_cart(api_url, samples) {
+    var msg = "Adding a sample to cart will remove it from storage, press OK to proceed!";
+    if (!confirm(msg)) {
+      return false;
+    }
+
+    var json = (function () {
+       var json = null;
+       $.ajax({
+           'async': false,
+           'global': false,
+           'url': api_url,
+           'type': 'POST',
+           'dataType': "json",
+           'data': JSON.stringify({"samples": samples}),
+           'contentType': 'application/json; charset=utf-8',
+           'success': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               },
+           'failure': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               }
+       });
+
+       return json;
+    })();
+
+    return json;
+}
+
 
 function fill_diagnosis_information(diagnoses, date) {
 
@@ -231,7 +392,6 @@ function fill_consents_information(consent_information) {
     let consents = new Map();
     for (e in consent_information) {
         var consent_info = consent_information[e];
-        //console.log('consent1:', consent_info);
 
         var consent_date = '';
         var undertaken_by = '';
@@ -376,8 +536,11 @@ function fill_consents_information(consent_information) {
 $(document).ready(function () {
 
     var donor_information = get_donor();
+    var consents = {};
 
-    render_sample_table(donor_information["samples"]);
+
+    //render_sample_table(donor_information["samples"]);
+    fill_sample_table(donor_information["samples"]);
 
     render_window_title("LIMBDON-" + donor_information["id"]);
 

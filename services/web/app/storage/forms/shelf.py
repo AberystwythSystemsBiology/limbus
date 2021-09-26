@@ -107,7 +107,7 @@ def RacksToShelfForm(racks: list) -> FlaskForm:
             % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
         ]
         )
-    print('choices: ', choices)
+
     default_choices = [int(s[0]) for s in choices if int(s[0]) > 0]
     setattr(
         StaticForm, "racks", SelectMultipleField("Sample Rack(s)", choices=choices,

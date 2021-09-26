@@ -38,6 +38,18 @@ class NewConsentSchema(masql.SQLAlchemySchema):
 new_consent_schema = NewConsentSchema()
 
 
+class BasicConsentSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleConsent
+
+    id = masql.auto_field()
+    identifier = masql.auto_field()
+    donor_id = masql.auto_field()
+    withdrawn = masql.auto_field()
+    withdrawal_date = ma.Date()
+
+basic_consent_schema = BasicConsentSchema()
+
 class ConsentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsent

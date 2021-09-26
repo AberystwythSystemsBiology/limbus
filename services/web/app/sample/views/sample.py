@@ -22,7 +22,7 @@ from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
     BasicSampleDisposalSchema,
-    ConsentSchema,
+    BasicConsentSchema, ConsentSchema,
     EntityToStorageSchema,
     BasicSampleDiposalEventSchema,
     SampleShipmentToSampleInfoSchema
@@ -65,7 +65,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
-    consent_id = masql.auto_field()
+    consent_information = ma.Nested(BasicConsentSchema, many=False)
     base_type = EnumField(SampleBaseType, by_value=True)
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
@@ -164,8 +164,8 @@ class SampleSchema(masql.SQLAlchemySchema):
             ),
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
             "barcode_generation": ma.URLFor(
-                #"api.misc_generate_barcode", _external=True
-                "misc.generate_barcode", _external=True
+                "api.misc_generate_barcode", _external=True,
+                #"misc.generate_barcode", _external=True
             ),
         }
     )

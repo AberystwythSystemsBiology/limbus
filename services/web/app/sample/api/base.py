@@ -424,7 +424,9 @@ def func_sample_storage_location(sample_id):
         msg = "No sample storage location info! "
         if shelf_id:
             shelf_loc = func_shelf_location(shelf_id)
-            if shelf_loc["location"]:
+            print('okok:', shelf_loc)
+            if shelf_loc["location"] is not None:
+            #if shelf_loc["pretty"] is not None:
                 sample_storage_info.update(shelf_loc["location"])
                 msg = "Sample stored in %s! " % shelf_loc["pretty"]
 
@@ -449,7 +451,8 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             sample = Sample.query.filter_by(id=sample_id).first()
     else:
         sample_id = sample.id
-    msgs = []; updated = False
+    msgs = []
+    updated = False
     if not sample:
         msg = "Sample/sample_id not found! "
         res = {'sample': None, 'message': msg, "success": False}
@@ -467,13 +470,13 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                     msg = "No involved samples found for the shipment status! "
                     return {'sample': None, 'message': msg, "success": True}
 
-                if shipment_status.status not in [None, "TBC"]:
+                if shipment_status.status not in [None, "TBC", SampleShipmentStatusStatus.TBC]:
                     updated = True
                     for sample in samples:
                         sample.status = SampleStatus.TRA
 
                     # if Delievered change the current_site_id to new site
-                    if shipment_status.status == "DEL":
+                    if shipment_status.status in ["DEL", SampleShipmentStatusStatus.DEL]:
                         shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
 
                         if shipment:
@@ -498,7 +501,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
     if sample.is_locked is True or sample.is_closed is True:
         return {'sample': None, 'message': "Sample locked/closed! ", "success": True}
 
-    if events is None or len(events) is 0 :
+    if events is None or len(events) is 0:
         auto_query = True
         for e in ["sample_review", "sample_disposal", "disposal_event", "shipment_status", "sample_storage"]:
             events[e] = None
@@ -517,7 +520,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                 filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
             if not sample_disposal:
                 # No linked sample review
-                #sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
+                # sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
                 sample_disposal = SampleDisposal.query.\
                     filter_by(sample_id=sample_id).order_by(SampleDisposal.updated_on.desc()).first()
         msg = "No related sample_disposal! "
@@ -534,7 +537,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             elif sample_disposal.instruction == DisposalInstruction.DES:
                 if sample_disposal.disposal_event_id is not None:
                     msg = "Sample destructed! "
-                    if sample.status == "DES":
+                    if sample.status == "DES" | sample.status == SampleStatus.DES:
                         return {'sample': None, 'message': msg, "success": True}
 
                     sample.status = SampleStatus.DES
@@ -546,9 +549,9 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             elif sample_disposal.instruction == DisposalInstruction.TRA:
                 if sample_disposal.disposal_event_id is not None:
                     msg = "sample disposed via transfer"
-                    if sample.status == "TRA":
+                    if sample.status == "DES" | sample.status == SampleStatus.DES:
                         return {'sample': None, 'message': msg, "success": True}
-                    sample.status = SampleStatus.TRA
+                    sample.status = SampleStatus.DES
                     sample.is_locked = True
                     sample.is_close = True
                     sample.update({"editor_id": tokenuser.id})
@@ -578,24 +581,27 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             if sample_storage:
                 shelf_id = sample_storage.shelf_id
                 if shelf_id is None:
-                    shelf_storage = EntityToStorage.query.filter(EntityToStorage.rack_id==sample_storage.rack_id,
-                        EntityToStorage.shelf_id!=None, EntityToStorage.removed is not True). \
+                    shelf_storage = EntityToStorage.query.filter(EntityToStorage.rack_id == sample_storage.rack_id,
+                        EntityToStorage.shelf_id != None, EntityToStorage.removed is not True). \
                         order_by(EntityToStorage.entry_datetime.desc()).first()
                     if shelf_storage:
                         shelf_id = shelf_storage.shelf_id
 
-                msg = "No sample storage location info! "
+                msg = "No sample storage shelf info! "
                 res = {'sample': None, 'message': msg, "success": True}
-                print("1shelf_id ", res, shelf_id)
                 if shelf_id:
                     shelf_loc = func_shelf_location(shelf_id)
+
                     if shelf_loc["location"]:
                         if sample.current_site_id != shelf_loc["location"]["site_id"]:
                             sample.current_site_id = shelf_loc["location"]["site_id"]
                             sample.update({"editor_id": tokenuser.id})
-                            updated = True
 
+                        updated = True
                         stored_flag = True
+                        if sample.status in (SampleStatus.TRA, SampleStatus.NCO):
+                            sample.status = SampleStatus.NRE
+
                         msg = "Sample stored in %s! " % shelf_loc["pretty"]
 
         msgs.append(msg)
@@ -621,7 +627,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         msg = "No related sample shipment status! "
         res = {'sample': None, 'message': msg, "success": False}
         if shipment_status:
-            print("shipment_status.status", shipment_status.status, ", zzDEL", shipment_status.status=="DEL")
+            print("shipment_status.status", shipment_status.status, ", DEL", shipment_status.status=="DEL")
             #if shipment_status.status not in [None, SampleShipmentStatusStatus.TBC]:
             if shipment_status.status not in [None, "TBC"]:
                 if sample.status != "TRA":
@@ -656,13 +662,13 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         msg = "No related sample_review! "
         res = {'sample': None, 'message': msg, "success": True}
         if sample_review:
-            if sample_review.result == ReviewResult.FA:
-                if sample_review.review_type == ReviewType.IC:
+            if sample_review.result in ['FA', ReviewResult.FA]:
+                if sample_review.review_type in ['IC', ReviewType.IC]:
                     print('Id check!')
                     sample.status = SampleStatus.MIS
                 else:
                     sample.status = SampleStatus.UNU
-            elif sample_review.result == ReviewResult.PA:
+            elif sample_review.result in ['PA', ReviewResult.PA]:
                 print('pass!')
                 if sample_review.quality == SampleQuality.GOO:
                     sample.status = SampleStatus.AVA
@@ -679,7 +685,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         msgs = " | ".join(msgs)
     if updated:
         sample.update({"editor_id": tokenuser.id})
-        return {"sample": sample, "message": msgs, "success": True }
+        return {"sample": sample, "message": msgs, "success": True}
 
     return {"sample": None, "message": "No update for sample!", "success": True}
 
@@ -691,7 +697,6 @@ def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
     if not sample:
         return not_found()
 
-    sample_uuid = sample.uuid
     res = func_update_sample_status(tokenuser=tokenuser,
                                     auto_query=True, sample_id=None,
                                     sample=sample, events={})

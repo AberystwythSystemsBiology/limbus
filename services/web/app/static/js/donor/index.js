@@ -98,8 +98,7 @@ function render_table(query) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    // Createi
-                    console.log(data);
+                    // Created_on
                     return data["created_on"]
                 },
             }

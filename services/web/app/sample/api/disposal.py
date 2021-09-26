@@ -65,47 +65,6 @@ def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_uni
     except Exception as err:
         return transaction_error_response(err)
 
-# def func_new_sample_protocol_event(values):
-#     values = request.get_json()
-#
-#     print(values)
-#
-#     if not values:
-#         return no_values_response()
-#
-#     try:
-#         event_result = new_sample_protocol_event_schema.load(values)
-#     except ValidationError as err:
-#         return validation_error_response(err)
-#
-#     new_event = Event(**event_result["event"])
-#     new_event.author_id = tokenuser.id
-#
-#     try:
-#         db.session.add(new_event)
-#         #db.session.commit()
-#         db.session.flush()
-#     except Exception as err:
-#         return transaction_error_response(err)
-#
-#     new_sample_protocol_event = SampleProtocolEvent(
-#         sample_id=event_result["sample_id"],
-#         event_id=new_event.id,
-#         author_id=tokenuser.id,
-#         protocol_id=event_result["protocol_id"],
-#     )
-#
-#     try:
-#         db.session.add(new_sample_protocol_event)
-#         db.session.commit()
-#
-#         return success_with_content_response(
-#             sample_protocol_event_schema.dump(new_sample_protocol_event)
-#         )
-#
-#     except Exception as err:
-#         return transaction_error_response(err)
-
 
 @api.route("/sample/new/disposal_event", methods=["POST"])
 @token_required
@@ -205,7 +164,6 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
                                             events=sample_status_events)
 
             message = "Sample successfully disposed! " + res["message"]
-            print("sample", sample, res["message"])
             if res["success"] is True and res["sample"]:
                 db.session.add(sample)
 

@@ -80,6 +80,9 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 
         shipment_event = SampleShipmentStatus(**new_shipment_event_values)
         shipment_event.author_id = tokenuser.id
+        print("status0:", shipment_event.status, type(shipment_event.status), shipment_event.status == SampleShipmentStatusStatus.PRO)
+        print('enum status: ', SampleShipmentStatusStatus.PRO)
+
 
     else:
         try:
@@ -90,9 +93,13 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 
         shipment_event.updated_on = func.now()
         shipment_event.updated_by = tokenuser.id
+        print("status1:", shipment_event.status, shipment_event.status == SampleShipmentStatusStatus.PRO)
+        print('enum status: ', SampleShipmentStatusStatus.PRO)
+
 
     try:
         db.session.add(shipment_event)
+
     except Exception as err:
         return transaction_error_response(err)
 

@@ -18,6 +18,7 @@ from sqlalchemy import func
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
+from ...sample.api.base import func_update_sample_status
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import *
@@ -91,35 +92,33 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
         except ValidationError as err:
             return validation_error_response(err)
 
-        etss = EntityToStorage.query.filter_by(rack_id=values["rack_id"],
-                    storage_type='BTS', removed=True).all()
-        if len(etss)>0:
-            try:
-                for ets in etss:
-                    # ets.removed = True
-                    # ets.editor_id = tokenuser.id
-                    # ets.updated_on = func.now()
-                    # db.session.add(ets)
-                    db.session.delete(ets)
+        # etss = EntityToStorage.query.filter_by(rack_id=values["rack_id"],
+        #             storage_type='BTS', removed=True).all()
+        # if len(etss)>0:
+        #     try:
+        #         for ets in etss:
+        #             # ets.removed = True
+        #             # ets.editor_id = tokenuser.id
+        #             # ets.updated_on = func.now()
+        #             # db.session.add(ets)
+        #             db.session.delete(ets)
+        #
+        #         db.session.flush()
+        #         print('okok')
+        #     except Exception as err:
+        #         return transaction_error_response(err)
 
-                db.session.flush()
-                print('okok')
-            except Exception as err:
-                return transaction_error_response(err)
-        print("resl:", rack_to_shelf_result)
-        print('okok1')
         ets = EntityToStorage(**rack_to_shelf_result)
         ets.author_id = tokenuser.id
         ets.storage_type = "BTS"
         try:
             db.session.add(ets)
             db.session.flush()
-            print('okok2')
+
         except Exception as err:
             return transaction_error_response(err)
 
         ucs = UserCart.query.filter_by(rack_id=rack_id, storage_type="RUC").all()
-        print('ucs: ', ucs)
 
         try:
             for uc in ucs:
@@ -136,7 +135,7 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-    # Unlock the rack after it is stored.
+    # -- Unlock the rack after it is stored.
     for rack_id in rack_ids:
         rk = SampleRack.query.filter_by(id=rack_id).first()
         if rk is None:
@@ -152,11 +151,29 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
             except Exception as err:
                 return transaction_error_response(err)
 
+    # -- Update status for samples in the rack
+    samples = Sample.query.join(EntityToStorage).\
+        filter(EntityToStorage.storage_type=='STB', EntityToStorage.rack_id.in_(rack_ids)).all()
+
+    if len(samples) > 0:
+        try:
+            for sample in samples:
+                sample_status_events = {"sample_storage": None}
+                res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
+                                                events=sample_status_events)
+                print("sample", sample, res["message"])
+                if res['sample']:
+                    db.session.add(res['sample'])
+
+            msg_status = 'Sample status updated! '
+        except Exception:
+            msg_status = 'Errors in updating sample status!'
+
     try:
         db.session.commit()
-        msg = "Rack successful added to shelf! "
-        #return success_with_content_response({"success": True})
-        return success_with_content_message_response(rack_ids, msg + "Racks unlocked!")
+        msg = msg + "Racks unlocked! " + msg_status
+
+        return success_with_content_message_response(rack_ids, msg)
     except Exception as err:
         return transaction_error_response(err)
 
@@ -221,6 +238,7 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
 @api.route("/storage/transfer/samples_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
@@ -281,9 +299,32 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        return success_with_content_response({"success": True})
+        msg = "Samples successfully stored to shelf"
+        # return success_with_content_response({"success": True, "message": msg})
     except Exception as err:
         return transaction_error_response(err)
+
+    # -- Update sample status
+    samples = Sample.query.filter(Sample.id.in_(sample_ids)).all()
+    if len(samples) > 0:
+        try:
+            for sample in samples:
+                sample_status_events = {"sample_storage": None}
+                res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
+                                                events=sample_status_events)
+                print("sample", sample, res["message"])
+                if res['sample']:
+                    db.session.add(res['sample'])
+            msg_status = 'Sample status updated! '
+        except:
+            msg_status = 'Errors in updating sample status!'
+
+    try:
+        db.session.commit()
+    except:
+        msg_status = 'Errors in updating sample status!'
+    msg = msg + msg_status
+    return success_with_content_message_response(sample_ids, msg)
 
 
 @api.route("/storage/tree", methods=["GET"])

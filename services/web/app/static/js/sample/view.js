@@ -47,7 +47,8 @@ function get_barcode(sample_info, barc_type) {
 
     var url = encodeURI(sample_info["_links"]["barcode_generation"]);
 
-    $.post({
+    $.ajax({
+        type: "post",
         async: false,
         global: false,
         url: url,

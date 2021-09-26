@@ -104,18 +104,33 @@
     </div>
 
     <div id="samples-div" style="display: none;">
-        <table class="table table-striped full-width" width="100%" id="donor-samples-table">
+        <table id="donor-samples-table" class="table table-striped full-width" width="100%" >
             <thead>
-                <tr>
-                    <th>Identifier</th>
-                    <th>Base Type</th>
-                    <th>Sample Type</th>
-                    <th>Quantity</th>
-                </tr>
+          <tr>
+            <th>Identifier</th>
+            <th>DBid</th>
+            <th>Barcode</th>
+            <th>ConsentID</th>
+            <th>Consent</th>
+            <th>Status</th>
+            <th>BaseType</th>
+            <th>Type</th>
+            <th>Container</th>
+            <th>Quantity</th>
+            <th>Location</th>
+            <th>created_on</th>
+            <th></th>
+
+          </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
+      <div class="btn-group mr-2 float-right" role="group" aria-label="First group">
+        <button type="button" class="btn btn-success float-right" id="samples-to-cart-btn"><i class="fa fa-cart-plus"></i>
+          Add Sample to Cart</button>
+      </div>
+
     </div>
 
 
@@ -148,6 +163,28 @@
     </div>
   </div>
 </div>
+
+
+<!--- Cart Confirmation -->
+<div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="cart-confirmation-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="cart-confirmation-label">Cart Confirmation</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="cart-confirmation-msg"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Consent Modal -->
 <div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog"
