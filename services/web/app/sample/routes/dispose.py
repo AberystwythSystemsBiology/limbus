@@ -43,18 +43,15 @@ def dispose(uuid: str) -> flask_return_union:
             message = "No disposal instruction!"
             if disposal_info is not None:
                 disposal_instruction = disposal_info["instruction"]
-                print('inst:', disposal_instruction)
+                # print('inst:', disposal_instruction)
 
                 if disposal_instruction not in ['DES','TRA']:
                     message = "No disposal instruction for sample destruction or transfer!"
                 else:
                     disposal_date = datetime.strptime(str(
                         disposal_info["disposal_date"]), "%Y-%m-%d").date()
-                    print("date", disposal_info["disposal_date"])
-                    print("disposal_date", disposal_date)
 
-                    if disposal_date > \
-                            datetime.now().date():
+                    if disposal_date > datetime.now().date():
                         message = "Too early! Expected disposal date %s", disposal_instruction["disposal_date"]
                     else:
                         disposal_approved = True
@@ -122,13 +119,6 @@ def dispose(uuid: str) -> flask_return_union:
                 #flash("Sample Disposed Successfully")
                 flash(new_disposal_event_response.json()["message"])
                 return redirect(url_for("sample.view", uuid=uuid))
-
-                # flash(new_disposal_event_response.json()["message"])
-                # try:
-                #     print("meesage:", new_disposal_event_response.message)
-                # except:
-                #     pass
-                # return redirect("sample.index")
 
             else:
                 return new_disposal_event_response.content

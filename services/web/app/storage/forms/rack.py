@@ -94,13 +94,6 @@ def EditRackToShelfForm(shelves: list) -> FlaskForm:
     for shelf in shelves:
         shelf_choices.append((shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"])))
 
-    # shelf_id = SelectField(
-    #     "Shelf",
-    #     choices=shelf_choices,
-    #     #validators=[DataRequired()],
-    #     description="Cold Storage Shelf", coerce=int,
-    # )
-
     setattr(
         StaticForm, "shelf_id", SelectField("Cold Storage Shelf", choices=shelf_choices, coerce=int)
     )
@@ -147,7 +140,6 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     entry_date = DateField(
         "Sample Rack Creation Date",
         validators=[DataRequired()],
-        #description="The date in which the sample rack was created.",
         default=datetime.today(),
     )
 
@@ -155,7 +147,6 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
         "Sample Rack Creation Time",
         default=datetime.now(),
         validators=[DataRequired()],
-        #description="The time at which the sample rack was undertaken.",
     )
 
     entry = StringField("Created by",

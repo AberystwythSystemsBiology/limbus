@@ -88,7 +88,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = [[0, '--- Select a sample ---']]
 
     for sample in samples:
-        # samples_choices.append([int(sample["id"]), sample["uuid"]])
+
         type_info = sample.pop("sample_type_information", "")
         sample_type = func_label_sample_type(type_info)
         container_type = func_label_container_type(type_info)

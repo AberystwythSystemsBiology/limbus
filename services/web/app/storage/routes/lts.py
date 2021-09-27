@@ -301,7 +301,6 @@ def lock_cold_storage(id):
         edit_response = requests.put(
         url_for("api.storage_cold_storage_lock", id=id, _external=True),
         headers=get_internal_api_header(),
-        #json=form_information,
         )
 
         if edit_response.status_code == 200:

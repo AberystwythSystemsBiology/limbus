@@ -175,16 +175,6 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         except Exception as err:
             return transaction_error_response(err)
 
-        # try:
-        #     db.session.add(sample)
-        #     db.session.commit()
-        #
-        #     return success_with_content_response(
-        #         basic_sample_disposal_event_schema.dump(new_disposal_event)
-        #     )
-        #
-        # except Exception as err:
-        #     return transaction_error_response(err)
 
     else:
         return sample_response.content

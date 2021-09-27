@@ -35,11 +35,8 @@ from .forms import (
     DonorSampleAssociationForm,
     ConsentTemplateSelectForm,
     ConsentAnswerForm,
-    #DonorConsentForm,
     ConsentQuestionnaire,
-    #CollectionDonorConsentAndDisposalForm,
     ConsentSelectForm,
-    #ConsentWithdrawalInfoForm,
     ConsentWithdrawalForm
 )
 
@@ -186,7 +183,7 @@ def new_consent(id):
             headers=get_internal_api_header(),
             json={"is_locked": False},
         )
-        print("template: ", consent_templates_response.text)
+
         if consent_templates_response.status_code == 200:
             for template in consent_templates_response.json()["content"]:
                 consent_templates.append(
@@ -236,7 +233,7 @@ def add_consent_answers(donor_id, template_id):
         for question in consent_template["questions"]:
             if getattr(form, str(question["id"])).data:
                 consent_details["answers"].append(question["id"])
-        print('consent_details:', consent_details)
+
         consent_response = requests.post(
             url_for("api.donor_new_consent", _external=True),
             headers=get_internal_api_header(),
@@ -256,7 +253,7 @@ def add_consent_answers(donor_id, template_id):
 @donor.route("/consent/LIMBDC-<id>/remove", methods=["GET", "POST"])
 @login_required
 def remove_donor_consent(id):
-    print("About to remove")
+
     remove_response = requests.post(
         url_for("api.donor_remove_consent", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -267,7 +264,6 @@ def remove_donor_consent(id):
         return remove_response.json()
     else:
         flash("We have a problem: %s" % (remove_response.json()["message"]))
-        # abort(403)
         return remove_response.json()
 
 
@@ -359,7 +355,7 @@ def edit(id):
     if response.status_code == 200:
 
         donor_info = response.json()["content"]
-        print(donor_info)
+        # print(donor_info)
         donor_info["site"] = donor_info["enrollment_site_id"]
         donor_info["year"] = datetime.strptime(donor_info["dob"], "%Y-%m-%d").year
         donor_info["month"] = datetime.strptime(donor_info["dob"], "%Y-%m-%d").month
@@ -768,7 +764,6 @@ def withdraw_consent(id):
             form = ConsentWithdrawalForm(consent_ids, consent_info)
 
         elif "submit_withdrawal" in request.form and form.validate(form):
-            #elif form.validate_on_submit():
             disposal_required = True
             if form.future_consent_opt.data == 3:
                 disposal_required = False
@@ -792,7 +787,7 @@ def withdraw_consent(id):
                   "comments": form.comments.data,
                   "undertaken_by": form.communicated_by.data,
             }
-            print("withdrawal_info", withdrawal_info)
+            # print("withdrawal_info", withdrawal_info)
             withdrawal_response = requests.post(
                 url_for("api.donor_withdraw_consent", _external=True),
                 headers=get_internal_api_header(),

@@ -63,7 +63,6 @@ def associate_review(uuid: str) -> str:
 
     if sample_response.status_code == 200:
         disposal_info = {}
-        #disposal_id = None
 
         try:
             disposal_info = sample_response.json()["content"]["disposal_information"]
@@ -137,7 +136,6 @@ def associate_review(uuid: str) -> str:
                     return redirect(url_for("sample.view", uuid=uuid))
 
                 else:
-                    # flash("Error")
                     flash(new_review_event_response.json()["message"])
             else:
                 new_review_event_response = requests.post(
@@ -152,7 +150,6 @@ def associate_review(uuid: str) -> str:
                     return redirect(url_for("sample.view", uuid=uuid))
 
                 else:
-                    # flash("Error")
                     flash(new_review_event_response.json()["message"])
 
         return render_template(

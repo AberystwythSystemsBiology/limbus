@@ -113,7 +113,6 @@ def func_shelf_location(id):
                     "coldstorage_id", "coldstorage_name", "coldstorage_type", "coldstorage_temp",
                     "shelf_id", "shelf_name"]
         location = dict(zip(colnames, location))
-        print("site_id: ", pretty, location)
 
     return {"location": location, "pretty": pretty}
 
@@ -207,7 +206,7 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 @token_required
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
-    print("values: ", values)
+    # print("values: ", values)
     if not values:
         return no_values_response()
 
@@ -377,25 +376,6 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-def func_sample_shipment_status(sample_id):
-        shipment_status = SampleShipmentStatus.query.\
-            join(SampleShipmentToSample, SampleShipmentToSample.shipment_id==SampleShipmentStatus.shipment_id).\
-            filter(SampleShipmentToSample.sample_id==sample_id).\
-            order_by(SampleShipmentStatus.datetime.desc()).first()
-
-        msg = "No related sample shipment status! "
-        if shipment_status:
-            shipment_status_info = SampleShipmentStatusSchema.dump(shipment_status)
-            shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
-            if shipment:
-                # shipment_status_info["old_site"] =
-                shipment_status_info["new_site"] = shipment.site_id
-
-            return {"shipment_status_info": shipment_status_info, message: msg, success: True}
-        else:
-            return {"shipment_status_info": None, message: msg, success: True}
-
-
 def func_sample_storage_location(sample_id):
     stored_flag = False
     sample_storage = EntityToStorage.query.\
@@ -424,9 +404,7 @@ def func_sample_storage_location(sample_id):
         msg = "No sample storage location info! "
         if shelf_id:
             shelf_loc = func_shelf_location(shelf_id)
-            print('okok:', shelf_loc)
             if shelf_loc["location"] is not None:
-            #if shelf_loc["pretty"] is not None:
                 sample_storage_info.update(shelf_loc["location"])
                 msg = "Sample stored in %s! " % shelf_loc["pretty"]
 
@@ -440,7 +418,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
     # - events: a dictionary of event objects, with keys from the list:
     #  ["sample_disposal", "sample_storage", "shipment_status", "shipment_to_sample", "sample_review"]
     #   "shipment_to_sample" can be added only of it is paired with "shipment_status"
-    # - auto_query: Boolean, set to True if automated search of relevant objects are needed,
+    # - auto_query: Boolean, set to True if automated search of relevant objects is needed,
     #                         otherwise update status based on the given objects only.
     # sample_id and sample, the id and the sample object that need to be examined and updated.
     # ########
@@ -627,15 +605,12 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         msg = "No related sample shipment status! "
         res = {'sample': None, 'message': msg, "success": False}
         if shipment_status:
-            print("shipment_status.status", shipment_status.status, ", DEL", shipment_status.status=="DEL")
-            #if shipment_status.status not in [None, SampleShipmentStatusStatus.TBC]:
-            if shipment_status.status not in [None, "TBC"]:
-                if sample.status != "TRA":
+            if shipment_status.status not in [None, "TBC", SampleShipmentStatusStatus.TBC]:
+                if sample.status not in ["TRA", SampleStatus.TRA]:
                     sample.status = SampleStatus.TRA
                     updated = True
 
-                #if shipment_status.status == SampleShipmentStatusStatus.DEL:  # Delievered
-                if shipment_status.status == "DEL":  # Delievered
+                if shipment_status.status in ["DEL", SampleShipmentStatusStatus.DEL]: # Delievered
                     shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
                     if shipment:
                         if sample.current_site_id != shipment.site_id:
@@ -663,13 +638,13 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         res = {'sample': None, 'message': msg, "success": True}
         if sample_review:
             if sample_review.result in ['FA', ReviewResult.FA]:
+
                 if sample_review.review_type in ['IC', ReviewType.IC]:
-                    print('Id check!')
                     sample.status = SampleStatus.MIS
                 else:
                     sample.status = SampleStatus.UNU
             elif sample_review.result in ['PA', ReviewResult.PA]:
-                print('pass!')
+
                 if sample_review.quality == SampleQuality.GOO:
                     sample.status = SampleStatus.AVA
                 elif sample_review.quality == SampleQuality.NOT:
@@ -718,4 +693,4 @@ def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
             )
 
     else:
-        validation_error_response()
+        return validation_error_response(res)

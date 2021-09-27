@@ -80,8 +80,6 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 
         shipment_event = SampleShipmentStatus(**new_shipment_event_values)
         shipment_event.author_id = tokenuser.id
-        print("status0:", shipment_event.status, type(shipment_event.status), shipment_event.status == SampleShipmentStatusStatus.PRO)
-        print('enum status: ', SampleShipmentStatusStatus.PRO)
 
 
     else:
@@ -93,8 +91,6 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 
         shipment_event.updated_on = func.now()
         shipment_event.updated_by = tokenuser.id
-        print("status1:", shipment_event.status, shipment_event.status == SampleShipmentStatusStatus.PRO)
-        print('enum status: ', SampleShipmentStatusStatus.PRO)
 
 
     try:
@@ -107,7 +103,6 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
     res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=None, events=sample_status_events)
 
     message = "Shipment status successfully updated! " + res["message"]
-    print("sample", res["message"])
 
     try:
         if res["success"] is True and res["sample"]:
@@ -121,14 +116,6 @@ def shipment_update_status(uuid:str, tokenuser:UserAccount):
 
     except Exception as err:
         return transaction_error_response(err)
-
-    # try:
-    #     db.session.add(shipment_event)
-    #     db.session.commit()
-    #     return success_with_content_response(sample_shipment_status_schema.dump(shipment_event))
-    # except Exception as err:
-    #     return transaction_error_response(err)
-
 
 
 
@@ -154,7 +141,7 @@ def shipment_view_shipment(uuid: str, tokenuser: UserAccount):
                          'tracking_number': None,
                          'shipment': shipment_info,
                          'status': None}
-        print('shipment info: ', shipment_info)
+        # print('shipment info: ', shipment_info)
         return success_with_content_response(
             shipment_info
         )
@@ -182,7 +169,7 @@ def shipment_view_shipment_samples(uuid: str, tokenuser: UserAccount):
                          'tracking_number': None,
                          'shipment': shipment_info,
                          'status': None}
-        print('shipment info: ', shipment_info)
+        # print('shipment info: ', shipment_info)
         return success_with_content_response(
             shipment_info
         )
@@ -499,7 +486,7 @@ def add_samples_to_cart(tokenuser: UserAccount):
 @api.route("/cart/add/samples_racks", methods=["POST"])
 @token_required
 def add_samples_with_racks_to_cart(tokenuser: UserAccount):
-    print(tokenuser.site_id)
+    # print("tokenuser.site_id:", tokenuser.site_id)
     values = request.get_json()
     samples = []
     if values:
@@ -510,11 +497,12 @@ def add_samples_with_racks_to_cart(tokenuser: UserAccount):
 
     sample_ids = [smpl["id"] for smpl in samples]
 
-    # Site access control
+    # -- Site access control
     samples_locked = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==True).\
         with_entities(Sample.id).all()
 
     if tokenuser.account_type != "Administrator":
+        # Can only add samples of same site for the operator
         samples_other = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
                     Sample.current_site_id != None, Sample.current_site_id!=tokenuser.site_id).\
                     with_entities(Sample.id).all()
@@ -525,7 +513,7 @@ def add_samples_with_racks_to_cart(tokenuser: UserAccount):
     # Samples in transit can't be added to cart
     samples_transit = SampleShipmentStatus.query. \
         join(SampleShipmentToSample, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
-        filter(~SampleShipmentStatus.status.in_(["DEL","UND"])). \
+        filter(~SampleShipmentStatus.status.in_(["DEL","UND","CAN"])). \
         with_entities(SampleShipmentToSample.sample_id).distinct().all()
 
     if len(samples_transit) > 0:
@@ -591,15 +579,20 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
         headers=get_internal_api_header(tokenuser),
     )
 
-    # TODO check if rack in transit?
     if rack_response.status_code == 200:
+        rackRecord = SampleRack.query.filter_by(id=id).first()
+        if not rackRecord:
+            return not_found("LIMBRACK-%d" % id)
+
+        if rackRecord.is_locked:
+            return locked_response("LIMBRACK-%d" % id)
+        rackRecord.is_locked = True
+
         esCheck = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
         if esCheck == []:
             return not_found("for the rack with sample(s)")
 
         ESRecords = EntityToStorage.query.filter_by(rack_id=id).all()
-        rackRecord = SampleRack.query.filter_by(id=id).first()
-        rackRecord.is_locked = True
         for es in ESRecords:
             if es.sample_id is None and es.shelf_id is not None:
                 db.session.delete(es)

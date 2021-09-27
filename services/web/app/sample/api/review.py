@@ -37,7 +37,7 @@ def sample_edit_sample_review(uuid, tokenuser: UserAccount):
 @token_required
 def sample_remove_sample_review(uuid, tokenuser: UserAccount):
     review_event = SampleReview.query.filter_by(uuid=uuid).first()
-    print("review_event: ", review_event)
+    # print("review_event: ", review_event)
     if not review_event:
         return not_found("review event")
 
@@ -50,11 +50,8 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
         return locked_response("Sample")
 
     sample_uuid = sample.uuid
-    print('uuid', sample_uuid)
     disposal_instruction = SampleDisposal.query.filter_by(review_event_id=review_event.id).first()
-    print('disposal_instruction', disposal_instruction)
     event = Event.query.filter_by(id=review_event.event_id).first()
-    print('event', event)
 
     if disposal_instruction:
         if disposal_instruction.approved is not None:
@@ -87,13 +84,11 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
     res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
                  events={"sample_disposal": None, "sample_review": None})
 
-    print("sample", sample, res["message"])
     if res["success"]:
         if res["sample"]:
             try:
                 db.session.add(sample)
                 db.session.commit()
-                #return success_with_content_response(sample_uuid)
                 return success_with_content_message_response(sample_uuid, message=message + res["message"])
 
             except Exception as err:
@@ -111,7 +106,7 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    print("values: ", values)
+    # print("values: ", values)
     sample = Sample.query.filter_by(id=values["sample_id"]).first_or_404()
     disposal_id = sample.disposal_id
     disposal_info = None
@@ -140,7 +135,7 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     try:
         db.session.add(new_event)
         db.session.flush()
-        print("new_event.id: ", new_event.id)
+        # print("new_event.id: ", new_event.id)
     except Exception as err:
         return transaction_error_response(err)
 
@@ -156,7 +151,7 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     try:
         db.session.add(new_sample_review)
         db.session.flush()
-        print("new_review.id: ", new_sample_review.id)
+        # print("new_review.id: ", new_sample_review.id)
     except Exception as err:
         return transaction_error_response(err)
 
@@ -165,6 +160,7 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     if disposal_info:
         # Add new disposal instruction
         # TODO: check workflow: Update if existing instruction hasn't been approved?
+        #  Current implementation does not check approval event
         new_instruction = True
         # if disposal_id:
         #     disposal_instruction = SampleDisposal.query.filter_by(id=disposal_id).\
@@ -187,45 +183,16 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
         try:
             db.session.add(disposal_instruction)
             db.session.flush()
-            print("disposal_id: ", disposal_instruction.id)
+            # print("disposal_id: ", disposal_instruction.id)
         except Exception as err:
             return transaction_error_response(err)
 
         sample_status_events["sample_disposal"] = disposal_instruction
-        # Update sample status
-        # sample.disposal_id = disposal_instruction.id
-        # if disposal_instruction.instruction == DisposalInstruction.REV:
-        #     # Pending review
-        #     sample.status = "NRE"
 
-    ####  Update sample status
-    # IF review failed: set status to unusable for purity/quantity test
-    #                   and missing for identity test,
-    # IF pass: only set status to available if the review and quality is good
-    #                   otherwise Unusable or Further Review Pending
-    # if new_sample_review.result == ReviewResult.FA:
-    #     if new_sample_review.review_type == ReviewType.IC:
-    #         print('Id check!')
-    #         sample.status = SampleStatus.MIS
-    #     else:
-    #         sample.status = SampleStatus.UNU
-    # elif new_sample_review.result == ReviewResult.PA:
-    #     print('pass!')
-    #     if new_sample_review.quality == SampleQuality.GOO:
-    #         sample.status = SampleStatus.AVA
-    #     elif new_sample_review.quality == SampleQuality.NOT:
-    #         sample.status = SampleStatus.NRE
-    # else:
-    #     sample.status = SampleStatus.UNU
-    #
-    # sample.editor_id = tokenuser.id
-    # sample.update_on = func.now()
-
-    # Update sample status
+    # -- Sample status update
     res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample, events=sample_status_events)
 
     message = "Review/disposal instruction successfully added! " + res["message"]
-    print("sample", sample, res["message"])
 
     try:
         if res["success"] is True and res["sample"]:
@@ -239,18 +206,8 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-    # try:
-    #     db.session.add(sample)
-    #     db.session.commit()
-    #
-    #     return success_with_content_response(
-    #         sample_review_schema.dump(new_sample_review)
-    #     )
-    # except Exception as err:
-    #     return transaction_error_response(err)
 
-
-# not updating sample status or disposal instruction
+# No update of sample status or disposal instruction: not in use
 @api.route("/sample/new/review", methods=["POST"])
 @token_required
 def sample_new_sample_review(tokenuser: UserAccount):

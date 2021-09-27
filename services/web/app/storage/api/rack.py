@@ -94,7 +94,7 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
         db.session.add(new_rack)
         db.session.flush()
         rack_id = new_rack.id
-        print('new_rack id: ', rack_id)
+        # print('new_rack id: ', rack_id)
 
     except Exception as err:
         return transaction_error_response(err)
@@ -126,7 +126,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
 
         if stbs is not None:
             for stb in stbs:
-                print('stb', stb)
+                # print('stb', stb)
                 # stb.removed = True
                 # stb.editor_id = tokenuser.id;
                 # stb.updated_on = func.now()

@@ -161,7 +161,6 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
                 sample_status_events = {"sample_storage": None}
                 res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
                                                 events=sample_status_events)
-                print("sample", sample, res["message"])
                 if res['sample']:
                     db.session.add(res['sample'])
 
@@ -179,7 +178,7 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
 
 
 
-# Not use
+# deprecated, use storage_transfer_sampleS_to_shelf instead
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
@@ -261,6 +260,7 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
 
         #etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STB').all()
         etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).all()
+        # TODO: instead of deleting exisint etss add new ets instance and set the existing ets to: removed=True
         if len(etss)>0:
             # warning, confirmation
             try:
@@ -312,7 +312,7 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
                 sample_status_events = {"sample_storage": None}
                 res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
                                                 events=sample_status_events)
-                print("sample", sample, res["message"])
+
                 if res['sample']:
                     db.session.add(res['sample'])
             msg_status = 'Sample status updated! '
