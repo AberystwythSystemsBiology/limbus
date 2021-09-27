@@ -84,7 +84,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     _links = ma.Hyperlinks(
         {
             "add_sample_to_cart": ma.URLFor(
-                "sample.add_sample_to_cart", uuid="<uuid>", _external=True
+                "sample.add_sample_to_cart", uuid="<uuid>", _scheme='https', _external=True
             ),
             "remove_sample_from_cart": ma.URLFor(
                 "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
@@ -95,7 +95,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
             "collection": ma.URLFor("sample.index", _external=True),
             "barcode_generation": ma.URLFor(
-                "api.misc_generate_barcode", _external=True
+                "api.misc_generate_barcode", _scheme='https', _external=True
             ),
         }
     )
@@ -165,7 +165,6 @@ class SampleSchema(masql.SQLAlchemySchema):
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
             "barcode_generation": ma.URLFor(
                 "api.misc_generate_barcode", _external=True,
-                #"misc.generate_barcode", _external=True
             ),
         }
     )
