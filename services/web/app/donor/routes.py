@@ -83,7 +83,7 @@ def view_endpoint(id):
         url_for("api.donor_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
-    print('response: ', response.text)
+
     if response.status_code == 200:
         return response.json()
 

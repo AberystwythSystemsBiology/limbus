@@ -40,14 +40,12 @@ def sample_label(uuid: str):
     if sample_response.status_code == 200:
         ntf = tempfile.NamedTemporaryFile()
         tmp_fp = ntf.name + ".pdf"
-
         label_writer = LabelWriter(
             os.path.join(sample_template_dir, "template.html"),
             default_stylesheets=(os.path.join(sample_template_dir, "style.css"),),
         )
 
         sample = sample_response.json()["content"]
-        print('sample', sample)
         base_type = sample["base_type"]
 
         if base_type == "Fluid":
