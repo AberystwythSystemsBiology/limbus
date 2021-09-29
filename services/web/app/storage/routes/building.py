@@ -143,11 +143,6 @@ def lock_building(id):
 
     return redirect(url_for("storage.view_building", id=id))
 
-    #return render_template(
-    #    "storage/room/edit.html", room=response.json()["content"], form=form
-    #)
-
-    # return abort(response.status_code)
 
 @storage.route("/buildings/LIMBBUILDING-<id>/delete", methods=["GET", "POST"])
 @login_required
@@ -180,36 +175,5 @@ def delete_building(id):
         # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
         return redirect(url_for("storage.view_building", id=id, _external=True))
     return abort(response.status_code)
-
-# @storage.route("/buildings/LIMBBUILD-<id>/delete", methods=["GET", "POST"])
-# @login_required
-# def delete_building(id):
-#     #confirmation = requests.put(url_for("api.storage_building_delete_confirmation",id=id,_external=True))
-#
-#     response = requests.get(
-#         url_for("api.storage_building_view", id=id, _external=True),
-#         headers=get_internal_api_header(),
-#     )
-#
-#     if response.status_code == 200:
-#
-#         form = DeleteForm(data=response.json()["content"])
-#
-#         if form.validate_on_submit():
-#             edit_response = requests.put(
-#                 url_for("api.storage_building_delete", id=id, _external=True),
-#                 headers=get_internal_api_header(),
-#             )
-#
-#             if edit_response.status_code == 200:
-#                 flash("Building Successfully Deleted")
-#             else:
-#                 flash("We have a problem: %s" % (id))
-#
-#         # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
-#             return redirect(url_for("storage.index",_external=True))
-#     else:
-#         flash("We have a problem:")
-#     return abort(response.status_code)
 
 

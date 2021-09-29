@@ -14,9 +14,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-def not_found():
+def not_found(entity=""):
     return (
-        {"success": False, "message": "Instance not found"},
+        {"success": False, "message": "Instance %s not found" % entity},
         404,
         {"ContentType": "application/json"},
     )
@@ -28,7 +28,7 @@ def sample_assigned_delete_response():
         {"ContentType":"application/json"}
     )
 
-def in_use_response(entity):
+def in_use_response(entity=""):
     return(
         {"success": False, "message":"Has associated " + entity},
         400,
@@ -42,8 +42,8 @@ def no_values_response():
         {"ContentType": "application/json"},
     )
 
-def locked_response():
-    return({"success": False, "message": "Entity is locked"},
+def locked_response(entity=""):
+    return({"success": False, "message": "Entity %s is locked" % entity},
             400,
             {"ContentType": "application/json"})
 

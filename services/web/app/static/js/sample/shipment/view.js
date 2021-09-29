@@ -38,10 +38,56 @@ function get_shipment() {
     return json["content"];
 }
 
+
+function add_samples_with_rack_to_cart(api_url, samples) {
+    var msg = "The rack associated with the cart will be added to storage as well, press OK to proceed!";
+    if (!confirm(msg)) {
+      return false;
+    }
+
+    var json = (function () {
+       var json = null;
+       $.ajax({
+           'async': false,
+           'global': false,
+           'url': api_url,
+           'type': 'POST',
+           'dataType': "json",
+           'data': JSON.stringify({"samples": samples}),
+           'contentType': 'application/json; charset=utf-8',
+           'success': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               },
+           'failure': function (data) {
+               json = data;
+               $("#cart-confirmation-msg").html(data["message"]);
+               $("#cart-confirmation-modal").modal({
+                   show: true
+               });
+               }
+       });
+
+       return json;
+    })();
+    return json;
+}
+
+
 function fill_jumbotron(shipment_data) {
     $("#created-on").html(shipment_data["shipment"]["created_on"]);
     $("#author").html(render_author(shipment_data["shipment"]["author"]));
 
+    if (["Delivered","Cancelled", "Undelivered"].includes(shipment_data["status"])) {
+        $("#update-status-btn").hide();
+        $("#add-cart-btn").show();
+    } else {
+        $("#update-status-btn").show();
+        $("#add-cart-btn").hide();
+    }
 }
 
 function fill_table(shipment_data) {
@@ -263,6 +309,8 @@ function fill_involved_samples(involved_samples) {
 
     });
     return table;
+
+
 }
 
 $(document).ready(function() {
@@ -295,5 +343,25 @@ $(document).ready(function() {
         hide_all();
         $("#shipment-status-div").fadeIn(100);
     });
+
+
+    $("#add-cart-btn").click(function (event) {
+
+        var sample_data=shipment_data['shipment']["involved_samples"];
+        var formdata = [];
+        $.each(sample_data, function (index, row){
+            formdata.push(row["sample"]);
+        })
+
+       var api_url = window.location.origin+ "/sample/with_rack_to_cart";
+       res = add_samples_with_rack_to_cart(api_url, formdata);
+
+       if (res.success == true) {
+
+       } else {
+        alert("No sample selected!");
+       }
+    });
+
 
 });

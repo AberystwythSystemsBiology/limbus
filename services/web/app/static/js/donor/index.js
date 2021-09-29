@@ -63,7 +63,7 @@ function render_table(query) {
                     var col_data = '';
                     col_data += render_colour(data["colour"])
                     col_data += "<a href='" + data["_links"]["self"] + "'>";
-                    col_data += '<i class="fas fa-vial"></i> LIMBDON-'
+                    col_data += '<i class="fa fa-user-circle"></i> LIMBDON-'
                     col_data += data["id"];
                     col_data += "</a>";
 
@@ -98,8 +98,7 @@ function render_table(query) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    // Createi
-                    console.log(data);
+                    // Created_on
                     return data["created_on"]
                 },
             }

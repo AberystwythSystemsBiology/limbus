@@ -23,10 +23,10 @@ import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
 
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ..enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
 from ...sample.enums import Colour
-from ...sample.views import BasicSampleSchema
+from ...sample.views import BasicSampleSchema, ConsentSchema#, SampleSchema
 
 from .diagnosis import DonorDiagnosisEventSchema
 
@@ -64,10 +64,14 @@ class DonorSchema(masql.SQLAlchemySchema):
 
     race = EnumField(RaceTypes, by_value=True)
 
-    author = ma.Nested(BasicUserAccountSchema)
-    updater = ma.Nested(BasicUserAccountSchema)
+    #author = ma.Nested(BasicUserAccountSchema)
+    #updater = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
+    updater = ma.Nested(UserAccountSearchSchema)
+
     colour = EnumField(Colour, by_value=True)
 
+    consents = ma.Nested(ConsentSchema, many=True)
     samples = ma.Nested(BasicSampleSchema, many=True)
 
     created_on = ma.Date()
@@ -78,6 +82,9 @@ class DonorSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("donor.view", id="<id>", _external=True),
             "collection": ma.URLFor("donor.index", _external=True),
             "edit": ma.URLFor("donor.edit", id="<id>", _external=True),
+            "new_sample": ma.URLFor(
+                "donor.add_sample_step_one", id="<id>", _external=True
+            ),
             "assign_diagnosis": ma.URLFor(
                 "donor.new_diagnosis", id="<id>", _external=True
             ),

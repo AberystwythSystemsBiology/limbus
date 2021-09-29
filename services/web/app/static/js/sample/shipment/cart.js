@@ -50,7 +50,7 @@ function fill_cart_table(cart) {
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
-            // {targets: [2, 3, 4], visible: false, "defaultContent": ""},
+            {targets: [3], visible: false, "defaultContent": ""},
             {
                 targets: -1,
                 orderable: false,
@@ -84,6 +84,26 @@ function fill_cart_table(cart) {
                     }
 
                     return col_data
+                }
+            },
+
+            { // Consent ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data["sample"]['consent_information'];
+                    return 'LIMBDC-' + consent['id'];
+                }
+            },
+
+            { // Consent status
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data["sample"]['consent_information'];
+                    var consent_status = 'Active';
+                    if (consent['withdrawn'] == true) {
+                        consent_status = 'Withdrawn';
+                    }
+                    return consent_status;
                 }
             },
 

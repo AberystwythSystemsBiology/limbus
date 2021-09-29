@@ -154,7 +154,7 @@ def storage_coldstorage_new(tokenuser: UserAccount):
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
     cs = ColdStorage.query.filter_by(id=id).first()
-    print('cs  -- ', cs)
+
     if not cs: #room:
         return not_found()
 

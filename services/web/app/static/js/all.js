@@ -37,7 +37,7 @@ function render_sample_table(samples, div_id) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            { targets: [3,4], visible: false, "defaultContent": ""},
+            { targets: [3,6], visible: false, "defaultContent": ""},
         ],
         columns: [
             {
@@ -65,6 +65,25 @@ function render_sample_table(samples, div_id) {
 
             {data: "id"},
             {data: "barcode"},
+            { // Consent ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    return 'LIMBDC-' + consent['id'];
+                }
+            },
+            { // Consent status
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    var consent_status = 'Active';
+                    if (consent['withdrawn'] == true) {
+                        consent_status = 'Withdrawn';
+                    }
+                    return consent_status;
+                }
+            },
+
             {data: "status"},
 
             {data: "base_type"},
@@ -212,9 +231,7 @@ function render_content(label, content) {
 }
 
 function view_form_helper(id_ref) {
-  console.log(view_form_helper);
   var element_id = $("#"+id_ref+" option:selected").val();
-  console.log(element_id);
   var url = $("#"+id_ref+"_href").attr("href");
   var url_without_id = url.substr(0, url.lastIndexOf("-") + 1)
   $("#"+id_ref+"_href").attr("href", url_without_id + element_id);

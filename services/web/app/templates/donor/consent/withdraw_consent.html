@@ -1,0 +1,102 @@
+{% extends "template.html" %}
+
+
+{% block title %}Withdraw Consent{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ donor._links.self }}">
+                <i class="fas fa-vial"></i>
+                <span id="donor-id">{{ donor.uuid }}</span>
+            </a></span>
+        <i class="fa fa-trash"></i> Withdraw Sample Consent </h1>
+    </div>
+</div>
+
+<div class="container">
+
+    <form id="consent-form" method="POST">
+
+        {{ form.csrf_token() }}
+
+            {{ form_field(form.consent_select.consent_id) }}
+            <input id="select" type="submit" class="btn btn-warning btn-xs" name="select_consent" value="Confirm">
+
+            <div class="card-header">
+                <div class="text-center">
+                    <h2>To withdraw consent LIMBDC-{{  form.consent_id.data }}</h2>
+                    <h3>{{ form.template_name.data }} version: {{ form.template_version.data }}</h3>
+                </div>
+            </div>
+            <div class="card-footer">
+                <h5> Donor ID: LIMBDON-{{  form.donor_id.data }}</h5>
+                <h5> Identifier: {{  form.identifier.data }} </h5>
+                <h5> Consent comments:  {{ form.consent_comments.data }} </h5>
+                <h5> Consent Date :  {{ form.consent_date.data }} </h5>
+                <h5> Number of Associated Samples (aliquots excluded):  {{ form.num_sample.data }} </h5>
+            </div>
+
+
+        {{ form_field(form.withdrawal_reason)}}
+        <div class="row">
+            <div class="col-6">
+                 {{ form_field(form.requested_by)}}
+            </div>
+            <div class="col-6">
+                 {{ form_field(form.future_consent_opt)}}
+            </div>
+        </div>
+
+        {{ form_field(form.comments)}}
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.communicated_by)}}
+            </div>
+            <div class="col-6">
+                 {{ form_field(form.withdrawal_date)}}
+            </div>
+        </div>
+
+{#        {{ form_field(form.submit) }}#}
+        <input id="submit" type="submit" class="btn btn-success btn-float-right" name="submit_withdrawal" value="Submit">
+
+    </form>
+</div>
+
+
+<!-- Delete Protocol Modal -->
+<div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="delete-protocol-confirm-modal-title">Confirm Donor Consent Withdrawal</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <B>Warning:</B> This action cannot be undone!
+        </div>
+        <p>Please enter the Donor Consent ID in form of LIMBDC-xx to confirm that you want to withdraw this consent:</p>
+        <input type="text" class="form-control" id="protocol-id-remove-confirmation-input"></input>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+        <button type="button" id="protocol-remove-confirm-button" class="btn btn-success" disabled>Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+{#<script src="{{ url_for('static', filename='js/donor/donor_consent.js') }}"></script>#}
+{% endblock %}
+

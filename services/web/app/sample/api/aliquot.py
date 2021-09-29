@@ -29,6 +29,7 @@ from ...database import (
     SubSampleToSample,
     SampleProtocolEvent,
     SampleToType,
+    SampleDisposal,
     Event
 )
 
@@ -37,6 +38,7 @@ from ..views import (
     new_sample_schema,
     new_sample_protocol_event_schema,
     new_sample_type_schema,
+    new_sample_disposal_schema,
 )
 from datetime import datetime
 
@@ -118,6 +120,15 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     ).first_or_404()
     type_values = new_sample_type_schema.dump(sampletotype)
 
+    # Parent sample disposal instruction
+    disposal_values = None
+    if sample.disposal_id:
+        sampledisposal = SampleDisposal.query.filter_by(
+            id=sample.disposal_id
+        ).first_or_404()
+        if sampledisposal:
+            disposal_values = new_sample_disposal_schema.dump(sampledisposal)
+
     # New event and sampleprotocol_event
     # each event consists of (i.e. is linked to) a batch of sampleprotocl_event(s) for aliquot
     event_values = {
@@ -182,6 +193,18 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
+
+        # T3.0. New sample_disposal instruction
+        disposal_id = None
+        if disposal_values:
+            sdi = SampleDisposal(**disposal_values)
+            sdi.author_id=tokenuser.id,
+
+            db.session.add(sdi)
+            db.session.flush()
+            disposal_id = sdi.id
+            print("sample_disposal id: ", disposal_id)
+
         # T3. New subsamples
         ali_sample = Sample(**sample_values)
 
@@ -193,6 +216,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         ali_sample.author_id = tokenuser.id
         ali_sample.source = "ALI"
         ali_sample.sample_to_type_id = ali_sampletotype.id
+        ali_sample.disposal_id = disposal_id
 
         db.session.add(ali_sample)
         db.session.flush()
@@ -201,10 +225,13 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         ssts = SubSampleToSample(
             parent_id=parent_id,
             subsample_id=ali_sample.id,
+            protocol_event_id=new_sample_protocol_event.id,
             author_id=tokenuser.id,
         )
         db.session.add(ssts)
         db.session.flush()
+
+
 
     # T4. Update parent sample
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})

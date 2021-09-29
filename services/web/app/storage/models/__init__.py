@@ -34,7 +34,7 @@ class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     col = db.Column(db.Integer)
     entry_datetime = db.Column(db.DateTime)
     entry = db.Column(db.String(5))
-    removed = db.Column(db.Boolean)
+    removed = db.Column(db.Boolean, default=False)
 
     sample = db.relationship("Sample")
     rack = db.relationship("SampleRack")

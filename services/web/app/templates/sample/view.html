@@ -55,18 +55,19 @@
                   </button>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
+                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
                       <i class="fa fa-trash"></i> Dispose Sample</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
+                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
                       class="fas fa-file"></i> New Review</a>
                       
-                    <a class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
+                    <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
                         class="fa fa-project-diagram"></i> New Protocol Event</a>
                     <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
                       class="fas fa-file"></i> Associate Document</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
+                    <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i> Aliquot Sample</a>
-                    <a class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
+                    <a id="action-derive" class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
+                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
                     
                   </div>
                 </div>
@@ -204,17 +205,24 @@
 
         </tbody>
       </table>
-        <div class="col-9 float-left">
-            <select id="select_rack">
-                <option value=0>---- Store to a rack  ----</option>
-            </select>
-        </div>
-        <div class="col-9 float-left">
-            <select id="select_shelf" >
-                <option value=0>---- Store to a shelf ----</option>
-            </select>
-        </div>
-        <button type="button" class="btn btn-success float-right" id="subsample_to_storage">Store</button>
+{#        <div class="col-9 float-left">#}
+{#            <select id="select_rack">#}
+{#                <option value=0>---- Store to a rack  ----</option>#}
+{#            </select>#}
+{#        </div>#}
+{#        <div class="col-9 float-left">#}
+{#            <select id="select_shelf" >#}
+{#                <option value=0>---- Store to a shelf ----</option>#}
+{#            </select>#}
+{#        </div>#}
+
+      <div class="btn-group mr-2 float-right" role="group" aria-label="First group">
+{#        <button type="button" class="btn btn-outline-dark" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>#}
+        <button type="button" class="btn btn-success float-right" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>
+          Add Subsample to Cart</button>
+      </div>
+
+{#        <button type="button" class="btn btn-success float-right" id="subsample_to_storage">Store</button>#}
 
 {#    </form>#}
 
@@ -249,6 +257,31 @@
   </div>
 </div>
 
+<!-- Delete Review Modal -->
+<div class="modal fade" id="delete-review-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-review-confirm-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="delete-review-confirm-modal-title">Confirm Review/Disposal Instruction Removal</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+          <B>Warning:</B> This action cannot be undone!
+        </div>
+        <p>Please enter the Review UUID to confirm that you want to remove this Event:</p>
+        <input type="text" class="form-control" id="review-uuid-remove-confirmation-input"></input>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+        <button type="button" id="review-remove-confirm-button" class="btn btn-success" disabled>Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Delete Protocol Modal -->
 <div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
@@ -303,7 +336,7 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Digital Consent Form</h5>
+        <h5 class="modal-title" id="consentModalLabel">Digital Consent Form</h5>
         <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -315,7 +348,7 @@
             <h3>Version: <span id="consent_version"></span></h3>
           </div>
 
-          <label>Patient Consent Form ID/Code</label>
+          <label>Donor Consent Form ID/Code</label>
           <p><span id="consent_identifier"></span></p>
         </div>
         <ul id="questionnaire-list" class="list-group list-group-flush">
@@ -324,8 +357,24 @@
         <div class="card-footer">
           <label>Comments</label>
 
-          <label>Date Signed</label>
-          <p><span id="consent_date"></span></p>
+        <div class="row">
+            <div class="col-6">
+                <p><label>Donor ID:    </label><span id="donor_id"></span></p>
+            </div>
+            <div class="col-6">
+                <p><label>Date of Consent: </label><span id="consent_date"></span></p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <p><label>Consent Status:    </label><span id="consent_status"></span></p>
+            </div>
+            <div class="col-6">
+            <p><label>Date of Withdrawal: </label><span id="withdrawal_date"></span></p>
+            </div>
+        </div>
+
         </div>
       </div>
 

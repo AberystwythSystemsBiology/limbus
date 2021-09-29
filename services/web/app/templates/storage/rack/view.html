@@ -45,14 +45,26 @@
                                         </button>
                                     </a>
                                 </div>
-                                    <div class="btn-group mr-2" role="group" aria-label="First group">
+
+
+
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
+                                    <button id="add-sample-btn" type="button" class="btn btn-outline-dark">
+                                        <i class="fas fa-vial"></i> Add Samples
+                                    </button>
+                                </div>
+                                {% endif %}
+
+
+                                <div class="btn-group mr-2" role="group" aria-label="First group">
 {#                                        <a href="{{ url_for('storage.add_rack_to_cart',id=rack.id) }}">#}
-                                        <button type="button" class="btn btn-outline-dark" id="add-rack-cart-btn"><i class="fa fa-cart-plus"></i>
-                                            Rack to Cart</button>
+                                    <button type="button" class="btn btn-outline-dark" id="add-rack-cart-btn">
+                                        <i class="fa fa-cart-plus"></i> Rack to Cart
+                                    </button>
 {#                                        </a>#}
-                                    </div>
+                                </div>
 
-
+                                {% if not rack.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="Second group">
                                     <button type="button" class="btn btn-delete float-right" data-toggle="modal"
                                             data-target="#delete-confirmation">
@@ -159,8 +171,14 @@
                             <tr>
                                 <th>Pos</th>
                                 <th>Identifier</th>
-                                <th>Sample Type</th>
+                                <th>DBid</th>
+                                <th>Barcode</th>
+                                <th>Status</th>
+                                <th>BaseType</th>
+                                <th>Type</th>
+                                <th>Container</th>
                                 <th>Quantity</th>
+                                <th>created_on</th>
                             </tr>
                         </thead>
                         <tbody>

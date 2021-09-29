@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...database import Sample
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...extensions import ma
 from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
@@ -22,9 +22,10 @@ from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
     BasicSampleDisposalSchema,
-    ConsentSchema,
+    BasicConsentSchema, ConsentSchema,
     EntityToStorageSchema,
     BasicSampleDiposalEventSchema,
+    SampleShipmentToSampleInfoSchema
 )
 
 from ...document.views import BasicDocumentSchema
@@ -47,6 +48,8 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
     site_id = masql.auto_field()
+    #current_site_id = masql.auto_field()
+
     quantity = masql.auto_field()
     disposal_id = masql.auto_field()
     consent_id = masql.auto_field()
@@ -62,6 +65,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
+    consent_information = ma.Nested(BasicConsentSchema, many=False)
     base_type = EnumField(SampleBaseType, by_value=True)
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
@@ -110,6 +114,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     base_type = EnumField(SampleBaseType, by_value=True)
     is_locked = masql.auto_field()
+    is_closed = masql.auto_field()
 
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
@@ -122,7 +127,9 @@ class SampleSchema(masql.SQLAlchemySchema):
     biohazard_level = EnumField(BiohazardLevel, by_value=True)
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
+    current_site_id = masql.auto_field()
+    #author = ma.Nested(BasicUserAccountSchema, many=False)
+    author = ma.Nested(UserAccountSearchSchema, many=False)
 
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
@@ -137,6 +144,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     events = ma.Nested(SampleProtocolEventSchema, many=True)
     reviews = ma.Nested(SampleReviewSchema, many=True)
+    shipments = ma.Nested(SampleShipmentToSampleInfoSchema, many=True)
 
     created_on = ma.Date()
 
@@ -156,7 +164,7 @@ class SampleSchema(masql.SQLAlchemySchema):
             ),
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
             "barcode_generation": ma.URLFor(
-                "api.misc_generate_barcode", _external=True
+                "api.misc_generate_barcode", _external=True,
             ),
         }
     )

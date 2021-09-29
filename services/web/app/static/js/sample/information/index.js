@@ -63,7 +63,7 @@ function get_filters() {
     }
 
     //var f = ["barcode", "type", "colour", "source", "status"];
-    var f = ["barcode", "biohazard_level", "base_type", "colour", "source", "status", "protocol_id"];
+    var f = ["barcode", "biohazard_level", "base_type", "colour", "source", "status", "current_site_id", "protocol_id"];
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();

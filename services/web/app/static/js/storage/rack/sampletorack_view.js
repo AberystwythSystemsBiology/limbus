@@ -232,7 +232,9 @@ function render_sample_table(samples) {
                 {
                     "mData": {},
                     "mRender": function(data, type,row) {
-                        return data["pos"][0] + ", " + data["pos"][1]
+                        tick = String.fromCharCode(Number(data["pos"][0])+64);
+                        //return data["pos"][0] + ", " + data["pos"][1]
+                        return tick + ", " + data["pos"][1]                        
                     },
                     "width": "3%"
                 },
@@ -330,7 +332,6 @@ function render_sample_table(samples) {
                     return data["sample"]["created_on"];
                 }
             },
-
     
             ],
             
@@ -392,14 +393,8 @@ function render_view(view, assign_sample_url, img_on) {
 
 }
 
-function fill_sample_pos(rack_id, sampletostore, commit) {
-    var split_url = encodeURI(window.location).split("/");
-    split_url = split_url.slice(0, -2)
-    //split_url.push("storage", "rack", "fill_with_samples")
-    split_url.push("fill_with_samples")
-    var api_url = split_url.join("/")
-    //console.log('url: ', api_url)
-    //console.log('samplestore: ', sampletostore)
+function fill_sample_pos(api_url, sampletostore, commit) {
+    sampletostore = Object.assign({}, sampletostore, {'commit': commit})
 
     var json = (function () {
         var json = null;
@@ -409,9 +404,7 @@ function fill_sample_pos(rack_id, sampletostore, commit) {
             'url': api_url,
             'type': 'POST',
             'dataType': "json",
-            'data': JSON.stringify({'rack_id': rack_id,
-                'samples':(sampletostore), 'commit': commit
-            }),
+            'data': JSON.stringify(sampletostore),
             'contentType': 'application/json; charset=utf-8',
             'success': function (data) {
                 json = data
@@ -421,7 +414,6 @@ function fill_sample_pos(rack_id, sampletostore, commit) {
             }
 
         });
-        console.log('json', json)
         return json;
     })();
 
@@ -433,19 +425,16 @@ $(document).ready(function () {
     collapse_sidebar();
 
     var rack_information = get_rack_information();
-
-    var rack_id = sessionStorage.getItem("rack_id");
-    // JSON parse to turn stored sting back into array
     sampletostore = JSON.parse(sessionStorage.getItem("sampletostore"));
-    sampletostore = Object.values(sampletostore['content'])
-    //console.log('sampletostore: ', sampletostore)
+    rack_id = sampletostore["rack_id"]
+    samples_new = sampletostore["samples"]
 
-    for (k in sampletostore) {
-        r = sampletostore[k]['row'];
-        c = sampletostore[k]['col'];
+    for (k in samples_new) {
+        r = samples_new[k]['row'];
+        c = samples_new[k]['col'];
         rack_information['view'][r][c]['empty'] = false;
         rack_information['view'][r][c]['tostore'] = true;
-        rack_information['view'][r][c]['sample'] = sampletostore[k];
+        rack_information['view'][r][c]['sample'] = samples_new[k];
     }
 
 
@@ -461,19 +450,15 @@ $(document).ready(function () {
     });
 
     render_occupancy_chart(rack_information["counts"])
-    //console.log(samples)
     render_sample_table(samples);
 
     $("#submit_sampletorack").click(function (event) {
-       var split_url = encodeURI(window.location).split("/");
-       split_url = split_url.slice(0,-1)
-       var api_url = split_url.join("/")
-
-        res = fill_sample_pos(rack_id, sampletostore,commit=true);
+        var api_url = window.location.origin + "/storage/rack/fill_with_samples"
+        res = fill_sample_pos(api_url, sampletostore,commit=true);
         if (commit & res['success']){
             alert(res['message'])
             sessionStorage.clear();
-            window.open(api_url,"_self");            
+            window.open(rack_information["_links"]["self"],"_self");
         } else {
             alert(res['message'])
         }

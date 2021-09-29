@@ -19,6 +19,7 @@ class CartSampleStorageType(FormEnum):
     RUC = "Rack in User Cart"
     CUC = "Container in User Cart"
 
+
 class SampleQuality(FormEnum):
     GOO = "Good"
     BAD = "Bad"
@@ -29,7 +30,7 @@ class SampleQuality(FormEnum):
 
 class ReviewType(FormEnum):
     PC = "Purity Check"
-    QC = "Quality Check"
+    QC = "Quantity Check"
     IC = "Identity Check"
 
 
@@ -146,6 +147,12 @@ class DisposalInstruction(FormEnum):
     REV = "Review"
     PRE = "Preserve"
 
+
+class ConsentWithdrawalRequester(FormEnum):
+    DON = "Donor"
+    KIN = "Next of Kin"
+    REP = "Legal Representative"
+    UNK = "Unknown"
 
 class CellSampleType(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
@@ -292,8 +299,8 @@ class SampleStatus(FormEnum):
     TRA = "Transferred"
     MIS = "Missing"
     TMP = "Temporary Storage"
-    NCO = "Not Collected"
-    NPR = "Not Processed"
+    NCO = "Pending Collection"
+    #NPR = "Not Processed"
     NRE = "Pending Review"
 
 
@@ -304,3 +311,4 @@ class SampleShipmentStatusStatus(FormEnum):
     DEL = "Delivered"
     PRO = "Problem"
     UND = "Undelivered"
+    CAN = "Cancelled"

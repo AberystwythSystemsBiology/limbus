@@ -211,7 +211,6 @@ function update_number() {
 }
 
 function generate_container_select(indx) {
-    console.log(container_information);
     //var containers = container_information[sample["base_type"]]
     var cbt = $("#container_base_type").val()
     var containers = container_information[cbt]

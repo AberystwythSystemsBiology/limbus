@@ -16,8 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function query_disease(query) {
-
-    var api_url = "http://0.0.0.0:5000/donor/disease/api/label_filter"
+    var api_url = window.location.origin+ "/donor/disease/api/label_filter";
 
     var json = (function () {
         var json = null;
@@ -58,7 +57,6 @@ function fill_content(disease_info, uri) {
         var html = "<a href='" + b["self"] + "' target='_blank'>"
         html += "<div class='btn btn-sm' style='margin-right:10px; margin-bottom: 10px;'>"+a+"</div>";
         html += "</a>"
-        console.log(html);
         $("#disease-references").append(html);
     });
 

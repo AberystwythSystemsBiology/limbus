@@ -109,8 +109,6 @@ def edit_site(id):
                 flash("We have a problem: %s" % (edit_response.json()))
 
             return redirect(url_for("storage.view_site", id=id))
-            # return redirect(url_for("storage.view_building", id=id)) #DOESNT WORK ID DOESNT REFER TO BUILDING ID
-
 
         return render_template(
             "storage/site/edit.html", room=response.json()["content"], form=form
@@ -126,7 +124,6 @@ def lock_site(id):
     edit_response = requests.put(
         url_for("api.storage_site_lock", id=id, _external=True),
         headers=get_internal_api_header(),
-        #json=form_information,
     )
 
     if edit_response.status_code == 200:

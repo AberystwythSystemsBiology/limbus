@@ -100,6 +100,11 @@ class SampleRackSchema(masql.SQLAlchemySchema):
                 column="cph",
                 _external=True,
             ),
+            "assign_samples": ma.URLFor(
+                "storage.assign_rack_samples",
+                id="<id>",
+                _external=True,
+            ),
         }
     )
 

@@ -26,9 +26,11 @@ from wtforms import (
     IntegerField,
     TextAreaField,
     HiddenField,
+    FieldList,
+    FormField
 )
 
-# from wtforms.fields.html5 import DateField
+
 from wtforms.validators import (
     DataRequired,
     Email,
@@ -45,7 +47,8 @@ from .enums import (
     CancerStage,
     Condition,
 )
-from ..sample.enums import Colour
+
+from ..sample.enums import Colour, ConsentWithdrawalRequester
 from datetime import datetime, date
 import requests
 from flask import url_for
@@ -164,3 +167,108 @@ def DonorCreationForm(sites: dict, data={}):
             return True
 
     return StaticForm(data=data)
+
+
+
+def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
+    class StaticForm(FlaskForm):
+
+        consent_select = SelectField(
+            "Donor Consent Form Template",
+            validators=[DataRequired()],
+            choices=consent_templates,
+            description="The consent form template that reflects the consent form the sample donor signed.",
+            coerce=int,
+        )
+
+        submit = SubmitField("Continue")
+
+    return StaticForm()
+
+
+
+def ConsentQuestionnaire(data={})-> FlaskForm:
+
+    class StaticForm(FlaskForm):
+
+        template_name = TextAreaField("template_name")
+
+        template_version = StringField("version")
+
+        identifier = StringField(
+            "Donor Consent Form ID/Code",
+            description="The identifying code of the signed patient consent form.",
+        )
+
+        comments = TextAreaField("Comments")
+
+        date = DateField("Date of Consent", default=datetime.today())
+
+        submit = SubmitField("Continue")
+
+    for question in data["questions"]:
+        setattr(
+            StaticForm,
+            str(question["id"]),
+            BooleanField(
+                question["question"], render_kw={"question_type": question["type"]}
+            ),
+        )
+
+    return StaticForm(data=data)
+
+
+class ConsentAnswerForm(FlaskForm):
+    question = TextAreaField(
+        "Consent Item",
+        description="The item that has been consented.",
+    )
+    answer = BooleanField("Consented", default="checked")
+
+
+
+class ConsentSelectForm(FlaskForm):
+        consent_id = SelectField("Select Consent ID", coerce=int)
+
+def ConsentWithdrawalForm(consent_ids, data={})-> FlaskForm:
+    future_choices = [(0, 'Sample disposal required')]
+    if data["future"]:
+        future_choices = [
+            (1, 'Sample disposal required, No more future collection.'),
+            (2, 'Sample disposal required, consent for future collection'),
+            (3, 'Sample disposal not required, no more future collection')
+        ]
+
+    class StaticForm(FlaskForm):
+        consent_select = FormField(ConsentSelectForm)
+        donor_id = IntegerField("Donor id")
+        consent_id = IntegerField("Donor Consent ID")
+        identifier = StringField("Identifier")
+        template_name = TextAreaField( "Template name")
+
+        template_version = StringField("Template version")
+        consent_comments = TextAreaField("Consent Comments")
+        consent_date = DateField("Date of consent")
+        num_sample = IntegerField("Number of associated samples")
+
+        withdrawal_reason = TextAreaField()
+        requested_by = SelectField("Consent Withdrawal Requested By",
+                                   choices=ConsentWithdrawalRequester.choices())
+
+        future_consent_opt = SelectField("Option regarding consent for future collection",
+                                         choices=future_choices, coerce=int)
+        comments = TextAreaField(
+                "Consent Withdrawal Comments",
+        )
+        communicated_by = StringField("Communicated by")
+        withdrawal_date = DateField(
+            "Date of withdrawal",
+            validators=[DataRequired()],
+            default=datetime.today(),
+        )
+        #submit = SubmitField("Submit")
+
+    form = StaticForm(data=data)
+    form.consent_select.consent_id.choices = consent_ids
+    return form
+

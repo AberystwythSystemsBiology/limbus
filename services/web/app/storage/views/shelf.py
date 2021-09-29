@@ -23,7 +23,7 @@ from marshmallow_enum import EnumField
 from ...database import ColdStorageShelf
 from ...sample.enums import Colour
 from ...sample.views import BasicSampleSchema
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ..views.rack import BasicSampleRackSchema
 
 
@@ -36,7 +36,7 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     description = masql.auto_field()
     z = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
     updated_on = ma.Date()
     samples = ma.Nested(BasicSampleSchema, many=True)
@@ -46,13 +46,21 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
+            # "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
+            # "assign_rack_to_shelf": ma.URLFor(
+            #     "storage.assign_rack_to_shelf", id="<id>", _external=True
+            # ),
             "self": ma.URLFor("storage.view_shelf", id="<id>", _external=True),
-            "assign_rack_to_shelf": ma.URLFor(
-                "storage.assign_rack_to_shelf", id="<id>", _external=True
+            "assign_racks_to_shelf": ma.URLFor(
+                "storage.assign_racks_to_shelf", id="<id>", _external=True
             ),
-            "assign_sample_to_shelf": ma.URLFor(
-                "storage.assign_sample_to_shelf", id="<id>", _external=True
+            # "assign_sample_to_shelf": ma.URLFor(
+            #     "storage.assign_sample_to_shelf", id="<id>", _external=True
+            # ),
+            "assign_samples_to_shelf": ma.URLFor(
+                "storage.assign_samples_to_shelf", id="<id>", _external=True
             ),
+
             "edit": ma.URLFor("storage.edit_shelf", id="<id>", _external=True),
         }
     )
@@ -94,3 +102,20 @@ class NewColdStorageShelfSchema(masql.SQLAlchemySchema):
 
 
 new_shelf_schema = NewColdStorageShelfSchema()
+
+class ColdStorageShelfInfoSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = ColdStorageShelf
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    uuid = masql.auto_field()
+    description = masql.auto_field()
+    z = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema)
+    created_on = ma.Date()
+    updated_on = ma.Date()
+    samples = ma.Nested(BasicSampleSchema, many=True)
+    racks = ma.Nested(BasicSampleRackSchema, many=True)
+    is_locked = masql.auto_field()
+    storage_id = masql.auto_field()

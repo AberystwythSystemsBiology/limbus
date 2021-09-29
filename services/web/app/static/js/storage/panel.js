@@ -16,15 +16,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_panel_information() {
-    var api_url = encodeURI(window.location+'/endpoint');
-    
+    var api_url = encodeURI(window.location.origin+'/storage/endpoint');
     var json = (function () {
         var json = null;
         $.ajax({
             'async': false,
             'global': false,
             'url': api_url,
-            'dataType': "json",
+            'dataType': 'json',
             'success': function (data) {
                 json = data;
             }
