@@ -195,11 +195,13 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             except:
                 sample_ids_not_updated.append(sample_id)
                 pass
+    msg_status = ""
     if len(sample_ids_not_updated)>0:
-        msg_status = "%d samples " % len(sample_ids_not_updated)
+        msg_status = "%d samples not updated" % len(sample_ids_not_updated)
 
     try:
         db.session.commit()
+        msg_status = "Sample status updated! " + msg_status
     except:
         msg_status = "Errors in updating sample status!"
         #return transaction_error_response(err)

@@ -437,6 +437,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
         if "shipment_status" in events and auto_query:
             # involved in multiple samples
+            # and user specified event
             msg = "No related samples! "
             shipment_status = events["shipment_status"]
 
@@ -461,7 +462,6 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                             for sample in samples:
                                 sample.current_site_id = shipment.site_id
                         else:
-
                             for sample in samples:
                                 sample.current_site_id = None
 
@@ -470,6 +470,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
                     msg = "%d samples shipped!" % (len(samples))
                     res = {"sample": samples, "message": msg, "success": True}
+
                 else:
                     msg = "No related sample shipment status for update!"
                     res = {'sample': None, 'message': msg, "success": True}
@@ -506,16 +507,16 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
         if sample_disposal:
             sample.disposal_id = sample_disposal.id
-            if sample_disposal.instruction == DisposalInstruction.REV:
+            if sample_disposal.instruction in ['REV', DisposalInstruction.REV]:
                 # Pending review
                 sample.status = SampleStatus.NRE
                 sample.update({"editor_id": tokenuser.id})
                 updated = True
 
-            elif sample_disposal.instruction == DisposalInstruction.DES:
+            elif sample_disposal.instruction in ['DES', DisposalInstruction.DES]:
                 if sample_disposal.disposal_event_id is not None:
                     msg = "Sample destructed! "
-                    if sample.status == "DES" | sample.status == SampleStatus.DES:
+                    if sample.status == "DES" or sample.status == SampleStatus.DES:
                         return {'sample': None, 'message': msg, "success": True}
 
                     sample.status = SampleStatus.DES
@@ -524,10 +525,10 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                     sample.update({"editor_id": tokenuser.id})
                     return {'sample': sample, 'message': msg, "success": True}
 
-            elif sample_disposal.instruction == DisposalInstruction.TRA:
+            elif sample_disposal.instruction in ["TRA", DisposalInstruction.TRA]:
                 if sample_disposal.disposal_event_id is not None:
                     msg = "sample disposed via transfer"
-                    if sample.status == "DES" | sample.status == SampleStatus.DES:
+                    if sample.status == "DES" or sample.status == SampleStatus.DES:
                         return {'sample': None, 'message': msg, "success": True}
                     sample.status = SampleStatus.DES
                     sample.is_locked = True

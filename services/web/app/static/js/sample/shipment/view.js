@@ -38,8 +38,9 @@ function get_shipment() {
     return json["content"];
 }
 
-function add_samples_to_cart(api_url, samples) {
-    var msg = "Adding a sample to cart will remove it from storage, press OK to proceed!";
+
+function add_samples_with_rack_to_cart(api_url, samples) {
+    var msg = "The rack associated with the cart will be added to storage as well, press OK to proceed!";
     if (!confirm(msg)) {
       return false;
     }
@@ -72,10 +73,8 @@ function add_samples_to_cart(api_url, samples) {
 
        return json;
     })();
-    console.log("json:  ", json)
     return json;
 }
-
 
 
 function fill_jumbotron(shipment_data) {
@@ -347,29 +346,18 @@ $(document).ready(function() {
 
 
     $("#add-cart-btn").click(function (event) {
-        // var rows_selected = table.rows( { selected: true } ).data();
 
-        // if (rows_selected.length>0) {
-        //    var formdata = [];
-        //    $.each(rows_selected, function (index, row) {
-        //        delete row['__proto__'];
-        //        formdata.push(row)
-        //    });
         var sample_data=shipment_data['shipment']["involved_samples"];
         var formdata = [];
         $.each(sample_data, function (index, row){
             formdata.push(row["sample"]);
         })
-       console.log("formdata", formdata)
-       var api_url = window.location.origin+ "/sample/with_racks_to_cart";
+
+       var api_url = window.location.origin+ "/sample/with_rack_to_cart";
        res = add_samples_with_rack_to_cart(api_url, formdata);
 
-       //var api_url = window.location.origin+ "/sample/shipment/cart"
-       //window.open(api_url, "_blank");
-       //window.open(api_url"_self");
        if (res.success == true) {
-           //table.rows({selected: true}).deselect();
-           pass;
+
        } else {
         alert("No sample selected!");
        }

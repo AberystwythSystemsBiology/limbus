@@ -399,8 +399,9 @@ $("#add-rack-cart-btn").click(function() {
         url: api_url,
         dataType: "json",
         success: function (data) {
-            //console.log('data: ', data)
+            // console.log('data: ', data)
             if (data["success"]) {
+                console.log('data: ', data)
                 $("#cart-confirmation-msg").html(data["message"]);
                 $("#cart-confirmation-modal").modal({
                     show: true

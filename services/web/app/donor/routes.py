@@ -718,8 +718,9 @@ def withdraw_consent(id):
             for ans in consent['answers']:
                 if ans['type'] == 'FUTU':
                     consent['future'] = True
-
-            samples = [sample for sample in data["samples"] if sample['consent_id'] == consent["id"]]
+            print('sample: ', data["samples"])
+            samples = [sample for sample in data["samples"]
+                       if sample['consent_information']['id'] == consent["id"]]
             consent['num_sample'] = len(samples)
 
         if len(consent_ids) == 0:
@@ -763,7 +764,7 @@ def withdraw_consent(id):
 
             form = ConsentWithdrawalForm(consent_ids, consent_info)
 
-        elif "submit_withdrawal" in request.form and form.validate(form):
+        elif "submit_withdrawal" in request.form: # and form.validate(form):
             disposal_required = True
             if form.future_consent_opt.data == 3:
                 disposal_required = False

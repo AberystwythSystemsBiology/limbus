@@ -89,7 +89,7 @@ def add_samples_with_rack_to_cart():
        return {'success': False, 'messages': 'No sample selected!'}
 
     to_cart_response = requests.post(
-        url_for("api.add_samples_racks_to_cart", _external=True),
+        url_for("api.add_samples_with_rack_to_cart", _external=True),
         headers=get_internal_api_header(),
         json={'samples': [{"id": sample["id"]} for sample in samples]},
     )
