@@ -244,7 +244,7 @@ $(document).ready(function () {
 
         $('#donor-table').DataTable().destroy()
         //render_table({});
-        window.location.reload()
+        window.location.reload();
     });
 
     $("#filter").click(function () {

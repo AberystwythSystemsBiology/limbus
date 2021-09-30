@@ -27,8 +27,17 @@ import requests
 @sample.route("/")
 @login_required
 def index() -> str:
-    
-    form = SampleFilterForm()
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]['choices']
+        user_site_id = sites_response.json()["content"]['user_site_id']
+
+    form = SampleFilterForm(sites, data={'current_site_id': user_site_id})
+    # form = SampleFilterForm()
     return render_template("sample/index.html", form=form)
 
 

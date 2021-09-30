@@ -79,13 +79,15 @@ function get_filters() {
 
 
 $(document).ready(function() {
-
-    render_table({});
+    var filters = get_filters();
+    //render_table({});
+    render_table(filters);
     
     $("#reset").click(function() {
 
         $('#sampleTable').DataTable().destroy()
-        render_table({});
+        //render_table({});
+        window.location.reload();
     });
 
     $("#filter").click(function() {
