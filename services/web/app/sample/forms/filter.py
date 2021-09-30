@@ -18,7 +18,7 @@ from flask_wtf import FlaskForm
 from flask import render_template, redirect, session, url_for, flash, abort
 from ...misc import get_internal_api_header
 import requests
-from wtforms import SelectField, StringField, SubmitField, BooleanField
+from wtforms import SelectField, StringField, SubmitField, BooleanField, SelectMultipleField
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
 
 def SampleFilterForm(sites: list, data: {}) -> FlaskForm:
@@ -36,21 +36,6 @@ def SampleFilterForm(sites: list, data: {}) -> FlaskForm:
         status = SelectField("Sample Status", choices=SampleStatus.choices(with_none=True))
 
         submit = SubmitField("Filter")
-
-    # sites_response = requests.get(
-    #     url_for("api.site_home", _external=True),
-    #     headers=get_internal_api_header(),
-    # )
-    #
-    # sites = [(None, "None")]
-    # if sites_response.status_code == 200:
-    #     for site in sites_response.json()["content"]:
-    #         sites.append(
-    #             (
-    #                 site["id"],
-    #                 "<%s>%s - %s" % (site["id"], site["name"], site["description"])
-    #             )
-    #         )
 
     setattr(
         StaticForm,

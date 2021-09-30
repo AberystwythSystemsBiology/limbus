@@ -157,6 +157,7 @@ def sample_home(tokenuser: UserAccount):
 @use_args(SampleFilterSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
+    print('args: ', args)
     filters, joins = get_filters_and_joins(args, Sample)
     print('fj: ', filters, joins)
 

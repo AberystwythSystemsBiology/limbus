@@ -335,6 +335,36 @@ def storage_view_tree(tokenuser: UserAccount):
         tree_sites_schema.dump(SiteInformation.query.all())
     )
 
+def site_home_tokenuser(tokenuser: UserAccount):
+    if tokenuser.is_admin:
+        choices = [(None, "None")]
+        sites = basic_sites_schema.dump(SiteInformation.query.all())
+    else:
+        choices = []
+        sites = basic_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
+
+    for site in sites:
+        choices.append(
+            (
+                site["id"],
+                "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+            )
+        )
+
+    return success_with_content_response({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
+
+@api.route("/storage/tree/tokenuser", methods=["GET"])
+@token_required
+def storage_view_tree_tokenuser(tokenuser: UserAccount):
+    if tokenuser.is_admin:
+        return success_with_content_response(
+            tree_sites_schema.dump(SiteInformation.query.all())
+        )
+    else:
+        return success_with_content_response(
+            tree_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
+        )
+
 
 @api.route("/storage", methods=["GET"])
 @token_required
