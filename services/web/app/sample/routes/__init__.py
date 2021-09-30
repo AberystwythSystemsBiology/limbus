@@ -27,8 +27,8 @@ import requests
 @sample.route("/")
 @login_required
 def index() -> str:
+    
     form = SampleFilterForm()
-
     return render_template("sample/index.html", form=form)
 
 

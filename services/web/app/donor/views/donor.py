@@ -37,10 +37,11 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
-    sex = EnumField(BiologicalSexTypes, by_value=True)
-    status = EnumField(DonorStatusTypes, by_value=True)
-    race = EnumField(RaceTypes, by_value=True)
-    colour = EnumField(Colour, by_value=True)
+    sex = EnumField(BiologicalSexTypes) #, by_value=True)
+    status = EnumField(DonorStatusTypes) #, by_value=True)
+    race = EnumField(RaceTypes) #, by_value=True)
+    colour = EnumField(Colour) #, by_value=True)
+    enrollment_site_id = masql.auto_field()
 
 
 class DonorSchema(masql.SQLAlchemySchema):

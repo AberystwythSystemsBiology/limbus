@@ -62,7 +62,9 @@ def donor_home(tokenuser: UserAccount):
 @use_args(DonorSearchSchema(), location="json")
 @token_required
 def donor_query(args, tokenuser: UserAccount):
+    print('arg: ', args)
     filters, joins = get_filters_and_joins(args, Donor)
+    print('fj: ', filters, joins)
     return success_with_content_response(
         donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
     )

@@ -55,19 +55,31 @@ from flask import url_for
 from ..misc import get_internal_api_header
 
 
-class DonorFilterForm(FlaskForm):
+def DonorFilterForm(sites: list, data:{}) -> FlaskForm:
 
-    sex = SelectField(
-        "Biological Sex",
-        choices=BiologicalSexTypes.choices(with_none=True),
-    )
-    status = SelectField("Status", choices=DonorStatusTypes.choices(with_none=True))
-    race = SelectField(
-        "Race",
-        choices=RaceTypes.choices(with_none=True),
+    class StaticForm(FlaskForm):
+        sex = SelectField(
+            "Biological Sex",
+            choices=BiologicalSexTypes.choices(with_none=True),
+        )
+        status = SelectField("Status", choices=DonorStatusTypes.choices(with_none=True))
+        race = SelectField(
+            "Race",
+            choices=RaceTypes.choices(with_none=True),
+        )
+
+        colour = SelectField("Colour", choices=Colour.choices())
+
+    setattr(
+        StaticForm,
+        "enrollment_site_id",
+        SelectField(
+            "Site", choices=sites,
+        ),
     )
 
-    colour = SelectField("Colour", choices=Colour.choices())
+    return StaticForm()
+
 
 
 class DoidValidatingSelectField(SelectField):

@@ -50,8 +50,18 @@ strconv = lambda i: i or None
 
 @donor.route("/")
 @login_required
-def index():
-    form = DonorFilterForm()
+def index()-> str:
+
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]['choices']
+        user_site_id = sites_response.json()["content"]['user_site_id']
+
+    form = DonorFilterForm(sites, data={'enrollment_site_id': user_site_id})
     return render_template("donor/index.html", form=form)
 
 

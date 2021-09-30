@@ -211,7 +211,7 @@ function render_table(query) {
 
     $("#loading").fadeOut();
     $("#table_view").delay(300).fadeIn();
-    
+
 }
 
 
@@ -220,7 +220,7 @@ function get_filters() {
 
     }
 
-    var f = ["sex", "status", "race"];
+    var f = ["sex", "status", "race", "enrollment_site_id"];
 
     $.each(f, function (_, filter) {
         var value = $("#" + filter).val();
@@ -236,13 +236,15 @@ function get_filters() {
 
 
 $(document).ready(function () {
-
-    render_table({});
+    var filters = get_filters();
+    //render_table({});
+    render_table(filters);
 
     $("#reset").click(function () {
 
         $('#donor-table').DataTable().destroy()
-        render_table({});
+        //render_table({});
+        window.location.reload()
     });
 
     $("#filter").click(function () {

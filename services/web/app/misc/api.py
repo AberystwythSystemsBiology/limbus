@@ -243,6 +243,27 @@ def site_home(tokenuser: UserAccount):
     )
 
 
+@api.route("/misc/site/tokenuser", methods=["GET"])
+@token_required
+def site_home_tokenuser(tokenuser: UserAccount):
+    if tokenuser.is_admin:
+        choices = [(None, "None")]
+        sites = basic_sites_schema.dump(SiteInformation.query.all())
+    else:
+        choices = []
+        sites = basic_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
+
+    for site in sites:
+        choices.append(
+            (
+                site["id"],
+                "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+            )
+        )
+
+    return success_with_content_response({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
+
+
 @api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])
 @token_required
 def site_view_site(id: id, tokenuser: UserAccount):
