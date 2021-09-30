@@ -50,7 +50,8 @@ class DonorSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
 
     uuid = masql.auto_field()
-
+    mpn = masql.auto_field()
+    enrollment_site_id = masql.auto_field()
     dob = ma.Date()
     registration_date = ma.Date()
     sex = EnumField(BiologicalSexTypes, by_value=True)
