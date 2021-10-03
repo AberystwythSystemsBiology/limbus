@@ -77,21 +77,43 @@ def add_samples_to_cart():
 
     return to_cart_response.json()
 
-@sample.route("with_rack_to_cart", methods=["POST"])
+# @sample.route("with_rack_to_cart", methods=["POST"])
+# @login_required
+# def add_samples_with_rack_to_cart():
+#     samples = []
+#     if request.method == 'POST':
+#         values = request.json
+#         samples = values.pop('samples', [])
+#
+#     if len(samples) == 0:
+#        return {'success': False, 'messages': 'No sample selected!'}
+#
+#     to_cart_response = requests.post(
+#         url_for("api.add_samples_with_rack_to_cart", _external=True),
+#         headers=get_internal_api_header(),
+#         json={'samples': [{"id": sample["id"]} for sample in samples]},
+#     )
+#
+#     if to_cart_response.status_code == 200:
+#         return to_cart_response.json()
+#
+#     return to_cart_response.json()
+
+@sample.route("samples_shipment_to_cart", methods=["POST"])
 @login_required
-def add_samples_with_rack_to_cart():
+def add_samples_shipment_to_cart():
     samples = []
     if request.method == 'POST':
         values = request.json
-        samples = values.pop('samples', [])
-
-    if len(samples) == 0:
-       return {'success': False, 'messages': 'No sample selected!'}
+    #     shipment = values.pop('shipment', [])
+    #
+    # if len(samples) == 0:
+    #    return {'success': False, 'messages': 'No sample selected!'}
 
     to_cart_response = requests.post(
-        url_for("api.add_samples_with_rack_to_cart", _external=True),
+        url_for("api.add_samples_in_shipment_to_cart", _external=True),
         headers=get_internal_api_header(),
-        json={'samples': [{"id": sample["id"]} for sample in samples]},
+        json=values,
     )
 
     if to_cart_response.status_code == 200:

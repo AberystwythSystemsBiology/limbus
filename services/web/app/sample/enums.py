@@ -307,7 +307,7 @@ class SampleStatus(FormEnum):
 class SampleShipmentStatusStatus(FormEnum):
     TBC = "To Be Collected"
     COL = "Collected"
-    DES = "Despatched"
+    DES = "Dispatched"
     DEL = "Delivered"
     PRO = "Problem"
     UND = "Undelivered"

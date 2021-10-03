@@ -55,7 +55,8 @@ def shipment_index():
 @login_required
 def shipment_index_data():
     shipment_response = requests.get(
-        url_for("api.shipment_index", _external=True), headers=get_internal_api_header()
+        #url_for("api.shipment_index", _external=True), headers=get_internal_api_header()
+        url_for("api.shipment_index_tokenuser", _external=True), headers = get_internal_api_header()
     )
 
     return (

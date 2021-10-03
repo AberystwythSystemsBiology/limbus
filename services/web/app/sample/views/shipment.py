@@ -50,6 +50,7 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     id = masql.auto_field()
+    is_locked = masql.auto_field()
 
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()

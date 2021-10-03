@@ -606,7 +606,8 @@ def storage_rack_info(tokenuser: UserAccount):
 @token_required
 def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     values = request.get_json()
-
+    print('values:', values)
+    rack_id = int(values['rack_id'])
     if not values:
         return no_values_response()
 
@@ -642,20 +643,21 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         #return success_with_content_response(view_sample_to_sample_rack_schema.dump(ets))
     except Exception as err:
         print(">>>>>>>>>>>>>>>", err)
+        db.session.rollback()
         return transaction_error_response(err)
 
     # ---- Update sample current_site_id/status
     res = func_update_sample_status(tokenuser=tokenuser, auto_query=True,
                 sample_id=values["sample_id"], events={"sample_storage": None})
 
-    #print("sample", sample, res["message"])
     if res["success"] is True and res["sample"]:
         try:
             db.session.add(res["sample"])
             db.session.commit()
-            msg_status = 'Sample status updated! '
+            msg_status = "Sample status updated! "
         except:
-            msg_status = "Error in sample status update! "
+            msg_status = "Error in status update!! "
 
-    msg = msg + msg_status
+        msg = msg + msg_status
+
     return success_with_content_message_response({"id": rack_id}, msg)

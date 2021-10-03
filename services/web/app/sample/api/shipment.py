@@ -15,7 +15,7 @@
 
 
 from flask import request, abort, url_for
-from sqlalchemy.sql import func, or_
+from sqlalchemy.sql import func, or_, and_
 from marshmallow import ValidationError
 from ...api import api, generics
 
@@ -188,7 +188,21 @@ def shipment_index(tokenuser: UserAccount):
                               "shipment": sample_shipment_schema.dump(sm)} )
 
     return success_with_content_response(shipment_data)
-    #return basic_sample_shipments_schema.dump(SampleShipment.query.all())
+
+
+@api.route("/shipment/token_user", methods=["GET"])
+@token_required
+def shipment_index_tokenuser(tokenuser: UserAccount):
+    if tokenuser.is_admin:
+        sm = SampleShipmentStatus.query.all()
+
+    else:
+
+        sm = SampleShipmentStatus.query.join(SampleShipment).\
+            join(SampleShipmentToSample).join(Sample).\
+            filter(Sample.current_site_id==tokenuser.site_id, Sample.status=='TRA').all()
+
+    return success_with_content_response(sample_shipments_status_schema.dump(sm))
 
 
 
@@ -345,10 +359,32 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
     if sample_response.status_code == 200:
         sample_id = sample_response.json()["content"]["id"]
 
-        sample_locked = Sample.query.filter_by(id=sample_id, is_locked=True).first()
-        if sample_locked:
-            msg_locked = "[LIMBSMP-%s]%s" % (sample_locked.id, sample_locked.uuid)
-            return locked_response(msg_locked)
+        sample = Sample.query.filter_by(id=sample_id).first()
+        if sample is None:
+            return not_found('Sample: %s' %sample_id)
+        if sample.is_locked:
+            return locked_response('Sample: %s' %sample_id)
+
+        if not tokenuser.is_admin:
+            if sample.current_site_id!=tokenuser.site_id:
+                return validation_error_response(
+                    "Sample in a different site: %s!!" % sample.current_site_id)
+
+        # check if rack is locked?
+        rack_locked = db.session.query(EntityToStorage).join(SampleRack, SampleRack.id==EntityToStorage.rack_id). \
+                filter(EntityToStorage.sample_id == sample_id, ~EntityToStorage.removed.is_(True),
+                       SampleRack.is_locked==True).first()
+        if rack_locked:
+            return locked_response("associated rack")
+
+        shipment_active = db.session.query(SampleShipment.uuid). \
+            join(SampleShipmentToSample, SampleShipment.id==SampleShipmentToSample.shipment_id). \
+            filter_by(SampleShipmentToSample.sample_id==Sample.id, SampleShipment.is_locked.is_(False)). \
+            first()
+
+        if shipment_active:
+            msg_locked = "The sample is in an active shipment, can only be added to cart from shipment uuid:%s !" % shipment_active[0]
+            return validation_error_response(msg_locked)
 
         try:
             cart_sample_schema = new_cart_sample_schema.load({"sample_id": sample_id})
@@ -386,6 +422,7 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             return success_with_content_message_response(sample_id, message=msg)
 
         except Exception as err:
+            db.session.rollback()
             return transaction_error_response(err)
     else:
         return sample_response.content
@@ -404,40 +441,53 @@ def add_samples_to_cart(tokenuser: UserAccount):
         return no_values_response()
 
     sample_ids = [smpl["id"] for smpl in samples]
+    msg_locked = ""
+    # Sample_locked: samples that could not be added to cart for storage/shipment
+    #  Sample_locked+Rack_locked+Sample_in_transit
+    samples_locked = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked == True)
 
-    # Site access control
-    samples_locked = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==True).\
-        with_entities(Sample.id)
+    # Locked samples union with samples with rack that have been locked
+    samples_locked = db.session.query(Sample.id). \
+        join(EntityToStorage, EntityToStorage.sample_id == Sample.id). \
+        join(SampleRack, SampleRack.id == EntityToStorage.rack_id). \
+        filter(Sample.id.in_(sample_ids), Sample.is_locked == False,
+               EntityToStorage.removed is not True, SampleRack.is_locked == True).\
+        union(samples_locked)
+    nlocked = samples_locked.count()
+    if nlocked>0:
+        msg_locked = msg_locked + ' | %d samples (rack) locked/! '%nlocked
 
-    if tokenuser.account_type != "Administrator":
-        samples_other = Sample.query.filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
-                    Sample.current_site_id!=None, Sample.current_site_id!=tokenuser.site_id).\
-                    with_entities(Sample.id)
-
-        if samples_other.count() > 0:
+    if not tokenuser.is_admin:
+        samples_other = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
+                    Sample.current_site_id.in_([None, tokenuser.site_id]))
+        nlocked = samples_other.count()
+        if nlocked > 0:
             samples_locked = samples_locked.union(samples_other)
+            msg_locked = msg_locked + ' | %d samples current site differs from user! '%nlocked
 
-    # Samples in transit can't be added to cart
-    samples_transit = SampleShipmentStatus.query. \
-        join(SampleShipmentToSample, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
-        filter(~SampleShipmentStatus.status.in_(["DEL","UND", "CAN"])). \
-        with_entities(SampleShipmentToSample.sample_id)
+    # Samples in an open shipment can't be added to cart from sample view, but from shipment
+    samples_transit = db.session.query(Sample.id).\
+        join(SampleShipmentToSample, SampleShipmentToSample.sample_id == Sample.id). \
+        join(SampleShipment, SampleShipment.id == SampleShipmentToSample.shipment_id). \
+        filter(Sample.id.in_(sample_ids), Sample.is_locked==False, SampleShipment.is_locked is False)
 
-    if samples_transit.count() > 0:
+    nlocked = samples_transit.count()
+    if nlocked > 0:
         samples_locked = samples_locked.union(samples_transit)
+        msg_locked = msg_locked + ' | %d samples in an open shipment! ' %nlocked
 
-
-    if samples_locked.count() > 0:
+    nlocked = samples_locked.count()
+    if nlocked > 0:
         samples_locked = samples_locked.distinct().all()
-        ids_locked = [sample.id for sample in samples_locked]
+        ids_locked = [sample[0] for sample in samples_locked]
         sample_ids = [sample_id for sample_id in sample_ids if sample_id not in ids_locked]
-        msg_locked = ' | '.join(["LIMBSMP-%s" % (sample.id) for sample in samples_locked])
+        msg_locked = msg_locked + '=> %d samples (cant be added to cart): '%nlocked + ', '.join(["LIMBSMP-%s" % ids_locked])
     else:
         ids_locked = []
-        msg_locked = []
+        msg_locked = ''
 
     if len(sample_ids) == 0:
-        return locked_response(msg_locked)
+        return validation_error_response(msg_locked)
 
     ESRecords = EntityToStorage.query.filter(EntityToStorage.sample_id.in_(sample_ids)).all()
     n_new = 0
@@ -451,13 +501,13 @@ def add_samples_to_cart(tokenuser: UserAccount):
             return transaction_error_response(err)
 
     for sample_id in sample_ids:
-
         new_uc = UserCart.query.filter_by(
             author_id=tokenuser.id, sample_id=sample_id
         ).first()
 
         if new_uc is not None:
             new_uc.selected = True
+            new_uc.editor_id = tokenuser.id
             new_uc.updated_on = func.now()
             n_old = n_old + 1
         else:
@@ -468,6 +518,7 @@ def add_samples_to_cart(tokenuser: UserAccount):
             db.session.add(new_uc)
             db.session.flush()
         except Exception as err:
+            db.session.rollback()
             return transaction_error_response(err)
 
     msg = "%d samples added to Cart!" % n_new
@@ -476,57 +527,223 @@ def add_samples_to_cart(tokenuser: UserAccount):
     if len(msg_locked) >0:
         msg = msg + " | " +"Locked sample not added: %s" % msg_locked
 
+    other_ucs = UserCart.query.filter(UserCart.author_id != tokenuser.id, UserCart.sample_id.in_(sample_ids)).all()
+    n_other = len(other_ucs)
+    if n_other > 0:
+        users = [other_uc.author_id for other_uc in other_ucs]
+        users = ','.join(list(set(users)))
+        try:
+            for other_uc in other_ucs:
+                db.session.delete(other_uc)
+            msg = msg + " | " + "%d samples removed from Cart for other users %s!"%(n_other, users)
+        except Exception as err:
+            db.session.rollback()
+            return transaction_error_response(err)
+
     try:
         db.session.commit()
         return success_with_content_message_response(sample_ids, message=msg)
 
     except Exception as err:
+        db.session.rollback()
         return transaction_error_response(err)
 
-@api.route("/cart/add/samples_racks", methods=["POST"])
+# @api.route("/cart/add/samples_racks", methods=["POST"])
+# @token_required
+# def add_samples_with_rack_to_cart(tokenuser: UserAccount):
+#     # print("tokenuser.site_id:", tokenuser.site_id)
+#     values = request.get_json()
+#     print('values:', values)
+#     samples = []
+#     if values:
+#         samples = values.pop('samples', [])
+#
+#     if len(samples) == 0:
+#         return no_values_response()
+#
+#     sample_ids = [smpl["id"] for smpl in samples]
+#
+#     # Sample_locked: samples that could not be added to cart for storage/shipment
+#     #  Sample_locked+Rack_locked+Sample_in_transit
+#     samples_locked = db.session.query(Sample).filter(Sample.id.in_(sample_ids), Sample.is_locked == True)
+#
+#     # Locked samples union with samples with rack that have been locked
+#     samples_locked = db.session.query(Sample).filter(Sample.id.in_(sample_ids), Sample.is_locked==False). \
+#         join(EntityToStorage, and_(EntityToStorage.sample_id == Sample.id, ~EntityToStorage.removed.is_(True))). \
+#         join(SampleRack, and_(SampleRack.id == EntityToStorage.rack_id, SampleRack.is_locked == True)).\
+#         union(samples_locked)
+#
+#     if tokenuser.account_type != "Administrator":
+#         # Can only add samples of same site as for the operator
+#         samples_other = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked.is_(False),
+#                     Sample.current_site_id != None, Sample.current_site_id!=tokenuser.site_id)
+#
+#         if samples_other.count()>0:
+#             samples_locked = samples_locked.union(samples_other)
+#
+#     # Samples in transit can't be added to cart
+#     samples_transit = db.session.query(SampleShipmentToSample.sample_id). \
+#         join(SampleShipmentStatus, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
+#         filter(~SampleShipmentStatus.status.in_(["DEL","UND","CAN"]),
+#                SampleShipmentToSample.sample_id.in_(sample_ids))
+#
+#     if samples_transit.count() > 0:
+#         samples_locked = samples_locked.union(samples_transit)
+#
+#     if samples_locked.count() >0:
+#         ids_locked =samples_locked.all()
+#         ids_locked = [i[0] for i in ids_locked]
+#         msg_locked = ' | '.join(["LIMBSMP-%s" % (sample_id) for sample_id in ids_locked])
+#         print("ids_locked", ids_locked)
+#         print("sample_ids", sample_ids)
+#         sample_ids = list(set(sample_ids) - set(ids_locked))
+#
+#     else:
+#         ids_locked = []
+#         msg_locked = ''
+#
+#     if len(sample_ids) == 0:
+#         return locked_response(msg_locked)
+#
+#     n_new = 0
+#     n_old = 0
+#     for sample_id in sample_ids:
+#         new_uc = UserCart.query.filter_by(
+#             author_id=tokenuser.id, sample_id=sample_id
+#         ).first()
+#
+#         if new_uc is not None:
+#             new_uc.selected = True
+#             new_uc.updated_on = func.now()
+#             n_old = n_old + 1
+#         else:
+#             new_uc = UserCart(sample_id=sample_id, selected=True, author_id=tokenuser.id)
+#             n_new = n_new + 1
+#
+#         ets = EntityToStorage.query.filter(EntityToStorage.sample_id==sample_id,
+#                EntityToStorage.rack_id is not None, EntityToStorage.removed is not True).\
+#                     order_by(EntityToStorage.entry_datetime.desc()).first()
+#         if ets:
+#             new_uc.rack_id = ets.rack_id
+#             new_uc.storage_type = "RUC"
+#             rack = SampleRack.query.filter_by(id=ets.rack_id).first()
+#             if rack:
+#                 rack.is_locked = True
+#                 db.session.add(rack)
+#
+#         try:
+#             db.session.add(new_uc)
+#             db.session.flush()
+#         except Exception as err:
+#             db.session.rollback()
+#             return transaction_error_response(err)
+#
+#     msg = "%d samples added to Cart!" % n_new
+#     if (n_old >0 ):
+#         msg = msg + " | " + "%d samples updated in Cart!" % n_old
+#     if len(msg_locked) >0:
+#         msg = msg + " | " +"Locked/stored sample not added: %s" % msg_locked
+#
+#     try:
+#         db.session.commit()
+#         return success_with_content_message_response(sample_ids, message=msg)
+#
+#     except Exception as err:
+#         db.session.rollback()
+#         return transaction_error_response(err)
+
+
+@api.route("/cart/add/samples_in_shipment", methods=["POST"])
 @token_required
-def add_samples_with_rack_to_cart(tokenuser: UserAccount):
-    # print("tokenuser.site_id:", tokenuser.site_id)
+def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
+    """
+    Add samples involved in the shipment to user cart and close (i.e locked) the shipment.
+    User will be responsible for storing these transferred samples in the user cart,
+    which won't be deletable unless stored.
+    """
     values = request.get_json()
-    samples = []
-    if values:
-        samples = values.pop('samples', [])
+    shipment_id = values['id']
 
-    if len(samples) == 0:
-        return no_values_response()
+    #join(SampleShipmentToSample, SampleShipmentToSample.sample_id == Sample.id).
+    #join(SampleShipment, SampleShipment.id == SampleShipmentToSample.shipment_id).
+    # samples = db.session.query(Sample.id).join(SampleShipmentToSample). \
+    #     join(SampleShipment).filter(SampleShipment.uuid==shipment_uuid).all()
+    # sample_ids = [sample[0] for sample in samples]
 
-    sample_ids = [smpl["id"] for smpl in samples]
+    shipment = SampleShipment.query.filter_by(id=shipment_id).first()
+    shipment_uuid = shipment.uuid
+    if shipment.is_locked:
+        return locked_response('Shipment uuid %s' %shipment_uuid)
 
-    # -- Site access control
-    samples_locked = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked is True)
+    sample_ids = [smpl['sample_id'] for smpl in values['involved_samples']]
+    print('sample_ids', sample_ids)
 
-    if tokenuser.account_type != "Administrator":
-        # Can only add samples of same site for the operator
-        samples_other = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked is False,
-                    Sample.current_site_id != None, Sample.current_site_id!=tokenuser.site_id)
+    if len(sample_ids)==0:
+        return not_found('the involved samples for shipment uuid: %s', shipment_uuid)
 
-        if samples_other.count()>0:
+    # Sample_locked: samples that could not be added to cart for storage/shipment
+    #  Sample_locked+Rack_locked+Sample_in_transit
+    msg_locked = '';
+    samples_locked = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked==True)
+
+    # Locked samples union with samples with rack that have been locked
+    # samples_locked = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked == False). \
+    #     join(EntityToStorage, and_(EntityToStorage.sample_id == Sample.id, EntityToStorage.removed is not True)). \
+    #     join(SampleRack, and_(SampleRack.id == EntityToStorage.rack_id, SampleRack.is_locked == True)). \
+    #     union(samples_locked)
+    # print('ok0', samples_locked.count())
+
+    # Locked samples union with samples with rack that have been locked
+    samples_locked = db.session.query(Sample.id). \
+        join(EntityToStorage, EntityToStorage.sample_id == Sample.id). \
+        join(SampleRack, SampleRack.id == EntityToStorage.rack_id).\
+        filter(Sample.id.in_(sample_ids), Sample.is_locked == False,
+               ~EntityToStorage.removed.is_(True), SampleRack.is_locked == True).\
+        union(samples_locked)
+    print('ok0', samples_locked)
+    if samples_locked.count()>0:
+        msg_locked = msg_locked + ' | Some Sample/Rack locked! ';
+
+    #samples_locked = samples_locked.union(samples_rack_locked)
+    #print('ok1', samples_locked)
+    # print('tokenuser.account_type', tokenuser.account_type)
+
+    #if tokenuser.account_type != "Administrator":
+    if not tokenuser.is_admin:
+        # Can only add samples of same site as for the operator
+        samples_other = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked.is_(False),
+                                                           Sample.current_site_id.in_([None, tokenuser.site_id]))
+
+        if samples_other.count() > 0:
+            print('other')
             samples_locked = samples_locked.union(samples_other)
+            msg_locked = msg_locked + '| Current site different from the user! '
 
     # Samples in transit can't be added to cart
     samples_transit = db.session.query(SampleShipmentToSample.sample_id). \
         join(SampleShipmentStatus, SampleShipmentToSample.shipment_id == SampleShipmentStatus.shipment_id). \
-        filter(~SampleShipmentStatus.status.in_(["DEL","UND","CAN"]), SampleShipmentToSample.sample_id.in_(sample_ids))
+        filter(~SampleShipmentStatus.status.in_(["DEL", "UND", "CAN"]),
+               SampleShipmentToSample.sample_id.in_(sample_ids))
 
+    # samples_transit = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked==False). \
+    #     join(SampleShipmentToSample, SampleShipmentToSample.sample_id == Sample.id). \
+    #     join(SampleShipment, SampleShipment.id == SampleShipmentToSample.shipment_id). \
+    #     filter(SampleShipment.is_locked.is_(True))
 
     if samples_transit.count() > 0:
+        print('transit')
         samples_locked = samples_locked.union(samples_transit)
+        msg_locked = msg_locked + ' | Shipment is closed!';
 
-    if samples_locked.count() >0:
-
-        ids_locked =samples_locked.all()
+    if samples_locked.count() > 0:
+        ids_locked = samples_locked.all()
         ids_locked = [i[0] for i in ids_locked]
-        sample_ids = set(sample_ids) - set(ids_locked)
+        msg_locked = ' | '.join(["LIMBSMP-%s" % (sample_id) for sample_id in ids_locked])
+        sample_ids = list(set(sample_ids) - set(ids_locked))
 
-        msg_locked = ' | '.join(["LIMBSMP-%s" % (sample_id) for sample_id in samples_locked])
     else:
         ids_locked = []
-        msg_locked = []
+        msg_locked = ''
 
     if len(sample_ids) == 0:
         return locked_response(msg_locked)
@@ -541,35 +758,49 @@ def add_samples_with_rack_to_cart(tokenuser: UserAccount):
         if new_uc is not None:
             new_uc.selected = True
             new_uc.updated_on = func.now()
+            new_uc.editor_id = tokenuser.id
             n_old = n_old + 1
         else:
             new_uc = UserCart(sample_id=sample_id, selected=True, author_id=tokenuser.id)
             n_new = n_new + 1
 
-        ets = EntityToStorage.query.filter(EntityToStorage.sample_id==sample_id,
-               EntityToStorage.rack_id is not None, EntityToStorage.removed is not True).\
-                    order_by(EntityToStorage.entry_datetime.desc()).first()
+        ets = EntityToStorage.query.filter(EntityToStorage.sample_id == sample_id,
+            EntityToStorage.rack_id is not None, EntityToStorage.removed is not True). \
+            order_by(EntityToStorage.entry_datetime.desc()).first()
         if ets:
             new_uc.rack_id = ets.rack_id
             new_uc.storage_type = "RUC"
+            rack = SampleRack.query.filter_by(id=ets.rack_id).first()
+            if rack:
+                rack.is_locked = True
+                db.session.add(rack)
 
         try:
             db.session.add(new_uc)
             db.session.flush()
         except Exception as err:
+            db.session.rollback()
             return transaction_error_response(err)
 
     msg = "%d samples added to Cart!" % n_new
-    if (n_old >0 ):
+    if (n_old > 0):
         msg = msg + " | " + "%d samples updated in Cart!" % n_old
-    if len(msg_locked) >0:
-        msg = msg + " | " +"Locked sample not added: %s" % msg_locked
+    if len(msg_locked) > 0:
+        msg = msg + " | " + "Locked/stored sample not added: %s" % msg_locked
+
+
+    if shipment:
+        shipment.is_locked = True
+        shipment.update({"editor_id": tokenuser.id})
+        msg = msg + ' | ' + "Shipment closed successfully!"
 
     try:
+        db.session.add(shipment)
         db.session.commit()
-        return success_with_content_message_response(sample_ids, message=msg)
+        return success_with_content_message_response(shipment_uuid, message=msg)
 
     except Exception as err:
+        db.session.rollback()
         return transaction_error_response(err)
 
 
@@ -584,10 +815,10 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
     if rack_response.status_code == 200:
         rackRecord = SampleRack.query.filter_by(id=id).first()
         if not rackRecord:
-            return not_found("LIMBRACK-%d" % id)
+            return not_found("LIMBRACK-%s" % id)
 
         if rackRecord.is_locked:
-            return locked_response("LIMBRACK-%d" % id)
+            return locked_response("LIMBRACK-%s" % id)
         rackRecord.is_locked = True
 
         esCheck = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
@@ -625,6 +856,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
             return success_with_content_response({"message": "Sample added to Cart"})
 
         except Exception as err:
+            db.session.rollback()
             return transaction_error_response(err)
 
     else:

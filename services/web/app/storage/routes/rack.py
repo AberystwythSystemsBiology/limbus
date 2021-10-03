@@ -459,9 +459,14 @@ def assign_rack_sample(id, row, column):
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
     if view_response.json()["content"]["is_locked"]:
         flash('The rack is locked!')
-        return abort(401)
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
 
@@ -506,7 +511,7 @@ def assign_rack_sample(id, row, column):
                 )
 
                 if sample_move_response.status_code == 200:
-                    flash("Sample successfully added to rack!")
+                    flash(sample_move_response.json()["message"])
                     return redirect(url_for("storage.view_rack", id=id))
                 else:
                     flash(sample_move_response.json())
@@ -536,7 +541,11 @@ def assign_rack_samples(id):
 
     if view_response.json()["content"]["is_locked"]:
         flash('The rack is locked!')
-        return abort(401)
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
 
@@ -644,11 +653,11 @@ def add_rack_to_cart(id):
 @login_required
 def edit_rack(id):
     response = requests.get(
-        # url_for("api.storage_rack_location", id=id, _external=True),
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
     if response.json()["content"]["is_locked"]:
+        flash('The rack is locked!')
         return abort(401)
 
     if response.status_code == 200:
@@ -714,75 +723,6 @@ def edit_rack(id):
 
     abort(response.status_code)
 
-# @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
-# @login_required
-# def edit_rack(id):
-#     response = requests.get(
-#         # url_for("api.storage_rack_location", id=id, _external=True),
-#         url_for("api.storage_rack_view", id=id, _external=True),
-#         headers=get_internal_api_header(),
-#     )
-#
-#     # if response.json()["content"]["is_locked"]:
-#     #     return abort(401)
-#
-#     if response.status_code == 200:
-#         # For SampleRack with location info.
-#         rack = response.json()["content"]
-#         print("Rack: ", rack)
-#         shelves = []
-#         shelf_required = True
-#
-#         response1 = requests.get(
-#             url_for("api.storage_shelves_onsite", id=id, _external=True),
-#             headers=get_internal_api_header(),
-#         )
-#         if response1.status_code == 200:
-#             shelves = response1.json()["content"]
-#             #shelf_required = len(shelves) > 0
-#
-#         form = EditSampleRackForm(shelves=shelves,
-#             data={"serial": rack["serial_number"], "description": rack["description"],
-#                   "storage_id": rack['storage_id'], "shelf_id": rack["shelf_id"]}
-#         )
-#
-#         delattr(form, "num_cols")
-#         delattr(form, "num_rows")
-#         delattr(form, "colours")
-#         #if not shelf_required:
-#         #    delattr(form, "shelf_id")
-#
-#         if form.validate_on_submit():
-#             shelf_id = form.shelf_id.data
-#             if shelf_id == 0:
-#                 shelf_id = None
-#
-#             form_information = {
-#                 "serial_number": form.serial.data,
-#                 "description": form.description.data,
-#                 "storage_id": form.storage_id.data,
-#                 "shelf_id": shelf_id
-#             }
-#
-#
-#             edit_response = requests.put(
-#                 url_for("api.storage_rack_edit", id=id, _external=True),
-#                 headers=get_internal_api_header(),
-#                 json=form_information,
-#             )
-#
-#             if edit_response.status_code == 200:
-#                 flash("Rack Successfully Edited")
-#             else:
-#                 flash("We have a problem: %s" % (edit_response.json()))
-#
-#             return redirect(url_for("storage.view_rack", id=id))
-#
-#         return render_template(
-#             "storage/rack/edit.html", rack=response.json()["content"], form=form
-#         )
-#
-#     abort(response.status_code)
 
 
 @storage.route("/rack/LIMBRACK-<id>/delete", methods=["GET", "POST"])

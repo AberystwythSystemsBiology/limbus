@@ -245,7 +245,7 @@ def assign_racks_to_shelf(id):
             headers=get_internal_api_header(),
         )
 
-        print("rack_response: ", rack_response.text)
+        # print("rack_response: ", rack_response.text)
         if rack_response.status_code == 200:
             racks = []
             rack_ids = []
@@ -256,7 +256,8 @@ def assign_racks_to_shelf(id):
                         racks.append(item["rack"])
 
             if len(racks) == 0:
-                flash("Add racks to your sample cart and select from the cart first! ")
+                flash("Add racks with samples to your sample cart first and select from the cart!"
+                      "\n Or assign a shelf to the rack in rack edit. ")
                 return redirect(url_for("storage.view_shelf", id=id))
 
             form = RacksToShelfForm(racks)

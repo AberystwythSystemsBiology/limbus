@@ -294,6 +294,7 @@ function fill_cart_table(cart) {
 
 $(document).ready(function () {
     var cart = get_cart();
+    console.log("cart:", cart)
     table = fill_cart_table(cart);
     rows = table.rows();
     rows.every(function () {

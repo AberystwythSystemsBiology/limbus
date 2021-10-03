@@ -443,21 +443,29 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             shipment_status = events["shipment_status"]
 
             if shipment_status:
+                shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+                if not shipment:
+                    msg = "Associated shipment not found! "
+                    return {'sample': None, 'message': msg, "success": True}
+
+                if shipment.is_locked:
+                    msg = "Associated shipment locked! "
+                    return {'sample': None, 'message': msg, "success": True}
+
                 subq = db.session.query(SampleShipmentToSample.sample_id).\
-                    filter(SampleShipmentToSample.shipment_id == shipment_status.shipment_id)
+                    filter(SampleShipmentToSample.shipment_id==shipment_status.shipment_id)
                 samples = Sample.query.filter(Sample.id.in_(subq)).all()
                 if not samples:
                     msg = "No involved samples found for the shipment status! "
                     return {'sample': None, 'message': msg, "success": True}
 
-                if shipment_status.status not in [None, "TBC", SampleShipmentStatusStatus.TBC]:
+                if shipment_status.status not in [None]: #, "TBC", SampleShipmentStatusStatus.TBC]:
                     updated = True
                     for sample in samples:
                         sample.status = SampleStatus.TRA
 
                     # if Delievered change the current_site_id to new site
                     if shipment_status.status in ["DEL", SampleShipmentStatusStatus.DEL]:
-                        shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
 
                         if shipment:
                             for sample in samples:
@@ -588,7 +596,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
     if not stored_flag and "shipment_status" in events:
         shipment_status = events["shipment_status"]
-
+        shipment = None
         shipment_to_sample = None
         if "shipment_to_sample" in events:
             shipment_to_sample = events["shipment_to_sample"]
@@ -597,30 +605,38 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             if shipment_to_sample.sample_id != sample.id:
                 msg = "Non-matched sample id in shipment info! "
                 return {'sample': None, 'message': msg, "success": False}
+            shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id, is_locked=False).first()
+            if not shipment:
+                msg = "No associated open shipment! "
+                return {'sample': None, 'message': msg, "success": False}
 
         elif auto_query:
             shipment_status = SampleShipmentStatus.query.\
                 join(SampleShipmentToSample, SampleShipmentToSample.shipment_id==SampleShipmentStatus.shipment_id).\
-                filter(SampleShipmentToSample.sample_id==sample_id).\
+                join(SampleShipment, SampleShipment.id==SampleShipmentStatus.shipment_id). \
+                filter(SampleShipmentToSample.sample_id==sample_id, SampleShipment.is_locked==False).\
                 order_by(SampleShipmentStatus.datetime.desc()).first()
 
-        msg = "No related sample shipment status! "
+        msg = "No related sample shipment status for update! "
         res = {'sample': None, 'message': msg, "success": False}
         if shipment_status:
-            if shipment_status.status not in [None, "TBC", SampleShipmentStatusStatus.TBC]:
+            if shipment_status.status not in [None]: #, "TBC", SampleShipmentStatusStatus.TBC]:
+
                 if sample.status not in ["TRA", SampleStatus.TRA]:
                     sample.status = SampleStatus.TRA
                     updated = True
+                    msg = "Sample transferred!"
 
                 if shipment_status.status in ["DEL", SampleShipmentStatusStatus.DEL]: # Delievered
-                    shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+                    if not shipment:
+                        shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id,
+                                                                  is_locked=False).first()
                     if shipment:
                         if sample.current_site_id != shipment.site_id:
                             sample.current_site_id = shipment.site_id
                             updated = True
+                            msg = "Sample shipped to site %s !" % sample.current_site_id
 
-                msg = "Sample shipped to site %s !" % sample.current_site_id
-                return {"sample": sample, "message": msg, "success": True}
             else:
                 msg = "No related sample shipment status for update!"
 
