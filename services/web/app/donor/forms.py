@@ -49,6 +49,9 @@ from .enums import (
 )
 
 from ..sample.enums import Colour, ConsentWithdrawalRequester
+
+from ..storage.forms import func_label_sample_type, func_label_container_type
+
 from datetime import datetime, date
 import requests
 from flask import url_for
@@ -109,9 +112,17 @@ def DonorSampleAssociationForm(samples: dict):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
 
-    sample_choices = []
+    # sample_choices = []
+    # for sample in samples:
+    #     sample_choices.append([sample["id"], sample["uuid"]])
+
+    sample_choices = [[0, '--- Select one sample ---']]
     for sample in samples:
-        sample_choices.append([sample["id"], sample["uuid"]])
+        type_info = sample.pop("sample_type_information", "")
+        sample_type = func_label_sample_type(type_info)
+        container_type = func_label_container_type(type_info)
+        sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
+        sample_choices.append([int(sample["id"]), sample_label])
 
     setattr(
         StaticForm, "sample", SelectField("Sample", choices=sample_choices, coerce=int)

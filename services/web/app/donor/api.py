@@ -146,19 +146,48 @@ def donor_associate_sample(id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    new_diagnosis_to_sample = DonorToSample(sample_id=values["sample_id"], donor_id=id)
+    donor_id = id
+    sample_id = int(values["sample_id"])
 
-    new_diagnosis_to_sample.author_id = tokenuser.id
+    dts = DonorToSample.query.filter_by(sample_id=sample_id).first()
+    if dts:
+       return validation_error_response("The sample has been assigned to a donor!")
+
+    # Modify sample consent
+    consent = SampleConsent.query.join(Sample, Sample.consent_id==SampleConsent.id).\
+        filter(Sample.id==sample_id).first()
+    if not consent:
+        return not_found("Sample consent")
+
+    old_donor_id = consent.donor_id
+    if consent.donor_id is not None:
+        return validation_error_response(
+            "The sample's consent has been linked to donor LIMBDON-%d!"%consent.donor_id
+        )
+    consent.donor_id = donor_id
+    consent.update({"editor_id": tokenuser.id})
+    new_donor_to_sample = DonorToSample(sample_id=values["sample_id"], donor_id=id, author_id=tokenuser.id)
+    try:
+        db.session.add(consent)
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+        return transaction_error_response(err)
 
     try:
-        db.session.add(new_diagnosis_to_sample)
+        db.session.add(new_donor_to_sample)
         db.session.commit()
-        db.session.flush()
-        return success_with_content_response(
-            {"sample_id": values["sample_id"], "donor_id": id}
+        return success_with_content_message_response(
+            {"sample_id": values["sample_id"], "donor_id": id},
+            "Sample associated to donor successfully!"
         )
     except Exception as err:
-        return transaction_error_response(err)
+        # Rollback: also set sample consent old_donor_id
+        db.session.rollback()
+        consent.donor_id = old_donor_id
+        db.add(consent)
+        db.session.commit()
+    return transaction_error_response(err)
 
 
 @api.route("/donor/LIMBDON-<id>/associate/diagnosis", methods=["POST"])

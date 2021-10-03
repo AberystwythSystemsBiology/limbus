@@ -64,6 +64,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
         model = Sample
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     uuid = masql.auto_field()
     consent_information = ma.Nested(BasicConsentSchema, many=False)
     base_type = EnumField(SampleBaseType, by_value=True)

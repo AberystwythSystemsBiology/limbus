@@ -107,15 +107,23 @@ def associate_sample(id):
     )
 
     if response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.sample_query", _external=True),
             headers=get_internal_api_header(),
             json={"source": "NEW"},
         )
-
+        print("response", sample_response.text)
         if sample_response.status_code == 200:
-            form = DonorSampleAssociationForm(sample_response.json()["content"])
+            samples = []
+            for sample in sample_response.json()["content"]:
+                if sample["is_locked"] :
+                    continue
+
+                if sample["consent_information"]["donor_id"] is None \
+                        and sample["consent_information"]['withdrawn'] is False:
+                    samples.append(sample)
+
+            form = DonorSampleAssociationForm(samples)
 
             if form.validate_on_submit():
                 association_response = requests.post(
@@ -125,7 +133,10 @@ def associate_sample(id):
                 )
 
                 if association_response.status_code == 200:
+                    flash(association_response.json()["message"])
                     return redirect(url_for("donor.view", id=id))
+
+                flash(association_response.json()["message"])
 
             return render_template(
                 "donor/sample/associate.html",
