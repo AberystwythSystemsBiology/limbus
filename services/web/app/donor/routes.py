@@ -112,7 +112,7 @@ def associate_sample(id):
             headers=get_internal_api_header(),
             json={"source": "NEW"},
         )
-        print("response", sample_response.text)
+
         if sample_response.status_code == 200:
             samples = []
             for sample in sample_response.json()["content"]:
@@ -726,11 +726,13 @@ def withdraw_consent(id):
 
         print('start again')
 
-        consent_ids = []
         for consent in data['consents']:
             if consent['withdrawn']:
                 data['consents'].remove(consent)
                 continue
+
+        consent_ids = []
+        for consent in data['consents']:
             consent_ids.append(
                 [consent["id"],
                  "LIMBDC-%d: %s v%s" % (consent["id"], consent["template"]["name"], consent["template"]["version"])]

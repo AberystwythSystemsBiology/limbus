@@ -379,7 +379,6 @@ def assign_samples_to_shelf(id):
                 flash("Add samples to your sample cart and select from the cart first! ")
                 return redirect(url_for("storage.view_shelf", id=id))
 
-            # form = SamplesToEntityForm(sample_response.json()["content"])
             form = SamplesToEntityForm(samples)
 
             if form.validate_on_submit():
