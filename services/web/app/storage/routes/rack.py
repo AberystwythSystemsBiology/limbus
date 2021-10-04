@@ -563,7 +563,7 @@ def assign_rack_samples(id):
 
 
             if len(samples) == 0:
-                flash("Add samples to your sample cart and select from the cart first! ")
+                flash("Add samples to your sample cart and select from the cart! ")
                 return redirect(url_for("storage.view_rack", id=id))
 
             form = SamplesToEntityForm(samples)

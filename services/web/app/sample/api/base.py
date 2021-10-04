@@ -202,6 +202,20 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
     else:
         return not_found()
 
+@api.route("/sample/<uuid>/remove", methods=["GET"])
+@token_required
+def sample_remove_sample(uuid: str, tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+
+    sample = Sample.query.filter_by(uuid=uuid).first()
+    # check sample status
+
+    if sample:
+        return success_with_content_response(sample_schema.dump(sample))
+    else:
+        return not_found()
+
 
 @api.route("sample/new", methods=["POST"])
 @token_required

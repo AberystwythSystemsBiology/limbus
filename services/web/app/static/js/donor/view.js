@@ -319,20 +319,31 @@ function add_samples_to_cart(api_url, samples) {
 
 function fill_diagnosis_information(diagnoses, date) {
 
-    html = ""
-
+    //html = ""
+    let diag = new Map();
     $.each(diagnoses,function(index, value){
-        var media_html = "<div class='jumbotron media' style='padding:1em;'>" +
-            "<div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div>" +
+        console.log('value', value)
+        html = ""
+        // Start ul
+        //html += "<li>"
+        //html += "<p class='text-muted'>Undertaken on " + "</p>"
+        html += "<div class='card' style='border: 2px solid darkgrey ;'>"
+        //html += "<div class='card'>"
+        // Start card body
+        html += "<div class='card-body'>"
+        /* var media_html = "<div class='media'>";
+        media_html += "<div class='align-self-center mr-3'>"
+        media_html += "<h1><i class='fa fa-stethoscope'></i></h1>"
+        media_html += "<div class='media-body'>"
+        */
+        var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div>" +
             "<div class='media-body'>"
 
-        media_html += "</li>"
         media_html += "<h2>"
         media_html += value["doid_ref"]["label"]
         media_html +=' <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">'
         media_html += value["doid_ref"]["name"]
         media_html += "</span></h2>";
-        
 
         media_html += "<table class='table table-striped'>";
         media_html += render_content("Description", value["doid_ref"]["description"]);
@@ -340,27 +351,29 @@ function fill_diagnosis_information(diagnoses, date) {
         media_html += render_content("Comments", value["comments"]);
         media_html += render_content("Date of Diagnosis", value["diagnosis_date"]);
         media_html += "</table>"
-
-        media_html += "</div>"
-        media_html += "</div></div></div>"
-        //media_html += "</div></div>"
-        media_html += "<div class='card-footer'>"
-        media_html += "<div id='remove-diagnosis-" + index + "' class='btn btn-danger float-right'>Remove</div>"
-        media_html += "</div>"
-
-        //media_html += "</div>"
+        media_html += "</div></div>"
 
         html += media_html;
-        // End ul
-        html += "</li>"
+        // end card body
+        html += "<div id='remove-diagnosis-" + index + "' class='btn btn-danger float-right'>Remove</div>"
 
+        html += "</div>"
+        // html += "<div class='card-footer'>"
+        // html += "<div id='remove-diagnosis-" + index + "' class='btn btn-danger float-right'>Remove</div>"
+        // html += "</div>"
+        // end card
+        html += "</div>"
+        // End ul
+        //html += "</li>"
+        diag.set(value["id"].toString(), value);
+        $("#diagnosis-div").append(html);
     });
 
     if (html == "" ) {
         html += "<h2>No diagnosis information found.</h2>"
     }
 
-    $("#diagnosis-div").html(html);
+    //$("#diagnosis-div").html(html);
     
  }
 
@@ -428,7 +441,6 @@ function fill_consents_information(consent_information) {
 
         // Start ul
         html = "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
         html += "<p class='text-muted'>Undertaken on " + consent_date + "</p>"
 
         // Start card body
