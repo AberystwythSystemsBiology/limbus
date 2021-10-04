@@ -322,8 +322,11 @@ function fill_diagnosis_information(diagnoses, date) {
     html = ""
 
     $.each(diagnoses,function(index, value){
-        var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div><div class='media-body'>"
+        var media_html = "<div class='jumbotron media' style='padding:1em;'>" +
+            "<div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div>" +
+            "<div class='media-body'>"
 
+        media_html += "</li>"
         media_html += "<h2>"
         media_html += value["doid_ref"]["label"]
         media_html +=' <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">'
@@ -336,15 +339,21 @@ function fill_diagnosis_information(diagnoses, date) {
         media_html += render_content("Stage", value["stage"]);
         media_html += render_content("Comments", value["comments"]);
         media_html += render_content("Date of Diagnosis", value["diagnosis_date"]);
-
         media_html += "</table>"
 
         media_html += "</div>"
-
         media_html += "</div></div></div>"
+        //media_html += "</div></div>"
+        media_html += "<div class='card-footer'>"
+        media_html += "<div id='remove-diagnosis-" + index + "' class='btn btn-danger float-right'>Remove</div>"
+        media_html += "</div>"
 
+        //media_html += "</div>"
 
         html += media_html;
+        // End ul
+        html += "</li>"
+
     });
 
     if (html == "" ) {
