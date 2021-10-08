@@ -44,17 +44,21 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
 
     try:
         db.session.add(new_event)
-        db.session.commit()
+        #db.session.commit()
         db.session.flush()
     except Exception as err:
         return transaction_error_response(err)
 
-    new_sample_protocol_event = SampleProtocolEvent(
-        sample_id=event_result["sample_id"],
-        event_id=new_event.id,
-        author_id=tokenuser.id,
-        protocol_id=event_result["protocol_id"],
-    )
+    event_result.pop("event")
+    new_sample_protocol_event = SampleProtocolEvent(**event_result)
+    new_sample_protocol_event.author_id = tokenuser.id
+    new_sample_protocol_event.event_id = new_event.id
+    # new_sample_protocol_event = SampleProtocolEvent(
+    #     sample_id=event_result["sample_id"],
+    #     event_id=new_event.id,
+    #     author_id=tokenuser.id,
+    #     protocol_id=event_result["protocol_id"],
+    # )
 
     try:
         db.session.add(new_sample_protocol_event)
@@ -72,11 +76,11 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
 @token_required
 def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
-    if protocol_event:
-        if protocol_event.is_locked:
-            return locked_response("protocol event! ")
-    else:
+    if not protocol_event:
         return not_found("protocol event(%s)" % uuid)
+
+    # if protocol_event.is_locked:
+    #      return locked_response("protocol event! ")
 
     protocol_event_id = protocol_event.id
     sample = Sample.query.filter_by(id=protocol_event.sample_id).first()
@@ -91,6 +95,7 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     msgs = []
     protocol_type = ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
     if protocol_type == ProtocolType.ALD:
+        # - remove protocol event and the sub-samples it generated
         print('ok00')
         (success, msgs) = func_remove_aliquot_subsampletosample_children(
                                      sample, protocol_event, msgs)
@@ -98,44 +103,38 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         if not success:
             return msgs[-1]
 
-    elif protocol_type in [ProtocolType.ACQ]: #, ProtocolType.STU, ProtocolType.COL, ProtocolType.TMP):
+    elif protocol_event.is_locked:
+        # and protocol_type in [ProtocolType.ACQ, ProtocolType.STU, ProtocolType.COL, ProtocolType.TMP):
+        # -- remove protocol event and the sample it generated
         print('ok00')
         (success, msgs) = func_remove_sample(sample, msgs)
         print('msgs00', msgs)
         if not success:
             return msgs[-1]
 
-    #if protocol_type in [ProtocolType.ACQ, ProtocolType.ALD, ProtocolType.SDE, ProtocolType.STR]:
-    elif protocol_type in [ProtocolType.SDE, ProtocolType.STR]:
-        err = {"messages": "Type of protocol events (%s) not allowed!" % protocol_type}
-        return validation_error_response(err)
-    print('---')
-    # event = None
-    # if protocol_event.event_id:
-    #     event = Event.query.filter_by(id=protocol_event.event_id).first()
-    # print('msgs', msgs)
-    # try:
-    #     db.session.commit()
-    #     msgs.append("Sub-sample deletion committed successfully! ")
-    #
-    # except Exception as err:
-    #     db.session.rollback()
-    #     return(transaction_error_response(err))
+        elif protocol_type in [ProtocolType.SDE, ProtocolType.STR]:
+            err = {"messages": "Type of protocol events (%s) not allowed!" % protocol_type}
+            return validation_error_response(err)
 
     try:
         db.session.delete(protocol_event)
         db.session.commit()
         msgs.append("Sample protocol event (%s) deleted successfully! " % uuid)
         message = ' | '.join(msgs)
+
         return success_with_content_message_response(uuid, message)
     except Exception as err:
         db.session.rollback()
         return(transaction_error_response(err))
 
+    # -- CASCADE DELETE with protocol event defined in model
+    # -- No need to delete separately
+    # event = None
+    # if protocol_event.event_id:
+    #     event = Event.query.filter_by(id=protocol_event.event_id).first()
     # try:
     #     if event:
     #         db.session.delete(event)
-    #
     #     db.session.commit()
     #     return success_with_content_response(sample_uuid)
     #

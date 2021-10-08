@@ -159,6 +159,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             protocol_id=values["processing_protocol"],
             event_id=event_id,
         )
+        # -- Indicator for protocol event that create new samples
+        new_sample_protocol_event.is_locked = True
         new_sample_protocol_event.author_id = tokenuser.id
         db.session.add(new_sample_protocol_event)
         db.session.flush()

@@ -51,7 +51,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     base_type = db.Column(db.Enum(SampleBaseType))
 
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
-    sample_type_information = db.relationship("SampleToType")#, single_parent=True, cascade="all, delete-orphan")
+    sample_type_information = db.relationship("SampleToType", cascade="all, delete")
 
     # Consent Information
     # Done -> sample_new_sample_consent

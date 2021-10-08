@@ -532,6 +532,11 @@ function fill_protocol_events(events) {
             var id = $(this).attr("id").split("-")[2];
             
             var uuid = $("#protocol-uuid-"+id).text();
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            if (event_info["is_locked"] == true) {
+                warning_msg += "<br> <B>!!! This protocol event created sample(s), removing it will delete the sample(s) it created as well!!!<\B></B>" ;
+            }
+            $("#delete-protocol-warning").html(warning_msg)
             $("#delete-protocol-confirm-modal").modal({
                 show: true
             });
@@ -883,8 +888,8 @@ $(document).ready(function () {
         fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
         console.log('sample_info', sample_info)
-        if (sample_info["is_locked"]==true | sample_info["status"=="Transferred"] |
-            sample_info["status"]=="Pending Collection") {
+        const intransit = ["Transferred", "Pending Collection"]
+        if (sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
             lock_action()
         }
 

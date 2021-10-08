@@ -310,9 +310,11 @@ def sample_new_sample(tokenuser: UserAccount):
 
     values["collection_information"]["sample_id"] = new_sample.id
     sample_id = new_sample.id
-    # -- Dealing with NULL value in time
+    # -- Deal with NULL value in time
     collection_datetime = values["collection_information"]["event"]["datetime"]
     values["collection_information"]["event"]["datetime"] = collection_datetime.replace("None","00:00:00")
+    # -- Indicator for protocol event that create new samples
+    values["collection_information"]["is_locked"] = True
 
     protocol_event_response = requests.post(
         url_for("api.sample_new_sample_protocol_event", _external=True),

@@ -26,6 +26,7 @@ class NewSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
 
+    is_locked = masql.auto_field()
     sample_id = masql.auto_field()
     event = ma.Nested(NewEventSchema())
     protocol_id = masql.auto_field()
@@ -38,6 +39,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleProtocolEvent
 
+    is_locked = masql.auto_field()
     uuid = masql.auto_field()
     id = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
