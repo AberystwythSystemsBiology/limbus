@@ -28,4 +28,5 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
     )
 
     protocol = db.relationship("ProtocolTemplate")
-    event = db.relationship("Event")
+    event = db.relationship("Event", cascade="all, delete")
+    sample = db.relationship("Sample") #, cascade="all, delete")

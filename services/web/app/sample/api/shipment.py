@@ -264,9 +264,9 @@ def shipment_new_shipment(tokenuser: UserAccount):
         )
 
         db.session.add(ssets)
-
-        s.site_id = new_shipment_event.site_id
-        s.editor_id = tokenuser.id
+        s.status = 'TRA'
+        #s.site_id = new_shipment_event.site_id
+        s.update({"editor_id": tokenuser.id})
 
         db.session.add(s)
 
@@ -340,9 +340,7 @@ def remove_rack_from_cart(id: int, tokenuser: UserAccount):
             db.session.commit()
         except Exception as err:
             return transaction_error_response(err)
-        return success_with_content_response(
-                {"msg": " All samples in rack %s removed from cart" % (id)}
-            )
+        return success_with_content_message_response({}, "All samples in rack %s removed from cart" %(id))
 
     else:
         return success_with_content_response(rack_response.content)
@@ -709,9 +707,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                 ).first()
 
                 if check != None:
-                    return success_with_content_response(
-                        {"message": "Sample already added to Cart"}
-                    )
+                    return success_with_content_message_response({"rack_id": id}, "Sample already added to Cart")
 
                 # es = EntityToStorage.query.filter_by(sample_id=es.sample_id).first()
                 new_uc = UserCart(sample_id=es.sample_id, rack_id=id,
@@ -721,7 +717,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                 db.session.flush()
         try:
             db.session.commit()
-            return success_with_content_response({"message": "Sample added to Cart"})
+            return success_with_content_message_response({"rack_id": id}, "Sample added to Cart")
 
         except Exception as err:
             db.session.rollback()

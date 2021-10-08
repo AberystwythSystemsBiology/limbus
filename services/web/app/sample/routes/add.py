@@ -136,7 +136,7 @@ def add_rerouter(hash):
                         new_sample_response.json()["content"]["_links"]["self"]
                     )
                 else:
-                    flash("We have encountered an error.")
+                    flash("We have encountered an error. %s " % new_sample_response.json()["message"])
             return redirect(url_for("sample.add_step_three", hash=hash))
 
         return redirect(url_for("sample.add_step_two", hash=hash))
@@ -254,7 +254,7 @@ def add_step_two(hash):
         url_for("api.consent_view_template", id=consent_id, _external=True),
         headers=get_internal_api_header(),
     )
-
+    print('consent_response:', consent_response.text)
     if consent_response.status_code != 200:
         return consent_response.response
 

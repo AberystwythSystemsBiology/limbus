@@ -364,7 +364,6 @@ function fill_sample_reviews(reviews) {
             }
         }
         html = "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + review_info["event"]["datetime"] + "</p>"
         html += "<p class='text-muted'>Undertaken on " + event_datetime + "</p>"
 
         // Start card body
@@ -395,8 +394,8 @@ function fill_sample_reviews(reviews) {
         html += "<h5 class='mt-0' id='review-uuid-"+ review_info["id"] +"'>" + review_info["uuid"] + "</h5>";
         html += "<table class='table table-striped'>"
         html += render_content("Quality", review_info["quality"]);
-        html += render_content("Conducted By", undertaken_by); //, review_info["event"]["undertaken_by"]);
-        html += render_content("Comments", comments); //review_info["event"]["comments"]);
+        html += render_content("Conducted By", undertaken_by);
+        html += render_content("Comments", comments);
         html += "</table>"
         html += "</div>"
 
@@ -407,12 +406,9 @@ function fill_sample_reviews(reviews) {
         //html += "<a href='" + review_info["_links"]["edit"] + "'>"
         html += "<div class='btn btn-warning float-left disabled'>Edit</div>"
         //html += "</a>"
-        //html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
-        //html += "<a href='" + review_info["_links"]["remove"] + "'>"
         html += "<div id='remove-review-"+review_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
-        //html += "</a>"
-        html += "</div>"
 
+        html += "</div>"
         html += "</div>"
 
         // End ul
@@ -474,7 +470,7 @@ function fill_protocol_events(events) {
 
     for (e in events) {
         var event_info = events[e];
-
+        console.log('event_info: ', event_info)
         var event_datetime = '';
         var undertaken_by = '';
         var comments = '';
@@ -491,7 +487,6 @@ function fill_protocol_events(events) {
         }
         // Start ul
         html = "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
         html += "<p class='text-muted'>Undertaken on " + event_datetime + "</p>"
         // Start card body
         html += "<div class='card'>"
@@ -509,8 +504,8 @@ function fill_protocol_events(events) {
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
         html += "<table class='table table-striped'>"
-        html += render_content("Undertaken By", undertaken_by); //event_info["event"]["undertaken_by"]);
-        html += render_content("Comments", comments); //event_info["event"]["comments"]);
+        html += render_content("Undertaken By", undertaken_by);
+        html += render_content("Comments", comments);
         html += "</table>"
         html += "</div>"
 
@@ -527,11 +522,10 @@ function fill_protocol_events(events) {
         html += "</div>"
         html += "</div>"
 
-        
-        protocol_events.set(event_info["id"].toString(), event_info);
-        
         // End ul
         html += "</li>"
+
+        protocol_events.set(event_info["id"].toString(), event_info);
         $("#protocol-event-li").append(html);
 
         $("#remove-protocol-"+event_info["id"]).on("click", function () {
@@ -576,8 +570,6 @@ function fill_protocol_events(events) {
                 }
             })
         });
-
-
     }
 }
 
@@ -890,8 +882,9 @@ $(document).ready(function () {
         fill_document_information(sample_info["documents"]);
         fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
-
-        if (sample_info["is_locked"]==true) {
+        console.log('sample_info', sample_info)
+        if (sample_info["is_locked"]==true | sample_info["status"=="Transferred"] |
+            sample_info["status"]=="Pending Collection") {
             lock_action()
         }
 

@@ -651,7 +651,7 @@ def add_sample_rerouter(id, hash):
                         new_sample_response.json()["content"]["_links"]["self"]
                     )
                 else:
-                    flash("We have encountered an error.")
+                    flash("We have encountered an error. %s " % new_sample_response.json()["message"])
             return redirect(url_for("donor.add_sample_step_three", hash=hash))
 
 

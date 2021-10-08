@@ -51,7 +51,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     base_type = db.Column(db.Enum(SampleBaseType))
 
     sample_to_type_id = db.Column(db.Integer, db.ForeignKey("sampletotype.id"))
-    sample_type_information = db.relationship("SampleToType")
+    sample_type_information = db.relationship("SampleToType")#, single_parent=True, cascade="all, delete-orphan")
 
     # Consent Information
     # Done -> sample_new_sample_consent
@@ -79,7 +79,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         secondary="subsampletosample",
         primaryjoin="Sample.id==SubSampleToSample.parent_id",
         secondaryjoin="Sample.id==SubSampleToSample.subsample_id",
-        viewonly=True,
+        viewonly=True
     )
 
     parent = db.relationship(
@@ -88,14 +88,15 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         primaryjoin="Sample.id==SubSampleToSample.subsample_id",
         secondaryjoin="Sample.id==SubSampleToSample.parent_id",
         uselist=False,
-        viewonly=True,
+        viewonly=True
     )
 
     attributes = db.relationship(
-        "AttributeData", secondary="sampletocustomattributedata", uselist=True
+        "AttributeData", secondary="sampletocustomattributedata", uselist=True,
+        #cascade = "all, delete"
     )
 
-    storage = db.relationship("EntityToStorage", uselist=False)
+    storage = db.relationship("EntityToStorage", uselist=False, cascade="all, delete")
 
     donor = db.relationship("Donor", uselist=False, secondary="donortosample")
 
@@ -116,6 +117,7 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     )
 
 
+
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
@@ -124,7 +126,6 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
     review_event_id = db.Column(db.Integer, db.ForeignKey("samplereview.id"))
-
     approved = db.Column(db.Boolean, nullable=True)
     approval_file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
     approval_file = db.relationship("Document")
@@ -138,4 +139,3 @@ class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     reason = db.Column(db.Enum(DisposalReason))
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
     protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-

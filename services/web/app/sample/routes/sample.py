@@ -131,7 +131,7 @@ def remove_rack_from_cart(id: int):
             headers=get_internal_api_header(),
         )
 
-        flash(remove_response.json()["content"]["msg"])
+        flash(remove_response.json()["message"])
         return redirect(url_for("sample.shipment_cart"))
     return sample_response.content
 
@@ -215,7 +215,7 @@ def update_sample_status(uuid: str):
     return redirect(url_for("sample.view", uuid=uuid))
 
 
-@sample.route("<uuid>/remove", methods=["DELETE"])
+@sample.route("<uuid>/remove", methods=["GET", "POST"])
 @login_required
 def remove_sample(uuid: str):
     sample_response = requests.get(
@@ -225,10 +225,40 @@ def remove_sample(uuid: str):
 
     if sample_response.status_code == 200:
         remove_response = requests.delete(
-            url_for("api.remove_sample", uuid=uuid, _external=True),
+            url_for("api.sample_remove_sample", uuid=uuid, _external=True),
             headers=get_internal_api_header(),
         )
 
-        return remove_response.content
+        if remove_response.status_code == 200:
+            flash(remove_response.json()["message"])
+            return redirect(url_for("sample.index"))
+        else:
+            flash(remove_response.json()["message"])
+            return redirect(url_for("sample.view", uuid=uuid))
 
-    return sample_response.content
+    flash(sample_response.json()["message"])
+    return redirect(url_for("sample.view", uuid=uuid))
+
+@sample.route("<uuid>/deep_remove", methods=["GET", "POST"])
+@login_required
+def deep_remove_sample(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        remove_response = requests.delete(
+            url_for("api.sample_deep_remove_sample", uuid=uuid, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if remove_response.status_code == 200:
+            flash(remove_response.json()["message"])
+            return redirect(url_for("sample.index"))
+        else:
+            flash(remove_response.json()["message"])
+            return redirect(url_for("sample.view", uuid=uuid))
+
+    flash(sample_response.json()["message"])
+    return redirect(url_for("sample.view", uuid=uuid))

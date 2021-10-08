@@ -102,11 +102,34 @@ def remove_protocol_event(uuid):
     )
 
     if remove_response.status_code == 200:
-        flash("Protocol Event Successfully Deleted!")
+        # flash("Protocol Event Successfully Deleted!")
+        flash(remove_response.json()["message"])
         sample_uuid = remove_response.json()["content"]
-        return redirect(url_for("sample.view", uuid=sample_uuid))
+        #return redirect(url_for("sample.view", uuid=sample_uuid))
     else:
         flash("We have a problem: %s" % (remove_response.json()["message"]))
         # abort(403)
-        return remove_response.json()
+
+    return remove_response.json()
+
+
+@sample.route("/protocol_event/<id>/test", methods=["GET", "POST"])
+@login_required
+def pe_test(id):
+    print("About to remove")
+    remove_response = requests.post(
+        url_for("api.sample_testquery", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+        # flash("Protocol Event Successfully Deleted!")
+        flash(remove_response.json()["message"])
+        sample_uuid = remove_response.json()["content"]
+        #return redirect(url_for("sample.view", uuid=sample_uuid))
+    else:
+        flash("We have a problem: %s" % (remove_response.json()["message"]))
+        # abort(403)
+
+    return remove_response.json()
 

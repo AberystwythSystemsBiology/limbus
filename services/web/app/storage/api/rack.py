@@ -311,7 +311,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.\
             filter(EntityToStorage.rack_id==rack_id, EntityToStorage.storage_type=='STB',
                    or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
-        print("stbs", stbs)
+        #print("stbs", stbs)
         occupancies = [(stb1.row, stb1.col) for stb1 in stbs]
 
         num_rows = rack.num_rows

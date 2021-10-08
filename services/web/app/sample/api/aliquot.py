@@ -162,8 +162,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         new_sample_protocol_event.author_id = tokenuser.id
         db.session.add(new_sample_protocol_event)
         db.session.flush()
-    except ValidationError as err:
-        return validation_error_response(err)
+    except Exception as err:
+        return transaction_error_response(err)
 
     for aliquot in values["aliquots"]:
         # T2. New sampletotypes for subsamples: store data on sample type and container
@@ -246,3 +246,5 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
     )
+
+

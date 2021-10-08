@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, abort, url_for
+from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 
-from ...decorators import token_required
+from ...decorators import token_required, check_if_admin
 from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
@@ -38,11 +38,12 @@ from ..views import (
 )
 
 from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
-                         SampleProtocolEvent, ProtocolTemplate, SampleDisposal, SampleReview,
-                         SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
+                         SampleProtocolEvent, ProtocolTemplate, SampleReview,
+                         SampleDisposalEvent, SampleDisposal,
+                         UserCart, SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
                          EntityToStorage,
                          SiteInformation, Building, Room, ColdStorage, ColdStorageShelf,
-                         DonorToSample)
+                         SampleConsent, DonorToSample, SampleToCustomAttributeData)
 
 from sqlalchemy import or_
 
@@ -202,26 +203,13 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
     else:
         return not_found()
 
-@api.route("/sample/<uuid>/remove", methods=["GET"])
-@token_required
-def sample_remove_sample(uuid: str, tokenuser: UserAccount):
-    if not tokenuser.is_admin:
-        return not_allowed()
-
-    sample = Sample.query.filter_by(uuid=uuid).first()
-    # check sample status
-
-    if sample:
-        return success_with_content_response(sample_schema.dump(sample))
-    else:
-        return not_found()
 
 
 @api.route("sample/new", methods=["POST"])
 @token_required
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
-    # print("values: ", values)
+
     if not values:
         return no_values_response()
 
@@ -260,9 +248,8 @@ def sample_new_sample(tokenuser: UserAccount):
         )
 
     consent_information = values["consent_information"]
-    consent_information["id"] = consent_information["consent_id"]
-
     if "template_id" in values["consent_information"] and "date" in values["consent_information"]:
+        # - New Sample based consent
         consent_response = requests.post(
             url_for("api.sample_new_sample_consent", _external=True),
             headers=get_internal_api_header(tokenuser),
@@ -271,6 +258,8 @@ def sample_new_sample(tokenuser: UserAccount):
 
         if consent_response.status_code == 200:
             consent_information = consent_response.json()["content"]
+            consent_information["consent_id"] = consent_information["id"]
+
         else:
             return (
                 consent_response.text,
@@ -279,7 +268,7 @@ def sample_new_sample(tokenuser: UserAccount):
             )
 
     disposal_information = values["disposal_information"]
-    disposal_information["id"] = None
+
     if values["disposal_information"]["instruction"] != "NAP":
         disposal_response = requests.post(
             url_for("api.sample_new_disposal_instructions", _external=True),
@@ -295,9 +284,11 @@ def sample_new_sample(tokenuser: UserAccount):
                 disposal_response.status_code,
                 disposal_response.headers.items(),
             )
+    else:
+        disposal_information["id"] = None
 
     sample_information = values["sample_information"]
-    sample_information["consent_id"] = consent_information["id"]
+    sample_information["consent_id"] = consent_information["consent_id"]
     sample_information["sample_to_type_id"] = sample_type_information["id"]
     sample_information["disposal_id"] = disposal_information["id"]
 
@@ -319,6 +310,9 @@ def sample_new_sample(tokenuser: UserAccount):
 
     values["collection_information"]["sample_id"] = new_sample.id
     sample_id = new_sample.id
+    # -- Dealing with NULL value in time
+    collection_datetime = values["collection_information"]["event"]["datetime"]
+    values["collection_information"]["event"]["datetime"] = collection_datetime.replace("None","00:00:00")
 
     protocol_event_response = requests.post(
         url_for("api.sample_new_sample_protocol_event", _external=True),
@@ -335,7 +329,7 @@ def sample_new_sample(tokenuser: UserAccount):
             protocol_event_response.headers.items(),
         )
 
-    # DonorToSample
+    #-- DonorToSample association
     if "donor_id" in consent_information:
         donor_id = consent_information["donor_id"]
         try:
@@ -472,8 +466,9 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
                 if not samples:
                     msg = "No involved samples found for the shipment status! "
                     return {'sample': None, 'message': msg, "success": True}
-
-                if shipment_status.status not in [None]: #, "TBC", SampleShipmentStatusStatus.TBC]:
+                print('sss', shipment_status.status)
+                #if shipment_status.status is not None: #not in [None, '']: #, "TBC", SampleShipmentStatusStatus.TBC]:
+                if shipment:
                     updated = True
                     for sample in samples:
                         sample.status = SampleStatus.TRA
