@@ -399,3 +399,89 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
     except Exception as err:
         db.session.rollback()
         return transaction_error_response(err)
+
+def func_lock_sample_creation_protocolevent(sample_id, tokenuser: UserAccount):
+    pes = SampleProtocolEvent.query.filter_by(sample_id=sample_id, is_locked=True)
+    if pes.count() > 0:
+        msg = "Sample-%s: Already locked!"%sample_id
+        return True, msg
+
+    pes = SampleProtocolEvent.query.join(SubSampleToSample,
+                                         SubSampleToSample.protocol_event_id == SampleProtocolEvent.id). \
+        filter(SubSampleToSample.subsample_id == sample_id, SampleProtocolEvent.is_locked == True).all()
+    if len(pes) > 0:
+        msg = "Sample-%s: Parent sample protocol event already locked!"%sample_id
+        return True, msg
+
+    protocol_event = SampleProtocolEvent.query.join(SubSampleToSample,
+                                                    SubSampleToSample.protocol_event_id == SampleProtocolEvent.id). \
+        filter(SubSampleToSample.subsample_id == sample_id, SampleProtocolEvent.is_locked == False). \
+        order_by(SampleProtocolEvent.created_on.asc()).first()
+
+    msg = '';
+    if protocol_event:
+        msg = "To lock the sample creation event(%s) for its parent sample" % protocol_event.id
+
+    else:
+        protocol_event = SampleProtocolEvent.query.filter_by(sample_id=sample_id, is_locked=False). \
+            order_by(SampleProtocolEvent.created_on.asc()).first()
+        if protocol_event:
+            msg = "To lock the sample creation event (%s) for the sample" % protocol_event.id
+
+    if protocol_event:
+        protocol_event.is_locked = True
+        protocol_event.update({"editor_id": tokenuser.id})
+        try:
+            db.session.add(protocol_event)
+            db.session.commit()
+            msg = msg + "Sample-%s: Committed update successfully! "%sample_id
+            return True, msg
+
+        except Exception as err:
+            db.session.rollback()
+            return False, transaction_error_response(err)
+    else:
+        msg = "Sample-%s: No protocol event for update" %sample_id
+        return True, msg
+
+
+# -- Super Admin functions: TODO: delete it
+@api.route("/sample/<uuid>/lock_sample_creation_protocol_event", methods=["POST"])
+@token_required
+def sample_lock_sample_creation_protocol_event(uuid, tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+
+    if uuid == 'all':
+        samples = Sample.query.all()
+        if len(samples)==0:
+            return not_found("samples")
+
+        ids_ok = []
+        ids_bad = []
+        msgs = []
+        for sample in samples:
+            sample_id = sample.id
+            [success, msg] = func_lock_sample_creation_protocolevent(sample_id, tokenuser)
+            if success:
+                msgs.append(msg)
+                ids_ok.append(sample_id)
+            else:
+
+                msgs.append(msg["message"])
+                ids_bad.append(sample_id)
+
+        #message = "|".join(msgs)
+        return success_with_content_message_response({"ids_ok": ids_ok, "ids_bad": ids_bad}, message=msgs)#message)
+
+    else:
+        sample = Sample.query.filter_by(uuid=uuid).first()
+        if sample is None:
+            return not_found("sample")
+
+        sample_id = sample.id
+        [success, msg] = func_lock_sample_creation_protocolevent(sample_id, tokenuser)
+        if success:
+            return success_with_content_message_response(uuid, msg)
+        else:
+            return msg
