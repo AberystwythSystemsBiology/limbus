@@ -231,13 +231,16 @@ def remove_sample(uuid: str):
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            return redirect(url_for("sample.index"))
+            #return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            return redirect(url_for("sample.view", uuid=uuid))
+            #return redirect(url_for("sample.view", uuid=uuid))
+
+        return (remove_response.json())
 
     flash(sample_response.json()["message"])
-    return redirect(url_for("sample.view", uuid=uuid))
+    return(sample_response.json())
+    #return redirect(url_for("sample.view", uuid=uuid))
 
 @sample.route("<uuid>/deep_remove", methods=["GET", "POST"])
 @login_required
@@ -255,10 +258,13 @@ def deep_remove_sample(uuid: str):
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            return redirect(url_for("sample.index"))
+            #return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            return redirect(url_for("sample.view", uuid=uuid))
+            #return redirect(url_for("sample.view", uuid=uuid))
+
+        return (remove_response.json())
 
     flash(sample_response.json()["message"])
-    return redirect(url_for("sample.view", uuid=uuid))
+    return (sample_response.json())
+    #return redirect(url_for("sample.view", uuid=uuid))

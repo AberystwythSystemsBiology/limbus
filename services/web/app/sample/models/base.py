@@ -113,7 +113,7 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
         db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True
     )
     protocol_event_id = db.Column(
-        db.Integer, db.ForeignKey("sampleprotocolevent.id"), primary_key=True
+        db.Integer, db.ForeignKey("sampleprotocolevent.id")#, primary_key=True
     )
 
 

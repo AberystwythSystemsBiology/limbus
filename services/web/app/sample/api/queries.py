@@ -15,6 +15,7 @@
 
 from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
+from sqlalchemy import or_
 from ...api import api, generics
 from ...api.responses import *
 
@@ -155,13 +156,14 @@ def func_remove_sampletocustomattributedata(sample, msgs=[]):
             msgs.append('Sample custom attribute data deleted')
         except ValidationError as err:
             db.session.rollback()
+            success = False
             msgs.append(validation_error_response(err))
     return (success, msgs)
 
 def func_remove_sample(sample, msgs=[]):
     success = True
     if sample.is_locked:
-        msgs.append(locked_response("sample %s" % uuid))
+        msgs.append(locked_response("sample %s" % sample.uuid))
         return False, msgs
 
     srs = SampleReview.query.filter_by(sample_id=sample.id)
@@ -181,26 +183,37 @@ def func_remove_sample(sample, msgs=[]):
 
     subs = SubSampleToSample.query.filter_by(parent_id=sample.id)
     if subs.count()>0:
-        msgs.append(in_use_response("sub-samples"))
+        msgs.append(in_use_response("sub-samples")["message"]+ " | Delete associated protocole event first!")
         return False, msgs
 
-    # subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
-    # if subs.count()>0:
-    #     msgs.append(in_use_response("parent sample"))
-    #     return False, msgs
+    subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
+    if subs.count()>0:
+        msgs.append(in_use_response("parent-sample")["message"]+" | Delete associated protocole event first!")
+        return False, msgs
+    # subs = SubSampleToSample.query.filter_by(subsample_id=sample.id).all()
+    # if len(subs) > 0:
+    #     try:
+    #         for sub in subs:
+    #             db.session.delete(sub)
+    #             db.session.flush()
+    #         msgs.append('Parent sample dis-associated')
+    #     except Exception as err:
+    #         db.session.rollback()
+    #         msgs.append(transaction_error_response(err))
+    #         return False, msgs
 
-    # Can't be removed unless the only protocol events involved is sample acquisition
-    # pes = SampleProtocolEvent.query.filter_by(sample_id=sample.id)
-    #SampleProtocolEvent.query.filter(SampleProtocolEvent.sample_id==sample.id, sample.source=='NEW').\
-    #    order_by(SampleProtocolEvent.id.asc()).first()
+    # Can't be removed unless the only protocol events involved is for sample creation:
+    # protocol event is_locked==True or type is acquisition
     pes = SampleProtocolEvent.query.join(ProtocolTemplate).\
-        filter(SampleProtocolEvent.sample_id==sample.id, ProtocolTemplate.type.in_(('ACQ','COL','STU','TMP')))
-    if pes.count()>1:
+        filter(SampleProtocolEvent.sample_id==sample.id,
+               or_(SampleProtocolEvent.is_locked==False, ProtocolTemplate.type!='ACQ'))
+
+    if pes.count()>0:
         msgs.append(in_use_response("protocol events not for initial sample creation!"))
         return False, msgs
 
-    pes = SampleProtocolEvent.query.join().\
-        filter(SampleProtocolEvent.sample_id==sample.id, ProtocolTemplate.type.in_(('ACQ','COL','STU','TMP')))
+    # pes = SampleProtocolEvent.query.join().\
+    #     filter(SampleProtocolEvent.sample_id==sample.id, ProtocolTemplate.type.in_(('ACQ','COL','STU','TMP')))
 
     (success, msgs) = func_remove_donortosample(sample, msgs)
     if not success:
@@ -252,9 +265,13 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=
     print('ali: ', msgs)
     return (success, msgs)
 
-def func_deep_remove_subsampletosample_children(sample, protocol_event, msgs=[]):
+def func_deep_remove_subsampletosample_children(sample, protocol_event=None, msgs=[]):
     success = True
-    stss = SubSampleToSample.query.filter_by(parent_id=sample.id, protocol_event_id=protocol_event.id).all()
+    if protocol_event is not None:
+        stss = SubSampleToSample.query.filter_by(parent_id=sample.id, protocol_event_id=protocol_event.id).all()
+    else:
+        stss = SubSampleToSample.query.filter_by(parent_id=sample.id).all()
+
     if len(stss) > 0:
         try:
             for sts in stss:
@@ -293,16 +310,18 @@ def sample_remove_sample(uuid: str, tokenuser: UserAccount):
         return success_with_content_message_response(uuid, message)
     except Exception as err:
         db.session.rollback()
+        print('okooook')
         return transaction_error_response(err)
 
 def func_deep_remove_sample(sample, msgs=[]):
     # sample = Sample.query.filter_by(uuid=uuid).first()
     # if not sample:
     #     return not_found("sample %s " % uuid)
-    msgs = []
+    # msgs = []
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count()>0:
-        return in_use_response("parent sample! Delete parent sample acquisition/derivation event first!  ")
+        msgs.append(in_use_response("parent sample! Delete from the root sample instead!  "))
+        return False, msgs
     (success, msgs) = func_remove_sampledisposal(sample, msgs)
     if not success:
         return False, msgs
@@ -318,6 +337,18 @@ def func_deep_remove_sample(sample, msgs=[]):
             (success, msgs) = func_deep_remove_subsampletosample_children(sample, protocol_event, msgs)
             if not success:
                 return False, msgs
+    else:
+        # - No protocol event linked (unusual cases)
+        subs = SubSampleToSample.query.filter(SubSampleToSample.parent_id==sample.id).all()
+        if len(subs)>0:
+            for sub in subs:
+                smpl = Sample.query.filter_by(id=sub.subsample_id).first()
+                db.session.delete(sub)
+                db.session.flush()
+                (success, msgs) = func_deep_remove_sample(smpl, msgs)
+                if not success:
+                    return False, msgs
+
     (success, msgs) = func_remove_sampleshipmenttosample(sample, msgs)
     if not success:
         return False, msgs

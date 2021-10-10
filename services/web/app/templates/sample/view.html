@@ -67,11 +67,12 @@
                     <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i> Aliquot Sample</a>
                     <a id="action-derive" class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
-                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
+                    <a id="action-status" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
                     
                   </div>
                 </div>
               </div>
+
               <div class="btn-group mr-2" role="group" aria-label="First group">
                 <button type="button" class="btn btn-outline-dark" id="add-cart-btn"><i class="fa fa-cart-plus"></i>
                   Add to Cart</button>
@@ -81,6 +82,28 @@
                   Print
                   Label</button>
               </div>
+
+                            {% if current_user.is_admin == true  %}
+              <div class="btn-btn-group mr-2" role="group">
+                <div class="dropdown">
+                  <button class="btn btn-delete float-right dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-trash-alt"></i> Delete Sample
+                  </button>
+
+
+                  <div class="dropdown-menu">
+                    <a id="shallow-remove" class="dropdown-item" title="Remove a sample without any sub- or parent samples.">
+{#                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}">#}
+                       <i class="fa fa-trash-alt"></i> Remove</a>
+
+                    <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples.">
+{#                       href="{{ url_for('sample.deep_remove_sample', uuid=uuid) }}">#}
+                        <i class="fa fa-trash"></i> Deep Remove</a>
+                   </div>
+                </div>
+                </div>
+                            {% endif %}
 
             </div>
           </div>
@@ -236,26 +259,26 @@
 </div>
 
 
-
-<div class="modal fade" id="delete-protocol-event-confirm" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-event-confirm-label" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="delete-protocol-event-confirm-label">Modal title</h5>
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
+{##}
+{#<div class="modal fade" id="delete-protocol-event-confirm" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-event-confirm-label" aria-hidden="true">#}
+{#  <div class="modal-dialog" role="document">#}
+{#    <div class="modal-content">#}
+{#      <div class="modal-header bg-danger text-white">#}
+{#        <h5 class="modal-title" id="delete-protocol-event-confirm-label">Modal title</h5>#}
+{#        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">#}
+{#          <span aria-hidden="true">&times;</span>#}
+{#        </button>#}
+{#      </div>#}
+{#      <div class="modal-body">#}
+{#        ...#}
+{#      </div>#}
+{#      <div class="modal-footer">#}
+{#        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>#}
+{#        <button type="button" class="btn btn-primary">Save changes</button>#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
 
 <!-- Delete Review Modal -->
 <div class="modal fade" id="delete-review-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-review-confirm-modal-title" aria-hidden="true">
@@ -297,7 +320,7 @@
         <div id="delete-protocol-warning" class="alert alert-danger" role="alert">
           <B>Warning:</B> This action cannot be undone!
         </div>
-        <p>Please enter the Protocol Event UUID to confirm that you want to remove this Event:</p>
+        <p id="delete-protocol-event-confirm">Please enter the Protocol Event UUID to confirm that you want to remove this Event:</p>
         <input type="text" class="form-control" id="protocol-uuid-remove-confirmation-input"></input>
 
       </div>

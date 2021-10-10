@@ -93,7 +93,7 @@ def transaction_error_response(err):
 def not_allowed():
     return (
         {
-            "success": True,
+            "success": False,
             "message": "Naughty naughty, you're not supposed to be here.",
         },
         401,

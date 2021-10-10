@@ -399,14 +399,18 @@ function fill_consent_information(consent_information) {
     if (consent_information["withdrawn"]==true) {
         consent_status = "Withdrawn"
     }
-    var donor_id = "LIMBDON-"+consent_information["donor_id"];
-    donor_link = "<a href="+window.location.origin+"/donor/"+donor_id+">";
-    donor_link += donor_id+"</a>";
-    $("#donor_id").html(donor_link);
+    var donor_id = consent_information["donor_id"];
+    donor_link = ""
+    if (donor_id != null) {
+        donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + " + donor_id + ">";
+        donor_link += "LIMBDON-" + donor_id + "</a>";
+        $("#donor_id").html(donor_link);
+    } else {
+        $("#donor_id").text(donor_link);
+    }
     $("#consent_date").html(consent_information["date"]);
     $("#consent_status").html(consent_status);
     $("#withdrawal_date").html(consent_information["withdrawal_date"]);
-
 
 }
 

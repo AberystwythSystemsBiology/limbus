@@ -226,10 +226,16 @@ function fill_consent_information(consent_information) {
     if (consent_information["withdrawn"]==true) {
         consent_status = "Withdrawn"
     }
-    var donor_id = "LIMBDON-"+consent_information["donor_id"];
-    donor_link = "<a href= "+window.location.origin+"/donor/"+donor_id+">";
-    donor_link += donor_id+"</a>";
-    $("#donor_id").html(donor_link);
+    donor_link = ""
+    var donor_id = consent_information["donor_id"];
+    if (donor_id != null) {
+        donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + donor_id + ">";
+        donor_link += "LIMBDON-" + donor_id + "</a>";
+        $("#donor_id").html(donor_link);
+    }
+    else {
+        $("#donor_id").text(donor_link);
+    }
     $("#consent_date").html(consent_information["date"]);
     $("#consent_status").html(consent_status);
     $("#withdrawal_date").html(consent_information["withdrawal_date"]);
@@ -534,7 +540,7 @@ function fill_protocol_events(events) {
             var uuid = $("#protocol-uuid-"+id).text();
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
             if (event_info["is_locked"] == true) {
-                warning_msg += "<br> <B>!!! This protocol event created sample(s), removing it will delete the sample(s) it created as well!!!<\B></B>" ;
+                warning_msg += "<br> <B>!!! This protocol event created sample(s), removing it will delete the sample(s) it created as well!!!</B>" ;
             }
             $("#delete-protocol-warning").html(warning_msg)
             $("#delete-protocol-confirm-modal").modal({
@@ -949,7 +955,100 @@ $(document).ready(function () {
                 return false;
             }
         })
-    
+
+        $("#shallow-remove").on("click", function () {
+
+            var uuid = sample_info["uuid"];
+            console.log('uuid', uuid)
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            warning_msg += "<br> <B>Shallow remove only removes a single sample without any sub- or parent samples associated. !!</B>" ;
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Sample Removal")
+            $("#delete-protocol-event-confirm").html("Please enter the Sample UUID to confirm that you want to remove this Sample!")
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = sample_info["_links"]["self"]+"/remove";
+            $("#protocol-uuid-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+                if (user_entry == uuid) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                //window.location.reload();
+                                window.location.assign(window.location.origin + "/sample");
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                return false
+                            }
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+        });
+
+        $("#deep-remove").on("click", function () {
+            var uuid = sample_info["uuid"];
+            console.log('uuid', uuid)
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            warning_msg += "<br> <B>Deep remove will delete the sample and its sub-samples and associated data. !!</B>" ;
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Sample Removal")
+            $("#delete-protocol-event-confirm").html("Please enter the Sample UUID to confirm that you want to remove this Sample!")
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = sample_info["_links"]["self"]+"/deep_remove";
+            $("#protocol-uuid-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+                if (user_entry == uuid) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                //window.location.reload();
+                                window.location.assign(window.location.origin + "/sample");
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                //return false;
+                            }
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+        });
+
         $("#basic-info-nav").on("click", function () {
             deactivate_nav();
             $(this).addClass("active");
