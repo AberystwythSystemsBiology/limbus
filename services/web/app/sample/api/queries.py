@@ -183,37 +183,22 @@ def func_remove_sample(sample, msgs=[]):
 
     subs = SubSampleToSample.query.filter_by(parent_id=sample.id)
     if subs.count()>0:
-        msgs.append(in_use_response("sub-samples")["message"]+ " | Delete associated protocole event first!")
+        msgs.append(in_use_response("sub-samples! Delete associated protocol event first!"))
         return False, msgs
 
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count()>0:
-        msgs.append(in_use_response("parent-sample")["message"]+" | Delete associated protocole event first!")
+        msgs.append(in_use_response("parent-sample! Delete associated protocol event first!"))
         return False, msgs
-    # subs = SubSampleToSample.query.filter_by(subsample_id=sample.id).all()
-    # if len(subs) > 0:
-    #     try:
-    #         for sub in subs:
-    #             db.session.delete(sub)
-    #             db.session.flush()
-    #         msgs.append('Parent sample dis-associated')
-    #     except Exception as err:
-    #         db.session.rollback()
-    #         msgs.append(transaction_error_response(err))
-    #         return False, msgs
 
     # Can't be removed unless the only protocol events involved is for sample creation:
-    # protocol event is_locked==True or type is acquisition
-    pes = SampleProtocolEvent.query.join(ProtocolTemplate).\
-        filter(SampleProtocolEvent.sample_id==sample.id,
-               or_(SampleProtocolEvent.is_locked==False, ProtocolTemplate.type!='ACQ'))
+    # protocol event is_locked==True
+    pes = SampleProtocolEvent.query.\
+        filter(SampleProtocolEvent.sample_id==sample.id, SampleProtocolEvent.is_locked==False)
 
     if pes.count()>0:
         msgs.append(in_use_response("protocol events not for initial sample creation!"))
         return False, msgs
-
-    # pes = SampleProtocolEvent.query.join().\
-    #     filter(SampleProtocolEvent.sample_id==sample.id, ProtocolTemplate.type.in_(('ACQ','COL','STU','TMP')))
 
     (success, msgs) = func_remove_donortosample(sample, msgs)
     if not success:
@@ -270,7 +255,7 @@ def func_deep_remove_subsampletosample_children(sample, protocol_event=None, msg
     if protocol_event is not None:
         stss = SubSampleToSample.query.filter_by(parent_id=sample.id, protocol_event_id=protocol_event.id).all()
     else:
-        stss = SubSampleToSample.query.filter_by(parent_id=sample.id).all()
+        stss = SubSampleToSample.query.filter_by(parent_id=sample.id, protocol_event_id=None).all()
 
     if len(stss) > 0:
         try:
@@ -310,14 +295,9 @@ def sample_remove_sample(uuid: str, tokenuser: UserAccount):
         return success_with_content_message_response(uuid, message)
     except Exception as err:
         db.session.rollback()
-        print('okooook')
         return transaction_error_response(err)
 
 def func_deep_remove_sample(sample, msgs=[]):
-    # sample = Sample.query.filter_by(uuid=uuid).first()
-    # if not sample:
-    #     return not_found("sample %s " % uuid)
-    # msgs = []
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count()>0:
         msgs.append(in_use_response("parent sample! Delete from the root sample instead!  "))
@@ -331,23 +311,18 @@ def func_deep_remove_sample(sample, msgs=[]):
     (success, msgs) = func_remove_samplereview(sample, msgs)
     if not success:
         return False, msgs
+
     protocol_events = SampleProtocolEvent.query.filter_by(sample_id=sample.id).all()
     if len(protocol_events)>0:
         for protocol_event in protocol_events:
             (success, msgs) = func_deep_remove_subsampletosample_children(sample, protocol_event, msgs)
             if not success:
                 return False, msgs
-    else:
-        # - No protocol event linked (unusual cases)
-        subs = SubSampleToSample.query.filter(SubSampleToSample.parent_id==sample.id).all()
-        if len(subs)>0:
-            for sub in subs:
-                smpl = Sample.query.filter_by(id=sub.subsample_id).first()
-                db.session.delete(sub)
-                db.session.flush()
-                (success, msgs) = func_deep_remove_sample(smpl, msgs)
-                if not success:
-                    return False, msgs
+
+    # - No protocol event linked (legacy cases)
+    (success, msgs) = func_deep_remove_subsampletosample_children(sample, None, msgs)
+    if not success:
+        return False, msgs
 
     (success, msgs) = func_remove_sampleshipmenttosample(sample, msgs)
     if not success:
@@ -401,15 +376,19 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 def func_lock_sample_creation_protocolevent(sample_id, tokenuser: UserAccount):
-    pes = SampleProtocolEvent.query.filter_by(sample_id=sample_id, is_locked=True)
+    # pes = SampleProtocolEvent.query.filter_by(sample_id=sample_id, is_locked=True)
+    pes = SampleProtocolEvent.query.join(ProtocolTemplate).\
+        filter(SampleProtocolEvent.sample_id==sample_id, SampleProtocolEvent.is_locked==True,
+               ProtocolTemplate.type!='ALD')
+
     if pes.count() > 0:
         msg = "Sample-%s: Already locked!"%sample_id
         return True, msg
 
     pes = SampleProtocolEvent.query.join(SubSampleToSample,
                                          SubSampleToSample.protocol_event_id == SampleProtocolEvent.id). \
-        filter(SubSampleToSample.subsample_id == sample_id, SampleProtocolEvent.is_locked == True).all()
-    if len(pes) > 0:
+        filter(SubSampleToSample.subsample_id == sample_id, SampleProtocolEvent.is_locked == True)
+    if pes.count() > 0:
         msg = "Sample-%s: Parent sample protocol event already locked!"%sample_id
         return True, msg
 
@@ -452,14 +431,31 @@ def sample_lock_sample_creation_protocol_event(uuid, tokenuser: UserAccount):
     if not tokenuser.is_admin:
         return not_allowed()
 
+    msgs = []
     if uuid == 'all':
+        # all aliquote
+        pes = SampleProtocolEvent.query.join(ProtocolTemplate).\
+            filter(SampleProtocolEvent.is_locked==False, ProtocolTemplate.type=='ALD').all()
+        for pe in pes:
+            pe.is_locked=True
+            pe.update({"editor_id": tokenuser.id})
+            try:
+                db.session.add(pe)
+                db.session.commit()
+                msgs.append('Sample-%s aliquot event locked successfully! '%pe.sample_id)
+            except Exception as err:
+                db.session.rollback()
+                msg='Sample-%s aliquot event locked error! ' % pe.sample_id
+                msg = msg+ "(s)" % transaction_error_response(err)["message"]
+                msgs.append(msg)
+
         samples = Sample.query.all()
         if len(samples)==0:
             return not_found("samples")
 
         ids_ok = []
         ids_bad = []
-        msgs = []
+
         for sample in samples:
             sample_id = sample.id
             [success, msg] = func_lock_sample_creation_protocolevent(sample_id, tokenuser)

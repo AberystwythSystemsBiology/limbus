@@ -188,6 +188,23 @@ def new_diagnosis(id):
     else:
         return response.content
 
+@donor.route("/LIMBDIAG-<id>/remove", methods=["GET", "POST"])
+@login_required
+def remove_diagnosis(id):
+    remove_response = requests.delete(
+        url_for("api.donor_remove_diagnosis", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+        flash(remove_response.json()["message"])
+    else:
+        flash(remove_response.json()["message"])
+
+    return remove_response.json()
+
+
+
 @donor.route("/LIMBDON-<id>/new/consent", methods=["GET", "POST"])
 @login_required
 def new_consent(id):

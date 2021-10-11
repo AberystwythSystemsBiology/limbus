@@ -22,6 +22,7 @@ from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, UserAccount, EntityToStorage, SampleRack
 from ..api.rack import func_rack_delete
+from ...sample.api.base import func_shelf_location
 
 from marshmallow import ValidationError
 from ..views.shelf import *
@@ -38,9 +39,12 @@ def storage_shelf_home(tokenuser: UserAccount):
 @api.route("/storage/shelf/LIMBSHF-<id>", methods=["GET"])
 @token_required
 def storage_shelf_view(id, tokenuser: UserAccount):
-    return success_with_content_response(
-        shelf_schema.dump(ColdStorageShelf.query.filter_by(id=id).first_or_404())
-    )
+    # return success_with_content_response(
+    #     shelf_schema.dump(ColdStorageShelf.query.filter_by(id=id).first_or_404())
+    # )
+    shelf = shelf_schema.dump(ColdStorageShelf.query.filter_by(id=id).first_or_404())
+    shelf["location"] = func_shelf_location(shelf["id"])["pretty"]
+    return success_with_content_response(shelf)
 
 
 @api.route("/storage/shelf/LIMBSHF-<id>/edit", methods=["PUT"])

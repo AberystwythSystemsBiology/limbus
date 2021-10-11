@@ -96,7 +96,6 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_type = ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
     if protocol_type == ProtocolType.ALD:
         # - remove protocol event and the sub-samples it generated
-        print('ok00')
         (success, msgs) = func_remove_aliquot_subsampletosample_children(
                                      sample, protocol_event, msgs)
         print('msgs00', msgs)
@@ -104,11 +103,9 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
             return msgs[-1]
 
     elif protocol_event.is_locked:
-        # and protocol_type in [ProtocolType.ACQ, ProtocolType.STU, ProtocolType.COL, ProtocolType.TMP):
+        # Sample creation event!
         # -- remove protocol event and the sample it generated
-        print('ok00')
         (success, msgs) = func_remove_sample(sample, msgs)
-        print('msgs00', msgs)
         if not success:
             return msgs[-1]
 

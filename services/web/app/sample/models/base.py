@@ -62,7 +62,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     consent_information = db.relationship("SampleConsent", uselist=False)
 
     events = db.relationship("SampleProtocolEvent", uselist=True)
-    reviews = db.relationship("SampleReview", uselist=True)
+    reviews = db.relationship("SampleReview", uselist=True, cascade="all, delete")
     shipments = db.relationship("SampleShipmentToSample", uselist=True)
 
     # Disposal Information

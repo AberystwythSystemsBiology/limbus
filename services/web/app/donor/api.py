@@ -219,6 +219,24 @@ def donor_new_diagnosis(id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+@api.route("/donor/LIMBDIAG-<id>/remove", methods=["DELETE", "POST"])
+@token_required
+def donor_remove_diagnosis(id, tokenuser: UserAccount):
+    dde = DonorDiagnosisEvent.query.filter_by(id=id).first()
+    if not dde:
+        return no_values_response("Diagnosis Event")
+
+    donor_id = dde.donor_id
+    try:
+        db.session.delete(dde)
+        db.session.commit()
+        msg = "Diagnosis %s deleted succesfully! " %dde.id
+    except Exception as err:
+        return transaction_error_response(err)
+
+    return success_with_content_message_response({"donor_id": donor_id}, msg)
+
+
 
 @api.route("/donor/new/consent", methods=["POST"])
 @token_required

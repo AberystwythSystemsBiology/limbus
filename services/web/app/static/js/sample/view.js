@@ -524,7 +524,7 @@ function fill_protocol_events(events) {
         html += "<div class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
 
-        html += "<div id='remove-protocol-"+event_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='remove-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-danger float-right'>Remove</div>"
         html += "</div>"
         html += "</div>"
 
@@ -534,12 +534,13 @@ function fill_protocol_events(events) {
         protocol_events.set(event_info["id"].toString(), event_info);
         $("#protocol-event-li").append(html);
 
-        $("#remove-protocol-"+event_info["id"]).on("click", function () {
+        $("#remove-protocol-"+event_info["id"]+'-'+event_info["is_locked"]).on("click", function () {
             var id = $(this).attr("id").split("-")[2];
+            var locked = $(this).attr("id").split("-")[3];
             
             var uuid = $("#protocol-uuid-"+id).text();
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
-            if (event_info["is_locked"] == true) {
+            if (locked == 'true') {
                 warning_msg += "<br> <B>!!! This protocol event created sample(s), removing it will delete the sample(s) it created as well!!!</B>" ;
             }
             $("#delete-protocol-warning").html(warning_msg)
@@ -565,7 +566,11 @@ function fill_protocol_events(events) {
                             });
 
                             if (data["success"]) {
-                                window.location.reload();
+                                if (locked == 'true') {
+                                    window.location.assign(window.location.origin + "/sample");
+                                } else {
+                                    window.location.reload();
+                                }
                             } else {
                                 window.location.reload();
                                 //alert("We have a problem! "+data["message"]);
@@ -959,7 +964,6 @@ $(document).ready(function () {
         $("#shallow-remove").on("click", function () {
 
             var uuid = sample_info["uuid"];
-            console.log('uuid', uuid)
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
             warning_msg += "<br> <B>Shallow remove only removes a single sample without any sub- or parent samples associated. !!</B>" ;
             $("#delete-protocol-warning").html(warning_msg)

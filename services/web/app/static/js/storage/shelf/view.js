@@ -59,6 +59,7 @@ function render_information(shelf_information) {
     var html = render_content("UUID", shelf_information["uuid"]);
     html += render_content("Name", shelf_information["name"]);
     html += render_content("Description", shelf_information["description"]);
+    html += render_content("Location", shelf_information["location"])
     $("#shelf-information").html(html);
 }
 

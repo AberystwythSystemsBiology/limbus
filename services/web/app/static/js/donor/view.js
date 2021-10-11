@@ -262,10 +262,15 @@ function fill_basic_information(donor_information, age, dob) {
 
     html = render_content("Date of Birth", dob);
     html += render_content("Age", age)
-    html += render_content("Height", donor_information["height"]+"cm");
-    html += render_content("Weight", donor_information["weight"]+"kg");
+    if (donor_information["height"] != null)
+        html += render_content("Height", donor_information["height"]+" cm");
+    if (donor_information["weight"] != null)
+    html += render_content("Weight", donor_information["weight"]+" kg");
+    if (donor_information["sex"] != null)
     html += render_content("Biological Sex", donor_information["sex"])
-    html += render_content("Body Mass Index", calculate_bmi(donor_information["height"], donor_information["weight"]));
+
+    if (donor_information["height"] != null && donor_information["weight"] != null)
+        html += render_content("Body Mass Index", calculate_bmi(donor_information["height"], donor_information["weight"]));
     html += render_content("Race", donor_information["race"]);
     html += render_content("Status", donor_information["status"]);
 
@@ -321,7 +326,7 @@ function fill_diagnosis_information(diagnoses, date) {
 
     //html = ""
     let diag = new Map();
-    $.each(diagnoses,function(index, value){
+    $.each(diagnoses, function(index, value){
         console.log('value', value)
         html = ""
         // Start ul
@@ -355,7 +360,7 @@ function fill_diagnosis_information(diagnoses, date) {
 
         html += media_html;
         // end card body
-        html += "<div id='remove-diagnosis-" + index + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='remove-diagnosis-" + value["id"] + "' class='btn btn-danger float-right'>Remove</div>"
 
         html += "</div>"
         // html += "<div class='card-footer'>"
@@ -366,16 +371,53 @@ function fill_diagnosis_information(diagnoses, date) {
         // End ul
         //html += "</li>"
         diag.set(value["id"].toString(), value);
+
         $("#diagnosis-div").append(html);
-    });
+
+    $("#remove-diagnosis-" + value["id"]).on("click", function () {
+            var id = $(this).attr("id").split("-")[2];
+            var warning_msg = "Press confirm to delete diagnosis!";
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Donor Diagnosis Removal")
+            $("#delete-protocol-event-confirm").html("")
+            $("#protocol-id-remove-confirmation-input").hide()
+
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = window.location.origin + "/donor/LIMBDIAG-" + id +"/remove";
+            $("#protocol-remove-confirm-button").prop("disabled", false);
+            $('#protocol-remove-confirm-button').click(function () {
+                // window.location.href = removal_link;
+                $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                $.ajax({
+                    type: "POST",
+                    url: removal_link,
+                    dataType: "json",
+                    success: function (data) {
+                        $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                        });
+
+                        if (data["success"]) {
+                            window.location.reload();
+                        } else {
+                            window.location.reload();
+                            //alert("We have a problem! "+data["message"]);
+                            return false
+                        }
+                    }
+                });
+            });
+       });
+     });
 
     if (html == "" ) {
         html += "<h2>No diagnosis information found.</h2>"
     }
-
-    //$("#diagnosis-div").html(html);
-    
- }
+}
 
 function fill_consent_information(consent_information) {
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
@@ -402,7 +444,7 @@ function fill_consent_information(consent_information) {
     var donor_id = consent_information["donor_id"];
     donor_link = ""
     if (donor_id != null) {
-        donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + " + donor_id + ">";
+        donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + donor_id + ">";
         donor_link += "LIMBDON-" + donor_id + "</a>";
         $("#donor_id").html(donor_link);
     } else {
@@ -509,7 +551,7 @@ function fill_consents_information(consent_information) {
             $("#consentModal").modal('show');
         });
 
-        if (consent_info['withdrawn']==true|consent_information["is_Locked"]==true) {
+        if (consent_info['withdrawn']==true || consent_information["is_Locked"]==true) {
             $("#remove-consent-" + consent_info["id"]).hide();
         }
         $("#remove-consent-" + consent_info["id"]).on("click", function () {
