@@ -343,15 +343,22 @@ function fill_diagnosis_information(diagnoses, date) {
         */
         var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div>" +
             "<div class='media-body'>"
-
+        var refs = "";
+        for (const [code, url] of Object.entries(value["doid_ref"]["references"])) {
+          refs += "<a href="+url+">"+ code + "</a>, ";
+        }
         media_html += "<h2>"
+        media_html += "<a href=" + value['doid_ref']['iri'] +">"
         media_html += value["doid_ref"]["label"]
+        media_html += "</a>"
         media_html +=' <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">'
         media_html += value["doid_ref"]["name"]
         media_html += "</span></h2>";
 
+
         media_html += "<table class='table table-striped'>";
         media_html += render_content("Description", value["doid_ref"]["description"]);
+        media_html += render_content("References", refs);
         media_html += render_content("Stage", value["stage"]);
         media_html += render_content("Comments", value["comments"]);
         media_html += render_content("Date of Diagnosis", value["diagnosis_date"]);
@@ -420,6 +427,7 @@ function fill_diagnosis_information(diagnoses, date) {
 }
 
 function fill_consent_information(consent_information) {
+
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);
@@ -547,7 +555,8 @@ function fill_consents_information(consent_information) {
         $("#consent-li").append(html);
 
         $("#view-consent-" + consent_info["id"]).on("click", function () {
-            fill_consent_information(consent_info);
+            var id = $(this).attr("id").split("-")[2];
+            fill_consent_information(consents.get(id));
             $("#consentModal").modal('show');
         });
 
