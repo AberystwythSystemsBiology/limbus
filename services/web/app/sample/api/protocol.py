@@ -20,10 +20,22 @@ from ...api.responses import *
 from ...decorators import token_required
 from ...misc import get_internal_api_header
 from .queries import func_remove_aliquot_subsampletosample_children, func_remove_sample
-from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema
+from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema, basic_sample_schema
 
 from ...database import db, SampleProtocolEvent, UserAccount, Sample, Event, ProtocolTemplate
 from ...protocol.enums import ProtocolType
+
+
+
+@api.route("/sample/protocol_event/<uuid>")
+@token_required
+def sample_view_protocol_event(uuid, tokenuser: UserAccount):
+    protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
+    protocol_event_info = sample_protocol_event_schema.dump(protocol_event)
+    if protocol_event:
+        sample = Sample.query.filter_by(id=protocol_event.sample_id).first()
+        protocol_event_info["sample"] = basic_sample_schema.dump(sample)
+    return protocol_event_info
 
 
 @api.route("/sample/new/protocol_event", methods=["POST"])
@@ -53,12 +65,6 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     new_sample_protocol_event = SampleProtocolEvent(**event_result)
     new_sample_protocol_event.author_id = tokenuser.id
     new_sample_protocol_event.event_id = new_event.id
-    # new_sample_protocol_event = SampleProtocolEvent(
-    #     sample_id=event_result["sample_id"],
-    #     event_id=new_event.id,
-    #     author_id=tokenuser.id,
-    #     protocol_id=event_result["protocol_id"],
-    # )
 
     try:
         db.session.add(new_sample_protocol_event)
@@ -72,15 +78,44 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+
+@api.route("/sample/protocol_event/<uuid>/edit", methods=["PUT"])
+@token_required
+def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        event_result = new_sample_protocol_event_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
+    event = Event.query.join(SampleProtocolEvent).filter(SampleProtocolEvent.id==protocol_event.id).first()
+    event.update(event_result["event"])
+    event.update({"editor_id": tokenuser.id})
+
+    event_result.pop("event")
+    protocol_event.update(event_result)
+    protocol_event.update({"editor_id": tokenuser.id})
+
+    try:
+        db.session.add(event)
+        db.session.add(protocol_event)
+        db.session.commit()
+        return success_with_content_message_response(values, "Sample protocol event updated successfully!")
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 @api.route("/sample/protocol_event/<uuid>/remove", methods=["POST"])
 @token_required
 def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
     if not protocol_event:
         return not_found("protocol event(%s)" % uuid)
-
-    # if protocol_event.is_locked:
-    #      return locked_response("protocol event! ")
 
     protocol_event_id = protocol_event.id
     sample = Sample.query.filter_by(id=protocol_event.sample_id).first()

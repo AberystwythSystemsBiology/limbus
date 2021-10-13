@@ -57,12 +57,13 @@ function render_table(query) {
 
     $('#donor-table').DataTable({
         data: d,
-        dom: 'Bfrtip',
+        dom: 'Blfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [1, 2, 3,  5, 6, 11, 12,  15], visible: false, "defaultContent": "-"},
+            {targets: [1, 2, 3, 4,  6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
         ],
+        order: [[1, 'desc']],
 
         columns: [
             { // id,
@@ -75,17 +76,16 @@ function render_table(query) {
                     col_data += data["id"];
                     col_data += "</a>";
 
-
                     return col_data
                 }
             },
+            {data: 'id'},//1
+            {data: 'uuid'},//2
+            {data: 'mpn'}, //3
+            {data: 'enrollment_site_id'}, //4
 
-            {data: 'uuid'},//1
-            {data: 'mpn'}, //2
-            {data: 'enrollment_site_id'}, //3
 
-
-            {   // consents
+            {   // consents 5
                 "mData": {},
                 "mRender": function (data, type, row) {
                     consents = data["consents"];
@@ -103,7 +103,7 @@ function render_table(query) {
                 }
             },
 
-            {   //samples 5
+            {   //samples 6
                 "mData": {},
                 "mRender": function (data, type, row) {
                     samples = data["samples"];
@@ -139,7 +139,7 @@ function render_table(query) {
                 }
             },
 
-            {   // dob 6
+            {   // dob 7
                 "mData": {},
                 "mRender": function (data, type, row) {
 
@@ -150,9 +150,9 @@ function render_table(query) {
                 }
             },
 
-            {data: 'registration_date'},
+            {data: 'registration_date'},//8
 
-            { // Age at registration
+            { // Age at registration 9
                 "mData": {},
                 "mRender": function (data, type, row) {
                     age = calc_age(data['dob'], data['registration_date'])
@@ -160,24 +160,22 @@ function render_table(query) {
 
                 }
             },
-            {
+            {  // Sex 10
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    // Sex
                     return data["sex"];
                 }
             },
-            {data: 'race'},
-            {data: 'weight'},
-            {data: 'height'},
-            {
+            {data: 'race'}, //11
+            {data: 'weight'}, //12
+            {data: 'height'},   //13
+            {  // Status 14
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    // Status
                     return data["status"]
                 }
             },
-            { // Diagnoses 14
+            { // Diagnoses 15
                 "mData": {},
                 "mRender": function (data, type, row) {
                     diagnoses = data["diagnoses"];
@@ -198,7 +196,7 @@ function render_table(query) {
                     return col_data;
                 }
             },
-            { // Created_on 15
+            { // Created_on 16
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["created_on"]

@@ -488,7 +488,7 @@ function fill_protocol_events(events) {
                 undertaken_by = event_info["event"]["undertaken_by"];
             }
             if (event_info["event"].hasOwnProperty('comments')) {
-                comments = event_info["event"]["datetime"];
+                comments = event_info["event"]["comments"];
             }
         }
         // Start ul
@@ -521,7 +521,7 @@ function fill_protocol_events(events) {
         html += "</div>"
         html += "<div class='card-footer'>"
         html += "<a href='" + event_info["_links"]["edit"] + "'>"
-        html += "<div class='btn btn-warning float-left'>Edit</div>"
+        html += "<div id='edit-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
 
         html += "<div id='remove-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-danger float-right'>Remove</div>"
@@ -942,19 +942,6 @@ $(document).ready(function () {
                    show: true
                });
                }
-                    // success: function (data) {
-                    //     if (data["success"]) {
-                    //         $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                    //         $("#cart-confirmation-modal").modal({
-                    //             show: true
-                    //         });
-                    //     } else {
-                    //         $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                    //         $("#cart-confirmation-modal").modal({
-                    //             show: true
-                    //         });
-                    //     }
-                    // }
                 });
             } else {
                 return false;

@@ -28,7 +28,7 @@ from wtforms.validators import DataRequired, Optional
 from datetime import datetime
 
 
-def ProtocolEventForm(protocols: list):
+def ProtocolEventForm(protocols: list, data={}):
     class StaticForm(FlaskForm):
 
         protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
@@ -58,4 +58,4 @@ def ProtocolEventForm(protocols: list):
 
         submit = SubmitField("Submit")
 
-    return StaticForm()
+    return StaticForm(data=data)

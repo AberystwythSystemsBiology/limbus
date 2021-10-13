@@ -38,6 +38,7 @@ class EventSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     datetime = masql.auto_field()
     undertaken_by = masql.auto_field()
+    comments = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema, many=False)
     created_on = masql.auto_field()
 

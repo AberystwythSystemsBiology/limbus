@@ -21,6 +21,7 @@ import requests
 from ...misc import get_internal_api_header
 from ..forms import ProtocolEventForm
 from datetime import datetime
+strconv = lambda i: i or None
 
 
 @sample.route("<uuid>/protocol_event/new", methods=["GET", "POST"])
@@ -88,8 +89,91 @@ def new_protocol_event(uuid):
 @sample.route("/protocol_event/<uuid>/edit", methods=["GET", "POST"])
 @login_required
 def edit_protocol_event(uuid):
-    form = ProtocolEventForm([])
-    abort(501)
+    protocolevent_response = requests.get(
+        url_for("api.sample_view_protocol_event", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if protocolevent_response.status_code == 200:
+        sample_uuid = protocolevent_response.json()["sample"]["uuid"]
+        if protocolevent_response.json()["sample"]["is_locked"]:
+            flash("Sample is locked!")
+            return redirect(url_for("sample.view", uuid=sample_uuid))
+
+        data = protocolevent_response.json()
+
+        type = data["protocol"]["type"]
+        protocols_response = requests.get(
+            url_for("api.protocol_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"is_locked": False},
+        )
+        protocols = []
+
+        if protocols_response.status_code == 200:
+            for protocol in protocols_response.json()["content"]:
+                #if protocol["type"] not in ("Sample Aliquot / Derivation",
+                #                            "Sample Destruction", "Sample Transfer"):
+                # -- Protocol can only be changed to another protocol of the same type.
+                if protocol["type"] == type:
+                    protocols.append(
+                        (
+                            int(protocol["id"]),
+                            "[%s] LIMBPRO-%s: %s" % (protocol["type"], protocol["id"], protocol["name"]),
+                        )
+                    )
+
+        data.update(data["event"])
+        data.pop("event")
+        data.pop("protocol")
+        data.pop("sample")
+
+        data["date"]=datetime.strptime(data["datetime"], "%Y-%m-%dT%H:%M:%S").date()
+        data["time"]=datetime.strptime(data["datetime"], "%Y-%m-%dT%H:%M:%S").time()
+
+        form = ProtocolEventForm(protocols, data=data)
+
+        if form.validate_on_submit():
+            form_info = {
+                       "event": {
+                           "datetime": str(
+                               datetime.strptime(
+                                   "%s %s" % (form.date.data, form.time.data),
+                                   "%Y-%m-%d %H:%M:%S",
+                               )
+                           ),
+                           "undertaken_by": form.undertaken_by.data,
+                           "comments": form.comments.data,
+                       },
+                       "protocol_id": form.protocol_id.data
+                       # "sample_id": sample_response.json()["content"]["id"],
+                   }
+            # Set empty field to Null
+            for i in form_info:
+                form_info[i] = strconv(form_info[i])
+
+            event_response = requests.put(
+                url_for("api.sample_edit_sample_protocol_event", uuid=uuid, _external=True),
+                headers=get_internal_api_header(),
+                json=form_info
+            )
+
+            if event_response.status_code == 200:
+                flash("Protocol Event Successfully Edited!")
+            else:
+                flash(event_response.json()["message"])
+
+            return redirect(url_for("sample.view", uuid=sample_uuid))
+
+        return render_template(
+            "sample/protocol/edit.html",
+            form=form, uuid=uuid,
+            sample=protocolevent_response.json()["sample"],
+        )
+
+    else:
+        flash(protocolevent_response.json()["message"])
+        return redirect(url_for("sample.view", uuid=sample_uuid))
 
 
 @sample.route("/protocol_event/<uuid>/remove", methods=["GET", "POST"])
@@ -101,13 +185,9 @@ def remove_protocol_event(uuid):
     )
 
     if remove_response.status_code == 200:
-        # flash("Protocol Event Successfully Deleted!")
         flash(remove_response.json()["message"])
-        sample_uuid = remove_response.json()["content"]
-        #return redirect(url_for("sample.view", uuid=sample_uuid))
     else:
         flash("We have a problem: %s" % (remove_response.json()["message"]))
-        # abort(403)
 
     return remove_response.json()
 
