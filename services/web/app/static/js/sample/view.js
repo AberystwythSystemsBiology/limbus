@@ -366,7 +366,7 @@ function fill_sample_reviews(reviews) {
                 undertaken_by = review_info["event"]["undertaken_by"];
             }
             if (review_info["event"].hasOwnProperty('comments')) {
-                comments = review_info["event"]["datetime"];
+                comments = review_info["event"]["comments"];
             }
         }
         html = "<li>"

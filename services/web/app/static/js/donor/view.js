@@ -60,6 +60,7 @@ function calculate_bmi(height, weight) {
 
 
 function fill_sample_table(samples) {
+
     let table = $('#donor-samples-table').DataTable({
         data: samples,
         dom: 'Blfrtip',
