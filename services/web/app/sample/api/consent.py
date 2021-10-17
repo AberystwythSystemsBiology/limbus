@@ -22,7 +22,7 @@ from ...misc import get_internal_api_header
 
 from ..views import new_consent_schema, consent_schema, new_consent_answer_schema
 
-from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount
+from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount, SiteInformation, Donor
 
 
 @api.route("/sample/new/consent", methods=["POST"])
@@ -54,10 +54,10 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
     try:
         db.session.add(new_consent)
-        db.session.commit()
         db.session.flush()
+
     except Exception as err:
-        return transation_error_response(err)
+        return transaction_error_response(err)
 
     for answer in answers:
         try:
@@ -72,10 +72,45 @@ def sample_new_sample_consent(tokenuser: UserAccount):
 
         try:
             db.session.add(new_answer)
-            db.session.commit()
+
         except Exception as err:
             return transaction_error_response(err)
+
+    try:
+        db.session.commit()
+    except Exception as err:
+        return transaction_error_response(err)
 
     return success_with_content_response(
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     )
+
+# @api.route("/misc/site", methods=["GET"])
+# @token_required
+# def site_home(tokenuser: UserAccount):
+#     return success_with_content_response(
+#         basic_sites_schema.dump(SiteInformation.query.all())
+#     )
+
+# @api.route("/sample/query", methods=["GET"])
+# @use_args(SampleFilterSchema(), location="json")
+# @token_required
+# def sample_query(args, tokenuser: UserAccount):
+#     print('args: ', args)
+#     filters, joins = get_filters_and_joins(args, Sample)
+#     print('fj: ', filters, joins)
+
+@api.route("/sample/get_consents", methods=["GET"])
+@token_required
+def sample_get_consents(tokenuser: UserAccount):
+    consents = SampleConsent.query.outerjoin(Donor, Donor.id == SampleConsent.donor_id).\
+            outerjoin(SiteInformation, SiteInformation.id==Donor.enrollment_site_id).\
+            filter_by(is_locked=False).\
+            with_entities(Donor.enrollment_site_id, SiteInformation.name, Donor.id ,
+                      SampleConsent.id, SampleConsent.date).all()
+
+    results = [{'id':consent_id,'label':'[SITE%s-%s] LIMBDON-%s: LIMBDC-%s(%s)'
+               % (site_id, site_name, donor_id, consent_id, consent_date, )}
+                for (site_id, site_name, donor_id, consent_id, consent_date) in consents]
+
+    return success_with_content_response(results)

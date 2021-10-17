@@ -39,9 +39,9 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     height = db.Column(db.Float)
     race = db.Column(db.Enum(RaceTypes))
 
-    consents = db.relationship("SampleConsent")
-    # samples_new = db.relationship("Sample", uselist=True, secondary="donortosample")
-    samples = db.relationship("Sample", uselist=True, secondary="sampleconsent")
+    consents = db.relationship("SampleConsent", uselist=True, backref="sampleconsent")
+    # samples = db.relationship("Sample", uselist=True, secondary="donortosample")
+    samples = db.relationship("Sample", uselist=True, secondary="sampleconsent", viewonly=True)
 
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):

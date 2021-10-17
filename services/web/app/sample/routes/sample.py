@@ -25,7 +25,10 @@ from ..forms import (
     SampleToDocumentAssociatationForm,
     SampleReviewForm,
     ProtocolEventForm,
+    EditBasicForm
 )
+
+from ..enums import BiohazardLevel, Colour
 
 from datetime import datetime
 
@@ -185,6 +188,90 @@ def associate_document(uuid):
         return abort(document_response.status_code)
 
     return abort(sample_response.status_code)
+
+
+
+
+@sample.route("<uuid>/edit/basic_info", methods=["GET", "POST"])
+@login_required
+def edit_sample_basic_info(uuid):
+
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code != 200:
+        return abort(sample_response.status_code)
+
+    if sample_response.json()["content"]["is_locked"]:
+        flash("Sample is locked!")
+        return abort(sample_response.status_code)
+
+
+    consent_response = requests.get(
+        url_for("api.sample_get_consents", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if consent_response.status_code == 200:
+        consent_ids = []
+        for consent in consent_response.json()["content"]:
+            consent_ids.append([consent["id"], consent["label"]])
+    else:
+        flash("No consent info!")
+        return abort(consent_response.status_code)
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if sites_response.status_code == 200:
+        collection_sites = [];
+        for site in sites_response.json()["content"]:
+            collection_sites.append([site["id"], site["name"]])
+    else:
+        flash("Error in getting site info!")
+        return abort(sites_response.status_code)
+
+    data = sample_response.json()["content"]
+    data.update({"consent_id": data["consent_information"]["id"]})
+
+
+    form = EditBasicForm(consent_ids, collection_sites, data=data)
+
+    if form.validate_on_submit():
+        sample_info = {
+            "status": form.status.data,
+            "barcode": form.barcode.data,
+            "colour": form.colour.data,
+            "biohazard_level": form.biohazard_level.data,
+            "quantity": form.quantity.data,
+            # "remaining_quantity": remaining_quantity
+            "consent_id": form.consent_id.data,
+            "site_id": form.site_id.data
+        }
+        response = requests.put(
+            url_for("api.sample_edit_basic_info", uuid=uuid, _external=True),
+            headers=get_internal_api_header(),
+            json=sample_info,
+        )
+
+        if response.status_code == 200:
+            flash("Sample collection information successfully edited!")
+
+        else:
+            flash(response.json()["message"])
+
+        return redirect(url_for("sample.view", uuid=uuid))
+
+    return render_template(
+        "sample/edit.html",
+        sample=sample_response.json()["content"],
+        form=form,
+    )
+
+
 
 
 @sample.route("<uuid>/data", methods=["GET"])

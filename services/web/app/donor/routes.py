@@ -743,13 +743,9 @@ def withdraw_consent(id):
 
         print('start again')
 
-        for consent in data['consents']:
-            if consent['withdrawn']:
-                data['consents'].remove(consent)
-                continue
-
+        consents = [consent for consent in data['consents'] if not consent['withdrawn']]
         consent_ids = []
-        for consent in data['consents']:
+        for consent in consents:
             consent_ids.append(
                 [consent["id"],
                  "LIMBDC-%d: %s v%s" % (consent["id"], consent["template"]["name"], consent["template"]["version"])]
@@ -758,7 +754,7 @@ def withdraw_consent(id):
             for ans in consent['answers']:
                 if ans['type'] == 'FUTU':
                     consent['future'] = True
-            print('sample: ', data["samples"])
+            # print('sample: ', data["samples"])
             samples = [sample for sample in data["samples"]
                        if sample['consent_information']['id'] == consent["id"]]
             consent['num_sample'] = len(samples)
@@ -767,8 +763,9 @@ def withdraw_consent(id):
             flash("No active consent!")
             return redirect(url_for("donor.view", id=id))
 
-        for consent in data['consents']:
-            if consent['id'] == consent_ids[0]:
+        # - Default consent
+        for consent in consents:
+            if consent['id'] == consent_ids[0][0]:
                 break
 
         consent_info = {
@@ -782,12 +779,13 @@ def withdraw_consent(id):
             "consent_date": consent["date"],
             "future": consent["future"]
         }
+
         form = ConsentWithdrawalForm(consent_ids, consent_info)
 
         if "select_consent" in request.form:
             consent_id = form.consent_select.consent_id.data
             print("consent_id ", consent_id)
-            for consent in data['consents']:
+            for consent in consents:
                 if consent['id'] == consent_id:
                     break
             consent_info = {

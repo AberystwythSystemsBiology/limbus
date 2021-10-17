@@ -82,13 +82,13 @@ nav img {
 }
 
 .btn-cancel {
-    background-color: #eb4034;
+    background-color: dimgray;
     color: #ffffff;
     margin-right:0.5em;
 }
 
 .btn-cancel:hover {
-    background-color:#a62b23;
+    background-color:slategray;
     color: #ffffff;
 }
 

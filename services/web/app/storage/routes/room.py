@@ -103,7 +103,6 @@ def edit_room(id):
     if response.status_code == 200:
 
         form = RoomRegistrationForm(data=response.json()["content"])
-        flash(form.validate_on_submit())
         if form.validate_on_submit():
             form_information = {
                 "name": form.name.data,

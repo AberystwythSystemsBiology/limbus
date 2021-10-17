@@ -149,6 +149,7 @@ def DonorCreationForm(sites: dict, data={}):
         sex = SelectField(
             "Biological Sex",
             choices=BiologicalSexTypes.choices(),
+            default="UNK"
         )
 
         mpn = StringField("Master Patient Number")
@@ -167,6 +168,7 @@ def DonorCreationForm(sites: dict, data={}):
         race = SelectField(
             "Race",
             choices=RaceTypes.choices(),
+            default="UNK"
         )
 
         site = SelectField(

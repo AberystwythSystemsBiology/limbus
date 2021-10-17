@@ -39,7 +39,7 @@ from .views import (
     edit_donor_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
-    donor_diagnosis_event_schema,
+    donor_diagnosis_event_schema
 )
 
 
@@ -244,7 +244,7 @@ def donor_new_consent(tokenuser: UserAccount):
     values = request.get_json()
     if not values:
         return no_values_response()
-
+    print("values", values)
     errors = {}
     for key in ["identifier", "donor_id", "comments", "template_id", "date", "answers"]:
         if key not in values.keys():
@@ -263,13 +263,15 @@ def donor_new_consent(tokenuser: UserAccount):
 
     new_consent = SampleConsent(**consent_result)
     new_consent.author_id = tokenuser.id
+    new_consent.id = None
 
     try:
         db.session.add(new_consent)
         db.session.flush()
-        db.session.commit()
+        print("new_consent_id", new_consent.id)
+        # db.session.commit()
     except Exception as err:
-        return transation_error_response(err)
+        return transaction_error_response(err)
 
     for answer in answers:
         try:
@@ -282,13 +284,15 @@ def donor_new_consent(tokenuser: UserAccount):
         new_answer = SampleConsentAnswer(**answer_result)
         new_answer.author_id = tokenuser.id
         db.session.add(new_answer)
+        # db.session.flush()
 
     try:
         db.session.commit()
     except Exception as err:
         # Delete the new consent from database to avoid duplicates
-        db.session.delete(new_consent)
-        db.session.commit()
+        db.session.rollback()
+        #db.session.delete(new_consent)
+        #db.session.commit()
         return transaction_error_response(err)
 
     return success_with_content_response(
@@ -400,9 +404,9 @@ def donor_withdraw_consent(tokenuser: UserAccount):
     id = values.pop("donor_id")
     future_consent = values['future_consent']
     if future_consent:
-        old_values = new_consent_scheme.dump(consent)
+        old_values = new_consent_schema.dump(consent)
         new_consent = SampleConsent(**old_values)
-        new_consent.date = values['withdrawal_date']
+        new_consent.date = withdrawal_date
         new_consent.comments = new_consent.comments + " | replacement consent for future collection."
         new_consent.author_id = tokenuser.id
         try:
@@ -459,7 +463,3 @@ def donor_withdraw_consent(tokenuser: UserAccount):
         return success_with_content_response(donor_id)
     except Exception as err:
         return transaction_error_response(err)
-
-
-
-

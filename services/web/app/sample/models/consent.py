@@ -32,16 +32,28 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     withdrawn = db.Column(db.Boolean, default=False, nullable=False)
     withdrawal_date = db.Column(db.Date)
 
+    withdrawal_event = db.relationship("SampleConsentWithdrawal", uselist=False,
+        primaryjoin="SampleConsent.id == SampleConsentWithdrawal.consent_id",
+        backref="sampleconsentwithdrawal")
+
+    future_event = db.relationship("SampleConsent", uselist=False,
+        secondary="sampleconsentwithdrawal",
+        primaryjoin="SampleConsent.id == SampleConsentWithdrawal.future_consent_id",
+        secondaryjoin="SampleConsent.id == SampleConsentWithdrawal.consent_id",
+        backref="sampleconsentwithdrawal")
+
     template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
 
     template = db.relationship("ConsentFormTemplate", uselist=False)
 
     answers = db.relationship(
-        "ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer"
+        "ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer",
+        viewonly=True
     )
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
     question_id = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
 

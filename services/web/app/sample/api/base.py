@@ -33,7 +33,7 @@ from ..views import (
     sample_type_schema,
     new_cell_sample_schema,
     new_molecular_sample_schema,
-    new_sample_schema,
+    new_sample_schema, edit_sample_schema
 
 )
 
@@ -248,12 +248,12 @@ def sample_new_sample(tokenuser: UserAccount):
         )
 
     consent_information = values["consent_information"]
-    if "template_id" in values["consent_information"] and "date" in values["consent_information"]:
+    if "template_id" in consent_information and "date" in consent_information:
         # - New Sample based consent
         consent_response = requests.post(
             url_for("api.sample_new_sample_consent", _external=True),
             headers=get_internal_api_header(tokenuser),
-            json=values["consent_information"],
+            json=consent_information,
         )
 
         if consent_response.status_code == 200:
@@ -269,11 +269,11 @@ def sample_new_sample(tokenuser: UserAccount):
 
     disposal_information = values["disposal_information"]
 
-    if values["disposal_information"]["instruction"] != "NAP":
+    if disposal_information["instruction"] != "NAP":
         disposal_response = requests.post(
             url_for("api.sample_new_disposal_instructions", _external=True),
             headers=get_internal_api_header(tokenuser),
-            json=values["disposal_information"],
+            json=disposal_information,
         )
 
         if disposal_response.status_code == 200:
@@ -385,6 +385,51 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         return success_with_content_response(sample_type_schema.dump(sampletotype))
     except Exception as err:
         return transaction_error_response(err)
+
+
+
+@api.route("sample/<uuid>/edit/basic_info", methods=["PUT"])
+@token_required
+def sample_edit_basic_info(uuid, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    sample = Sample.query.filter_by(uuid=uuid).first()
+    if not sample:
+        return not_found("Sample")
+
+    if sample.is_locked:
+        return locked_response("sample")
+
+    if values["quantity"] != sample.quantity:
+        samples_in_tree = Sample.query.join(SubSampleToSample,
+            Sample.id.in_([SubSampleToSample.parent_id, SubSampleToSample.subsample_id])).\
+            filter(Sample.uuid==uuid)
+        if samples_in_tree.count()>0:
+            return in_use_response("sample! quantity can't be changed via basic edit! "+
+            "| Need to delete the associated sample creation protocol event before quantity can be changed!")
+
+    values["remaining_quantity"] = sample.remaining_quantity + values["quantity"] - sample.quantity
+
+    try:
+        sample_values = edit_sample_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    sample.update(sample_values)
+    sample.update({"editor_id": tokenuser.id})
+    values["uuid"] = uuid
+
+    try:
+        db.session.add(sample)
+        db.session.commit()
+        return success_with_content_message_response(values, "Sample info successfully edited!")
+    except Exception as err:
+        return transaction_error_response(err)
+
+
 
 
 def func_sample_storage_location(sample_id):

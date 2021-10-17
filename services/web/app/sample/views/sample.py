@@ -58,6 +58,27 @@ class NewSampleSchema(masql.SQLAlchemySchema):
 
 new_sample_schema = NewSampleSchema()
 
+class EditSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    barcode = masql.auto_field()
+    source = EnumField(SampleSource)
+    base_type = EnumField(SampleBaseType)
+    status = EnumField(SampleStatus)
+    colour = EnumField(Colour)
+    biohazard_level = EnumField(BiohazardLevel)
+    site_id = masql.auto_field()
+    #current_site_id = masql.auto_field()
+
+    quantity = masql.auto_field()
+    remaining_quantity = masql.auto_field()
+    disposal_id = masql.auto_field()
+    consent_id = masql.auto_field()
+    sample_to_type_id = masql.auto_field()
+
+
+edit_sample_schema = EditSampleSchema()
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -291,7 +291,6 @@ function fill_basic_information(sample_information) {
     html += render_content("Biohazard Level", sample_information["biohazard_level"]);
     html += render_content("Type", sample_information["base_type"]);
     html += render_content("Sample Type", sample_type);
-
     html += render_content("Quantity", sample_information["remaining_quantity"] + " / " + sample_information["quantity"] + " " + measurement);
     if (sample_information["storage"] != null) {
         var storage_info = ""
@@ -314,9 +313,8 @@ function fill_basic_information(sample_information) {
     html += render_content("Collection site", sample_information["site_id"]);
     html += render_content("Current site", sample_information["current_site_id"]);
 
-    //html += render_content("Access status", sample_information["biohazard_level"]);
-
     $("#basic-information").html(html);
+
 }
 
 
