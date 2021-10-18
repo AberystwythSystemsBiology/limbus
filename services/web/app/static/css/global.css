@@ -119,6 +119,12 @@ nav img {
     color: white;
 }
 
+.btn-icon{
+    border:none;
+    outline: none;
+    background: none;
+}
+
 #wmd-preview {
     background-color: #f5f5f5;
     padding:1em;

@@ -60,6 +60,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
 
     comments = masql.auto_field()
     template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
+    template_questions = ma.Nested(BasicConsentFormQuestionSchema, many=True)
     #author = ma.Nested(BasicUserAccountSchema, many=False)
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()

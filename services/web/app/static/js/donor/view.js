@@ -435,16 +435,40 @@ function fill_consent_information(consent_information) {
     $("#consent_identifier").html(consent_information["identifier"]);
     $("#consent_comments").html(consent_information["comments"]);
 
-
+    let answer_ids = [];
     for (answer in consent_information["answers"]) {
         var answer_info = consent_information["answers"][answer];
-
-        var answer_html = '';
-        answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
-        answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
-
-        $("#questionnaire-list").append(answer_html);
+        answer_ids.push(answer_info["id"])
     }
+
+    for (question in consent_information["template_questions"]) {
+            var question_info = consent_information["template_questions"][question];
+            var answer_html = '';
+            answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Item ';
+            answer_html += +(parseInt(question) + 1);
+            if (answer_ids.includes(question_info["id"])) {
+                answer_html += '  <i class="fas fa-check" style="color:green;"></i><h5></div>';
+                answer_html += '<p class="mb-1">' + question_info["question"] + '</p>';
+            } else {
+                answer_html += '<i class="fas fa-minus-circle" style="color:red;"></i><h5></div>';
+                answer_html += '<p class="mb-1" style="text-decoration: line-through;">' + question_info["question"]+ '</p>';
+            }
+
+            answer_html += '</li>';
+
+            $("#questionnaire-list").append(answer_html);
+
+    }
+
+        /*for (answer in consent_information["answers"]) {
+            var answer_info = consent_information["answers"][answer];
+
+            var answer_html = '';
+            answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
+            answer_html += +(parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
+
+            $("#questionnaire-list").append(answer_html);
+        }*/
 
     var consent_status = "Active"
     if (consent_information["withdrawn"]==true) {
@@ -462,6 +486,23 @@ function fill_consent_information(consent_information) {
     $("#consent_date").html(consent_information["date"]);
     $("#consent_status").html(consent_status);
     $("#withdrawal_date").html(consent_information["withdrawal_date"]);
+
+    $('#print-consent').on('click', function () {
+      var header = "Digital Consent Form: "+"LIMBDC-"+consent_information["id"];
+      console.log('header', header)
+      printCard(header);
+    })
+
+    function printCard(header) {
+        var divContents = document.getElementById("card-content").innerHTML;
+        var doc = window.open('', '');
+        doc.document.write('<html>');
+        doc.document.write('<body ><h5>'+ header +'</h5><br>');
+        doc.document.write(divContents);
+        doc.document.write('</body></html>');
+        doc.document.close();
+        doc.print();
+    }
 
 }
 
@@ -615,7 +656,7 @@ $(document).ready(function () {
     var donor_information = get_donor();
     var consents = {};
 
-
+    console.log("donor_info", donor_information)
     //render_sample_table(donor_information["samples"]);
     fill_sample_table(donor_information["samples"]);
 

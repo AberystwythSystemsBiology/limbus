@@ -189,12 +189,15 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" id="print-consent" class="btn-icon">
+            <i class="fa fa-print" aria-hidden="true"></i>
+        </button>
         <h5 class="modal-title" id="consentModalLabel">Digital Consent Form</h5>
         <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="card">
+      <div class="card" id="card-content">
         <div class="card-header">
           <div class="text-center">
             <h2><span id="consent_name"></span></h2>
