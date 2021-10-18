@@ -98,7 +98,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     storage = db.relationship("EntityToStorage", uselist=False, cascade="all, delete")
 
-    donor = db.relationship("Donor", uselist=False, secondary="donortosample")
+    #donor = db.relationship("Donor", uselist=False, secondary="donortosample")
 
 
 class SampleToEvent(Base, RefEditorMixin, RefAuthorMixin):

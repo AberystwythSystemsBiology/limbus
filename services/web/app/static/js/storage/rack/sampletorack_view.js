@@ -174,7 +174,8 @@ function render_full_noimg(info, row, col, count, assign_sample_url) {
     } else {
         content += '<div class="square tube" style="background-color: lightpink ;"><div class="align_middle present-tube">'
     }
-    content += sample_info['id']
+    content += '<small>['+sample_info['id'] + ']' + '<br>'+sample_info['barcode'] +'</small>';
+
     content += "</div></div></div>"
     $("#row_" + row).append(content)
 
@@ -226,7 +227,7 @@ function render_sample_table(samples) {
             lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
             columnDefs: [
                 {targets: '_all', defaultContent: ''},
-                {targets: [3,4,5], visible: false, "defaultContent": ""},
+                {targets: [4,5], visible: false, "defaultContent": ""},
             ],
             columns: [
                 {
