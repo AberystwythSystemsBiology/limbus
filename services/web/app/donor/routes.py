@@ -664,8 +664,9 @@ def add_sample_rerouter(id, hash):
                 )
 
                 if new_sample_response.status_code == 200:
+                    donor_id = api_data["consent_information"]["donor_id"]
                     return redirect(
-                        new_sample_response.json()["content"]["_links"]["self"]
+                        url_for("donor.view", id=donor_id, _external=True)
                     )
                 else:
                     flash("We have encountered an error. %s " % new_sample_response.json()["message"])
