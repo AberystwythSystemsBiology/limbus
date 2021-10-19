@@ -170,11 +170,13 @@ function render_full_noimg(info, row, col, count, assign_sample_url) {
     var sample_info = info["sample"]
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     if (info['tostore']) {
-        content += '<div class="square tube" style="background-color: lightblue ;"><div class="align_middle present-tube">'
+        content += '<div class="square tube" style="background-color: lightblue ;">' +
+            '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
     } else {
-        content += '<div class="square tube" style="background-color: lightpink ;"><div class="align_middle present-tube">'
+        content += '<div class="square tube" style="background-color: lightpink ;">' +
+            '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
     }
-    content += '<small>['+sample_info['id'] + ']' + '<br>'+sample_info['barcode'] +'</small>';
+    content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
 
     content += "</div></div></div>"
     $("#row_" + row).append(content)
