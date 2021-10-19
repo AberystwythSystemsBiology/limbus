@@ -216,6 +216,7 @@ function fill_consent_information(consent_information) {
         var answer_info = consent_information["answers"][answer];
         answer_ids.push(answer_info["id"])
     }
+    $("#questionnaire-list").html("")
     for (question in consent_information["template_questions"]) {
             var question_info = consent_information["template_questions"][question];
             var answer_html = '';
