@@ -512,7 +512,7 @@ function fill_protocol_events(events) {
 
     for (e in events) {
         var event_info = events[e];
-        console.log('event_info: ', event_info)
+        //console.log('event_info: ', event_info)
         var event_datetime = '';
         var undertaken_by = '';
         var comments = '';
@@ -934,7 +934,7 @@ $(document).ready(function () {
         fill_document_information(sample_info["documents"]);
         fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
-        console.log('sample_info', sample_info)
+        //console.log('sample_info', sample_info)
         const intransit = ["Transferred", "Pending Collection"]
         if (sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
             lock_action()
@@ -1032,7 +1032,6 @@ $(document).ready(function () {
 
         $("#deep-remove").on("click", function () {
             var uuid = sample_info["uuid"];
-            console.log('uuid', uuid)
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
             warning_msg += "<br> <B>Deep remove will delete the sample and its sub-samples and associated data. !!</B>" ;
             $("#delete-protocol-warning").html(warning_msg)

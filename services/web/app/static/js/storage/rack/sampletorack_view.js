@@ -229,10 +229,18 @@ function render_sample_table(samples) {
             lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
             columnDefs: [
                 {targets: '_all', defaultContent: ''},
-                {targets: [4,5], visible: false, "defaultContent": ""},
+                {targets: [0, 5, 6], visible: false, "defaultContent": ""},
             ],
+            order: [[0, 'asc']],
             columns: [
-                {
+                { // col id
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        return data["pos"][1]
+                    },
+                    "width": "3%"
+                },
+                { // pos: row, col
                     "mData": {},
                     "mRender": function(data, type,row) {
                         tick = String.fromCharCode(Number(data["pos"][0])+64);
