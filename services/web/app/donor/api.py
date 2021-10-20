@@ -37,6 +37,7 @@ from .views import (
     donors_schema,
     new_donor_schema,
     edit_donor_schema,
+    basic_donors_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema
@@ -64,7 +65,7 @@ def donor_home(tokenuser: UserAccount):
 def donor_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Donor)
     return success_with_content_response(
-        donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
+        basic_donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
     )
 
 

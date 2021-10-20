@@ -26,7 +26,7 @@ from marshmallow_enum import EnumField
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ..enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
 from ...sample.enums import Colour
-from ...sample.views import BasicSampleSchema, ConsentSchema, SampleSchema
+from ...sample.views import BasicSampleSchema, ConsentSchema, SampleSchema, BasicConsentSchema
 
 from .diagnosis import DonorDiagnosisEventSchema
 
@@ -43,6 +43,62 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour) #, by_value=True)
     enrollment_site_id = masql.auto_field()
 
+
+class BasicDonorSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Donor
+
+    id = masql.auto_field()
+
+    uuid = masql.auto_field()
+    mpn = masql.auto_field()
+    enrollment_site_id = masql.auto_field()
+    dob = ma.Date()
+    registration_date = ma.Date()
+    sex = EnumField(BiologicalSexTypes, by_value=True)
+    status = EnumField(DonorStatusTypes, by_value=True)
+    death_date = ma.Date()
+
+    weight = masql.auto_field()
+    height = masql.auto_field()
+
+    diagnoses = ma.Nested(DonorDiagnosisEventSchema, many=True)
+
+    race = EnumField(RaceTypes, by_value=True)
+
+    author = ma.Nested(UserAccountSearchSchema)
+    updater = ma.Nested(UserAccountSearchSchema)
+
+    colour = EnumField(Colour, by_value=True)
+
+    # consents = ma.Nested(ConsentSchema, many=True)
+    consents = ma.Nested(BasicConsentSchema, many=True)
+    samples_new = ma.Nested(BasicSampleSchema, many=True)
+    #samples = ma.Nested(SampleSchema, many=True)
+
+    created_on = ma.Date()
+    updated_on = ma.Date()
+
+    _links = ma.Hyperlinks(
+        {
+            "self": ma.URLFor("donor.view", id="<id>", _external=True),
+            "collection": ma.URLFor("donor.index", _external=True),
+            "edit": ma.URLFor("donor.edit", id="<id>", _external=True),
+            "new_sample": ma.URLFor(
+                "donor.add_sample_step_one", id="<id>", _external=True
+            ),
+            "assign_diagnosis": ma.URLFor(
+                "donor.new_diagnosis", id="<id>", _external=True
+            ),
+            "associate_sample": ma.URLFor(
+                "donor.associate_sample", id="<id>", _external=True
+            ),
+        }
+    )
+
+
+basic_donor_schema = BasicDonorSchema()
+basic_donors_schema = BasicDonorSchema(many=True)
 
 class DonorSchema(masql.SQLAlchemySchema):
     class Meta:

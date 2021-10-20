@@ -40,7 +40,7 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     race = db.Column(db.Enum(RaceTypes))
 
     consents = db.relationship("SampleConsent", uselist=True, backref="sampleconsent")
-    # samples = db.relationship("Sample", uselist=True, secondary="donortosample")
+    samples_new = db.relationship("Sample", uselist=True, secondary="donortosample")
     samples = db.relationship("Sample", uselist=True, secondary="sampleconsent", viewonly=True)
 
 

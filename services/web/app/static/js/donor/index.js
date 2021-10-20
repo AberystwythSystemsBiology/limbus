@@ -61,8 +61,10 @@ function render_table(query) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [2, 3, 4,  6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+            {targets: [2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+            //{width: 200, targets: 6 }
         ],
+        //fixedColumns: true,
         order: [[0, 'desc']],
 
         columns: [
@@ -107,7 +109,7 @@ function render_table(query) {
             {   //samples 6
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    samples = data["samples"];
+                    samples = data["samples_new"];
                     var col_data = '';
                     $.each(samples, function (index, sample) {
                         //var col_data = '';
