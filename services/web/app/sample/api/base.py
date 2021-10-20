@@ -334,13 +334,14 @@ def sample_new_sample(tokenuser: UserAccount):
     #-- DonorToSample association
     if "donor_id" in consent_information:
         donor_id = consent_information["donor_id"]
-        try:
-            dts = DonorToSample(donor_id=donor_id, sample_id=sample_id)
-            dts.author_id=tokenuser.id
-            db.session.add(dts)
-            db.session.commit()
-        except Exception as err:
-            return transaction_error_response(err)
+        if donor_id:
+            try:
+                dts = DonorToSample(donor_id=donor_id, sample_id=sample_id)
+                dts.author_id=tokenuser.id
+                db.session.add(dts)
+                db.session.commit()
+            except Exception as err:
+                return transaction_error_response(err)
 
     return success_with_content_response(
         basic_sample_schema.dump(

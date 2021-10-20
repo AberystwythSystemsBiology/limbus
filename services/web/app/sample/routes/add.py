@@ -63,6 +63,7 @@ def prepare_form_data(data: dict):
             "identifier": step_two["consent_id"],
             "comments": step_two["comments"],
             "date": step_two["date"],
+            "undertaken_by": step_two["undertaken_by"],
             "answers": step_two["checked"],
             "template_id": step_one["consent_form_id"],
         },
@@ -267,6 +268,7 @@ def add_step_two(hash):
             "consent_id": questionnaire.consent_id.data,
             "comments": questionnaire.comments.data,
             "date": str(questionnaire.date.data),
+            "undertaken_by": questionnaire.undertaken_by.data,
             "checked": [],
         }
 

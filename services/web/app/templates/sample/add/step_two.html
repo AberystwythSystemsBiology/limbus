@@ -46,7 +46,16 @@
 
             <div class="card-footer">
                 {{ form_field(questionnaire.comments) }}
-                {{ form_field(questionnaire.date) }}
+
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(questionnaire.date) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(questionnaire.undertaken_by) }}
+                </div>
+            </div>
+
             </div>
         </div>
 

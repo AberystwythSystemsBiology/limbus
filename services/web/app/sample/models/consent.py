@@ -25,6 +25,7 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
     comments = db.Column(db.Text)
     date = db.Column(db.Date, nullable=False)
+    undertaken_by = db.Column(db.String(128))
 
     file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
     file = db.relationship("Document")
@@ -54,7 +55,6 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
         "ConsentFormTemplateQuestion", uselist=True, secondary="sampleconsentanswer",
         viewonly=True
     )
-
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):

@@ -204,7 +204,7 @@ function fill_comments(comments) {
 
 
 function fill_consent_information(consent_information) {
-
+    console.log("consent_information", consent_information)
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);

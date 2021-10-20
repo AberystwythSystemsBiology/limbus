@@ -246,7 +246,7 @@ def donor_new_consent(tokenuser: UserAccount):
         return no_values_response()
     print("values", values)
     errors = {}
-    for key in ["identifier", "donor_id", "comments", "template_id", "date", "answers"]:
+    for key in ["identifier", "donor_id", "comments", "template_id", "date", "undertaken_by", "answers"]:
         if key not in values.keys():
             errors[key] = ["Not found."]
 
@@ -268,7 +268,6 @@ def donor_new_consent(tokenuser: UserAccount):
     try:
         db.session.add(new_consent)
         db.session.flush()
-        print("new_consent_id", new_consent.id)
         # db.session.commit()
     except Exception as err:
         return transaction_error_response(err)

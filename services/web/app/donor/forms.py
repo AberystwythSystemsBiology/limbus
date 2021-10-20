@@ -228,6 +228,9 @@ def ConsentQuestionnaire(data={})-> FlaskForm:
         comments = TextAreaField("Comments")
 
         date = DateField("Date of Consent", default=datetime.today())
+        undertaken_by = StringField(
+            "Communicated by",
+        )
 
         submit = SubmitField("Continue")
 

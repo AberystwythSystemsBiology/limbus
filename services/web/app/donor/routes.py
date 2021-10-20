@@ -265,6 +265,7 @@ def add_consent_answers(donor_id, template_id):
             "template_id": consent_template['id'],
             "comments": form.comments.data,
             "date": str(form.date.data),
+            "undertaken_by": form.undertaken_by.data,
             "answers": [],
         }
 
