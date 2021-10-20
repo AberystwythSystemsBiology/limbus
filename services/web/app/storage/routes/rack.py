@@ -74,6 +74,19 @@ def rack_index():
 
     return abort(response.status_code)
 
+@storage.route("/rack/endpoint")
+@login_required
+def rack_endpoint():
+    response = requests.get(
+        #url_for("api.storage_rack_info", _external=True),
+        url_for("api.storage_rack_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    return response.content
+
 @storage.route("/rack/info")
 @login_required
 def rack_info():

@@ -61,12 +61,13 @@ function render_table(query) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [1, 2, 3, 4,  6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+            {targets: [2, 3, 4,  6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
         ],
-        order: [[1, 'desc']],
+        order: [[0, 'desc']],
 
         columns: [
-            { // id,
+            {data: 'id'},//0
+            { // id, 1
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var col_data = '';
@@ -79,7 +80,7 @@ function render_table(query) {
                     return col_data
                 }
             },
-            {data: 'id'},//1
+
             {data: 'uuid'},//2
             {data: 'mpn'}, //3
             {data: 'enrollment_site_id'}, //4
