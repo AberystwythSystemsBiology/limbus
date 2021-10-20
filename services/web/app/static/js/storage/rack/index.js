@@ -56,7 +56,8 @@ function render_rack_table(racks) {
                     "mRender": function(data, type,row) {
                         var render_html = "";
                         render_html += "<a href='" + data["_links"]["self"] + "'>"
-                        render_html += render_colour(data["colour"]) + "LIMBRACK-" + data["id"];
+                        render_html += render_colour(data["colour"]) + '<i class="fa fa-grip-vertical"></i>'
+                        render_html += "LIMBRACK-" + data["id"];
                         render_html += "</a>"
                         return render_html
                     }
@@ -89,9 +90,10 @@ function render_rack_table(racks) {
                         var render_html = "";
                         if (data["shelf"]!=null) {
                             render_html += "<a href='" + data["shelf"]["_links"]["self"] + "'>"
+                            render_html += '<i class="fa fa-bars"></i>'
                             render_html += "LIMBSHF-" + data["shelf"]["id"];
-                            render_html += " | " + data["shelf"]["name"];
                             render_html += "</a>";
+                            render_html += "  " + data["shelf"]["name"];
                         }
                         return render_html;
                     }
