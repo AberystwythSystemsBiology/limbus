@@ -13,7 +13,7 @@ def _post():
     pass
 
 
-def get_filters_and_joins(args: dict, model):
+def get_filters_and_joins(args: object, model: object) -> object:
 
     filters = {}
     joins = []

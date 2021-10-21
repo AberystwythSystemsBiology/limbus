@@ -15,6 +15,8 @@
 
 from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
+from sqlalchemy.sql import func
+
 from ...api import api, generics
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
@@ -26,15 +28,14 @@ from ...webarg_parser import use_args, use_kwargs, parser
 from ..views import (
     basic_samples_schema,
     basic_sample_schema,
-    sample_protocol_event_schema,
     sample_schema,
     SampleFilterSchema,
     new_fluid_sample_schema,
     sample_type_schema,
     new_cell_sample_schema,
     new_molecular_sample_schema,
-    new_sample_schema, edit_sample_schema
-
+    new_sample_schema, edit_sample_schema,
+    sample_types_schema
 )
 
 from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
@@ -43,13 +44,13 @@ from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccoun
                          UserCart, SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
                          EntityToStorage,
                          SiteInformation, Building, Room, ColdStorage, ColdStorageShelf,
-                         SampleConsent, DonorToSample, SampleToCustomAttributeData)
-
-from sqlalchemy import or_
+                         SampleConsent, DonorToSample, SampleToCustomAttributeData,
+                         SampleConsentAnswer, ConsentFormTemplateQuestion)
 
 from ..enums import *
 
 import requests
+
 
 def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
     # Find all parent samples (id) with matching protocol events (by protocol_template_id)
@@ -88,9 +89,66 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
 
     return (stmt)
 
-def sample_sampletype_query_stmt(filters, joins, filters_sampletype):
-    pass
-    abort(402)
+def sample_sampletype_query_stmt(filters_sampletype=None, filter_sample_id=None, filters=None, joins=None):
+    if filter_sample_id is None:
+        stmt = db.session.query(Sample.id).join(SampleToType).\
+                filter_by(**filters).filter(*joins)
+    else:
+        stmt = db.session.query(Sample.id).join(SampleToType).\
+                filter(Sample.id.in_(filter_sample_id))
+
+    for attr, value in filters_sampletype.items():
+        stmt = stmt.filter(getattr(SampleToType, attr)==value)
+
+    return stmt
+
+def sample_consent_status_query_stmt(filters_consent=None, filter_sample_id=None, filters=None, joins=None):
+    if "withdrawn" not in filters_consent:
+        return filter_sample_id
+
+    withdrawn = filters_consent["withdrawn"] # True/False
+    if filter_sample_id is None:
+        stmt = db.session.query(Sample.id).\
+            filter_by(**filters).filter(*joins). \
+            join(SampleConsent).filter(SampleConsent.withdrawn == withdrawn)
+    else:
+        stmt = db.session.query(Sample.id). \
+            filter(Sample.id.in_(filter_sample_id)). \
+            join(SampleConsent).filter(SampleConsent.withdrawn == withdrawn)
+
+    return stmt
+
+
+def sample_consent_type_query_stmt(filters_consent=None, filter_sample_id=None, filters=None, joins=None):
+    if "type" not in filters_consent:
+        return filter_sample_id
+
+    # Filter to get samples with consent to given question types
+    num_types = len(filters_consent['type'])
+    filter_types = filters_consent['type']
+
+    if filter_sample_id is None:
+        stmt = db.session.query(Sample.id.label("sample_id"),
+                                ConsentFormTemplateQuestion.type.label("consent_type")).\
+            filter_by(**filters).filter(*joins). \
+            join(SampleConsent).join(SampleConsentAnswer).join(ConsentFormTemplateQuestion).\
+            filter(ConsentFormTemplateQuestion.type.in_(filter_types)). \
+            distinct(Sample.id, ConsentFormTemplateQuestion.type)
+
+    else:
+        stmt = db.session.query(Sample.id.label("sample_id"),
+                                ConsentFormTemplateQuestion.type.label("consent_type")).\
+            filter(Sample.id.in_(filter_sample_id)). \
+            join(SampleConsent).join(SampleConsentAnswer).join(ConsentFormTemplateQuestion). \
+            filter(ConsentFormTemplateQuestion.type.in_(filter_types)). \
+            distinct(Sample.id, ConsentFormTemplateQuestion.type)
+
+    subq = stmt.subquery()
+    stmt = db.session.query(subq.c.sample_id). \
+        group_by(subq.c.sample_id). \
+        having(func.count(subq.c.sample_id)==num_types)
+
+    return stmt
 
 
 #@storage.route("/shelf/LIMBSHF-<id>/location", methods=["GET"])
@@ -147,22 +205,64 @@ def sample_get_containertypes():
         }
     )
 
+@api.route("/sample/sampletype", methods=["GET"])
+@token_required
+def sampletype_home(tokenuser: UserAccount):
+    sts = SampleToType.query.distinct(SampleToType.fluid_type, SampleToType.molecular_type,
+                                      SampleToType.cellular_type, SampleToType.tissue_type).all()
+    sampletype_info = {} #sample_types_schema.dump(sts)
+    choices = []
+    for st in sts:
+        if st.fluid_type:
+            choices.append(("fluid_type"+ ":" + st.fluid_type.name, st.fluid_type.value))
+        if st.molecular_type:
+            choices.append(("fluid_type"+ ":" + st.molecular_type.name, st.molecular_type.value))
+        if st.cellular_type:
+            choices.append(("fluid_type"+ ":" + st.cellular_type.name, st.cellular_type.value))
+        if st.tissue_type:
+            choices.append(("fluid_type"+ ":" + st.tissue_type.name, st.tissue_type.value))
+
+    return success_with_content_response(
+        {"sampletype_info": sampletype_info, "choices": choices}
+    )
+
+
 @api.route("/sample", methods=["GET"])
 @token_required
 def sample_home(tokenuser: UserAccount):
     return success_with_content_response(basic_samples_schema.dump(Sample.query.all()))
 
 
-
 @api.route("/sample/query", methods=["GET"])
 @use_args(SampleFilterSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
-    print('args: ', args)
     filters, joins = get_filters_and_joins(args, Sample)
-    print('fj: ', filters, joins)
 
+    flag_sample_type = False
+    flag_consent_status = False
+    flag_consent_type = False
     flag_protocol = False
+
+    filters_consent = {}
+    filters_sampletype = {}
+    if "sample_type" in filters:
+        flag_sample_type = True
+        tmp = filters.pop("sample_type").split(":")
+        filters_sampletype[tmp[0]] = tmp[1]
+
+
+    if "consent_status" in filters:
+        flag_consent_status = True
+        if filters["consent_status"] == "active":
+            filters_consent["withdrawn"] = False
+        elif filters["consent_status"] == "withdrawn":
+            filters_consent["withdrawn"] = True
+        filters.pop("consent_status")
+
+    if "consent_type" in filters:
+        flag_consent_type = True
+        filters_consent["type"] = filters.pop("consent_type").split(",")
 
     if "protocol_id" in filters:
         flag_protocol = True
@@ -172,8 +272,17 @@ def sample_query(args, tokenuser: UserAccount):
 
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
 
+    if flag_consent_status:
+        stmt = sample_consent_status_query_stmt(filters_consent=filters_consent, filter_sample_id=stmt)
+
+    if flag_consent_type:
+        stmt = sample_consent_type_query_stmt(filters_consent=filters_consent, filter_sample_id=stmt)
+
     if flag_protocol:
         stmt = sample_protocol_query_stmt(filters_protocol=filters_protocol, filter_sample_id=stmt)
+
+    if flag_sample_type:
+        stmt = sample_sampletype_query_stmt(filters_sampletype=filters_sampletype, filter_sample_id=stmt)
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     results = basic_samples_schema.dump(stmt.all())

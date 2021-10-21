@@ -28,12 +28,17 @@
             {{ form_field(form.barcode) }}
             {{ form_field(form.biohazard_level) }}
             {{ form_field(form.base_type) }}
+            {{ form_field(form.sample_type) }}
             {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
             {{ form_field(form.status) }}
             {{ form_field(form.current_site_id) }}
 {#            {{ form.current_site_id }}#}
             {{ form_field(form.protocol_id) }}
+            {{ form_field(form.consent_status) }}
+            <b>{{ form.consent_type.label }}</b>
+            {{ form.consent_type(size="2", class="form-control") }}
+
 
             <div class="row">
                 <div class="col-6">

@@ -20,9 +20,11 @@ from ...misc import get_internal_api_header
 import requests
 from wtforms import SelectField, StringField, SubmitField, BooleanField, SelectMultipleField
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
+from ...consent.enums import QuestionType
 
-def SampleFilterForm(sites: list, data: {}) -> FlaskForm:
-
+def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
+    sampletypes.insert(0, (None, "None"))
+    print("sampletype", sampletypes)
     class StaticForm(FlaskForm):
         biohazard_level = SelectField(
             "Biohazard Level", choices=BiohazardLevel.choices(with_none=True)
@@ -31,7 +33,7 @@ def SampleFilterForm(sites: list, data: {}) -> FlaskForm:
         uuid = StringField("UUID")
         barcode = StringField("Barcode")
         colour = SelectField("Colour", choices=Colour.choices(with_none=True))
-        base_type = SelectField("Sample Type", choices=SampleBaseType.choices(with_none=True))
+        base_type = SelectField("Base Type", choices=SampleBaseType.choices(with_none=True))
         source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
         status = SelectField("Sample Status", choices=SampleStatus.choices(with_none=True))
 
@@ -39,9 +41,36 @@ def SampleFilterForm(sites: list, data: {}) -> FlaskForm:
 
     setattr(
         StaticForm,
+        "sample_type",
+        SelectField(
+            "Sample Type", choices=sampletypes,
+            default=None
+        ),
+    )
+
+    setattr(
+        StaticForm,
         "current_site_id",
         SelectField(
             "Site", choices=sites,
+            default=None
+        ),
+    )
+
+    setattr(
+        StaticForm,
+        "consent_status",
+        SelectField(
+            "Consent status", choices=[(None, "None"), ("active", "Active"), ("withdrawn", "Withdrawn")],
+            default=None
+        ),
+    )
+
+    setattr(
+        StaticForm,
+        "consent_type",
+        SelectMultipleField(
+            "Consent type", choices=QuestionType.choices(), #(with_none=True),
         ),
     )
 

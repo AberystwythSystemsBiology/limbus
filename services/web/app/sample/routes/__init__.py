@@ -32,11 +32,23 @@ def index() -> str:
         headers=get_internal_api_header(),
     )
 
+    sites = []
+    user_site_id = None
     if sites_response.status_code == 200:
         sites = sites_response.json()["content"]['choices']
         user_site_id = sites_response.json()["content"]['user_site_id']
 
-    form = SampleFilterForm(sites, data={'current_site_id': user_site_id})
+    sampletype_response = requests.get(
+        url_for("api.sampletype_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    sampletypes = []
+    if sampletype_response.status_code == 200:
+        print("sampletype_response.json()", sampletype_response.json())
+        sampletypes = sampletype_response.json()["content"]['choices']
+
+    form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
     # form = SampleFilterForm()
     return render_template("sample/index.html", form=form)
 

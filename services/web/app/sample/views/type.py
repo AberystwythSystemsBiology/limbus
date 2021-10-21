@@ -93,3 +93,4 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
 
 
 sample_type_schema = SampleTypeSchema()
+sample_types_schema = SampleTypeSchema(many=True)

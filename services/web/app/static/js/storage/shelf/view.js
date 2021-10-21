@@ -51,8 +51,10 @@ function render_subtitle(shelf_information) {
         //window.location.href = shelf_information["_links"]["assign_rack_to_shelf"];
         window.location.href = shelf_information["_links"]["assign_racks_to_shelf"];
 
-    })
+    });
 
+    if (shelf_information["samples"].length>0 || shelf_information["racks"].length>0)
+        $("#delete-shelf").hide();
 }
 
 function render_information(shelf_information) {

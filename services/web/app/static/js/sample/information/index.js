@@ -58,22 +58,24 @@ function render_table(query) {
 
 
 function get_filters() {
-    var filters = {
+    var filters = {};
 
-    }
-
-    //var f = ["barcode", "type", "colour", "source", "status"];
-    var f = ["barcode", "biohazard_level", "base_type", "colour", "source", "status", "current_site_id", "protocol_id"];
+    var f = ["barcode", "biohazard_level", "base_type", "sample_type", "colour", "source",
+            "status", "current_site_id", "consent_status", "consent_type", "protocol_id"];
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
-        if (value && value != "None") {
-            filters[filter] = value;
+        if (typeof(value) == 'object') {
+            if (value.length>0) {
+                filters[filter] = value.join();
+            }
+        } else {
+            if (value && value != "None") {
+                filters[filter] = value;
+            }
         }
     });
-
     return filters;
-
 
 }
 
@@ -96,14 +98,6 @@ $(document).ready(function() {
         var filters = get_filters();
         render_table(filters);
     });
-
-    // $("#export").click(function() {
-    //     //$("#table_view").fadeOut();
-    //     //$('#sampleTable').DataTable().destroy()
-    //     var filters = get_filters();
-    //     render_table(filters);
-    //
-    // });
 
 
 });

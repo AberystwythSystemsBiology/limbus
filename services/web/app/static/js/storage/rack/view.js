@@ -331,6 +331,8 @@ function render_information(rack_information) {
 
     $("#row").html(rack_information["num_rows"]);
     $("#col").html(rack_information["num_cols"]);
+    if (rack_information["counts"]["full"]>0)
+        $("#delete-rack").hide();
 }
 
 function render_view(view, assign_sample_url, img_on) {
@@ -454,7 +456,8 @@ $(document).ready(function () {
     });
 
     render_occupancy_chart(rack_information["counts"])
-    render_sample_table(samples);
+    render_sample_table(samples)
+
 
     $("#add-sample-btn").click(function() {
     var api_url = window.location.href = rack_information["_links"]["assign_samples"];
