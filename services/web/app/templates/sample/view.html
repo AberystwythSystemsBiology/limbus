@@ -80,19 +80,19 @@
                     <i class="fas fa-vial"></i> Sample Actions
                   </button>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
-                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
-                      <i class="fa fa-trash"></i> Dispose Sample</a>
-                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
-                      class="fas fa-file"></i> New Review</a>
-                      
-                    <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
-                        class="fa fa-project-diagram"></i> New Protocol Event</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
-                      class="fas fa-file"></i> Associate Document</a>
+                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
                     <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i> Aliquot Sample</a>
-                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
+                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
+                      <i class="fa fa-trash"></i> Dispose Sample</a>
+                    <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
+                        class="fa fa-project-diagram"></i> Other Protocol Event</a>
+                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
+                      class="fas fa-file"></i> New Review</a>
+                    <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
+                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
+                      class="fas fa-file"></i> Associate Document</a>
+
                     <a id="action-status" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
                     
                   </div>
@@ -229,16 +229,7 @@
 
         </tbody>
       </table>
-{#        <div class="col-9 float-left">#}
-{#            <select id="select_rack">#}
-{#                <option value=0>---- Store to a rack  ----</option>#}
-{#            </select>#}
-{#        </div>#}
-{#        <div class="col-9 float-left">#}
-{#            <select id="select_shelf" >#}
-{#                <option value=0>---- Store to a shelf ----</option>#}
-{#            </select>#}
-{#        </div>#}
+
 
       <div class="btn-group mr-2 float-right" role="group" aria-label="First group">
 {#        <button type="button" class="btn btn-outline-dark" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>#}
@@ -246,17 +237,12 @@
           Add Subsample to Cart</button>
       </div>
 
-{#        <button type="button" class="btn btn-success float-right" id="subsample_to_storage">Store</button>#}
-
-{#    </form>#}
 
     </div>
   </div>
 
 </div>
 
-{#</div>#}
-{#</div>#}
 
 
 <!-- Delete Review Modal -->

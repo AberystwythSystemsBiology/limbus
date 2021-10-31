@@ -323,30 +323,43 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         if sampledisposal:
             disposal_values = new_sample_disposal_schema.dump(sampledisposal)
 
-    # New event and sampleprotocol_event
-    # each event consists of (i.e. is linked to) a batch of sampleprotocl_event(s) for aliquot
-    processing_event_values = {
-        "datetime": str(
-            datetime.strptime(
-                "%s %s" % (values["processing_date"], values["processing_time"]),
-                "%Y-%m-%d %H:%M",  # "%Y-%m-%d %H:%M:%S",
+    # T0: New event and sampleprotocol_event for sample processing prior to derivation/aliquot
+    if values["processing_protocol"]!= "0":
+        processing_event_values = {
+            "datetime": str(
+                datetime.strptime(
+                    "%s %s" % (values["processing_date"], values["processing_time"]),
+                    "%Y-%m-%d %H:%M",  # "%Y-%m-%d %H:%M:%S",
+                )
+            ),
+            "undertaken_by": values["processed_by"],
+            "comments": values["processing_comments"],
+        }
+
+        try:
+            new_event1 = Event(**processing_event_values)
+            new_event1.author_id = tokenuser.id
+            db.session.add(new_event1)
+            db.session.flush()
+            event1_id = new_event1.id
+        except Exception as err:
+            return transaction_error_response(err)
+
+        try:
+            new_sample_protocol_event1 = SampleProtocolEvent(
+                sample_id=parent_id,
+                protocol_id=values["processing_protocol"],
+                event_id=event1_id,
             )
-        ),
-        "undertaken_by": values["processed_by"],
-        "comments": values["processing_comments"],
-    }
+            # -- Indicator for protocol event that create new samples
+            new_sample_protocol_event1.is_locked = False
+            new_sample_protocol_event1.author_id = tokenuser.id
+            db.session.add(new_sample_protocol_event1)
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
 
-    try:
-        new_event1 = Event(**processing_event_values)
-        new_event1.author_id = tokenuser.id
-        db.session.add(new_event1)
-        db.session.flush()
-        event1_id = new_event1.id
-    except Exception as err:
-        return transaction_error_response(err)
-
-    # New event and sampleprotocol_event
-    # each event consists of (i.e. is linked to) a batch of sampleprotocl_event(s) for aliquot
+    # T1: New event and sampleprotocol_event for parent sample in sample derivation/aliquot event.
     derivation_event_values = {
         "datetime": str(
             datetime.strptime(
@@ -367,23 +380,6 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-    # TODO: Use existing API endpoint.
-    # T1: new protocol event for parent sample
-
-    try:
-        new_sample_protocol_event1 = SampleProtocolEvent(
-            sample_id=parent_id,
-            protocol_id=values["processing_protocol"],
-            event_id=event1_id,
-        )
-        # -- Indicator for protocol event that create new samples
-        new_sample_protocol_event1.is_locked = False
-        new_sample_protocol_event1.author_id = tokenuser.id
-        db.session.add(new_sample_protocol_event1)
-        db.session.flush()
-    except Exception as err:
-        return transaction_error_response(err)
-
     try:
         new_sample_protocol_event2 = SampleProtocolEvent(
             sample_id=parent_id,
@@ -398,34 +394,8 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+    # T2. New sampletotypes for subsamples/derivatives, linked to the parent sample protocol event
     for derivative in values["derivatives"]:
-        # T2. New sampletotypes for subsamples: store data on sample type and container
-        # Keep the sample type and drop the container info from the parent sample
-        # type_values.pop('fluid_container', None)
-        # type_values.pop('cellular_container', None)
-        # type_values.pop('fixation_type', None)
-        #
-        # der_sampletotype = SampleToType(**type_values)
-        # der_sampletotype.id = None
-        #
-        # if container_base_type == 'PRM':
-        #     der_sampletotype.fluid_container = derivative['container']
-        #
-        # elif container_base_type == "LTS":
-        #     der_sampletotype.cellular_container = derivative['container']
-        #
-        # if base_type == 'CEL':
-        #     if 'fixation' in aliquot:
-        #         der_sampletotype.fixation_type = derivative['fixation']
-        #
-        # try:
-        #     db.session.add(der_sampletotype)
-        #     db.session.flush()
-        #     print("der_sampletotype id: ", der_sampletotype.id)
-        #
-        # except Exception as err:
-        #     return transaction_error_response(err)
-
         der_sampletotype = func_new_sample_type(derivative, tokenuser)
         if isinstance(der_sampletotype, dict):
             if not der_sampletotype["success"]:

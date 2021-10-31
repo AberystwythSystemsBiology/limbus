@@ -30,6 +30,7 @@ from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccoun
                          SampleConsent, DonorToSample, SampleToCustomAttributeData)
 
 from ..views import new_fluid_sample_schema, new_cell_sample_schema, new_molecular_sample_schema
+from ..enums import SampleSource
 
 
 def func_new_sample_type(values: dict, tokenuser: UserAccount):
@@ -287,6 +288,7 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=
     if len(stss) > 0:
         try:
             print('stss')
+            flag_derive = False
             for sts in stss:
                 print('sts id %d , p- %d,  sub- %d ' % (sts.id, sts.parent_id, sts.subsample_id ))
                 smpl = Sample.query.filter_by(id=sts.subsample_id).first()
@@ -294,11 +296,16 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=
                 db.session.delete(sts)
                 db.session.flush()
                 if smpl:
+                    if smpl.source in ["DER", SampleSource.DER]:
+                        flag_derive = True
+
                     (success, msgs) = func_remove_sample(smpl, msgs)
                     if not success:
                         return (success, msgs)
                     sample.remaining_quantity = sample.remaining_quantity + smpl.quantity
 
+            if flag_derive:
+                sample.remaining_quantity = sample.quantity
             db.session.add(sample)
             db.session.flush()
             msgs.append('All sub-samples dis-associated and deleted! ')
@@ -308,6 +315,7 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=
             msgs.append(transaction_error_response(err) )
     print('ali: ', msgs)
     return (success, msgs)
+
 
 def func_deep_remove_subsampletosample_children(sample, protocol_event=None, msgs=[]):
     success = True

@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 function get_types(typename) {
     var api_url = encodeURI(window.location.origin);
     api_url = api_url + "/" + ['api', 'sample', typename].join('/');
-    console.log("api_url", api_url)
     var json = (function () {
         var json = null;
         $.ajax({
@@ -64,7 +63,6 @@ function check_barcode_form() {
     var fail = false;
 
     $(".barcode").each(function() {
-        console.log(present_barcodes);
         var barcode = $(this).val();
         if (barcode != "") {
             if(jQuery.inArray(barcode, present_barcodes) != -1) {
@@ -218,8 +216,6 @@ function generate_samplebasetype_select(indx) {
 
     select_html = 'BaseType ';
     select_html += select_html_type(indx, "samplebasetype", type_list=samplebasetype_list, select_val=lastsel);
-    console.log("select basetype", select_html);
-
     return select_html;
 }
 
@@ -449,10 +445,7 @@ function prepare_data() {
             quantity2 = $(this).find("input.id").val();
     });*/
 
-    console.log("indexes", indexes);
     indexes.forEach(function(i) {
-        console.log("st len", $("#sampletype_select_"+i).length)
-        console.log("ct len", $("#containertype_select_"+i).length)
         if ($("#sampletype_select_"+i).length && $("#containertype_select_"+i).length) {
             var derivative = {
                 sample_base_type: $("#samplebasetype_select_"+ i).val(),
@@ -468,14 +461,13 @@ function prepare_data() {
                 derivative["fixation_type"] = $("#fixationtype_select_" + i).val()
             }
 
-            console.log("A de", derivative);
             if (derivative["volume"] > 0) {
                 derivatives.push(derivative);
             }
         }
 
     });
-    console.log("derivatives", derivatives);
+
     var data = {
         parent_id: sample["id"],
         processing_protocol: $("#processing_protocol").val(),
@@ -523,18 +515,37 @@ function post_data(data) {
 $(document).ready(function () {
     fill_sample_info();
     update_graph();
+    if (sample["remaining_quantity"]<=0) {
+        $("#submit").hide();
+        alert("Sample remaining quantity is 0!");
+        window.location.assign(sample["_links"]["self"]);
+    }
+
+    $("#processing_protocol").change(function(){
+        var processing_protocol = $("#processing_protocol").val()
+        if (processing_protocol==0) {
+            $("#processing_date").val("");
+            $("#processing_time").val("");
+            $("#processed_by").val("");
+        } else {
+            $("#derivation_date").val(processing_date);
+        }
+    })
 
     $("#processing_date").change(function(){
         var processing_date = $("#processing_date").val();
-        $("#derivation_date").val(processing_date);
+        if (processing_date != "")
+            $("#derivation_date").val(processing_date);
     })
     $("#processing_time").change(function(){
         var processing_time = $("#processing_time").val();
-        $("#derivation_time").val(processing_time);
+        if (processing_time != "")
+            $("#derivation_time").val(processing_time);
     })
     $("#processed_by").change(function(){
         var processed_by = $("#processed_by").val();
-        $("#derived_by").val(processed_by);
+        if (processed_by != "")
+            $("#derived_by").val(processed_by);
     })
 
 

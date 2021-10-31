@@ -111,6 +111,7 @@ def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
             "Derived By",
             description="The initials of the individual who processed the sample.",
         )
+
         submit = SubmitField("Submit")
 
     processing_template_choices = []
@@ -125,7 +126,7 @@ def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
             derivation_template_choices.append(
                 [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
             )
-
+    processing_template_choices.append((0, "None"))
     setattr(
         StaticForm,
         "processing_protocol",
