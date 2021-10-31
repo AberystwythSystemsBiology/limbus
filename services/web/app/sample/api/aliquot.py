@@ -48,7 +48,7 @@ import requests
 from ...database import db, Sample, UserAccount, SubSampleToSample
 
 from ..views import basic_sample_schema, new_sample_schema
-
+from .queries import func_new_sample_type
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
@@ -249,4 +249,238 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
     )
 
+
+@api.route("/sample/<uuid>/derive", methods=["POST"])
+@token_required
+def sample_new_derivative(uuid: str, tokenuser: UserAccount):
+    def _validate_values(values: dict) -> bool:
+        valid = True
+        print("values api", values)
+        for key in [
+            "parent_id",
+
+            "processing_protocol",
+            "processing_date",
+            "processing_time",
+            "processed_by",
+            "processing_comments",
+
+            "derivation_protocol",
+            "derivation_date",
+            "derivation_time",
+            "derived_by",
+            "derivation_comments",
+            "derivatives",
+        ]:
+            try:
+                values[key]
+            except KeyError:
+                valid = False
+        return valid
+
+    def _validate_derivatives(derivatives: list) -> bool:
+        valid = True
+        if len(derivatives) == 0:
+            return False
+
+        for derivative in derivatives:
+            for key in ["sample_base_type", "sample_type", "container_base_type", "container_type", "volume", "barcode"]:
+                try:
+                    derivative[key]
+                except KeyError:
+                    valid = False
+        return valid
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    if not _validate_values(values):
+        return validation_error_response({"messages": "Values failed to validate."})
+
+    if not _validate_derivatives(values["derivatives"]):
+        return validation_error_response({"messages": "Failed to load derivatives, sorry."})
+
+    #to_remove = sum([float(a["volume"]) for a in values["derivatives"]])
+    # container_base_type = values["container_base_type"]
+
+    # Parent Sample Basic Info
+    sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+
+    parent_values = new_sample_schema.dump(sample)
+    parent_id = sample.id
+
+    sample_values = new_sample_schema.load(parent_values)
+    remaining_quantity = 0; #sample.remaining_quantity
+
+    # Parent sample disposal instruction
+    disposal_values = None
+    if sample.disposal_id:
+        sampledisposal = SampleDisposal.query.filter_by(
+            id=sample.disposal_id
+        ).first_or_404()
+        if sampledisposal:
+            disposal_values = new_sample_disposal_schema.dump(sampledisposal)
+
+    # New event and sampleprotocol_event
+    # each event consists of (i.e. is linked to) a batch of sampleprotocl_event(s) for aliquot
+    processing_event_values = {
+        "datetime": str(
+            datetime.strptime(
+                "%s %s" % (values["processing_date"], values["processing_time"]),
+                "%Y-%m-%d %H:%M",  # "%Y-%m-%d %H:%M:%S",
+            )
+        ),
+        "undertaken_by": values["processed_by"],
+        "comments": values["processing_comments"],
+    }
+
+    try:
+        new_event1 = Event(**processing_event_values)
+        new_event1.author_id = tokenuser.id
+        db.session.add(new_event1)
+        db.session.flush()
+        event1_id = new_event1.id
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # New event and sampleprotocol_event
+    # each event consists of (i.e. is linked to) a batch of sampleprotocl_event(s) for aliquot
+    derivation_event_values = {
+        "datetime": str(
+            datetime.strptime(
+                "%s %s" % (values["derivation_date"], values["derivation_time"]),
+                "%Y-%m-%d %H:%M",  # "%Y-%m-%d %H:%M:%S",
+            )
+        ),
+        "undertaken_by": values["derived_by"],
+        "comments": values["derivation_comments"],
+    }
+
+    try:
+        new_event2 = Event(**derivation_event_values)
+        new_event2.author_id = tokenuser.id
+        db.session.add(new_event2)
+        db.session.flush()
+        event2_id = new_event2.id
+    except Exception as err:
+        return transaction_error_response(err)
+
+    # TODO: Use existing API endpoint.
+    # T1: new protocol event for parent sample
+
+    try:
+        new_sample_protocol_event1 = SampleProtocolEvent(
+            sample_id=parent_id,
+            protocol_id=values["processing_protocol"],
+            event_id=event1_id,
+        )
+        # -- Indicator for protocol event that create new samples
+        new_sample_protocol_event1.is_locked = False
+        new_sample_protocol_event1.author_id = tokenuser.id
+        db.session.add(new_sample_protocol_event1)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    try:
+        new_sample_protocol_event2 = SampleProtocolEvent(
+            sample_id=parent_id,
+            protocol_id=values["derivation_protocol"],
+            event_id=event2_id,
+        )
+        # -- Indicator for protocol event that create new samples
+        new_sample_protocol_event2.is_locked = True
+        new_sample_protocol_event2.author_id = tokenuser.id
+        db.session.add(new_sample_protocol_event2)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    for derivative in values["derivatives"]:
+        # T2. New sampletotypes for subsamples: store data on sample type and container
+        # Keep the sample type and drop the container info from the parent sample
+        # type_values.pop('fluid_container', None)
+        # type_values.pop('cellular_container', None)
+        # type_values.pop('fixation_type', None)
+        #
+        # der_sampletotype = SampleToType(**type_values)
+        # der_sampletotype.id = None
+        #
+        # if container_base_type == 'PRM':
+        #     der_sampletotype.fluid_container = derivative['container']
+        #
+        # elif container_base_type == "LTS":
+        #     der_sampletotype.cellular_container = derivative['container']
+        #
+        # if base_type == 'CEL':
+        #     if 'fixation' in aliquot:
+        #         der_sampletotype.fixation_type = derivative['fixation']
+        #
+        # try:
+        #     db.session.add(der_sampletotype)
+        #     db.session.flush()
+        #     print("der_sampletotype id: ", der_sampletotype.id)
+        #
+        # except Exception as err:
+        #     return transaction_error_response(err)
+
+        der_sampletotype = func_new_sample_type(derivative, tokenuser)
+        if isinstance(der_sampletotype, dict):
+            if not der_sampletotype["success"]:
+                return der_sampletotype
+
+        # T3.0. New sample_disposal instruction
+        disposal_id = None
+        if disposal_values:
+            sdi = SampleDisposal(**disposal_values)
+            sdi.author_id=tokenuser.id,
+
+            db.session.add(sdi)
+            db.session.flush()
+            disposal_id = sdi.id
+            print("sample_disposal id: ", disposal_id)
+
+        # T3. New subsamples
+        der_sample = Sample(**sample_values)
+
+        der_sample.id = None
+        der_sample.uuid = None
+        der_sample.barcode = derivative["barcode"]
+        der_sample.quantity = float(derivative["volume"])
+        der_sample.remaining_quantity = float(derivative["volume"])
+        der_sample.source = "DER"
+        der_sample.base_type = derivative["sample_base_type"]
+        der_sample.sample_to_type_id = der_sampletotype.id
+        der_sample.disposal_id = disposal_id
+        der_sample.author_id = tokenuser.id
+
+        db.session.add(der_sample)
+        db.session.flush()
+
+        # T4. New subsampletosample
+        ssts = SubSampleToSample(
+            parent_id=parent_id,
+            subsample_id=der_sample.id,
+            protocol_event_id=new_sample_protocol_event2.id,
+            author_id=tokenuser.id,
+        )
+        db.session.add(ssts)
+        db.session.flush()
+
+
+    # T4. Update parent sample
+    sample.update({"remaining_quantity": 0, "editor_id": tokenuser.id})
+    db.session.add(sample)
+
+    try:
+        db.session.commit()
+        flash("Sample Derivatives Added Successfully!")
+    except Exception as err:
+        return transaction_error_response(err)
+
+    return success_with_content_response(
+        basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
+    )
 

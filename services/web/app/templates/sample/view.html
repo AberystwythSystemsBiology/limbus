@@ -92,7 +92,7 @@
                       class="fas fa-file"></i> Associate Document</a>
                     <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i> Aliquot Sample</a>
-                    <a id="action-derive" class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
+                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
                     <a id="action-status" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
                     
                   </div>

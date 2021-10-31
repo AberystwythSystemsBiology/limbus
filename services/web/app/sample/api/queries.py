@@ -29,6 +29,65 @@ from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccoun
                          SiteInformation, Building, Room, ColdStorage, ColdStorageShelf,
                          SampleConsent, DonorToSample, SampleToCustomAttributeData)
 
+from ..views import new_fluid_sample_schema, new_cell_sample_schema, new_molecular_sample_schema
+
+
+def func_new_sample_type(values: dict, tokenuser: UserAccount):
+    # values = request.get_json()
+    #if not values:
+    #    return no_values_response()
+
+    base_type = values["sample_base_type"];
+    if base_type == "FLU":
+        sample_type_information = {
+            "fluid_type": values["sample_type"],
+        }
+    elif base_type == "CEL":
+        sample_type_information = {
+            "cellular_type": values["sample_type"],
+            #"tissue_type": values["tissue_sample_type"],
+            "fixation_type": values["fixation_type"],
+        }
+    elif base_type == "MOL":
+        sample_type_information = {
+            "molecular_type": values["sample_type"],
+        }
+
+    if values["container_base_type"] == "PRM":
+        sample_type_information.update({
+            "fluid_container": values["container_type"],
+        })
+    else:
+        sample_type_information.update({
+            "cellular_container": values["container_type"],
+        })
+
+
+    if base_type == "FLU":
+        schema = new_fluid_sample_schema
+    elif base_type == "CEL":
+        schema = new_cell_sample_schema
+    elif base_type == "MOL":
+        schema = new_molecular_sample_schema
+    else:
+        return validation_error_response({"base_type": ["Not a valid base_type."]})
+
+    try:
+        new_schema = schema.load(sample_type_information)
+    except ValidationError as err:
+        print(err, values)
+        return validation_error_response(err)
+
+    sampletotype = SampleToType(**new_schema)
+    sampletotype.author_id = tokenuser.id
+
+    try:
+        db.session.add(sampletotype)
+        db.session.flush()
+        #return success_with_content_response(sample_type_schema.dump(sampletotype))
+        return sampletotype
+    except Exception as err:
+        return transaction_error_response(err)
 
 def func_remove_sampledisposal(sample, msgs=[]):
     success = True

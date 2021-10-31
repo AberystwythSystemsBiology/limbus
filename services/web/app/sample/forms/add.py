@@ -84,6 +84,66 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
     return StaticForm()
 
 
+def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        processing_date = DateField(
+            "Processing Date", validators=[DataRequired()], default=datetime.today()
+        )
+        processing_time = TimeField(
+            "Processing Time", validators=[DataRequired()], default=datetime.now()
+        )
+        processing_comments = TextAreaField("Comments on processing")
+
+        processed_by = StringField(
+            "Processed By",
+            description="The initials of the individual who processed the sample.",
+        )
+
+        derivation_date = DateField(
+            "Derivation Date", validators=[DataRequired()], default=datetime.today()
+        )
+        derivation_time = TimeField(
+            "Derivation Time", validators=[DataRequired()], default=datetime.now()
+        )
+        derivation_comments = TextAreaField("Comments on derivation")
+
+        derived_by = StringField(
+            "Derived By",
+            description="The initials of the individual who processed the sample.",
+        )
+        submit = SubmitField("Submit")
+
+    processing_template_choices = []
+    derivation_template_choices = []
+    for protocol in protocol_templates:
+        print("protocol:", protocol)
+        if protocol['type'] in ["SAP", 'Sample Processing']:
+            processing_template_choices.append(
+                [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+            )
+        elif protocol['type'] in ["ALD", 'Sample Aliquot / Derivation']:
+            derivation_template_choices.append(
+                [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+            )
+
+    setattr(
+        StaticForm,
+        "processing_protocol",
+        SelectField(
+            "Processing Protocol", choices=processing_template_choices, coerce=int
+        ),
+    )
+
+    setattr(
+        StaticForm,
+        "derivation_protocol",
+        SelectField(
+            "Derivation/Aliquot Protocol", choices=derivation_template_choices, coerce=int
+        ),
+    )
+
+    return StaticForm()
+
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")

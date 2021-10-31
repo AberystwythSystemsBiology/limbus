@@ -184,6 +184,9 @@ class SampleSchema(masql.SQLAlchemySchema):
             "webapp_aliquot": ma.URLFor(
                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
             ),
+            "webapp_derive": ma.URLFor(
+                "sample.derive_endpoint", uuid="<uuid>", _external=True
+            ),
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
             "barcode_generation": ma.URLFor(
                 "api.misc_generate_barcode", _external=True,

@@ -21,7 +21,7 @@ import requests
 
 
 from ...database import db
-from ..forms import SampleAliquotingForm
+from ..forms import SampleAliquotingForm, SampleDerivationForm
 from ...misc import get_internal_api_header
 
 
@@ -90,8 +90,47 @@ def aliquot_endpoint(uuid: str):
     return aliquot_response.content, aliquot_response.status_code
 
 
-@sample.route("<uuid>/derive")
+@sample.route("<uuid>/derive", methods=["GET", "POST"])
 @login_required
 def derive(uuid: str):
+    # This function will record both processing and derivation protocol events
     # A derivative creates a different specimen type from the parent.
-    return "Hello World"
+
+    protocol_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
+        #json={"is_locked": False, "type": ["ALD"]},
+    )
+
+    if protocol_response.status_code != 200:
+        abort(400)
+
+    protocol_templates = protocol_response.json()["content"]
+    form = SampleDerivationForm(protocol_templates)
+
+    return render_template(
+        "sample/aliquot/derive.html",
+        form=form,
+        derivie_proc_count=len(protocol_templates),
+    )
+
+@sample.route("<uuid>/derive/endpoint", methods=["POST"])
+@login_required
+def derive_endpoint(uuid: str):
+    values = request.get_json()
+
+    if not values:
+
+        return {"Err": "No values provided."}
+
+    derive_response = requests.post(
+        url_for("api.sample_new_derivative", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+
+    if derive_response.status_code == 200:
+        return derive_response.json(), derive_response.status_code
+
+    return derive_response.content, derive_response.status_code

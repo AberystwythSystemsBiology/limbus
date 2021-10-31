@@ -189,6 +189,13 @@ def sample_get_containers():
         }
     )
 
+
+@api.route("/sample/containerbasetypes", methods=["GET"])
+def sample_get_containerbasetypes():
+    return success_with_content_response(
+        ContainerBaseType.choices()
+    )
+
 @api.route("/sample/containertypes", methods=["GET"])
 def sample_get_containertypes():
     # Temporary fix for adding containers for long term preservation
@@ -204,6 +211,25 @@ def sample_get_containertypes():
                     },
         }
     )
+
+
+@api.route("/sample/samplebasetypes", methods=["GET"])
+def sample_get_samplebasetypes():
+    print("SampleBaseType.choices()", SampleBaseType.choices())
+    return success_with_content_response(
+        SampleBaseType.choices()
+    )
+
+@api.route("/sample/sampletypes", methods=["GET"])
+def sample_get_sampletypes():
+    return success_with_content_response(
+        {
+            "FLU": {"sample_type": FluidSampleType.choices()},
+            "CEL": {"sample_type": CellSampleType.choices()},
+            "MOL": {"sample_type": MolecularSampleType.choices()},
+        }
+    )
+
 
 @api.route("/sample/sampletype", methods=["GET"])
 @token_required
