@@ -22,15 +22,16 @@ from wtforms import (
     DateField,
     TextAreaField,
     TimeField,
+    FloatField
 )
 
-from wtforms.validators import DataRequired, Optional
+from wtforms.validators import DataRequired, Optional, NumberRange
 from datetime import datetime
 
 
 def ProtocolEventForm(protocols: list, data={}):
-    class StaticForm(FlaskForm):
 
+    class StaticForm(FlaskForm):
         protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
 
         date = DateField(
@@ -57,5 +58,22 @@ def ProtocolEventForm(protocols: list, data={}):
         )
 
         submit = SubmitField("Submit")
+
+    try:
+    #if True:
+        metric = "ml"
+        if data["base_type"] == "CEL":
+            metric = "qty"
+        qty = "(%s/%s) %s" % (data["remaining_quantity"], data["quantity"], metric)
+        setattr(
+            StaticForm,
+            "remaining_quantity",
+            FloatField(
+                "Sample Remaining Quantity %s" %qty,
+                validators = [NumberRange(0, data["quantity"])]
+            ),
+        )
+    except:
+        pass
 
     return StaticForm(data=data)

@@ -53,7 +53,12 @@ def new_protocol_event(uuid):
                         )
                     )
 
-        form = ProtocolEventForm(protocols)
+        sample_data = {
+            "quantity": sample_response.json()["content"]["quantity"],
+            "remaining_quantity": sample_response.json()["content"]["remaining_quantity"],
+            "base_type": sample_response.json()["content"]["base_type"]
+        }
+        form = ProtocolEventForm(protocols, data=sample_data)
 
         if form.validate_on_submit():
             new_event = requests.post(
@@ -72,6 +77,7 @@ def new_protocol_event(uuid):
                     },
                     "protocol_id": form.protocol_id.data,
                     "sample_id": sample_response.json()["content"]["id"],
+                    "remaining_quantity": form.remaining_quantity.data,
                 },
             )
 
@@ -79,6 +85,7 @@ def new_protocol_event(uuid):
                 flash("Protocol Event Successfully Added!")
                 return redirect(url_for("sample.view", uuid=uuid))
             flash("We have a problem!")
+
         return render_template(
             "sample/protocol/new.html",
             form=form,
