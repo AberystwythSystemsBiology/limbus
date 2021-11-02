@@ -189,19 +189,25 @@ function subtract_quantity() {
         quantities += parseFloat($(this).val());
     });
 
+    var remaining_qty_cur = remaining_quantity - quantities;
+
     $("#remaining_quantity").attr("value",
-        parseFloat(((remaining_quantity-quantities).toFixed(4)).toString() ));
+        parseFloat((remaining_qty_cur.toFixed(4)).toString() ));
     update_graph();
 
-    if ((remaining_quantity - quantities) < 0) {
+    $("#submit").hide();
+    $("#remove_zero_switch").hide();
+    if (remaining_qty_cur < 0) {
         $("#quantityalert").show();
-        $("#submit").attr("disabled", true);
+        //$("#submit").attr("disabled", true);
+        //$("#submit").hide();
         $(window).scrollTop(0);
-    }
-
-    else {
+    } else if (quantities > 0) {
         $("#quantityalert").hide();
-        $("#submit").attr("disabled", false);
+        //$("#submit").attr("disabled", false);
+        $("#submit").show();
+        if (remaining_qty_cur == 0)
+            $("#remove_zero_switch").show();
     }
 
 }
@@ -412,6 +418,7 @@ function prepare_data() {
         parent_id: sample["id"],
         comments: $("#comments").val(),
         container_base_type: $("#container_base_type").val(),
+        remove_zero_parent_on: $("#remove_zero_on").prop('checked'),
         aliquots: a
 
     }
@@ -446,7 +453,8 @@ function post_data(data) {
 
 $(document).ready(function () {
     fill_sample_info();
-    update_graph();
+    //update_graph();
+    subtract_quantity();
 
     var indx = 0;
     //make_new_form(indx);

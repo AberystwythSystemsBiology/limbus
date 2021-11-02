@@ -137,7 +137,18 @@
         </tbody>
     </table>
 
-    <button id="submit" class="btn btn-primary float-right">Submit</button>
+    <div class="row">
+        <div class="col-9">
+            <botton class="btn btn-secondary" id="remove_zero_switch" type="hidden">
+                <input id="remove_zero_on" type="checkbox" checked>
+                <span style="color:red ; " type="hidden"> Uncheck to keep the parent sample of zero quantity in the storage.</span>
+            </botton>
+        </div>
+      <div class="col-3">
+        <button id="submit" class="btn btn-primary float-right">Submit</button>
+      </div>
+   </div>
+
     {% else %}
         <div class="jumbotron">
             <div class="container">

@@ -15,7 +15,7 @@
 
 from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
-from sqlalchemy import or_
+
 from ...api import api, generics
 from ...api.responses import *
 
@@ -34,9 +34,6 @@ from ..enums import SampleSource
 
 
 def func_new_sample_type(values: dict, tokenuser: UserAccount):
-    # values = request.get_json()
-    #if not values:
-    #    return no_values_response()
 
     base_type = values["sample_base_type"];
     if base_type == "FLU":
@@ -85,7 +82,6 @@ def func_new_sample_type(values: dict, tokenuser: UserAccount):
     try:
         db.session.add(sampletotype)
         db.session.flush()
-        #return success_with_content_response(sample_type_schema.dump(sampletotype))
         return sampletotype
     except Exception as err:
         return transaction_error_response(err)
@@ -287,10 +283,10 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=
     stss = SubSampleToSample.query.filter_by(parent_id=sample.id, protocol_event_id=protocol_event.id).all()
     if len(stss) > 0:
         try:
-            print('stss')
             flag_derive = False
+            used_qty = 0
             for sts in stss:
-                print('sts id %d , p- %d,  sub- %d ' % (sts.id, sts.parent_id, sts.subsample_id ))
+                # print('sts id %d , p- %d,  sub- %d ' % (sts.id, sts.parent_id, sts.subsample_id ))
                 smpl = Sample.query.filter_by(id=sts.subsample_id).first()
                 db.session.add(sts)
                 db.session.delete(sts)
@@ -302,10 +298,18 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=
                     (success, msgs) = func_remove_sample(smpl, msgs)
                     if not success:
                         return (success, msgs)
-                    sample.remaining_quantity = sample.remaining_quantity + smpl.quantity
+                    else:
+                        used_qty = used_qty + smpl.quantity
 
-            if flag_derive:
-                sample.remaining_quantity = sample.quantity
+            if protocol_event and protocol_event.reduced_quantity > 0:
+                sample.remaining_quantity = sample.remaining_quantity + protocol_event.reduced_quantity
+            else:
+                # - in case of no reduced quantity recorded due to legacy data model
+                if flag_derive:
+                    sample.remaining_quantity = sample.quantity
+                else:
+                    sample.remaining_quantity = used_qty
+
             db.session.add(sample)
             db.session.flush()
             msgs.append('All sub-samples dis-associated and deleted! ')
@@ -489,6 +493,14 @@ def func_lock_sample_creation_protocolevent(sample_id, tokenuser: UserAccount):
     else:
         msg = "Sample-%s: No protocol event for update" %sample_id
         return True, msg
+
+# -- Super Admin functions: TODO
+@api.route("/sample/sample_protocol_event_add_reduced_qty", methods=["POST"])
+@token_required
+def sample_protocol_event_add_reduced_qty(tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+    # TODO: Go through all protocol event and modify the reduced quantity values
 
 
 # -- Super Admin functions: TODO: delete it

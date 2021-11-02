@@ -849,6 +849,13 @@ function lock_action() {
     $("#action-derive").hide();
 }
 
+function qty_zero_action() {
+    $("#action-aliquot").hide();
+    $("#action-protocol-event").hide();
+    $("#action-derive").hide();
+}
+
+
 $(document).ready(function () {
     $('#myTable').DataTable();
 
@@ -878,10 +885,11 @@ $(document).ready(function () {
         fill_sample_reviews(sample_info["reviews"]);
         //console.log('sample_info', sample_info)
         const intransit = ["Transferred", "Pending Collection"]
-        if (sample_info["remaining_quantity"]==0 || sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
+        if (sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
             lock_action()
         }
-
+        if (sample_info["remaining_quantity"]==0 )
+            qty_zero_action()
 
         $("#content").delay(500).fadeIn();
     

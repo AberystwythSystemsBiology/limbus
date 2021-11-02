@@ -169,7 +169,6 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     else:
         return not_found("related sample")
 
-    sample_uuid = sample.uuid
     # all protocol events for the sample
     protocol_events_locked = SampleProtocolEvent.query.join(Sample).\
         filter(Sample.id==protocol_event.sample_id, SampleProtocolEvent.is_locked==True)

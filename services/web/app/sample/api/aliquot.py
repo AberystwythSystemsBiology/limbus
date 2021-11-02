@@ -30,7 +30,8 @@ from ...database import (
     SampleProtocolEvent,
     SampleToType,
     SampleDisposal,
-    Event
+    Event,
+    EntityToStorage
 )
 
 from ..views import (
@@ -45,7 +46,7 @@ from datetime import datetime
 from ...webarg_parser import use_args, use_kwargs, parser
 import requests
 
-from ...database import db, Sample, UserAccount, SubSampleToSample
+from ...database import db, Sample, UserAccount, SubSampleToSample, UserCart
 
 from ..views import basic_sample_schema, new_sample_schema
 from .queries import func_new_sample_type
@@ -98,6 +99,8 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
     to_remove = sum([float(a["volume"]) for a in values["aliquots"]])
     container_base_type = values["container_base_type"]
+
+    remove_zero_parent_on = values.pop("remove_zero_parent_on", True)
 
     # Parent Sample Basic Info
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
@@ -195,7 +198,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
-
         # T3.0. New sample_disposal instruction
         disposal_id = None
         if disposal_values:
@@ -220,8 +222,15 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         ali_sample.sample_to_type_id = ali_sampletotype.id
         ali_sample.disposal_id = disposal_id
 
-        db.session.add(ali_sample)
-        db.session.flush()
+        try:
+            db.session.add(ali_sample)
+            db.session.flush()
+            # -- Added to sample user cart
+            new_ali_uc = UserCart(sample_id=ali_sample.id, selected=True, author_id=tokenuser.id)
+            db.session.add(new_ali_uc)
+        except Exception as err:
+            db.session.rollback()
+            return transaction_error_response(err)
 
         # T4. New subsampletosample
         ssts = SubSampleToSample(
@@ -234,17 +243,33 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.flush()
 
 
-
     # T4. Update parent sample
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
     db.session.add(sample)
     new_sample_protocol_event.reduced_quantity = to_remove
 
+    # T5. Remove parent sample if remaining quantity changed to zero!
+    if remove_zero_parent_on:
+        ets = EntityToStorage.query.filter_by(sample_id=sample.id).all()
+
+        if ets:
+            try:
+                for et in ets:
+                    db.session.delete(et)
+                    #et.removed=True
+                    #et.update({"editor_id": tokenuser.id})
+                    #db.session.add(et)
+            except Exception as err:
+                db.session.rollback()
+                return transaction_error_response(err)
+
     try:
         db.session.commit()
-        flash("Sample Ailquot Added Successfully!")
+        flash("Sample Aliquots Added Successfully!" + " Awaiting storage in user cart!!")
     except Exception as err:
+        db.session.rollback()
         return transaction_error_response(err)
+
 
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
@@ -256,7 +281,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 def sample_new_derivative(uuid: str, tokenuser: UserAccount):
     def _validate_values(values: dict) -> bool:
         valid = True
-        print("values api", values)
         for key in [
             "parent_id",
 
@@ -293,6 +317,8 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         return valid
 
     values = request.get_json()
+    print("values api", values)
+    remove_zero_parent_on = values.pop("remove_zero_parent_on", True)
 
     if not values:
         return no_values_response()
@@ -313,7 +339,7 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
     parent_id = sample.id
 
     sample_values = new_sample_schema.load(parent_values)
-    remaining_quantity = 0; #sample.remaining_quantity
+    # remaining_quantity = 0; #sample.remaining_quantity
 
     # Parent sample disposal instruction
     disposal_values = None
@@ -429,8 +455,15 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         der_sample.disposal_id = disposal_id
         der_sample.author_id = tokenuser.id
 
-        db.session.add(der_sample)
-        db.session.flush()
+        try:
+            db.session.add(der_sample)
+            db.session.flush()
+            # -- Add to user sample cart
+            new_der_uc = UserCart(sample_id=der_sample.id, selected=True, author_id=tokenuser.id)
+            db.session.add(new_der_uc)
+        except Exception as err:
+            db.session.rollback()
+            return transaction_error_response(err)
 
         # T4. New subsampletosample
         ssts = SubSampleToSample(
@@ -447,9 +480,24 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
     sample.update({"remaining_quantity": 0, "editor_id": tokenuser.id})
     db.session.add(sample)
 
+    # T5. Remove parent sample if remaining quantity changed to zero!
+    if remove_zero_parent_on:
+        ets = EntityToStorage.query.filter_by(sample_id=sample.id).all()
+
+        if ets:
+            try:
+                for et in ets:
+                    db.session.delete(et)
+                    #et.removed=True
+                    #et.update({"editor_id": tokenuser.id})
+                    #db.session.add(et)
+            except Exception as err:
+                db.session.rollback()
+                return transaction_error_response(err)
+
     try:
         db.session.commit()
-        flash("Sample Derivatives Added Successfully!")
+        flash("Sample Derivatives Added Successfully!"+ "Awaiting storage in user cart!!")
     except Exception as err:
         return transaction_error_response(err)
 

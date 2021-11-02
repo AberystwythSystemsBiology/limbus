@@ -264,6 +264,8 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
+    # -- To exclude empty samples in the index list
+    joins.append(getattr(Sample, 'remaining_quantity').__gt__(0))
 
     flag_sample_type = False
     flag_consent_status = False

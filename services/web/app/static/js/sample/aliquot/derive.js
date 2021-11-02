@@ -169,8 +169,13 @@ function fill_sample_info() {
 function subtract_quantity() {
     var remaining_quantity = sample["remaining_quantity"].toFixed(4);
 
+    $("#remove_zero_switch").hide();
+    $("#submit").hide();
+
     if (derived_sample_counts>0) {
         var quantities = remaining_quantity;
+        $("#submit").show();
+        $("#remove_zero_switch").show();
     } else {
         var quantities = 0;
     };
@@ -237,7 +242,7 @@ function generate_sampletype_select(indx) {
 function generate_containerbasetype_select(indx) {
     var containerbasetype_list = containerbasetypes;
     // var lastsel = containerbasetype_list[0][0]; // Container code for last selection
-    var lastsel = "LTS"; //Default to long term preservation
+    var lastsel = containerbasetype_list[1][0]; ; //Default to long term preservation
     if (derived_sample_counts>0 && indx > 1) {
         lastsel = lastvals["container_basetype"];
     }
@@ -248,7 +253,7 @@ function generate_containerbasetype_select(indx) {
 }
 
 function generate_container_select(indx) {
-    var cbt = containerbasetypes[0][0]; //"PRM"
+    var cbt = containerbasetypes[1][0]; //"PRM"
     var containertype_list = containertypes[cbt]["container"];
     var lastsel = containertype_list[0][0]; // Container code for last selection
     if (derived_sample_counts>0 && indx > 1) {
@@ -346,7 +351,7 @@ function make_new_form(indx) {
     $("#containerbasetype_select_"+indx).change(function() {
         var cbt = $("#containerbasetype_select_"+indx).val();
         var containertype_list = containertypes[cbt]["container"];
-        var options = ""; //<option>--Select--</option>";
+        var options = "";
         $("#containertype_select_"+indx).empty();
         $(containertype_list).each(function(index, value){
             options += '<option value="'+value[0]+'">'+value[1]+'</option>';
@@ -354,7 +359,7 @@ function make_new_form(indx) {
         $("#containertype_select_"+indx).html(options);
 
         var fixationtype_list = containertypes[cbt]["fixation_type"];
-        var options = ""; //<option>--Select--</option>";
+        var options = "";
         $("#fixationtype_select_"+indx).empty();
         $(fixationtype_list).each(function(index, value){
             options += '<option value="'+value[0]+'">'+value[1]+'</option>';
@@ -481,6 +486,7 @@ function prepare_data() {
         derivation_time: $("#derivation_time").val(),
         derivation_comments: $("#derivation_comments").val(),
         derived_by: $("#derived_by").val(),
+        remove_zero_parent_on: $("#remove_zero_on").prop('checked'),
         derivatives: derivatives
 
     }
@@ -515,7 +521,8 @@ function post_data(data) {
 
 $(document).ready(function () {
     fill_sample_info();
-    update_graph();
+    subtract_quantity();
+    //update_graph();
     if (sample["remaining_quantity"]<=0) {
         $("#submit").hide();
         alert("Sample remaining quantity is 0!");
