@@ -22,6 +22,7 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
     __versioned__ = {}
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
+    reduced_quantity = db.Column(db.Float)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
     protocol_id = db.Column(
         db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False

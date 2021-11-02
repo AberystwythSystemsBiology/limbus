@@ -60,19 +60,31 @@ def ProtocolEventForm(protocols: list, data={}):
         submit = SubmitField("Submit")
 
     try:
-    #if True:
         metric = "ml"
         if data["base_type"] == "CEL":
             metric = "qty"
-        qty = "(%s/%s) %s" % (data["remaining_quantity"], data["quantity"], metric)
+
+        setattr(
+            StaticForm,
+            "reduced_quantity",
+            FloatField(
+                label = "Reduction in Sample Quantity",
+                description = "Quantity Reduced from the event (%s)" %metric,
+                default = 0,
+                validators = [Optional(), NumberRange(0, data["remaining_quantity"])]
+            ),
+        )
         setattr(
             StaticForm,
             "remaining_quantity",
             FloatField(
-                "Sample Remaining Quantity %s" %qty,
-                validators = [NumberRange(0, data["quantity"])]
+                label = "Remaining Quantity",
+                description="Original quantity (%s %s)" % (data["quantity"], metric),
+                render_kw={'readonly': True},
+                validators = [NumberRange(0, data["remaining_quantity"])]
             ),
         )
+
     except:
         pass
 

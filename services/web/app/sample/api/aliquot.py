@@ -238,6 +238,7 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     # T4. Update parent sample
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
     db.session.add(sample)
+    new_sample_protocol_event.reduced_quantity = to_remove
 
     try:
         db.session.commit()
@@ -389,6 +390,8 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         # -- Indicator for protocol event that create new samples
         new_sample_protocol_event2.is_locked = True
         new_sample_protocol_event2.author_id = tokenuser.id
+        new_sample_protocol_event2.reduced_quantity = sample.remaining_quantity
+
         db.session.add(new_sample_protocol_event2)
         db.session.flush()
     except Exception as err:

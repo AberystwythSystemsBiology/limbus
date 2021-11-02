@@ -68,7 +68,7 @@ function get_barcode(sample_info, barc_type) {
 
 }
 
-function get_rack() {
+/*function get_rack() {
     var split_url = encodeURI(window.location).split("/");
     split_url = split_url.slice(0, -2)
     split_url.push("storage", "rack", "info")
@@ -94,9 +94,9 @@ function get_rack() {
 
     return json;
 
-}
+}*/
 
-function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
+/*function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
     var json = (function () {
         var json = null;
         $.ajax({
@@ -123,7 +123,7 @@ function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
 
     return json;
 
-}
+}*/
 
 
 function add_samples_to_cart(api_url, samples) {
@@ -204,7 +204,7 @@ function fill_comments(comments) {
 
 
 function fill_consent_information(consent_information) {
-    console.log("consent_information", consent_information)
+    //console.log("consent_information", consent_information)
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);
@@ -309,18 +309,18 @@ function fill_basic_information(sample_information) {
     var html = "";
 
     if (sample_information["base_type"] == "Fluid") {
-        var measurement = "mL";
+        measurement = "mL";
         var sample_type = sample_information["sample_type_information"]["fluid_type"];
     }
 
     else if (sample_information["base_type"] == "Molecular") {
-        var measurement = "μg/mL";
+        measurement = "μg/mL";
         var sample_type = sample_information["sample_type_information"]["molecular_type"];
 
     }
 
     else {
-        var measurement = "Cells";
+        measurement = "Cells";
         var sample_type = sample_information["sample_type_information"]["cellular_type"];
     }
 
@@ -512,10 +512,14 @@ function fill_protocol_events(events) {
 
     for (e in events) {
         var event_info = events[e];
-        //console.log('event_info: ', event_info)
         var event_datetime = '';
         var undertaken_by = '';
         var comments = '';
+        var reduced_quantity = '';
+
+        if (event_info["reduced_quantity"] != null)
+            reduced_quantity = event_info["reduced_quantity"] + " " + measurement;
+
         if (event_info["event"] != null || event_info["event"] != undefined) {
             if (event_info["event"].hasOwnProperty('datetime')) {
                 event_datetime = event_info["event"]["datetime"];
@@ -546,6 +550,7 @@ function fill_protocol_events(events) {
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
         html += "<table class='table table-striped'>"
+        html += render_content("Sample Qty Reduction", reduced_quantity);
         html += render_content("Undertaken By", undertaken_by);
         html += render_content("Comments", comments);
         html += "</table>"
@@ -768,21 +773,6 @@ function fill_lineage_table(subsamples) {
 
     });
 
-    // - Not in use -
-    // var rack_info = get_rack();
-    // if (rack_info["success"] == false) {
-    //     alert('No rack data!')
-    // }  else {
-    //     rack_info = rack_info["content"];
-    // }
-    // $.each(rack_info, function(index, r) {
-    //     var optval = '<option value='+ r['id'] + '>'
-    //     optval += 'LIMBRACK'+r['id'] + " ("+ r['num_rows']+'x'+r['num_cols'] + ", "+ r['serial_number']+') @'
-    //     optval += r['location']
-    //     optval += '</option>'
-    //     $("#select_rack").append(optval);
-    //     //$("#select_rack").append('<option value=xx >optval</option>');
-    // })
 
     $("#subsample-to-cart-btn").click(function (event) {
         var rows_selected = table.rows( { selected: true } ).data();
@@ -793,12 +783,8 @@ function fill_lineage_table(subsamples) {
                delete row['__proto__'];
                formdata.push(row)
            });
-           //console.log("formdata", formdata)
            var api_url = window.location.origin+ "/sample/to_cart";
            res = add_samples_to_cart(api_url, formdata);
-           //var api_url = window.location.origin+ "/sample/shipment/cart"
-           //window.open(api_url, "_blank");
-           //window.open(api_url"_self");
            if (res.success == true) {
                table.rows({selected: true}).deselect();
            }
@@ -809,51 +795,6 @@ function fill_lineage_table(subsamples) {
 
     });
 
-    // -- Not use for the moment, selected samples will be added to cart instead.
-    // $("#subsample_to_storage").click(function (event) {
-    //     var rows_selected = table.rows( { selected: true } ).data();
-    //
-    //     if (rows_selected.length>0) {
-    //        // select rack id or shelf id. TODO: ?? sample to shelf
-    //        var rack_id = $('select[id="select_rack"]').val();
-    //        var shelf_id = $('select[id="select_shelf"]').val();
-    //        if (rack_id==0 && shelf_id==0) {
-    //            alert('Select a rack or a shelf to store the sample(s)! ');
-    //            return false
-    //        }
-    //
-    //        var formdata = [];
-    //        $.each(rows_selected, function (index, row) {
-    //            delete row['__proto__'];
-    //            formdata.push(row)
-    //        });
-    //
-    //
-    //        var api_url = window.location.origin + "/storage/rack/fill_with_samples"
-    //        var sampletostore = fill_sample_pos(api_url, rack_id, formdata, commit=false)
-    //        if (sampletostore.success == false){
-    //             alert(sampletostore.message)
-    //             return false
-    //        } else {
-    //            if (sampletostore.content.length==0) {
-    //                alert('All selected samples have been stored in the selected rack!');
-    //                return false;
-    //            }
-    //            if (sampletostore.message != '') {
-    //                if (confirm(sampletostore.message)) {
-    //
-    //                } else {
-    //                    return false
-    //                }
-    //            }
-    //        }
-    //        sampletostore =  sampletostore['content']
-    //        sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
-    //        window.open(api_url, "_self");
-    //
-    //     }
-    //
-    // });
 }
 
 
@@ -909,8 +850,9 @@ function lock_action() {
 }
 
 $(document).ready(function () {
-        $('#myTable').DataTable();
+    $('#myTable').DataTable();
 
+    var measurement = "";
     //var versionNo = $.fn.dataTable.version;
     //alert(versionNo);
     var sample_info = get_sample();
@@ -936,9 +878,10 @@ $(document).ready(function () {
         fill_sample_reviews(sample_info["reviews"]);
         //console.log('sample_info', sample_info)
         const intransit = ["Transferred", "Pending Collection"]
-        if (sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
+        if (sample_info["remaining_quantity"]==0 || sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
             lock_action()
         }
+
 
         $("#content").delay(500).fadeIn();
     

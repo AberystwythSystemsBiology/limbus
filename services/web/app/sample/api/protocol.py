@@ -15,6 +15,7 @@
 
 from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
+from sqlalchemy.sql import func
 from ...api import api, generics
 from ...api.responses import *
 from ...decorators import token_required
@@ -22,7 +23,7 @@ from ...misc import get_internal_api_header
 from .queries import func_remove_aliquot_subsampletosample_children, func_remove_sample
 from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema, basic_sample_schema
 
-from ...database import db, SampleProtocolEvent, UserAccount, Sample, Event, ProtocolTemplate
+from ...database import db, SampleProtocolEvent, UserAccount, Sample, Event, ProtocolTemplate, SubSampleToSample
 from ...protocol.enums import ProtocolType
 
 
@@ -46,7 +47,6 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    remaining_quantity = values.pop("remaining_quantity", None)
     try:
         event_result = new_sample_protocol_event_schema.load(values)
     except ValidationError as err:
@@ -62,28 +62,32 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
         return transaction_error_response(err)
 
     event_result.pop("event")
-    sample = Sample.query.filter_by(id=values["sample_id"]).first();
-    if not sample:
-        return not_found("Sample (%s) ! " %sample.uuid)
-
-    if remaining_quantity:
-        if remaining_quantity!= sample.remaining_quantity:
-            sample.remaining_quantity = remaining_quantity
-            sample.update({"editor_id": tokenuser.id})
-            try:
-                db.session.add(sample)
-            except Exception as err:
-                return transaction_error_response(err)
 
     new_sample_protocol_event = SampleProtocolEvent(**event_result)
     new_sample_protocol_event.author_id = tokenuser.id
     new_sample_protocol_event.event_id = new_event.id
+    #new_sample_protocol_event.reduced_quantity = reduced_quantity
+
+    sample = Sample.query.filter_by(id=values["sample_id"]).first();
+    if not sample:
+        return not_found("Sample (%s) ! " %sample.uuid)
+
+    reduced_quantity = values.pop("reduced_quantity", 0)
+    if reduced_quantity > 0:
+        remaining_quantity = sample.remaining_quantity - reduced_quantity
+        if remaining_quantity < 0:
+            return validation_error_response({"message": "Reduction quantity > remaining quantity!!!"})
+
+        sample.remaining_quantity = remaining_quantity
+        sample.update({"editor_id": tokenuser.id})
+        try:
+            db.session.add(sample)
+        except Exception as err:
+            return transaction_error_response(err)
 
     try:
         db.session.add(new_sample_protocol_event)
         db.session.commit()
-        db.session.flush()
-
         return success_with_content_response(
             sample_protocol_event_schema.dump(new_sample_protocol_event)
         )
@@ -100,12 +104,38 @@ def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
+    reduced_quantity = values.pop("reduced_quantity", None)
     try:
         event_result = new_sample_protocol_event_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
 
     protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
+    reduced_quantity_old = protocol_event.reduced_quantity
+
+    # - Not allow to editing change quantity yet
+    if reduced_quantity_old and reduced_quantity:
+        if reduced_quantity_old != reduced_quantity:
+            sample = Sample.query.filter_by(id=protocol_event.sample_id).first()
+            if not sample:
+                return not_found("Sample (%s) " % sample.uuid)
+
+            remaining_quantity_new = sample.remaining_quantity + reduced_quantity_old - reduced_quantity
+            if remaining_quantity_new < 0:
+                return validation_error_response({"message": "Reduction quantity > remaining quantity!!!"})
+
+            sample.remaining_quantity = remaining_quantity_new
+            sample.update({"editor_id": tokenuser.id})
+            protocol_event.update({"reduced_quantity": reduced_quantity})
+            try:
+                db.session.add(sample)
+            except Exception as err:
+                return transaction_error_response(err)
+
+    else:
+        # -- Only old records without reduced_quantity
+        pass
+
     event = Event.query.join(SampleProtocolEvent).filter(SampleProtocolEvent.id==protocol_event.id).first()
     event.update(event_result["event"])
     event.update({"editor_id": tokenuser.id})
@@ -168,6 +198,11 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         elif protocol_type in [ProtocolType.SDE, ProtocolType.STR]:
             err = {"messages": "Type of protocol events (%s) not allowed!" % protocol_type}
             return validation_error_response(err)
+
+    elif protocol_event.reduced_quantity>0:
+        sample.remaining_quantity = sample.remaining_quantity + protocol_event.reduced_quantity
+        sample.update({"editor_id": tokenuser.id})
+        db.session.add(sample)
 
     try:
         db.session.delete(protocol_event)

@@ -17,6 +17,16 @@
     <form action="{{ url_for('sample.edit_protocol_event', uuid=uuid) }}" method="POST">
         {{ form.csrf_token() }}
         {{ form_field(form.protocol_id) }}
+        <input id="remaining_qty_old" type="hidden" value="{{ sample.remaining_quantity }}">
+{#        <div class="row" id="sample-quantity">
+            <div class="col-6">
+                {{ form_field(form.reduced_quantity) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.remaining_quantity) }}
+            </div>
+        </div>#}
+
         <div class="row">
             <div class="col-6">
                 {{ form_field(form.date) }}
@@ -33,4 +43,8 @@
 
 
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/information/add/protocolevent_edit.js') }}"></script>
 {% endblock %}

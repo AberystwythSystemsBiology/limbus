@@ -54,7 +54,8 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     name = masql.auto_field()
     type = EnumField(ProtocolType, by_value=True)
-    author = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
@@ -120,7 +121,8 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     type = EnumField(ProtocolType, by_value=True)
     doi = masql.auto_field()
     description = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
     documents = ma.Nested(BasicDocumentSchema(many=True))
 

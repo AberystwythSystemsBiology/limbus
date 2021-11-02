@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import Donor
+from ...database import Donor, DonorProtocolEvent
 from ..enums import RaceTypes, BiologicalSexTypes, DonorStatusTypes
 
 from sqlalchemy_continuum import version_class, parent_class
@@ -29,6 +29,8 @@ from ...sample.enums import Colour
 from ...sample.views import BasicSampleSchema, ConsentSchema, SampleSchema, BasicConsentSchema
 
 from .diagnosis import DonorDiagnosisEventSchema
+from ...event.views import NewEventSchema, EventSchema
+from ...protocol.views import BasicProtocolTemplateSchema
 
 
 class DonorSearchSchema(masql.SQLAlchemySchema):
@@ -202,3 +204,48 @@ class EditDonorSchema(masql.SQLAlchemySchema):
 
 
 edit_donor_schema = EditDonorSchema()
+
+
+
+
+class NewDonorProtocolEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DonorProtocolEvent
+
+    is_locked = masql.auto_field()
+    donor_id = masql.auto_field()
+    reference_id = masql.auto_field()
+    protocol_id = masql.auto_field()
+    event = ma.Nested(NewEventSchema())
+
+new_donor_protocol_event_schema = NewDonorProtocolEventSchema()
+
+
+class DonorProtocolEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DonorProtocolEvent
+
+    is_locked = masql.auto_field()
+    uuid = masql.auto_field()
+    id = masql.auto_field()
+    donor_id = masql.auto_field()
+    reference_id = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema)
+    event = ma.Nested(EventSchema)
+    created_on = ma.Date()
+
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
+
+    _links = ma.Hyperlinks(
+        {
+            "edit": ma.URLFor(
+                "donor.edit_protocol_event", uuid="<uuid>", _external=True
+            ),
+            "remove": ma.URLFor(
+                "donor.remove_protocol_event", uuid="<uuid>", _external=True
+            ),
+        }
+    )
+
+donor_protocol_event_schema = DonorProtocolEventSchema()
+donor_protocol_events_schema = DonorProtocolEventSchema(many=True)
