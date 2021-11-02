@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2020-2021 Keiron O'Shea <keo7@aber.ac.uk>
+Copyright (C) 2021 C Lu <culATaberDOTacDOTuk>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -236,7 +236,8 @@ function generate_sampletype_select(indx) {
 
 function generate_containerbasetype_select(indx) {
     var containerbasetype_list = containerbasetypes;
-    var lastsel = containerbasetype_list[0][0]; // Container code for last selection
+    // var lastsel = containerbasetype_list[0][0]; // Container code for last selection
+    var lastsel = "LTS"; //Default to long term preservation
     if (derived_sample_counts>0 && indx > 1) {
         lastsel = lastvals["container_basetype"];
     }

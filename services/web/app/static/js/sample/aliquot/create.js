@@ -216,7 +216,7 @@ function generate_container_select(indx) {
     var containers = container_information[cbt]
 
     var containers_list = containers["container"];
-    console.table(containers_list)
+    //console.table(containers_list)
 
     var lastsel = containers_list[0][0] // Container code for last selection
     if (indx > 1) {
