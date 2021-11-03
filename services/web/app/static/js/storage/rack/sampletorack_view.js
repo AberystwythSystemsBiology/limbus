@@ -229,7 +229,7 @@ function render_sample_table(samples) {
             lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
             columnDefs: [
                 {targets: '_all', defaultContent: ''},
-                {targets: [0, 5, 6], visible: false, "defaultContent": ""},
+                {targets: [0, 4, 5, 9], visible: false, "defaultContent": ""},
             ],
             order: [[0, 'asc']],
             columns: [
@@ -249,6 +249,42 @@ function render_sample_table(samples) {
                     },
                     "width": "3%"
                 },
+
+            {"mData": {}, "mRender": function (row) {return row['sample']['barcode'];}},
+
+            { // Donor ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    link = window.location.origin + "/donor/"+'LIMBDON-' + consent['donor_id'];
+                    html = "";
+                    if (consent['donor_id'] != null) {
+                        html += '<a href="'+link+'" >';
+                        html += 'LIMBDON-' + consent['donor_id'];
+                        html += '</a>';
+                    }
+
+                    return html;
+                }
+            },
+            { // Consent ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    return 'LIMBDC-' + consent['id'];
+                }
+            },
+            { // Consent status
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    var consent_status = 'Active';
+                    if (consent['withdrawn'] == true) {
+                        consent_status = 'Withdrawn';
+                    }
+                    return consent_status;
+                }
+            },
              {
                     "mData": {},
                     "mRender": function (data, type, row) {
@@ -272,7 +308,6 @@ function render_sample_table(samples) {
              },
 
             {"mData": {}, "mRender": function (row) {return row['sample']['id'];}},
-            {"mData": {}, "mRender": function (row) {return row['sample']['barcode'];}},
             {"mData": {}, "mRender": function (row) {return row['sample']['status'];}},
             {"mData": {}, "mRender": function (row) {return row['sample']['base_type'];}},
             {

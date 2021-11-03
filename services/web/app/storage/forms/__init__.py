@@ -133,11 +133,16 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
         type_info = sample.pop("sample_type_information", "")
         sample_type = func_label_sample_type(type_info)
         container_type = func_label_container_type(type_info)
+        if sample["base_type"] == "Cellular":
+            metric = "Cells"
+        else:
+            metric = "ml"
+        qty_info = "%s/%s %s"%(sample["remaining_quantity"], sample["quantity"], metric)
         # sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
         if sample["barcode"] and sample["barcode"]!= "":
-            sample_label = "%s: %s %s [%s]" % (sample["barcode"], sample_type, container_type, sample["uuid"])
+            sample_label = "%s: %s %s %s [%s]" % (sample["barcode"], sample_type, qty_info, container_type, sample["uuid"])
         else:
-            sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
+            sample_label = "%s %s %s [%s]" % (sample_type, qty_info, container_type, sample["uuid"])
 
         samples_choices.append([int(sample["id"]), sample_label])
 

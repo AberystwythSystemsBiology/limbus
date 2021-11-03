@@ -18,8 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 function get_samples(query) {
     var current_url = encodeURI(window.location);
     var split_url = current_url.split("/");
-    split_url.pop()
-    var api_url = split_url.join("/") + "/query"
+    split_url.pop();
+    var api_url = split_url.join("/") + "/query";
     
     var json = (function () {
         var json = null;

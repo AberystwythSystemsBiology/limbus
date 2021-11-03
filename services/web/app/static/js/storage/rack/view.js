@@ -96,8 +96,6 @@ function get_barcode(sample_info, barc_type) {
 
     var url = encodeURI(sample_info["_links"]["barcode_generation"]);
 
-    console.log(url);
-
     var b64 = "";
 
     $.post({
@@ -218,7 +216,7 @@ function render_sample_table(samples) {
             lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
             columnDefs: [
                 {targets: '_all', defaultContent: ''},
-                {targets: [0, 3, 4, 5, 6, 9], visible: false, "defaultContent": ""},
+                {targets: [0, 4, 5, 9], visible: false, "defaultContent": ""},
             ],
             order: [[0, 'asc']],
             columns: [
@@ -230,7 +228,7 @@ function render_sample_table(samples) {
                     "width": "3%"
                 },
 
-                {
+                { // pos
                     "mData": {},
                     "mRender": function(data, type,row) {
                         tick = String.fromCharCode(Number(data["pos"][0])+64);
@@ -239,6 +237,8 @@ function render_sample_table(samples) {
                     },
                     "width": "3%"
                 },
+
+            {"mData": {}, "mRender": function (row) {return row['sample']['barcode'];}},
 
             { // Donor ID
                 "mData": {},
@@ -296,7 +296,6 @@ function render_sample_table(samples) {
                     }
              },
             {"mData": {}, "mRender": function (row) {return row['sample']['id'];}},
-            {"mData": {}, "mRender": function (row) {return row['sample']['barcode'];}},
             {"mData": {}, "mRender": function (row) {return row['sample']['status'];}},
             {"mData": {}, "mRender": function (row) {return row['sample']['base_type'];}},
             {

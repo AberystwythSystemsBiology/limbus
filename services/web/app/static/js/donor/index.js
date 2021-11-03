@@ -79,7 +79,7 @@ function render_table(query) {
                     col_data += data["id"];
                     col_data += "</a>";
 
-                    return col_data
+                    return col_data;
                 }
             },
 
