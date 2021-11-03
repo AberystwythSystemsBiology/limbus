@@ -15,6 +15,7 @@
 
 
 from flask_wtf import FlaskForm
+#from flask_wtf.file import FileField
 from wtforms import (
     StringField,
     SubmitField,
@@ -124,14 +125,16 @@ def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
 
     return StaticForm(data=data)
 
-
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
     description = TextAreaField("Description")
     colour = SelectField("Colour", choices=Colour.choices())
+    num_rows = IntegerField("Number of Rows", default=8, validators=[DataRequired()])
+    num_cols = IntegerField("Number of Columns", default=12, validators=[DataRequired()])
+
     barcode_type = SelectField(
         "Barcode Type",
-        choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
+        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])

@@ -45,18 +45,17 @@ from ..forms import (
 )
 from datetime import datetime
 
-
-def iter_all_strings():
-    for size in itertools.count(1):
-        for s in itertools.product(ascii_uppercase, repeat=size):
-            yield "".join(s)
-
-
-values = []
-for i in iter_all_strings():
-    values.append(i)
-    if i == "ZZZ":
-        break
+# def iter_all_strings():
+#     for size in itertools.count(1):
+#         for s in itertools.product(ascii_uppercase, repeat=size):
+#             yield "".join(s)
+#
+#
+# values = []
+# for i in iter_all_strings():
+#     values.append(i)
+#     if i == "ZZZ":
+#         break
 
 
 @storage.route("/rack")
@@ -132,14 +131,24 @@ def rack_manual_entry():
 
     return render_template("storage/rack/new/manual/new.html", form=form)
 
-
 @storage.route("rack/new/automatic", methods=["GET", "POST"])
 @login_required
 def rack_automatic_entry():
-    def _file_to_json(data_stream) -> dict:
+    def _file_to_json(csvfile, nrow=8, ncol=12) -> dict:
         data = {}
-        csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in data_stream]
-        print(csv_data)
+        reads = request.files[csvfile.name].read().decode().strip()
+
+        csv_data = []
+        for linesep in ["\n","\r\n","\r"]:
+            csvdata = reads.split(linesep)
+            print('csvdata', csvdata)
+            if len(csvdata) != nrow * ncol +1:
+                continue
+            csv_data = []
+            for row in csvdata:
+                csv_data.append(row.split(","))
+                #print(row.split(","))
+
         indexes = {
             "Tube Barcode": csv_data[0].index("Tube Barcode"),
             "Tube Position": csv_data[0].index("Tube Position"),
@@ -170,7 +179,7 @@ def rack_automatic_entry():
                     pos.append(int(s))
                 else:
                     pos.append(ord(s.lower())-96)
-            print("pos ", pos)
+
             indexes["Tube Row"].append(pos[0]) # Letter e.g. A2: => Row 1
             indexes["Tube Column"].append(pos[1]) # Number A2 => Column 2
 
@@ -189,15 +198,16 @@ def rack_automatic_entry():
         # replace with tempstore
         session[_hash] = {
             "serial_number": form.serial.data,
+            "num_rows": form.num_rows.data,
+            "num_cols": form.num_cols.data,
             "barcode_type": form.barcode_type.data,
-            "serial_number": form.serial.data,
             "colour": form.colour.data,
             "description": form.description.data,
             "entry": form.entry.data,
             "entry_date": str(form.entry_date.data),
             "entry_time": str(form.entry_time.data),
-            "json": _file_to_json(form.file.data.stream)
-,
+            #"json": _file_to_json(form.file.data.stream)
+            "json": _file_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
         }
         return redirect(url_for("storage.rack_automatic_entry_validation", _hash=_hash))
 
