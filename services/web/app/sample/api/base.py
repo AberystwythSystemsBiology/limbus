@@ -224,7 +224,11 @@ def sample_get_samplebasetypes():
 def sample_get_sampletypes():
     return success_with_content_response(
         {
-            "FLU": {"sample_type": FluidSampleType.choices()},
+            "FLU": {
+                "sample_type": FluidSampleType.choices(),
+                # -- subtypes for whole blood
+                "blood_subtype": BloodSampleType.choices()
+            },
             "CEL": {"sample_type": CellSampleType.choices()},
             "MOL": {"sample_type": MolecularSampleType.choices()},
         }

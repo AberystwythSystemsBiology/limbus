@@ -97,6 +97,15 @@ class FluidSampleType(FormEnum):
     URI = "Urine"
     VIT = "Vitreous Fluid"
 
+class BloodSampleType(FormEnum):
+    SER = "Serum"
+    PLA = "Plasma"
+    BUF = "Unficolled buffy coat, viable"
+    BFF = "Unficolled buffy coat, non-viable"
+    CEL = "Ficoll mononuclear cells, viable"
+    RNA = "RNALater"
+    BLD = "Blood (whole)"
+
 
 class MolecularSampleType(FormEnum):
     CDN = "cDNA"

@@ -227,7 +227,8 @@ function generate_samplebasetype_select(indx) {
 
 function generate_sampletype_select(indx) {
     var sbt = samplebasetypes[0][0];
-    var sampletype_list = sampletypes[sbt]["sample_type"];
+    //var sampletype_list = sampletypes[sbt]["sample_type"];
+    var sampletype_list = get_sampletype_list(sbt);
     var lastsel = sampletype_list[0][0] // Container code for last selection
     if (derived_sample_counts>0 && indx > 1) {
         sbt = lastvals["sample_basetype"];
@@ -282,6 +283,16 @@ function generate_fixation_select(indx) {
     return select_html;
 }
 
+// Dealing with blood sample subtypes
+function get_sampletype_list(sbt){
+    var sampletype_list = sampletypes[sbt]["sample_type"];
+    if (sbt == 'FLU') {
+        if (sample["sample_type_information"]["fluid_type"] == "Blood (whole)") {
+            sampletype_list = sampletypes[sbt]["blood_subtype"];
+        }
+    }
+    return sampletype_list;
+}
 
 function make_new_form(indx) {
     var row_form_html = '';
@@ -326,9 +337,11 @@ function make_new_form(indx) {
     subtract_quantity();
     indexes.push(indx);
 
+console.log("sample", sample)
     $("#samplebasetype_select_"+indx).change(function(){
         var sbt = $("#samplebasetype_select_"+indx).val();
-        var sampletype_list = sampletypes[sbt]["sample_type"];
+        //var sampletype_list = sampletypes[sbt]["sample_type"];
+        var sampletype_list = get_sampletype_list(sbt);
         var options = ""; //<option>--Select--</option>";
         $("#sampletype_select_"+indx).empty();
         $(sampletype_list).each(function(index, value){
