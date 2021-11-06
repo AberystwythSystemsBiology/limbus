@@ -1,0 +1,89 @@
+{% extends "template.html" %}
+
+{% block head %}
+<link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}LIMBRACK-{{rack.id}}: Update Samples in Rack{% endblock %}
+
+{% block body %}
+
+<div id="sidebar-wrapper">
+    {{ storage_navbar() }}
+    <div class="storage container">
+
+        <h1>
+            <span class="secondary-heading">
+                <a href="{{url_for('storage.view_rack', id=rack.id) }}">
+                    <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
+            </span>
+            Assign Sample to Rack</h1>
+
+{#        <form action="" method="post">#}
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.update_rack_samples', id=rack.id) }}">
+
+                {{ form.csrf_token() }}
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.entry_date) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.entry_time) }}
+                    </div>
+                </div>
+                {{ form_field(form.entry) }}
+                {{ form_field(form.barcode_type) }}
+
+                {{ form_field(form.file) }}
+                <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        {{ form_field(form.submit) }}
+                    </div>
+                    <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+                        <a href="{{ url_for('storage.rack_index') }}">
+                            <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                                Cancel
+                            </button></a>
+                    </div>
+                </div>
+            </form>
+
+            <div id="rack-warning" class="alert alert-warning" style="display:none;" role="alert">
+                <b>Warning:</b> This will update the whole rack occupancy. Samples absent in the file will be removed from the rack!
+            </div>
+{#            <div class="row">
+                <div class="col-sm-6">
+                    {{ form_field(form.date) }}
+                </div>
+                <div class="col-sm-6">
+                    {{ form_field(form.time) }}
+                </div>
+{#            </div>#}
+{#            {{ form_field(form.entered_by) }}#}
+
+{#
+            <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                    {{ form_field(form.submit) }}
+                </div>
+                <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+                    <a href="{{ url_for('storage.view_rack',id=rack.id) }}">
+                        <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                            Cancel
+                        </button></a>
+                </div>
+            </div>
+#}
+
+        </form>
+
+
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+
+<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+{#<script src="{{ url_for('static', filename='js/storage/rack/sampletorack_view.js') }}"></script>#}
+{% endblock %}

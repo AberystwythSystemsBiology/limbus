@@ -157,3 +157,37 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     )
 
     submit = SubmitField("Upload File")
+
+
+class UpdateRackFileUploadForm(FlaskForm):
+    # serial = StringField("Serial Number", validators=[DataRequired()])
+    # description = TextAreaField("Description")
+    # colour = SelectField("Colour", choices=Colour.choices())
+    # num_rows = IntegerField("Number of Rows", default=8, validators=[DataRequired()])
+    # num_cols = IntegerField("Number of Columns", default=12, validators=[DataRequired()])
+
+    barcode_type = SelectField(
+        "Barcode Type",
+        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
+        description="The barcode attribute to cross reference against.",
+    )
+    file = FileField("File", validators=[DataRequired()])
+
+    # entry_datetime = StringField("Entry by")
+    entry_date = DateField(
+        "Sample Rack Creation Date",
+        validators=[DataRequired()],
+        default=datetime.today(),
+    )
+
+    entry_time = TimeField(
+        "Sample Rack Creation Time",
+        default=datetime.now(),
+        validators=[DataRequired()],
+    )
+
+    entry = StringField("Created by",
+                        description="The initials of the individual who created the sample rack"
+                        )
+
+    submit = SubmitField("Upload File")

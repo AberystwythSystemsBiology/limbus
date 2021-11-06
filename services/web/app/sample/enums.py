@@ -61,17 +61,17 @@ class SampleBaseType(FormEnum):
 
 
 class BiohazardLevel(FormEnum):
-    ONE = "Level One"
     TWO = "Level Two"
+    ONE = "Level One"
     THR = "Level Three"
     FOU = "Level Four"
 
 
 class FluidSampleType(FormEnum):
+    BLD = "Blood (whole)"
     ASC = "Ascites fluid"
     AMN = "Amniotic fluid"
     BAL = "Bronchoalveolar lavage"
-    BLD = "Blood (whole)"
     BMA = "Bone marrow aspirate"
     BMK = "Breast milk"
     BUC = "Buccal cells"

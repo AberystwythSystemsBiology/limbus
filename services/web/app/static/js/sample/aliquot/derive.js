@@ -337,7 +337,6 @@ function make_new_form(indx) {
     subtract_quantity();
     indexes.push(indx);
 
-console.log("sample", sample)
     $("#samplebasetype_select_"+indx).change(function(){
         var sbt = $("#samplebasetype_select_"+indx).val();
         //var sampletype_list = sampletypes[sbt]["sample_type"];

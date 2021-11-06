@@ -59,11 +59,11 @@ function render_empty(row, col, count, assign_sample_url) {
     assign_sample_url = assign_sample_url.replace("rph", row);
     assign_sample_url = assign_sample_url.replace("cph", col);
 
-    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
-    content += '<div class="square tube">'
-    content += '<div class="align-middle">'
-    content += "</div></div></div>"
-    $("#row_" + row).append(content)
+    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">';
+    content += '<div class="square tube">';
+    content += '<div class="align-middle">';
+    content += "</div></div></div>";
+    $("#row_" + row).append(content);
 
     $("#tube_" + [row, col].join("_")).click(function () {
         window.location = assign_sample_url;
@@ -71,7 +71,7 @@ function render_empty(row, col, count, assign_sample_url) {
 }
 
 function render_axis(row, col) {
-    var content = '<div class="col" id="axis_' + row+'_'+col + '">'
+    var content = '<div class="col" id="axis_' + row+'_'+col + '">';
 
     if (row==0 & col==0) {
         tick = '';
@@ -81,12 +81,12 @@ function render_axis(row, col) {
         //display alphabet letter
         tick = String.fromCharCode(Number(row)+64);
         content += '<div class="float-right">';
-        content += '<strong>'+ tick + '</strong></div>'
+        content += '<strong>'+ tick + '</strong></div>';
     } else {
         tick = col;
         //content += tick;
         content += '<div class="text-center">'; //+ tick + "</div>"
-        content += '<strong>'+ tick + '</strong></div>'
+        content += '<strong>'+ tick + '</strong></div>';
     }
     content += "</div>";
     $("#row_" + row).append(content)
@@ -144,29 +144,33 @@ function render_modal(sample_info) {
 }
 
 function render_full(info, row, col, count, assign_sample_url) {
-    var sample_info = info["sample"]
-    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
-    content += '<div class="square tube"><div class="align_middle present-tube">'
+    var sample_info = info["sample"];
+    var content = '<div class="col" id="tube_' + [row, col].join("_") + '">';
+    content += '<div class="square tube"><div class="align_middle present-tube">';
     content += '<img width="100%" src="data:image/png;base64,' + get_barcode(sample_info, "qrcode") + '">'
-    
-    
-    content += "</div></div></div>"
-    $("#row_" + row).append(content)
+
+    content += "</div></div></div>";
+    $("#row_" + row).append(content);
     $("#tube_" + [row, col].join("_")).click(function () {
         render_modal(sample_info);
         $("#sampleInfoModal").modal();
     });
 }
 
-function render_full_noimg(info, row, col, count, assign_sample_url) {
+function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
     var sample_info = info["sample"]
     // console.log(sample_info)
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube" style="background-color: lightpink ;">' +
         '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
-    content += '<small>['+sample_info['id'] + ']<br>' + sample_info['barcode']+'</small>';
-    content += "</div></div></div>"
-    $("#row_" + row).append(content)
+
+    if (dispopt=='id')
+        content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
+    else if (dispopt=='donor')
+        content += '<small>['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
+
+    content += "</div></div></div>";
+    $("#row_" + row).append(content);
 
     $("#tube_" + [row, col].join("_")).click(function () {
         //window.location = sample_info["_links"]["self"];
@@ -368,7 +372,7 @@ function render_information(rack_information) {
         $("#delete-rack").hide();
 }
 
-function render_view(view, assign_sample_url, img_on) {
+function render_view(view, assign_sample_url, dispopt) {
     var count = 0;
 
     var samples = [];
@@ -387,10 +391,10 @@ function render_view(view, assign_sample_url, img_on) {
                     render_empty(r, c, count, assign_sample_url);
                 } else {
 
-                    if (img_on) {
+                    if (dispopt=='qr') {
                         render_full(column, r, c, count, assign_sample_url);
                     } else {
-                        render_full_noimg(column, r, c, count, assign_sample_url);
+                        render_full_noimg(column, r, c, count, assign_sample_url, dispopt);
                     }
                     column["pos"] = [r, c]
                     samples.push(column)
@@ -480,13 +484,16 @@ $(document).ready(function () {
     render_subtitle(rack_information);
     render_information(rack_information);
 
-    var img_on = $('#img_on').prop('checked');
-    var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], img_on);
-    $("#img_on").click(function(){
+    $("input[id='qr_on']").attr('disabled', true);
+    //var img_on = $('#img_on').prop('checked');
+    var dispopt = $("input[name='dispopt']:checked").val();
+    var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+
+    $("input[name='dispopt']").change(function(){
+        dispopt = $("input[name='dispopt']:checked").val();
         $("#view_area").empty()
-        img_on = $('#img_on').prop('checked');
-        samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], img_on);
-    });
+        samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+    })
 
     render_occupancy_chart(rack_information["counts"])
     render_sample_table(samples)
@@ -495,31 +502,6 @@ $(document).ready(function () {
     $("#add-sample-btn").click(function() {
     var api_url = window.location.href = rack_information["_links"]["assign_samples"];
     var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
-           // console.log('sampletostore', sampletostore)
-           // if (sampletostore.success == false){
-           //      alert(sampletostore.message)
-           //      return false
-           // } else {
-           //     if (sampletostore.content.samples.length==0) {
-           //         alert('All selected samples have been stored in the selected rack!');
-           //         return false;
-           //     }
-           //     if (sampletostore.message != '') {
-           //         if (confirm(sampletostore.message)) {
-           //
-           //         } else {
-           //             return false
-           //         }
-           //     }
-           // }
-           // samplestore =  sampletostore['content']
-           // sessionStorage.setItem("rack_id", rack_id);
-           // sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
-           // //window.open("view_sample_to_rack.html");
-           // //window.open(api_url, "_blank"); //, "_self");
-           // window.open(api_url, "_self");
-
-        //}
 
     })
 
