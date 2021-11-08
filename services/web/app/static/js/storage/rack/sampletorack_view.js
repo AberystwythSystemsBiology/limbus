@@ -82,7 +82,6 @@ function update_rack_information(rack_information, samples_new) {
         }
     }
 
-    console.log("rack_information1: ", rack_information);
     return rack_information;
 }
 
@@ -760,11 +759,10 @@ function dragndrop_rack_view() {
            $("#cancel_change").show();
            $("#submit_sampletorack").show();
 
-           console.log("rack before", rack_information);
            upd = {};
            changed.forEach(function(tube_id) {
                var orig_tube_id = document.getElementById(tube_id).firstChild.getAttribute("tube_id");
-               console.log("orig_tube_id", orig_tube_id, tube_id);
+
                if (orig_tube_id != tube_id) {
 
                    var ss = orig_tube_id.replace("tube_", "").split("_");
@@ -817,7 +815,6 @@ function dragndrop_rack_view() {
            samples_pos = [];
            Object.keys(samples).forEach(function(k) {
                sample=samples[k];
-               console.log("sample k", sample)
                sample["sample"]["empty"] = sample['empty'];
                sample["sample"]["tostore"] = sample['tostore'];
                sample["sample"]['pos'] = sample['pos'];
@@ -829,7 +826,7 @@ function dragndrop_rack_view() {
            });
 
            sampletostore = JSON.parse(sessionStorage.getItem("sampletostore"));
-           console.log("sampletostore", sampletostore)
+           //console.log("sampletostore", sampletostore)
            sampletostore["samples"] = samples_pos;
            sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore));
            changed =[];
