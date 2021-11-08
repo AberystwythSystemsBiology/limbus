@@ -143,6 +143,28 @@ function render_modal(sample_info) {
 
 }
 
+
+function render_sample_label(data) {
+    var label = '';
+    var sample_type_information = data["sample_type_information"];
+    if (data["base_type"] == "Fluid") {
+        label += sample_type_information["fluid_type"];
+    } else if (data["base_type"] == "Cell") {
+        label += sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+    } else if (data["base_type"] == "Molecular") {
+        label += sample_type_information["molecular_type"];
+    }
+    label += data["remaining_quantity"] + "/" + data["quantity"] + get_metric(data["base_type"]);
+    label += '</span>';
+/*
+    if (sample_type_information["cellular_container"] == null) {
+        label += sample_type_information["fluid_container"];
+    } else {
+        label += sample_type_information["cellular_container"];
+    }*/
+    return(label)
+}
+
 function render_full(info, row, col, count, assign_sample_url) {
     var sample_info = info["sample"];
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">';
@@ -166,9 +188,10 @@ function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
 
     if (dispopt=='id')
         content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
-    else if (dispopt=='donor')
-        content += '<small>['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
-
+    else if (dispopt=='donor') {
+        content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+        content += render_sample_label(sample_info) + '</small>';
+    }
     content += "</div></div></div>";
     $("#row_" + row).append(content);
 
@@ -484,8 +507,7 @@ $(document).ready(function () {
     render_subtitle(rack_information);
     render_information(rack_information);
 
-    $("input[id='qr_on']").attr('disabled', true);
-    //var img_on = $('#img_on').prop('checked');
+    // $("input[id='qr_on']").attr('disabled', true);
     var dispopt = $("input[name='dispopt']:checked").val();
     var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
 
@@ -504,6 +526,19 @@ $(document).ready(function () {
     var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
 
     })
+
+    $("#repos-rack-btn").click(function() {
+    var api_url = window.location.href = rack_information["_links"]["edit_samples_pos"];
+    console.log("api_url",api_url );
+    var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
+
+    })
+
+    $("#update-from-file-btn").click(function() {
+    var api_url = window.location.href = rack_information["_links"]["update_samples"];
+    var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
+    })
+
 
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();

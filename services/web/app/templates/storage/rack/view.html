@@ -46,22 +46,34 @@
                                     </a>
                                 </div>
 
-
-
+                  <div class="btn-btn-group mr-2" role="group">
+                    <div class="dropdown">
+                      <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-vial"></i> Assign Samples
+                      </button>
+                      <div class="dropdown-menu">
+                        <a id="add-sample-btn" class="dropdown-item"><i class="fas fa-vial"></i>Add Samples from cart</a>
+                        <a id="repos-rack-btn" class="dropdown-item"><i class="fas fa-vial"></i>Reposition Samples in Rack</a>
+{#                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>#}
+                        <a id="update-from-file-btn" class="dropdown-item">
+                          <i class="fa fa-file-csv"></i> Update from file</a>
+                      </div>
+                    </div></div>
+{#
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
                                     <button id="add-sample-btn" type="button" class="btn btn-outline-dark">
                                         <i class="fas fa-vial"></i> Add Samples
                                     </button>
-                                </div>
+                                </div>#}
                                 {% endif %}
 
 
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-{#                                        <a href="{{ url_for('storage.add_rack_to_cart',id=rack.id) }}">#}
                                     <button type="button" class="btn btn-outline-dark" id="add-rack-cart-btn">
                                         <i class="fa fa-cart-plus"></i> Rack to Cart
                                     </button>
-{#                                        </a>#}
+
                                 </div>
 
                                 {% if not rack.is_locked %}

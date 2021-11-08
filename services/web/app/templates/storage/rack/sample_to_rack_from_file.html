@@ -4,10 +4,15 @@
 <link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMBRACK-{{rack.id}}: Update Samples in Rack{% endblock %}
+{% block title %}LIMBRACK-{{rack.id}}: Assign Rack Samples {% endblock %}
 
 {% block body %}
 
+<style>
+.drag-over {
+    border: dashed 3px red;
+}
+</style>
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
     <div class="storage container">
@@ -17,9 +22,21 @@
                 <a href="{{url_for('storage.view_rack', id=rack.id) }}">
                     <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
             </span>
-            Assign Sample to Rack</h1>
+            Update Rack Samples from File</h1>
 
-{#        <form action="" method="post">#}
+        <div class="container">
+            <p> Ensure that the file is in the comma-separated-value (csv) file format. In order for the file to be read, the CSV file must have the following column headings on the first row:
+            </p>
+            <ul>
+                <li>Tube Barcode: The reference string of characters used to interrogate LImBuS for existing samples.
+                </li>
+                <li>Tube Position: The position of the vial in the form of A1, B2, F42.</li>
+            </ul>
+
+            <p>
+                If the file contains additional attribute information, it will be <b>disregarded entirely</b>.
+            </p>
+</div>
             <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.update_rack_samples', id=rack.id) }}">
 
                 {{ form.csrf_token() }}

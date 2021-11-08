@@ -295,6 +295,8 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
     return(samples)
 
 
+
+
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
 @token_required
 def storage_rack_fill_with_samples(tokenuser: UserAccount):
@@ -369,6 +371,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         return success_with_content_message_response(samplestore, message)
 
     if entry_datetime:
+
         samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col'],
                         "entry_datetime": entry_datetime, "entry": entry}
                        for sample in samples]
@@ -380,6 +383,50 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     return func_transfer_samples_to_rack(
         samples_pos, rack_id, tokenuser
     )
+
+
+@api.route("/storage/rack/edit_samples_pos", methods=["POST", "GET"])
+@token_required
+def storage_rack_edit_samples_pos(tokenuser: UserAccount):
+    samples = []
+    if request.method == 'POST':
+      values = request.get_json()
+      samples = values['samples']
+
+    else:
+        values = None
+
+    if len(samples) == 0:
+        return no_values_response()
+
+    # entry_datetime = values.pop("entry_datetime", None)
+    # entry = values.pop("entry", None)
+
+    rack_id = int(values['rack_id'])
+    samples = values['samples']
+    for sample in samples:
+        stb = EntityToStorage.query.filter_by(sample_id=sample["id"], rack_id=rack_id, storage_type='STB', removed=False).first();
+        if stb:
+            stb.update({'row':sample['row'], 'col':sample['col'], 'editor_id':tokenuser.id})
+        else:
+            return(not_found("Relevant storage for sample: uuid=%s")%sample['uuid'])
+
+        try:
+            db.session.add(stb)
+        except Exception as err:
+            return transaction_error_response(err)
+
+    try:
+        db.session.commit()
+        msg = ('Sample positions in rack updated Successfully!')
+        return success_with_content_message_response({"id": rack_id}, msg)
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
+
+
 
 
 def func_get_samples(barcode_type, samples):
@@ -473,15 +520,15 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
             samplestore["entry"] = entry
         return success_with_content_message_response(samplestore, message)
 
-    samples_pos = samples
+    #samples_pos = samples
     if entry_datetime:
-        for sample in samples_pos:
+        for sample in samples:
             if sample["id"]:
                 sample.update({"entry_datetime": entry_datetime, "entry": entry})
 
     # insert confirmed data to database
     return func_transfer_samples_to_rack(
-        samples_pos, rack_id, tokenuser
+        samples, rack_id, tokenuser
     )
 
 

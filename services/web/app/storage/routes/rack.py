@@ -617,6 +617,7 @@ def assign_rack_samples(id):
                 rack=view_response.json()["content"],
                 form=form,
             )
+
     return abort(view_response.status_code)
 
 
@@ -636,6 +637,46 @@ def storage_rack_fill_with_samples():
 
     response = requests.post(
         url_for("api.storage_rack_fill_with_samples", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
+
+
+@storage.route("/rack/LIMBRACK-<id>/edit_samples_in_rack", methods=["GET", "POST"])
+@login_required
+def edit_rack_samples_pos(id):
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if view_response.json()["content"]["is_locked"]:
+        flash('The rack is locked!')
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        return redirect(url_for("storage.edit_rack", id=id))
+
+    sampletostore = view_response.json()["content"]
+    id = int(sampletostore.pop("id"))
+    sampletostore = {"rack_id": id, "samples": [], "from_file": False, "update_only": True}
+
+    return render_template("storage/rack/view_sample_to_rack.html", id=id,
+                           sampletostore=sampletostore
+                           )
+
+@storage.route("/rack/edit_samples_pos", methods=["GET", "POST"])
+@login_required
+def storage_rack_edit_samples_pos():
+    if request.method == 'POST':
+       values = request.json
+    else:
+       return {'messages': 'Sample and storage info needed!', 'success': False}
+
+    response = requests.post(
+        url_for("api.storage_rack_edit_samples_pos", _external=True),
         headers=get_internal_api_header(),
         json=values,
     )

@@ -40,6 +40,54 @@ function get_rack_information() {
 }
 
 
+function update_rack_information(rack_information, samples_new) {
+    for (k in samples_new) {
+        r = samples_new[k]['row'];
+        c = samples_new[k]['col'];
+
+        if (rack_information['view'][r][c]['empty'] == true) {
+            rack_information['view'][r][c]['sample'] = samples_new[k];
+
+            if (samples_new[k]['id'] != null) {
+                rack_information['view'][r][c]['empty'] = false;
+                // tostore - indicator for storage (not from file), only possible if empty==true
+                rack_information['view'][r][c]['tostore'] = true;
+                rack_information['view'][r][c]['status'] = 'empty2fill';
+
+            } else {
+                rack_information['view'][r][c]['status'] = 'empty';
+            }
+
+        } else if (samples_new[k]["id"] != null) {
+
+            rack_information['view'][r][c]['sample_old'] = JSON.parse(JSON.stringify(rack_information['view'][r][c]['sample']));
+            rack_information['view'][r][c]['sample'] = samples_new[k];
+
+            if (rack_information['view'][r][c]['sample']['id'] != samples_new[k]['id']) {
+
+                if (samples_new[k]["id"] != null)
+                    rack_information['view'][r][c]['tostore'] = true;
+                rack_information['view'][r][c]['status'] = 'fill2fill';
+
+            } else {
+                rack_information['view'][r][c]['tostore'] = false;
+                rack_information['view'][r][c]['status'] = 'fill'
+            }
+
+        } else {
+            rack_information['view'][r][c]['sample_old'] = JSON.parse(JSON.stringify(rack_information['view'][r][c]['sample']));
+            rack_information['view'][r][c]['sample'] = samples_new[k];
+            rack_information['view'][r][c]['tostore'] = false;
+            rack_information['view'][r][c]['status'] = 'fill2empty';
+        }
+    }
+
+    console.log("rack_information1: ", rack_information);
+    return rack_information;
+}
+
+
+
 function render_subtitle(rack_information) {
     $("#colour").html(render_colour(rack_information["colour"]))
     $("#createdOn").html(rack_information["created_on"]);
@@ -64,7 +112,7 @@ function render_empty(row, col, count, assign_sample_url) {
     assign_sample_url = assign_sample_url.replace("cph", col);
 
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
-    content += '<div class="square tube">'
+    content += '<div class="square tube" droppable=true >'
     content += '<div class="align-middle">'
     //content += count
     content += "</div></div></div>"
@@ -162,21 +210,46 @@ function render_full(info, row, col, count, assign_sample_url) {
     });
 }
 
+
+function render_sample_label(data) {
+    var label = '';
+    var sample_type_information = data["sample_type_information"];
+    if (data["base_type"] == "Fluid") {
+        label += sample_type_information["fluid_type"];
+    } else if (data["base_type"] == "Cell") {
+        label += sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+    } else if (data["base_type"] == "Molecular") {
+        label += sample_type_information["molecular_type"];
+    }
+    label += data["remaining_quantity"] + "/" + data["quantity"] + get_metric(data["base_type"]);
+    label += '</span>';
+/*
+    if (sample_type_information["cellular_container"] == null) {
+        label += sample_type_information["fluid_container"];
+    } else {
+        label += sample_type_information["cellular_container"];
+    }*/
+    return(label)
+}
+
 function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
     var sample_info = info["sample"]
+    var sample_id = sample_info['id'];
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     if (info['tostore']) {
-        content += '<div class="square tube" style="background-color: lightblue ;">' +
+        content += '<div id="s_'+ sample_id+'" draggable=true droppable=true class="square tube" style="background-color: lightblue ;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
     } else {
-        content += '<div class="square tube" style="background-color: lightpink ;">' +
+        content += '<div id="s_'+ sample_id+'" draggable=true droppable=true class="square tube" style="background-color: lightpink ;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
     }
     if (dispopt=='id')
         content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
-    else if (dispopt=='donor')
-        content += '<small>['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
-
+    else if (dispopt=='donor') {
+        content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+        content += render_sample_label(sample_info) + '</small>';
+        //content += sample_info['barcode'] + '</small>';
+    }
     content += "</div></div></div>"
     $("#row_" + row).append(content)
 
@@ -194,57 +267,56 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
         content += '<div class="square tube" style="background-color: #f5f5f5 ;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
     }
+
     if (info['status']=='empty2fill') {
         content += '<div class="square tube" style="background-color: lightblue ;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
-        if (dispopt=="id")
-            content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-        else if (dispopt=="donor")
-            content += '<small>['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
+        if (dispopt=="id") {
+            content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+        } else if (dispopt=="donor") {
+            content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+            content += render_sample_label(sample_info) + '</small>';
+        }
         content += '<i class="fas fa-plus " style="color:blue  ;"></i>';
-
     } else if (info['status']=='fill')  {
         content += '<div class="square tube" style="background-color: lightpink ;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
-        if (dispopt=="id")
-            content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-        else if (dispopt=="donor")
-            content += '<small>['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
-
-        // content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
+        if (dispopt=="id") {
+            content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+        } else if (dispopt=="donor") {
+            content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+            content += render_sample_label(sample_info) + '</small>';
+        }
         content += '<i class="fas fa-plus " style="color:blue;"></i>';
-
     } else if (info['status']=='fill2empty')  {
         content += '<div class="square tube" style="background-color: white;">' +
-            '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
-        if (dispopt=="id")
-            //content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-            content += '<small style="color:red ; text-decoration:line-through">['+info['sample_old']['id'] + '] ' +info['sample_old']['barcode'] +'</small>';
-        else if (dispopt=="donor")
-            content += '<small style="color:red ; text-decoration:line-through">['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
-
-        //content += '<small style="color:red ; text-decoration:line-through">['+info['sample_old']['id'] + '] ' +info['sample_old']['barcode'] +'</small>';
+            '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">';
+        if (dispopt=="id") {
+            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['id'] + '] ' + info['sample_old']['barcode'] + '</small>';
+        } else if (dispopt=="donor") {
+            content += '<small style="color:red ; text-decoration:line-through">[' + sample_info['consent_information']['donor_id'] + '] ';
+            content += render_sample_label(sample_info) + '</small>';
+        }
         content += '<i class="fas fa-times " style="color:red;"></i>';
-
     }  else if (info['status']=='fill2fill')  {
         content += '<div class="square tube" style="background-color: lightseagreen ;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
-        if (dispopt=="id")
-            //content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-            content += '<small style="color:red ; text-decoration:line-through">['+info['sample_old']['id'] + '] ' +info['sample_old']['barcode'] +'</small>';
-        else if (dispopt=="donor")
-            content += '<small style="color:red ; text-decoration:line-through">['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
+        // -- Old sample info
+        if (dispopt=="id") {
+            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['id'] + ']' + info['sample_old']['barcode'] + '</small>';
 
-        //content += '<small style="color:red; text-decoration:line-through">['+info["sample_old"]['id'] + '] ' + info["sample_old"]['barcode'] +'</small>';
+        } else if (dispopt=="donor") {
+            content += '<small style="color:red ; text-decoration:line-through">[' + sample_info['consent_information']['donor_id'] + '] ';
+            content += render_sample_label(sample_info) + '</small>';
+        }
         content += '<i class="fas fa-times " style="color:red;"></i>';
-        if (dispopt=="id")
-            //content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-            //content += '<small style="color:red ; text-decoration:line-through">['+info['sample_old']['id'] + '] ' +info['sample_old']['barcode'] +'</small>';
-            content += '<small style="color:blue;"> ['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-        else if (dispopt=="donor")
-            //content += '<small style="color:blue;"> ['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
-            content += '<small style="color:blue">['+sample_info['consent_information']['donor_id'] + '] ' +sample_info['barcode'] + '</small>';
-        //content += '<small style="color:blue;"> ['+sample_info['id'] + '] ' +sample_info['barcode'] + '</small>';
+        // -- New sample info
+        if (dispopt=="id") {
+            content += '<small style="color:blue;"> [' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+        } else if (dispopt=="donor") {
+            content += '<small style="color:blue">[' + sample_info['consent_information']['donor_id'] + '] ';
+            content += render_sample_label(sample_info) + '</small>';
+        }
         content += '<i class="fas fa-plus " style="color:blue;"></i>';
     }
 
@@ -307,7 +379,7 @@ function render_sample_table(samples) {
                 { // col id
                     "mData": {},
                     "mRender": function(data, type,row) {
-                        return data["pos"][1]
+                        return data["pos"][1];
                     },
                     "width": "3%"
                 },
@@ -620,85 +692,184 @@ function fill_sample_pos(api_url, sampletostore, commit) {
 
 }
 
+
+function dragndrop_rack_view() {
+       $("#confirm_position").hide();
+       $("#cancel_change").hide();
+       $("#submit_sampletorack").show();
+        var dispopt = $("input[name='dispopt']:checked").val();
+        var changed = [];
+        document.ondragstart = function (event) {
+            //event.dataTransfer.setData("text/plain", event.target.id);
+            event.dataTransfer.setData('target_id', event.target.id);
+        };
+
+        /* Events fired on the drop target */
+        document.ondragover = function (event) {
+            event.preventDefault();
+        };
+
+        document.ondrop = function (event) {
+
+            event.preventDefault();
+            var drop_target = event.target.parentNode;
+            if (drop_target.getAttribute("droppable")=="true") {
+                var drag_target_id = event.dataTransfer.getData('target_id');
+                var drag_target = $('#' + drag_target_id)[0];
+
+                var drag_tube_id = drag_target.parentNode.id;
+                var drop_tube_id = drop_target.parentNode.id;
+                var tmp = document.createElement('swap');
+                tmp.className = 'hide';
+
+                if (!drag_target.hasAttribute("tube_id"))
+                    drag_target.setAttribute("tube_id", drag_tube_id)
+                if (!drop_target.hasAttribute("tube_id"))
+                    drop_target.setAttribute("tube_id", drop_tube_id)
+
+                changed.push(drag_tube_id);
+                changed.push(drop_tube_id);
+
+                drop_target.before(tmp);
+                drag_target.before(drop_target);
+                tmp.replaceWith(drag_target);
+
+                $("#confirm_position").show();
+                $("#cancel_change").hide();
+                $("#submit_sampletorack").hide();
+
+                if (dispopt == 'id') {
+                    $("input[id='id_on']").attr('disabled', false);
+                    $("input[id='donor_on']").attr('disabled', true);
+                } else {
+                    $("input[id='id_on']").attr('disabled', true);
+                    $("input[id='donor_on']").attr('disabled', false);
+                }
+            }
+        };
+
+
+        $("#cancel_change").click(function (event) {
+            window.location.reload();
+        });
+
+
+       $("#confirm_position").click(function(e){
+           // update rackinformation and revise sampletostore in sessionStorage
+           $("#confirm_position").hide();
+           $("#cancel_change").show();
+           $("#submit_sampletorack").show();
+
+           console.log("rack before", rack_information);
+           upd = {};
+           changed.forEach(function(tube_id) {
+               var orig_tube_id = document.getElementById(tube_id).firstChild.getAttribute("tube_id");
+               console.log("orig_tube_id", orig_tube_id, tube_id);
+               if (orig_tube_id != tube_id) {
+
+                   var ss = orig_tube_id.replace("tube_", "").split("_");
+                   var row = parseInt(ss[0]);
+                   var col = parseInt(ss[1]);
+
+                   upd[tube_id] = JSON.parse(JSON.stringify(rack_information['view'][row][col]));
+                   if (upd[tube_id]["empty"] == true) {
+                       upd[tube_id]["tostore"] = false;
+                       upd[tube_id]["pos"] = [row, col];
+                   } else {
+                       upd[tube_id]["tostore"] = true;
+                       upd[tube_id]["pos"] = [row, col];
+                       upd[tube_id]['sample']['pos'] = [row, col];
+                       upd[tube_id]['sample']['row'] = row;
+                       upd[tube_id]['sample']['col'] = col;
+                   }
+               }
+           });
+
+           Object.keys(upd).forEach(function(k) {
+               var ss = k.replace("tube_", "").split("_");
+               var row = parseInt(ss[0]);
+               var col = parseInt(ss[1]);
+               rack_information['view'][row][col]=JSON.parse(JSON.stringify(upd[k]));
+
+               if (upd[k]["empty"]==true)
+                   rack_information['view'][row][col]["tostore"]=false;
+               else
+                   rack_information['view'][row][col]["tostore"]=true;
+
+           })
+
+            dispopt = $("input[name='dispopt']:checked").val();
+            $("#view_area").empty()
+            var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+
+            $('#sampleTable').DataTable().destroy();
+            render_sample_table(samples);
+
+            $("input[id='id_on']").attr('disabled', false);
+            $("input[id='donor_on']").attr('disabled', false);
+
+            $("input[name='dispopt']").change(function(){
+                var dispopt = $("input[name='dispopt']:checked").val();
+                $("#view_area").empty()
+                   samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+            })
+
+           samples_pos = [];
+           Object.keys(samples).forEach(function(k) {
+               sample=samples[k];
+               console.log("sample k", sample)
+               sample["sample"]["empty"] = sample['empty'];
+               sample["sample"]["tostore"] = sample['tostore'];
+               sample["sample"]['pos'] = sample['pos'];
+               sample["sample"]['row'] = sample['pos'][0];
+               sample["sample"]['col'] = sample['pos'][1];
+
+               if (samples[k]['tostore']==true)
+                    samples_pos.push(samples[k]["sample"])
+           });
+
+           sampletostore = JSON.parse(sessionStorage.getItem("sampletostore"));
+           console.log("sampletostore", sampletostore)
+           sampletostore["samples"] = samples_pos;
+           sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore));
+           changed =[];
+       });
+
+}
+
+var rack_information = get_rack_information();
 $(document).ready(function () {
     collapse_sidebar();
-
-    var rack_information = get_rack_information();
+    //var rack_information = get_rack_information();
     sampletostore = JSON.parse(sessionStorage.getItem("sampletostore"));
     rack_id = sampletostore["rack_id"]
     samples_new = sampletostore["samples"]
     from_file = sampletostore["from_file"]
-    $("input[id='qr_on']").attr('disabled', true);
 
-    //console.log("samples_new", samples_new)
-    //console.log("rack_information", rack_information)
+    if("update_only" in sampletostore)
+        update_only = sampletostore["update_only"]
+    else
+        update_only = False
 
-    for (k in samples_new) {
-        r = samples_new[k]['row'];
-        c = samples_new[k]['col'];
+    $("input[id='qr_on']").attr('hidden', true);
 
-        if (rack_information['view'][r][c]['empty']==true) {
-            rack_information['view'][r][c]['sample'] = samples_new[k];
+    $("#cancel_change").hide();
+    $("#confirm_position").hide();
 
-          if (samples_new[k]['id'] != null) {
-              rack_information['view'][r][c]['empty'] = false;
-              // tostore - indicator for storage (not from file), only possible if empty==true
-              rack_information['view'][r][c]['tostore'] = true;
-              rack_information['view'][r][c]['status'] = 'empty2fill';
-
-          } else {
-              rack_information['view'][r][c]['status'] = 'empty';
-          }
-
-        } else if (samples_new[k]["id"] != null) {
-
-            rack_information['view'][r][c]['sample_old'] = JSON.parse(JSON.stringify(rack_information['view'][r][c]['sample']));
-            rack_information['view'][r][c]['sample'] = samples_new[k];
-
-            if (rack_information['view'][r][c]['sample']['id']!=samples_new[k]['id']) {
-
-                if (samples_new[k]["id"]!=null)
-                    rack_information['view'][r][c]['tostore'] = true;
-                    rack_information['view'][r][c]['status'] = 'fill2fill';
-
-            } else {
-                rack_information['view'][r][c]['tostore'] = false;
-                rack_information['view'][r][c]['status'] = 'fill'
-            }
-
-        } else {
-            rack_information['view'][r][c]['sample_old'] = JSON.parse(JSON.stringify(rack_information['view'][r][c]['sample']));
-            rack_information['view'][r][c]['sample'] = samples_new[k];
-            rack_information['view'][r][c]['tostore'] = false;
-            rack_information['view'][r][c]['status'] = 'fill2empty';
-        }
-    }
-
+    update_rack_information(rack_information, samples_new);
     render_subtitle(rack_information);
     render_information(rack_information);
 
     var dispopt = $("input[name='dispopt']:checked").val();
 
-    console.log("disp", dispopt)
     if (from_file==true) {
         var samples = render_view_from_file(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
-    }
-    else {
+    } else {
         var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
-        //var img_on = $('#img_on').prop('checked');
-/*
-        var dispopt = $("input[name='dispopt']:checked").val();
-        $("#img_on").click(function(){
-            $("#view_area").empty()
-            img_on = $('#img_on').prop('checked');
-            samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
-        });
-*/
     }
 
     $("input[name='dispopt']").change(function(){
         var dispopt = $("input[name='dispopt']:checked").val();
-        //console.log('ddd', dispopt)
         $("#view_area").empty()
         if (from_file==true) {
            samples = render_view_from_file(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
@@ -706,15 +877,20 @@ $(document).ready(function () {
            samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
     })
 
-
     render_occupancy_chart(rack_information["counts"]);
     render_sample_table(samples);
+
+
+    dragndrop_rack_view();
 
     $("#submit_sampletorack").click(function (event) {
         if (from_file)
             var api_url = window.location.origin + "/storage/rack/refill_with_samples"
-        else
+        else if (!update_only)
             var api_url = window.location.origin + "/storage/rack/fill_with_samples"
+        else
+            var api_url = window.location.origin + "/storage/rack/edit_samples_pos"
+
         res = fill_sample_pos(api_url, sampletostore,commit=true);
         if (commit & res['success']){
             alert(res['message'])
