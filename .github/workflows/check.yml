@@ -14,7 +14,7 @@ jobs:
       - name: ls
         run: ls
       - name: Download DOID
-        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf /limbus/ontologies/
+        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf ./services/web/ontologies/
       - name: Move .env
         run: cp .env.example .env
       - name: Build the stack
