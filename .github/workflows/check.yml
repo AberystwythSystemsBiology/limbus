@@ -12,11 +12,9 @@ jobs:
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: Download DOID and prepare .env file.
-        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf ./services/web/ontologies/
-        run: cp .env.example .env
+        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf ./services/web/ontologies/ ; cp .env.example .env
       - name: Build the stack
-        run: docker-compose build
-        run: docker-compose run web sh -c "yarn install"
+        run: docker-compose build ; docker-compose run web sh -c "yarn install"
       - name: Create the database
         run: mkdir -p ./services/web/migrations/versions ; docker-compose run web sh -c "alembic revision --autogenerate -m 'Generating database'; alembic upgrade head"
       - name: Create Kryten
