@@ -109,11 +109,29 @@ function check_barcode_database(entered_barcode) {
 
 
 // Global because I hate myself.
+// sampletypes in db
 var sample = get_sample();
 var samplebasetypes = get_types("samplebasetypes");
 var containerbasetypes = get_types("containerbasetypes");
 var sampletypes = get_types("sampletypes");
 var containertypes = get_types("containertypes");
+
+if ("sampletotype" in sessionStorage) {
+    //var sampletotype = get_types("sampletype");
+    var sampletotype = JSON.parse(sessionStorage.getItem("sampletotype"));
+    for (let key in containertypes) {
+        let containertype_list = containertypes[key]["container"];
+        let choice1 = sampletotype["container_choices"][key]["container"];
+        containertypes[key]["container"] = choice1.concat(containertype_list);
+    }
+
+    for (let key in sampletypes) {
+        let sampletype_list = sampletypes[key]["sample_type"];
+        let choice1 = sampletotype["sampletype_choices"][key];
+        sampletypes[key]["sample_type"] = choice1.concat(sampletype_list);
+    }
+
+}
 
 for (let key in containertypes) {
     let fixationtype_list = containertypes[key]["fixation_type"];

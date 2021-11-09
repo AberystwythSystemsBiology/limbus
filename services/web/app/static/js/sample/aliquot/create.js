@@ -137,6 +137,18 @@ var sample = get_sample();
 var container_information = get_containertypes();
 var indexes = [];
 
+
+if ("sampletotype" in sessionStorage) {
+    var sampletotype = JSON.parse(sessionStorage.getItem("sampletotype"));
+    for (let key in container_information) {
+        //console.log(key, container_information[key]);
+        let containertype_list = container_information[key]["container"];
+        let choice1 = sampletotype["container_choices"][key]["container"];
+        container_information[key]["container"] = choice1.concat(containertype_list);
+    }
+}
+
+
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
     var quantity = $("#original_quantity").val();

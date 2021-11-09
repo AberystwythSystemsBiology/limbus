@@ -39,6 +39,9 @@
             <b>{{ form.consent_type.label }}</b>
             {{ form.consent_type(size="2", class="form-control") }}
 
+                <div style="visibility: hidden; display: none">
+                    <input type="hidden" name="sampletypes" value="{{ sampletotype }}">
+                </div>
 
             <div class="row">
                 <div class="col-6">
@@ -97,5 +100,11 @@
 {% endblock %}
 
 {% block javascript %}
+<script>
+    //sessionStorage.clear();
+    sessionStorage.removeItem("sampletotype");
+	sampletotype = {{ sampletotype | tojson }};
+    sessionStorage.setItem("sampletotype", JSON.stringify(sampletotype));
+</script>
 <script src="{{ url_for('static', filename='js/sample/information/index.js') }}"></script>
 {% endblock %}

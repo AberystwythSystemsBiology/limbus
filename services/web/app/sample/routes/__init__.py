@@ -46,11 +46,17 @@ def index() -> str:
     sampletypes = []
     if sampletype_response.status_code == 200:
         print("sampletype_response.json()", sampletype_response.json())
-        sampletypes = sampletype_response.json()["content"]['choices']
+        stypes = sampletype_response.json()["content"]['sampletype_choices']
+        for opt in stypes["FLU"]:
+            sampletypes.append(["fluid_type:" + opt[0], opt[1]])
+        for opt in stypes["MOL"]:
+            sampletypes.append(["molecular_type:" + opt[0], opt[1]])
+        for opt in stypes["CEL"]:
+            sampletypes.append(["cellular_type:" + opt[0], opt[1]])
 
-    form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
+            form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
     # form = SampleFilterForm()
-    return render_template("sample/index.html", form=form)
+    return render_template("sample/index.html", form=form, sampletotype=sampletype_response.json()["content"])
 
 
 @sample.route("/query", methods=["POST"])

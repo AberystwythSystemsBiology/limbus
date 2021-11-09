@@ -270,19 +270,26 @@ class LongTermStorage(FormEnum):
     D = "Cryotube 1-2mL @ -85 to -60°C"
     E = "Cryotube 1-2mL @ < 135°C"
     F = "Plastic cryo straw in Liquid Nitrogen"
+
     G = "Straw @ -85 to -60°C"
     H = "Straw @ -35 to -18°C"
     I = "Straw @ < -135°C"
+
     J = "PP tube > 5mL @ -85 to -60°C"
     K = "PP tube > 5mL @ -35 to -18°C"
+
     L = "Microplate @ -85 to -60°C"
     M = "Microplate @ -35 to -18°C"
+
     N = "Cryotube 1-2mL in Liquid Nitrogen"
     O = "Plastic cryo straw in Liquid Nitrogen"
+
     P = "Paraffin block @ Room Temp or 2 - 10°C"
     U = "Paraffin block @ -35 to -18°C"
     Q = "Bag in Liquid Nitrogen"
+
     R = "Dry technology medium @ Room Temp"
+
     S = "PP tube 40-500μL @ -85 to -60°C"
     T = "PP tube 40-500μL @ -35 to -18°C"
     W = "PP tube 40-500μL @ < 135°C"

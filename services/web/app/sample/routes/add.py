@@ -314,7 +314,18 @@ def add_step_three(hash):
 
     tmpstore_data = tmpstore_response.json()["content"]["data"]
 
-    form = SampleTypeSelectForm()
+    sampletype_response = requests.get(
+        url_for("api.sampletype_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+
+    if sampletype_response.status_code == 200:
+        # print("sampletype_response.json()", sampletype_response.json())
+        sampletypes = sampletype_response.json()["content"]['sampletype_choices']
+        containertypes = sampletype_response.json()["content"]['container_choices']
+
+    form = SampleTypeSelectForm(sampletypes, containertypes)
 
     if form.validate_on_submit():
 

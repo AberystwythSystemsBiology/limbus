@@ -201,7 +201,7 @@ def sample_get_containertypes():
     # Temporary fix for adding containers for long term preservation
     #        TYPE: CellContainer = long term storage
     #        TYPE: FluidContainer = primary container
-    # To DO: manage sample type and container info using database
+    # ToDO: manage sample type and container info using database
     return success_with_content_response(
         {
             "PRM": {"container": FluidContainer.choices(),
@@ -215,7 +215,7 @@ def sample_get_containertypes():
 
 @api.route("/sample/samplebasetypes", methods=["GET"])
 def sample_get_samplebasetypes():
-    print("SampleBaseType.choices()", SampleBaseType.choices())
+    # print("SampleBaseType.choices()", SampleBaseType.choices())
     return success_with_content_response(
         SampleBaseType.choices()
     )
@@ -229,8 +229,8 @@ def sample_get_sampletypes():
                 # -- subtypes for whole blood
                 "blood_subtype": BloodSampleType.choices()
             },
-            "CEL": {"sample_type": CellSampleType.choices()},
             "MOL": {"sample_type": MolecularSampleType.choices()},
+            "CEL": {"sample_type": CellSampleType.choices()}
         }
     )
 
@@ -238,22 +238,33 @@ def sample_get_sampletypes():
 @api.route("/sample/sampletype", methods=["GET"])
 @token_required
 def sampletype_home(tokenuser: UserAccount):
+
     sts = SampleToType.query.distinct(SampleToType.fluid_type, SampleToType.molecular_type,
-                                      SampleToType.cellular_type, SampleToType.tissue_type).all()
+                                       SampleToType.cellular_type).all();
+    #, SampleToType.tissue_type).all()
     sampletype_info = {} #sample_types_schema.dump(sts)
-    choices = []
+    sampletype_choices = {"FLU": [], "CEL": [], "MOL": []}
     for st in sts:
         if st.fluid_type:
-            choices.append(("fluid_type"+ ":" + st.fluid_type.name, st.fluid_type.value))
+            sampletype_choices["FLU"].append((st.fluid_type.name, st.fluid_type.value))
         if st.molecular_type:
-            choices.append(("fluid_type"+ ":" + st.molecular_type.name, st.molecular_type.value))
+            sampletype_choices["MOL"].append((st.molecular_type.name, st.molecular_type.value))
         if st.cellular_type:
-            choices.append(("fluid_type"+ ":" + st.cellular_type.name, st.cellular_type.value))
-        if st.tissue_type:
-            choices.append(("fluid_type"+ ":" + st.tissue_type.name, st.tissue_type.value))
+            sampletype_choices["CEL"].append((st.cellular_type.name, st.cellular_type.value))
+        # if st.tissue_type:
+        #     sampletype_choices.append(("tissue_type"+ ":" + st.tissue_type.name, st.tissue_type.value))
+
+    container_choices = {"PRM": {"container": []}, "LTS": {"container":[]}}
+    sts = SampleToType.query.distinct(SampleToType.fluid_container, SampleToType.cellular_container).all()
+    for st in sts:
+        if st.fluid_container:
+            container_choices["PRM"]["container"].append((st.fluid_container.name, st.fluid_container.value))
+        if st.cellular_container:
+            container_choices["LTS"]["container"].append((st.cellular_container.name, st.cellular_container.value))
 
     return success_with_content_response(
-        {"sampletype_info": sampletype_info, "choices": choices}
+        {"sampletype_choices": sampletype_choices, "container_choices": container_choices,
+         "sampletype_info": sampletype_info}
     )
 
 
