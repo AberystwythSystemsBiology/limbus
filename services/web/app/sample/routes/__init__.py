@@ -39,7 +39,7 @@ def index() -> str:
         user_site_id = sites_response.json()["content"]['user_site_id']
 
     sampletype_response = requests.get(
-        url_for("api.sampletype_home", _external=True),
+        url_for("api.sampletype_data", _external=True),
         headers=get_internal_api_header(),
     )
 
@@ -83,7 +83,7 @@ def biohazard_information() -> str:
 @login_required
 def get_sampletotypes():
     sampletype_response = requests.get(
-        url_for("api.sampletype_home", _external=True),
+        url_for("api.sampletype_data", _external=True),
         headers=get_internal_api_header(),
     )
     if sampletype_response.status_code == 200:

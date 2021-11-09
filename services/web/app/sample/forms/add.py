@@ -118,7 +118,7 @@ def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
     processing_template_choices = []
     derivation_template_choices = []
     for protocol in protocol_templates:
-        print("protocol:", protocol)
+        # print("protocol:", protocol)
         if protocol['type'] in ["SAP", 'Sample Processing']:
             processing_template_choices.append(
                 [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
