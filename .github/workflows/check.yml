@@ -12,7 +12,7 @@ jobs:
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: Download DOID
-        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ./limbus/ontologies/doid.xrdf
+        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf /limbus/ontologies/
       - name: Move .env
         run: cp .env.example .env
       - name: Build the stack
