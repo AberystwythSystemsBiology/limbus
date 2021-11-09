@@ -15,9 +15,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-function get_types(typename) {
-    var api_url = encodeURI(window.location.origin);
-    api_url = api_url + "/" + ['api', 'sample', typename].join('/');
+function get_types(typename, api_url='') {
+    if (api_url=='') {
+        api_url = encodeURI(window.location.origin);
+        if (typename == "sampletotypes")
+            api_url = api_url + "/" + ['sample', typename].join('/');
+        else
+            api_url = api_url + "/" + ['api', 'sample', typename].join('/');
+    }
     var json = (function () {
         var json = null;
         $.ajax({
@@ -108,35 +113,49 @@ function check_barcode_database(entered_barcode) {
 }
 
 
-// Global because I hate myself.
-// sampletypes in db
+// Global
+
 var sample = get_sample();
 var samplebasetypes = get_types("samplebasetypes");
 var containerbasetypes = get_types("containerbasetypes");
 var sampletypes = get_types("sampletypes");
 var containertypes = get_types("containertypes");
+process_sample_container_type();
 
-if ("sampletotype" in sessionStorage) {
-    //var sampletotype = get_types("sampletype");
-    var sampletotype = JSON.parse(sessionStorage.getItem("sampletotype"));
+function process_sample_container_type() {
+    // augment sample container types with existing hot sampletotype in the database
+    if (!("sampletotype" in sessionStorage)) {
+        var sampletotype = get_types("sampletotypes");
+        sessionStorage.removeItem("sampletotype");
+        sessionStorage.setItem("sampletotype", JSON.stringify(sampletotype));
+    } else {
+        var sampletotype = JSON.parse(sessionStorage.getItem("sampletotype"));
+    }
+
     for (let key in containertypes) {
-        let containertype_list = containertypes[key]["container"];
-        let choice1 = sampletotype["container_choices"][key]["container"];
-        containertypes[key]["container"] = choice1.concat(containertype_list);
+        try {
+            let containertype_list = containertypes[key]["container"];
+            let choice1 = sampletotype["container_choices"][key]["container"];
+            containertypes[key]["container"] = choice1.concat(containertype_list);
+        } catch (e) {};
     }
 
     for (let key in sampletypes) {
-        let sampletype_list = sampletypes[key]["sample_type"];
-        let choice1 = sampletotype["sampletype_choices"][key];
-        sampletypes[key]["sample_type"] = choice1.concat(sampletype_list);
+        try {
+            let sampletype_list = sampletypes[key]["sample_type"];
+            let choice1 = sampletotype["sampletype_choices"][key];
+            sampletypes[key]["sample_type"] = choice1.concat(sampletype_list);
+        } catch (e) {};
+    }
+
+    // set fixation_type default to NULL
+    for (let key in containertypes) {
+        let fixationtype_list = containertypes[key]["fixation_type"];
+        fixationtype_list.unshift([null, "-- Select FixationType --"]);
     }
 
 }
 
-for (let key in containertypes) {
-    let fixationtype_list = containertypes[key]["fixation_type"];
-    fixationtype_list.unshift([null, "-- Select FixationType --"]);
-}
 
 var derived_sample_counts = 0;
 var indexes = [];
@@ -607,4 +626,3 @@ $(document).ready(function () {
 
 
 });
-

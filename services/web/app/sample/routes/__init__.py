@@ -74,11 +74,24 @@ def query_index():
         abort(response.status_code)
 
 
-
 @sample.route("/biohazard_information")
 @login_required
 def biohazard_information() -> str:
     return render_template("sample/misc/biohazards.html")
+
+
+@sample.route("/sampletotypes")
+@login_required
+def get_sampletotypes():
+    sampletype_response = requests.get(
+        url_for("api.sampletype_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+    if sampletype_response.status_code == 200:
+        print("sampletype_response.json()", sampletype_response.json())
+        return sampletype_response.json()
+
+    return {"content":None, "success": False}
 
 
 from .add import *
