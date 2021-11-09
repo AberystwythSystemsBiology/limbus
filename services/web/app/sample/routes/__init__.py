@@ -54,7 +54,7 @@ def index() -> str:
         for opt in stypes["CEL"]:
             sampletypes.append(["cellular_type:" + opt[0], opt[1]])
 
-        form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
+    form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
     # form = SampleFilterForm()
     return render_template("sample/index.html", form=form, sampletotype=sampletype_response.json()["content"])
 
