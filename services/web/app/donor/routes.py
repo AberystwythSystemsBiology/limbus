@@ -689,7 +689,7 @@ def add_sample_step_three(hash):
     tmpstore_data = tmpstore_response.json()["content"]["data"]
 
     sampletype_response = requests.get(
-        url_for("api.sampletype_home", _external=True),
+        url_for("api.sampletype_data", _external=True),
         headers=get_internal_api_header(),
     )
 

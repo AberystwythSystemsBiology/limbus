@@ -45,7 +45,7 @@ def index() -> str:
 
     sampletypes = []
     if sampletype_response.status_code == 200:
-        print("sampletype_response.json()", sampletype_response.json())
+        # print("sampletype_response.json()", sampletype_response.json())
         stypes = sampletype_response.json()["content"]['sampletype_choices']
         for opt in stypes["FLU"]:
             sampletypes.append(["fluid_type:" + opt[0], opt[1]])
@@ -55,7 +55,6 @@ def index() -> str:
             sampletypes.append(["cellular_type:" + opt[0], opt[1]])
 
     form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
-    # form = SampleFilterForm()
     return render_template("sample/index.html", form=form, sampletotype=sampletype_response.json()["content"])
 
 
@@ -88,7 +87,6 @@ def get_sampletotypes():
         headers=get_internal_api_header(),
     )
     if sampletype_response.status_code == 200:
-        print("sampletype_response.json()", sampletype_response.json())
         return sampletype_response.json()
 
     return {"content":None, "success": False}

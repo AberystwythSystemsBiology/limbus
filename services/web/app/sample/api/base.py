@@ -237,7 +237,7 @@ def sample_get_sampletypes():
 
 @api.route("/sample/sampletype", methods=["GET"])
 @token_required
-def sampletype_home(tokenuser: UserAccount):
+def sampletype_data(tokenuser: UserAccount):
     sts = SampleToType.query.distinct(SampleToType.fluid_type, SampleToType.molecular_type,
                                        SampleToType.cellular_type).all();
     #, SampleToType.tissue_type).all()
