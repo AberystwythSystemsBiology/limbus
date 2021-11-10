@@ -254,8 +254,10 @@ function fill_consent_information(consent_information) {
     var donor_id = consent_information["donor_id"];
     if (donor_id != null) {
         donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + donor_id + ">";
-        donor_link += "LIMBDON-" + donor_id + "</a>";
+        donor_link += '<i class="fa fa-user-circle"></i>' + "LIMBDON-" + donor_id + "</a>";
         $("#donor_id").html(donor_link);
+        $("#donor").html(donor_link);
+
     }
     else {
         $("#donor_id").text(donor_link);

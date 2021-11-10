@@ -675,7 +675,8 @@ $(document).ready(function () {
     });
 
     $("#new-sample-btn").on("click", function() {
-        window.location.href = donor_information["_links"]["new_sample"]
+        //window.location.href = donor_information["_links"]["new_sample"]
+        window.open(donor_information["_links"]["new_sample"], "_blank");
     });
 
     $("#assign-sample-btn").on("click", function() {
