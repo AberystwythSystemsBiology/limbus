@@ -118,4 +118,8 @@ def create_testuser():
     db.session.add(me)
     db.session.commit()
 
+    uat = UserAccountToken(user_id=me.id, token="testing-token-please-change")
+    db.session.add(uat)
+    db.session.commit()
+
     print("Created the testing/development user.")
