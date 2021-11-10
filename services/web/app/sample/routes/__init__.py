@@ -47,7 +47,6 @@ def query_index():
         abort(response.status_code)
 
 
-
 @sample.route("/biohazard_information")
 @login_required
 def biohazard_information() -> str:

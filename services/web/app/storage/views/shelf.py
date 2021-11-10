@@ -60,7 +60,6 @@ class ColdStorageShelfSchema(masql.SQLAlchemySchema):
             "assign_samples_to_shelf": ma.URLFor(
                 "storage.assign_samples_to_shelf", id="<id>", _external=True
             ),
-
             "edit": ma.URLFor("storage.edit_shelf", id="<id>", _external=True),
         }
     )
@@ -102,6 +101,7 @@ class NewColdStorageShelfSchema(masql.SQLAlchemySchema):
 
 
 new_shelf_schema = NewColdStorageShelfSchema()
+
 
 class ColdStorageShelfInfoSchema(masql.SQLAlchemySchema):
     class Meta:

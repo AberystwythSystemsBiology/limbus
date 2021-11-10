@@ -106,6 +106,7 @@ def generic_edit(
     except Exception as err:
         return transaction_error_response(err)
 
+
 def generic_delete(
     db,
     model: Base,
@@ -125,5 +126,5 @@ def generic_delete(
     db.session.delete(existing)
     db.session.commit()
 
-    #return success_with_content_response()
+    # return success_with_content_response()
     return success_without_content_response()

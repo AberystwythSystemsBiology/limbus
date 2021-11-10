@@ -21,4 +21,3 @@ from wtforms.validators import DataRequired
 class BuildingRegistrationForm(FlaskForm):
     name = StringField("Building Name", validators=[DataRequired()])
     submit = SubmitField("Register Building")
-

@@ -47,7 +47,6 @@ class NewShelfForm(FlaskForm):
     submit = SubmitField("Register Shelf")
 
 
-
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         date = DateField(
@@ -65,25 +64,36 @@ def RackToShelfForm(racks: list) -> FlaskForm:
     choices = []
 
     for rack in racks:
-        rack_check_response = requests.get(url_for("api.storage_rack_to_shelf_check",id=int(rack["id"]), _external=True),headers=get_internal_api_header())
+        rack_check_response = requests.get(
+            url_for(
+                "api.storage_rack_to_shelf_check", id=int(rack["id"]), _external=True
+            ),
+            headers=get_internal_api_header(),
+        )
         if not rack_check_response.json()["content"] == "RCT":
             choices.append(
-            [
-                rack["id"],
-                "LIMBRACK-%s: %s (%i x %i)"
-                % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
-            ]
+                [
+                    rack["id"],
+                    "LIMBRACK-%s: %s (%i x %i)"
+                    % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
+                ]
             )
 
     setattr(
-        StaticForm, "racks", SelectField("Sample Rack", choices=choices, coerce=int, render_kw={'onchange': "check_rack()"})
+        StaticForm,
+        "racks",
+        SelectField(
+            "Sample Rack",
+            choices=choices,
+            coerce=int,
+            render_kw={"onchange": "check_rack()"},
+        ),
     )
 
     return StaticForm()
 
 
 def RacksToShelfForm(racks: list) -> FlaskForm:
-
     class StaticForm(FlaskForm):
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
@@ -97,22 +107,28 @@ def RacksToShelfForm(racks: list) -> FlaskForm:
         )
         submit = SubmitField("Submit")
 
-    choices = [[0, '--- Select at least one racks ---']]
+    choices = [[0, "--- Select at least one racks ---"]]
 
     for rack in racks:
         choices.append(
-        [
-            rack["id"],
-            "LIMBRACK-%s: %s (%i x %i)"
-            % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
-        ]
+            [
+                rack["id"],
+                "LIMBRACK-%s: %s (%i x %i)"
+                % (rack["id"], rack["uuid"], rack["num_rows"], rack["num_cols"]),
+            ]
         )
 
     default_choices = [int(s[0]) for s in choices if int(s[0]) > 0]
     setattr(
-        StaticForm, "racks", SelectMultipleField("Sample Rack(s)", choices=choices,
-                    default=default_choices, coerce=int,)
-                                         #render_kw={'onchange': "check_rack()"})
+        StaticForm,
+        "racks",
+        SelectMultipleField(
+            "Sample Rack(s)",
+            choices=choices,
+            default=default_choices,
+            coerce=int,
+        )
+        # render_kw={'onchange': "check_rack()"})
     )
 
     return StaticForm()

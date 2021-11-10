@@ -58,6 +58,7 @@ def storage_shelf_edit(id, tokenuser: UserAccount):
         tokenuser,
     )
 
+
 @api.route("/storage/shelf/LIMBSHF-<id>/delete", methods=["PUT"])
 @token_required
 def storage_shelf_delete(id, tokenuser: UserAccount):
@@ -81,13 +82,18 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
     else:
         return no_values_response()
 
+
 def func_shelf_delete(record):
-    entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==record.id).all()
+    entityStorageRecords = EntityToStorage.query.filter(
+        EntityToStorage.shelf_id == record.id
+    ).all()
 
     for ESRecord in entityStorageRecords:
-        rackRecord = SampleRack.query.filter(SampleRack.id==ESRecord.rack_id).first()
-        entityStorageRackRecords = EntityToStorage.query.filter(EntityToStorage.rack_id==rackRecord.id).all()
-        if func_rack_delete(rackRecord,entityStorageRackRecords) == "has sample":
+        rackRecord = SampleRack.query.filter(SampleRack.id == ESRecord.rack_id).first()
+        entityStorageRackRecords = EntityToStorage.query.filter(
+            EntityToStorage.rack_id == rackRecord.id
+        ).all()
+        if func_rack_delete(rackRecord, entityStorageRackRecords) == "has sample":
             return "has sample"
 
     try:
@@ -96,7 +102,6 @@ def func_shelf_delete(record):
         return "success"
     except Exception as err:
         return transaction_error_response(err)
-
 
 
 @api.route("/storage/shelf/new/", methods=["POST"])

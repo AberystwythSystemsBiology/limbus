@@ -37,6 +37,7 @@ class NewFluidSampleSchema(ma.Schema):
     fluid_container = EnumField(FluidContainer)
     cellular_container = EnumField(CellContainer)
 
+
 new_fluid_sample_schema = NewFluidSampleSchema()
 
 

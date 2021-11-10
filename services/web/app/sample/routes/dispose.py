@@ -45,14 +45,20 @@ def dispose(uuid: str) -> flask_return_union:
                 disposal_instruction = disposal_info["instruction"]
                 # print('inst:', disposal_instruction)
 
-                if disposal_instruction not in ['DES','TRA']:
-                    message = "No disposal instruction for sample destruction or transfer!"
+                if disposal_instruction not in ["DES", "TRA"]:
+                    message = (
+                        "No disposal instruction for sample destruction or transfer!"
+                    )
                 else:
-                    disposal_date = datetime.strptime(str(
-                        disposal_info["disposal_date"]), "%Y-%m-%d").date()
+                    disposal_date = datetime.strptime(
+                        str(disposal_info["disposal_date"]), "%Y-%m-%d"
+                    ).date()
 
                     if disposal_date > datetime.now().date():
-                        message = "Too early! Expected disposal date %s", disposal_instruction["disposal_date"]
+                        message = (
+                            "Too early! Expected disposal date %s",
+                            disposal_instruction["disposal_date"],
+                        )
                     else:
                         disposal_approved = True
 
@@ -64,7 +70,7 @@ def dispose(uuid: str) -> flask_return_union:
             return redirect(url_for("sample.view", uuid=uuid))
 
         # Limit protocols response so that we only retrieve SDE (Sample Disposal)
-        if disposal_instruction == 'DES':
+        if disposal_instruction == "DES":
             disposal_type = "SDE"
         else:
             disposal_type = "STR"
@@ -101,14 +107,15 @@ def dispose(uuid: str) -> flask_return_union:
                 headers=get_internal_api_header(),
                 json={
                     "reason": form.reason.data,
-                    "event" : {
-                    "datetime": str(
-                        datetime.strptime(
-                            "%s %s" % (form.date.data, form.time.data),
-                            "%Y-%m-%d %H:%M:%S",
-                        )),
+                    "event": {
+                        "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
                         "comments": form.comments.data,
-                        "undertaken_by": form.undertaken_by.data
+                        "undertaken_by": form.undertaken_by.data,
                     },
                     "protocol_id": form.protocol_id.data,
                     "sample_uuid": sample_response.json()["content"]["uuid"],
@@ -116,7 +123,7 @@ def dispose(uuid: str) -> flask_return_union:
             )
 
             if new_disposal_event_response.status_code == 200:
-                #flash("Sample Disposed Successfully")
+                # flash("Sample Disposed Successfully")
                 flash(new_disposal_event_response.json()["message"])
                 return redirect(url_for("sample.view", uuid=uuid))
 

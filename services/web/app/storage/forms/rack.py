@@ -34,8 +34,16 @@ from ...sample.enums import Colour
 
 class NewSampleRackForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
-    num_rows = IntegerField("Number of Rows", validators=[DataRequired(),NumberRange(1,None,None)], default=1)
-    num_cols = IntegerField("Number of Columns", validators=[DataRequired(),NumberRange(1,None,None)], default=1)
+    num_rows = IntegerField(
+        "Number of Rows",
+        validators=[DataRequired(), NumberRange(1, None, None)],
+        default=1,
+    )
+    num_cols = IntegerField(
+        "Number of Columns",
+        validators=[DataRequired(), NumberRange(1, None, None)],
+        default=1,
+    )
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
     entry = StringField("Entry by")
@@ -45,27 +53,34 @@ class NewSampleRackForm(FlaskForm):
 def EditSampleRackForm(shelves: list, data={}):
     shelf_choices = [(0, "-- Select cold storage shelf --")]
 
-    if (len(shelves) == 0):
+    if len(shelves) == 0:
         data["shelf_required"] = False
     else:
         for shelf in shelves:
-            shelf_choices.append((shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"])))
+            shelf_choices.append(
+                (shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"]))
+            )
         data["shelf_required"] = True
 
     class StaticForm(FlaskForm):
         serial = StringField("Serial Number", validators=[DataRequired()])
-        num_rows = IntegerField("Number of Rows", validators=[DataRequired()], default=1)
-        num_cols = IntegerField("Number of Columns", validators=[DataRequired()], default=1)
+        num_rows = IntegerField(
+            "Number of Rows", validators=[DataRequired()], default=1
+        )
+        num_cols = IntegerField(
+            "Number of Columns", validators=[DataRequired()], default=1
+        )
         description = TextAreaField("Description")
         colours = SelectField("Colour", choices=Colour.choices())
 
         storage_id = HiddenField("Entity to storage id")
-        shelf_required = BooleanField('Shelf located or not')
+        shelf_required = BooleanField("Shelf located or not")
         shelf_id = SelectField(
             "Shelf",
             choices=shelf_choices,
             validators=[DataRequired()],
-            description="The shelf where the rack is located.", coerce=int,
+            description="The shelf where the rack is located.",
+            coerce=int,
         )
 
         submit = SubmitField("Register")
@@ -73,10 +88,7 @@ def EditSampleRackForm(shelves: list, data={}):
     return StaticForm(data=data)
 
 
-
-
 def EditRackToShelfForm(shelves: list) -> FlaskForm:
-
     class StaticForm(FlaskForm):
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
@@ -92,14 +104,17 @@ def EditRackToShelfForm(shelves: list) -> FlaskForm:
 
     shelf_choices = []
     for shelf in shelves:
-        shelf_choices.append((shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"])))
+        shelf_choices.append(
+            (shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"]))
+        )
 
     setattr(
-        StaticForm, "shelf_id", SelectField("Cold Storage Shelf", choices=shelf_choices, coerce=int)
+        StaticForm,
+        "shelf_id",
+        SelectField("Cold Storage Shelf", choices=shelf_choices, coerce=int),
     )
 
     return StaticForm()
-
 
 
 def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
@@ -136,7 +151,7 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     )
     file = FileField("File", validators=[DataRequired()])
 
-    #entry_datetime = StringField("Entry by")
+    # entry_datetime = StringField("Entry by")
     entry_date = DateField(
         "Sample Rack Creation Date",
         validators=[DataRequired()],
@@ -149,8 +164,9 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
         validators=[DataRequired()],
     )
 
-    entry = StringField("Created by",
-        description = "The initials of the individual who created the sample rack"
+    entry = StringField(
+        "Created by",
+        description="The initials of the individual who created the sample rack",
     )
 
     submit = SubmitField("Upload File")

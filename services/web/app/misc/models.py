@@ -38,7 +38,7 @@ class SiteInformation(Base, RefAuthorMixin):
     miabis_id = db.Column(db.String(128))
     acronym = db.Column(db.String(64))
     name = db.Column(db.String(128))
-    is_locked = db.Column(db.Boolean,default=False)
+    is_locked = db.Column(db.Boolean, default=False)
     description = db.Column(db.String(128))
     url = db.Column(db.String(128))
     address_id = db.Column(db.Integer, db.ForeignKey("address.id", use_alter=True), nullable=False)

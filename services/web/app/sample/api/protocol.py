@@ -22,7 +22,14 @@ from ...misc import get_internal_api_header
 
 from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema
 
-from ...database import db, SampleProtocolEvent, UserAccount, Sample, Event, ProtocolTemplate
+from ...database import (
+    db,
+    SampleProtocolEvent,
+    UserAccount,
+    Sample,
+    Event,
+    ProtocolTemplate,
+)
 from ...protocol.enums import ProtocolType
 
 
@@ -79,8 +86,11 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     else:
         return not_found("protocol event(%s)" % uuid)
 
-    sample = Sample.query.filter_by(id=protocol_event.sample_id).\
-            with_entities(Sample.uuid, Sample.is_locked).first()
+    sample = (
+        Sample.query.filter_by(id=protocol_event.sample_id)
+        .with_entities(Sample.uuid, Sample.is_locked)
+        .first()
+    )
 
     if sample:
         if sample.is_locked:
@@ -90,8 +100,15 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
 
     sample_uuid = sample.uuid
 
-    protocol_type = ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
-    if protocol_type in [ProtocolType.ACQ, ProtocolType.ALD, ProtocolType.SDE, ProtocolType.STR]:
+    protocol_type = (
+        ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
+    )
+    if protocol_type in [
+        ProtocolType.ACQ,
+        ProtocolType.ALD,
+        ProtocolType.SDE,
+        ProtocolType.STR,
+    ]:
         err = {"messages": "Type of protocol events (%s) not allowed!" % protocol_type}
         return validation_error_response(err)
 

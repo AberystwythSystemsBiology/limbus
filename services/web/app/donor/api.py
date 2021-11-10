@@ -13,9 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..database import (db, UserAccount, DonorDiagnosisEvent, Donor, DonorToSample,
-        Event, SampleConsent, SampleConsentAnswer, SampleConsentWithdrawal, SampleDisposal, Sample
-    )
+from ..database import (
+    db,
+    UserAccount,
+    DonorDiagnosisEvent,
+    Donor,
+    DonorToSample,
+    Event,
+    SampleConsent,
+    SampleConsentAnswer,
+    SampleConsentWithdrawal,
+    SampleDisposal,
+    Sample,
+)
 
 from ..api import api
 from ..api.responses import *
@@ -190,7 +200,6 @@ def donor_new_diagnosis(id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-
 @api.route("/donor/new/consent", methods=["POST"])
 @token_required
 def donor_new_consent(tokenuser: UserAccount):
@@ -248,6 +257,7 @@ def donor_new_consent(tokenuser: UserAccount):
         consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     )
 
+
 @api.route("/donor/consent/<id>/remove", methods=["POST"])
 @token_required
 def donor_remove_consent(id, tokenuser: UserAccount):
@@ -260,8 +270,11 @@ def donor_remove_consent(id, tokenuser: UserAccount):
 
     donor_id = None
     if consent.donor_id is not None:
-        donor = Donor.query.filter_by(id=consent.donor_id). \
-            with_entities(Donor.uuid, Donor.is_locked).first()
+        donor = (
+            Donor.query.filter_by(id=consent.donor_id)
+            .with_entities(Donor.uuid, Donor.is_locked)
+            .first()
+        )
         donor_id = consent.donor_id
 
         if donor:
@@ -291,7 +304,7 @@ def donor_remove_consent(id, tokenuser: UserAccount):
         db.session.commit()
         return success_with_content_response(donor_id)
     except Exception as err:
-        return transaction_error_response(msg +" | " + err)
+        return transaction_error_response(msg + " | " + err)
 
 
 @api.route("/donor/consent/withdraw", methods=["POST"])
@@ -312,8 +325,11 @@ def donor_withdraw_consent(tokenuser: UserAccount):
 
     donor_id = None
     if consent.donor_id is not None:
-        donor = Donor.query.filter_by(id=consent.donor_id). \
-            with_entities(Donor.uuid, Donor.is_locked).first()
+        donor = (
+            Donor.query.filter_by(id=consent.donor_id)
+            .with_entities(Donor.uuid, Donor.is_locked)
+            .first()
+        )
         donor_id = consent.donor_id
 
         if donor:
@@ -327,7 +343,7 @@ def donor_withdraw_consent(tokenuser: UserAccount):
     #
     new_event = Event(
         datetime=withdrawal_date,
-        undertaken_by=values.pop('undertaken_by'),
+        undertaken_by=values.pop("undertaken_by"),
         comments=values.pop("comments"),
         author_id=tokenuser.id,
     )
@@ -351,12 +367,14 @@ def donor_withdraw_consent(tokenuser: UserAccount):
         return transaction_error_response(err)
 
     id = values.pop("donor_id")
-    future_consent = values['future_consent']
+    future_consent = values["future_consent"]
     if future_consent:
         old_values = new_consent_scheme.dump(consent)
         new_consent = SampleConsent(**old_values)
-        new_consent.date = values['withdrawal_date']
-        new_consent.comments = new_consent.comments + " | replacement consent for future collection."
+        new_consent.date = values["withdrawal_date"]
+        new_consent.comments = (
+            new_consent.comments + " | replacement consent for future collection."
+        )
         new_consent.author_id = tokenuser.id
         try:
             db.session.add(new_consent)
@@ -367,7 +385,9 @@ def donor_withdraw_consent(tokenuser: UserAccount):
         answers = SampleConsentAnswer.query.filter_by(consent_id=consent_id)
         for answer in answers:
             try:
-                new_answer = SampleConsentAnswer(consent_id=new_consent.id, question_id=answer.question_id)
+                new_answer = SampleConsentAnswer(
+                    consent_id=new_consent.id, question_id=answer.question_id
+                )
                 new_answer.author_id = tokenuser.id
                 db.session.add(new_answer)
                 db.session.flush()
@@ -412,7 +432,3 @@ def donor_withdraw_consent(tokenuser: UserAccount):
         return success_with_content_response(donor_id)
     except Exception as err:
         return transaction_error_response(err)
-
-
-
-

@@ -48,7 +48,9 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    ets = EntityToStorage.query.filter_by(rack_id=values["rack_id"], storage_type='BTS').first()
+    ets = EntityToStorage.query.filter_by(
+        rack_id=values["rack_id"], storage_type="BTS"
+    ).first()
 
     if ets is not None:
         ets.box_id = None
@@ -131,7 +133,7 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
     try:
         db.session.commit()
         msg = "Rack successful added to shelf! "
-        #return success_with_content_response({"success": True})
+        # return success_with_content_response({"success": True})
     except Exception as err:
         return transaction_error_response(err)
 
@@ -152,21 +154,30 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
                 return transaction_error_response(err)
 
     # -- Update status for samples in the rack
-    samples = Sample.query.join(EntityToStorage).\
-        filter(EntityToStorage.storage_type=='STB', EntityToStorage.rack_id.in_(rack_ids)).all()
+    samples = (
+        Sample.query.join(EntityToStorage)
+        .filter(
+            EntityToStorage.storage_type == "STB", EntityToStorage.rack_id.in_(rack_ids)
+        )
+        .all()
+    )
 
     if len(samples) > 0:
         try:
             for sample in samples:
                 sample_status_events = {"sample_storage": None}
-                res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
-                                                events=sample_status_events)
-                if res['sample']:
-                    db.session.add(res['sample'])
+                res = func_update_sample_status(
+                    tokenuser=tokenuser,
+                    auto_query=True,
+                    sample=sample,
+                    events=sample_status_events,
+                )
+                if res["sample"]:
+                    db.session.add(res["sample"])
 
-            msg_status = 'Sample status updated! '
+            msg_status = "Sample status updated! "
         except Exception:
-            msg_status = 'Errors in updating sample status!'
+            msg_status = "Errors in updating sample status!"
 
     try:
         db.session.commit()
@@ -175,7 +186,6 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
         return success_with_content_message_response(rack_ids, msg)
     except Exception as err:
         return transaction_error_response(err)
-
 
 
 # deprecated, use storage_transfer_sampleS_to_shelf instead
@@ -224,7 +234,9 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-    usercart = UserCart.query.filter_by(sample_id=values["sample_id"], author_id=tokenuser.id).first()
+    usercart = UserCart.query.filter_by(
+        sample_id=values["sample_id"], author_id=tokenuser.id
+    ).first()
     if usercart:
         try:
             db.session.delete(usercart)
@@ -258,10 +270,10 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
         except ValidationError as err:
             return validation_error_response(err)
 
-        #etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STB').all()
+        # etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STB').all()
         etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).all()
         # TODO: instead of deleting exisint etss add new ets instance and set the existing ets to: removed=True
-        if len(etss)>0:
+        if len(etss) > 0:
             # warning, confirmation
             try:
                 for ets in etss:
@@ -290,7 +302,9 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
-        usercart = UserCart.query.filter_by(sample_id=values["sample_id"], author_id=tokenuser.id).first()
+        usercart = UserCart.query.filter_by(
+            sample_id=values["sample_id"], author_id=tokenuser.id
+        ).first()
         if usercart:
             try:
                 db.session.delete(usercart)
@@ -310,19 +324,23 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
         try:
             for sample in samples:
                 sample_status_events = {"sample_storage": None}
-                res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
-                                                events=sample_status_events)
+                res = func_update_sample_status(
+                    tokenuser=tokenuser,
+                    auto_query=True,
+                    sample=sample,
+                    events=sample_status_events,
+                )
 
-                if res['sample']:
-                    db.session.add(res['sample'])
-            msg_status = 'Sample status updated! '
+                if res["sample"]:
+                    db.session.add(res["sample"])
+            msg_status = "Sample status updated! "
         except:
-            msg_status = 'Errors in updating sample status!'
+            msg_status = "Errors in updating sample status!"
 
     try:
         db.session.commit()
     except:
-        msg_status = 'Errors in updating sample status!'
+        msg_status = "Errors in updating sample status!"
     msg = msg + msg_status
     return success_with_content_message_response(sample_ids, msg)
 

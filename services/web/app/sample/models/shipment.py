@@ -18,7 +18,6 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 from ..enums import SampleShipmentStatusStatus, CartSampleStorageType
 
 
-
 class UserCart(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
     rack_id = db.Column(db.Integer, db.ForeignKey("samplerack.id", use_alter=True))
@@ -42,9 +41,10 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
         primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
     )
 
-    #shipment_status_id = db.Column(db.Integer, db.ForeignKey("SampleShipmentStatus.id"))
+    # shipment_status_id = db.Column(db.Integer, db.ForeignKey("SampleShipmentStatus.id"))
     shipment_status = db.relationship("SampleShipmentStatus", uselist=False)
     #    primaryjoin="SampleShipmentStatus.shipment_id == SampleShipment.id")#, uselist=False)
+
 
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
@@ -56,7 +56,7 @@ class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id", use_alter=True))
     shipment = db.relationship("SampleShipment")
 
-    #protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    # protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
 
 
 class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):

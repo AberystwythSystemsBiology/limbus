@@ -35,7 +35,6 @@ def new_building(id):
     if response.json()["content"]["is_locked"]:
         return abort(401)
 
-
     if response.status_code == 200:
         form = BuildingRegistrationForm()
 
@@ -78,8 +77,6 @@ def view_building(id):
         )
 
     return abort(response.status_code)
-
-
 
 
 @storage.route("/building/LIMBBUILDING-<id>/edit", methods=["GET", "POST"])
@@ -130,7 +127,7 @@ def lock_building(id):
     edit_response = requests.put(
         url_for("api.storage_lock_building", id=id, _external=True),
         headers=get_internal_api_header(),
-        #json=form_information,
+        # json=form_information,
     )
 
     if edit_response.status_code == 200:
@@ -158,22 +155,32 @@ def delete_building(id):
     if response.status_code == 200:
 
         edit_response = requests.put(
-        url_for("api.storage_building_delete", id=id, _external=True),
-        headers=get_internal_api_header(),
+            url_for("api.storage_building_delete", id=id, _external=True),
+            headers=get_internal_api_header(),
         )
 
         if edit_response.status_code == 200:
             flash("Building Successfully Deleted")
-            return redirect(url_for("storage.view_site",id=edit_response.json()["content"],_external=True))
-        elif edit_response.status_code == 400 and edit_response.json()["message"] == "Has associated cold storage":
+            return redirect(
+                url_for(
+                    "storage.view_site",
+                    id=edit_response.json()["content"],
+                    _external=True,
+                )
+            )
+        elif (
+            edit_response.status_code == 400
+            and edit_response.json()["message"] == "Has associated cold storage"
+        ):
             flash("Cannot delete building with associated cold storage")
-        elif edit_response.status_code == 400 and edit_response.json()["message"] == "Entity is locked":
+        elif (
+            edit_response.status_code == 400
+            and edit_response.json()["message"] == "Entity is locked"
+        ):
             flash("Cannot delete building with associated rooms which are locked")
         else:
-            flash("We have a problem: %s" % edit_response.status_code )
+            flash("We have a problem: %s" % edit_response.status_code)
 
         # return redirect(url_for("storage.view_site",id=edit_response.json()["content"], _external=True))
         return redirect(url_for("storage.view_building", id=id, _external=True))
     return abort(response.status_code)
-
-

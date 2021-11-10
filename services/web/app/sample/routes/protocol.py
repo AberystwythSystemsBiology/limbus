@@ -38,17 +38,21 @@ def new_protocol_event(uuid):
             headers=get_internal_api_header(),
             json={"is_locked": False},
         )
-        #print("protocols_response: ", protocols_response.text)
+        # print("protocols_response: ", protocols_response.text)
         protocols = []
 
         if protocols_response.status_code == 200:
             for protocol in protocols_response.json()["content"]:
-                if protocol["type"] not in ("Sample Aliquot / Derivation",
-                                            "Sample Destruction", "Sample Transfer"):
+                if protocol["type"] not in (
+                    "Sample Aliquot / Derivation",
+                    "Sample Destruction",
+                    "Sample Transfer",
+                ):
                     protocols.append(
                         (
                             int(protocol["id"]),
-                            "[%s] LIMBPRO-%s: %s" % (protocol["type"], protocol["id"], protocol["name"]),
+                            "[%s] LIMBPRO-%s: %s"
+                            % (protocol["type"], protocol["id"], protocol["name"]),
                         )
                     )
 
@@ -109,4 +113,3 @@ def remove_protocol_event(uuid):
         flash("We have a problem: %s" % (remove_response.json()["message"]))
         # abort(403)
         return remove_response.json()
-

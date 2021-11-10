@@ -24,7 +24,7 @@ from ..enums import (
     SampleSource,
     BiohazardLevel,
     DisposalReason,
-    AccessStatus
+    AccessStatus,
 )
 
 
@@ -68,7 +68,9 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     # Disposal Information
     # Done -> sample_new_disposal_instructions
     disposal_id = db.Column(db.Integer, db.ForeignKey("sampledisposal.id"))
-    disposal_information = db.relationship("SampleDisposal", foreign_keys=(disposal_id), uselist=False)
+    disposal_information = db.relationship(
+        "SampleDisposal", foreign_keys=(disposal_id), uselist=False
+    )
 
     documents = db.relationship("Document", secondary="sampledocument", uselist=True)
 
@@ -132,10 +134,8 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     disposal_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True))
 
 
-
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     reason = db.Column(db.Enum(DisposalReason))
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True), unique=True, primary_key=True)
     protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True))
-
