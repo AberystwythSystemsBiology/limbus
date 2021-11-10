@@ -435,6 +435,8 @@ def func_get_samples(barcode_type, samples):
         filter = {barcode_type: sample["sample_code"]}
         sample["id"] = None
         sample["sample_id"] = None
+        if sample["sample_code"] in [None, "", "empty", "EMPTY", "-"]:
+            continue
         sample[barcode_type] = sample.pop("sample_code");
         smpl = db.session.query(Sample).filter_by(**filter).first()
         if smpl:

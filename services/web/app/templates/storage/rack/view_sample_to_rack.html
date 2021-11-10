@@ -190,7 +190,7 @@
                         <thead>
                             <tr>
                             <th>Col</th>
-                            <th>Pos</th>
+                            <th>Position</th>
                             <th>Barcode</th>
                             <th>DonorID</th>
                             <th>ConsentID</th>
@@ -204,8 +204,12 @@
                             <th>Type</th>
                             <th>Container</th>
                             <th>Quantity</th>
-                            <th>Location</th>
-                            <th>created_on</th>
+{#                          <th>SampleCreatedOn</th>#}
+                            <th>StorageDatetime</th>
+                            <th>StoredBy</th>
+                            <th>UpdatedOn</th>
+                            <th>UpdatedBy</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -267,6 +271,7 @@
 </script>
 <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/rack/rack_view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/rack/sampletorack_view.js') }}"></script>
 
 {% endblock %}

@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// - not in use
+
 function get_rack_information() {
     var api_url = encodeURI(window.location + '/endpoint');
 
@@ -225,163 +225,6 @@ function render_occupancy_chart(counts) {
 }
 
 
-function render_sample_table(samples) {
-
-    if (samples.length > 0) {
-
-        $('#sampleTable').DataTable( {
-            data: samples,
-            rowCallback: function(row, data, index){
-                if(data['tostore']){
-                    $(row).find('td:eq(0)').css('background-color', 'lightblue');
-                } else {
-                    $(row).find('td:eq(0)').css('background-color', 'lightpink');
-                }
-            },
-            dom: 'Blfrtip',
-            buttons: [ 'print', 'csv', 'colvis' ],
-            lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
-            columnDefs: [
-                {targets: '_all', defaultContent: ''},
-                {targets: [0, 4, 5, 9], visible: false, "defaultContent": ""},
-            ],
-            order: [[0, 'asc']],
-            columns: [
-                { // col id
-                    "mData": {},
-                    "mRender": function(data, type,row) {
-                        return data["pos"][1]
-                    },
-                    "width": "3%"
-                },
-
-                { // pos
-                    "mData": {},
-                    "mRender": function(data, type,row) {
-                        tick = String.fromCharCode(Number(data["pos"][0])+64);
-                        //return data["pos"][0] + ", " + data["pos"][1]
-                        return tick + ", " + data["pos"][1]
-                    },
-                    "width": "3%"
-                },
-
-            {"mData": {}, "mRender": function (row) {return row['sample']['barcode'];}},
-
-            { // Donor ID
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var consent = data['sample']['consent_information'];
-                    link = window.location.origin + "/donor/"+'LIMBDON-' + consent['donor_id'];
-                    html = "";
-                    if (consent['donor_id'] != null) {
-                        html += '<a href="'+link+'" >';
-                        html += 'LIMBDON-' + consent['donor_id'];
-                        html += '</a>';
-                    }
-
-                    return html;
-                }
-            },
-            { // Consent ID
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var consent = data['sample']['consent_information'];
-                    return 'LIMBDC-' + consent['id'];
-                }
-            },
-            { // Consent status
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var consent = data['sample']['consent_information'];
-                    var consent_status = 'Active';
-                    if (consent['withdrawn'] == true) {
-                        consent_status = 'Withdrawn';
-                    }
-                    return consent_status;
-                }
-            },
-
-             {
-                    "mData": {},
-                    "mRender": function (data, type, row) {
-                        var col_data = '';
-                        col_data += render_colour(data["sample"]["colour"])
-                        col_data += "<a href='"+data["sample"]["_links"]["self"]+ "'>";
-                        col_data += '<i class="fas fa-vial"></i> '
-                        col_data += data["sample"]["uuid"];
-                        col_data += "</a>";
-                        if (data["sample"]["source"] != "New") {
-
-                        col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                        col_data += '<a href="'+data["sample"]["parent"]["_links"]["self"]+'" target="_blank">'
-                        col_data += '<i class="fas fa-vial"></i> ';
-                        col_data += data["sample"]["parent"]["uuid"],
-                        col_data += "</a></small>";
-                    }
-
-                        return col_data
-                    }
-             },
-            {"mData": {}, "mRender": function (row) {return row['sample']['id'];}},
-            {"mData": {}, "mRender": function (row) {return row['sample']['status'];}},
-            {"mData": {}, "mRender": function (row) {return row['sample']['base_type'];}},
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var sample_type_information = data["sample"]["sample_type_information"];
-
-                    if (data["sample"]["base_type"] == "Fluid") {
-                        return sample_type_information["fluid_type"];
-                    } else if (data["sample"]["base_type"] == "Cell") {
-                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
-                    } else if (data["sample"]["base_type"] == "Molecular") {
-                        return sample_type_information["molecular_type"];
-                    }
-
-                }
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var sample_type_information = data["sample"]["sample_type_information"];
-                    if (sample_type_information["cellular_container"] == null) {
-                        return sample_type_information["fluid_container"];
-                    } else {
-                        return sample_type_information["cellular_container"];
-                    }
-
-                }
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
-                    var col_data = '';
-                    col_data += '<span data-toggle="tooltip" data-placement="top" title="' + percentage + ' Available">';
-                    col_data += data["sample"]["remaining_quantity"] + "/" + data["sample"]["quantity"] + get_metric(data["sample"]["base_type"]);
-                    col_data += '</span>';
-                    return col_data
-                }
-            },
-
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    return data["sample"]["created_on"];
-                }
-            },
-
-            ],
-
-        });
-    }
-
-
-    else {
-        $("#sample-table-div").hide();
-    }
-}
-
 function render_information(rack_information) {
     var html = render_content("UUID", rack_information["uuid"]);
     html += render_content("Serial Number", rack_information["serial_number"]);
@@ -471,9 +314,7 @@ $("#add-rack-cart-btn").click(function() {
         url: api_url,
         dataType: "json",
         success: function (data) {
-            // console.log('data: ', data)
             if (data["success"]) {
-                console.log('data: ', data)
                 $("#cart-confirmation-msg").html(data["message"]);
                 $("#cart-confirmation-modal").modal({
                     show: true
@@ -529,7 +370,6 @@ $(document).ready(function () {
 
     $("#repos-rack-btn").click(function() {
     var api_url = window.location.href = rack_information["_links"]["edit_samples_pos"];
-    console.log("api_url",api_url );
     var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
 
     })

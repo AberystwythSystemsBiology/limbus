@@ -21,7 +21,7 @@ from marshmallow_enum import EnumField
 from ...database import SampleRack, EntityToStorage, ColdStorageShelf
 from ...sample.views import BasicSampleSchema
 from ...sample.enums import Colour
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 
 class ViewSampleToSampleRackSchema(masql.SQLAlchemySchema):
@@ -35,7 +35,10 @@ class ViewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     col = masql.auto_field()
     entry = masql.auto_field()
     entry_datetime = masql.auto_field()
-
+    created_on = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema, many=False)
+    updated_on = masql.auto_field()
+    editor = ma.Nested(UserAccountSearchSchema, many=False)
     sample = ma.Nested(BasicSampleSchema)
 
 
@@ -52,7 +55,6 @@ class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     col = masql.auto_field()
     entry = masql.auto_field()
     entry_datetime = masql.auto_field()
-
 
 new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
 
@@ -80,7 +82,8 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
     colour = EnumField(Colour, by_value=True)
-    author = ma.Nested(BasicUserAccountSchema)
+    #author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
     entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema, many=True)
     shelf = ma.Nested(ShelfViewSchema)
@@ -133,7 +136,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
     colour = EnumField(Colour, by_value=True)
-    author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
     shelf = ma.Nested(ShelfViewSchema)
 

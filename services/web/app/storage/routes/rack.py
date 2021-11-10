@@ -148,6 +148,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     data = {}
     reads = request.files[csvfile.name].read().decode().strip()
     csv_data = []
+    read_success = False
     for linesep in ["\n","\r\n","\r"]:
         csvdata = reads.split(linesep)
         # print('csvdata', csvdata)
@@ -157,17 +158,46 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         for row in csvdata:
             csv_data.append(row.split(","))
 
-    indexes = {
-        "Tube Barcode": csv_data[0].index("Tube Barcode"),
-        "Tube Position": csv_data[0].index("Tube Position"),
-        "Tube Row": [],
-        "Tube Column": [],
-    }
+    #print('csv_data', len(csv_data), csv_data)
+
+    print("nrows, Header", len(csv_data[0]), csv_data[0])
+    header = [nm.lower() for nm in csv_data[0]]
+
+    indexes = {}
+
+    if "tube barcode" in header:
+        indexes["barcode"] = header.index("tube barcode")
+    elif "barcode" in header:
+        indexes["barcode"] = header.index("barcode")
+
+    if "identifier" in header:
+        indexes["uuid"] = header.index("identifier")
+    elif "uuid" in header:
+        indexes["uuid"] = header.index("uuid")
+
+    code_types = [key for key in indexes]
+
+    if "tube position" in header:
+        indexes["position"] = header.index("tube position")
+    elif "position" in header:
+        indexes["position"] = header.index("position")
+    if "pos" in header:
+        indexes["position"] = header.index("pos")
+
+    indexes.update({
+        "row": [],
+        "column": []
+    })
+
+    print("codetype", code_types, indexes)
+    print("csv_d", len(csv_data[1:]))
 
     positions = {
-        x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]]
+        #x[indexes["position"]]: x[indexes["barcode"]]
+        x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
         for x in csv_data[1:]
     }
+    # print(positions )
 
     data["positions"] = positions
 
@@ -184,11 +214,13 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             else:
                 pos.append(ord(s.lower())-96)
 
-        indexes["Tube Row"].append(pos[0]) # Letter e.g. A2: => Row 1
-        indexes["Tube Column"].append(pos[1]) # Number A2 => Column 2
+        indexes["row"].append(pos[0]) # Letter e.g. A2: => Row 1
+        indexes["column"].append(pos[1]) # Number A2 => Column 2
 
-    data["num_rows"] = max(indexes["Tube Row"])
-    data["num_cols"] = max(indexes["Tube Column"])
+    print("indexes", indexes)
+    data["num_rows"] = max(indexes["row"])
+    data["num_cols"] = max(indexes["column"])
+    data["code_types"] = code_types
 
     return data
 
@@ -231,7 +263,7 @@ def rack_automatic_entry_validation(_hash: str):
             sample_response = requests.get(
                 url_for("api.sample_query", _external=True),
                 headers=get_internal_api_header(),
-                json={session_data["barcode_type"]: identifier},
+                json={session_data["barcode_type"]: identifier[session_data["barcode_type"]]},
             )
 
             if sample_response.status_code == 200:
@@ -264,16 +296,16 @@ def rack_automatic_entry_validation(_hash: str):
                 if element.data:
                     regex = re.compile(r"(\d+|\s+)")
                     row, col, _ = regex.split(element.id)
-                    sample_id = element.render_kw["_sample"][0]["id"]
-                    _samples.append([sample_id, row, col])
+                    sample_code = element.render_kw["_sample"][0]["id"]
+                    _samples.append([row, col, sample_code])
 
         samples_pos = []
         for s in _samples:
             samples_pos.append({
-                       "sample_id": s[0],
-                       "row": alpha2num(s[1]),
-                       "col": s[2],
-                   }
+                       "sample_code": s[2][barcode_type],
+                        "row": alpha2num(s[0]),
+                        "col": s[1],
+            }
             ),
 
         json['samples_pos'] = samples_pos
@@ -339,10 +371,8 @@ def rack_automatic_entry_validation_div(_hash: str):
                 if element.type == "BooleanField":
                     if element.data:
                         regex = re.compile(r"(\d+|\s+)")
-                        #col, row, _ = regex.split(element.id)
                         row, col, _ = regex.split(element.id)
                         sample_id = element.render_kw["_sample"][0]["id"]
-                        #_samples.append([sample_id, values.index(col), row])
                         _samples.append([sample_id, row, col])
 
             responses = []
@@ -425,10 +455,13 @@ def view_rack_endpoint(id):
     def _assign_view(sample, rack_view):
         try:
             row, col = sample["row"], sample["col"]
-            rack_view["content"]["view"][row][col] = {
-                "empty": False,
-                "sample": sample["sample"],
-            }
+            if sample["editor"] is None:
+                sample["editor"] = sample["author"]
+
+            rack_view["content"]["view"][row][col].update(sample)
+            rack_view["content"]["view"][row][col].update({
+                    "empty": False,
+                })
             return 1, rack_view
         except Exception as e:
             pass
@@ -446,19 +479,19 @@ def view_rack_endpoint(id):
         for row in range(rack_view["content"]["num_rows"]+1): # row, col: index in array
             _rack.append({})
             for col in range(rack_view["content"]["num_cols"]+1):
-                #_rack[row]["%i\t%i" % (row, col)] = {"empty": True}  # row+1, col+1: position in the rack
                 _rack[row][col] = {"empty": True}  # row+1, col+1: position in the rack
 
+        # - Initialise rack_view['view'] to 2d array with empty cells
         rack_view["content"]["view"] = _rack
 
         count = 0
-
+        # - fill in the cells with samples
         for sample in rack_view["content"]["entity_to_storage_instances"]:
             add, rack_view = _assign_view(sample, rack_view)
             count += add
 
+        # rack_view["content"].pop("entity_to_storage_instances")
         total = rack_view["content"]["num_cols"] * rack_view["content"]["num_rows"]
-
         rack_view["content"]["counts"] = {"full": count, "empty": total - count}
 
         return rack_view
@@ -707,12 +740,28 @@ def update_rack_samples(id):
         num_cols = view_response.json()["content"]["num_cols"]
 
         form = UpdateRackFileUploadForm()
+
         if form.validate_on_submit():
-            _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
+            barcode_type = form.barcode_type.data
+
+            err = None
+            try:
+                #if True:
+                _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
+                print("barcode tye", barcode_type, _samples["code_types"])
+                if barcode_type not in _samples["code_types"]:
+                    err = "No suitable headers for sample id: should be one of the following 'Barcode', 'Tube Barcode', 'Identifier', 'uuid'!!!"
+            except:
+                err = "Errors in reading the file!"
+
+            if err:
+                flash(err)
+                return redirect(url_for("storage.view_rack", id=id))
+
             samples = []
             for s in _samples['positions'].items():
                 samples.append({
-                    "sample_code": s[1],
+                    "sample_code": s[1][barcode_type],
                     "row": alpha2num(s[0][0]),
                     "col": int(s[0][1:len(s[0])]),
                 }

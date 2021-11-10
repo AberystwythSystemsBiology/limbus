@@ -40,7 +40,7 @@ function get_rack_information() {
 }
 
 
-function update_rack_information(rack_information, samples_new) {
+function update_rack_information(samples_new) {
     for (k in samples_new) {
         r = samples_new[k]['row'];
         c = samples_new[k]['col'];
@@ -136,7 +136,6 @@ function render_axis(row, col) {
         content += '<strong>'+ tick + '</strong></div>'
     } else {
         tick = col;
-        //content += tick;
         content += '<div class="text-center">'; //+ tick + "</div>"
         content += '<strong>'+ tick + '</strong></div>'
     }
@@ -148,7 +147,7 @@ function get_barcode(sample_info, barc_type) {
 
     var url = encodeURI(sample_info["_links"]["barcode_generation"]);
 
-    console.log(url);
+    //console.log(url);
 
     var b64 = "";
 
@@ -203,7 +202,6 @@ function render_full(info, row, col, count, assign_sample_url) {
     $("#row_" + row).append(content)
 
     $("#tube_" + [row, col].join("_")).click(function () {
-        //window.location = sample_info["_links"]["self"];
         render_modal(sample_info);
         $("#sampleInfoModal").modal();
     });
@@ -247,9 +245,10 @@ function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
     else if (dispopt=='donor') {
         content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
         content += render_sample_label(sample_info) + '</small>';
-        //content += sample_info['barcode'] + '</small>';
     }
+
     content += "</div></div></div>"
+
     $("#row_" + row).append(content)
 
     $("#tube_" + [row, col].join("_")).click(function () {
@@ -261,6 +260,7 @@ function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
 
 function render_full_file_noimg(info, row, col, count, assign_sample_url, dispopt) {
     var sample_info = info["sample"]
+
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     if (info['status']=='empty') {
         content += '<div class="square tube" style="background-color: #f5f5f5 ;">' +
@@ -291,10 +291,13 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
         content += '<div class="square tube" style="background-color: white;">' +
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">';
         if (dispopt=="id") {
-            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['id'] + '] ' + info['sample_old']['barcode'] + '</small>';
+
+            content += '<small style="color:red ; text-decoration:line-through">[' +
+                info['sample_old']['id'] + '] ' + info['sample_old']['barcode'] + '</small>';
         } else if (dispopt=="donor") {
-            content += '<small style="color:red ; text-decoration:line-through">[' + sample_info['consent_information']['donor_id'] + '] ';
-            content += render_sample_label(sample_info) + '</small>';
+
+            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['consent_information']['donor_id'] + '] ';
+            content += render_sample_label(info['sample_old']) + '</small>';
         }
         content += '<i class="fas fa-times " style="color:red;"></i>';
     }  else if (info['status']=='fill2fill')  {
@@ -302,11 +305,12 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
         // -- Old sample info
         if (dispopt=="id") {
-            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['id'] + ']' + info['sample_old']['barcode'] + '</small>';
+                content += '<small style="color:red ; text-decoration:line-through">[' +
+                    info['sample_old']['id'] + ']' + info['sample_old']['barcode'] + '</small>';
 
         } else if (dispopt=="donor") {
-            content += '<small style="color:red ; text-decoration:line-through">[' + sample_info['consent_information']['donor_id'] + '] ';
-            content += render_sample_label(sample_info) + '</small>';
+            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['donor_id'] + '] ';
+            content += render_sample_label(info['sample_old']) + '</small>';
         }
         content += '<i class="fas fa-times " style="color:red;"></i>';
         // -- New sample info
@@ -350,220 +354,6 @@ function render_occupancy_chart(counts) {
     }
     );
 }
-
-
-function render_sample_table(samples) {
-
-    if (samples.length > 0) {
-
-        $('#sampleTable').DataTable( {
-            data: samples,
-            rowCallback: function(row, data, index){
-                if(data['tostore']==true){
-                    $(row).find('td:eq(0)').css('background-color', 'lightblue');
-                } else {
-                    $(row).find('td:eq(0)').css('background-color', 'lightpink');
-                }
-            },
-            dom: 'Blfrtip',
-            buttons: [ 'print', 'csv', 'colvis' ],
-            lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
-            pageLength: -1,
-            columnDefs: [
-                {targets: '_all', defaultContent: ''},
-                {targets: [0, 4, 5, 9], visible: false, "defaultContent": ""},
-            ],
-            order: [[0, 'asc']],
-            columns: [
-                { // col id
-                    "mData": {},
-                    "mRender": function(data, type,row) {
-                        return data["pos"][1];
-                    },
-                    "width": "3%"
-                },
-                { // pos: row, col
-                    "mData": {},
-                    "mRender": function(data, type,row) {
-                        tick = String.fromCharCode(Number(data["pos"][0])+64);
-                        //return data["pos"][0] + ", " + data["pos"][1]
-                        return tick + ", " + data["pos"][1]                        
-                    },
-                    "width": "3%"
-                },
-
-            {"mData": {}, "mRender": function (row) {
-                if (row['sample']['id'] == null)
-                   return '<span style="text-decoration:line-through">' +row["sample"]["barcode"] + '</span>';
-                return row['sample']['barcode'];}
-            },
-
-            { // Donor ID
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null)
-                        return '';
-
-                    var consent = data['sample']['consent_information'];
-                    link = window.location.origin + "/donor/"+'LIMBDON-' + consent['donor_id'];
-                    html = "";
-                    if (consent['donor_id'] != null) {
-                        html += '<a href="'+link+'" >';
-                        html += 'LIMBDON-' + consent['donor_id'];
-                        html += '</a>';
-                    }
-
-                    return html;
-                }
-            },
-            { // Consent ID
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null)
-                        return '';
-
-                    var consent = data['sample']['consent_information'];
-                    return 'LIMBDC-' + consent['id'];
-                }
-            },
-            { // Consent status
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null)
-                        return '';
-                    var consent = data['sample']['consent_information'];
-                    var consent_status = 'Active';
-                    if (consent['withdrawn'] == true) {
-                        consent_status = 'Withdrawn';
-                    }
-                    return consent_status;
-                }
-            },
-             {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null)
-                        return '';
-
-                    var col_data = '';
-                    col_data += render_colour(data["sample"]["colour"])
-                    col_data += "<a href='"+data["sample"]["_links"]["self"]+ "'>";
-                    col_data += '<i class="fas fa-vial"></i> '
-                    col_data += data["sample"]["uuid"];
-                    col_data += "</a>";
-                    if (data["sample"]["source"] != "New") {
-
-                    col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                    col_data += '<a href="'+data["sample"]["parent"]["_links"]["self"]+'" target="_blank">'
-                    col_data += '<i class="fas fa-vial"></i> ';
-                    col_data += data["sample"]["parent"]["uuid"],
-                    col_data += "</a></small>";
-                    }
-
-                    return col_data
-                }
-             },
-
-            {"mData": {}, "mRender": function (row) {
-                if (row['sample']['id'] == null)
-                    return '';
-                return row['sample']['id'];}
-            },
-            {"mData": {}, "mRender": function (row) {
-                if (row['sample']['id'] == null)
-                    return '';
-                return row['sample']['status'];}
-            },
-            {"mData": {}, "mRender": function (row) {
-                if (row['sample']['id'] == null)
-                    return '';
-                return row['sample']['base_type'];}
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null) return '';
-                    var sample_type_information = data["sample"]["sample_type_information"];
-
-                    if (data["sample"]["base_type"] == "Fluid") {
-                        return sample_type_information["fluid_type"];
-                    } else if (data["sample"]["base_type"] == "Cell") {
-                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
-                    } else if (data["sample"]["base_type"] == "Molecular") {
-                        return sample_type_information["molecular_type"];
-                    }
-
-                }
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null) return '';
-                    var sample_type_information = data["sample"]["sample_type_information"];
-                    if (sample_type_information["cellular_container"] == null) {
-                        return sample_type_information["fluid_container"];
-                    } else {
-                        return sample_type_information["cellular_container"];
-                    }
-
-                }
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null) return '';
-                    var percentage = data["sample"]["remaining_quantity"] / data["sample"]["quantity"] * 100 + "%"
-                    var col_data = '';
-                    col_data += '<span data-toggle="tooltip" data-placement="top" title="' + percentage + ' Available">';
-                    col_data += data["sample"]["remaining_quantity"] + "/" + data["sample"]["quantity"] + get_metric(data["sample"]["base_type"]);
-                    col_data += '</span>';
-                    return col_data
-                }
-            },
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null) return '';
-                    var storage_data = data["sample"]["storage"];
-
-                    if (storage_data == null) {
-                        return "<span class='text-muted'>Not stored.</span>"
-                    } else if (storage_data["storage_type"] == "STB") {
-                        var rack_info = storage_data["rack"];
-                        var html = "<a href='" + rack_info["_links"]["self"] + "'>";
-                        html += "<i class='fa fa-grip-vertical'></i> LIMBRACK-" + rack_info["id"];
-                        html += "</a>"
-                        return html
-                    } else if (storage_data["storage_type"] == "STS") {
-                        var shelf_info = storage_data["shelf"];
-                        var html = "<a href='" + shelf_info["_links"]["self"] + "'>";
-                        html += "<i class='fa fa-bars'></i> LIMBSHF-" + shelf_info["id"];
-                        html += "</a>"
-                        return html
-                    }
-                    return data["sample"]["storage"]
-                }
-            },
-
-            {
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    if (row['sample']['id'] == null) return '';
-                    return data["sample"]["created_on"];
-                }
-            },
-    
-            ],
-            
-        });
-    }
-
-
-    else {
-        $("#sample-table-div").hide();
-    }
-}
-
 
 
 function render_information(rack_information) {
@@ -640,18 +430,21 @@ function render_view_from_file(view, assign_sample_url, dispopt) {
                 } else {
                     render_full_file_noimg(column, r, c, count, assign_sample_url, dispopt);
                     column["pos"] = [r, c]
-                    // - deep copy
-                    let colold = JSON.parse(JSON.stringify(column));
-                    colold['sample']=column['sample_old'];
-                    colold['tostore']=false; //old assignment: pink
-                    column['tostore']=true;  //new assignment: blue
-                    delete colold['sample_old'];
-                    delete column['sample_old'];
-                    if (column['sample'] == null)
-                        column['sample'] = {'id': null};
-                    samples.push(column);
-                    if (colold['sample'] != null) {
-                        samples.push(colold);
+                    if (column['status'] == 'fill') {
+                        samples.push(column);
+                    }
+                    else {
+                        // - deep copy
+                        let colold = JSON.parse(JSON.stringify(column));
+                        colold['sample'] = column['sample_old'];
+                        colold['tostore'] = false; //old assignment: pink
+                        column['tostore'] = true;  //new assignment: blue
+                        if (column['sample'] == null)
+                            column['sample'] = {'id': null};
+                        samples.push(column);
+                        if (colold['sample'] != null) {
+                            samples.push(colold);
+                        }
                     }
                 }
             }
@@ -837,7 +630,7 @@ function dragndrop_rack_view() {
 var rack_information = get_rack_information();
 $(document).ready(function () {
     collapse_sidebar();
-    //var rack_information = get_rack_information();
+
     sampletostore = JSON.parse(sessionStorage.getItem("sampletostore"));
     rack_id = sampletostore["rack_id"]
     samples_new = sampletostore["samples"]
@@ -846,14 +639,15 @@ $(document).ready(function () {
     if("update_only" in sampletostore)
         update_only = sampletostore["update_only"]
     else
-        update_only = False
+        update_only = false
 
     $("input[id='qr_on']").attr('hidden', true);
 
-    $("#cancel_change").hide();
+
     $("#confirm_position").hide();
 
-    update_rack_information(rack_information, samples_new);
+    update_rack_information(samples_new);
+
     render_subtitle(rack_information);
     render_information(rack_information);
 
@@ -878,7 +672,20 @@ $(document).ready(function () {
     render_sample_table(samples);
 
 
-    dragndrop_rack_view();
+    if (from_file==true)
+        $("#cancel_change").show();
+    else {
+        $("#cancel_change").hide();
+        dragndrop_rack_view();
+    }
+
+
+    $("#cancel_change").click(function (event) {
+        //window.location.reload();
+        window.open(rack_information["_links"]["self"],"_self");
+
+    });
+
 
     $("#submit_sampletorack").click(function (event) {
         if (from_file)
@@ -891,7 +698,8 @@ $(document).ready(function () {
         res = fill_sample_pos(api_url, sampletostore,commit=true);
         if (commit & res['success']){
             alert(res['message'])
-            sessionStorage.clear();
+            //sessionStorage.clear();
+            sessionStorage.removeItem("sampletostore")
             window.open(rack_information["_links"]["self"],"_self");
         } else {
             alert(res['message'])
