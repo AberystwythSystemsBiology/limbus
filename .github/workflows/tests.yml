@@ -1,5 +1,5 @@
-name: build project
-on: [pull_request]
+name: build project and test
+on: [push]
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -19,6 +19,8 @@ jobs:
         run: mkdir -p ./services/web/migrations/versions ; docker-compose run web sh -c "alembic revision --autogenerate -m 'Generating database'; alembic upgrade head"
       - name: Creating Kryten, the testing robot.
         run: docker-compose run web sh -c "flask cmd_setup create-kryten"
+      - name: Creating test user, the testing user.
+        run: docker-compose run web sh -c "flask cmd_setup create-testuser"
+      - name: Run tests.
+        run: docker-compose run --service-ports web sh -c "nose2 -v"
       - run: echo "🍏 This job's status is ${{ job.status }}."
-
-
