@@ -31,10 +31,6 @@ class AuthTests(unittest.TestCase):
         app.testing = True
         self.app = app.test_client()
 
-    def test_auth_home_unauthorised(self):
-        response = self.app.get("api/auth", follow_redirects=True)
-        self.assertEqual(response.status_code, 417)
-
     def test_auth_home(self):
         response = self.app.get(
             "api/auth", headers=testing_headers, follow_redirects=True
