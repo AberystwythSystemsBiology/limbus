@@ -111,10 +111,15 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     parent_id = db.Column(db.Integer, db.ForeignKey("sample.id"), primary_key=True)
     subsample_id = db.Column(
-        db.Integer, db.ForeignKey("sample.id", use_alter=True), unique=True, primary_key=True
+        db.Integer,
+        db.ForeignKey("sample.id", use_alter=True),
+        unique=True,
+        primary_key=True,
     )
     protocol_event_id = db.Column(
-        db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True), primary_key=True
+        db.Integer,
+        db.ForeignKey("sampleprotocolevent.id", use_alter=True),
+        primary_key=True,
     )
 
 
@@ -125,17 +130,30 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
-    review_event_id = db.Column(db.Integer, db.ForeignKey("samplereview.id", use_alter=True))
+    review_event_id = db.Column(
+        db.Integer, db.ForeignKey("samplereview.id", use_alter=True)
+    )
 
     approved = db.Column(db.Boolean, nullable=True)
-    approval_file_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))
+    approval_file_id = db.Column(
+        db.Integer, db.ForeignKey("document.id", use_alter=True)
+    )
     approval_file = db.relationship("Document")
     approval_event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
-    disposal_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True))
+    disposal_event_id = db.Column(
+        db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True)
+    )
 
 
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     reason = db.Column(db.Enum(DisposalReason))
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True), unique=True, primary_key=True)
-    protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True))
+    sample_id = db.Column(
+        db.Integer,
+        db.ForeignKey("sample.id", use_alter=True),
+        unique=True,
+        primary_key=True,
+    )
+    protocol_event_id = db.Column(
+        db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True)
+    )

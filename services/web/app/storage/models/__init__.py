@@ -28,7 +28,9 @@ from ..enums import EntityToStorageType
 class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
     rack_id = db.Column(db.Integer, db.ForeignKey("samplerack.id", use_alter=True))
-    shelf_id = db.Column(db.Integer, db.ForeignKey("coldstorageshelf.id", use_alter=True))
+    shelf_id = db.Column(
+        db.Integer, db.ForeignKey("coldstorageshelf.id", use_alter=True)
+    )
     storage_type = db.Column(db.Enum(EntityToStorageType))
     row = db.Column(db.Integer)
     col = db.Column(db.Integer)

@@ -54,7 +54,9 @@ class ColdStorageService(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorM
 
 class DocumentToColdStorageService(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    service_id = db.Column(db.Integer, db.ForeignKey("coldstorageservice.id", use_alter=True))
+    service_id = db.Column(
+        db.Integer, db.ForeignKey("coldstorageservice.id", use_alter=True)
+    )
     document_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))
 
 

@@ -41,6 +41,8 @@ class SiteInformation(Base, RefAuthorMixin):
     is_locked = db.Column(db.Boolean, default=False)
     description = db.Column(db.String(128))
     url = db.Column(db.String(128))
-    address_id = db.Column(db.Integer, db.ForeignKey("address.id", use_alter=True), nullable=False)
+    address_id = db.Column(
+        db.Integer, db.ForeignKey("address.id", use_alter=True), nullable=False
+    )
     address = db.relationship("Address", uselist=False)
     buildings = db.relationship("Building", uselist=True)

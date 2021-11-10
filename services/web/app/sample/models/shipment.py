@@ -48,12 +48,16 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
 
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
-    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True))
+    from_site_id = db.Column(
+        db.Integer, db.ForeignKey("siteinformation.id", use_alter=True)
+    )
 
     old_site = db.relationship("SiteInformation")
     sample = db.relationship("Sample")
 
-    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id", use_alter=True))
+    shipment_id = db.Column(
+        db.Integer, db.ForeignKey("sampleshipment.id", use_alter=True)
+    )
     shipment = db.relationship("SampleShipment")
 
     # protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))

@@ -90,7 +90,9 @@ class UserAccount(Base, UserMixin):
 
 class UserAccountToken(Base):
 
-    user_id = db.Column(db.Integer, db.ForeignKey("useraccount.id", use_alter=True), nullable=False)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("useraccount.id", use_alter=True), nullable=False
+    )
     token_hash = db.Column(db.String(256), nullable=False)
 
     @property

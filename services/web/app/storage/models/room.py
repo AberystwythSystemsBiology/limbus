@@ -20,7 +20,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
 class Room(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     __versioned__ = {}
     name = db.Column(db.String(128))
-    is_locked = db.Column(db.Boolean,default=False)
+    is_locked = db.Column(db.Boolean, default=False)
     building_id = db.Column(db.Integer, db.ForeignKey("building.id", use_alter=True))
     building = db.relationship("Building", uselist=False)
     storage = db.relationship("ColdStorage", uselist=True)
