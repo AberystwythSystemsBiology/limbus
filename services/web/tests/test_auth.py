@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2021  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ from app import create_app
 import json
 import unittest
 
-from . import headers
+from . import testing_headers
 
 
 class AuthTests(unittest.TestCase):
@@ -36,13 +36,13 @@ class AuthTests(unittest.TestCase):
         self.assertEqual(response.status_code, 417)
 
     def test_auth_home(self):
-        response = self.app.get("api/auth", headers=headers, follow_redirects=True)
+        response = self.app.get("api/auth", headers=testing_headers, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
 
     def test_auth_view_user(self):
         response = self.app.get(
-            "api/auth/user/1", headers=headers, follow_redirects=True
+            "api/auth/user/1", headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
@@ -53,7 +53,7 @@ class AuthTests(unittest.TestCase):
     def test_auth_edit_user(self):
         response = self.app.put(
             "api/auth/user/1/edit",
-            headers=headers,
+            headers=testing_headers,
             follow_redirects=True,
             json={"first_name": "Kry-ton"},
         )
@@ -64,7 +64,7 @@ class AuthTests(unittest.TestCase):
     def test_auth_new_user(self):
         response = self.app.post(
             "api/auth/user/new",
-            headers=headers,
+            headers=testing_headers,
             follow_redirects=True,
             json={
                 "email": "testing-user@gmail.com",
