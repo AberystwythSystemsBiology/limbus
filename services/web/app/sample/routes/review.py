@@ -15,7 +15,15 @@
 
 from .. import sample
 import requests
-from flask import render_template, url_for, flash, redirect, abort, make_response, jsonify
+from flask import (
+    render_template,
+    url_for,
+    flash,
+    redirect,
+    abort,
+    make_response,
+    jsonify,
+)
 from flask_login import login_required
 
 import requests
@@ -37,18 +45,18 @@ def remove_review(uuid: str):
     if remove_response.status_code == 200:
         sample_uuid = remove_response.json()["content"]
         flash(remove_response.json()["message"])
-        #return redirect(url_for("sample.view", uuid=sample_uuid))
+        # return redirect(url_for("sample.view", uuid=sample_uuid))
 
     else:
         flash("We have a problem: %s" % (remove_response.json()["message"]))
-        #abort(remove_response.status_code)
+        # abort(remove_response.status_code)
     return remove_response.json()
 
 
 @sample.route("/review/<uuid>/edit", methods=["GET", "POST"])
 @login_required
 def edit_review(uuid: str):
-    #form = ProtocolEventForm([])
+    # form = ProtocolEventForm([])
     abort(501)
 
 
@@ -68,7 +76,9 @@ def associate_review(uuid: str) -> str:
             disposal_info = sample_response.json()["content"]["disposal_information"]
 
             if disposal_info["instruction"] in ["DES", "TRA"]:
-                disposal_date = datetime.strptime(disposal_info["disposal_date"], "%Y-%m-%d").date()
+                disposal_date = datetime.strptime(
+                    disposal_info["disposal_date"], "%Y-%m-%d"
+                ).date()
                 print("disposal date: ", disposal_date)
             else:
                 disposal_date = None
@@ -105,16 +115,18 @@ def associate_review(uuid: str) -> str:
 
             if form.disposal_edit_on.data:
                 disposal_info = {
-                        #"id": disposal_id or None,
-                        #"disposal_date": disposal_date,
-                        "instruction": form.disposal_instruction.data,
-                        "comments": form.disposal_comments.data,
+                    # "id": disposal_id or None,
+                    # "disposal_date": disposal_date,
+                    "instruction": form.disposal_instruction.data,
+                    "comments": form.disposal_comments.data,
                 }
 
                 disposal_date = None
                 if form.disposal_instruction.data in ["DES", "TRA"]:
                     disposal_date = str(
-                        datetime.strptime(str(form.disposal_date.data), "%Y-%m-%d").date()
+                        datetime.strptime(
+                            str(form.disposal_date.data), "%Y-%m-%d"
+                        ).date()
                     )
                     disposal_info["disposal_date"] = disposal_date
 
@@ -125,13 +137,17 @@ def associate_review(uuid: str) -> str:
 
                 review_info["disposal_info"] = disposal_info
                 new_review_event_response = requests.post(
-                    url_for("api.sample_new_sample_review_disposal", uuid=uuid, _external=True),
+                    url_for(
+                        "api.sample_new_sample_review_disposal",
+                        uuid=uuid,
+                        _external=True,
+                    ),
                     headers=get_internal_api_header(),
-                    json=review_info
+                    json=review_info,
                 )
 
                 if new_review_event_response.status_code == 200:
-                    #flash("Sample Review and Disposal Instruction Successfully Added!")
+                    # flash("Sample Review and Disposal Instruction Successfully Added!")
                     flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.view", uuid=uuid))
 
@@ -139,13 +155,17 @@ def associate_review(uuid: str) -> str:
                     flash(new_review_event_response.json()["message"])
             else:
                 new_review_event_response = requests.post(
-                    url_for("api.sample_new_sample_review_disposal", uuid=uuid, _external=True),
+                    url_for(
+                        "api.sample_new_sample_review_disposal",
+                        uuid=uuid,
+                        _external=True,
+                    ),
                     headers=get_internal_api_header(),
                     json=review_info,
                 )
 
                 if new_review_event_response.status_code == 200:
-                    #flash("Sample Review Successfully Added!")
+                    # flash("Sample Review Successfully Added!")
                     flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.view", uuid=uuid))
 

@@ -30,7 +30,7 @@ from ...database import (
     SampleProtocolEvent,
     SampleToType,
     SampleDisposal,
-    Event
+    Event,
 )
 
 from ..views import (
@@ -55,7 +55,7 @@ from ..views import basic_sample_schema, new_sample_schema
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     def _validate_values(values: dict) -> bool:
         valid = True
-        #print(values)
+        # print(values)
         for key in [
             "aliquot_date",
             "aliquot_time",
@@ -168,22 +168,22 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     for aliquot in values["aliquots"]:
         # T2. New sampletotypes for subsamples: store data on sample type and container
         # Keep the sample type and drop the container info from the parent sample
-        type_values.pop('fluid_container', None)
-        type_values.pop('cellular_container', None)
-        type_values.pop('fixation_type', None)
+        type_values.pop("fluid_container", None)
+        type_values.pop("cellular_container", None)
+        type_values.pop("fixation_type", None)
 
         ali_sampletotype = SampleToType(**type_values)
         ali_sampletotype.id = None
 
-        if container_base_type == 'PRM':
-            ali_sampletotype.fluid_container = aliquot['container']
+        if container_base_type == "PRM":
+            ali_sampletotype.fluid_container = aliquot["container"]
 
         elif container_base_type == "LTS":
-            ali_sampletotype.cellular_container = aliquot['container']
+            ali_sampletotype.cellular_container = aliquot["container"]
 
-        if base_type == 'CEL':
-            if 'fixation' in aliquot:
-                ali_sampletotype.fixation_type = aliquot['fixation']
+        if base_type == "CEL":
+            if "fixation" in aliquot:
+                ali_sampletotype.fixation_type = aliquot["fixation"]
 
         try:
             db.session.add(ali_sampletotype)
@@ -193,12 +193,11 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         except Exception as err:
             return transaction_error_response(err)
 
-
         # T3.0. New sample_disposal instruction
         disposal_id = None
         if disposal_values:
             sdi = SampleDisposal(**disposal_values)
-            sdi.author_id=tokenuser.id,
+            sdi.author_id = (tokenuser.id,)
 
             db.session.add(sdi)
             db.session.flush()
@@ -230,8 +229,6 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         )
         db.session.add(ssts)
         db.session.flush()
-
-
 
     # T4. Update parent sample
     sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})

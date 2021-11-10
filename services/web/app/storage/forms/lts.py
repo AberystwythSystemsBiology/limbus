@@ -72,6 +72,7 @@ def ColdStorageToDocumentAssociationForm(documents: list):
 
     return StaticForm()
 
+
 class ColdStorageForm(FlaskForm):
 
     alias = StringField("Alias", validators=[DataRequired()])
@@ -113,7 +114,9 @@ class ColdStorageForm(FlaskForm):
 def ColdStorageEditForm(rooms: list, data={}):
     room_choices = []
     for room in rooms:
-        room_choices.append((room["id"], "LIMBROOM-%i: %s" % (room["id"], room["name"])))
+        room_choices.append(
+            (room["id"], "LIMBROOM-%i: %s" % (room["id"], room["name"]))
+        )
 
     class StaticForm(FlaskForm):
         id = StringField("id", default=None)
@@ -133,8 +136,10 @@ def ColdStorageEditForm(rooms: list, data={}):
         comments = TextAreaField("Comments")
 
         status = SelectField(
-            "Status", choices=FixedColdStorageStatus.choices(), validators=[DataRequired()],
-            description="Current working status"
+            "Status",
+            choices=FixedColdStorageStatus.choices(),
+            validators=[DataRequired()],
+            description="Current working status",
         )
 
         temperature = SelectField(
@@ -155,7 +160,8 @@ def ColdStorageEditForm(rooms: list, data={}):
             "Room",
             choices=room_choices,
             validators=[DataRequired()],
-            description="Room where the storage is located.", coerce=int,
+            description="Room where the storage is located.",
+            coerce=int,
         )
 
         submit = SubmitField("Register")

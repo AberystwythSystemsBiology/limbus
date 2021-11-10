@@ -13,14 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, current_app, jsonify, send_file,url_for,redirect
+from flask import request, current_app, jsonify, send_file, url_for, redirect
 
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, Room, UserAccount,ColdStorage
+from ...database import db, Room, UserAccount, ColdStorage
 import requests
 from .lts import storage_coldstorage_delete
 from ...misc import get_internal_api_header
@@ -31,7 +31,6 @@ from marshmallow import ValidationError
 
 from ..views import basic_room_schema, basic_rooms_schema, new_room_schema, room_schema
 from ...api.generics import *
-
 
 
 @api.route("/storage/room", methods=["GET"])
@@ -83,9 +82,10 @@ def storage_room_edit(id, tokenuser: UserAccount):
         db, Room, id, new_room_schema, basic_room_schema, values, tokenuser
     )
 
-#*
+
+# *
 # Route for deleting a room
-#*
+# *
 @api.route("/storage/room/LIMBROOM-<id>/delete", methods=["PUT"])
 @token_required
 def storage_room_delete(id, tokenuser: UserAccount):
@@ -113,10 +113,11 @@ def storage_room_delete(id, tokenuser: UserAccount):
     else:
         return no_values_response()
 
-#*
+
+# *
 # Deletes the room passed in.
 # Includes validation for deleting.
-#*
+# *
 def func_room_delete(record):
     attachedCS = ColdStorage.query.filter(ColdStorage.room_id == record.id).first()
     if not attachedCS is None:
@@ -131,11 +132,10 @@ def func_room_delete(record):
         return transaction_error_response(err)
 
 
-
-#*
+# *
 # Function changes the state of the lock variable for the room.
 # Locking a room reduces the functionality to the user.
-#*
+# *
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
 @token_required
 def storage_room_lock(id, tokenuser: UserAccount):

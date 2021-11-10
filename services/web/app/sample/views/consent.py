@@ -24,6 +24,7 @@ from ...consent.views import (
 )
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
+
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsent
@@ -48,7 +49,9 @@ class BasicConsentSchema(masql.SQLAlchemySchema):
     withdrawn = masql.auto_field()
     withdrawal_date = ma.Date()
 
+
 basic_consent_schema = BasicConsentSchema()
+
 
 class ConsentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -60,7 +63,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
 
     comments = masql.auto_field()
     template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
-    #author = ma.Nested(BasicUserAccountSchema, many=False)
+    # author = ma.Nested(BasicUserAccountSchema, many=False)
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
     date = ma.Date()
@@ -68,9 +71,8 @@ class ConsentSchema(masql.SQLAlchemySchema):
     withdrawn = masql.auto_field()
     withdrawal_date = ma.Date()
     _links = ma.Hyperlinks(
-        {
-            "remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)
-        })
+        {"remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)}
+    )
 
 
 consent_schema = ConsentSchema()

@@ -25,7 +25,13 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from .. import storage
-from ..forms import NewShelfForm, SampleToEntityForm, SamplesToEntityForm, RackToShelfForm, RacksToShelfForm
+from ..forms import (
+    NewShelfForm,
+    SampleToEntityForm,
+    SamplesToEntityForm,
+    RackToShelfForm,
+    RacksToShelfForm,
+)
 import requests
 from ...misc import get_internal_api_header
 
@@ -161,13 +167,23 @@ def delete_shelf(id):
 
         if edit_response.status_code == 200:
             flash("Shelf Successfully Deleted")
-            return redirect(url_for("storage.view_cold_storage", id=edit_response.json()["content"], _external=True))
-        elif edit_response.status_code == 400 and edit_response.json()["message"]== "Can't delete assigned samples":
+            return redirect(
+                url_for(
+                    "storage.view_cold_storage",
+                    id=edit_response.json()["content"],
+                    _external=True,
+                )
+            )
+        elif (
+            edit_response.status_code == 400
+            and edit_response.json()["message"] == "Can't delete assigned samples"
+        ):
             flash("Cannot delete a shelf associated with a rack with assigned samples")
         else:
             flash("We have a problem: %s" % edit_response.status_code)
-        return redirect(url_for("storage.view_shelf", id=id,_external=True))
+        return redirect(url_for("storage.view_shelf", id=id, _external=True))
     return abort(response.status_code)
+
 
 # Not in use
 # @storage.route("/shelf/LIMBSHF-<id>/assign_rack", methods=["GET", "POST"])
@@ -250,7 +266,11 @@ def assign_racks_to_shelf(id):
             racks = []
             rack_ids = []
             for item in rack_response.json()["content"]:
-                if item["selected"] and item["storage_type"] == 'RUC' and item["rack"] is not None:
+                if (
+                    item["selected"]
+                    and item["storage_type"] == "RUC"
+                    and item["rack"] is not None
+                ):
                     if item["rack"]["id"] not in rack_ids:
                         rack_ids.append(item["rack"]["id"])
                         racks.append(item["rack"])
@@ -291,6 +311,7 @@ def assign_racks_to_shelf(id):
             )
 
     return abort(response.status_code)
+
 
 # Not in use
 # @storage.route("/shelf/LIMBSHF-<id>/assign_sample", methods=["GET", "POST"])
@@ -348,6 +369,7 @@ def assign_sample_to_shelf(id):
 
     return abort(response.status_code)
 
+
 @storage.route("/shelf/LIMBSHF-<id>/assign_samples_in_cart", methods=["GET", "POST"])
 @login_required
 def assign_samples_to_shelf(id):
@@ -375,7 +397,9 @@ def assign_samples_to_shelf(id):
                     samples.append(item["sample"])
 
             if len(samples) == 0:
-                flash("Add samples to your sample cart and select from the cart first! ")
+                flash(
+                    "Add samples to your sample cart and select from the cart first! "
+                )
                 return redirect(url_for("storage.view_shelf", id=id))
 
             # form = SamplesToEntityForm(sample_response.json()["content"])
@@ -415,15 +439,17 @@ def assign_samples_to_shelf(id):
     return abort(response.status_code)
 
 
-@storage.route("/shelf/query/sample", methods=["GET","POST"])
+@storage.route("/shelf/query/sample", methods=["GET", "POST"])
 def check_sample_to_shelf():
     data = {}
-    data['id'] = request.json['id']
+    data["id"] = request.json["id"]
     response = requests.get(
-        url_for("api.storage_sample_to_entity_check", id=int(data['id']), _external=True),
+        url_for(
+            "api.storage_sample_to_entity_check", id=int(data["id"]), _external=True
+        ),
         headers=get_internal_api_header(),
     )
 
-    data['warning'] = response.json()["content"]
+    data["warning"] = response.json()["content"]
 
     return jsonify(data)

@@ -21,19 +21,22 @@ def not_found(entity=""):
         {"ContentType": "application/json"},
     )
 
+
 def sample_assigned_delete_response():
-    return(
-        {"success": False, "message":"Can't delete assigned samples"},
+    return (
+        {"success": False, "message": "Can't delete assigned samples"},
         400,
-        {"ContentType":"application/json"}
+        {"ContentType": "application/json"},
     )
 
+
 def in_use_response(entity=""):
-    return(
-        {"success": False, "message":"Has associated " + entity},
+    return (
+        {"success": False, "message": "Has associated " + entity},
         400,
-        {"ContentType":"application/json"}
+        {"ContentType": "application/json"},
     )
+
 
 def no_values_response():
     return (
@@ -42,10 +45,13 @@ def no_values_response():
         {"ContentType": "application/json"},
     )
 
+
 def locked_response(entity=""):
-    return({"success": False, "message": "Entity %s is locked" % entity},
-            400,
-            {"ContentType": "application/json"})
+    return (
+        {"success": False, "message": "Entity %s is locked" % entity},
+        400,
+        {"ContentType": "application/json"},
+    )
 
 
 def invalid_query_response():
@@ -105,6 +111,7 @@ def success_with_content_response(content):
         200,
         {"ContentType": "application/json"},
     )
+
 
 def success_with_content_message_response(content, message=""):
     return (

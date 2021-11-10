@@ -18,7 +18,7 @@ from ...database import (
     Sample,
     SampleShipmentStatus,
     SampleShipment,
-    SampleShipmentToSample
+    SampleShipmentToSample,
 )
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
@@ -40,15 +40,15 @@ class SampleUUIDSchema(masql.SQLAlchemySchema):
     )
 
 
-
 class BasicSampleShipmentStatusSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleShipmentStatus
 
-    status=EnumField(SampleShipmentStatusStatus, by_value=True)
-    datetime=masql.auto_field()
-    comments=masql.auto_field()
+    status = EnumField(SampleShipmentStatusStatus, by_value=True)
+    datetime = masql.auto_field()
+    comments = masql.auto_field()
     tracking_number = masql.auto_field()
+
 
 basic_sample_shipment_status_schema = BasicSampleShipmentStatusSchema()
 basic_sample_shipments_status_schema = BasicSampleShipmentStatusSchema(many=True)
@@ -63,7 +63,7 @@ class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     new_site = ma.Nested(SiteNameSchema, many=False)
     created_on = ma.Date()
-    shipment_status = ma.Nested(BasicSampleShipmentStatusSchema)#, many=False)
+    shipment_status = ma.Nested(BasicSampleShipmentStatusSchema)  # , many=False)
     event = ma.Nested(NewEventSchema())
 
     _links = ma.Hyperlinks(
@@ -74,6 +74,7 @@ class BasicSampleShipmentSchema(masql.SQLAlchemySchema):
             "collection": ma.URLFor("sample.shipment_index", _external=True),
         }
     )
+
 
 basic_sample_shipment_schema = BasicSampleShipmentSchema()
 basic_sample_shipments_schema = BasicSampleShipmentSchema(many=True)

@@ -31,13 +31,14 @@ from ...misc import get_internal_api_header
 from ..forms import SiteRegistrationForm
 from ...decorators import check_if_admin
 
+
 @storage.route("/site/LIMBSITE-<id>", methods=["GET"])
 @login_required
 def view_site(id):
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
-        #json={"is_locked": False},
+        # json={"is_locked": False},
     )
 
     if response.status_code == 200:
@@ -46,6 +47,7 @@ def view_site(id):
         )
 
     return abort(response.status_code)
+
 
 @storage.route("/site/LIMBSITE-<id>/delete", methods=["GET", "POST"])
 @login_required
@@ -61,8 +63,8 @@ def delete_site(id):
 
     if response.status_code == 200:
         edit_response = requests.put(
-        url_for("api.storage_site_delete", id=id, _external=True),
-        headers=get_internal_api_header(),
+            url_for("api.storage_site_delete", id=id, _external=True),
+            headers=get_internal_api_header(),
         )
 
         if edit_response.status_code == 200:
@@ -74,6 +76,7 @@ def delete_site(id):
             flash("We have a problem: %s" % (id))
         return redirect(url_for("storage.view_site", id=id, _external=True))
     return abort(response.status_code)
+
 
 @storage.route("/site/LIMBSITE-<id>/edit", methods=["GET", "POST"])
 @login_required
@@ -102,7 +105,6 @@ def edit_site(id):
                 json=form_information,
             )
 
-
             if edit_response.status_code == 200:
                 flash("Site Successfully Edited")
             else:
@@ -115,6 +117,7 @@ def edit_site(id):
         )
 
     return abort(response.status_code)
+
 
 @storage.route("/site/LIMBSITE-<id>/lock", methods=["GET", "POST"])
 @login_required
@@ -137,7 +140,3 @@ def lock_site(id):
     return redirect(url_for("storage.view_site", id=id))
 
     return abort(response.status_code)
-
-
-
-

@@ -54,6 +54,7 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
         cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
 
+
 @api.route("/storage/coldstorage/LIMBCS-<id>/edit/view", methods=["GET"])
 @token_required
 def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
@@ -85,8 +86,11 @@ def storage_coldstorage_delete(id, tokenuser: UserAccount):
     else:
         return no_values_response()
 
+
 def delete_coldstorage_func(record):
-    attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==record.id).all()
+    attachedShelves = ColdStorageShelf.query.filter(
+        ColdStorageShelf.storage_id == record.id
+    ).all()
     for shelves in attachedShelves:
         if func_shelf_delete(shelves) == "has sample":
             return "has sample"
@@ -96,6 +100,7 @@ def delete_coldstorage_func(record):
         return "success"
     except Exception as err:
         return transaction_error_response(err)
+
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
@@ -155,7 +160,7 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
     cs = ColdStorage.query.filter_by(id=id).first()
 
-    if not cs: #room:
+    if not cs:  # room:
         return not_found()
 
     values = request.get_json()
@@ -195,13 +200,17 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
     cs.is_locked = not cs.is_locked
     cs.editor_id = tokenuser.id
 
-    attachedShelves = ColdStorageShelf.query.filter(ColdStorageShelf.storage_id==cs.id).all()
+    attachedShelves = ColdStorageShelf.query.filter(
+        ColdStorageShelf.storage_id == cs.id
+    ).all()
     for shelf in attachedShelves:
         shelf.is_locked = cs.is_locked
         shelf.editor_id = tokenuser.id
-        entityStorageRecords = EntityToStorage.query.filter(EntityToStorage.shelf_id==shelf.id).all()
+        entityStorageRecords = EntityToStorage.query.filter(
+            EntityToStorage.shelf_id == shelf.id
+        ).all()
         for ES in entityStorageRecords:
-            rack = SampleRack.query.filter(SampleRack.id==ES.rack_id).first()
+            rack = SampleRack.query.filter(SampleRack.id == ES.rack_id).first()
             rack.is_locked = cs.is_locked
             rack.editor_id = tokenuser.id
 
@@ -223,7 +232,8 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    coldstorage_response = requests.get(url_for("api.storage_coldstorage_view", id=id, _external=True),
+    coldstorage_response = requests.get(
+        url_for("api.storage_coldstorage_view", id=id, _external=True),
         headers=get_internal_api_header(tokenuser),
     )
 
@@ -252,20 +262,31 @@ def storage_coldstorage_document(id, tokenuser: UserAccount):
         return coldstorage_response.json()
 
 
-
 @api.route("/storage/coldstorage/rooms_onsite/LIMBCS-<id>", methods=["GET"])
 @token_required
 def storage_rooms_onsite(id, tokenuser: UserAccount):
     # Get the list of rooms of the same site for the given coldstorage id
-    subq = db.session.query(SiteInformation.id).join(Building).\
-            join(Room).join(ColdStorage).filter(ColdStorage.id==id)
-    stmt = db.session.query(SiteInformation.id).join(Building).\
-            join(Room).join(ColdStorage).filter(SiteInformation.id==subq.first().id).\
-            with_entities(Room.id, SiteInformation.name, Building.name, Room.name).\
-            distinct(Room.id).all()
+    subq = (
+        db.session.query(SiteInformation.id)
+        .join(Building)
+        .join(Room)
+        .join(ColdStorage)
+        .filter(ColdStorage.id == id)
+    )
+    stmt = (
+        db.session.query(SiteInformation.id)
+        .join(Building)
+        .join(Room)
+        .join(ColdStorage)
+        .filter(SiteInformation.id == subq.first().id)
+        .with_entities(Room.id, SiteInformation.name, Building.name, Room.name)
+        .distinct(Room.id)
+        .all()
+    )
 
-    results = [{'id':roomid,'name':'(%s)%s-%s' % (sitename, buildingname, roomname)}
-                for (roomid, sitename, buildingname, roomname) in stmt]
+    results = [
+        {"id": roomid, "name": "(%s)%s-%s" % (sitename, buildingname, roomname)}
+        for (roomid, sitename, buildingname, roomname) in stmt
+    ]
 
     return success_with_content_response(results)
-

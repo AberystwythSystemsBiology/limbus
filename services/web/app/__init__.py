@@ -42,15 +42,17 @@ from .errors import error_handlers
 
 from .extensions import register_extensions, register_apispec
 
+
 class ReverseProxied(object):
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
-        scheme = environ.get('HTTP_X_FORWARDED_PROTO')
+        scheme = environ.get("HTTP_X_FORWARDED_PROTO")
         if scheme:
-            environ['wsgi.url_scheme'] = scheme
+            environ["wsgi.url_scheme"] = scheme
         return self.app(environ, start_response)
+
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)

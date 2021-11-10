@@ -21,8 +21,8 @@ import requests
 from wtforms import SelectField, StringField, SubmitField, BooleanField
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
 
-def SampleFilterForm() -> FlaskForm:
 
+def SampleFilterForm() -> FlaskForm:
     class StaticForm(FlaskForm):
         biohazard_level = SelectField(
             "Biohazard Level", choices=BiohazardLevel.choices(with_none=True)
@@ -31,12 +31,17 @@ def SampleFilterForm() -> FlaskForm:
         uuid = StringField("UUID")
         barcode = StringField("Barcode")
         colour = SelectField("Colour", choices=Colour.choices(with_none=True))
-        base_type = SelectField("Sample Type", choices=SampleBaseType.choices(with_none=True))
-        source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
-        status = SelectField("Sample Status", choices=SampleStatus.choices(with_none=True))
+        base_type = SelectField(
+            "Sample Type", choices=SampleBaseType.choices(with_none=True)
+        )
+        source = SelectField(
+            "Sample Source", choices=SampleSource.choices(with_none=True)
+        )
+        status = SelectField(
+            "Sample Status", choices=SampleStatus.choices(with_none=True)
+        )
 
         submit = SubmitField("Filter")
-
 
     sites_response = requests.get(
         url_for("api.site_home", _external=True),
@@ -49,7 +54,7 @@ def SampleFilterForm() -> FlaskForm:
             sites.append(
                 (
                     site["id"],
-                    "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+                    "<%s>%s - %s" % (site["id"], site["name"], site["description"]),
                 )
             )
 
@@ -57,7 +62,8 @@ def SampleFilterForm() -> FlaskForm:
         StaticForm,
         "current_site_id",
         SelectField(
-            "Site", choices=sites,
+            "Site",
+            choices=sites,
         ),
     )
 
@@ -73,8 +79,9 @@ def SampleFilterForm() -> FlaskForm:
         for protocol in protocols_response.json()["content"]:
             protocols.append(
                 (
-                   protocol["id"],
-                    "<%s>%s - %s" % (protocol["type"], protocol["id"], protocol["name"]),
+                    protocol["id"],
+                    "<%s>%s - %s"
+                    % (protocol["type"], protocol["id"], protocol["name"]),
                 )
             )
 
@@ -82,7 +89,8 @@ def SampleFilterForm() -> FlaskForm:
         StaticForm,
         "protocol_id",
         SelectField(
-            "Protocol/Collection", choices=protocols,
+            "Protocol/Collection",
+            choices=protocols,
         ),
     )
 
