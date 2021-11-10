@@ -103,3 +103,6 @@ class UserAccountToken(Base):
 
     def verify_token(self, token) -> bool:
         return check_password_hash(self.token_hash, token)
+
+
+
