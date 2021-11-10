@@ -32,7 +32,7 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     sex = db.Column(db.Enum(BiologicalSexTypes))
     diagnoses = db.relationship("DonorDiagnosisEvent")
 
-    enrollment_site_id = db.Column(db.ForeignKey("siteinformation.id"))
+    enrollment_site_id = db.Column(db.ForeignKey("siteinformation.id", use_alter=True))
     status = db.Column(db.Enum(DonorStatusTypes))
     death_date = db.Column(db.Date)
     weight = db.Column(db.Float)
@@ -44,13 +44,13 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id", use_alter=True))
 
 
 class DonorDiagnosisEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id", use_alter=True))
 
     doid_ref = db.Column(db.String())
 

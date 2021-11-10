@@ -33,7 +33,7 @@ class ColdStorage(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     status = db.Column(db.Enum(FixedColdStorageStatus))
     temp = db.Column(db.Enum(FixedColdStorageTemps))
     type = db.Column(db.Enum(FixedColdStorageType))
-    room_id = db.Column(db.Integer, db.ForeignKey("room.id"))
+    room_id = db.Column(db.Integer, db.ForeignKey("room.id", use_alter=True))
     shelves = db.relationship("ColdStorageShelf")
     room = db.relationship("Room")
     documents = db.relationship("Document", secondary="documenttocoldstorage")
@@ -49,15 +49,15 @@ class ColdStorageService(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorM
     status = db.Column(db.Enum(ColdStorageServiceResult))
     comments = db.Column(db.Text)
 
-    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
+    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id", use_alter=True))
 
 
 class DocumentToColdStorageService(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
-    service_id = db.Column(db.Integer, db.ForeignKey("coldstorageservice.id"))
-    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    service_id = db.Column(db.Integer, db.ForeignKey("coldstorageservice.id", use_alter=True))
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))
 
 
 class DocumentToColdStorage(Base, RefAuthorMixin, RefEditorMixin):
-    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
-    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id", use_alter=True))
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))
