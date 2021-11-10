@@ -22,7 +22,7 @@ from wtforms import (
     TimeField,
     TextAreaField,
     BooleanField,
-    HiddenField
+    HiddenField,
 )
 from wtforms.validators import Optional
 
@@ -80,6 +80,7 @@ def SampleReviewForm(data={}):
         # approved_by = TextAreaField("To be approved by ")
 
         submit = SubmitField("Submit")
+
         def validate(self):
             if not FlaskForm.validate(self):
                 return False
@@ -87,8 +88,12 @@ def SampleReviewForm(data={}):
             if self.disposal_edit_on.data:
                 if self.disposal_instruction.data in ["DES", "TRA"]:
                     if self.disposal_date.data is None:
-                        self.disposal_date.errors.append("Expected disposal date required.")
-                        self.review_type.errors.append("Disposal instruction edit error! Expected action date required!!")
+                        self.disposal_date.errors.append(
+                            "Expected disposal date required."
+                        )
+                        self.review_type.errors.append(
+                            "Disposal instruction edit error! Expected action date required!!"
+                        )
                         return False
 
             return True

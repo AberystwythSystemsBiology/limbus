@@ -21,10 +21,11 @@ from flask import request, send_file
 from ...decorators import token_required
 from marshmallow import ValidationError
 
-from ...database import db,SiteInformation, UserAccount,Sample,Building
+from ...database import db, SiteInformation, UserAccount, Sample, Building
 
 from ..views import site_schema, new_site_schema, basic_site_schema
 from ...api.generics import *
+
 
 @api.route("/storage/site/LIMBSITE-<id>", methods=["GET"])
 @token_required
@@ -33,6 +34,7 @@ def site_view(id, tokenuser: UserAccount):
     return success_with_content_response(
         site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
     )
+
 
 @api.route("/storage/site/LIMBSITE-<id>/edit", methods=["PUT"])
 @token_required
@@ -44,18 +46,18 @@ def storage_site_edit(id, tokenuser: UserAccount):
         db, SiteInformation, id, new_site_schema, basic_site_schema, values, tokenuser
     )
 
-#*
+
+# *
 # Route for deleting a site.
 # Includes validation for deleting.
-#*
+# *
 @api.route("/storage/site/LIMBSITE-<id>/delete", methods=["PUT"])
 @token_required
 def storage_site_delete(id, tokenuser: UserAccount):
     # Finds the site in the site table
     siteTableRecord = SiteInformation.query.filter_by(id=id).first()
     # Finds sample records which ref the site to delete and preserve foreign key integrity.
-    sampleTableRecord = Sample.query.filter(Sample.site_id==id).all()
-
+    sampleTableRecord = Sample.query.filter(Sample.site_id == id).all()
 
     if not siteTableRecord:
         return not_found()
@@ -75,10 +77,11 @@ def storage_site_delete(id, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-#*
+
+# *
 # Function changes the state of the lock variable for the site.
 # Locking a site reduces the functionality to the admin.
-#*
+# *
 @api.route("/storage/site/LIMBSITE-<id>/lock", methods=["PUT"])
 @token_required
 def storage_site_lock(id, tokenuser: UserAccount):
@@ -97,6 +100,3 @@ def storage_site_lock(id, tokenuser: UserAccount):
         return success_with_content_response(site.is_locked)
     except Exception as err:
         return transaction_error_response(err)
-
-
-

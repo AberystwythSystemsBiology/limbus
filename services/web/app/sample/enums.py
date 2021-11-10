@@ -15,6 +15,7 @@
 
 from ..FormEnum import FormEnum
 
+
 class CartSampleStorageType(FormEnum):
     RUC = "Rack in User Cart"
     CUC = "Container in User Cart"
@@ -154,6 +155,7 @@ class ConsentWithdrawalRequester(FormEnum):
     REP = "Legal Representative"
     UNK = "Unknown"
 
+
 class CellSampleType(FormEnum):
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"
@@ -182,6 +184,7 @@ class FixationType(FormEnum):
     RNL = "RNA Later"
     XXX = "Unknown"
     ZZZ = "Other"
+
 
 # FluidContainer = Primary container
 class FluidContainer(FormEnum):
@@ -212,6 +215,7 @@ class FluidContainer(FormEnum):
     TRC = "Trace element tube"
     XXX = "Unknown"
     ZZZ = "Other"
+
 
 # Treating sample type cell as solid and tissue types
 # Equivalent to containers for long term preservation.
@@ -251,6 +255,7 @@ class CellContainer(FormEnum):
 class ContainerBaseType(FormEnum):
     PRM = "Primary container"
     LTS = "Long-term preservation"
+
 
 # Same as CellContainer
 class LongTermStorage(FormEnum):
@@ -292,6 +297,7 @@ class AccessStatus(FormEnum):
     ZZZ = "Other"
     XXX = "Unknown"
 
+
 class SampleStatus(FormEnum):
     AVA = "Available"
     DES = "Destroyed"
@@ -300,7 +306,7 @@ class SampleStatus(FormEnum):
     MIS = "Missing"
     TMP = "Temporary Storage"
     NCO = "Pending Collection"
-    #NPR = "Not Processed"
+    # NPR = "Not Processed"
     NRE = "Pending Review"
 
 

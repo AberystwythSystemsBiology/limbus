@@ -27,7 +27,7 @@ from wtforms import (
     DateField,
     TextAreaField,
     TimeField,
-    HiddenField
+    HiddenField,
 )
 
 from wtforms.validators import DataRequired, Optional
@@ -123,8 +123,9 @@ def CollectionDonorConsentAndDisposalForm(
     consent_ids: list, collection_protocols: list, collection_sites: list, data={}
 ) -> FlaskForm:
 
-    print('consent_ids', consent_ids)
+    print("consent_ids", consent_ids)
     print("coll protol", collection_protocols)
+
     class StaticForm(FlaskForm):
         donor_id = HiddenField("Donor id")
 

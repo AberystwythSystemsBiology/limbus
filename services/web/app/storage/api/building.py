@@ -13,20 +13,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import request, current_app, jsonify, send_file,url_for
+from flask import request, current_app, jsonify, send_file, url_for
 
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ...database import db, Building, UserAccount,Room
+from ...database import db, Building, UserAccount, Room
 from ..api.room import func_room_delete
 
 
 import requests
 from ...misc import get_internal_api_header
-
 
 
 from marshmallow import ValidationError
@@ -130,6 +129,7 @@ def storage_building_delete(id, tokenuser: UserAccount):
         return locked_response()
     else:
         return no_values_response()
+
 
 def delete_buildings_func(record):
     attachedRooms = Room.query.filter(Room.building_id == record.id).all()

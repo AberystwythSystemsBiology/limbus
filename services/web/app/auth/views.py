@@ -33,9 +33,9 @@ class UserAccountSearchSchema(masql.SQLAlchemySchema):
     first_name = masql.auto_field()
     last_name = masql.auto_field()
 
+
 user_account_search_schema = UserAccountSearchSchema()
 user_accounts_search_schema = UserAccountSearchSchema(many=True)
-
 
 
 class BasicUserAccountSchema(masql.SQLAlchemySchema):

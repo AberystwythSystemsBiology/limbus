@@ -37,12 +37,8 @@ class SampleReviewSchema(masql.SQLAlchemySchema):
 
     _links = ma.Hyperlinks(
         {
-            "edit": ma.URLFor(
-                "sample.edit_review", uuid="<uuid>", _external=True
-            ),
-            "remove": ma.URLFor(
-                "sample.remove_review", uuid="<uuid>", _external=True
-            ),
+            "edit": ma.URLFor("sample.edit_review", uuid="<uuid>", _external=True),
+            "remove": ma.URLFor("sample.remove_review", uuid="<uuid>", _external=True),
         }
     )
 

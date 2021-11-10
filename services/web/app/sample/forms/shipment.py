@@ -47,7 +47,7 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
             "Undertaken By",
             description="The initials of the individual who undertook the shipment event.",
         )
-        
+
         comments = TextAreaField("Comments", description="Any relevant observations.")
         submit = SubmitField("Submit")
 
@@ -57,10 +57,14 @@ def SampleShipmentEventForm(sites: list) -> FlaskForm:
 
     return StaticForm()
 
+
 def SampleShipmentStatusUpdateform(data={}) -> FlaskForm:
     class StaticForm(FlaskForm):
-        status = SelectField("Shipment Status", validators=[DataRequired()],
-                             choices=SampleShipmentStatusStatus.choices(),)
+        status = SelectField(
+            "Shipment Status",
+            validators=[DataRequired()],
+            choices=SampleShipmentStatusStatus.choices(),
+        )
 
         tracking_number = TextAreaField("Tracking number")
         comments = TextAreaField("Comments")

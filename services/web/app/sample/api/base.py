@@ -34,15 +34,30 @@ from ..views import (
     new_cell_sample_schema,
     new_molecular_sample_schema,
     new_sample_schema,
-
 )
 
-from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
-                         SampleProtocolEvent, ProtocolTemplate, SampleDisposal, SampleReview,
-                         SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
-                         EntityToStorage,
-                         SiteInformation, Building, Room, ColdStorage, ColdStorageShelf,
-                         DonorToSample)
+from ...database import (
+    db,
+    Sample,
+    SampleToType,
+    SubSampleToSample,
+    UserAccount,
+    Event,
+    SampleProtocolEvent,
+    ProtocolTemplate,
+    SampleDisposal,
+    SampleReview,
+    SampleShipment,
+    SampleShipmentToSample,
+    SampleShipmentStatus,
+    EntityToStorage,
+    SiteInformation,
+    Building,
+    Room,
+    ColdStorage,
+    ColdStorageShelf,
+    DonorToSample,
+)
 
 from sqlalchemy import or_
 
@@ -50,17 +65,35 @@ from ..enums import *
 
 import requests
 
-def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
+
+def sample_protocol_query_stmt(
+    filters_protocol=None, filter_sample_id=None, filters=None, joins=None
+):
     # Find all parent samples (id) with matching protocol events (by protocol_template_id)
     if filter_sample_id is None:
-        subq = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-            join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+        subq = (
+            db.session.query(Sample.id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .join(SampleProtocolEvent)
+            .filter_by(**filters_protocol)
+            .subquery()
+        )
     else:
-        subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
-            join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+        subq = (
+            db.session.query(Sample.id)
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleProtocolEvent)
+            .filter_by(**filters_protocol)
+            .subquery()
+        )
 
-    protocol_event = db.session.query(ProtocolTemplate).\
-        join(SampleProtocolEvent).filter_by(**filters_protocol).first()
+    protocol_event = (
+        db.session.query(ProtocolTemplate)
+        .join(SampleProtocolEvent)
+        .filter_by(**filters_protocol)
+        .first()
+    )
 
     if protocol_event:
         # Protocols of Collection/Study
@@ -69,13 +102,24 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
             # Find all sub-samples of the matching samples
             # and take the union of parent and sub-sample ID
             if filter_sample_id is None:
-                s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                    join(subq, subq.c.id == SubSampleToSample.parent_id)
+                s2 = (
+                    db.session.query(Sample.id)
+                    .filter_by(**filters)
+                    .filter(*joins)
+                    .join(
+                        SubSampleToSample, SubSampleToSample.subsample_id == Sample.id
+                    )
+                    .join(subq, subq.c.id == SubSampleToSample.parent_id)
+                )
             else:
-                s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
-                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                    join(subq, subq.c.id == SubSampleToSample.parent_id)
+                s2 = (
+                    db.session.query(Sample.id)
+                    .filter(Sample.id.in_(filter_sample_id))
+                    .join(
+                        SubSampleToSample, SubSampleToSample.subsample_id == Sample.id
+                    )
+                    .join(subq, subq.c.id == SubSampleToSample.parent_id)
+                )
 
             stmt = db.session.query(subq).union(s2)
 
@@ -85,33 +129,58 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
     else:
         stmt = db.session.query(subq)
 
-    return (stmt)
+    return stmt
+
 
 def sample_sampletype_query_stmt(filters, joins, filters_sampletype):
     pass
     abort(402)
 
 
-#@storage.route("/shelf/LIMBSHF-<id>/location", methods=["GET"])
+# @storage.route("/shelf/LIMBSHF-<id>/location", methods=["GET"])
 def func_shelf_location(id):
-    location = db.session.query(SiteInformation).join(Building).join(Room).join(ColdStorage).\
-        join(ColdStorageShelf).with_entities(
-            SiteInformation.id, SiteInformation.name,
-            Building.id, Building.name,
-            Room.id, Room.name,
-            ColdStorage.id, ColdStorage.alias,ColdStorage.type,ColdStorage.temp,
-            ColdStorageShelf.id, ColdStorageShelf.name).\
-        filter(ColdStorageShelf.id==id).first()
+    location = (
+        db.session.query(SiteInformation)
+        .join(Building)
+        .join(Room)
+        .join(ColdStorage)
+        .join(ColdStorageShelf)
+        .with_entities(
+            SiteInformation.id,
+            SiteInformation.name,
+            Building.id,
+            Building.name,
+            Room.id,
+            Room.name,
+            ColdStorage.id,
+            ColdStorage.alias,
+            ColdStorage.type,
+            ColdStorage.temp,
+            ColdStorageShelf.id,
+            ColdStorageShelf.name,
+        )
+        .filter(ColdStorageShelf.id == id)
+        .first()
+    )
 
     pretty = ""
     if location:
         names = [str(item) for item in location if type(item) is not int]
         pretty = "%s-%s-%s-%s(%s@%s)-%s" % tuple(names)
-        colnames = ["site_id", "site_name",
-                    "building_id", "building_name",
-                    "room_id", "room_name",
-                    "coldstorage_id", "coldstorage_name", "coldstorage_type", "coldstorage_temp",
-                    "shelf_id", "shelf_name"]
+        colnames = [
+            "site_id",
+            "site_name",
+            "building_id",
+            "building_name",
+            "room_id",
+            "room_name",
+            "coldstorage_id",
+            "coldstorage_name",
+            "coldstorage_type",
+            "coldstorage_temp",
+            "shelf_id",
+            "shelf_name",
+        ]
         location = dict(zip(colnames, location))
 
     return {"location": location, "pretty": pretty}
@@ -130,6 +199,7 @@ def sample_get_containers():
         }
     )
 
+
 @api.route("/sample/containertypes", methods=["GET"])
 def sample_get_containertypes():
     # Temporary fix for adding containers for long term preservation
@@ -138,13 +208,17 @@ def sample_get_containertypes():
     # To DO: manage sample type and container info using database
     return success_with_content_response(
         {
-            "PRM": {"container": FluidContainer.choices(),
-                    "fixation_type": FixationType.choices()},
-            "LTS": {"container": CellContainer.choices(),
-                    "fixation_type": FixationType.choices()
-                    },
+            "PRM": {
+                "container": FluidContainer.choices(),
+                "fixation_type": FixationType.choices(),
+            },
+            "LTS": {
+                "container": CellContainer.choices(),
+                "fixation_type": FixationType.choices(),
+            },
         }
     )
+
 
 @api.route("/sample", methods=["GET"])
 @token_required
@@ -152,13 +226,12 @@ def sample_home(tokenuser: UserAccount):
     return success_with_content_response(basic_samples_schema.dump(Sample.query.all()))
 
 
-
 @api.route("/sample/query", methods=["GET"])
 @use_args(SampleFilterSchema(), location="json")
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    print('fj: ', filters, joins)
+    print("fj: ", filters, joins)
 
     flag_protocol = False
 
@@ -171,19 +244,19 @@ def sample_query(args, tokenuser: UserAccount):
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
 
     if flag_protocol:
-        stmt = sample_protocol_query_stmt(filters_protocol=filters_protocol, filter_sample_id=stmt)
+        stmt = sample_protocol_query_stmt(
+            filters_protocol=filters_protocol, filter_sample_id=stmt
+        )
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     results = basic_samples_schema.dump(stmt.all())
-    return success_with_content_response(
-        results
-    )
+    return success_with_content_response(results)
 
 
 def sample_query_basic(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    #print("filters: ", filters)
-    #print("joins: ", joins)
+    # print("filters: ", filters)
+    # print("joins: ", joins)
     return success_with_content_response(
         basic_samples_schema.dump(
             Sample.query.filter_by(**filters).filter(*joins).all()
@@ -247,7 +320,10 @@ def sample_new_sample(tokenuser: UserAccount):
     consent_information = values["consent_information"]
     consent_information["id"] = consent_information["consent_id"]
 
-    if "template_id" in values["consent_information"] and "date" in values["consent_information"]:
+    if (
+        "template_id" in values["consent_information"]
+        and "date" in values["consent_information"]
+    ):
         consent_response = requests.post(
             url_for("api.sample_new_sample_consent", _external=True),
             headers=get_internal_api_header(tokenuser),
@@ -325,7 +401,7 @@ def sample_new_sample(tokenuser: UserAccount):
         donor_id = consent_information["donor_id"]
         try:
             dts = DonorToSample(donor_id=donor_id, sample_id=sample_id)
-            dts.author_id=tokenuser.id
+            dts.author_id = tokenuser.id
             db.session.add(dts)
             db.session.commit()
         except Exception as err:
@@ -336,7 +412,6 @@ def sample_new_sample(tokenuser: UserAccount):
             Sample.query.filter_by(id=new_sample.id).first_or_404()
         )
     )
-
 
 
 @api.route("sample/new/sample_type_instance/<base_type>", methods=["POST"])
@@ -355,7 +430,6 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         schema = new_molecular_sample_schema
     else:
         return validation_error_response({"base_type": ["Not a valid base_type."]})
-
 
     try:
         new_schema = schema.load(values)
@@ -378,10 +452,13 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
 
 def func_sample_storage_location(sample_id):
     stored_flag = False
-    sample_storage = EntityToStorage.query.\
-        filter(EntityToStorage.sample_id==sample_id,
-               EntityToStorage.removed is not True).\
-        order_by(EntityToStorage.entry_datetime.desc()).first()
+    sample_storage = (
+        EntityToStorage.query.filter(
+            EntityToStorage.sample_id == sample_id, EntityToStorage.removed is not True
+        )
+        .order_by(EntityToStorage.entry_datetime.desc())
+        .first()
+    )
 
     sample_storage_info = None
     msg = "No sample storage info! "
@@ -389,9 +466,15 @@ def func_sample_storage_location(sample_id):
         shelf_id = sample_storage.shelf_id
 
         if shelf_id is None:
-            shelf_storage = EntityToStorage.query.filter(EntityToStorage.rack_id==sample_storage.rack_id,
-                EntityToStorage.shelf_id!=None, EntityToStorage.removed is not True). \
-                order_by(EntityToStorage.entry_datetime.desc()).first()
+            shelf_storage = (
+                EntityToStorage.query.filter(
+                    EntityToStorage.rack_id == sample_storage.rack_id,
+                    EntityToStorage.shelf_id != None,
+                    EntityToStorage.removed is not True,
+                )
+                .order_by(EntityToStorage.entry_datetime.desc())
+                .first()
+            )
             if shelf_storage:
                 shelf_id = shelf_storage.shelf_id
 
@@ -411,9 +494,9 @@ def func_sample_storage_location(sample_id):
         return {"sample_storage_info": sample_storage_info, "message": msg}
 
 
-
-def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id=None, sample=None,
-                              events={}):
+def func_update_sample_status(
+    tokenuser: UserAccount, auto_query=True, sample_id=None, sample=None, events={}
+):
     # - Update sample status when new events added or events are removed!
     # - events: a dictionary of event objects, with keys from the list:
     #  ["sample_disposal", "sample_storage", "shipment_status", "shipment_to_sample", "sample_review"]
@@ -433,7 +516,7 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
     updated = False
     if not sample:
         msg = "Sample/sample_id not found! "
-        res = {'sample': None, 'message': msg, "success": False}
+        res = {"sample": None, "message": msg, "success": False}
 
         if "shipment_status" in events and auto_query:
             # involved in multiple samples
@@ -442,21 +525,31 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
             shipment_status = events["shipment_status"]
 
             if shipment_status:
-                subq = db.session.query(SampleShipmentToSample.sample_id).\
-                    filter(SampleShipmentToSample.shipment_id == shipment_status.shipment_id)
+                subq = db.session.query(SampleShipmentToSample.sample_id).filter(
+                    SampleShipmentToSample.shipment_id == shipment_status.shipment_id
+                )
                 samples = Sample.query.filter(Sample.id.in_(subq)).all()
                 if not samples:
                     msg = "No involved samples found for the shipment status! "
-                    return {'sample': None, 'message': msg, "success": True}
+                    return {"sample": None, "message": msg, "success": True}
 
-                if shipment_status.status not in [None, "TBC", SampleShipmentStatusStatus.TBC]:
+                if shipment_status.status not in [
+                    None,
+                    "TBC",
+                    SampleShipmentStatusStatus.TBC,
+                ]:
                     updated = True
                     for sample in samples:
                         sample.status = SampleStatus.TRA
 
                     # if Delievered change the current_site_id to new site
-                    if shipment_status.status in ["DEL", SampleShipmentStatusStatus.DEL]:
-                        shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+                    if shipment_status.status in [
+                        "DEL",
+                        SampleShipmentStatusStatus.DEL,
+                    ]:
+                        shipment = SampleShipment.query.filter_by(
+                            id=shipment_status.shipment_id
+                        ).first()
 
                         if shipment:
                             for sample in samples:
@@ -473,68 +566,90 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
                 else:
                     msg = "No related sample shipment status for update!"
-                    res = {'sample': None, 'message': msg, "success": True}
+                    res = {"sample": None, "message": msg, "success": True}
 
             return res
 
     if sample.is_locked is True or sample.is_closed is True:
-        return {'sample': None, 'message': "Sample locked/closed! ", "success": True}
+        return {"sample": None, "message": "Sample locked/closed! ", "success": True}
 
     if events is None or len(events) is 0:
         auto_query = True
-        for e in ["sample_review", "sample_disposal", "disposal_event", "shipment_status", "sample_storage"]:
+        for e in [
+            "sample_review",
+            "sample_disposal",
+            "disposal_event",
+            "shipment_status",
+            "sample_storage",
+        ]:
             events[e] = None
 
     if "shipment_to_sample" in events:
         if "shipment_status" not in events:
-            return {'sample': None, 'message': "Shipment_status key missing! ", "success": False}
+            return {
+                "sample": None,
+                "message": "Shipment_status key missing! ",
+                "success": False,
+            }
 
     if "sample_disposal" in events:
         sample_disposal = events["sample_disposal"]
         if sample_disposal:
             if sample_disposal.sample_id != sample.id:
-                return {'sample': None, 'message': "Non-matched sample_disposal! ", "success": False}
+                return {
+                    "sample": None,
+                    "message": "Non-matched sample_disposal! ",
+                    "success": False,
+                }
         elif auto_query:
-            sample_disposal = SampleDisposal.query.join(SampleReview).join(Event).\
-                filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
+            sample_disposal = (
+                SampleDisposal.query.join(SampleReview)
+                .join(Event)
+                .filter(SampleReview.sample_id == sample_id)
+                .order_by(Event.datetime.desc())
+                .first()
+            )
             if not sample_disposal:
                 # No linked sample review
                 # sample_disposal = SampleDisposal.query.filter_by(id=sample.disposal_id).first()
-                sample_disposal = SampleDisposal.query.\
-                    filter_by(sample_id=sample_id).order_by(SampleDisposal.updated_on.desc()).first()
+                sample_disposal = (
+                    SampleDisposal.query.filter_by(sample_id=sample_id)
+                    .order_by(SampleDisposal.updated_on.desc())
+                    .first()
+                )
         msg = "No related sample_disposal! "
-        res = {'sample': None, 'message': msg, "success": True}
+        res = {"sample": None, "message": msg, "success": True}
 
         if sample_disposal:
             sample.disposal_id = sample_disposal.id
-            if sample_disposal.instruction in ['REV', DisposalInstruction.REV]:
+            if sample_disposal.instruction in ["REV", DisposalInstruction.REV]:
                 # Pending review
                 sample.status = SampleStatus.NRE
                 sample.update({"editor_id": tokenuser.id})
                 updated = True
 
-            elif sample_disposal.instruction in ['DES', DisposalInstruction.DES]:
+            elif sample_disposal.instruction in ["DES", DisposalInstruction.DES]:
                 if sample_disposal.disposal_event_id is not None:
                     msg = "Sample destructed! "
                     if sample.status == "DES" or sample.status == SampleStatus.DES:
-                        return {'sample': None, 'message': msg, "success": True}
+                        return {"sample": None, "message": msg, "success": True}
 
                     sample.status = SampleStatus.DES
                     sample.is_locked = True
                     sample.is_close = True
                     sample.update({"editor_id": tokenuser.id})
-                    return {'sample': sample, 'message': msg, "success": True}
+                    return {"sample": sample, "message": msg, "success": True}
 
             elif sample_disposal.instruction in ["TRA", DisposalInstruction.TRA]:
                 if sample_disposal.disposal_event_id is not None:
                     msg = "sample disposed via transfer"
                     if sample.status == "DES" or sample.status == SampleStatus.DES:
-                        return {'sample': None, 'message': msg, "success": True}
+                        return {"sample": None, "message": msg, "success": True}
                     sample.status = SampleStatus.DES
                     sample.is_locked = True
                     sample.is_close = True
                     sample.update({"editor_id": tokenuser.id})
-                    return {'sample': sample, 'message': msg, "success": True}
+                    return {"sample": sample, "message": msg, "success": True}
             else:
                 msg = "No related sample_disposal for update! "
 
@@ -547,27 +662,41 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
 
         if sample_storage:
             if sample_storage.sample_id != sample.id:
-                return {'sample': None, 'message': "Non-matched sample id in storage info! ", "success": False}
+                return {
+                    "sample": None,
+                    "message": "Non-matched sample id in storage info! ",
+                    "success": False,
+                }
 
         elif auto_query:
-            sample_storage = EntityToStorage.query.\
-                filter(EntityToStorage.sample_id==sample_id,
-                       EntityToStorage.removed is not True).\
-                order_by(EntityToStorage.entry_datetime.desc()).first()
+            sample_storage = (
+                EntityToStorage.query.filter(
+                    EntityToStorage.sample_id == sample_id,
+                    EntityToStorage.removed is not True,
+                )
+                .order_by(EntityToStorage.entry_datetime.desc())
+                .first()
+            )
 
             msg = "No sample storage info! "
-            res = {'sample': None, 'message': msg, "success": True}
+            res = {"sample": None, "message": msg, "success": True}
             if sample_storage:
                 shelf_id = sample_storage.shelf_id
                 if shelf_id is None:
-                    shelf_storage = EntityToStorage.query.filter(EntityToStorage.rack_id == sample_storage.rack_id,
-                        EntityToStorage.shelf_id != None, EntityToStorage.removed is not True). \
-                        order_by(EntityToStorage.entry_datetime.desc()).first()
+                    shelf_storage = (
+                        EntityToStorage.query.filter(
+                            EntityToStorage.rack_id == sample_storage.rack_id,
+                            EntityToStorage.shelf_id != None,
+                            EntityToStorage.removed is not True,
+                        )
+                        .order_by(EntityToStorage.entry_datetime.desc())
+                        .first()
+                    )
                     if shelf_storage:
                         shelf_id = shelf_storage.shelf_id
 
                 msg = "No sample storage shelf info! "
-                res = {'sample': None, 'message': msg, "success": True}
+                res = {"sample": None, "message": msg, "success": True}
                 if shelf_id:
                     shelf_loc = func_shelf_location(shelf_id)
 
@@ -595,24 +724,39 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         if shipment_status and shipment_to_sample:
             if shipment_to_sample.sample_id != sample.id:
                 msg = "Non-matched sample id in shipment info! "
-                return {'sample': None, 'message': msg, "success": False}
+                return {"sample": None, "message": msg, "success": False}
 
         elif auto_query:
-            shipment_status = SampleShipmentStatus.query.\
-                join(SampleShipmentToSample, SampleShipmentToSample.shipment_id==SampleShipmentStatus.shipment_id).\
-                filter(SampleShipmentToSample.sample_id==sample_id).\
-                order_by(SampleShipmentStatus.datetime.desc()).first()
+            shipment_status = (
+                SampleShipmentStatus.query.join(
+                    SampleShipmentToSample,
+                    SampleShipmentToSample.shipment_id
+                    == SampleShipmentStatus.shipment_id,
+                )
+                .filter(SampleShipmentToSample.sample_id == sample_id)
+                .order_by(SampleShipmentStatus.datetime.desc())
+                .first()
+            )
 
         msg = "No related sample shipment status! "
-        res = {'sample': None, 'message': msg, "success": False}
+        res = {"sample": None, "message": msg, "success": False}
         if shipment_status:
-            if shipment_status.status not in [None, "TBC", SampleShipmentStatusStatus.TBC]:
+            if shipment_status.status not in [
+                None,
+                "TBC",
+                SampleShipmentStatusStatus.TBC,
+            ]:
                 if sample.status not in ["TRA", SampleStatus.TRA]:
                     sample.status = SampleStatus.TRA
                     updated = True
 
-                if shipment_status.status in ["DEL", SampleShipmentStatusStatus.DEL]: # Delievered
-                    shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+                if shipment_status.status in [
+                    "DEL",
+                    SampleShipmentStatusStatus.DEL,
+                ]:  # Delievered
+                    shipment = SampleShipment.query.filter_by(
+                        id=shipment_status.shipment_id
+                    ).first()
                     if shipment:
                         if sample.current_site_id != shipment.site_id:
                             sample.current_site_id = shipment.site_id
@@ -629,22 +773,30 @@ def func_update_sample_status(tokenuser: UserAccount, auto_query=True, sample_id
         sample_review = events["sample_review"]
         if sample_review:
             if sample_review.sample_id != sample.id:
-                return {'sample': None, 'message': "non matched sample id for review.", 'success': False}
+                return {
+                    "sample": None,
+                    "message": "non matched sample id for review.",
+                    "success": False,
+                }
 
         elif auto_query:
-            sample_review = SampleReview.query.join(Event).\
-                filter(SampleReview.sample_id==sample_id).order_by(Event.datetime.desc()).first()
+            sample_review = (
+                SampleReview.query.join(Event)
+                .filter(SampleReview.sample_id == sample_id)
+                .order_by(Event.datetime.desc())
+                .first()
+            )
 
         msg = "No related sample_review! "
-        res = {'sample': None, 'message': msg, "success": True}
+        res = {"sample": None, "message": msg, "success": True}
         if sample_review:
-            if sample_review.result in ['FA', ReviewResult.FA]:
+            if sample_review.result in ["FA", ReviewResult.FA]:
 
-                if sample_review.review_type in ['IC', ReviewType.IC]:
+                if sample_review.review_type in ["IC", ReviewType.IC]:
                     sample.status = SampleStatus.MIS
                 else:
                     sample.status = SampleStatus.UNU
-            elif sample_review.result in ['PA', ReviewResult.PA]:
+            elif sample_review.result in ["PA", ReviewResult.PA]:
 
                 if sample_review.quality == SampleQuality.GOO:
                     sample.status = SampleStatus.AVA
@@ -673,9 +825,9 @@ def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
     if not sample:
         return not_found()
 
-    res = func_update_sample_status(tokenuser=tokenuser,
-                                    auto_query=True, sample_id=None,
-                                    sample=sample, events={})
+    res = func_update_sample_status(
+        tokenuser=tokenuser, auto_query=True, sample_id=None, sample=sample, events={}
+    )
     if res["success"]:
         sample = res["sample"]
         if sample:
@@ -686,7 +838,7 @@ def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
                     sample_schema.dump(sample), message=res["message"]
                 )
             except Exception as err:
-              return transaction_error_response(err)
+                return transaction_error_response(err)
 
         else:
             return success_with_content_message_response(
