@@ -36,7 +36,9 @@ class AuthTests(unittest.TestCase):
         self.assertEqual(response.status_code, 417)
 
     def test_auth_home(self):
-        response = self.app.get("api/auth", headers=testing_headers, follow_redirects=True)
+        response = self.app.get(
+            "api/auth", headers=testing_headers, follow_redirects=True
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
 
