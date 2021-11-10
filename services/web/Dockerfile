@@ -1,10 +1,10 @@
 FROM ubuntu:18.04
 
-MAINTAINER "Keiron O'Shea <keo7@aber.ac.uk>"
+LABEL authors="Keiron O'Shea <keo7@aber.ac.uk>, Chuan Lu <cul@aber.ac.uk>"
 
 RUN apt-get update && apt-get install -y curl 
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get install -y nodejs
 
 RUN apt-get -y install python3 python3-pip python3-wheel python3-setuptools \ 
