@@ -35,7 +35,9 @@ class ConsentFormTemplateQuestion(Base, RefAuthorMixin, RefEditorMixin):
     question = db.Column(db.String(2048), nullable=False)
     type = db.Column(db.Enum(QuestionType), nullable=False)
 
-    template_id = db.Column(db.Integer, db.ForeignKey("consentformtemplate.id"))
+    template_id = db.Column(
+        db.Integer, db.ForeignKey("consentformtemplate.id", use_alter=True)
+    )
     template = db.relationship(
         "ConsentFormTemplate", backref="consentformtemplatequestion"
     )

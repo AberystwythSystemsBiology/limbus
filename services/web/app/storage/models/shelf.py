@@ -23,7 +23,7 @@ class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMix
     is_locked = db.Column(db.Boolean, default=False)
     description = db.Column(db.Text)
     z = db.Column(db.Integer)
-    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id"))
+    storage_id = db.Column(db.Integer, db.ForeignKey("coldstorage.id", use_alter=True))
     storage = db.relationship("ColdStorage")
 
     racks = db.relationship(

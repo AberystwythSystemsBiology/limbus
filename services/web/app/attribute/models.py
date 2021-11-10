@@ -37,11 +37,15 @@ class Attribute(Base, RefAuthorMixin, RefEditorMixin):
 class AttributeTextSetting(Base, RefAuthorMixin, RefEditorMixin):
     max_length = db.Column(db.Integer, nullable=False)
     type = db.Column(db.Enum(AttributeTextSettingType))
-    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
+    attribute_id = db.Column(
+        db.Integer, db.ForeignKey("attribute.id", use_alter=True), unique=True
+    )
 
 
 class AttributeNumericSetting(Base, RefAuthorMixin, RefEditorMixin):
-    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), unique=True)
+    attribute_id = db.Column(
+        db.Integer, db.ForeignKey("attribute.id", use_alter=True), unique=True
+    )
     measurement = db.Column(db.String(32))
     symbol = db.Column(db.String(32))
 
@@ -50,12 +54,16 @@ class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))
     ref = db.Column(db.String(64))
-    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"))
+    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id", use_alter=True))
 
 
 class AttributeData(Base, RefAuthorMixin, RefEditorMixin):
-    attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id"), nullable=False)
+    attribute_id = db.Column(
+        db.Integer, db.ForeignKey("attribute.id", use_alter=True), nullable=False
+    )
     attribute = db.relationship("Attribute", uselist=False)
-    option_id = db.Column(db.Integer, db.ForeignKey("attributeoption.id"))
+    option_id = db.Column(
+        db.Integer, db.ForeignKey("attributeoption.id", use_alter=True)
+    )
     option = db.relationship("AttributeOption", uselist=False)
     data = db.Column(db.Text)

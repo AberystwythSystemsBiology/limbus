@@ -31,7 +31,9 @@ class DiagnosticProcedureVolume(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     code = db.Column(db.String(5))
     name = db.Column(db.String)
-    class_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedureclass.id"))
+    class_id = db.Column(
+        db.Integer, db.ForeignKey("diagnosticprocedureclass.id", use_alter=True)
+    )
 
     pclass = db.relationship("DiagnosticProcedureClass", uselist=False)
     subvolumes = db.relationship("DiagnosticProcedureSubVolume", uselist=True)
@@ -42,7 +44,9 @@ class DiagnosticProcedureSubVolume(Base, RefAuthorMixin, RefEditorMixin):
     code = db.Column(db.String(5))
     name = db.Column(db.String())
     reference = db.Column(db.String(256))
-    volume_id = db.Column(db.Integer, db.ForeignKey("diagnosticprocedurevolume.id"))
+    volume_id = db.Column(
+        db.Integer, db.ForeignKey("diagnosticprocedurevolume.id", use_alter=True)
+    )
 
     volume = db.relationship("DiagnosticProcedureVolume")
     procedures = db.relationship("DiagnosticProcedure", uselist=True)
@@ -55,5 +59,5 @@ class DiagnosticProcedure(Base, RefAuthorMixin, RefEditorMixin):
     reference = db.Column(db.String(256))
 
     sub_volume_id = db.Column(
-        db.Integer, db.ForeignKey("diagnosticproceduresubvolume.id")
+        db.Integer, db.ForeignKey("diagnosticproceduresubvolume.id", use_alter=True)
     )

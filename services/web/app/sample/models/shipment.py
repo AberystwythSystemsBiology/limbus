@@ -19,8 +19,8 @@ from ..enums import SampleShipmentStatusStatus, CartSampleStorageType
 
 
 class UserCart(Base, RefAuthorMixin, RefEditorMixin):
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    rack_id = db.Column(db.Integer, db.ForeignKey("samplerack.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
+    rack_id = db.Column(db.Integer, db.ForeignKey("samplerack.id", use_alter=True))
     storage_type = db.Column(db.Enum(CartSampleStorageType))
     selected = db.Column(db.Boolean, default=False)
     sample = db.relationship("Sample", viewonly=True)
@@ -30,8 +30,8 @@ class UserCart(Base, RefAuthorMixin, RefEditorMixin):
 class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True))
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
 
     new_site = db.relationship("SiteInformation")
     event = db.relationship("Event")
@@ -47,13 +47,17 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
 
 
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
+    from_site_id = db.Column(
+        db.Integer, db.ForeignKey("siteinformation.id", use_alter=True)
+    )
 
     old_site = db.relationship("SiteInformation")
     sample = db.relationship("Sample")
 
-    shipment_id = db.Column(db.Integer, db.ForeignKey("sampleshipment.id"))
+    shipment_id = db.Column(
+        db.Integer, db.ForeignKey("sampleshipment.id", use_alter=True)
+    )
     shipment = db.relationship("SampleShipment")
 
     # protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
@@ -67,6 +71,6 @@ class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     tracking_number = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
     shipment_id = db.Column(
-        db.Integer, db.ForeignKey("sampleshipment.id"), nullable=False
+        db.Integer, db.ForeignKey("sampleshipment.id", use_alter=True), nullable=False
     )
     shipment = db.relationship("SampleShipment", viewonly=True)

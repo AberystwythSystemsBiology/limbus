@@ -21,6 +21,6 @@ class Building(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
     __versioned__ = {}
     name = db.Column(db.String(128))
     is_locked = db.Column(db.Boolean, default=False)
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
+    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True))
     site = db.relationship("SiteInformation", uselist=False)
     rooms = db.relationship("Room", uselist=True)
