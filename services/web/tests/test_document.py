@@ -15,16 +15,17 @@
 
 import os
 import sys
+import unittest
 
 sys.path.append(os.getcwd())
 from app import create_app
 
-import json
-import unittest
-
 from . import testing_headers
 
 class DocumentTests(unittest.TestCase):
+    
+    test_document_id = None
+    
     def setUp(self) -> None:
         app = create_app()
         app.testing = True
@@ -39,7 +40,7 @@ class DocumentTests(unittest.TestCase):
 
     def test_document_new_document(self):
         response = self.app.post(
-            "api/auth/user/new",
+            "api/document/new",
             headers=testing_headers,
             follow_redirects=True,
             json={
@@ -52,11 +53,15 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
         self.assertEqual(response.json["content"]["name"], "Testing Document")
+        self.__class__.test_document_id = response.json["content"]["id"]
 
 
     def test_document_view_document(self):
+        print(self.test_document_id)
+
         response = self.app.get(
-            "api/document/LIMBDOC-1", headers=testing_headers, follow_redirects=True
+            "api/document/LIMBDOC-%s" % (self.__class__.test_document_id),
+            headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)

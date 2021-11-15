@@ -19,7 +19,7 @@ import sys
 sys.path.append(os.getcwd())
 from app import create_app
 
-import json
+import uuid
 import unittest
 
 from . import testing_headers
@@ -60,12 +60,15 @@ class AuthTests(unittest.TestCase):
         self.assertEqual(response.json["content"]["first_name"], "Kry-ton")
 
     def test_auth_new_user(self):
+
+        self.test_user_email_address = "%s@gmail.com" % (uuid.uuid4().hex.upper()[0:6])
+
         response = self.app.post(
             "api/auth/user/new",
             headers=testing_headers,
             follow_redirects=True,
             json={
-                "email": "testing-user@gmail.com",
+                "email": self.test_user_email_address,
                 "title": "MR",
                 "first_name": "Test",
                 "middle_name": "Ing",
@@ -77,9 +80,11 @@ class AuthTests(unittest.TestCase):
             },
         )
 
+        print(response.json)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
-        self.assertEqual(response.json["content"]["email"], "testing-user@gmail.com")
+        self.assertEqual(response.json["content"]["email"], self.test_user_email_address)
 
 
 if __name__ == "__main__":
