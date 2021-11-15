@@ -24,7 +24,7 @@ from . import testing_headers
 
 class DocumentTests(unittest.TestCase):
     
-    test_document_id = None
+    id = None
     
     def setUp(self) -> None:
         app = create_app()
@@ -36,7 +36,7 @@ class DocumentTests(unittest.TestCase):
             "api/document", headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["success"], True)
+        self.assertTrue(response.json["success"])
 
     def test_document_new_document(self):
         response = self.app.post(
@@ -51,25 +51,56 @@ class DocumentTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["success"], True)
+        self.assertTrue(response.json["success"])
         self.assertEqual(response.json["content"]["name"], "Testing Document")
-        self.__class__.test_document_id = response.json["content"]["id"]
+        self.__class__.id = response.json["content"]["id"]
 
 
     def test_document_view_document(self):
         response = self.app.get(
-            "api/document/LIMBDOC-%s" % (self.__class__.test_document_id),
+            "api/document/LIMBDOC-%s" % (self.__class__.id),
             headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["success"], True)
+        self.assertTrue(response.json["success"])
         self.assertEqual(
             response.json["content"]["name"], "Testing Document"
         )
 
+    def test_document_query(self):
+        response = self.app.get(
+            "api/document/LIMBDOC-%s" % (self.__class__.id),
+            json={"name": "Testing Document"},
+            headers=testing_headers, follow_redirects=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json["success"])
+
+    '''
+    def test_document_lock_document(self):
+        # Lock the document
+        response = self.app.put(
+            "api/document/LIMBDOC-%s/lock" % (self.__class__.id),
+            headers=testing_headers, follow_redirects=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["success"], True)
+        self.assertEqual(response.json["content"]["is_locked"], True)
+
+        # Unlock the document
+        response = self.app.put(
+            "api/document/LIMBDOC-%s/lock" % (self.__class__.id),
+            headers=testing_headers, follow_redirects=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["success"], True)
+        self.assertEqual(response.json["content"]["is_locked"], False)
+    '''
+    
     # TODO:
-    # - document_query
-    # - document_lock_document
     # - document_edit_document
     # - document_upload_file
     # - document_file_lock
