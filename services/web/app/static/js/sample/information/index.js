@@ -44,7 +44,7 @@ function get_samples(query) {
 
 function render_table(query) {
     var d = get_samples(query);
-    console.log("samples", d)
+    // console.log("samples", d)
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 
@@ -62,7 +62,8 @@ function get_filters() {
     var filters = {};
 
     var f = ["barcode", "biohazard_level", "base_type", "sample_type", "colour", "source",
-            "status", "current_site_id", "consent_status", "consent_type", "protocol_id"];
+            "status", "current_site_id", "consent_status", "consent_type", "protocol_id",
+        "source_study"];
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
@@ -76,6 +77,7 @@ function get_filters() {
             }
         }
     });
+
     return filters;
 
 }
@@ -84,7 +86,6 @@ function get_filters() {
 $(document).ready(function() {
     var filters = get_filters();
     //render_table({});
-
     render_table(filters);
     
     $("#reset").click(function() {

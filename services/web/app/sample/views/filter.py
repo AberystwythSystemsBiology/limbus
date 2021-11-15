@@ -34,6 +34,8 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
     sample_type = fields.String()
     protocol_id = fields.Int()
 
+    source_study = fields.Int()
+
     consent_status = fields.String()
     consent_type = fields.String()
 

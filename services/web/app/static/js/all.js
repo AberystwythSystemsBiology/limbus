@@ -37,7 +37,7 @@ function render_sample_table(samples, div_id) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            { targets: [1, 4, 7], visible: false, "defaultContent": ""},
+            { targets: [1, 4, 5, 6, 7, 9], visible: false, "defaultContent": ""},
         ],
         order: [[1, 'desc']],
         columns: [
@@ -105,9 +105,8 @@ function render_sample_table(samples, div_id) {
                 "mRender": function (data, type, row) {
                     var consent = data['consent_information'];
                     var col_data = "";
-                    //console.log("consent", consent);
+
                     if (consent['study'] != undefined && consent['study'] != null) {
-                        console.log("consent", consent);
                         protocol_link = consent['study']['protocol']['doi'];
                         if (protocol_link == null)
                             protocol_link = "";

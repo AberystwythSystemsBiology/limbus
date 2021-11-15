@@ -35,6 +35,7 @@
             {{ form_field(form.current_site_id) }}
 {#            {{ form.current_site_id }}#}
             {{ form_field(form.protocol_id) }}
+            {{ form_field(form.source_study) }}
             {{ form_field(form.consent_status) }}
             <b>{{ form.consent_type.label }}</b>
             {{ form.consent_type(size="2", class="form-control") }}
@@ -81,8 +82,8 @@
                             <th>DonorID</th>
                             <th>ConsentID</th>
                             <th>Consent</th>
-                            <th>StudyID</th>
-                            <th>StudyRefNo</th>
+                            <th>SourceStudy</th>
+                            <th>SourceRef</th>
                             <th>Status</th>
                             <th>Base Type</th>
                             <th>Sample Type</th>

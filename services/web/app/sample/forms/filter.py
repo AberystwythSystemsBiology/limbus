@@ -82,21 +82,40 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
     )
 
     protocols = [(None, "None")]
+    study_protocols = [(None, "None")]
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
-            protocols.append(
-                (
-                   protocol["id"],
-                    "<%s>%s - %s" % (protocol["type"], protocol["id"], protocol["name"]),
+            if protocol["type"] in ["Study", "Collection", "Temporary Storage"]:
+                doino = ""
+                if protocol["doi"] != "":
+                    doino = protocol["doi"].split("/")[-1]
+                study_protocols.append(
+                    (
+                        protocol["id"],
+                        "<%s>%s [%s] %s" % (protocol["type"], protocol["id"], doino, protocol["name"]),
+                    )
                 )
-            )
+            else:
+                protocols.append(
+                    (
+                       protocol["id"],
+                        "<%s>%s - %s" % (protocol["type"], protocol["id"], protocol["name"]),
+                    )
+                )
 
     setattr(
         StaticForm,
         "protocol_id",
         SelectField(
-            "Protocol/Collection", choices=protocols,
+            "Protocol", choices=protocols,
         ),
     )
 
+    setattr(
+        StaticForm,
+        "source_study",
+        SelectField(
+            "Source Study", choices=study_protocols,
+        ),
+    )
     return StaticForm()

@@ -56,49 +56,93 @@ import requests
 def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
     # Find all parent samples (id) with matching protocol events (by protocol_template_id)
     if filter_sample_id is None:
+        stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+            join(SampleProtocolEvent).filter_by(**filters_protocol)#.subquery()
+    else:
+        stmt = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
+            join(SampleProtocolEvent).filter_by(**filters_protocol)#.subquery()
+
+    return stmt
+    #stmt = db.session.query(subq)
+    # filters_protocol_template = {"id": filters_protocol[f] for f in filters_protocol}
+    # protocol = db.session.query(ProtocolTemplate).filter_by(**filters_protocol_template).first()
+    # s1 = None
+    # if protocol.type in [ProtocolType.STU]:
+    #     if filter_sample_id is None:
+    #         s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
+    #             filter_by(**filters).filter(*joins).filter_by(**filters_protocol)
+    #     else:
+    #         s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
+    #             filter(Sample.id.in_(filter_sample_id)).filter_by(**filters_protocol)
+    #
+    #
+    # protocol_event = db.session.query(ProtocolTemplate).\
+    #     join(SampleProtocolEvent).filter_by(**filters_protocol).first()
+    #
+    # if protocol_event:
+    #     # Protocols of Collection/Study
+    #     if str(protocol_event.type) in ["Collection", "Study", "Temporary Storage"]:
+    #
+    #         # Find all sub-samples of the matching samples
+    #         # and take the union of parent and sub-sample ID
+    #         if filter_sample_id is None:
+    #             s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+    #                 join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+    #                 join(subq, subq.c.id == SubSampleToSample.parent_id)
+    #         else:
+    #             s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
+    #                 join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+    #                 join(subq, subq.c.id == SubSampleToSample.parent_id)
+    #
+    #         if s1:
+    #             s1 = s1.union(s2)
+    #
+    # if s1:
+    #     stmt = db.session.query(subq).union(s1)
+    # else:
+    #     stmt = db.session.query(subq)
+    #
+    # return stmt
+
+
+def sample_source_study_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
+    # -- Find samples with protocols of Collection/Study
+    # -- 1. Find samples with sample consent linked to the source study.
+
+    if filter_sample_id is None:
+        s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
+            filter_by(**filters).filter(*joins).filter_by(**filters_protocol)
+    else:
+        s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
+            filter(Sample.id.in_(filter_sample_id)).filter_by(**filters_protocol)
+
+    # -- 2. Find all parent samples (id) with matching protocol events (by protocol_template_id)
+    if filter_sample_id is None:
         subq = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-            join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+            join(SampleProtocolEvent).filter_by(**filters_protocol)
     else:
         subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
-            join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+            join(SampleProtocolEvent).filter_by(**filters_protocol)
 
-    filters_protocol_template = {"id": filters_protocol[f] for f in filters_protocol}
-    protocol = db.session.query(ProtocolTemplate).filter_by(**filters_protocol_template).first()
-    s1 = None
-    if protocol.type in [ProtocolType.STU]:
+    if subq.count()>0:
+        subq = subq.subquery()
+        # -- 3. Find all sub-samples of the matching samples
+        # and take the union of parent and sub-sample ID
         if filter_sample_id is None:
-            s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
-                filter_by(**filters).filter(*joins).filter_by(**filters_protocol)
+            s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
+                join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+                join(subq, subq.c.id == SubSampleToSample.parent_id)
         else:
-            s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
-                filter(Sample.id.in_(filter_sample_id)).filter_by(**filters_protocol)
+            s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
+                join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
+                join(subq, subq.c.id == SubSampleToSample.parent_id)
 
+        if s2.count()>0:
+            s1 = s1.union(s2)
 
-    protocol_event = db.session.query(ProtocolTemplate).\
-        join(SampleProtocolEvent).filter_by(**filters_protocol).first()
-
-    if protocol_event:
-        # Protocols of Collection/Study
-        if str(protocol_event.type) in ["Collection", "Study", "Temporary Storage"]:
-
-            # Find all sub-samples of the matching samples
-            # and take the union of parent and sub-sample ID
-            if filter_sample_id is None:
-                s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                    join(subq, subq.c.id == SubSampleToSample.parent_id)
-            else:
-                s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
-                    join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                    join(subq, subq.c.id == SubSampleToSample.parent_id)
-
-            if s1:
-                s1 = s1.union(s2)
-
-    if s1:
         stmt = db.session.query(subq).union(s1)
     else:
-        stmt = db.session.query(subq)
+        stmt = s1
 
     return stmt
 
@@ -293,11 +337,12 @@ def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
     # -- To exclude empty samples in the index list
     joins.append(getattr(Sample, 'remaining_quantity').__gt__(0))
-
+    print("filters", filters)
     flag_sample_type = False
     flag_consent_status = False
     flag_consent_type = False
     flag_protocol = False
+    flag_source_study = False
 
     filters_consent = {}
     filters_sampletype = {}
@@ -305,7 +350,6 @@ def sample_query(args, tokenuser: UserAccount):
         flag_sample_type = True
         tmp = filters.pop("sample_type").split(":")
         filters_sampletype[tmp[0]] = tmp[1]
-
 
     if "consent_status" in filters:
         flag_consent_status = True
@@ -321,9 +365,13 @@ def sample_query(args, tokenuser: UserAccount):
 
     if "protocol_id" in filters:
         flag_protocol = True
-        protocol_id = filters["protocol_id"]
-        filters_protocol = {"protocol_id": protocol_id}
+        filters_protocol = {"protocol_id": filters["protocol_id"]}
         filters.pop("protocol_id")
+
+    if "source_study" in filters:
+        flag_source_study = True
+        filters_source_study = {"protocol_id": filters["source_study"]}
+        filters.pop("source_study")
 
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
 
@@ -335,6 +383,9 @@ def sample_query(args, tokenuser: UserAccount):
 
     if flag_protocol:
         stmt = sample_protocol_query_stmt(filters_protocol=filters_protocol, filter_sample_id=stmt)
+
+    if flag_source_study:
+        stmt = sample_source_study_query_stmt(filters_protocol=filters_source_study, filter_sample_id=stmt)
 
     if flag_sample_type:
         stmt = sample_sampletype_query_stmt(filters_sampletype=filters_sampletype, filter_sample_id=stmt)
