@@ -26,19 +26,22 @@ from . import testing_headers
 
 
 class AuthTests(unittest.TestCase):
+
+    test_user_email_address: str = None
+
     def setUp(self) -> None:
         app = create_app()
         app.testing = True
         self.app = app.test_client()
 
-    def test_auth_home(self):
+    def test_auth_home(self) -> None:
         response = self.app.get(
             "api/auth", headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
 
-    def test_auth_view_user(self):
+    def test_auth_view_user(self) -> None:
         response = self.app.get(
             "api/auth/user/1", headers=testing_headers, follow_redirects=True
         )
@@ -48,7 +51,7 @@ class AuthTests(unittest.TestCase):
             response.json["content"]["email"], "kryten@jupiterminingcorp.co.uk"
         )
 
-    def test_auth_edit_user(self):
+    def test_auth_edit_user(self) -> None:
         response = self.app.put(
             "api/auth/user/1/edit",
             headers=testing_headers,
@@ -59,16 +62,16 @@ class AuthTests(unittest.TestCase):
         self.assertEqual(response.json["success"], True)
         self.assertEqual(response.json["content"]["first_name"], "Kry-ton")
 
-    def test_auth_new_user(self):
+    def test_auth_new_user(self) -> None:
 
-        self.test_user_email_address = "%s@gmail.com" % (uuid.uuid4().hex.upper()[0:6])
+        self.__class__.test_user_email_address = "%s@gmail.com" % (uuid.uuid4().hex.upper()[0:6])
 
         response = self.app.post(
             "api/auth/user/new",
             headers=testing_headers,
             follow_redirects=True,
             json={
-                "email": self.test_user_email_address,
+                "email": self.__class__.test_user_email_address,
                 "title": "MR",
                 "first_name": "Test",
                 "middle_name": "Ing",
@@ -80,11 +83,9 @@ class AuthTests(unittest.TestCase):
             },
         )
 
-        print(response.json)
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
-        self.assertEqual(response.json["content"]["email"], self.test_user_email_address)
+        self.assertEqual(response.json["content"]["email"], self.__class__.test_user_email_address)
 
 
 if __name__ == "__main__":
