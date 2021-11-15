@@ -22,8 +22,9 @@ from app import create_app
 
 from . import testing_headers
 
+
 class DocumentTests(unittest.TestCase):
-    
+
     doc_id: int = 1
 
     def setUp(self) -> None:
@@ -46,7 +47,7 @@ class DocumentTests(unittest.TestCase):
             json={
                 "name": "Testing Document",
                 "description": "Testing document, for testing purposes.",
-                "type": "OTHER"
+                "type": "OTHER",
             },
         )
 
@@ -55,23 +56,22 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(response.json["content"]["name"], "Testing Document")
         self.__class__.doc_id = response.json["content"]["id"]
 
-
     def test_document_view_document(self):
         response = self.app.get(
             "api/document/LIMBDOC-%s" % (self.__class__.doc_id),
-            headers=testing_headers, follow_redirects=True
+            headers=testing_headers,
+            follow_redirects=True,
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json["success"])
-        self.assertEqual(
-            response.json["content"]["name"], "Testing Document"
-        )
+        self.assertEqual(response.json["content"]["name"], "Testing Document")
 
     def test_document_query(self):
         response = self.app.get(
             "api/document/LIMBDOC-%s" % (self.__class__.doc_id),
             json={"name": "Testing Document"},
-            headers=testing_headers, follow_redirects=True
+            headers=testing_headers,
+            follow_redirects=True,
         )
 
         self.assertEqual(response.status_code, 200)
@@ -79,12 +79,13 @@ class DocumentTests(unittest.TestCase):
 
     def test_document_edit_document(self):
 
-        edit_name: str= "Testing Document, Edited"
+        edit_name: str = "Testing Document, Edited"
 
         response = self.app.put(
             "api/document/LIMBDOC-%s/edit" % (self.__class__.doc_id),
             json={"name": edit_name},
-            headers=testing_headers, follow_redirects=True
+            headers=testing_headers,
+            follow_redirects=True,
         )
 
         self.assertEqual(response.status_code, 200)
@@ -96,7 +97,8 @@ class DocumentTests(unittest.TestCase):
         # Lock the document
         response = self.app.put(
             "api/document/LIMBDOC-%s/lock" % (self.__class__.doc_id),
-            headers=testing_headers, follow_redirects=True
+            headers=testing_headers,
+            follow_redirects=True,
         )
 
         self.assertEqual(response.status_code, 200)
@@ -106,12 +108,14 @@ class DocumentTests(unittest.TestCase):
         # Unlock the document
         response = self.app.put(
             "api/document/LIMBDOC-%s/lock" % (self.__class__.doc_id),
-            headers=testing_headers, follow_redirects=True
+            headers=testing_headers,
+            follow_redirects=True,
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["success"], True)
         self.assertEqual(response.json["content"]["is_locked"], False)
+
 
 if __name__ == "__main__":
     unittest.main()

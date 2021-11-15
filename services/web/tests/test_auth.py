@@ -64,7 +64,9 @@ class AuthTests(unittest.TestCase):
 
     def test_auth_new_user(self) -> None:
 
-        self.__class__.test_user_email_address = "%s@gmail.com" % (uuid.uuid4().hex.upper()[0:6])
+        self.__class__.test_user_email_address = "%s@gmail.com" % (
+            uuid.uuid4().hex.upper()[0:6]
+        )
 
         response = self.app.post(
             "api/auth/user/new",
@@ -85,7 +87,9 @@ class AuthTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json["success"])
-        self.assertEqual(response.json["content"]["email"], self.__class__.test_user_email_address)
+        self.assertEqual(
+            response.json["content"]["email"], self.__class__.test_user_email_address
+        )
 
 
 if __name__ == "__main__":
