@@ -21,6 +21,8 @@
 
                 {{ form_field(form.identifier)}}
 
+
+
             </div>
             <ul id="#questionnaire-list" class="list-group list-group-flush">
                 {% set count = namespace(value=0) %}
@@ -54,6 +56,27 @@
             </div>
         </div>
 
+
+<div class="card">
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.study_select) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.study.reference_id)}}
+                </div>
+            </div>
+                {{ form_field(form.study.comments) }}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.study.date) }}
+
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.study.undertaken_by) }}
+                </div>
+            </div>
+</div>
         {{ form_field(form.submit) }}
 
     </form>
@@ -62,6 +85,7 @@
 
 
 {% block javascript %}
+<script src="{{ url_for('static', filename='js/donor/donor_consent_questionnaire.js') }}"></script>
 <script src="{{ url_for('static', filename='js/sample/information/add/consent.js') }}"></script>
 {#<script src="{{ url_for('static', filename='js/donor/donor_consent.js') }}"></script>#}
 {% endblock %}

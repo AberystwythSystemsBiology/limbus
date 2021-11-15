@@ -14,7 +14,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ..database import (db, UserAccount, DonorDiagnosisEvent, Donor, DonorToSample,
-        Event, SampleConsent, SampleConsentAnswer, SampleConsentWithdrawal, SampleDisposal, Sample
+        Event, SampleConsent, SampleConsentAnswer, SampleConsentWithdrawal, SampleDisposal, Sample,
+        DonorProtocolEvent
     )
 
 from ..api import api
@@ -40,9 +41,11 @@ from .views import (
     basic_donors_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
-    donor_diagnosis_event_schema
+    donor_diagnosis_event_schema,
+    new_donor_protocol_event_schema,
 )
 
+from ..event.views import new_event_schema
 
 from ..sample.models import SampleConsent, SampleConsentAnswer, Sample
 from ..sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
@@ -238,6 +241,40 @@ def donor_remove_diagnosis(id, tokenuser: UserAccount):
     return success_with_content_message_response({"donor_id": donor_id}, msg)
 
 
+def func_new_donor_protocol_event(values, tokenuser: UserAccount):
+    #values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        event_result = new_donor_protocol_event_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_event = Event(**event_result["event"])
+    new_event.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_event)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    event_result.pop("event")
+
+
+    new_protocol_event = DonorProtocolEvent(**event_result)
+    new_protocol_event.author_id = tokenuser.id
+    new_protocol_event.event_id = new_event.id
+
+    try:
+        db.session.add(new_protocol_event)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    return {"success": True, "new_protocol_event": new_protocol_event}
 
 @api.route("/donor/new/consent", methods=["POST"])
 @token_required
@@ -254,8 +291,22 @@ def donor_new_consent(tokenuser: UserAccount):
     if len(errors.keys()) > 0:
         return validation_error_response(errors)
 
-    answers = values["answers"]
-    values.pop("answers")
+    answers = values.pop("answers")
+
+    study_protocol_id = values.pop("study_protocol_id", None)
+    study_event = None
+    if study_protocol_id:
+        study = values.pop("study", {})
+        study['protocol_id'] = study_protocol_id
+        study['donor_id'] = values['donor_id']
+        # -- Add donor protocol event
+
+        study_event = func_new_donor_protocol_event(study, tokenuser)
+        print("study_event", study_event)
+        if not study_event["success"]:
+            return study_event
+
+        study_event = study_event["new_protocol_event"]
 
     try:
         consent_result = new_consent_schema.load(values)
@@ -265,6 +316,8 @@ def donor_new_consent(tokenuser: UserAccount):
     new_consent = SampleConsent(**consent_result)
     new_consent.author_id = tokenuser.id
     new_consent.id = None
+    if study_event:
+        new_consent.study_event_id = study_event.id
 
     try:
         db.session.add(new_consent)

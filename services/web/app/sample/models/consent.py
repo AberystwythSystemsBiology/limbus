@@ -27,6 +27,9 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     date = db.Column(db.Date, nullable=False)
     undertaken_by = db.Column(db.String(128))
 
+    study_event_id = db.Column(db.Integer, db.ForeignKey("donorprotocolevent.id"))
+    study = db.relationship("DonorProtocolEvent", uselist=False)
+
     file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
     file = db.relationship("Document")
 

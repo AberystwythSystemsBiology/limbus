@@ -22,6 +22,7 @@ from ...consent.views import (
     BasicConsentFormQuestionSchema,
     BasicConsentFormTemplateSchema,
 )
+from ..views.protocol import DonorProtocolEventSchema, BasicDonorProtocolEventSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 class NewConsentSchema(masql.SQLAlchemySchema):
@@ -48,6 +49,7 @@ class BasicConsentSchema(masql.SQLAlchemySchema):
     donor_id = masql.auto_field()
     withdrawn = masql.auto_field()
     withdrawal_date = ma.Date()
+    study = ma.Nested(BasicDonorProtocolEventSchema, many=False)
 
 basic_consent_schema = BasicConsentSchema()
 
@@ -74,7 +76,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
         {
             "remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)
         })
-
+    study = ma.Nested(DonorProtocolEventSchema, many=False)
 
 consent_schema = ConsentSchema()
 

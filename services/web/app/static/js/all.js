@@ -100,6 +100,40 @@ function render_sample_table(samples, div_id) {
                 }
             },
 
+            { // study ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    var col_data = "";
+                    //console.log("consent", consent);
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        console.log("consent", consent);
+                        protocol_link = consent['study']['protocol']['doi'];
+                        if (protocol_link == null)
+                            protocol_link = "";
+                        protocol_name = consent['study']['protocol']['name']
+                        if (protocol_name == null)
+                            protocol_name = "";
+                        col_data += '<a href="'+protocol_link+'" target="_blank">';
+                        col_data += '<i class="fas fa-users"></i>'+ protocol_name;
+                        col_data += '</a>';
+
+                    }
+                    return col_data;
+                }
+},
+            { // donor reference no
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    var reference_id = "";
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        reference_id = consent['study']['reference_id']
+                    }
+                    return reference_id;
+                }
+            },
+
             {data: "status"},
 
             {data: "base_type"},

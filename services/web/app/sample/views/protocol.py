@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import SampleProtocolEvent
+from ...database import SampleProtocolEvent, DonorProtocolEvent
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...protocol.views import BasicProtocolTemplateSchema
 from ...event.views import EventSchema, NewEventSchema
@@ -64,3 +64,48 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
 sample_protocol_events_schema = SampleProtocolEventSchema(many=True)
+
+
+class DonorProtocolEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DonorProtocolEvent
+
+    is_locked = masql.auto_field()
+    uuid = masql.auto_field()
+    id = masql.auto_field()
+    donor_id = masql.auto_field()
+    reference_id = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema)
+    event = ma.Nested(EventSchema)
+    created_on = ma.Date()
+
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
+
+    _links = ma.Hyperlinks(
+        {
+            "edit": ma.URLFor(
+                "donor.edit_protocol_event", uuid="<uuid>", _external=True
+            ),
+            "remove": ma.URLFor(
+                "donor.remove_protocol_event", uuid="<uuid>", _external=True
+            ),
+        }
+    )
+
+donor_protocol_event_schema = DonorProtocolEventSchema()
+donor_protocol_events_schema = DonorProtocolEventSchema(many=True)
+
+
+class BasicDonorProtocolEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DonorProtocolEvent
+
+    is_locked = masql.auto_field()
+    uuid = masql.auto_field()
+    id = masql.auto_field()
+    donor_id = masql.auto_field()
+    reference_id = masql.auto_field()
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
+
+basic_donor_protocol_event_schema = BasicDonorProtocolEventSchema()
+basic_donor_protocol_events_schema = BasicDonorProtocolEventSchema(many=True)

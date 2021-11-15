@@ -39,7 +39,7 @@ from ..views import (
 )
 
 from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
-                         SampleProtocolEvent, ProtocolTemplate, SampleReview,
+                         SampleProtocolEvent, ProtocolTemplate, SampleReview, DonorProtocolEvent,
                          SampleDisposalEvent, SampleDisposal,
                          UserCart, SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
                          EntityToStorage,
@@ -48,6 +48,7 @@ from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccoun
                          SampleConsentAnswer, ConsentFormTemplateQuestion)
 
 from ..enums import *
+from ...protocol.enums import ProtocolType
 
 import requests
 
@@ -60,6 +61,18 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
     else:
         subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
             join(SampleProtocolEvent).filter_by(**filters_protocol).subquery()
+
+    filters_protocol_template = {"id": filters_protocol[f] for f in filters_protocol}
+    protocol = db.session.query(ProtocolTemplate).filter_by(**filters_protocol_template).first()
+    s1 = None
+    if protocol.type in [ProtocolType.STU]:
+        if filter_sample_id is None:
+            s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
+                filter_by(**filters).filter(*joins).filter_by(**filters_protocol)
+        else:
+            s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
+                filter(Sample.id.in_(filter_sample_id)).filter_by(**filters_protocol)
+
 
     protocol_event = db.session.query(ProtocolTemplate).\
         join(SampleProtocolEvent).filter_by(**filters_protocol).first()
@@ -79,15 +92,15 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
                     join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
                     join(subq, subq.c.id == SubSampleToSample.parent_id)
 
-            stmt = db.session.query(subq).union(s2)
+            if s1:
+                s1 = s1.union(s2)
 
-        else:
-            stmt = db.session.query(subq)
-
+    if s1:
+        stmt = db.session.query(subq).union(s1)
     else:
         stmt = db.session.query(subq)
 
-    return (stmt)
+    return stmt
 
 def sample_sampletype_query_stmt(filters_sampletype=None, filter_sample_id=None, filters=None, joins=None):
     if filter_sample_id is None:

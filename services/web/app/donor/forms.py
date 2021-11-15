@@ -23,6 +23,7 @@ from wtforms import (
     BooleanField,
     DecimalField,
     DateField,
+    #TimeField,
     IntegerField,
     TextAreaField,
     HiddenField,
@@ -212,7 +213,30 @@ def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
 
 
 
-def ConsentQuestionnaire(data={})-> FlaskForm:
+class DonorStudyRegistrationForm(FlaskForm):
+    class Meta:
+        csrf = False
+
+    reference_id = StringField(
+        "Reference Number",
+        description="The reference number for the donor within the study/trial.",
+    )
+    date = DateField(
+        "Date of donor registration/consent",
+        validators = [DataRequired()],
+        default=datetime.today(),
+    )
+
+    comments = TextAreaField(
+        "Comments for donor within the study",
+    )
+
+    undertaken_by = StringField(
+        "Registration Undertaken By",
+    )
+
+
+def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
 
     class StaticForm(FlaskForm):
 
@@ -225,6 +249,14 @@ def ConsentQuestionnaire(data={})-> FlaskForm:
             description="The identifying code of the signed patient consent form.",
         )
 
+        study_select = SelectField(
+            "Study/Trial",
+            validators=[Optional()],
+            choices=study_protocols,
+            description="Protocol of the study/trial recruiting the donor originally.",
+            coerce=int,
+        )
+
         comments = TextAreaField("Comments")
 
         date = DateField("Date of Consent", default=datetime.today())
@@ -232,7 +264,17 @@ def ConsentQuestionnaire(data={})-> FlaskForm:
             "Communicated by",
         )
 
+        study = FormField(DonorStudyRegistrationForm)
         submit = SubmitField("Continue")
+
+        def validate(self):
+            if self.study.date.data is None:
+                self.study.date.data = self.date.data
+
+            if not FlaskForm.validate(self):
+                return False
+
+            return True
 
     for question in data["questions"]:
         setattr(
@@ -242,6 +284,7 @@ def ConsentQuestionnaire(data={})-> FlaskForm:
                 question["question"], render_kw={"question_type": question["type"]}
             ),
         )
+
 
     return StaticForm(data=data)
 
@@ -254,6 +297,39 @@ class ConsentAnswerForm(FlaskForm):
     answer = BooleanField("Consented", default="checked")
 
 
+# def DonorProtocolEventForm(protocols: list, data={}):
+#     class StaticForm(FlaskForm):
+#         protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
+#
+#         reference_id = StringField(
+#             "Reference Number",
+#             description="The reference number for the donor within the study/trial.",
+#         )
+#
+#         date = DateField(
+#             "Protocol Event Date",
+#             validators=[DataRequired()],
+#             description="The date in which the protocol was undertaken.",
+#             default=datetime.today(),
+#         )
+#
+#         time = TimeField(
+#             "Protocol Event Time",
+#             default=datetime.now(),
+#             validators=[Optional()],
+#             description="The time at which the protocol was undertaken.",
+#         )
+#
+#         comments = TextAreaField(
+#             "Comments",
+#         )
+#
+#         undertaken_by = StringField(
+#             "Undertaken By",
+#             description="The initials of the individual who undertook the event.",
+#         )
+#
+#     return StaticForm(data)
 
 class ConsentSelectForm(FlaskForm):
         consent_id = SelectField("Select Consent ID", coerce=int)
