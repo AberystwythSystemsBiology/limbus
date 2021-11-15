@@ -57,8 +57,6 @@ class DocumentTests(unittest.TestCase):
 
 
     def test_document_view_document(self):
-        print(self.test_document_id)
-
         response = self.app.get(
             "api/document/LIMBDOC-%s" % (self.__class__.test_document_id),
             headers=testing_headers, follow_redirects=True
@@ -68,6 +66,15 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(
             response.json["content"]["name"], "Testing Document"
         )
+
+    # TODO:
+    # - document_query
+    # - document_lock_document
+    # - document_edit_document
+    # - document_upload_file
+    # - document_file_lock
+    # - document_file_get
+
 
 if __name__ == "__main__":
     unittest.main()
