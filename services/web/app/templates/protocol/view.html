@@ -42,6 +42,15 @@
                     {% endif %}
 
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
+{#                        <a href="{{ url_for('protocol.remove', id=protocol.id) }}">#}
+                            <button id="protocol_remove" type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                                class="btn btn-outline-dark">
+                               <i class="fa fa-trash-alt"></i> Remove
+                            </button>
+{#                        </a>#}
+                    </div>
+
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
                         <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                             class="btn btn-outline-dark" disabled>
                             <i class="fa fa-lock"></i> {% if protocol.is_locked %}Unl{% else %}L{% endif %}ock
@@ -52,8 +61,8 @@
                 </div>
             </div>
             <div class="col-5 text-right">
-                <i class="fa fa-link"></i> DOI: {% if protocol.doi != "" %}
-                <a href="{{ protocol.doi }}" target="_blank">{{ protocol.doi }}</a>{% else %}None Available{% endif %}
+                <i class="fa fa-link"></i> {% if protocol.doi != "" %}
+                <a href="{{ protocol.doi_url }}" target="_blank">{{ protocol.doi }}</a>{% else %}None Available{% endif %}
                 <div class="clearfix"></div>
                 <i class="fa fa-calendar"></i> Created On: {{ protocol.created_on }}
                 <div class="clearfix"></div>
@@ -126,4 +135,38 @@
     {% endfor %}
 
 </div>
+
+<!--- Protocol Delete Confirmation -->
+<div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="cart-confirmation-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="cart-confirmation-label">Delete Confirmation</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="cart-confirmation-msg"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" id="cart-confirm-button" class="btn btn-success">Confirm</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+
+<script>
+    sessionStorage.removeItem("protocol_info");
+    protocol_info = {{ protocol | tojson }};
+    sessionStorage.setItem("protocol_info", JSON.stringify(protocol_info));
+</script>
+<script src="{{ url_for('static', filename='js/protocol/view.js') }}"></script>
+
 {% endblock %}

@@ -68,7 +68,7 @@ class BasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     version = masql.auto_field()
     created_on = fields.Date()
-    #author = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
 
     _links = ma.Hyperlinks(

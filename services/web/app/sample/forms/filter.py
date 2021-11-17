@@ -88,7 +88,7 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
             if protocol["type"] in ["Study", "Collection", "Temporary Storage"]:
                 doino = ""
                 if protocol["doi"] != "":
-                    doino = protocol["doi"].split("/")[-1]
+                    doino = protocol["doi"].replace("https://","").replace("http://", "")#.split("/")[-1]
                 study_protocols.append(
                     (
                         protocol["id"],

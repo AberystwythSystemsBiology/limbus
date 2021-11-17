@@ -107,14 +107,17 @@ function render_sample_table(samples, div_id) {
                     var col_data = "";
 
                     if (consent['study'] != undefined && consent['study'] != null) {
-                        protocol_link = consent['study']['protocol']['doi'];
-                        if (protocol_link == null)
-                            protocol_link = "";
-                        protocol_name = consent['study']['protocol']['name']
+                        doi = consent['study']['protocol']['doi'];
+                        if (doi == null)
+                            doi = "";
+
+                        protocol_name = consent['study']['protocol']['name'];
                         if (protocol_name == null)
                             protocol_name = "";
-                        col_data += '<a href="'+protocol_link+'" target="_blank">';
+
                         col_data += '<i class="fas fa-users"></i>'+ protocol_name;
+                        col_data += ',  <a href="'+doi2url(doi)+'" target="_blank">';
+                        col_data += doi;
                         col_data += '</a>';
 
                     }
@@ -301,6 +304,18 @@ function dynamicColours(length) {
 }
 
 
+function doi2url(code="") {
+    if (code.search("DOI") == 0)
+        return "https://doi.org/" + code.split("DOI:")[1];
+    else if (code.search("ISRCTN") == 0)
+        return "https://www.isrctn.com/" + code;
+    else if (code.search("NCT") == 0)
+        return "https://clinicaltrials.gov/show/" + code;
+    else if (code.search("EUDRACT") == 0)
+        return "https://www.clinicaltrialsregister.eu/ctr-search/trial/"+code.split("EUDRACT")[1]+"/results";
+    else
+        return code
+}
 
 
 function get_greeting() {

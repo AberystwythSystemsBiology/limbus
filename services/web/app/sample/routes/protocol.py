@@ -100,7 +100,7 @@ def new_protocol_event(uuid):
 
 @sample.route("/protocol_event/<uuid>/edit", methods=["GET", "POST"])
 @login_required
-def edit_protocol_event(uuid):
+def edit_protocol_event(uuid: object) -> object:
     protocolevent_response = requests.get(
         url_for("api.sample_view_protocol_event", uuid=uuid, _external=True),
         headers=get_internal_api_header(),

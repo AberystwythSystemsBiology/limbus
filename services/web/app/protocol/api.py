@@ -29,14 +29,17 @@ from .views import (
     basic_protocol_templates_schema,
     basic_protocol_template_schema,
     new_protocol_template_schema,
-    protocol_template_schema,
+    protocol_template_schema, doi2url,
     new_protocol_text_schema,
     basic_protocol_text_schema,
     new_protocol_template_to_document_schema,
     ProtocolTemplateSearchSchema,
 )
 
-from .models import ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument
+from ..database import (ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument,
+    SampleProtocolEvent, DonorProtocolEvent
+    )
+
 from ..webarg_parser import use_args, use_kwargs, parser
 
 
@@ -85,7 +88,7 @@ def protocol_new_protocol(tokenuser: UserAccount):
         db.session.flush()
 
         return success_with_content_response(
-            basic_protocol_template_schema.dump(new_protocol)
+            protocol_template_schema.dump(new_protocol)
         )
     except Exception as err:
         print(err)
@@ -156,8 +159,10 @@ def protocol_new_protocol_text(id, tokenuser: UserAccount):
 @api.route("/protocol/LIMBPRO-<id>")
 @token_required
 def protocol_view_protocol(id, tokenuser: UserAccount):
+    protocol_info = protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
+    protocol_info["doi_url"] = doi2url(protocol_info["doi"])
     return success_with_content_response(
-        protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
+        protocol_info
     )
 
 
@@ -197,3 +202,30 @@ def protocol_view_text(id, t_id, tokenuser: UserAccount):
             ProtocolText.query.filter_by(id=t_id, protocol_id=id).first()
         )
     )
+
+
+@api.route("/protocol/LIMBPRO-<id>/remove", methods=["POST"])
+@token_required
+def protocol_remove_protocol(id, tokenuser: UserAccount):
+    protocol = ProtocolTemplate.query.filter_by(id=id).first()
+
+    if protocol:
+        if protocol.is_locked:
+            return locked_response("protocol(%s)" % protocol.id)
+    else:
+        return not_found("related protocol")
+
+    sample_event = SampleProtocolEvent.query.filter_by(protocol_id=protocol.id).first()
+    if sample_event:
+        return in_use_response("protocol events (samples %s ...)"%(sample_event.sample_id or ""))
+
+    donor_event = DonorProtocolEvent.query.filter_by(protocol_id=protocol.id).first()
+    if donor_event:
+        return in_use_response("protocol events (donors %s ...)"%(donor_event.donor_id or ""))
+
+    try:
+        db.session.delete(protocol)
+        db.session.commit()
+        return success_with_content_message_response({"id":id},"Protocol successfully deleted!")
+    except Exception as err:
+        return transaction_error_response(err)

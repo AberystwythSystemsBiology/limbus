@@ -60,7 +60,9 @@ def new():
 
         if response.status_code == 200:
             flash("Protocol Successfully Created")
-            return redirect(url_for("protocol.index"))
+            return render_template(
+                "protocol/view.html", protocol=response.json()["content"]
+            )
         else:
             flash("Error: %s - %s" % (response.status_code, response.json()))
 
@@ -91,6 +93,7 @@ def edit(id):
     )
 
     if response.status_code == 200:
+        print("response.json()", response.json()["content"])
         form = ProtocolCreationForm(data=response.json()["content"])
         del form.type
 
@@ -98,6 +101,7 @@ def edit(id):
             protocol_information = {
                 "name": form.name.data,
                 "description": form.description.data,
+                "doi": form.doi.data,
             }
 
             edit_response = requests.put(
@@ -183,3 +187,18 @@ def new_text(id):
         )
     else:
         return response.content
+
+@protocol.route("/LIMBPRO-<id>/remove", methods=["GET", "POST"])
+@login_required
+def remove(id):
+    remove_response = requests.post(
+        url_for("api.protocol_remove_protocol", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+        flash("Protocol Successfully Deleted")
+    else:
+        flash(remove_response.json()["message"])
+    return remove_response.json()
+

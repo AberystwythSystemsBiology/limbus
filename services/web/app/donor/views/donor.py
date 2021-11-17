@@ -221,7 +221,7 @@ class NewDonorProtocolEventSchema(masql.SQLAlchemySchema):
 new_donor_protocol_event_schema = NewDonorProtocolEventSchema()
 
 
-class DonorProtocolEventSchema(masql.SQLAlchemySchema):
+class DonorProtocolEventInfoSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DonorProtocolEvent
 
@@ -247,5 +247,5 @@ class DonorProtocolEventSchema(masql.SQLAlchemySchema):
         }
     )
 
-donor_protocol_event_schema = DonorProtocolEventSchema()
-donor_protocol_events_schema = DonorProtocolEventSchema(many=True)
+donor_protocol_event_info_schema = DonorProtocolEventInfoSchema()
+donor_protocol_events_info_schema = DonorProtocolEventInfoSchema(many=True)

@@ -43,6 +43,7 @@ from .views import (
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,
     new_donor_protocol_event_schema,
+    #donor_protocol_event_info_schema,
 )
 
 from ..event.views import new_event_schema

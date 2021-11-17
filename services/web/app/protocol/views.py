@@ -114,6 +114,18 @@ class NewProtocolTemplateToDocumentSchema(masql.SQLAlchemySchema):
 new_protocol_template_to_document_schema = NewProtocolTemplateToDocumentSchema()
 
 
+def doi2url(code):
+    if code.find("DOI") == 0:
+        return "https://doi.org/" + code.split("DOI:")[1]
+    elif code.find("ISRCTN") == 0:
+        return "https://www.isrctn.com/" + code
+    elif code.find("NCT") == 0:
+        return "https://clinicaltrials.gov/show/" + code
+    elif code.find("EUDRACT") == 0:
+        return "https://www.clinicaltrialsregister.eu/ctr-search/trial/%s/results" % code.split("EUDRACT")[1]
+    else:
+        return code
+
 class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:
         model = ProtocolTemplate
@@ -128,11 +140,12 @@ class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     texts = ma.Nested(BasicProtocolTextSchema(many=True))
     documents = ma.Nested(BasicDocumentSchema(many=True))
 
+    is_locked = masql.auto_field()
     created_on = ma.Date()
 
     _links = ma.Hyperlinks(
         {
-            "self": ma.URLFor("protocol.view", id="id", _external=True),
+            "self": ma.URLFor("protocol.view", id="<id>", _external=True),
             "collection": ma.URLFor("protocol.index", _external=True),
         }
     )
