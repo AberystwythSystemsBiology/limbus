@@ -39,6 +39,7 @@ from .views import (
     new_donor_schema,
     edit_donor_schema,
     basic_donors_schema,
+    basic_donor_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,

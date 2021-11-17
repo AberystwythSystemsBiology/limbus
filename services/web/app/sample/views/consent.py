@@ -72,11 +72,12 @@ class ConsentSchema(masql.SQLAlchemySchema):
     answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
     withdrawn = masql.auto_field()
     withdrawal_date = ma.Date()
+    study = ma.Nested(DonorProtocolEventSchema, many=False)
     _links = ma.Hyperlinks(
         {
             "remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)
         })
-    study = ma.Nested(DonorProtocolEventSchema, many=False)
+
 
 consent_schema = ConsentSchema()
 

@@ -52,6 +52,7 @@ function calc_age(date0, date1) {
 
 function render_table(query) {
     var d = get_donors(query);
+    console.log("donor_info", d);
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 

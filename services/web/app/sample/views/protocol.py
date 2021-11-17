@@ -81,16 +81,16 @@ class DonorProtocolEventSchema(masql.SQLAlchemySchema):
 
     protocol = ma.Nested(BasicProtocolTemplateSchema)
 
-    _links = ma.Hyperlinks(
-        {
-            "edit": ma.URLFor(
-                "donor.edit_protocol_event", uuid="<uuid>", _external=True
-            ),
-            "remove": ma.URLFor(
-                "donor.remove_protocol_event", uuid="<uuid>", _external=True
-            ),
-        }
-    )
+    # _links = ma.Hyperlinks(
+    #     {
+    #         "edit": ma.URLFor(
+    #             "donor.edit_protocol_event", uuid="<uuid>", _external=True
+    #         ),
+    #         "remove": ma.URLFor(
+    #             "donor.remove_protocol_event", uuid="<uuid>", _external=True
+    #         ),
+    #     }
+    # )
 
 donor_protocol_event_schema = DonorProtocolEventSchema()
 donor_protocol_events_schema = DonorProtocolEventSchema(many=True)
