@@ -265,7 +265,7 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
         )
 
         study = FormField(DonorStudyRegistrationForm)
-        submit = SubmitField("Continue")
+        submit = SubmitField("Save")
 
         def validate(self):
             if self.study.date.data is None:
@@ -281,10 +281,12 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
             StaticForm,
             str(question["id"]),
             BooleanField(
-                question["question"], render_kw={"question_type": question["type"]}
+                question["question"],
+                render_kw={"question_type": question["type"], "checked": question["checked"]},
+                default=question["checked"]
             ),
-        )
 
+        )
 
     return StaticForm(data=data)
 

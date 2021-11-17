@@ -225,7 +225,7 @@
         <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1">Question {{ count }}</h5>
             <small>
-                <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox">
+            <input class="form-check-input" id="{{ field.id }}" name="{{ field.id }}" type="checkbox" {{ field.render_kw["checked"] }}>
             </small>
         </div>
         <p class="mb-1">{{ field.label.text }}</p>

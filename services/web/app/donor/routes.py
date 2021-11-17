@@ -204,7 +204,7 @@ def remove_diagnosis(id):
 
     return remove_response.json()
 
-from werkzeug.datastructures import MultiDict
+
 
 @donor.route("/LIMBDON-<id>/new/consent", methods=["GET", "POST"])
 @login_required
@@ -308,7 +308,7 @@ def add_consent_answers(donor_id, template_id):
                 "undertaken_by": consent_details["study"].pop("undertaken_by"),
             }
 
-        print("consent_details", consent_details)
+        # print("consent_details", consent_details)
         consent_response = requests.post(
             url_for("api.donor_new_consent", _external=True),
             headers=get_internal_api_header(),
@@ -325,6 +325,115 @@ def add_consent_answers(donor_id, template_id):
     return render_template(
         "donor/consent/donor_consent_answers.html", form=form, donor_id=donor_id, template_id=template_id
     )
+
+
+@donor.route("/LIMBDON-<donor_id>/edit/LIMDC-<consent_id>", methods=["GET", "POST"])
+@login_required
+def edit_donor_consent(donor_id, consent_id):
+    consent_response = requests.get(
+        url_for("api.donor_consent_view", id=consent_id, _external=True),
+        headers=get_internal_api_header()
+    )
+
+    if consent_response.status_code != 200:
+        return consent_response.response
+
+    protocols_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
+    )
+    consent_info = consent_response.json()["content"]
+    consent_info.update({
+                    'template_id': consent_info["template"]['id'],
+                    'template_name': consent_info["template"]['name'],
+                    'template_version': consent_info["template"]['version'],
+                    'study_select': consent_info["study"]["protocol"]['id'],
+                    'questions': consent_info.pop("template_questions"),
+                    #'answers': consent_info["answers"],
+                    #'study': consent_info["study"],
+                })
+
+    consent_info["date"] = datetime.strptime(
+            consent_info["date"], "%Y-%m-%d"
+        )
+
+    consent_info["study"]["event"]["date"] = datetime.strptime(
+            consent_info["study"]["event"]["datetime"], "%Y-%m-%dT%H:%M:%S"
+        ).date()
+
+    consent_info["study"].update(consent_info["study"].pop("event"))
+
+
+    for question in consent_info["questions"]:
+        checked = [a["id"] for a in consent_info["answers"]]
+        if question["id"] in checked:
+            question["checked"] = "checked"
+        else:
+            question["checked"] = ""
+
+    # print("consent_info", consent_info)
+
+    study_protocols = [(0, '--- Select a study ---')]
+    if protocols_response.status_code == 200:
+        for protocol in protocols_response.json()["content"]:
+            if protocol["type"] == "Study":
+                study_protocols.append(
+                    [
+                        protocol["id"],
+                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
+                    ]
+                )
+
+    template_id = consent_info["id"]
+
+    form = ConsentQuestionnaire(study_protocols, data=consent_info)
+
+    if form.validate_on_submit():
+        consent_details = {
+            "donor_id": donor_id,
+            "identifier": form.identifier.data,
+            "template_id": consent_info["template_id"],
+            "comments": form.comments.data,
+            "date": str(form.date.data),
+            "undertaken_by": form.undertaken_by.data,
+            "answers": [],
+            "study_protocol_id": form.study_select.data,
+            "study": form.study.data,
+        }
+
+        for question in consent_info["questions"]:
+            if getattr(form, str(question["id"])).data:
+                consent_details["answers"].append(question["id"])
+
+        if form.study_select.data == 0:
+            consent_details["study_protocol_id"] = None
+            consent_details["study"] = None
+
+        else:
+            consent_details["study"]["event"] = {
+                "datetime": str(datetime.strptime("%s %s" % (consent_details["study"].pop("date"), "00:00:00"), "%Y-%m-%d %H:%M:%S")),
+                "comments": consent_details["study"].pop("comments"),
+                "undertaken_by": consent_details["study"].pop("undertaken_by"),
+            }
+
+        # print("consent_details", consent_details)
+        consent_response = requests.post(
+            url_for("api.donor_edit_consent", id=consent_id, _external=True),
+            headers=get_internal_api_header(),
+            json=consent_details,
+        )
+
+        if consent_response.status_code == 200:
+            flash("Donor consent edited successfully!")
+            return redirect(url_for("donor.view", id=donor_id))
+
+        flash("We have a problem :( %s" % consent_response.json()["message"])
+
+    return render_template(
+        "donor/consent/donor_consent_answers.html", form=form, donor_id=donor_id, template_id=template_id, consent_id=consent_id
+    )
+
 
 
 @donor.route("/consent/LIMBDC-<id>/remove", methods=["GET", "POST"])
