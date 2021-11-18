@@ -75,6 +75,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
     study = ma.Nested(DonorProtocolEventSchema, many=False)
     _links = ma.Hyperlinks(
         {
+            "edit": ma.URLFor("donor.edit_donor_consent", id="<id>", donor_id="<donor_id>", _external=True),
             "remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)
         })
 

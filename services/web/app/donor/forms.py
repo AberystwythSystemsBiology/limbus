@@ -249,19 +249,19 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
             description="The identifying code of the signed patient consent form.",
         )
 
+        comments = TextAreaField("Comments")
+
+        date = DateField("Date of Consent", default=datetime.today())
+        undertaken_by = StringField(
+            "Communicated by",
+        )
+
         study_select = SelectField(
             "Study/Trial",
             validators=[Optional()],
             choices=study_protocols,
             description="Protocol of the study/trial recruiting the donor originally.",
             coerce=int,
-        )
-
-        comments = TextAreaField("Comments")
-
-        date = DateField("Date of Consent", default=datetime.today())
-        undertaken_by = StringField(
-            "Communicated by",
         )
 
         study = FormField(DonorStudyRegistrationForm)
@@ -277,13 +277,15 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
             return True
 
     for question in data["questions"]:
+        checked = ""
+        if "checked" in question:
+            checked = question["checked"]
         setattr(
             StaticForm,
             str(question["id"]),
             BooleanField(
                 question["question"],
-                render_kw={"question_type": question["type"], "checked": question["checked"]},
-                default=question["checked"]
+                render_kw={"question_type": question["type"], "checked":  checked},
             ),
 
         )

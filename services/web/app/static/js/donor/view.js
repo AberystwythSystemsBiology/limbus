@@ -330,18 +330,10 @@ function fill_diagnosis_information(diagnoses, date) {
     $.each(diagnoses, function(index, value){
         console.log('value', value)
         html = ""
-        // Start ul
-        //html += "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + "</p>"
         html += "<div class='card' style='border: 2px solid darkgrey ;'>"
-        //html += "<div class='card'>"
         // Start card body
         html += "<div class='card-body'>"
-        /* var media_html = "<div class='media'>";
-        media_html += "<div class='align-self-center mr-3'>"
-        media_html += "<h1><i class='fa fa-stethoscope'></i></h1>"
-        media_html += "<div class='media-body'>"
-        */
+
         var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div>" +
             "<div class='media-body'>"
         var refs = "";
@@ -371,10 +363,6 @@ function fill_diagnosis_information(diagnoses, date) {
         html += "<div id='remove-diagnosis-" + value["id"] + "' class='btn btn-danger float-right'>Remove</div>"
 
         html += "</div>"
-        // html += "<div class='card-footer'>"
-        // html += "<div id='remove-diagnosis-" + index + "' class='btn btn-danger float-right'>Remove</div>"
-        // html += "</div>"
-        // end card
         html += "</div>"
         // End ul
         //html += "</li>"
@@ -434,6 +422,24 @@ function fill_consent_information(consent_information) {
     $("#consent_version").html(consent_information["template"]["version"]);
     $("#consent_identifier").html(consent_information["identifier"]);
     $("#consent_comments").html(consent_information["comments"]);
+    $("#consent_undertakenby").html(consent_information["undertaken_by"]);
+
+    var study = consent_information["study"]
+    try {
+        doilink="";
+        if (study["protocol"]["name"]["doi"]!="") {
+            var link = doi2url(study["protocol"]["doi"]);
+            doilink += '<a href=' + link + '>' + '<a href=' + link + '>' + '[' + study["protocol"]["doi"] + '] ';
+            doilink += study["protocol"]["name"] + '</a>';
+        }  else {
+            doilink += study["protocol"]["name"];
+        }
+        $("#consent_study").html(doilink);
+        $("#consent_refno").html(study['reference_id']);
+    } catch {
+        $("#consent_study").html("");
+        $("#consent_refno").html("");
+   }
 
     let answer_ids = [];
     for (answer in consent_information["answers"]) {
@@ -460,15 +466,6 @@ function fill_consent_information(consent_information) {
 
     }
 
-        /*for (answer in consent_information["answers"]) {
-            var answer_info = consent_information["answers"][answer];
-
-            var answer_html = '';
-            answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
-            answer_html += +(parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
-
-            $("#questionnaire-list").append(answer_html);
-        }*/
 
     var consent_status = "Active"
     if (consent_information["withdrawn"]==true) {
@@ -579,14 +576,11 @@ function fill_consents_information(consent_information) {
         // End card body
         html += "</div>"
         html += "<div class='card-footer'>"
-        //html += "<a href='" + consent_info["_links"]["edit"] + "'>
-        //<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
-        //                     class="fa fa-question"></i> View Consent</button>"
-        //html += '<div class='btn btn-warning float-left' data-toggle='modal' data-target='#consentModal'>View</div>"
-        html += "<div id='view-consent-" + consent_info["id"] + "' class='btn btn-warning float-left'>View</div>"
-        //html += "</a>"
-
-        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='view-consent-" + consent_info["id"] + "' class='btn btn-secondary float-left'>View</div>"
+        html += "<a href='" + consent_info["_links"]["edit"] + "'>";
+        html += "<button class='btn btn-secondary'>Edit</button>";
+        html += "</a>";
+        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-delete float-right'>Remove</div>"
         html += "</div>"
         html += "</div>"
 
@@ -605,6 +599,7 @@ function fill_consents_information(consent_information) {
         if (consent_info['withdrawn']==true || consent_information["is_Locked"]==true) {
             $("#remove-consent-" + consent_info["id"]).hide();
         }
+
         $("#remove-consent-" + consent_info["id"]).on("click", function () {
             var id = $(this).attr("id").split("-")[2];
             var limbdc_id = $("#consent-id-" + id).text();
@@ -613,7 +608,6 @@ function fill_consents_information(consent_information) {
             });
 
             var removal_link = consents.get(id)["_links"]["remove"];
-
             $("#protocol-id-remove-confirmation-input").on("change", function () {
                 var user_entry = $(this).val();
                 if (user_entry == limbdc_id) {

@@ -1,12 +1,12 @@
 {% extends "template.html" %}
 
-{% block title %}Enter Patient Consent Form Details{% endblock %}
+{% block title %}Enter Donor Consent Form Details{% endblock %}
 
 {% block body %}
 
 <div class="jumbotron">
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Patient Consent Form
+        <h1><span class="secondary-heading"><i class="fas fa-vial"></i> New Sample</span> Enter Donor Consent Form
             Details</h1>
         {{ render_progress(2, 3) }}
 
@@ -18,7 +18,7 @@
 
     <form action="{{ url_for('sample.add_step_two', hash=hash) }}" method="POST">
 
-        {{ questionnaire.csrf_token() }}
+        {{ form.csrf_token() }}
         <div class="card">
             <div class="card-header">
                 <div class="text-center">
@@ -26,11 +26,11 @@
                     <h3>Version: {{ consent_template.version }}</h3>
                 </div>
 
-                {{ form_field(questionnaire.consent_id) }}
+                {{ form_field(form.identifier) }}
             </div>
             <ul id="#questionnaire-list" class="list-group list-group-flush">
                 {% set count = namespace(value=0) %}
-                {% for question in questionnaire %}
+                {% for question in form %}
                 {% if (question.type == "BooleanField") %}
                 {% set count.value = count.value + 1 %}
                 {{ render_question( question, count.value ) }}
@@ -45,26 +45,50 @@
             </div>
 
             <div class="card-footer">
-                {{ form_field(questionnaire.comments) }}
+                {{ form_field(form.comments) }}
 
             <div class="row">
                 <div class="col-6">
-                    {{ form_field(questionnaire.date) }}
+                    {{ form_field(form.date) }}
                 </div>
                 <div class="col-6">
-                    {{ form_field(questionnaire.undertaken_by) }}
+                    {{ form_field(form.undertaken_by) }}
                 </div>
             </div>
 
             </div>
         </div>
 
-        {{ form_field(questionnaire.submit) }}
+<div class="card">
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.study_select) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.study.reference_id)}}
+                </div>
+            </div>
+                {{ form_field(form.study.comments) }}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.study.date) }}
+
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.study.undertaken_by) }}
+                </div>
+            </div>
+</div>
+
+
+        {{ form_field(form.submit) }}
 
     </form>
 </div>
 {% endblock %}
 
 {% block javascript %}
+<script src="{{ url_for('static', filename='js/donor/donor_consent_questionnaire.js') }}"></script>
 <script src="{{ url_for('static', filename='js/sample/information/add/consent.js') }}"></script>
+
 {% endblock %}

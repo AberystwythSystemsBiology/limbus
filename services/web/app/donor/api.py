@@ -295,9 +295,9 @@ def donor_new_consent(tokenuser: UserAccount):
     values = request.get_json()
     if not values:
         return no_values_response()
-    print("values", values)
+
     errors = {}
-    for key in ["identifier", "donor_id", "comments", "template_id", "date", "undertaken_by", "answers"]:
+    for key in ["identifier", "comments", "template_id", "date", "undertaken_by", "answers"]:
         if key not in values.keys():
             errors[key] = ["Not found."]
 
@@ -308,14 +308,16 @@ def donor_new_consent(tokenuser: UserAccount):
 
     study_protocol_id = values.pop("study_protocol_id", None)
     study_event = None
+    study = values.pop("study", {})
     if study_protocol_id:
-        study = values.pop("study", {})
         study['protocol_id'] = study_protocol_id
-        study['donor_id'] = values['donor_id']
-        # -- Add donor protocol event
+        if "donor_id" in values:
+            study['donor_id'] = values["donor_id"]
+        else:
+            study.pop("donor_id", None)
 
+        # -- Add donor protocol event
         study_event = func_update_donor_protocol_event(study, tokenuser)
-        print("study_event", study_event)
         if not study_event["success"]:
             return study_event
 
@@ -335,7 +337,7 @@ def donor_new_consent(tokenuser: UserAccount):
     try:
         db.session.add(new_consent)
         db.session.flush()
-        # db.session.commit()
+
     except Exception as err:
         return transaction_error_response(err)
 
@@ -350,7 +352,7 @@ def donor_new_consent(tokenuser: UserAccount):
         new_answer = SampleConsentAnswer(**answer_result)
         new_answer.author_id = tokenuser.id
         db.session.add(new_answer)
-        # db.session.flush()
+
 
     try:
         db.session.commit()
@@ -359,8 +361,9 @@ def donor_new_consent(tokenuser: UserAccount):
         db.session.rollback()
         return transaction_error_response(err)
 
+    consent_info = consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
     return success_with_content_response(
-        consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
+        consent_info
     )
 
 
@@ -392,14 +395,14 @@ def donor_edit_consent(id, tokenuser: UserAccount):
     study_event = DonorProtocolEvent.query.filter_by(id=new_consent.study_event_id).first()
 
     study_protocol_id = values.pop("study_protocol_id", None)
+    study = values.pop("study", {})
 
-    if study_protocol_id is None:
-        if study_event:
-            db.session.delete(study_event)
-    else:
-        study = values.pop("study", {})
+    if study_protocol_id:
         study['protocol_id'] = study_protocol_id
-        study['donor_id'] = values['donor_id']
+        if "donor_id" in values:
+            study['donor_id'] = values['donor_id']
+        else:
+            study['donor_id'] = None
 
         # -- Add/update donor protocol event
         study_event = func_update_donor_protocol_event(study, tokenuser, study_event)
@@ -409,7 +412,6 @@ def donor_edit_consent(id, tokenuser: UserAccount):
 
         study_event = study_event["new_protocol_event"]
 
-
     try:
         consent_result = new_consent_schema.load(values)
     except ValidationError as err:
@@ -418,21 +420,27 @@ def donor_edit_consent(id, tokenuser: UserAccount):
     new_consent.update(consent_result)
     new_consent.update({"editor_id": tokenuser.id})
 
-    if study_event:
+    del_study = False
+    if study_protocol_id and study_event:
         new_consent.study_event_id = study_event.id
+    elif new_consent.study_event_id:
+        new_consent.study_event_id = None
+        del_study = True
     else:
         new_consent.study_event_id = None
 
     try:
         db.session.add(new_consent)
         db.session.flush()
-        # db.session.commit()
+        if del_study:
+            db.session.delete(study_event)
     except Exception as err:
         return transaction_error_response(err)
 
     ans = db.session.query(SampleConsentAnswer.question_id).filter_by(consent_id=new_consent.id).all()
     ans = [q[0] for q in ans] #-- Get the list of question ids
-
+    print("ans", ans)
+    print("answers", answers)
     # -- Delete the ones unchecked
     todel = [q for q in ans if q not in answers]
     for answer in todel:
@@ -460,9 +468,9 @@ def donor_edit_consent(id, tokenuser: UserAccount):
         db.session.rollback()
         return transaction_error_response(err)
 
+    consent_info = consent_schema.dump(new_consent)
     return success_with_content_response(
-        # consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
-        consent_schema.dump(new_consent)
+        consent_info
     )
 
 

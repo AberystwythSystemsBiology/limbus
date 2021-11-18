@@ -63,47 +63,6 @@ def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, fil
             join(SampleProtocolEvent).filter_by(**filters_protocol)#.subquery()
 
     return stmt
-    #stmt = db.session.query(subq)
-    # filters_protocol_template = {"id": filters_protocol[f] for f in filters_protocol}
-    # protocol = db.session.query(ProtocolTemplate).filter_by(**filters_protocol_template).first()
-    # s1 = None
-    # if protocol.type in [ProtocolType.STU]:
-    #     if filter_sample_id is None:
-    #         s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
-    #             filter_by(**filters).filter(*joins).filter_by(**filters_protocol)
-    #     else:
-    #         s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
-    #             filter(Sample.id.in_(filter_sample_id)).filter_by(**filters_protocol)
-    #
-    #
-    # protocol_event = db.session.query(ProtocolTemplate).\
-    #     join(SampleProtocolEvent).filter_by(**filters_protocol).first()
-    #
-    # if protocol_event:
-    #     # Protocols of Collection/Study
-    #     if str(protocol_event.type) in ["Collection", "Study", "Temporary Storage"]:
-    #
-    #         # Find all sub-samples of the matching samples
-    #         # and take the union of parent and sub-sample ID
-    #         if filter_sample_id is None:
-    #             s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-    #                 join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-    #                 join(subq, subq.c.id == SubSampleToSample.parent_id)
-    #         else:
-    #             s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
-    #                 join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-    #                 join(subq, subq.c.id == SubSampleToSample.parent_id)
-    #
-    #         if s1:
-    #             s1 = s1.union(s2)
-    #
-    # if s1:
-    #     stmt = db.session.query(subq).union(s1)
-    # else:
-    #     stmt = db.session.query(subq)
-    #
-    # return stmt
-
 
 def sample_source_study_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
     # -- Find samples with protocols of Collection/Study
@@ -466,7 +425,8 @@ def sample_new_sample(tokenuser: UserAccount):
     if "template_id" in consent_information and "date" in consent_information:
         # - New Sample based consent
         consent_response = requests.post(
-            url_for("api.sample_new_sample_consent", _external=True),
+            #url_for("api.sample_new_sample_consent", _external=True),
+            url_for("api.donor_new_consent", _external=True),
             headers=get_internal_api_header(tokenuser),
             json=consent_information,
         )

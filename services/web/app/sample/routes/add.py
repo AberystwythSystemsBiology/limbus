@@ -22,12 +22,13 @@ from .. import sample
 
 from ..forms import (
     CollectionConsentAndDisposalForm,
-    PatientConsentQuestionnaire,
+    #PatientConsentQuestionnaire,
     SampleTypeSelectForm,
     SampleReviewForm,
     CustomAttributeSelectForm,
 )
 
+from ...donor.forms import ConsentQuestionnaire
 from datetime import datetime
 
 import requests
@@ -60,12 +61,14 @@ def prepare_form_data(data: dict):
             "quantity": step_three["quantity"],
         },
         "consent_information": {
-            "identifier": step_two["consent_id"],
+            "identifier": step_two["identifier"],
             "comments": step_two["comments"],
             "date": step_two["date"],
             "undertaken_by": step_two["undertaken_by"],
-            "answers": step_two["checked"],
+            "answers": step_two["answers"],
             "template_id": step_one["consent_form_id"],
+            "study_protocol_id":step_two["study_protocol_id"],
+            "study": step_two["study"],
         },
         "disposal_information": {
             "instruction": step_one["disposal_instruction"],
@@ -249,32 +252,67 @@ def add_step_two(hash):
         abort(tmpstore_response.status_code)
 
     tmpstore_data = tmpstore_response.json()["content"]["data"]
-    consent_id = tmpstore_data["step_one"]["consent_form_id"]
+    template_id = tmpstore_data["step_one"]["consent_form_id"]
 
     consent_response = requests.get(
-        url_for("api.consent_view_template", id=consent_id, _external=True),
+        url_for("api.consent_view_template", id=template_id, _external=True),
         headers=get_internal_api_header(),
     )
-    print('consent_response:', consent_response.text)
+
     if consent_response.status_code != 200:
         return consent_response.response
 
+    protocols_response = requests.get(
+        url_for("api.protocol_query", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False},
+    )
+
     consent_template = consent_response.json()["content"]
+    consent_data = {'template_name': consent_template['name'],
+                     'template_version': consent_template['version'],
+                     'questions': consent_template['questions']}
 
-    questionnaire = PatientConsentQuestionnaire(consent_template)
+    study_protocols = [(0, '--- Select a study ---')]
+    if protocols_response.status_code == 200:
+        for protocol in protocols_response.json()["content"]:
+            if protocol["type"] == "Study":
+                study_protocols.append(
+                    [
+                        protocol["id"],
+                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
+                    ]
+                )
 
-    if questionnaire.validate_on_submit():
+    form = ConsentQuestionnaire(study_protocols, data=consent_data)
+
+    if form.validate_on_submit():
+
         consent_details = {
-            "consent_id": questionnaire.consent_id.data,
-            "comments": questionnaire.comments.data,
-            "date": str(questionnaire.date.data),
-            "undertaken_by": questionnaire.undertaken_by.data,
-            "checked": [],
+            #"donor_id": donor_id,
+            "identifier": form.identifier.data,
+            "comments": form.comments.data,
+            "date": str(form.date.data),
+            "undertaken_by": form.undertaken_by.data,
+            "answers": [],
+            "study_protocol_id": form.study_select.data,
+            "study": form.study.data,
         }
 
         for question in consent_template["questions"]:
-            if getattr(questionnaire, str(question["id"])).data:
-                consent_details["checked"].append(question["id"])
+            if getattr(form, str(question["id"])).data:
+                consent_details["answers"].append(question["id"])
+
+        if consent_details["study_protocol_id"] == 0:
+            consent_details["study_protocol_id"] = None
+            consent_details["study"] = None
+
+        else:
+            consent_details["study"]["event"] = {
+                "datetime": str(datetime.strptime("%s %s" % (consent_details["study"].pop("date"), "00:00:00"), "%Y-%m-%d %H:%M:%S")),
+                "comments": consent_details["study"].pop("comments"),
+                "undertaken_by": consent_details["study"].pop("undertaken_by"),
+            }
 
         tmpstore_data["step_two"] = consent_details
 
@@ -297,7 +335,7 @@ def add_step_two(hash):
         "sample/add/step_two.html",
         hash=hash,
         consent_template=consent_template,
-        questionnaire=questionnaire,
+        form=form,
     )
 
 
@@ -321,7 +359,7 @@ def add_step_three(hash):
 
 
     if sampletype_response.status_code == 200:
-        # print("sampletype_response.json()", sampletype_response.json())
+
         sampletypes = sampletype_response.json()["content"]['sampletype_choices']
         containertypes = sampletype_response.json()["content"]['container_choices']
 

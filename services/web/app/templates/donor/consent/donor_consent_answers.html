@@ -12,9 +12,13 @@
         <button type="button" id="print-consent" class="btn-icon" hidden>
             <i class="fa fa-print" aria-hidden="true"></i>
         </button>
-        <h5 class="modal-title" id="consentModalLabel"><span id="donor-colour">
-            <a href="{{ url_for('donor.view', id=donor_id) }}">
+
+        <h5 class="modal-title" id="consentModalLabel">
+            {% if donor_id -%}
+            <span id="donor-colour">
+            <a id="donor_view" href="{{ url_for('donor.view', id=donor_id) }}">
                 <i class="fa fa-user-circle"></i> LIMBDON-{{ donor_id }}</a></span>
+            {%- endif %}
             Digital Consent Form LIMBDC-{{ consent_id }}
         </h5>
         <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close" hidden>
@@ -96,7 +100,12 @@
                 {{ form_field(form.submit) }}
             </div>
             <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
-                    <a href="{{ url_for('donor.view', id=donor_id) }}">
+
+                    {% if donor_id %}
+                    <a id="home-view" href="{{ url_for('donor.view', id=donor_id) }}">
+                    {% elif sample_uuid!=null %}
+                    <a id="home-view" href="{{ url_for('sample.view', uuid=sample_uuid) }}">
+                    {% endif %}
                     <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
                         Cancel
                     </button></a>
@@ -112,5 +121,5 @@
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/donor/donor_consent_questionnaire.js') }}"></script>
 <script src="{{ url_for('static', filename='js/sample/information/add/consent.js') }}"></script>
-{#<script src="{{ url_for('static', filename='js/donor/donor_consent.js') }}"></script>#}
+
 {% endblock %}

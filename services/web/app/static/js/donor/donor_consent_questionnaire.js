@@ -34,6 +34,7 @@ function view_study_protocol() {
 $(document).ready(function() {
     view_study_protocol();
 
+
     $("#consent_select").on("change", function() {
         view_form_helper("consent_select");
     });

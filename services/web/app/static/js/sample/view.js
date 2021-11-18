@@ -178,6 +178,11 @@ function fill_title(sample) {
 
     $("#uuid").html(title_html);
 
+    var edit_link = sample["consent_information"]["_links"]["remove"];
+    edit_link = edit_link.replace("/donor/consent/", "/donor/sample/"+sample["uuid"]+"/consent/");
+    edit_link = edit_link.replace("/remove", "/edit");
+    $("#action-edit-consent").attr("href", edit_link);
+
     var author_html = "" + author_information["first_name"] + " " + author_information["last_name"]
     $("#created_by").html(author_html);
     $("#created_on").html(sample["created_on"]);
@@ -210,6 +215,25 @@ function fill_consent_information(consent_information) {
     $("#consent_version").html(consent_information["template"]["version"]);
     $("#consent_identifier").html(consent_information["identifier"]);
     $("#consent_comments").html(consent_information["comments"]);
+    $("#consent_undertakenby").html(consent_information["undertaken_by"]);
+
+
+    var study = consent_information["study"]
+    try {
+        doilink="";
+        if (study["protocol"]["name"]["doi"]!="") {
+            var link = doi2url(study["protocol"]["doi"]);
+            doilink += '<a href=' + link + '>' + '<a href=' + link + '>' + '[' + study["protocol"]["doi"] + '] ';
+            doilink += study["protocol"]["name"] + '</a>';
+        }  else {
+            doilink += study["protocol"]["name"];
+        }
+        $("#consent_study").html(doilink);
+        $("#consent_refno").html(study['reference_id']);
+    } catch {
+        $("#consent_study").html("");
+        $("#consent_refno").html("");
+   }
 
     let answer_ids = [];
     for (answer in consent_information["answers"]) {
