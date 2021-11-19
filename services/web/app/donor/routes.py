@@ -833,8 +833,8 @@ def add_sample_rerouter(id, hash):
         return redirect(url_for("donor.add_sample_step_one", id=id))
 
     if "step_one" in data:
-        if "step_three" in data:
-            api_data = prepare_new_sample_form_data(data)
+            if "step_three" in data:
+                api_data = prepare_new_sample_form_data(data)
 
                 if new_sample_response.status_code == 200:
                     # donor_id = api_data["consent_information"]["donor_id"]
