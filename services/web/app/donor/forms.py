@@ -211,7 +211,6 @@ def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
     return StaticForm()
 
 
-<<<<<<< HEAD
 
 class DonorStudyRegistrationForm(FlaskForm):
     class Meta:
