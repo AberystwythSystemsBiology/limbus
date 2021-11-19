@@ -14,7 +14,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from . import misc, get_internal_api_header
-from flask import render_template, session, current_app, url_for, redirect, abort, request
+from flask import (
+    render_template,
+    session,
+    current_app,
+    url_for,
+    redirect,
+    abort,
+    request,
+)
 from flask_login import current_user, login_required
 import requests
 

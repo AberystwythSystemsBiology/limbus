@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2021  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,14 +13,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import db, Base
-from ...mixins import RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin
-
-
-class Building(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMixin):
-    __versioned__ = {}
-    name = db.Column(db.String(128))
-    is_locked = db.Column(db.Boolean, default=False)
-    site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True))
-    site = db.relationship("SiteInformation", uselist=False)
-    rooms = db.relationship("Room", uselist=True)
+testing_headers = {"Email": "me@domain.com", "Token": "testing-token-please-change"}

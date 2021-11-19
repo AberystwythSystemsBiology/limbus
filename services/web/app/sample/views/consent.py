@@ -25,6 +25,7 @@ from ...consent.views import (
 from ..views.protocol import DonorProtocolEventSchema, BasicDonorProtocolEventSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
+
 class NewConsentSchema(masql.SQLAlchemySchema):
     class Meta:
         model = SampleConsent
@@ -51,7 +52,9 @@ class BasicConsentSchema(masql.SQLAlchemySchema):
     withdrawal_date = ma.Date()
     study = ma.Nested(BasicDonorProtocolEventSchema, many=False)
 
+
 basic_consent_schema = BasicConsentSchema()
+
 
 class ConsentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -64,8 +67,12 @@ class ConsentSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     undertaken_by = masql.auto_field()
     template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
+<<<<<<< HEAD
     template_questions = ma.Nested(BasicConsentFormQuestionSchema, many=True)
     #author = ma.Nested(BasicUserAccountSchema, many=False)
+=======
+    # author = ma.Nested(BasicUserAccountSchema, many=False)
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
     date = ma.Date()
@@ -74,10 +81,15 @@ class ConsentSchema(masql.SQLAlchemySchema):
     withdrawal_date = ma.Date()
     study = ma.Nested(DonorProtocolEventSchema, many=False)
     _links = ma.Hyperlinks(
+<<<<<<< HEAD
         {
             "edit": ma.URLFor("donor.edit_donor_consent", id="<id>", donor_id="<donor_id>", _external=True),
             "remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)
         })
+=======
+        {"remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)}
+    )
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
 
 consent_schema = ConsentSchema()

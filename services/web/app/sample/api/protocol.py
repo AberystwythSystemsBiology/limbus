@@ -23,7 +23,17 @@ from ...misc import get_internal_api_header
 from .queries import func_remove_aliquot_subsampletosample_children, func_remove_sample
 from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema, basic_sample_schema
 
-from ...database import db, SampleProtocolEvent, UserAccount, Sample, Event, ProtocolTemplate, SubSampleToSample
+from ..views import new_sample_protocol_event_schema, sample_protocol_event_schema
+
+from ...database import (
+    db,
+    SampleProtocolEvent,
+    UserAccount,
+    Sample,
+    Event,
+    ProtocolTemplate,
+    SubSampleToSample
+)
 from ...protocol.enums import ProtocolType
 
 

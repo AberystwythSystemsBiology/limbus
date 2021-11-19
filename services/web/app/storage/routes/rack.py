@@ -38,8 +38,10 @@ from uuid import uuid4
 from ...decorators import check_if_admin
 
 from ..forms import (
-    NewSampleRackForm, EditSampleRackForm,
-    SampleToEntityForm, SamplesToEntityForm,
+    NewSampleRackForm,
+    EditSampleRackForm,
+    SampleToEntityForm,
+    SamplesToEntityForm,
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
     UpdateRackFileUploadForm
@@ -92,14 +94,13 @@ def rack_endpoint():
 def rack_info():
     response = requests.get(
         url_for("api.storage_rack_info", _external=True),
-        #url_for("api.storage_rack_home", _external=True),
+        # url_for("api.storage_rack_home", _external=True),
         headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
         return response.json()
     return response.content
-
 
 
 @storage.route("/rack/new", methods=["GET", "POST"])
@@ -245,6 +246,7 @@ def rack_automatic_entry():
             "entry_date": str(form.entry_date.data),
             "entry_time": str(form.entry_time.data),
             "json": func_csvfile_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
+
         }
         return redirect(url_for("storage.rack_automatic_entry_validation", _hash=_hash))
 
@@ -274,20 +276,20 @@ def rack_automatic_entry_validation(_hash: str):
 
     if form.validate_on_submit():
 
-        json={
+        json = {
             "serial_number": session_data["serial_number"],
             "num_rows": session_data["json"]["num_rows"],
             "num_cols": session_data["json"]["num_cols"],
             "colour": session_data["colour"],
             "description": session_data["description"],
             "entry_datetime": str(
-                     datetime.strptime(
-                         "%s %s" % (session_data["entry_date"], session_data["entry_time"]),
-                         "%Y-%m-%d %H:%M:%S",
-                     )
-                 ),
+                datetime.strptime(
+                    "%s %s" % (session_data["entry_date"], session_data["entry_time"]),
+                    "%Y-%m-%d %H:%M:%S",
+                )
+            ),
             "entry": session_data["entry"],
-        };
+        }
 
         _samples = []
 
@@ -308,7 +310,7 @@ def rack_automatic_entry_validation(_hash: str):
             }
             ),
 
-        json['samples_pos'] = samples_pos
+        json["samples_pos"] = samples_pos
         response = requests.post(
             url_for("api.storage_rack_new_with_samples", _external=True),
             headers=get_internal_api_header(),
@@ -329,8 +331,9 @@ def rack_automatic_entry_validation(_hash: str):
         hash=_hash,
     )
 
-#@storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
-#@login_required
+
+# @storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
+# @login_required
 def rack_automatic_entry_validation_div(_hash: str):
     session_data = session[_hash]
     sample_data = {}
@@ -385,8 +388,8 @@ def rack_automatic_entry_validation_div(_hash: str):
                     json={
                         "sample_id": s[0],
                         "rack_id": response.json()["content"]["id"],
-                        "row": s[1], #s[2],
-                        "col": s[2], #s[1],
+                        "row": s[1],  # s[2],
+                        "col": s[2],  # s[1],
                         "entry_datetime": str(datetime.now()),
                     },
                 )
@@ -406,31 +409,36 @@ def rack_automatic_entry_validation_div(_hash: str):
         hash=_hash,
     )
 
-@storage.route("/rack/query/rack", methods=["GET","POST"])
+
+@storage.route("/rack/query/rack", methods=["GET", "POST"])
 def check_rack_to_shelf():
     data = {}
-    data['id'] = request.json['id']
+    data["id"] = request.json["id"]
     response = requests.get(
-        url_for("api.storage_rack_to_shelf_check", id=int(data['id']), _external=True),
+        url_for("api.storage_rack_to_shelf_check", id=int(data["id"]), _external=True),
         headers=get_internal_api_header(),
     )
 
-    data['warning'] = response.json()["content"]
+    data["warning"] = response.json()["content"]
 
     return jsonify(data)
 
-@storage.route("/rack/query/sample", methods=["GET","POST"])
+
+@storage.route("/rack/query/sample", methods=["GET", "POST"])
 def check_sample_to_rack():
     data = {}
-    data['id'] = request.json['id']
+    data["id"] = request.json["id"]
     response = requests.get(
-        url_for("api.storage_sample_to_entity_check", id=int(data['id']), _external=True),
+        url_for(
+            "api.storage_sample_to_entity_check", id=int(data["id"]), _external=True
+        ),
         headers=get_internal_api_header(),
     )
 
-    data['warning'] = response.json()["content"]
+    data["warning"] = response.json()["content"]
 
     return jsonify(data)
+
 
 @storage.route("/rack/LIMBRACK-<id>")
 @login_required
@@ -442,7 +450,7 @@ def view_rack(id):
 
     if response.status_code == 200:
         return render_template(
-        "storage/rack/view.html", rack=response.json()["content"]
+            "storage/rack/view.html", rack=response.json()["content"]
         )
 
     return abort(response.status_code)
@@ -476,9 +484,11 @@ def view_rack_endpoint(id):
         rack_view = view_response.json()
 
         _rack = []
-        for row in range(rack_view["content"]["num_rows"]+1): # row, col: index in array
+        for row in range(
+            rack_view["content"]["num_rows"] + 1
+        ):  # row, col: index in array
             _rack.append({})
-            for col in range(rack_view["content"]["num_cols"]+1):
+            for col in range(rack_view["content"]["num_cols"] + 1):
                 _rack[row][col] = {"empty": True}  # row+1, col+1: position in the rack
 
         # - Initialise rack_view['view'] to 2d array with empty cells
@@ -530,7 +540,9 @@ def assign_rack_sample(id, row, column):
                 if item["selected"] and item["storage_type"] != "RUC":
                     samples.append(item["sample"])
             if len(samples) == 0:
-                flash("Add samples to your sample cart and select from the cart first! ")
+                flash(
+                    "Add samples to your sample cart and select from the cart first! "
+                )
                 return redirect(url_for("storage.view_rack", id=id))
 
             form = SampleToEntityForm(samples)
@@ -606,7 +618,6 @@ def assign_rack_samples(id):
                     # samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
                     samples.append(item["sample"])
 
-
             if len(samples) == 0:
                 flash("Add samples to your sample cart and select from the cart! ")
                 return redirect(url_for("storage.view_rack", id=id))
@@ -637,8 +648,10 @@ def assign_rack_samples(id):
                             if item["sample"]["id"] == sample["id"]:
                                 sample.update(item["sample"])
 
-                    return render_template("storage/rack/view_sample_to_rack.html", id=id,
-                                           sampletostore=sampletostore
+                    return render_template(
+                        "storage/rack/view_sample_to_rack.html",
+                        id=id,
+                        sampletostore=sampletostore,
                     )
 
                 else:
@@ -654,19 +667,21 @@ def assign_rack_samples(id):
     return abort(view_response.status_code)
 
 
-
-@storage.route("/rack/LIMBRACK-<id>/auto_assign_sample_to_rack", methods=["GET", "POST"])
+@storage.route(
+    "/rack/LIMBRACK-<id>/auto_assign_sample_to_rack", methods=["GET", "POST"]
+)
 @login_required
 def auto_assign_sample_to_rack(id):
     return render_template("storage/rack/view_sample_to_rack.html", id=id)
 
+
 @storage.route("/rack/fill_with_samples", methods=["GET", "POST"])
 @login_required
 def storage_rack_fill_with_samples():
-    if request.method == 'POST':
-       values = request.json
+    if request.method == "POST":
+        values = request.json
     else:
-       return {'messages': 'Sample and storage info needed!', 'success': False}
+        return {"messages": "Sample and storage info needed!", "success": False}
 
     response = requests.post(
         url_for("api.storage_rack_fill_with_samples", _external=True),
@@ -844,8 +859,6 @@ def add_rack_to_cart(id):
     return abort(view_response.status_code)
 
 
-
-
 @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_rack(id):
@@ -875,17 +888,22 @@ def edit_rack(id):
         )
         if response1.status_code == 200:
             shelves = response1.json()["content"]
-            #shelf_required = len(shelves) > 0
+            # shelf_required = len(shelves) > 0
 
-        form = EditSampleRackForm(shelves=shelves,
-            data={"serial": rack["serial_number"], "description": rack["description"],
-                  "storage_id": rack['storage_id'], "shelf_id": rack["shelf_id"]}
+        form = EditSampleRackForm(
+            shelves=shelves,
+            data={
+                "serial": rack["serial_number"],
+                "description": rack["description"],
+                "storage_id": rack["storage_id"],
+                "shelf_id": rack["shelf_id"],
+            },
         )
 
         delattr(form, "num_cols")
         delattr(form, "num_rows")
         delattr(form, "colours")
-        #if not shelf_required:
+        # if not shelf_required:
         #    delattr(form, "shelf_id")
 
         if form.validate_on_submit():
@@ -897,9 +915,8 @@ def edit_rack(id):
                 "serial_number": form.serial.data,
                 "description": form.description.data,
                 "storage_id": form.storage_id.data,
-                "shelf_id": shelf_id
+                "shelf_id": shelf_id,
             }
-
 
             edit_response = requests.put(
                 url_for("api.storage_rack_edit", id=id, _external=True),
@@ -919,7 +936,6 @@ def edit_rack(id):
         )
 
     abort(response.status_code)
-
 
 
 @storage.route("/rack/LIMBRACK-<id>/delete", methods=["GET", "POST"])
@@ -942,13 +958,23 @@ def delete_rack(id):
             flash("Rack Successfully Deleted")
             if edit_response.json()["content"] is None:
                 return redirect(url_for("storage.rack_index"))
-            return redirect(url_for("storage.view_shelf",id=edit_response.json()["content"], _external=True))
-        elif edit_response.status_code == 400 and edit_response.json()["message"]=="Can't delete assigned samples":
+            return redirect(
+                url_for(
+                    "storage.view_shelf",
+                    id=edit_response.json()["content"],
+                    _external=True,
+                )
+            )
+        elif (
+            edit_response.status_code == 400
+            and edit_response.json()["message"] == "Can't delete assigned samples"
+        ):
             flash("Cannot delete rack with assigned samples")
         else:
             flash("We have a problem: %s" % edit_response.status_code)
-        return redirect(url_for("storage.view_rack",id=id,_external=True))
+        return redirect(url_for("storage.view_rack", id=id, _external=True))
     abort(response.status_code)
+
 
 @storage.route("/rack/LIMBRACK-<id>/lock", methods=["GET", "POST"])
 @login_required
@@ -976,5 +1002,3 @@ def lock_rack(id):
         return redirect(url_for("storage.view_rack", id=id))
 
     return abort(response.status_code)
-
-

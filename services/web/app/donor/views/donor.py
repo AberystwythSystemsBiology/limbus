@@ -124,8 +124,8 @@ class DonorSchema(masql.SQLAlchemySchema):
 
     race = EnumField(RaceTypes, by_value=True)
 
-    #author = ma.Nested(BasicUserAccountSchema)
-    #updater = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
+    # updater = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
     updater = ma.Nested(UserAccountSearchSchema)
 

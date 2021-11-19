@@ -127,7 +127,6 @@ def edit_room(id):
     return abort(response.status_code)
 
 
-
 @storage.route("/rooms/LIMBROOM-<id>/lock", methods=["GET", "POST"])
 @login_required
 @check_if_admin
@@ -139,8 +138,8 @@ def lock_room(id):
     )
     if response.status_code == 200:
         edit_response = requests.put(
-        url_for("api.storage_room_lock", id=id, _external=True),
-        headers=get_internal_api_header(),
+            url_for("api.storage_room_lock", id=id, _external=True),
+            headers=get_internal_api_header(),
         )
 
         if edit_response.status_code == 200:
@@ -176,12 +175,24 @@ def delete_room(id):
 
         if edit_response.status_code == 200:
             flash("Room Successfully Deleted")
-            return redirect(url_for("storage.view_building", id=edit_response.json()["content"], _external=True))
-        elif edit_response.status_code == 400 and edit_response.json()["message"] == "Entity is locked":
+            return redirect(
+                url_for(
+                    "storage.view_building",
+                    id=edit_response.json()["content"],
+                    _external=True,
+                )
+            )
+        elif (
+            edit_response.status_code == 400
+            and edit_response.json()["message"] == "Entity is locked"
+        ):
             flash("Cannot delete room as it is locked")
-        elif edit_response.status_code == 400 and edit_response.json()["message"]== "Has associated cold storage":
+        elif (
+            edit_response.status_code == 400
+            and edit_response.json()["message"] == "Has associated cold storage"
+        ):
             flash("Cannot delete room with associated cold storage")
         else:
             flash("We have a problem: %s" % edit_response.status_code)
-        return redirect(url_for("storage.view_room", id=id,_external=True))
+        return redirect(url_for("storage.view_room", id=id, _external=True))
     return abort(response.status_code)

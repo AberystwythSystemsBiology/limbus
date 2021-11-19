@@ -59,7 +59,7 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
         model = SampleDisposal
 
     id = masql.auto_field()
-    #sample_id = masql.auto_field()
+    # sample_id = masql.auto_field()
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
     disposal_date = masql.auto_field()

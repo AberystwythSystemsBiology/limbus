@@ -22,10 +22,11 @@ from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
     BasicSampleDisposalSchema,
-    BasicConsentSchema, ConsentSchema,
+    BasicConsentSchema,
+    ConsentSchema,
     EntityToStorageSchema,
     BasicSampleDiposalEventSchema,
-    SampleShipmentToSampleInfoSchema
+    SampleShipmentToSampleInfoSchema,
 )
 
 from ...document.views import BasicDocumentSchema
@@ -48,7 +49,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
     site_id = masql.auto_field()
-    #current_site_id = masql.auto_field()
+    # current_site_id = masql.auto_field()
 
     quantity = masql.auto_field()
     disposal_id = masql.auto_field()
@@ -150,7 +151,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleSource, by_value=True)
     site_id = masql.auto_field()
     current_site_id = masql.auto_field()
-    #author = ma.Nested(BasicUserAccountSchema, many=False)
+    # author = ma.Nested(BasicUserAccountSchema, many=False)
     author = ma.Nested(UserAccountSearchSchema, many=False)
 
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
@@ -189,7 +190,8 @@ class SampleSchema(masql.SQLAlchemySchema):
             ),
             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
             "barcode_generation": ma.URLFor(
-                "api.misc_generate_barcode", _external=True,
+                "api.misc_generate_barcode",
+                _external=True,
             ),
         }
     )

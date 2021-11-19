@@ -27,6 +27,7 @@ from wtforms import (
 from ..enums import DisposalReason
 from datetime import datetime
 
+
 def SampleDisposalInstructionForm(protocols: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         disposal_date = DateField(

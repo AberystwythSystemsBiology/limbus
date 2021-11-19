@@ -1,0 +1,26 @@
+name: build project and test
+on: [push]
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: Download DOID and prepare .env file.
+        run: wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf ./services/web/ontologies/ ; cp .env.example .env
+      - name: Build the stack.
+        run: docker-compose build ; docker-compose run web sh -c "yarn install"
+      - name: Create the database.
+        run: mkdir -p ./services/web/migrations/versions ; docker-compose run web sh -c "alembic revision --autogenerate -m 'Generating database'; alembic upgrade head"
+      - name: Creating Kryten, the testing robot.
+        run: docker-compose run web sh -c "flask cmd_setup create-kryten"
+      - name: Creating test user, the testing user.
+        run: docker-compose run web sh -c "flask cmd_setup create-testuser"
+      - name: Run tests.
+        run: docker-compose run --service-ports web sh -c "nose2 -v"
+      - run: echo "🍏 This job's status is ${{ job.status }}."

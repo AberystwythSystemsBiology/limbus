@@ -21,7 +21,7 @@ from ..enums import ConsentWithdrawalRequester
 class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     identifier = db.Column(db.String(128))
-    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id", use_alter=True))
 
     comments = db.Column(db.Text)
     date = db.Column(db.Date, nullable=False)
@@ -30,7 +30,7 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
     study_event_id = db.Column(db.Integer, db.ForeignKey("donorprotocolevent.id"))
     study = db.relationship("DonorProtocolEvent", uselist=False)
 
-    file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    file_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))
     file = db.relationship("Document")
 
     withdrawn = db.Column(db.Boolean, default=False, nullable=False)
@@ -61,15 +61,24 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
+<<<<<<< HEAD
     __versioned__ = {}
     consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
     question_id = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
+=======
+    consent_id = db.Column(
+        db.Integer, db.ForeignKey("sampleconsent.id", use_alter=True)
+    )
+    question_id = db.Column(
+        db.Integer, db.ForeignKey("consentformtemplatequestion.id", use_alter=True)
+    )
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
 
 class SampleConsentWithdrawal(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
-    consent_id = db.Column(db.ForeignKey("sampleconsent.id"))
+    consent_id = db.Column(db.ForeignKey("sampleconsent.id", use_alter=True))
     withdrawal_reason = db.Column(db.Text)
 
     requested_by = db.Column(db.Enum(ConsentWithdrawalRequester))
@@ -77,11 +86,11 @@ class SampleConsentWithdrawal(Base, RefAuthorMixin, RefEditorMixin):
     disposal_required = db.Column(db.Boolean, nullable=False, default=True)
     future_consent = db.Column(db.Boolean, nullable=False, default=False)
 
-    future_consent_id = db.Column(db.ForeignKey("sampleconsent.id"))
+    future_consent_id = db.Column(db.ForeignKey("sampleconsent.id", use_alter=True))
 
-    file_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    file_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))
     file = db.relationship("Document")
 
-    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
 
     event = db.relationship("Event", uselist=False)

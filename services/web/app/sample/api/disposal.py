@@ -30,10 +30,15 @@ from ..views import (
 )
 
 from ...database import (
-    db, SampleDisposal, UserAccount,
-    SampleDisposalEvent, Sample,
-    Event, SampleProtocolEvent,
-    EntityToStorage)
+    db,
+    SampleDisposal,
+    UserAccount,
+    SampleDisposalEvent,
+    Sample,
+    Event,
+    SampleProtocolEvent,
+    EntityToStorage,
+)
 
 import requests
 
@@ -87,7 +92,6 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         # Step 4 update storage: delete association to lts/rack
         # Step 5 update sample status
 
-        # sample_id = sample_response.json()["content"]["id"]
         remaining_quantity = sample_response.json()["content"]["remaining_quantity"]
         protocolevent_values = {"event" : values["event"],
                   "protocol_id": values["protocol_id"],
@@ -122,13 +126,12 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         except Exception as err:
             return transaction_error_response(err)
 
-
         try:
             disposal_event_values = new_sample_disposal_event_schema.load(
                 {
-                    "sample_id" : sample_id,
+                    "sample_id": sample_id,
                     "reason": values["reason"],
-                    "protocol_event_id": new_sample_protocol_event.id
+                    "protocol_event_id": new_sample_protocol_event.id,
                 }
             )
         except ValidationError as err:
@@ -146,7 +149,9 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
             uuid=sample_response.json()["content"]["uuid"]
         ).first()
 
-        disposal_instruction = SampleDisposal.query.filter_by(id = sample.disposal_id).first()
+        disposal_instruction = SampleDisposal.query.filter_by(
+            id=sample.disposal_id
+        ).first()
         disposal_instruction.disposal_event_id = new_sample_protocol_event.id
         disposal_instruction.editor_id = tokenuser.id
 
@@ -162,8 +167,12 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         sample_status_events = {"sample_disposal": disposal_instruction}
 
         try:
-            res = func_update_sample_status(tokenuser=tokenuser, auto_query=True, sample=sample,
-                                            events=sample_status_events)
+            res = func_update_sample_status(
+                tokenuser=tokenuser,
+                auto_query=True,
+                sample=sample,
+                events=sample_status_events,
+            )
 
             message = "Sample successfully disposed! " + res["message"]
             if res["success"] is True and res["sample"]:
@@ -176,7 +185,6 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
 
         except Exception as err:
             return transaction_error_response(err)
-
 
     else:
         return sample_response.content

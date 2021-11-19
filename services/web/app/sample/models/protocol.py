@@ -21,11 +21,16 @@ from uuid import uuid4
 class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
 
+<<<<<<< HEAD
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     reduced_quantity = db.Column(db.Float)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+=======
+    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     protocol_id = db.Column(
-        db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
+        db.Integer, db.ForeignKey("protocoltemplate.id", use_alter=True), nullable=False
     )
 
     protocol = db.relationship("ProtocolTemplate")

@@ -25,7 +25,7 @@ from ...enums import (
     FixationType,
     CellContainer,
     FluidContainer,
-    ContainerBaseType
+    ContainerBaseType,
 )
 
 from wtforms import SelectField, FloatField, SubmitField
@@ -57,9 +57,19 @@ def SampleTypeSelectForm(sampletypes, containertypes)-> FlaskForm:
         quantity = FloatField("Quantity", validators=[DataRequired()])
         fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
 
+<<<<<<< HEAD
         container_base_type = SelectField("Container Base Type", choices=ContainerBaseType.choices())
         fluid_container = SelectField("Primary Container", choices=containertypes["PRM"]["container"]+FluidContainer.choices())
         cell_container = SelectField("Long-term Preservation", choices=containertypes["LTS"]["container"]+CellContainer.choices())
+=======
+    container_base_type = SelectField(
+        "Container Base Type", choices=ContainerBaseType.choices()
+    )
+    fluid_container = SelectField("Primary Container", choices=FluidContainer.choices())
+    cell_container = SelectField(
+        "Long-term Preservation", choices=CellContainer.choices()
+    )
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
         submit = SubmitField("Continue")
 

@@ -22,8 +22,15 @@ class SampleReview(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     result = db.Column(db.Enum(ReviewResult))
     review_type = db.Column(db.Enum(ReviewType))
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), nullable=False)
+    sample_id = db.Column(
+        db.Integer, db.ForeignKey("sample.id", use_alter=True), nullable=False
+    )
     quality = db.Column(db.Enum(SampleQuality))
 
+<<<<<<< HEAD
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
     event = db.relationship("Event", cascade="all, delete")
+=======
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
+    event = db.relationship("Event")
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902

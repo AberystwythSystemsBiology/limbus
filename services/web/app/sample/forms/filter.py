@@ -22,9 +22,14 @@ from wtforms import SelectField, StringField, SubmitField, BooleanField, SelectM
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
 from ...consent.enums import QuestionType
 
+<<<<<<< HEAD
 def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
     sampletypes.insert(0, (None, "None"))
     # print("sampletype", sampletypes)
+=======
+
+def SampleFilterForm() -> FlaskForm:
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     class StaticForm(FlaskForm):
         biohazard_level = SelectField(
             "Biohazard Level", choices=BiohazardLevel.choices(with_none=True)
@@ -33,6 +38,7 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         uuid = StringField("UUID")
         barcode = StringField("Barcode")
         colour = SelectField("Colour", choices=Colour.choices(with_none=True))
+<<<<<<< HEAD
         base_type = SelectField("Base Type", choices=SampleBaseType.choices(with_none=True))
         source = SelectField("Sample Source", choices=SampleSource.choices(with_none=True))
         status = SelectField("Sample Status", choices=SampleStatus.choices(with_none=True))
@@ -48,10 +54,40 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         ),
     )
 
+=======
+        base_type = SelectField(
+            "Sample Type", choices=SampleBaseType.choices(with_none=True)
+        )
+        source = SelectField(
+            "Sample Source", choices=SampleSource.choices(with_none=True)
+        )
+        status = SelectField(
+            "Sample Status", choices=SampleStatus.choices(with_none=True)
+        )
+
+        submit = SubmitField("Filter")
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    sites = [(None, "None")]
+    if sites_response.status_code == 200:
+        for site in sites_response.json()["content"]:
+            sites.append(
+                (
+                    site["id"],
+                    "<%s>%s - %s" % (site["id"], site["name"], site["description"]),
+                )
+            )
+
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     setattr(
         StaticForm,
         "current_site_id",
         SelectField(
+<<<<<<< HEAD
             "Site", choices=sites,
             default=None
         ),
@@ -71,6 +107,10 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         "consent_type",
         SelectMultipleField(
             "Consent type", choices=QuestionType.choices(), #(with_none=True),
+=======
+            "Site",
+            choices=sites,
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
         ),
     )
 
@@ -85,6 +125,7 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
     study_protocols = [(None, "None")]
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
+<<<<<<< HEAD
             if protocol["type"] in ["Study", "Collection", "Temporary Storage"]:
                 doino = ""
                 if protocol["doi"] != "":
@@ -101,12 +142,20 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
                        protocol["id"],
                         "<%s>%s - %s" % (protocol["type"], protocol["id"], protocol["name"]),
                     )
+=======
+            protocols.append(
+                (
+                    protocol["id"],
+                    "<%s>%s - %s"
+                    % (protocol["type"], protocol["id"], protocol["name"]),
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
                 )
 
     setattr(
         StaticForm,
         "protocol_id",
         SelectField(
+<<<<<<< HEAD
             "Protocol", choices=protocols,
         ),
     )
@@ -119,3 +168,11 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         ),
     )
     return StaticForm()
+=======
+            "Protocol/Collection",
+            choices=protocols,
+        ),
+    )
+
+    return StaticForm()
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902

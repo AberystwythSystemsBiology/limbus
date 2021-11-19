@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from flask import abort, current_app, request
+from flask import abort, current_app, request, testing
 from flask_login import login_user, logout_user, current_user
 from functools import wraps
 import inspect

@@ -31,4 +31,4 @@ class DocumentFile(Base, RefAuthorMixin):
     name = db.Column(db.String, nullable=False)
     checksum = db.Column(db.String(256), nullable=False)
     path = db.Column(db.String)
-    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id", use_alter=True))

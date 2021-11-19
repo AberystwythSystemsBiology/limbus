@@ -62,17 +62,17 @@ def add_sample_to_cart(uuid):
 @login_required
 def add_samples_to_cart():
     samples = []
-    if request.method == 'POST':
+    if request.method == "POST":
         values = request.json
-        samples = values.pop('samples', [])
+        samples = values.pop("samples", [])
 
     if len(samples) == 0:
-       return {'success': False, 'messages': 'No sample selected!'}
+        return {"success": False, "messages": "No sample selected!"}
 
     to_cart_response = requests.post(
         url_for("api.add_samples_to_cart", _external=True),
         headers=get_internal_api_header(),
-        json={'samples': [{"id": sample["id"]} for sample in samples]},
+        json={"samples": [{"id": sample["id"]} for sample in samples]},
     )
 
     if to_cart_response.status_code == 200:
@@ -81,27 +81,43 @@ def add_samples_to_cart():
     return to_cart_response.json()
 
 
+<<<<<<< HEAD
 @sample.route("samples_shipment_to_cart", methods=["POST"])
+=======
+@sample.route("with_rack_to_cart", methods=["POST"])
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 @login_required
 def add_samples_shipment_to_cart():
     samples = []
-    if request.method == 'POST':
+    if request.method == "POST":
         values = request.json
+<<<<<<< HEAD
     #     shipment = values.pop('shipment', [])
     #
     # if len(samples) == 0:
     #    return {'success': False, 'messages': 'No sample selected!'}
+=======
+        samples = values.pop("samples", [])
+
+    if len(samples) == 0:
+        return {"success": False, "messages": "No sample selected!"}
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
     to_cart_response = requests.post(
         url_for("api.add_samples_in_shipment_to_cart", _external=True),
         headers=get_internal_api_header(),
+<<<<<<< HEAD
         json=values,
+=======
+        json={"samples": [{"id": sample["id"]} for sample in samples]},
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     )
 
     if to_cart_response.status_code == 200:
         return to_cart_response.json()
 
     return to_cart_response.json()
+
 
 @sample.route("<uuid>/cart/remove", methods=["DELETE"])
 @login_required
@@ -121,6 +137,7 @@ def remove_sample_from_cart(uuid: str):
 
     return sample_response.content
 
+
 @sample.route("/cart/remove/LIMBRACK-<id>", methods=["GET"])
 @login_required
 def remove_rack_from_cart(id: int):
@@ -137,7 +154,6 @@ def remove_rack_from_cart(id: int):
         flash(remove_response.json()["message"])
         return redirect(url_for("sample.shipment_cart"))
     return sample_response.content
-
 
 
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
@@ -285,6 +301,7 @@ def view_data(uuid: str):
     if sample_response.status_code == 200:
         return sample_response.json()
     return sample_response.content
+
 
 @sample.route("<uuid>/update_status", methods=["GET"])
 @login_required

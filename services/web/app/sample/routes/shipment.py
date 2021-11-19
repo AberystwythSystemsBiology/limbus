@@ -16,7 +16,7 @@
 import requests
 from .. import sample
 from flask_login import login_required
-from flask import json, render_template, url_for, redirect, flash,request,jsonify
+from flask import json, render_template, url_for, redirect, flash, request, jsonify
 from ...misc import get_internal_api_header
 from ..forms import SampleShipmentEventForm, SampleShipmentStatusUpdateform
 from datetime import datetime
@@ -83,26 +83,26 @@ def shipment_update_status(uuid):
     if shipment_response.status_code == 200:
         shipment_info = {}
         status = shipment_response.json()["content"]["status"]
-        if status in ['', None]:
-            shipment_info["status"] = 'TBC'
+        if status in ["", None]:
+            shipment_info["status"] = "TBC"
         else:
-            shipment_info["status"] =SampleShipmentStatusStatus(status).name
+            shipment_info["status"] = SampleShipmentStatusStatus(status).name
 
-        if shipment_info["status"] in ["DEL", 'UND', "CAN"]:
+        if shipment_info["status"] in ["DEL", "UND", "CAN"]:
             flash("The shipment has been closed! ")
             return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
 
-        form = SampleShipmentStatusUpdateform(data= shipment_info)
+        form = SampleShipmentStatusUpdateform(data=shipment_info)
 
         if form.validate_on_submit():
-            form_information= {
+            form_information = {
                 "status": form.status.data,
                 "tracking_number": form.tracking_number.data,
                 "comments": form.comments.data,
                 "datetime": str(
                     datetime.strptime(
-                        "%s %s" % (form.date.data, form.time.data),
-                        "%Y-%m-%d %H:%M:%S")
+                        "%s %s" % (form.date.data, form.time.data), "%Y-%m-%d %H:%M:%S"
+                    )
                 ),
             }
             update_response = requests.put(
@@ -121,6 +121,7 @@ def shipment_update_status(uuid):
             "sample/shipment/update_status.html", uuid=uuid, form=form
         )
 
+
 @sample.route("/shipment/update_status/<uuid>/data")
 @login_required
 def shipment_update_status_data(uuid):
@@ -134,6 +135,7 @@ def shipment_update_status_data(uuid):
         shipment_response.status_code,
         shipment_response.headers.items(),
     )
+
 
 @sample.route("/shipment/view/<uuid>/data")
 @login_required
@@ -180,7 +182,7 @@ def shipment_new_step_one():
                                 "%Y-%m-%d %H:%M:%S",
                             )
                         ),
-                        "undertaken_by": form.undertaken_by.data
+                        "undertaken_by": form.undertaken_by.data,
                     },
                 },
             )
@@ -190,49 +192,67 @@ def shipment_new_step_one():
                 return redirect(url_for("sample.shipment_index"))
 
             else:
-                #flash("Oh no.")
-                flash(new_shipment_response.json()['message'])
+                # flash("Oh no.")
+                flash(new_shipment_response.json()["message"])
 
         return render_template("sample/shipment/new/new.html", form=form)
     else:
         return sites_response.content
 
-@sample.route("/shipment/cart/select/shipment",methods=["GET","POST"])
+
+@sample.route("/shipment/cart/select/shipment", methods=["GET", "POST"])
 def shipment_cart_select_shipment():
-    sampleUUID=request.json['UUID']
-    sample_respose=requests.get(url_for("api.sample_view_sample",uuid=sampleUUID,_external=True),headers=get_internal_api_header(),)
+    sampleUUID = request.json["UUID"]
+    sample_respose = requests.get(
+        url_for("api.sample_view_sample", uuid=sampleUUID, _external=True),
+        headers=get_internal_api_header(),
+    )
     cart_response = requests.post(
-        url_for("api.select_record_cart_shipment",sample_id=sample_respose.json()["content"]["id"], _external=True),
+        url_for(
+            "api.select_record_cart_shipment",
+            sample_id=sample_respose.json()["content"]["id"],
+            _external=True,
+        ),
         headers=get_internal_api_header(),
     )
     return jsonify(cart_response.status_code)
 
-@sample.route("/shipment/cart/deselect/shipment",methods=["GET","POST"])
+
+@sample.route("/shipment/cart/deselect/shipment", methods=["GET", "POST"])
 def shipment_cart_deselect_shipment():
-    sampleUUID=request.json['UUID']
-    sample_respose=requests.get(url_for("api.sample_view_sample",uuid=sampleUUID,_external=True),headers=get_internal_api_header(),)
+    sampleUUID = request.json["UUID"]
+    sample_respose = requests.get(
+        url_for("api.sample_view_sample", uuid=sampleUUID, _external=True),
+        headers=get_internal_api_header(),
+    )
     if sample_respose.status_code == 200:
         cart_response = requests.post(
-            url_for("api.deselect_record_cart_shipment",sample_id=sample_respose.json()["content"]["id"], _external=True),
+            url_for(
+                "api.deselect_record_cart_shipment",
+                sample_id=sample_respose.json()["content"]["id"],
+                _external=True,
+            ),
             headers=get_internal_api_header(),
         )
         return jsonify(cart_response.status_code)
     return jsonify(sample_respose.status_code)
 
-@sample.route("/shipment/cart/select",methods=["GET","POST"])
+
+@sample.route("/shipment/cart/select", methods=["GET", "POST"])
 def shipment_cart_select():
-    sampleID=request.json['sample']['id']
+    sampleID = request.json["sample"]["id"]
     cart_response = requests.post(
-        url_for("api.select_record_cart",sample_id=sampleID, _external=True),
+        url_for("api.select_record_cart", sample_id=sampleID, _external=True),
         headers=get_internal_api_header(),
     )
     return jsonify(cart_response.status_code)
 
-@sample.route("/shipment/cart/deselect",methods=["GET","POST"])
+
+@sample.route("/shipment/cart/deselect", methods=["GET", "POST"])
 def shipment_cart_deselect():
-    sampleID=request.json['sample']['id']
+    sampleID = request.json["sample"]["id"]
     cart_response = requests.post(
-        url_for("api.deselect_record_cart",sample_id=sampleID, _external=True),
+        url_for("api.deselect_record_cart", sample_id=sampleID, _external=True),
         headers=get_internal_api_header(),
     )
     return jsonify(cart_response.status_code)

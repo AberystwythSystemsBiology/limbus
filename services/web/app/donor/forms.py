@@ -28,7 +28,7 @@ from wtforms import (
     TextAreaField,
     HiddenField,
     FieldList,
-    FormField
+    FormField,
 )
 
 
@@ -195,7 +195,6 @@ def DonorCreationForm(sites: dict, data={}):
     return StaticForm(data=data)
 
 
-
 def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
     class StaticForm(FlaskForm):
 
@@ -212,6 +211,7 @@ def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
     return StaticForm()
 
 
+<<<<<<< HEAD
 
 class DonorStudyRegistrationForm(FlaskForm):
     class Meta:
@@ -336,15 +336,16 @@ class ConsentAnswerForm(FlaskForm):
 #     return StaticForm(data)
 
 class ConsentSelectForm(FlaskForm):
-        consent_id = SelectField("Select Consent ID", coerce=int)
+    consent_id = SelectField("Select Consent ID", coerce=int)
 
-def ConsentWithdrawalForm(consent_ids, data={})-> FlaskForm:
-    future_choices = [(0, 'Sample disposal required')]
+
+def ConsentWithdrawalForm(consent_ids, data={}) -> FlaskForm:
+    future_choices = [(0, "Sample disposal required")]
     if data["future"]:
         future_choices = [
-            (1, 'Sample disposal required, No more future collection.'),
-            (2, 'Sample disposal required, consent for future collection'),
-            (3, 'Sample disposal not required, no more future collection')
+            (1, "Sample disposal required, No more future collection."),
+            (2, "Sample disposal required, consent for future collection"),
+            (3, "Sample disposal not required, no more future collection"),
         ]
 
     class StaticForm(FlaskForm):
@@ -352,7 +353,7 @@ def ConsentWithdrawalForm(consent_ids, data={})-> FlaskForm:
         donor_id = IntegerField("Donor id")
         consent_id = IntegerField("Donor Consent ID")
         identifier = StringField("Identifier")
-        template_name = TextAreaField( "Template name")
+        template_name = TextAreaField("Template name")
 
         template_version = StringField("Template version")
         consent_comments = TextAreaField("Consent Comments")
@@ -360,13 +361,18 @@ def ConsentWithdrawalForm(consent_ids, data={})-> FlaskForm:
         num_sample = IntegerField("Number of associated samples")
 
         withdrawal_reason = TextAreaField()
-        requested_by = SelectField("Consent Withdrawal Requested By",
-                                   choices=ConsentWithdrawalRequester.choices())
+        requested_by = SelectField(
+            "Consent Withdrawal Requested By",
+            choices=ConsentWithdrawalRequester.choices(),
+        )
 
-        future_consent_opt = SelectField("Option regarding consent for future collection",
-                                         choices=future_choices, coerce=int)
+        future_consent_opt = SelectField(
+            "Option regarding consent for future collection",
+            choices=future_choices,
+            coerce=int,
+        )
         comments = TextAreaField(
-                "Consent Withdrawal Comments",
+            "Consent Withdrawal Comments",
         )
         communicated_by = StringField("Communicated by")
         withdrawal_date = DateField(
@@ -374,9 +380,8 @@ def ConsentWithdrawalForm(consent_ids, data={})-> FlaskForm:
             validators=[DataRequired()],
             default=datetime.today(),
         )
-        #submit = SubmitField("Submit")
+        # submit = SubmitField("Submit")
 
     form = StaticForm(data=data)
     form.consent_select.consent_id.choices = consent_ids
     return form
-

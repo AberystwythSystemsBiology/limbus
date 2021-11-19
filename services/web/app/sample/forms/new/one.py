@@ -27,7 +27,7 @@ from wtforms import (
     DateField,
     TextAreaField,
     TimeField,
-    HiddenField
+    HiddenField,
 )
 
 from wtforms.validators import DataRequired, Optional
@@ -124,7 +124,12 @@ def CollectionDonorConsentAndDisposalForm(
     consent_ids: list, collection_protocols: list, collection_sites: list, data={}
 ) -> FlaskForm:
 
+<<<<<<< HEAD
     sample_status_choices = [(k, nm) for (k, nm) in  SampleStatus.choices() if k not in ["DES", "TRA"]]
+=======
+    print("consent_ids", consent_ids)
+    print("coll protol", collection_protocols)
+>>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
     class StaticForm(FlaskForm):
         donor_id = HiddenField("Donor id")

@@ -21,7 +21,7 @@ from uuid import uuid4
 class RefAuthorMixin(object):
     @declared_attr
     def author_id(cls):
-        return db.Column(db.Integer, db.ForeignKey("useraccount.id"))
+        return db.Column(db.Integer, db.ForeignKey("useraccount.id", use_alter=True))
 
     @declared_attr
     def author(cls):
@@ -33,7 +33,7 @@ class RefAuthorMixin(object):
 class RefEditorMixin(object):
     @declared_attr
     def editor_id(cls):
-        return db.Column(db.Integer, db.ForeignKey("useraccount.id"))
+        return db.Column(db.Integer, db.ForeignKey("useraccount.id", use_alter=True))
 
     @declared_attr
     def editor(cls):
