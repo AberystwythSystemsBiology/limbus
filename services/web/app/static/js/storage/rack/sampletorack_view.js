@@ -173,16 +173,19 @@ function get_barcode(sample_info, barc_type) {
 
 function render_modal(sample_info) {
     $("#sampleName").html(render_colour(sample_info["colour"]) + sample_info["uuid"])
-
-    var html = render_content("Biobank Barcode", sample_info["biobank_barcode"]);
-    html += render_content("Sample Type", sample_info["base_type"]);
-    html += render_content("Collection Site", sample_info["collection_site"]);
+    var html = render_content("Barcode", sample_info["barcode"]);
+    html += render_content("DBid", sample_info["id"]);
+    html += render_content("Base Type", sample_info["base_type"]);
+    html += render_content("Sample Content", render_sample_label(sample_info));
     html += render_content("Sample Source", sample_info["source"]);
+/*
+    html += render_content("Donor", '<a href=""> LIMBDON-'+sample_info["consent_information"]["donor_id"] +'</a>';
+    html += render_content("Study", '<a href=""> LIMBDON-'+sample_info["consent_information"]["protocol"] +'</a>';
+    html += render_content("Donor RefNo", '<a href=""> LIMBDON-'+sample_info["consent_information"]["donor_id"] +'</a>';
+    html += render_content("ConsentID", sample_info["consent_information"]);*/
+    html += render_content("Status", sample_info["status"]);
     html += render_content("Created On", sample_info["created_on"]);
-
-    // $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
-    //get_barcode("#sample_barcode", sample_info, "qr_code")
-
+    
     $("#sample_view_btn").click( function() {
         window.location.href = sample_info["_links"]["self"];
     })
@@ -243,8 +246,20 @@ function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
     if (dispopt=='id')
         content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
     else if (dispopt=='donor') {
-        content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+        content += '<small>';
+        if (sample_info['consent_information']['donor_id']!=null)
+            content += '[' + sample_info['consent_information']['donor_id'] + '] ';
+
+        if (sample_info['consent_information']['study']!=null) {
+            content += '(S' + sample_info['consent_information']['study']['protocol']['id'];
+
+            if (sample_info['consent_information']['study']['reference_id']!="") {
+                content += '-' + sample_info['consent_information']['study']['reference_id'];
+            }
+            content += ') ';
+        }
         content += render_sample_label(sample_info) + '</small>';
+
     }
 
     content += "</div></div></div>"
@@ -273,8 +288,21 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
         if (dispopt=="id") {
             content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
         } else if (dispopt=="donor") {
-            content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+
+            content += '<small>';
+            if (sample_info['consent_information']['donor_id']!=null)
+                content += '[' + sample_info['donor_id'] + '] ';
+
+            if (sample_info['consent_information']['study']!=null) {
+                content += '(S' + sample_info['consent_information']['study']['protocol']['id'];
+
+                if (sample_info['consent_information']['study']['reference_id']!="") {
+                    content += '-' + sample_info['consent_information']['study']['reference_id'];
+                }
+                content += ') ';
+            }
             content += render_sample_label(sample_info) + '</small>';
+
         }
         content += '<i class="fas fa-plus " style="color:blue  ;"></i>';
     } else if (info['status']=='fill')  {
@@ -283,8 +311,21 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
         if (dispopt=="id") {
             content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
         } else if (dispopt=="donor") {
-            content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+
+            content += '<small>';
+            if (sample_info['consent_information']['donor_id']!=null)
+                content += '[' + sample_info['donor_id'] + '] ';
+
+            if (sample_info['consent_information']['study']!=null) {
+                content += '(S' + sample_info['consent_information']['study']['protocol']['id'];
+
+                if (sample_info['consent_information']['study']['reference_id']!="") {
+                    content += '-' + sample_info['consent_information']['study']['reference_id'];
+                }
+                content += ') ';
+            }
             content += render_sample_label(sample_info) + '</small>';
+
         }
         content += '<i class="fas fa-plus " style="color:blue;"></i>';
     } else if (info['status']=='fill2empty')  {
@@ -296,8 +337,20 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
                 info['sample_old']['id'] + '] ' + info['sample_old']['barcode'] + '</small>';
         } else if (dispopt=="donor") {
 
-            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['consent_information']['donor_id'] + '] ';
+            content += '<small style="color:red ; text-decoration:line-through">';
+            if (info['sample_old']['donor_id']!=null)
+                content += '[' + info['sample_old']['consent_information']['donor_id'] + '] ';
+
+            if (info['sample_old']['consent_information']['study']!=null) {
+                content += '(S' + info['sample_old']['consent_information']['study']['protocol']['id'];
+
+                if (info['sample_old']['consent_information']['study']['reference_id']!="") {
+                    content += '-' + info['sample_old']['consent_information']['study']['reference_id'];
+                }
+                content += ') ';
+            }
             content += render_sample_label(info['sample_old']) + '</small>';
+
         }
         content += '<i class="fas fa-times " style="color:red;"></i>';
     }  else if (info['status']=='fill2fill')  {
@@ -309,8 +362,21 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
                     info['sample_old']['id'] + ']' + info['sample_old']['barcode'] + '</small>';
 
         } else if (dispopt=="donor") {
-            content += '<small style="color:red ; text-decoration:line-through">[' + info['sample_old']['donor_id'] + '] ';
+
+            content += '<small style="color:red ; text-decoration:line-through">';
+            if (info['sample_old']['donor_id']!=null)
+                content += '[' + info['sample_old']['donor_id'] + '] ';
+
+            if (info['sample_old']['consent_information']['study']!=null) {
+                content += '(S' + sample_info['consent_information']['study']['protocol']['id'];
+
+                if (sample_info['consent_information']['study']['reference_id']!="") {
+                    content += '-' + sample_info['consent_information']['study']['reference_id'];
+                }
+                content += ') ';
+            }
             content += render_sample_label(info['sample_old']) + '</small>';
+
         }
         content += '<i class="fas fa-times " style="color:red;"></i>';
         // -- New sample info

@@ -123,15 +123,22 @@ function get_barcode(sample_info, barc_type) {
 
 function render_modal(sample_info) {
     $("#sampleName").html(render_colour(sample_info["colour"]) + sample_info["uuid"])
-
-    var html = render_content("Biobank Barcode", sample_info["biobank_barcode"]);
-    html += render_content("Sample Type", sample_info["base_type"]);
-    html += render_content("Collection Site", sample_info["collection_site"]);
+    var html = render_content("Barcode", sample_info["barcode"]);
+    html += render_content("DBid", sample_info["id"]);
+    html += render_content("Base Type", sample_info["base_type"]);
+    html += render_content("Sample Content", render_sample_label(sample_info));
     html += render_content("Sample Source", sample_info["source"]);
+/*
+    html += render_content("Donor", '<a href=""> LIMBDON-'+sample_info["consent_information"]["donor_id"] +'</a>';
+    html += render_content("Study", '<a href=""> LIMBDON-'+sample_info["consent_information"]["protocol"] +'</a>';
+    html += render_content("Donor RefNo", '<a href=""> LIMBDON-'+sample_info["consent_information"]["donor_id"] +'</a>';
+    html += render_content("ConsentID", sample_info["consent_information"]);*/
+    html += render_content("Status", sample_info["status"]);
     html += render_content("Created On", sample_info["created_on"]);
 
+
+
     // $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
-    
 
     //get_barcode("#sample_barcode", sample_info, "qr_code")
 
@@ -181,18 +188,32 @@ function render_full(info, row, col, count, assign_sample_url) {
 
 function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
     var sample_info = info["sample"]
-    // console.log(sample_info)
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
     content += '<div class="square tube" style="background-color: lightpink ;">' +
         '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
 
-    if (dispopt=='id')
-        content += '<small>['+sample_info['id'] + '] ' +sample_info['barcode'] +'</small>';
+    if (dispopt=='id') {
+        content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'];
+        content += '</small>';
+    }
     else if (dispopt=='donor') {
-        content += '<small>[' + sample_info['consent_information']['donor_id'] + '] '
+        content += '<small>';
+        if (sample_info['consent_information']['donor_id']!=null)
+            content += '[' + sample_info['consent_information']['donor_id'] + '] ';
+
+        if (sample_info['consent_information']['study']!=null) {
+            content += '(S' + sample_info['consent_information']['study']['protocol']['id'];
+
+            if (sample_info['consent_information']['study']['reference_id']!="") {
+                content += '-' + sample_info['consent_information']['study']['reference_id'];
+            }
+            content += ') ';
+        }
         content += render_sample_label(sample_info) + '</small>';
+
     }
     content += "</div></div></div>";
+
     $("#row_" + row).append(content);
 
     $("#tube_" + [row, col].join("_")).click(function () {
@@ -335,9 +356,6 @@ $('#cart-confirmation-modal').on('hidden.bs.modal', function () {
     location.reload();
 })
 
-// $("#cart-confirmation-close").click(function(){
-//     location.reload();
-// })
 
 $(document).ready(function () {
     collapse_sidebar();
