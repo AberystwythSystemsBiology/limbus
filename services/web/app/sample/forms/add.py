@@ -48,13 +48,9 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
         )
         comments = TextAreaField("Comments")
         container_base_type = SelectField(
-<<<<<<< HEAD
             "Container base type",
             choices=ContainerBaseType.choices(),
             default="LTS"
-=======
-            "Container base type", choices=ContainerBaseType.choices()
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
         )
 
         processed_by = StringField(
