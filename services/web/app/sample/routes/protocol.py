@@ -220,7 +220,6 @@ def remove_protocol_event(uuid):
         flash(remove_response.json()["message"])
     else:
         flash("We have a problem: %s" % (remove_response.json()["message"]))
-<<<<<<< HEAD
 
     return remove_response.json()
 
@@ -240,7 +239,3 @@ def lock_sample_creation_event(uuid):
         flash("We have a problem: %s" % (response.json()["message"]))
 
     return response.json()
-=======
-        # abort(403)
-        return remove_response.json()
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902

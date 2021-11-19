@@ -42,25 +42,16 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
         cascade = "all, delete"
     )
 
-<<<<<<< HEAD
-=======
-    # shipment_status_id = db.Column(db.Integer, db.ForeignKey("SampleShipmentStatus.id"))
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     shipment_status = db.relationship("SampleShipmentStatus", uselist=False)
 
 
 
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
-<<<<<<< HEAD
     __versioned__ = {}
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
-    from_site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id"))
-=======
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
     from_site_id = db.Column(
         db.Integer, db.ForeignKey("siteinformation.id", use_alter=True)
     )
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
     old_site = db.relationship("SiteInformation")
     sample = db.relationship("Sample")

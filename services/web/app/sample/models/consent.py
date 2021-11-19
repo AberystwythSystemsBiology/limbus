@@ -61,18 +61,13 @@ class SampleConsent(Base, RefAuthorMixin, RefEditorMixin):
 
 
 class SampleConsentAnswer(Base, RefAuthorMixin, RefEditorMixin):
-<<<<<<< HEAD
     __versioned__ = {}
-    consent_id = db.Column(db.Integer, db.ForeignKey("sampleconsent.id"))
-    question_id = db.Column(db.Integer, db.ForeignKey("consentformtemplatequestion.id"))
-=======
     consent_id = db.Column(
         db.Integer, db.ForeignKey("sampleconsent.id", use_alter=True)
     )
     question_id = db.Column(
         db.Integer, db.ForeignKey("consentformtemplatequestion.id", use_alter=True)
     )
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
 
 class SampleConsentWithdrawal(Base, RefAuthorMixin, RefEditorMixin):

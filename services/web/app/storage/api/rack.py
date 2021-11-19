@@ -124,22 +124,16 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     # Update entitytostorage with storage_type 'STB'
     stb_batch = []
     for sample in samples_pos:
-<<<<<<< HEAD
         #print("sample", sample)
 
         try:
             sample_id = sample['sample_id']
         except:
             sample_id = sample['id']
-=======
-        # print("sample", sample)
-        sample_id = sample["sample_id"]
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
         # Step 1 Delete existing entity to storage record for given sample
         # TODO: Could consider setting removed to True instead of delete the whole record in the future
         #
-<<<<<<< HEAD
         if sample_id:
             stbs = EntityToStorage.query.filter(EntityToStorage.sample_id == sample_id,
                         EntityToStorage.storage_type!='BTS',
@@ -153,13 +147,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             stbs = EntityToStorage.query.filter(EntityToStorage.rack_id == rack_id,
                     EntityToStorage.col == sample['col'],EntityToStorage.row == sample['row'],
                     EntityToStorage.storage_type=='STB')
-=======
-        stbs = EntityToStorage.query.filter(
-            EntityToStorage.sample_id == sample_id,
-            EntityToStorage.storage_type != "BTS",
-            or_(EntityToStorage.removed.is_(None), EntityToStorage.removed != True),
-        ).all()
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
         if stbs is not None:
             for stb in stbs:
@@ -179,7 +166,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         # stb_values = {'sample_id': sample['sample_id'], 'row': sample['row'], 'col': sample['col'],
         #               'rack_id': rack_id, 'storage_type': 'STB'}
 
-<<<<<<< HEAD
+
         if sample_id:
             stb_values = new_sample_to_sample_rack_schema.load(sample, unknown = 'EXCLUDE')
 
@@ -201,30 +188,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except Exception as err:
                     return transaction_error_response(err)
                     #pass
-=======
-        stb_values = new_sample_to_sample_rack_schema.load(sample, unknown="EXCLUDE")
-
-        new_stb = EntityToStorage(**stb_values)
-        new_stb.storage_type = "STB"
-        new_stb.author_id = tokenuser.id
-        new_stb.rack_id = rack_id
-        if "entry_datetime" not in sample:
-            new_stb.entry_datetime = func.now()
-        # if 'entry' not in sample:
-        #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
-        stb_batch.append(new_stb)
-
-        usercart = UserCart.query.filter_by(
-            sample_id=sample_id, author_id=tokenuser.id
-        ).first()
-        # usercart = UserCart.query.filter_by(sample_id=sample_id).first()
-        if usercart:
-            try:
-                db.session.delete(usercart)
-            except Exception as err:
-                return transaction_error_response(err)
-                # pass
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
     # Postgres dialect, prefetch the id for batch insert
     identities = [
@@ -249,7 +212,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     # Update sample current_site_id/status
     sample_ids_not_updated = []
     for sample in samples_pos:
-<<<<<<< HEAD
         sample_id = sample['sample_id']
         if sample_id:
             res = func_update_sample_status(tokenuser=tokenuser, auto_query=True,
@@ -262,23 +224,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except:
                     sample_ids_not_updated.append(sample_id)
                     pass
-=======
-        sample_id = sample["sample_id"]
-        res = func_update_sample_status(
-            tokenuser=tokenuser,
-            auto_query=True,
-            sample_id=sample_id,
-            events={"sample_storage": None},
-        )
-
-        print("sample", sample, res["message"])
-        if res["success"] is True and res["sample"]:
-            try:
-                db.session.add(res["sample"])
-            except:
-                sample_ids_not_updated.append(sample_id)
-                pass
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     msg_status = ""
     if len(sample_ids_not_updated) > 0:
         msg_status = "%d samples not updated" % len(sample_ids_not_updated)
@@ -399,19 +344,10 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         return validation_error_response(err)
 
     if not commit:
-<<<<<<< HEAD
         stbs = EntityToStorage.query.\
             filter(EntityToStorage.rack_id==rack_id, EntityToStorage.storage_type=='STB',
                    or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
-        #print("stbs", stbs)
-=======
-        stbs = EntityToStorage.query.filter(
-            EntityToStorage.rack_id == rack_id,
-            EntityToStorage.storage_type == "STB",
-            or_(EntityToStorage.removed.is_(None), EntityToStorage.removed != True),
-        ).all()
-        print("stbs", stbs)
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
+
         occupancies = [(stb1.row, stb1.col) for stb1 in stbs]
 
         num_rows = rack.num_rows
@@ -464,23 +400,10 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         return success_with_content_message_response(samplestore, message)
 
     if entry_datetime:
-<<<<<<< HEAD
 
         samples_pos = [{'sample_id': sample['id'], 'row': sample['row'], 'col': sample['col'],
                         "entry_datetime": entry_datetime, "entry": entry}
                        for sample in samples]
-=======
-        samples_pos = [
-            {
-                "sample_id": sample["id"],
-                "row": sample["row"],
-                "col": sample["col"],
-                "entry_datetime": entry_datetime,
-                "entry": entry,
-            }
-            for sample in samples
-        ]
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     else:
         samples_pos = [
             {"sample_id": sample["id"], "row": sample["row"], "col": sample["col"]}
@@ -491,7 +414,6 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     return func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser)
 
 
-<<<<<<< HEAD
 
 @api.route("/storage/rack/edit_samples_pos", methods=["POST", "GET"])
 @token_required
@@ -643,9 +565,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/query/rack",methods=["GET"])
-=======
-@api.route("/storage/rack/LIMBRACK-<id>/query/rack", methods=["GET"])
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 @token_required
 def storage_rack_to_shelf_check(id, tokenuser: UserAccount):
     uc = UserCart.query.filter_by(rack_id=id).first()
@@ -1021,7 +940,7 @@ def storage_rack_info(tokenuser: UserAccount):
 @token_required
 def storage_transfer_sample_to_rack(tokenuser: UserAccount):
     values = request.get_json()
-    print('values:', values)
+    # print('values:', values)
     rack_id = int(values['rack_id'])
     if not values:
         return no_values_response()
@@ -1071,10 +990,6 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         events={"sample_storage": None},
     )
 
-<<<<<<< HEAD
-=======
-    # print("sample", sample, res["message"])
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     if res["success"] is True and res["sample"]:
         try:
             db.session.add(res["sample"])

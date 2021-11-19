@@ -122,13 +122,9 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
         primary_key=True,
     )
     protocol_event_id = db.Column(
-<<<<<<< HEAD
-        db.Integer, db.ForeignKey("sampleprotocolevent.id")#, primary_key=True
-=======
         db.Integer,
         db.ForeignKey("sampleprotocolevent.id", use_alter=True),
         primary_key=True,
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     )
 
 
@@ -140,14 +136,10 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
     instruction = db.Column(db.Enum(DisposalInstruction))
     comments = db.Column(db.Text)
     disposal_date = db.Column(db.Date, nullable=True)
-<<<<<<< HEAD
-    review_event_id = db.Column(db.Integer, db.ForeignKey("samplereview.id"))
-=======
     review_event_id = db.Column(
         db.Integer, db.ForeignKey("samplereview.id", use_alter=True)
     )
 
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     approved = db.Column(db.Boolean, nullable=True)
     approval_file_id = db.Column(
         db.Integer, db.ForeignKey("document.id", use_alter=True)
@@ -162,10 +154,6 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}
     reason = db.Column(db.Enum(DisposalReason))
-<<<<<<< HEAD
-    sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"), unique=True, primary_key=True)
-    protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
-=======
     sample_id = db.Column(
         db.Integer,
         db.ForeignKey("sample.id", use_alter=True),
@@ -175,4 +163,3 @@ class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     protocol_event_id = db.Column(
         db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True)
     )
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902

@@ -81,36 +81,22 @@ def add_samples_to_cart():
     return to_cart_response.json()
 
 
-<<<<<<< HEAD
+
 @sample.route("samples_shipment_to_cart", methods=["POST"])
-=======
-@sample.route("with_rack_to_cart", methods=["POST"])
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 @login_required
 def add_samples_shipment_to_cart():
     samples = []
     if request.method == "POST":
         values = request.json
-<<<<<<< HEAD
     #     shipment = values.pop('shipment', [])
     #
     # if len(samples) == 0:
     #    return {'success': False, 'messages': 'No sample selected!'}
-=======
-        samples = values.pop("samples", [])
-
-    if len(samples) == 0:
-        return {"success": False, "messages": "No sample selected!"}
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
     to_cart_response = requests.post(
         url_for("api.add_samples_in_shipment_to_cart", _external=True),
         headers=get_internal_api_header(),
-<<<<<<< HEAD
         json=values,
-=======
-        json={"samples": [{"id": sample["id"]} for sample in samples]},
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     )
 
     if to_cart_response.status_code == 200:
