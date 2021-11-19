@@ -836,6 +836,12 @@ def add_sample_rerouter(id, hash):
             if "step_three" in data:
                 api_data = prepare_new_sample_form_data(data)
 
+                new_sample_response = requests.post(
+                    url_for("api.sample_new_sample", _external=True),
+                    headers=get_internal_api_header(),
+                    json=api_data,
+                )
+
                 if new_sample_response.status_code == 200:
                     # donor_id = api_data["consent_information"]["donor_id"]
                     return redirect(
@@ -845,12 +851,6 @@ def add_sample_rerouter(id, hash):
                 else:
                     flash("We have encountered an error. %s " % new_sample_response.json()["message"])
             return redirect(url_for("donor.add_sample_step_three", hash=hash))
-
-            if new_sample_response.status_code == 200:
-                return redirect(new_sample_response.json()["content"]["_links"]["self"])
-            else:
-                flash("We have encountered an error.")
-        return redirect(url_for("donor.add_sample_step_three", hash=hash))
 
 
 @donor.route("add/sample_information/<hash>", methods=["GET", "POST"])
