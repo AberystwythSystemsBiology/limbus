@@ -104,19 +104,6 @@ class SiteRegistrationForm(FlaskForm):
     submit = SubmitField("Register Site")
 
 
-<<<<<<< HEAD
-=======
-def SampleToEntityForm(samples: list) -> FlaskForm:
-
-    # samples_choices = [[0, '--- Select a sample ---']]
-    # for sample in samples:
-    #     sample_check_response = requests.get(url_for("api.storage_sample_to_entity_check",id=int(sample["id"]), _external=True),headers=get_internal_api_header())
-    #     if not sample_check_response.json()["content"] == "SCT":
-    #         samples_choices.append([int(sample["id"]), sample["uuid"]])
-    samples_choices = [[0, "--- Select a sample ---"]]
-
-    for sample in samples:
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
 
 def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = func_get_samples_choices(samples)
@@ -153,21 +140,9 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
 
 def SamplesToEntityForm(samples: list) -> FlaskForm:
-<<<<<<< HEAD
     samples_choices = func_get_samples_choices(samples)
     samples_choices.insert(0, [0, '--- Select at least one samples ---'])
-=======
 
-    samples_choices = [[0, "--- Select at least one samples ---"]]
-    for sample in samples:
-        # samples_choices.append([int(sample["id"]), sample["uuid"]])
-        type_info = sample.pop("sample_type_information", "")
-        sample_type = func_label_sample_type(type_info)
-        container_type = func_label_container_type(type_info)
-        sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
-        samples_choices.append([int(sample["id"]), sample_label])
-
->>>>>>> d1e264eb56d9321a53ba2c9bf11dec66d1c81902
     class StaticForm(FlaskForm):
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
