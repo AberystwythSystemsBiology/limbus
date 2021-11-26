@@ -364,8 +364,6 @@ def rack_create_from_file():
         else:
             flash(sample_move_response.json()["message"])
 
-    else:
-        flash("Errors in reading rack sample position file")
 
     return render_template("storage/rack/new/from_file/step_one.html",
                            form=form,

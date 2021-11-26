@@ -141,6 +141,7 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
         # "projects":[2,3,4],
         # "sites":[2,3],
         "data_entry": {
+            "site": {"default":1, "choices":[2]},
 
             "consent_template": {"default": 2, "choices":[]},
             "protocol": {

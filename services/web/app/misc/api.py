@@ -246,20 +246,48 @@ def site_home(tokenuser: UserAccount):
 @api.route("/misc/site/tokenuser", methods=["GET"])
 @token_required
 def site_home_tokenuser(tokenuser: UserAccount):
+
     if tokenuser.is_admin:
-        choices = [(None, "None")]
         sites = basic_sites_schema.dump(SiteInformation.query.all())
+
     else:
-        choices = []
         sites = basic_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
 
+    choices = []
+    settings = tokenuser.settings
+
+    try:
+        id0 = settings["data_entry"]["site"]["default"]
+        nm0 = None
+    except:
+        id0 = None
+
+    try:
+        choices0 = settings["data_entry"]["site"]["choices"]
+        if len(choices0) ==  0:
+            choices0 = None
+    except:
+        choices0 = None
+
     for site in sites:
+        if choices0:
+            if site["id"] not in choices0:
+                continue
+
+        if id0 and site["id"] == id0:
+            nm0 = "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+            continue
+
         choices.append(
             (
                 site["id"],
                 "<%s>%s - %s" % (site["id"], site["name"], site["description"])
             )
         )
+
+    if id0 and  nm0:
+        # -- Insert default
+        choices = [(id0, nm0)] + choices
 
     return success_with_content_response({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
 

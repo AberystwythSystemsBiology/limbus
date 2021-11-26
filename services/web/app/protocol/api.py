@@ -108,6 +108,7 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
         # -- Insert default
         choices = [(id0, nm0)] + choices
 
+    print("choices", choices)
     return success_with_content_response({'info': protocols, 'choices': choices, 'default': id0})
 
 
