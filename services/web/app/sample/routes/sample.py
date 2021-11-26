@@ -39,7 +39,7 @@ def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
 
-@sample.route("<uuid>/cart/add", methods=["POST"])
+@sample.route("<uuid>/cart/add", methods=["POST","PUT"])
 @login_required
 def add_sample_to_cart(uuid):
     sample_response = requests.get(

@@ -102,19 +102,3 @@
 </div>
 
 {% endblock %}
-
-
-
-{% block javascript %}
-<script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
-<script>
-    //sessionStorage.clear();
-    sessionStorage.removeItem("sampletostore");
-	sampletostore = {{ session_data | tojson }};
-	console.log("sampletostore", sampletostore)
-    sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore));
-</script>
-
-<script src="{{ url_for('static', filename='js/storage/rack/rack_create.js') }}"></script>
-
-{% endblock %}

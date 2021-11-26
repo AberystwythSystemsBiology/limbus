@@ -136,15 +136,41 @@ function render_modal(sample_info) {
     html += render_content("Status", sample_info["status"]);
     html += render_content("Created On", sample_info["created_on"]);
 
-
-
     // $("#sample_barcode").html("<img class='margin: 0 auto 0;' src='" + sample_info["_links"]["qr_code"] + "'>")
 
     //get_barcode("#sample_barcode", sample_info, "qr_code")
 
     $("#sample_view_btn").click( function() {
         window.location.href = sample_info["_links"]["self"];
-    })
+    });
+
+    $("#sample_to_cart_btn").click( function() {
+        $("#sampleInfoModal").modal("hide");
+        var msg = "Adding a sample to cart will remove it from storage, press OK to proceed!";
+        if (confirm(msg)) {
+            $.ajax({
+                type: "POST",
+                url: sample_info["_links"]["add_sample_to_cart"],
+                dataType: "json",
+       'success': function (data) {
+           json = data;
+           $("#cart-confirmation-msg").html(data["message"]);
+           $("#cart-confirmation-modal").modal({
+               show: true
+           });
+           },
+       'failure': function (data) {
+           json = data;
+           $("#cart-confirmation-msg").html(data["message"]);
+           $("#cart-confirmation-modal").modal({
+               show: true
+           });
+           }
+            });
+        } else {
+            return false;
+        }
+    });
 
     $("#sampleModalInformation").html(html);
 
