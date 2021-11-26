@@ -30,18 +30,7 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
 
     protocol = db.relationship("ProtocolTemplate")
     event = db.relationship("Event", cascade="all, delete")
-    # sample = db.relationship("Sample") #, cascade="all, delete")
 
-
-# class DonorProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
-#     __versioned__ = {}
-#
-#     donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
-#     reference_id = db.Column(db.String(128))
-#     event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
-#     protocol_id = db.Column(
-#         db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
-#     )
-#
-#     protocol = db.relationship("ProtocolTemplate")
-#     event = db.relationship("Event", cascade="all, delete")
+    # subsamples_created = db.relationship(
+    #     "SubSampleToSample", uselist=True,
+    # )

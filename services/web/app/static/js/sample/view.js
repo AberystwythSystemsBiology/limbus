@@ -546,6 +546,7 @@ function fill_protocol_events(events) {
         if (event_info["reduced_quantity"] != null)
             reduced_quantity = event_info["reduced_quantity"] + " " + measurement;
 
+        console.log("event_info", event_info);
         if (event_info["event"] != null || event_info["event"] != undefined) {
             if (event_info["event"].hasOwnProperty('datetime')) {
                 event_datetime = event_info["event"]["datetime"];

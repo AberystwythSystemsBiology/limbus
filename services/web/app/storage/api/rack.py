@@ -81,22 +81,28 @@ def storage_rack_new(tokenuser: UserAccount):
     )
 
 
-@api.route("/storage/rack/new/with_samples", methods=["POST"])
+@api.route("/storage/rack/new/with_samples", methods=["POST", "GET"])
 @token_required
 def storage_rack_new_with_samples(tokenuser: UserAccount):
 
     values = request.get_json()
-    # print(values)
+
     if not values:
         return no_values_response()
 
-    samples_pos = values.pop("samples_pos")
+    if "samples" in values:
+        samples_pos = values.pop("samples")
+    else:
+        samples_pos = values.pop("samples_pos")
+
     entry_datetime = values.pop("entry_datetime")
     entry = values.pop("entry")
 
+    print("dbvalues", values)
+    rack_values = values.pop("rack")
     # Step 1. Validate and add new sample rack
     try:
-        result = new_sample_rack_schema.load(values)
+        result = new_sample_rack_schema.load(rack_values)
     except ValidationError as err:
         return validation_error_response(err)
 
@@ -106,7 +112,7 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
         db.session.add(new_rack)
         db.session.flush()
         rack_id = new_rack.id
-        # print('new_rack id: ', rack_id)
+        print('new_rack id: ', rack_id)
 
     except Exception as err:
         return transaction_error_response(err)
@@ -150,10 +156,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
 
         if stbs is not None:
             for stb in stbs:
-                # print('stb', stb)
-                # stb.removed = True
-                # stb.editor_id = tokenuser.id;
-                # stb.updated_on = func.now()
+
                 try:
                     db.session.delete(stb)
                     # db.session.add(stb)
@@ -165,7 +168,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         # Step 2. Add new sample to rack record
         # stb_values = {'sample_id': sample['sample_id'], 'row': sample['row'], 'col': sample['col'],
         #               'rack_id': rack_id, 'storage_type': 'STB'}
-
 
         if sample_id:
             stb_values = new_sample_to_sample_rack_schema.load(sample, unknown = 'EXCLUDE')
@@ -181,13 +183,12 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             stb_batch.append(new_stb)
 
             usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
-            #usercart = UserCart.query.filter_by(sample_id=sample_id).first()
+
             if usercart:
                 try:
                     db.session.delete(usercart)
                 except Exception as err:
                     return transaction_error_response(err)
-                    #pass
 
     # Postgres dialect, prefetch the id for batch insert
     identities = [
@@ -313,7 +314,6 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
 
 
 
-
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
 @token_required
 def storage_rack_fill_with_samples(tokenuser: UserAccount):
@@ -332,6 +332,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     entry = values.pop("entry", None)
 
     rack_id = int(values["rack_id"])
+
     samples = values["samples"]
     commit = False
     if "commit" in values and values["commit"]:
@@ -477,6 +478,7 @@ def func_get_samples(barcode_type, samples):
 
     return samples, n_found
 
+
 @api.route("/storage/rack/refill_with_samples", methods=["POST", "GET"])
 @token_required
 def storage_rack_refill_with_samples(tokenuser: UserAccount):
@@ -495,7 +497,10 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     entry_datetime = values.pop("entry_datetime", None)
     entry = values.pop("entry", None)
 
-    rack_id = int(values['rack_id'])
+    try:
+        rack_id = int(values['rack_id'])
+    except:
+        rack_id = None
 
     commit = False
     if 'commit' in values and values['commit']:
@@ -504,28 +509,29 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         samples, n_found = func_get_samples(values["barcode_type"], samples)
         print("samples_ids", samples)
 
-    # Step 1. Validate and add new sample rack
-    rack = SampleRack.query.filter_by(id=rack_id).first()
-    if rack is None:
-        err = {'messages':'Rack not found!'}
-        return validation_error_response(err)
+    if rack_id:
+        # Step 1. Validate and add new sample rack
+        rack = SampleRack.query.filter_by(id=rack_id).first()
+        if rack is None:
+            err = {'messages':'Rack not found!'}
+            return validation_error_response(err)
+    # else:
+    #     err = {'messages': 'Rack not found!'}
+    #     return validation_error_response(err)
 
     if not commit:
-        # stbs = EntityToStorage.query.\
-        #     filter(EntityToStorage.rack_id==rack_id, EntityToStorage.storage_type=='STB',
-        #            or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
-        # print("stbs", stbs)
-        # occupancies = [(stb1.row, stb1.col) for stb1 in stbs]
-        #
-        # num_rows = rack.num_rows
-        # num_cols = rack.num_cols
 
         sample_ids = [sample['id'] for sample in samples]
-        stbs = EntityToStorage.query.\
-            filter(EntityToStorage.sample_id.in_(sample_ids), EntityToStorage.storage_type=='STB',
-                   or_(EntityToStorage.removed.is_(None), EntityToStorage.removed!=True)).all()
+        stbs = EntityToStorage.query\
+            .filter(EntityToStorage.sample_id.in_(sample_ids),
+                   EntityToStorage.storage_type=='STB',
+                   or_(EntityToStorage.removed.is_(None),
+                       EntityToStorage.removed!=True))\
+            .all()
 
-        sample_ids_stored1 = [stb1.sample_id for stb1 in stbs if stb1.rack_id != rack_id]
+        sample_ids_stored1 = [stb1.sample_id
+                              for stb1 in stbs
+                              if stb1.rack_id != rack_id]
         #n_stored0 = len(sample_ids_stored0)
         n_stored1 = len(sample_ids_stored1)
         #print('sample_ids_stored0 ', sample_ids_stored0)
@@ -534,22 +540,19 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         message = "%d samples found in the rack! " %n_found
         #print('n_stored1', n_stored1)
         if (n_stored1>0):
-            message.appned("%d sample(s) already stored in a different rack, " \
+            message = message + ("%d sample(s) already stored in a different rack, " \
                       "submit will change the location for these samples" % n_stored1)
-        #if (n_stored0 > 0):
-        #    message.appned("%d sample(s) already stored in same rack, " \
-        #              "submit will change the location for these samples" % n_stored1)
-
-        # try:
-        #     samples = func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies)
-        # except:
-        #     err = {'messages': "Errors in assigning a rack position to samples!"}
-        #     return validation_error_response(err)
 
         samplestore = {"rack_id": rack_id, "samples": samples, "from_file": True}
         if entry_datetime:
             samplestore["entry_datetime"] = entry_datetime
             samplestore["entry"] = entry
+
+        if "num_cols" in values:
+            samplestore["num_cols"] = values["num_cols"];
+        if "num_rows" in values:
+            samplestore["num_rows"] = values["num_rows"];
+
         return success_with_content_message_response(samplestore, message)
 
     #samples_pos = samples

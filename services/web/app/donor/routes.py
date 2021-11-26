@@ -219,19 +219,20 @@ def new_consent(id):
         consent_templates = []
 
         consent_templates_response = requests.get(
-            url_for("api.consent_query", _external=True),
+            url_for("api.consent_query_tokenuser", _external=True),
             headers=get_internal_api_header(),
             json={"is_locked": False},
         )
 
         if consent_templates_response.status_code == 200:
-            for template in consent_templates_response.json()["content"]:
-                consent_templates.append(
-                    [
-                        template["id"],
-                        "LIMBPCF-%i: %s" % (template["id"], template["name"]),
-                    ]
-                )
+            consent_templates = consent_templates_response.json()["content"]["choices"]
+            # for template in consent_templates_response.json()["content"]:
+            #     consent_templates.append(
+            #         [
+            #             template["id"],
+            #             "LIMBPCF-%i: %s" % (template["id"], template["name"]),
+            #         ]
+            #     )
 
         form = ConsentTemplateSelectForm(consent_templates)
 
@@ -267,30 +268,32 @@ def add_consent_answers(template_id, donor_id):
     if consent_response.status_code != 200:
         return consent_response.response
 
-    protocols_response = requests.get(
-        url_for("api.protocol_query", _external=True),
-        headers=get_internal_api_header(),
-        json={"is_locked": False},
-    )
-
     consent_template = consent_response.json()["content"]
-
     consent_data = {
         "template_name": consent_template["name"],
         "template_version": consent_template["version"],
         "questions": consent_template["questions"],
     }
 
-    study_protocols = [(0, '--- Select a study ---')]
+    protocols_response = requests.get(
+        url_for("api.protocol_query_tokenuser", default_type="STU", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False, "type": ["STU"]},
+    )
+
+    study_protocols = []
     if protocols_response.status_code == 200:
-        for protocol in protocols_response.json()["content"]:
-            if protocol["type"] == "Study":
-                study_protocols.append(
-                    [
-                        protocol["id"],
-                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
-                    ]
-                )
+        study_protocols = protocols_response.json()["content"]["choices"]
+        # for protocol in protocols_response.json()["content"]:
+        #     if protocol["type"] == "Study":
+        #         study_protocols.append(
+        #             [
+        #                 protocol["id"],
+        #                 "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
+        #             ]
+        #         )
+
+    study_protocols = [(0, '--- Select a study ---')] + study_protocols
 
     form = ConsentQuestionnaire(study_protocols, data=consent_data)
 
@@ -333,7 +336,6 @@ def add_consent_answers(template_id, donor_id):
             flash("Donor consent added successfully!")
             return redirect(url_for("donor.view", id=donor_id))
 
-        #  flash("We have a problem :( %s" % (consent_response.json()))
         flash("We have a problem :( %s" % consent_response.json()["message"])
 
     return render_template(
@@ -357,11 +359,7 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
     if consent_response.status_code != 200:
         return consent_response.response
 
-    protocols_response = requests.get(
-        url_for("api.protocol_query", _external=True),
-        headers=get_internal_api_header(),
-        json={"is_locked": False},
-    )
+
     consent_info = consent_response.json()["content"]
     donor_id = consent_info["donor_id"]
     consent_info.update({
@@ -394,16 +392,18 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
         else:
             question["checked"] = ""
 
-    study_protocols = [(0, '--- Select a study ---')]
+
+    protocols_response = requests.get(
+        url_for("api.protocol_query_tokenuser", default_type="STU", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False, "type": ["STU"]},
+    )
+
+    study_protocols = []
     if protocols_response.status_code == 200:
-        for protocol in protocols_response.json()["content"]:
-            if protocol["type"] == "Study":
-                study_protocols.append(
-                    [
-                        protocol["id"],
-                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
-                    ]
-                )
+        study_protocols = protocols_response.json()["content"]["choices"]
+
+    study_protocols = [(0, '--- Select a study ---')] + study_protocols
 
     template_id = consent_info["id"]
 
@@ -665,28 +665,28 @@ def add_sample_step_one(id):
             )
 
     protocols_response = requests.get(
-        url_for("api.protocol_query", _external=True),
+        url_for("api.protocol_query_tokenuser", default_type="ACQ", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False},
+        json={"is_locked": False, "type":["ACQ"]},
     )
 
     if protocols_response.status_code == 200:
-        for protocol in protocols_response.json()["content"]:
-            if protocol["type"] == "Sample Acquisition":
-                collection_protocols.append(
-                    [
-                        protocol["id"],
-                        "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
-                    ]
-                )
+        collection_protocols = protocols_response.json()["content"]["choices"]
 
     sites_response = requests.get(
-        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
     )
 
     if sites_response.status_code == 200:
-        for site in sites_response.json()["content"]:
-            collection_sites.append([site["id"], site["name"]])
+        if "choices" in sites_response.json()["content"]:
+            collection_sites = sites_response.json()["content"]["choices"]
+        else:
+            for site in sites_response.json()["content"]:
+                collection_sites.append([site["id"], site["name"]])
+
+    else:
+        flash("No site information!")
+        collection_sites = []
 
     form = CollectionDonorConsentAndDisposalForm(
         consent_ids, collection_protocols, collection_sites, data={"donor_id": donor_id}

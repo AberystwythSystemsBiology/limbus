@@ -105,6 +105,12 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
     # Parent Sample Basic Info
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
 
+    if sample.is_locked or sample.is_closed:
+        return locked_response("Parent sample (%s)" % sample.uuid)
+
+    if sample.remaining_quantity <= 0:
+        return validation_error_response({"messages": "Insufficient quantity for parent sample!"})
+
     parent_values = new_sample_schema.dump(sample)
     parent_id = sample.id
     base_type = parent_values["base_type"]
@@ -243,7 +249,10 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.flush()
 
     # T4. Update parent sample
-    sample.update({"remaining_quantity": sample.remaining_quantity - to_remove})
+    sample.update({"remaining_quantity": sample.remaining_quantity - to_remove,
+                   "editor_id": tokenuser.id,
+                   #"status": 'UNU',
+                   })
     db.session.add(sample)
     new_sample_protocol_event.reduced_quantity = to_remove
 
@@ -333,6 +342,12 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
 
     # Parent Sample Basic Info
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
+
+    if sample.is_locked or sample.is_closed:
+        return locked_response("Parent sample (%s)" %sample.uuid)
+
+    if sample.remaining_quantity <= 0:
+        return validation_error_response({"messages": "Insufficient quantity for parent sample!"})
 
     parent_values = new_sample_schema.dump(sample)
     parent_id = sample.id
@@ -476,7 +491,9 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
 
 
     # T4. Update parent sample
-    sample.update({"remaining_quantity": 0, "editor_id": tokenuser.id})
+    sample.update({"remaining_quantity": 0,
+                   "editor_id": tokenuser.id, #"status": 'UNU'
+                   })
     db.session.add(sample)
 
     # T5. Remove parent sample if remaining quantity changed to zero!

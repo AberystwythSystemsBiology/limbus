@@ -63,7 +63,7 @@ function render_sample_table(samples) {
 
                     link = window.location.origin + "/donor/"+'LIMBDON-' + consent['donor_id'];
                     html = "";
-                    if (consent['donor_id'] != null) {
+                    if (consent['donor_id']!= undefined && consent['donor_id'] != null) {
                         html += '<a href="'+link+'" >';
                         html += 'LIMBDON-' + consent['donor_id'];
                         html += '</a>';
@@ -102,10 +102,12 @@ function render_sample_table(samples) {
             { // study ID
                 "mData": {},
                 "mRender": function (data, type, row) {
+
                     var consent = data['sample']['consent_information'];
                     var col_data = "";
 
-                    if (consent['study'] != undefined && consent['study'] != null) {
+                    if (consent != undefined && consent['study'] != undefined
+                        && consent['study'] != null) {
                         doi = consent['study']['protocol']['doi'];
                         if (doi == null)
                             doi = "";
@@ -129,7 +131,8 @@ function render_sample_table(samples) {
                 "mRender": function (data, type, row) {
                     var consent = data['sample']['consent_information'];
                     var reference_id = "";
-                    if (consent['study'] != undefined && consent['study'] != null) {
+                    if (consent != undefined && consent['study'] != undefined
+                        && consent['study'] != null) {
                         reference_id = consent['study']['reference_id']
                     }
                     return reference_id;
@@ -161,7 +164,7 @@ function render_sample_table(samples) {
                         col_data += '<i class="fas fa-vial"></i> ';
                         col_data += data["sample"]["parent"]["uuid"],
                         col_data += "</a></small>";
-                    }
+                        }
 
                         return col_data
                     }
@@ -242,7 +245,9 @@ function render_sample_table(samples) {
                 "mData": {},
                 "mRender": function (data, type, row) {
                     if ("editor" in data)
-                        return data["editor"]["first_name"].substring(0,1)+data["editor"]["last_name"].substring(0,1);
+                        try {
+                            return data["editor"]["first_name"].substring(0, 1) + data["editor"]["last_name"].substring(0, 1);
+                        } catch {return ""}
                     else
                         return "";
                 }

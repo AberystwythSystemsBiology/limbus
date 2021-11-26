@@ -39,8 +39,8 @@
 
             </table>
             
-            <form method="POST" enctype="multipart/form-data"
-                action="{{ url_for('storage.rack_automatic_entry_validation', _hash=hash) }}">
+            <form method="POST" enctype="multipart/form-data">
+{#                action="{{ url_for('storage.rack_automatic_entry_validation', _hash=hash) }}">#}
 
                 {{ form.csrf_token() }}
                 <div class="row">
@@ -84,7 +84,7 @@
                     </tbody>
                 </table>
 
-                <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+                <div id="create-from-file-btn" class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
                         {{ form_field(form.submit) }}
                     </div>
@@ -107,4 +107,14 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script>
+    //sessionStorage.clear();
+    sessionStorage.removeItem("sampletostore");
+	sampletostore = {{ session_data | tojson }};
+	console.log("sampletostore", sampletostore)
+    sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore));
+</script>
+
+<script src="{{ url_for('static', filename='js/storage/rack/rack_create.js') }}"></script>
+
 {% endblock %}

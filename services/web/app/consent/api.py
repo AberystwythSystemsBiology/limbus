@@ -62,7 +62,6 @@ def consent_view_template(id, tokenuser: UserAccount):
 @use_args(ConsentFormTemplateSearchSchema(), location="json")
 @token_required
 def consent_query(args, tokenuser: UserAccount):
-    print(args)
     filters, joins = get_filters_and_joins(args, ConsentFormTemplate)
 
     return success_with_content_response(
@@ -70,6 +69,49 @@ def consent_query(args, tokenuser: UserAccount):
             ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all()
         )
     )
+
+@api.route("/consent/query_tokenuser", methods=["GET"])
+@use_args(ConsentFormTemplateSearchSchema(), location="json")
+@token_required
+def consent_query_tokenuser(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, ConsentFormTemplate)
+
+    templates = basic_consent_form_templates_schema.dump(
+        ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all()
+    )
+
+    choices = []
+    settings = tokenuser.settings
+    try:
+        id0 = settings["data_entry"]["consent_template"]["default"]
+        nm0 = None
+    except:
+        id0 = None
+
+    try:
+        choices0 = settings["data_entry"]["consent_template"]["choices"]
+        if len(choices0) ==  0:
+            choices0 = None
+    except:
+        choices0 = None
+
+    for template in templates:
+        if choices0:
+            if template["id"] not in choices0:
+                continue
+
+        if id0 and template["id"] == id0:
+            nm0 = "LIMBPCF-%i: %s" % (template["id"], template["name"])
+            continue
+        choices.append(
+            (template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"]))
+        )
+
+    if id0 and  nm0:
+        choices = [(id0, nm0)] + choices
+
+    return success_with_content_response({'info': templates, 'choices': choices, 'default': id0})
+
 
 
 @api.route("/consent/new_template", methods=["POST"])

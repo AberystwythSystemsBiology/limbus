@@ -37,6 +37,19 @@ class UserAccountSearchSchema(masql.SQLAlchemySchema):
 user_account_search_schema = UserAccountSearchSchema()
 user_accounts_search_schema = UserAccountSearchSchema(many=True)
 
+class UserAccountSettingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    id = masql.auto_field()
+    email = masql.auto_field()
+    first_name = masql.auto_field()
+    last_name = masql.auto_field()
+    settings =  masql.auto_field()
+
+user_account_setting_schema = UserAccountSettingSchema()
+user_accounts_setting_schema = UserAccountSettingSchema(many=True)
+
 
 class BasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -82,6 +95,7 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
 
     account_type = masql.auto_field()
     access_control = masql.auto_field()
+    settings = masql.auto_field()
 
     site_id = masql.auto_field()
 
@@ -99,7 +113,7 @@ class EditUserAccountSchema(masql.SQLAlchemySchema):
     first_name = masql.auto_field(required=False)
     middle_name = masql.auto_field(required=False)
     last_name = masql.auto_field(required=False)
-
+    settings = masql.auto_field()
 
 edit_user_account_schema = EditUserAccountSchema()
 
@@ -132,6 +146,8 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
 
     account_type = EnumField(AccountType, by_value=True)
     access_control = EnumField(AccessControl, by_value=True)
+
+    settings = masql.auto_field()
 
     created_on = fields.Date()
     updated_on = fields.Date()

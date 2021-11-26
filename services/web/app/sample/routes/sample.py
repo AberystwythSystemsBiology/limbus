@@ -260,7 +260,9 @@ def edit_sample_basic_info(uuid):
         )
 
         if response.status_code == 200:
-            flash("Sample collection information successfully edited!")
+            flash(response.json()["message"] +
+                  "  Sample collection information successfully edited!"
+                  )
 
         else:
             flash(response.json()["message"])

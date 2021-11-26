@@ -397,7 +397,6 @@ $(document).ready(function () {
     var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
     })
 
-
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();
 

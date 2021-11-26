@@ -38,7 +38,7 @@ def dispose(uuid: str) -> flask_return_union:
         disposal_approved = False
         try:
             disposal_info = sample_response.json()["content"]["disposal_information"]
-            print("disposal_info", disposal_info)
+            # print("disposal_info", disposal_info)
 
             message = "No disposal instruction!"
             if disposal_info is not None:

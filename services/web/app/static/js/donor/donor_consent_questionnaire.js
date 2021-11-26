@@ -20,6 +20,8 @@ function view_study_protocol() {
    if ($("#study_select").val()>0){
        $("#study-reference_id_div").show();
        $("#study-date_div").show();
+
+
        $("#study-comments_div").show();
        $("#study-undertaken_by_div").show();
    } else {
@@ -42,10 +44,13 @@ $(document).ready(function() {
 
     $("#study_select").on("change", function() {
         view_study_protocol();
+        if ($("#study_select").val()>0) {
+            $("#study-date").val($("#date").val());
+        }
     });
 
     $("#date").on("change", function() {
         if ($("#study-date").val() == null)
-            $("#study-date").val($("#date").val())
+            $("#study-date").val($("#date").val());
     });
 });

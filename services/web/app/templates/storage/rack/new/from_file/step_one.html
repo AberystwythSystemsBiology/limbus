@@ -139,8 +139,11 @@
             </div>
             <br>
 
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_automatic_entry') }}">
+
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_create_from_file') }}">
+                {#<form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.rack_automatic_entry') }}">#}
                 {{ form.csrf_token() }}
+                {{ form.session_data }}
                 {{ form_field(form.serial)}}
                 <div class="row">
                     <div class="col-6">
@@ -176,6 +179,7 @@
                                 Cancel
                             </button></a>
                     </div>
+
                 </div>
             </form>
         </div>
@@ -185,4 +189,6 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+
+
 {% endblock %}

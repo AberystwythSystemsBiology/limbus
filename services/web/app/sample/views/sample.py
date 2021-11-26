@@ -13,7 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import Sample
+from ...database import Sample, SampleProtocolEvent, SubSampleToSample
+from ...event.views import EventSchema
+from ...protocol.views import BasicProtocolTemplateSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...extensions import ma
 from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
@@ -31,7 +33,7 @@ from . import (
 
 from ...document.views import BasicDocumentSchema
 from ...attribute.views import AttributeDataSchema
-from ..views import SampleProtocolEventSchema, SampleReviewSchema
+from ..views import SampleProtocolEventSchema, SampleReviewSchema#, SampleProtocolEventViewSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -198,3 +200,115 @@ class SampleSchema(masql.SQLAlchemySchema):
 
 
 sample_schema = SampleSchema()
+
+#
+# class SubSampleToSampleSchema(masql.SQLAlchemySchema):
+#     class Meta:
+#         model = SubSampleToSample
+#     parent_id = masql.auto_field()
+#     subsample_id = masql.auto_field()
+#
+# class SampleProtocolEventViewSchema(masql.SQLAlchemySchema):
+#     class Meta:
+#         model = SampleProtocolEvent
+#
+#     is_locked = masql.auto_field()
+#     uuid = masql.auto_field()
+#     id = masql.auto_field()
+#     reduced_quantity = masql.auto_field()
+#     #author = ma.Nested(BasicUserAccountSchema)
+#     author = ma.Nested(UserAccountSearchSchema)
+#     event = ma.Nested(EventSchema)
+#     created_on = ma.Date()
+#
+#     protocol = ma.Nested(BasicProtocolTemplateSchema)
+#     subsamples_created = ma.Nested(SubSampleToSampleSchema)
+#
+#     _links = ma.Hyperlinks(
+#         {
+#             "edit": ma.URLFor(
+#                 "sample.edit_protocol_event", uuid="<uuid>", _external=True
+#             ),
+#             "remove": ma.URLFor(
+#                 "sample.remove_protocol_event", uuid="<uuid>", _external=True
+#             ),
+#         }
+#     )
+#
+# sample_protocol_event_view_schema = SampleProtocolEventViewSchema()
+# sample_protocol_events_view_schema = SampleProtocolEventViewSchema(many=True)
+#
+#
+# class SampleViewSchema(masql.SQLAlchemySchema):
+#     class Meta:
+#         model = Sample
+#
+#     id = masql.auto_field()
+#
+#     uuid = masql.auto_field()
+#     base_type = EnumField(SampleBaseType, by_value=True)
+#     is_locked = masql.auto_field()
+#     is_closed = masql.auto_field()
+#
+#     quantity = masql.auto_field()
+#     remaining_quantity = masql.auto_field()
+#     comments = masql.auto_field()
+#     barcode = masql.auto_field()
+#     sample_type_information = ma.Nested(SampleTypeSchema)
+#
+#     colour = EnumField(Colour, by_value=True)
+#     source = EnumField(SampleSource, by_value=True)
+#     biohazard_level = EnumField(BiohazardLevel, by_value=True)
+#     status = EnumField(SampleSource, by_value=True)
+#     site_id = masql.auto_field()
+#     current_site_id = masql.auto_field()
+#     # author = ma.Nested(BasicUserAccountSchema, many=False)
+#     author = ma.Nested(UserAccountSearchSchema, many=False)
+#
+#     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
+#     consent_information = ma.Nested(ConsentSchema, many=False)
+#
+#     storage = ma.Nested(EntityToStorageSchema, many=False)
+#
+#     attributes = ma.Nested(AttributeDataSchema, many=True)
+#     documents = ma.Nested(BasicDocumentSchema, many=True)
+#
+#     parent = ma.Nested(BasicSampleSchema, many=False)
+#     subsamples = ma.Nested(BasicSampleSchema, many=True)
+#
+#     events = ma.Nested(SampleProtocolEventViewSchema, many=True)
+#     reviews = ma.Nested(SampleReviewSchema, many=True)
+#     shipments = ma.Nested(SampleShipmentToSampleInfoSchema, many=True)
+#
+#     created_on = ma.Date()
+#
+#     _links = ma.Hyperlinks(
+#         {
+#             "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+#             "add_sample_to_cart": ma.URLFor(
+#                 "sample.add_sample_to_cart", uuid="<uuid>", _external=True
+#             ),
+#             "remove_sample_from_cart": ma.URLFor(
+#                 "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
+#             ),
+#             "collection": ma.URLFor("sample.index", _external=True),
+#             "webapp_query": ma.URLFor("sample.query", _external=True),
+#             "webapp_aliquot": ma.URLFor(
+#                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
+#             ),
+#             "webapp_derive": ma.URLFor(
+#                 "sample.derive_endpoint", uuid="<uuid>", _external=True
+#             ),
+#             "label": ma.URLFor("labels.sample_label", uuid="<uuid>", _external=True),
+#             "barcode_generation": ma.URLFor(
+#                 "api.misc_generate_barcode",
+#                 _external=True,
+#             ),
+#         }
+#     )
+#
+#
+# sample_view_schema = SampleViewSchema()
+
+
+

@@ -48,3 +48,11 @@ class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
     protocol_id = db.Column(
         db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
     )
+
+class ProtocolTemplateAssociate(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+    description = db.Column(db.Text, nullable=True)
+    protocol_id = db.Column(
+        db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
+    )
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=False)

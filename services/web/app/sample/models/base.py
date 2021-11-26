@@ -127,6 +127,12 @@ class SubSampleToSample(Base, RefAuthorMixin, RefEditorMixin):
         primary_key=True,
     )
 
+    # protocol_event = db.relationship(
+    #     "SampleProtocolEvent", uselist=False,
+    #     foreign_keys=protocol_event_id,
+    #     backref="subsamples_created"
+    # )
+
 
 
 class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
@@ -163,3 +169,4 @@ class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     protocol_event_id = db.Column(
         db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True)
     )
+

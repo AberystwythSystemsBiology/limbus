@@ -15,7 +15,7 @@
 
 
 from flask_wtf import FlaskForm
-#from flask_wtf.file import FileField
+from flask_wtf.file import FileField
 from wtforms import (
     StringField,
     SubmitField,
@@ -124,7 +124,7 @@ def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
         num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
 
         submit = SubmitField("Submit Cryovial Box")
-
+    print("sample_data form", sample_data)
     for position, info in sample_data.items():
         setattr(
             StaticForm,

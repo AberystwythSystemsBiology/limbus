@@ -28,7 +28,7 @@ from ...webarg_parser import use_args, use_kwargs, parser
 from ..views import (
     basic_samples_schema,
     basic_sample_schema,
-    sample_schema,
+    sample_schema, #sample_view_schema,
     SampleFilterSchema,
     new_fluid_sample_schema,
     sample_type_schema,
@@ -312,22 +312,89 @@ def sampletype_data(tokenuser: UserAccount):
     #, SampleToType.tissue_type).all()
     sampletype_info = {} #sample_types_schema.dump(sts)
     sampletype_choices = {"FLU": [], "CEL": [], "MOL": []}
+
+    # - Read default settings
+    for bt in ["FLU", "CEL", "MOL"]:
+        try:
+            id0 = tokenuser.settings["data_entry"]["sample_type"][bt]["default"]
+        except:
+            id0 = None
+
+        if id0:
+            if bt == "FLU":
+                for (k, nm) in FluidSampleType.choices():
+                    if k == id0:
+                        sampletype_choices[bt].append((id0, nm))
+                        break
+
+            elif bt=='CEL':
+                for (k, nm) in CellSampleType.choices():
+                    if k == id0:
+                        sampletype_choices[bt].append((id0, nm))
+                        break
+            elif bt=='MOL':
+                for (k, nm) in MolecularSampleType.choices():
+                    if k == id0:
+                        sampletype_choices[bt].append((id0, nm))
+                        break
+
     for st in sts:
         if st.fluid_type:
+            if len(sampletype_choices["FLU"])>1:
+                if st.fluid_type.name == sampletype_choices["FLU"][0][0]:
+                    continue
             sampletype_choices["FLU"].append((st.fluid_type.name, st.fluid_type.value))
-        if st.molecular_type:
+        elif st.molecular_type:
+            if len(sampletype_choices["MOL"])>1:
+                if st.molecular_type.name == sampletype_choices["MOL"][0][0]:
+                    continue
             sampletype_choices["MOL"].append((st.molecular_type.name, st.molecular_type.value))
-        if st.cellular_type:
+        elif st.cellular_type:
+            if len(sampletype_choices["CEL"])>1:
+                if st.cellular_type.name == sampletype_choices["CEL"][0][0]:
+                    continue
             sampletype_choices["CEL"].append((st.cellular_type.name, st.cellular_type.value))
         # if st.tissue_type:
         #     sampletype_choices.append(("tissue_type"+ ":" + st.tissue_type.name, st.tissue_type.value))
 
-    container_choices = {"PRM": {"container": []}, "LTS": {"container":[]}}
+
+
+    container_choices = {"PRM": {"container": []}, "LTS": {"container": []}}
+
+    # - Default setting for container types
+    for bt in ["PRM", "LTS"]:
+        try:
+            id0 = tokenuser.settings["data_entry"]["container_type"][bt]["container"]["default"]
+
+        except:
+            id0 = None
+
+        if id0:
+            if bt == "PRM":
+                for (k, nm) in FluidContainer.choices():
+                    if k == id0:
+                        container_choices[bt]["container"].append((id0, nm))
+                        break
+            elif bt=='LTS':
+                for (k, nm) in CellContainer.choices():
+                    if k == id0:
+                        container_choices[bt]["container"].append((id0, nm))
+                        break
+
     sts = SampleToType.query.distinct(SampleToType.fluid_container, SampleToType.cellular_container).all()
     for st in sts:
         if st.fluid_container:
+            if len(container_choices["PRM"])>1:
+                if st.fluid_container.name == container_choices["PRM"][0][0]:
+                    continue
+
             container_choices["PRM"]["container"].append((st.fluid_container.name, st.fluid_container.value))
-        if st.cellular_container:
+
+        elif st.cellular_container:
+            if len(container_choices["LTS"])>1:
+                if st.cellular_container.name == container_choices["LTS"][0][0]:
+                    continue
+
             container_choices["LTS"]["container"].append((st.cellular_container.name, st.cellular_container.value))
 
     return success_with_content_response(
@@ -635,7 +702,7 @@ def sample_edit_basic_info(uuid, tokenuser: UserAccount):
             Sample.id.in_([SubSampleToSample.parent_id, SubSampleToSample.subsample_id])).\
             filter(Sample.uuid==uuid)
         if samples_in_tree.count()>0:
-            return in_use_response("sample! quantity can't be changed via basic edit! "+
+            return in_use_response("sample! quantity can't be changed via basic edit! " +
             "| Need to delete the associated sample creation protocol event before quantity can be changed!")
 
     values["remaining_quantity"] = sample.remaining_quantity + values["quantity"] - sample.quantity

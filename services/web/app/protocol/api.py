@@ -64,6 +64,53 @@ def protocol_query(args, tokenuser: UserAccount):
         )
     )
 
+@api.route("/protocol/query_tokenuser/<default_type>", methods=["GET"])
+@use_args(ProtocolTemplateSearchSchema(), location="json")
+@token_required
+def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
+
+    filters, joins = get_filters_and_joins(args, ProtocolTemplate)
+
+    protocols = basic_protocol_templates_schema.dump(
+        ProtocolTemplate.query.filter_by(**filters).filter(*joins).all()
+    )
+
+    choices = []
+    settings = tokenuser.settings
+    try:
+        id0 = settings["data_entry"]["protocol"][default_type]["default"]
+        nm0 = None
+    except:
+        id0 = None
+
+    try:
+        choices0 = settings["data_entry"]["protocol"][default_type]["choices"]
+        if len(choices0) ==  0:
+            choices0 = None
+    except:
+        choices0 = None
+
+    for protocol in protocols:
+        if choices0:
+            if protocol["id"] not in choices0:
+                continue
+
+        if id0 and protocol["id"] == id0:
+            nm0 = "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])
+            continue
+
+        choices.append(
+            (protocol["id"],
+            "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]))
+        )
+
+    if id0 and  nm0:
+        # -- Insert default
+        choices = [(id0, nm0)] + choices
+
+    return success_with_content_response({'info': protocols, 'choices': choices, 'default': id0})
+
+
 
 @api.route("/protocol/new", methods=["POST"])
 @token_required

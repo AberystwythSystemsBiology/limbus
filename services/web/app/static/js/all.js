@@ -37,7 +37,7 @@ function render_sample_table(samples, div_id) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            { targets: [1, 4, 5, 6, 7, 9], visible: false, "defaultContent": ""},
+            { targets: [1, 4, 5, 9, -1], visible: false, "defaultContent": ""},
         ],
         order: [[1, 'desc']],
         columns: [

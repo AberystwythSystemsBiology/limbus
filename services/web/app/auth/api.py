@@ -28,8 +28,10 @@ from .views import (
     basic_user_accounts_schema,
     full_user_account_schema,
     edit_user_account_schema,
+    user_account_setting_schema
 )
 
+from ..sample.enums import FluidSampleType
 from ..database import UserAccount, UserAccountToken
 from uuid import uuid4
 
@@ -49,6 +51,12 @@ def auth_view_user(id: int):
     return success_with_content_response(
         full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first_or_404())
     )
+
+@api.route("/auth/user/<id>/get_settings", methods=["GET"])
+@token_required
+def auth_get_settings(id: int, tokenuser: UserAccount):
+    settings = user_account_setting_schema.dump(UserAccount.query.filter_by(id=id).first_or_404())
+    return settings
 
 
 @api.route("auth/user/<id>/lock", methods=["PUT"])
@@ -111,6 +119,67 @@ def auth_edit_user(id: int, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+@api.route("/auth/user/<id>/settings", methods=["PUT"])
+@token_required
+def auth_user_settings(id: int, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not tokenuser.is_admin:
+        return not_allowed()
+
+    #if not values:
+    #    return no_values_response()
+
+    try:
+        result = edit_user_account_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    user = UserAccount.query.filter_by(id=id).first_or_404()
+
+    settings = {
+        # "projects":[2,3,4],
+        # "sites":[2,3],
+        "data_entry": {
+
+            "consent_template": {"default": 2, "choices":[]},
+            "protocol": {
+                "STU": {"default": 19},
+                "ACQ": {"default": 5},
+            },
+
+            "sample_type": {
+                "base_type": "FLU",
+                "FLU": {"default": "BLD",
+                        "choices": [],
+                        },
+                },
+
+            "container_type": {
+                "base_type": {"default": "LTS"},
+                "PRM": {
+                    "container": {"default": "CAT"},
+                    #"fixation_type": FixationType.choices(),
+                },
+                "LTS": {
+                    "container": {"default": "D"},
+                    #"fixation_type": FixationType.choices(),
+                },
+            },
+
+
+        },
+    }
+
+    user.update({"settings": settings, "editor_id": tokenuser.id})
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+        return success_with_content_response(user_account_setting_schema.dump(user))
+    except Exception as err:
+        return transaction_error_response(err)
+
 @api.route("/auth/user/new", methods=["POST"])
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
@@ -146,3 +215,4 @@ def auth_new_user(tokenuser: UserAccount) -> dict:
         )
     except Exception as err:
         return transaction_error_response(err)
+
