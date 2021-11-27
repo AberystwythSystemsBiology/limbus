@@ -25,7 +25,7 @@ from marshmallow_enum import EnumField
 
 from ..views import BasicSampleSchema
 from ...storage.views import BasicSampleRackSchema
-from ...sample.views import SampleUUIDSchema
+from ...sample.views import SampleUUIDSchema, SampleProtocolEventSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...misc.views import BasicSiteSchema
 from ...event.views import NewEventSchema, EventSchema
@@ -50,6 +50,7 @@ class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     sample_id = masql.auto_field()
     sample = ma.Nested(BasicSampleSchema, many=False)
     old_site = ma.Nested(BasicSiteSchema, many=False)
+    transfer_protocol = ma.Nested(SampleProtocolEventSchema)
 
 
 class SampleShipmentSchema(masql.SQLAlchemySchema):

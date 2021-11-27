@@ -86,6 +86,52 @@ def func_new_sample_type(values: dict, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
+def func_new_sample_protocol_event(values, tokenuser: UserAccount):
+    #values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        event_result = new_sample_protocol_event_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_event = Event(**event_result["event"])
+    new_event.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_event)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    event_result.pop("event")
+
+    new_sample_protocol_event = SampleProtocolEvent(**event_result)
+    new_sample_protocol_event.author_id = tokenuser.id
+    new_sample_protocol_event.event_id = new_event.id
+    #new_sample_protocol_event.reduced_quantity = reduced_quantity
+
+    sample = Sample.query.filter_by(id=values["sample_id"]).first();
+    if not sample:
+        return not_found("Sample (%s) ! " %sample.uuid)
+
+    reduced_quantity = values.pop("reduced_quantity", 0)
+    if reduced_quantity > 0:
+        remaining_quantity = sample.remaining_quantity - reduced_quantity
+        if remaining_quantity < 0:
+            return validation_error_response({"message": "Reduction quantity > remaining quantity!!!"})
+
+        sample.remaining_quantity = remaining_quantity
+        sample.update({"editor_id": tokenuser.id})
+        try:
+            db.session.add(sample)
+        except Exception as err:
+            return transaction_error_response(err)
+
+    return new_sample_protocol_event
+
 def func_remove_sampledisposal(sample, msgs=[]):
     success = True
     sds = SampleDisposal.query.filter_by(sample_id=sample.id).all()

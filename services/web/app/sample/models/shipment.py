@@ -36,6 +36,7 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
     new_site = db.relationship("SiteInformation")
     event = db.relationship("Event", cascade="all, delete")
 
+
     involved_samples = db.relationship(
         "SampleShipmentToSample",
         primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
@@ -61,8 +62,11 @@ class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     )
     shipment = db.relationship("SampleShipment")
 
-    # protocol_event_id = db.Column(db.Integer, db.ForeignKey("sampleprotocolevent.id"))
+    protocol_event_id = db.Column(
+        db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True)
+    )
 
+    transfer_protocol = db.relationship("SampleProtocolEvent", backref="shipment")
 
 class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}

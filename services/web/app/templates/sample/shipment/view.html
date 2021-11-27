@@ -40,13 +40,15 @@
                                     </button>
                                 </a>
                             </div>
-                            <div class="btn-group mr-2" role="group" aria-label="First group">
-{#                                <a href="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">#}
+                            <div id="add-cart" class="btn-group mr-2" role="group" aria-label="First group">
                                     <button id="add-cart-btn" type="button" class="btn btn-outline-dark">
                                         <i class="fa fa-cart-plus"></i>
                                         Add to Cart
                                     </button>
-{#                                </a>#}
+                                <div class="alert-warning">
+                                    <i class="fa fa-info-circle"></i> To close the shipment, click "Add to cart"!
+                                    <span class="btn-close" onclick="this.parentElement.style.display='none';">&nbsp; &times;</span>
+                                </div>
                             </div>
 
                         </div>
@@ -57,6 +59,7 @@
                         <i class="fa fa-user"></i> Created By: <span id="author"></span>
                     </div>
                 </div>
+
             </div>
         </div>
     <div class="container">
@@ -82,18 +85,24 @@
             <table id="involved-samples-table" class="table table-striped table-bordered" style="width:100%">
                 <thead>
                     <tr>
+                        <th>Transfer Protocol</th>
                         <th>Identifier</th>
                         <th>DBid</th>
                         <th>Barcode</th>
+
+                        <th>DonorID</th>
+                        <th>SourceStudy</th>
+                        <th>SourceRef</th>
+
                         <th>Base Type</th>
                         <th>Sample Type</th>
                         <th>Container Type</th>
                         <th>Source</th>
-                        <th>Quantity</th>
+                        <th>Current Quantity</th>
                         <th>Current Status</th>
                         <th>Current Rack</th>
                         <th>From Site</th>
-                        <th>Creation Date</th>
+{#                        <th>Creation Date</th>#}
                     </tr>
                 </thead>
                 <tbody>

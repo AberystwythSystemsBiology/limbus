@@ -38,6 +38,7 @@ from ...database import (
     EntityToStorage,
     SampleRack,
     SampleShipmentStatus,
+    SampleProtocolEvent,
 )
 
 from ..views import (
@@ -73,7 +74,7 @@ def shipment_update_status(uuid: str, tokenuser: UserAccount):
 
     if not values:
         return no_values_response()
-
+    print("values", values)
     if not shipment_event:
         try:
             values["shipment_id"] = shipment.id
@@ -99,6 +100,31 @@ def shipment_update_status(uuid: str, tokenuser: UserAccount):
 
     except Exception as err:
         return transaction_error_response(err)
+
+    if values["status"] == "CAN":
+
+        protocol_events = db.session.query(SampleProtocolEvent) \
+            .join(SampleShipmentToSample) \
+            .filter(SampleShipmentToSample.shipment_id == shipment.id) \
+            .all()
+
+        # - Prior to delete protocol evennt, deassoicate with event, which is used by sampleshipment
+        for pe in protocol_events:
+            pe.event_id = None
+            db.session.add(pe)
+
+        try:
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
+
+        for pe in protocol_events:
+            db.session.delete(pe)
+
+        try:
+            db.session.flush()
+        except Exception as err:
+            return transaction_error_response(err)
 
     sample_status_events = {"shipment_status": shipment_event}
     res = func_update_sample_status(
@@ -213,13 +239,27 @@ def shipment_index(tokenuser: UserAccount):
 @token_required
 def shipment_index_tokenuser(tokenuser: UserAccount):
     if tokenuser.is_admin:
-        sm = SampleShipmentStatus.query.all()
-
+        #sm = SampleShipmentStatus.query.all()
+        sm = SampleShipmentStatus.query.join(SampleShipment)\
+            .join(SampleShipmentToSample)\
+            .join(Sample)\
+            .filter(
+                    Sample.status=='TRA',
+                    ~SampleShipmentToSample.id.is_(None),
+                    ~SampleShipmentToSample.sample_id.is_(None),
+                    )\
+            .all()
     else:
 
-        sm = SampleShipmentStatus.query.join(SampleShipment).\
-            join(SampleShipmentToSample).join(Sample).\
-            filter(Sample.current_site_id==tokenuser.site_id, Sample.status=='TRA').all()
+        sm = SampleShipmentStatus.query.join(SampleShipment)\
+            .join(SampleShipmentToSample)\
+            .join(Sample)\
+            .filter(Sample.current_site_id==tokenuser.site_id,
+                    Sample.status=='TRA',
+                    ~SampleShipmentToSample.id.is_(None),
+                    ~SampleShipmentToSample.sample_id.is_(None),
+                    )\
+            .all()
 
     return success_with_content_response(sample_shipments_status_schema.dump(sm))
 
@@ -235,10 +275,12 @@ def shipment_new_shipment(tokenuser: UserAccount):
         return validation_error_response("No Samples in Cart")
 
     values = request.get_json()
-
+    print("values", values)
     if not values:
         return no_values_response()
 
+    protocol_id = values.pop("protocol_id")
+    print("protocol", protocol_id)
     try:
         new_shipment_event_values = new_sample_shipment_schema.load(values)
     except ValidationError as err:
@@ -253,10 +295,10 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     try:
         db.session.add(new_event)
-        db.session.commit()
         db.session.flush()
 
     except Exception as err:
+        db.session.rollback()
         return transaction_error_response(err)
 
     new_shipment_event = SampleShipment(
@@ -267,19 +309,38 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     try:
         db.session.add(new_shipment_event)
-        db.session.commit()
         db.session.flush()
 
     except Exception as err:
+        db.session.rollback()
         return transaction_error_response(err)
 
     for sample in cart:
         s = sample.sample
+
+        # -- protocol event for each sample to be transferred. Event shared for all samples
+        new_protocol_event = SampleProtocolEvent(
+            sample_id=s.id,
+            protocol_id=protocol_id,
+            event_id=new_event.id,
+            reduced_quantity=0,
+        )
+        new_protocol_event.author_id = tokenuser.id
+        new_protocol_event.event_id = new_event.id
+
+        try:
+            db.session.add(new_protocol_event)
+            db.session.flush()
+
+        except Exception as err:
+            return transaction_error_response(err)
+
         ssets = SampleShipmentToSample(
             sample_id=s.id,
             from_site_id=s.site_id,
             author_id=tokenuser.id,
             shipment_id=new_shipment_event.id,
+            protocol_event_id=new_protocol_event.id
         )
 
         db.session.add(ssets)
@@ -288,6 +349,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
         s.update({"editor_id": tokenuser.id})
 
         db.session.add(s)
+        db.session.delete(sample)
 
     new_shipment_status = SampleShipmentStatus(
         status=SampleShipmentStatusStatus.TBC,
@@ -297,10 +359,9 @@ def shipment_new_shipment(tokenuser: UserAccount):
     db.session.add(new_shipment_status)
 
     try:
-
-        db.session.query(UserCart).filter_by(
-            author_id=tokenuser.id, selected=True
-        ).delete()
+        # db.session.query(UserCart).filter_by(
+        #     author_id=tokenuser.id, selected=True
+        # ).delete()
         db.session.commit()
         db.session.flush()
 
@@ -310,6 +371,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     except Exception as err:
         return transaction_error_response(err)
+
 
 
 @api.route("/cart/remove/<uuid>", methods=["DELETE"])

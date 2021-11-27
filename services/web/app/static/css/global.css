@@ -70,6 +70,17 @@ nav img {
     color:#000 !important;
 }
 
+.btn-close {
+  color: black;
+  float: right;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-close:hover {
+  color: grey;
+}
+
 .btn-secondary {
     background-color: #ffffff;
     color: #000;

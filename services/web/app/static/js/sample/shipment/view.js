@@ -92,13 +92,13 @@ function fill_jumbotron(shipment_data) {
     if (["Delivered","Cancelled", "Undelivered"].includes(shipment_data["status"])) {
         $("#update-status-btn").hide();
         if ((shipment_data['shipment']["is_locked"]==false)) {
-            $("#add-cart-btn").show();
+            $("#add-cart-btn").parent().show();
         } else {
-            $("#add-cart-btn").hide();
+            $("#add-cart-btn").parent().hide();
         }
     } else {
         $("#update-status-btn").show();
-        $("#add-cart-btn").hide();
+        $("#add-cart-btn").parent().hide();
     }
 }
 
@@ -137,24 +137,6 @@ function deactivate_nav() {
     $("#shipment-status-nav").removeClass("active");
 }
 
-function fill_involved_samples0(involved_samples, new_site) {
-    var html = "";
-    for (i in involved_samples) {
-        var inv = involved_samples[i];
-        html += '<li class="list-group-item"> '
-        html += '<a href="' + inv["sample"]["_links"]["self"] + '">'
-        html += '<i class="fas fa-vial"></i>'
-        html += inv["sample"]["uuid"]
-        html += '</a>'
-        html += '<p>'
-        html +=  inv["old_site"]["name"] + '->' + new_site["name"]
-        html += '</p>'
-
-        html += '</li>'
-    }
-
-    $("#involved-samples-list-group").html(html);
-}
 
 function fill_involved_samples(involved_samples) {
 
@@ -170,7 +152,7 @@ function fill_involved_samples(involved_samples) {
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
-            {targets: [1, 2, 3, 6], visible: false, "defaultContent": ""},
+            {targets: [2, 3, 7, 10], visible: false, "defaultContent": ""},
 
         ],
         order: [[2, 'desc']],
@@ -178,10 +160,29 @@ function fill_involved_samples(involved_samples) {
             'style': 'multi',
         },
         columns: [
+
+
+            {//Sample Transfer Protocol Column
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var event_info = data["transfer_protocol"]
+                    var col_data = '';
+                    if (event_info != undefined || event_info != null) {
+                        col_data += "<a href='" + event_info["protocol"]["_links"]["self"] + "'>";
+                        col_data += '<i class="fa fa-project-diagram"></i> '
+                        col_data += "LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"];
+                        col_data += "</a>";
+                    }
+                    return col_data
+                }
+            },
+
             {//Sample ID Column
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var col_data = '';
+                    if (data["sample"]==null || data["sample"]==undefined)
+                        return col_data;
                     col_data += render_colour(data["sample"]["colour"])
                     col_data += "<a href='" + data["sample"]["_links"]["self"] + "'>";
                     col_data += '<i class="fas fa-vial"></i> '
@@ -196,7 +197,7 @@ function fill_involved_samples(involved_samples) {
                             col_data += "</a></small>";
                     }
 
-                    return col_data
+                    return col_data;
                 }
             },
 
@@ -207,12 +208,66 @@ function fill_involved_samples(involved_samples) {
 
                 },
             },
-            {//DB ID Column
+
+            {//DB Barcode Column
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["sample"]["barcode"]
 
                 },
+            },
+
+            { // Donor ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    col_data = "";
+                    if (consent['donor_id']!=null) {
+                        var donor_link = window.location.origin+'/donor/LIMBDON-'+consent['donor_id'];
+                        col_data += '<a href="'+donor_link+'" target="_blank">';
+                        col_data += '<i class="fa fa-user-circle"></i>'+ 'LIMBDON-'+consent['donor_id'];
+                        col_data += '</a>';
+                    }
+                    return col_data;
+                }
+            },
+
+
+            { // study ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    var col_data = "";
+
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        doi = consent['study']['protocol']['doi'];
+                        if (doi == null)
+                            doi = "";
+
+                        protocol_name = consent['study']['protocol']['name'];
+                        if (protocol_name == null)
+                            protocol_name = "";
+
+                        col_data += '<i class="fas fa-users"></i>'+ protocol_name;
+                        col_data += ',  <a href="'+doi2url(doi)+'" target="_blank">';
+                        col_data += doi;
+                        col_data += '</a>';
+
+                    }
+                    return col_data;
+                }
+            },
+
+            { // donor reference no
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    var reference_id = "";
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        reference_id = consent['study']['reference_id']
+                    }
+                    return reference_id;
+                }
             },
 
             {//Base Type Column
@@ -308,14 +363,14 @@ function fill_involved_samples(involved_samples) {
                     return col_data;
                 }
             },
-
-            {//Created On column
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    return data['sample']["created_on"]
-
-                }
-            },
+            //
+            // {//Created On column
+            //     "mData": {},
+            //     "mRender": function (data, type, row) {
+            //         return data['sample']["created_on"]
+            //
+            //     }
+            // },
 
         ],
 

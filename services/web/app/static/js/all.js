@@ -123,7 +123,8 @@ function render_sample_table(samples, div_id) {
                     }
                     return col_data;
                 }
-},
+            },
+
             { // donor reference no
                 "mData": {},
                 "mRender": function (data, type, row) {

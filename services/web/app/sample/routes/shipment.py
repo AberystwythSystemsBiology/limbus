@@ -92,6 +92,9 @@ def shipment_update_status(uuid):
             flash("The shipment has been closed! ")
             return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
 
+        shipment_info["tracking_number"] = shipment_response.json()["content"]["tracking_number"]
+        shipment_info["comments"] = shipment_response.json()["content"]["comments"]
+
         form = SampleShipmentStatusUpdateform(data=shipment_info)
 
         if form.validate_on_submit():
@@ -105,6 +108,7 @@ def shipment_update_status(uuid):
                     )
                 ),
             }
+
             update_response = requests.put(
                 url_for("api.shipment_update_status", uuid=uuid, _external=True),
                 headers=get_internal_api_header(),
@@ -112,9 +116,10 @@ def shipment_update_status(uuid):
             )
 
             if update_response.status_code == 200:
-                flash("Shipment Status Successfully Updated")
+                #flash("Shipment Status Successfully Updated!")
+                flash(update_response.json()["message"])
             else:
-                flash("We have a problem: %s" % (update_response.json()))
+                flash("We have a problem: %s" % (update_response.json()["message"]))
 
             return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
         return render_template(
@@ -155,6 +160,20 @@ def shipment_view_shipment_data(uuid):
 @sample.route("/shipment/new/", methods=["GET", "POST"])
 @login_required
 def shipment_new_step_one():
+    protocols =[]
+    protocols_response = requests.get(
+        url_for("api.protocol_query_tokenuser", default_type="STR", _external=True),
+        headers=get_internal_api_header(),
+        json={"is_locked": False, "type":["STR"]},
+    )
+
+    if protocols_response.status_code == 200:
+        protocols = protocols_response.json()["content"]["choices"]
+
+    else:
+        flash("No available sample transfer protocols!!")
+        return redirect(url_for("sample.shipment_index"))
+
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
@@ -165,7 +184,7 @@ def shipment_new_step_one():
         for site in sites_response.json()["content"]:
             sites.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
 
-        form = SampleShipmentEventForm(sites)
+        form = SampleShipmentEventForm(sites, protocols)
 
         if form.validate_on_submit():
 
@@ -173,6 +192,7 @@ def shipment_new_step_one():
                 url_for("api.shipment_new_shipment", _external=True),
                 headers=get_internal_api_header(),
                 json={
+                    "protocol_id": form.protocol_id.data,
                     "site_id": form.site_id.data,
                     "event": {
                         "comments": form.comments.data,
@@ -192,7 +212,6 @@ def shipment_new_step_one():
                 return redirect(url_for("sample.shipment_index"))
 
             else:
-                # flash("Oh no.")
                 flash(new_shipment_response.json()["message"])
 
         return render_template("sample/shipment/new/new.html", form=form)
