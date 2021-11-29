@@ -25,7 +25,15 @@ from wtforms import (
     SubmitField,
     DateField,
     TimeField,
+    BooleanField,
+    RadioField,
+    FormField,
+    FieldList,
+    HiddenField,
+    IntegerField,
 )
+
+from wtforms.validators import Optional
 import requests
 from ...misc import get_internal_api_header
 
@@ -86,23 +94,115 @@ def func_get_samples_choices(samples: list):
     return samples_choices
 
 
-class SiteRegistrationForm(FlaskForm):
-    name = StringField("Site Name", validators=[DataRequired()])
-    address_line_one = StringField("Address Line1", validators=[DataRequired()])
-    address_line_two = StringField("Address Line2")
-    city = StringField("Town/City", validators=[DataRequired()])
-    county = StringField("County", validators=[DataRequired()])
+class AddressForm(FlaskForm):
+    address_id = HiddenField()
+    country_choices = [(country.alpha_2, country.name) for country in pycountry.countries]
+    street_address_one = StringField("Address Line1", validators=[Optional()])
+    street_address_two = StringField("Address Line2")
+    city = StringField("Town/City", validators=[Optional()])#, DataRequired()])
+    county = StringField("County", validators=[Optional()])#, DataRequired()])
     country = SelectField(
         "Country",
-        validators=[DataRequired()],
-        choices=[(country.alpha_2, country.name) for country in pycountry.countries],
+        validators=[Optional()],  # DataRequired()],
+        default = "GB",
+        choices=country_choices,
     )
     post_code = StringField(
-        "Post Code", validators=[DataRequired(), post_code_validator]
+        "Post Code", validators=[Optional(), post_code_validator], #, DataRequired()]
     )
 
-    submit = SubmitField("Register Site")
+    is_default = BooleanField("Set as default")
+    delete = BooleanField("Delete", default=True)
 
+    def validate(self):
+        if not FlaskForm.validate(self):
+            return False
+        fields_required = ["street_address_one", "city", "country", "post_code"]
+        success = True
+        if( self.address_id.data in [None, ""]) and self.delete.data is False:
+            for field in fields_required:
+                value = getattr(getattr(self, field, None), "data", None)
+                #print("%s: %s" %(field, value))
+                if value in [None, ""]:
+                    err = getattr(getattr(self, field, None), "errors", None)
+                    err.append("%s required." %field)
+                    success = False
+        print("VALIDAT success", success)
+        return success
+
+def SiteAddressEditForm(data={}, num_entries=None) -> FlaskForm:
+    if num_entries is None or num_entries <= 0:
+        num_entries = len(data["addresses"]) + 5
+
+    class StaticForm(FlaskForm):
+        name = StringField("Site Name", validators=[DataRequired()])
+        url = StringField(
+            "Site Website",
+            validators=[URL(), Optional()],
+            description="Textual string of letters with the complete http-address for the site",
+        )
+        description = StringField(
+            "Site Description",
+            description="Textual string of letters with a description about the site in English.",
+        )
+
+        num_addresses = HiddenField()
+
+        checked = ""
+        try:
+            if data["is_external"]:
+                checked = "checked"
+        except:
+            pass
+        is_external = BooleanField("Is External", render_kw={"checked":  checked})
+
+        addresses = FieldList(FormField(AddressForm), min_entries= num_entries)
+
+        submit = SubmitField("Save")
+
+
+    return StaticForm(data=data)
+
+
+def SiteEditForm(data={}) -> FlaskForm:
+    country_choices = [(country.alpha_2, country.name) for country in pycountry.countries]
+
+    class StaticForm(FlaskForm):
+        name = StringField("Site Name", validators=[DataRequired()])
+        url = StringField(
+            "Site Website",
+            validators=[URL(), Optional()],
+            description="Textual string of letters with the complete http-address for the site",
+        )
+        description = StringField(
+            "Site Description",
+            description="Textual string of letters with a description about the site in English.",
+        )
+        street_address_one = StringField("Address Line1", validators=[DataRequired()])
+        street_address_two = StringField("Address Line2")
+        city = StringField("Town/City", validators=[DataRequired()])
+        county = StringField("County", validators=[DataRequired()])
+        country = SelectField(
+            "Country",
+            validators=[DataRequired()],
+            default = "GB",
+            choices=country_choices,
+        )
+        post_code = StringField(
+            "Post Code", validators=[DataRequired(), post_code_validator]
+        )
+
+        checked = ""
+        try:
+            if data["is_external"]:
+                checked = "checked"
+        except:
+            pass
+
+        is_external = BooleanField("Is External", render_kw={"checked":  checked})
+        submit = SubmitField("Save")
+
+    return StaticForm(data=data)
 
 
 def SampleToEntityForm(samples: list) -> FlaskForm:

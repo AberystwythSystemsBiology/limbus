@@ -226,13 +226,7 @@ def new_consent(id):
 
         if consent_templates_response.status_code == 200:
             consent_templates = consent_templates_response.json()["content"]["choices"]
-            # for template in consent_templates_response.json()["content"]:
-            #     consent_templates.append(
-            #         [
-            #             template["id"],
-            #             "LIMBPCF-%i: %s" % (template["id"], template["name"]),
-            #         ]
-            #     )
+
 
         form = ConsentTemplateSelectForm(consent_templates)
 
@@ -284,14 +278,7 @@ def add_consent_answers(template_id, donor_id):
     study_protocols = []
     if protocols_response.status_code == 200:
         study_protocols = protocols_response.json()["content"]["choices"]
-        # for protocol in protocols_response.json()["content"]:
-        #     if protocol["type"] == "Study":
-        #         study_protocols.append(
-        #             [
-        #                 protocol["id"],
-        #                 "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]),
-        #             ]
-        #         )
+
 
     study_protocols = [(0, '--- Select a study ---')] + study_protocols
 

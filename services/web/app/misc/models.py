@@ -31,6 +31,13 @@ class Address(Base, RefAuthorMixin):
     county = db.Column(db.String(128))
     post_code = db.Column(db.String(20), nullable=False)
     country = db.Column(db.String(2), nullable=False)
+    site_id = db.Column(
+        db.Integer, db.ForeignKey("siteinformation.id", use_alter=True), nullable=True
+    )
+    site = db.relationship("SiteInformation",
+                           primaryjoin="SiteInformation.id==Address.site_id",
+                           uselist=False,
+                           backref="addresses")
 
 
 class SiteInformation(Base, RefAuthorMixin):
@@ -47,5 +54,9 @@ class SiteInformation(Base, RefAuthorMixin):
     address_id = db.Column(
         db.Integer, db.ForeignKey("address.id", use_alter=True), nullable=False
     )
-    address = db.relationship("Address", uselist=False)
+    address = db.relationship("Address",
+                              primaryjoin="SiteInformation.address_id==Address.id",
+                              uselist=False)
+
     buildings = db.relationship("Building", uselist=True)
+

@@ -28,7 +28,17 @@
                 {{ form.csrf_token() }}
 
                 {{ form_field(form.protocol_id) }}
-                {{ form_field(form.site_id) }}
+                <div class="row">
+                    <div class="col-6">
+                        {{ form_field(form.site_id) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_field(form.external_site_id) }}
+                    </div>
+                </div>
+
+                {{ form_field(form.address_id) }}
+                {{ form_field(form.address_text) }}
 
                 <div class="row">
                     <div class="col-6">

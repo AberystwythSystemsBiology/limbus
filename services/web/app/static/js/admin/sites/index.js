@@ -16,9 +16,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-function get_sites() {
-    var api_url = encodeURI(window.location + '/data');
-
+function get_sites(opt="internal") {
+    if (opt == "internal") {
+        var api_url = encodeURI(window.location + 'data');
+    }
+    else {
+        var api_url = encodeURI(window.location + 'external/data');
+    }
+    console.log("api_url", api_url);
     var json = (function () {
         var json = null;
         $.ajax({
@@ -74,5 +79,15 @@ function fill_sites_table(sites) {
 
 
 $(document).ready(function () {
-    fill_sites_table(get_sites());
+    var opt = $("input[name='dispopt']:checked").val();
+    console.log("opt", opt);
+    fill_sites_table(get_sites(opt))
+
+   $("input[name='dispopt']").change(function(){
+        opt = $("input[name='dispopt']:checked").val();
+        console.log("opt", opt);
+        $('#sites-table').DataTable().destroy();
+        fill_sites_table(get_sites(opt));
+        //samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+    })
 });

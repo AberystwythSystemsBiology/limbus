@@ -31,11 +31,12 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
     __versioned__ = {}
 
     site_id = db.Column(db.Integer, db.ForeignKey("siteinformation.id", use_alter=True))
+    address_id = db.Column(db.Integer, db.ForeignKey("address.id", use_alter=True))
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
 
     new_site = db.relationship("SiteInformation")
+    to_address = db.relationship("Address")
     event = db.relationship("Event", cascade="all, delete")
-
 
     involved_samples = db.relationship(
         "SampleShipmentToSample",

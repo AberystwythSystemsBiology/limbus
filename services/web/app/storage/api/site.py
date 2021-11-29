@@ -21,9 +21,11 @@ from flask import request, send_file
 from ...decorators import token_required
 from marshmallow import ValidationError
 
-from ...database import db, SiteInformation, UserAccount, Sample, Building
+from ...database import db, SiteInformation, UserAccount, Sample, Building, Address
 
-from ..views import site_schema, new_site_schema, basic_site_schema
+#from ..views import site_schema, new_site_schema, basic_site_schema, site_addresses_schema
+from ..views import site_schema, site_addresses_schema
+from ...misc.views import new_site_schema, basic_site_schema
 from ...api.generics import *
 
 
@@ -35,16 +37,138 @@ def site_view(id, tokenuser: UserAccount):
         site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
     )
 
+@api.route("/storage/site/LIMBSITE-<id>/addresses", methods=["GET"])
+@token_required
+def site_addresses_view(id, tokenuser: UserAccount):
+
+    return success_with_content_response(
+        site_addresses_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
+    )
+
 
 @api.route("/storage/site/LIMBSITE-<id>/edit", methods=["PUT"])
 @token_required
 def storage_site_edit(id, tokenuser: UserAccount):
-
     values = request.get_json()
+    print("values", values)
+    site = SiteInformation.query.filter_by(id=id).first()
+    if not site:
+        return not_found("Site %s"%id)
 
-    return generic_edit(
-        db, SiteInformation, id, new_site_schema, basic_site_schema, values, tokenuser
-    )
+    if site.is_locked:
+        return locked_response("Site %s"%id)
+
+    try:
+        result = new_site_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    address_values = values.pop("address", None)
+    site.update(values)
+
+    if address_values:
+        address = Address.query.filter_by(id=site.address_id).first()
+        if address:
+            address.update(address_values)
+            address.editor_id = tokenuser.id
+        else:
+            address = Address(address_values)
+            address.author_id = tokenuser.id
+
+        db.session.add(address)
+        try:
+            db.session.flush()
+            site.address_id = address.id
+        except Exception as err:
+            return transaction_error_response(err)
+
+    db.session.add(site)
+    try:
+        db.session.commit()
+        return success_with_content_response(basic_site_schema.dump(site))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+@api.route("/storage/site/LIMBSITE-<id>/edit_addresses", methods=["POST"])
+@token_required
+def site_edit_addresses(id, tokenuser: UserAccount):
+    values = request.get_json()
+    print("values", values)
+    new_address_id = values.pop("address_id", None)
+
+    site = SiteInformation.query.filter_by(id=id).first()
+
+    if not site:
+        return not_found("Site %s"%id)
+
+    if site.is_locked:
+        return locked_response("Site %s"%id)
+
+    new_values = values.pop("new_addresses", None)
+    upd_values = values.pop("addresses", None)
+
+    site.update(values)
+    if new_address_id:
+        # print("new addres", new_address_id)
+        site.address_id = new_address_id
+
+    db.session.add(site)
+
+    if new_values:
+        for avalues in new_values:
+            deleted = avalues.pop("delete", None)
+            is_default = avalues.pop("is_default", None)
+            address_id = avalues.pop("id", None)
+
+            if deleted:
+                continue
+            address = Address(**avalues)
+            address.author_id = tokenuser.id
+            db.session.add(address)
+
+            if is_default:
+                site.address_id = address.id
+
+
+    try:
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    if upd_values:
+        for avalues in upd_values:
+            deleted = avalues.pop("delete", None)
+            is_default = avalues.pop("is_default", None)
+            address_id = avalues.pop("id", None)
+            # print("address_id", address_id, "; delele", deleted)
+
+            if address_id:
+                # - Update address
+                address = Address.query.filter_by(id=address_id).first()
+                if not address:
+                    return not_found("Address")
+
+                if deleted is True:
+                    db.session.delete(address)
+                else:
+                    address.update(avalues)
+                    address.update({"editor_id": tokenuser.id})
+                    db.session.add(address)
+
+
+            if is_default:
+                site.address_id = address.id
+
+    site.update({"editor_id": tokenuser.id})
+    db.session.add(site)
+
+    try:
+        db.session.commit()
+        return success_with_content_response(basic_site_schema.dump(site))
+
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 # *

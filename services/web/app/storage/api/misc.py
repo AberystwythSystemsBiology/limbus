@@ -380,11 +380,11 @@ def storage_view_tree(tokenuser: UserAccount):
 def storage_view_tree_tokenuser(tokenuser: UserAccount):
     if tokenuser.is_admin:
         return success_with_content_response(
-            tree_sites_schema.dump(SiteInformation.query.all())
+            tree_sites_schema.dump(SiteInformation.query.filter_by(is_external=False).all())
         )
     else:
         return success_with_content_response(
-            tree_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
+            tree_sites_schema.dump(SiteInformation.query.filter_by(is_external=False).filter_by(id=tokenuser.site_id).all())
         )
 
 
@@ -394,7 +394,7 @@ def storage_view_panel(tokenuser: UserAccount):
 
     data = {
         "basic_statistics": {
-            "site_count": SiteInformation.query.count(),
+            "site_count": SiteInformation.query.filter_by(is_external=False).count(),
             "building_count": Building.query.count(),
             "room_count": Room.query.count(),
             "cold_storage_count": ColdStorage.query.count(),

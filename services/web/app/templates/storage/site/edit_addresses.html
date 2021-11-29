@@ -14,42 +14,47 @@
             <div class="container">
                 <h1>
                     <span class="secondary-heading">
-                        <a href="{{ url_for('storage.view_site', id=room.id) }}">
-                            <i class="fa fa-door-closed"></i> LIMBSITE-{{room.id}}
+                        <a href="{{ url_for('storage.view_site', id=site.id) }}">
+                            <i class="fa fa-door-closed"></i> LIMBSITE-{{site.id}}
                         </a>
                     </span>Edit Site</h1>
             </div>
         </div>
 
         <div class="container">
-            <form method="POST" action="{{ url_for('storage.edit_site', id=room.id) }}">
+
+            <form method="POST" action="{{ url_for('storage.site_edit_addresses', id=site.id) }}">
                 {{ form.csrf_token }}
+                {{ form_field(form.is_external) }}
                 {{ form_field(form.name) }}
                 {{ form_field(form.url) }}
                 {{ form_field(form.description) }}
-                {{ form_field(form.street_address_one) }}
-                {{ form_field(form.street_address_two) }}
-                {{ form_field(form.city) }}
-                {{ form_field(form.county) }}
-                {{ form_field(form.country) }}
-                {{ form_field(form.post_code) }}
-                {{ form_field(form.is_external) }}
+                {{ form.num_addresses }}
+                {{ form.addresses }}
 
+                <div class="btn-group mr-2" role="group" aria-label="Second group">
+                            <button id="btn_add_address" type="button"
+                                    class="btn btn-success"><i class="fa fa-plus"></i>
+                                Add Address
+                            </button>
+                    </div>
                 <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
                         {{ form_field(form.submit) }}
                     </div>
-                    <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
-                        <a href="{{ url_for('storage.view_site', id=room.id) }}">
+
+                    <div class="btn-group mr-2" style="padding-top: 10px;float:right;" role="group" aria-label="Second group">
+                        <a href="{{ url_for('storage.view_site', id=site.id) }}">
                             <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
                                 Cancel
                             </button></a>
                     </div>
                 </div>
 
+
             </form>
         </div>
-
 
 
     </div>
@@ -58,4 +63,5 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/site/view.js') }}"></script>
 {% endblock %}

@@ -174,26 +174,37 @@ def shipment_new_step_one():
         flash("No available sample transfer protocols!!")
         return redirect(url_for("sample.shipment_index"))
 
+    sites = [[0, "None"]]
+    sites_ext = [[0, "None"]];
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
+    external_sites_response = requests.get(
+        url_for("api.site_external_home", _external=True), headers=get_internal_api_header()
+    )
+    if external_sites_response.status_code == 200:
+        for site in external_sites_response.json()["content"]:
+            sites_ext.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
 
     if sites_response.status_code == 200:
 
-        sites = []
         for site in sites_response.json()["content"]:
             sites.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
 
-        form = SampleShipmentEventForm(sites, protocols)
+        form = SampleShipmentEventForm(sites, sites_ext, protocols)
 
         if form.validate_on_submit():
+            if form.site_id.data>0:
+                site_id = form.site_id.data
+            elif form.external_site_id.data>0:
+                site_id = form.external_site_id.data
 
             new_shipment_response = requests.post(
                 url_for("api.shipment_new_shipment", _external=True),
                 headers=get_internal_api_header(),
                 json={
                     "protocol_id": form.protocol_id.data,
-                    "site_id": form.site_id.data,
+                    "site_id": site_id,
                     "event": {
                         "comments": form.comments.data,
                         "datetime": str(

@@ -20,6 +20,7 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
+    BooleanField,
 )
 from wtforms.validators import (
     DataRequired,
@@ -62,6 +63,7 @@ class SiteRegistrationForm(FlaskForm):
     country = SelectField(
         "Country",
         validators=[DataRequired()],
+        default = "GB",
         choices=sorted(
             [(country.alpha_2, country.name) for country in pycountry.countries],
             key=lambda x: x[1],
@@ -72,5 +74,7 @@ class SiteRegistrationForm(FlaskForm):
         description="Please enter the Post Code without spaces.",
         validators=[DataRequired(), post_code_validator],
     )
+
+    is_external = BooleanField("Is External", render_kw={"checked": ""})
 
     submit = SubmitField("Register")

@@ -29,7 +29,7 @@ from ..enums import SampleShipmentStatusStatus
 from datetime import datetime
 
 
-def SampleShipmentEventForm(sites: list, protocols: list) -> FlaskForm:
+def SampleShipmentEventForm(sites: object, sites_ext: object, protocols: object) -> object:
     class StaticForm(FlaskForm):
 
         protocol_id = SelectField("Sample Transfer Protocol", choices=protocols, coerce=int)
@@ -55,7 +55,16 @@ def SampleShipmentEventForm(sites: list, protocols: list) -> FlaskForm:
         submit = SubmitField("Submit")
 
     setattr(
-        StaticForm, "site_id", SelectField("Destination", choices=sites, coerce=int)
+        StaticForm, "site_id",
+        SelectField("Destination (internal)", choices=sites, coerce=int)
+    )
+    setattr(
+        StaticForm, "external_site_id",
+        SelectField("Destination (external)", choices=sites_ext, coerce=int)
+    )
+    setattr(
+        StaticForm, "address_id",
+        SelectField("Shipping Address", choices=addresses, coerce=int)
     )
 
     return StaticForm()

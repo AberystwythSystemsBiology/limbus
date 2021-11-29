@@ -104,9 +104,9 @@ def get_data(tokenuser: UserAccount):
     data = {
         "name": SiteInformation.query.first().name,
         "basic_statistics": {
-            "sample_count": Sample.query.count(),
+            "sample_count": Sample.query.filter(Sample.remaining_quantity>0).count(),
             "user_count": UserAccount.query.count(),
-            "site_count": SiteInformation.query.count(),
+            "site_count": SiteInformation.query.filter_by(is_external=False).count(),
             "donor_count": Donor.query.count(),
         },
         "donor_statistics": {
@@ -235,11 +235,19 @@ def get_data(tokenuser: UserAccount):
     return success_with_content_response(data)
 
 
+@api.route("/misc/site/external", methods=["GET"])
+@token_required
+def site_external_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_sites_schema.dump(SiteInformation.query.filter_by(is_external=True).all())
+    )
+
+
 @api.route("/misc/site", methods=["GET"])
 @token_required
 def site_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sites_schema.dump(SiteInformation.query.all())
+        basic_sites_schema.dump(SiteInformation.query.filter_by(is_external=False).all())
     )
 
 
@@ -248,10 +256,12 @@ def site_home(tokenuser: UserAccount):
 def site_home_tokenuser(tokenuser: UserAccount):
 
     if tokenuser.is_admin:
-        sites = basic_sites_schema.dump(SiteInformation.query.all())
+        sites = basic_sites_schema.dump(SiteInformation.query.filter_by(is_external=False).all())
 
     else:
-        sites = basic_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
+        sites = basic_sites_schema.dump(
+            SiteInformation.query.filter_by(is_external=False, id=tokenuser.site_id).all()
+        )
 
     choices = []
     settings = tokenuser.settings

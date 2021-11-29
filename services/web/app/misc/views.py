@@ -49,7 +49,6 @@ class BasicAddressSchema(masql.SQLAlchemySchema):
     post_code = masql.auto_field()
     country = masql.auto_field()
 
-
 basic_address_schema = BasicAddressSchema()
 basic_addresses_schema = BasicAddressSchema(many=True)
 
@@ -63,8 +62,11 @@ class NewSiteInformationSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     description = masql.auto_field()
     url = masql.auto_field()
+    is_external = masql.auto_field()
+
     author_id = masql.auto_field()
     address_id = masql.auto_field()
+
 
 
 new_site_schema = NewSiteInformationSchema()
@@ -94,6 +96,10 @@ class BasicSiteSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     description = masql.auto_field()
     url = masql.auto_field()
+
+    is_locked = masql.auto_field()
+    is_external = masql.auto_field()
+
     created_on = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
 
