@@ -74,6 +74,7 @@ class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
 
     status = db.Column(db.Enum(SampleShipmentStatusStatus))
     comments = db.Column(db.Text())
+    courier = db.Column(db.String(128))
     tracking_number = db.Column(db.Text())
     datetime = db.Column(db.DateTime)
     shipment_id = db.Column(

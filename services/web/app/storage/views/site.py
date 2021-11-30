@@ -17,7 +17,7 @@ from ...database import SiteInformation
 from .building import BasicBuildingSchema
 from ...database import db, Address, SiteInformation, UserAccount, Sample
 
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...misc.views import BasicAddressSchema
 
 from ...extensions import ma
@@ -41,7 +41,8 @@ class SiteSchema(masql.SQLAlchemySchema):
     address = ma.Nested(BasicAddressSchema)
     buildings = ma.Nested(BasicBuildingSchema, many=True)
 
-    author = ma.Nested(BasicUserAccountSchema)
+    #author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
 
 
 site_schema = SiteSchema()

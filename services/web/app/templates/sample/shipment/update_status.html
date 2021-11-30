@@ -45,6 +45,7 @@
             <form method="POST" action="{{ url_for('sample.shipment_update_status', uuid=uuid) }}">
                 {{ form.csrf_token }}
                 {{ form_field(form.status) }}
+                {{ form_field(form.courier) }}
                 {{ form_field(form.tracking_number) }}
                 <div class="row">
                     <div class="col-6">

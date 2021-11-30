@@ -122,12 +122,10 @@ class AddressForm(FlaskForm):
         if( self.address_id.data in [None, ""]) and self.delete.data is False:
             for field in fields_required:
                 value = getattr(getattr(self, field, None), "data", None)
-                #print("%s: %s" %(field, value))
                 if value in [None, ""]:
                     err = getattr(getattr(self, field, None), "errors", None)
                     err.append("%s required." %field)
                     success = False
-        print("VALIDAT success", success)
         return success
 
 def SiteAddressEditForm(data={}, num_entries=None) -> FlaskForm:

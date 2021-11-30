@@ -29,10 +29,17 @@ from ..enums import SampleShipmentStatusStatus
 from datetime import datetime
 
 
-def SampleShipmentEventForm(sites: object, sites_ext: object, protocols: object) -> object:
+def SampleShipmentEventForm(protocols=[], sites=[], sites_ext=[], addresses=[],
+                            data={}) -> FlaskForm:
+
     class StaticForm(FlaskForm):
 
         protocol_id = SelectField("Sample Transfer Protocol", choices=protocols, coerce=int)
+
+        site_id = SelectField("Destination (internal)", choices=sites, coerce=int)
+        external_site_id = SelectField("Destination (external)", choices=sites_ext, coerce=int)
+
+        address_id = SelectField("Shipping Address", choices=addresses, coerce=int)
 
         date = DateField(
             "Shipment Request Date",
@@ -54,20 +61,23 @@ def SampleShipmentEventForm(sites: object, sites_ext: object, protocols: object)
         comments = TextAreaField("Comments", description="Any relevant observations.")
         submit = SubmitField("Submit")
 
-    setattr(
-        StaticForm, "site_id",
-        SelectField("Destination (internal)", choices=sites, coerce=int)
-    )
-    setattr(
-        StaticForm, "external_site_id",
-        SelectField("Destination (external)", choices=sites_ext, coerce=int)
-    )
-    setattr(
-        StaticForm, "address_id",
-        SelectField("Shipping Address", choices=addresses, coerce=int)
-    )
+        def validate(self):
+            # print("form", str(self.data))
+            if not FlaskForm.validate(self):
+                return False
 
-    return StaticForm()
+            success = True
+            if self.site_id.data==0 and self.external_site_id.data==0:
+                self.site_id.errors.append("Site required.")
+                self.external_site_id.errors.append("Site required.")
+                success = False
+            if self.address_id.data==0 and self.external_site_id.data==0:
+                self.address_id.errors.append("Address required.")
+                success = False
+
+            return success
+
+    return StaticForm(data=data)
 
 
 def SampleShipmentStatusUpdateform(data={}) -> FlaskForm:
@@ -78,7 +88,15 @@ def SampleShipmentStatusUpdateform(data={}) -> FlaskForm:
             choices=SampleShipmentStatusStatus.choices(),
         )
 
-        tracking_number = TextAreaField("Tracking number")
+        courier = StringField("Courier")
+        # courier = SelectField(
+        #     "Courier",
+        #     validators=[Optional()],
+        #     default="",
+        #     choices=courier_choices,
+        # )
+
+        tracking_number = StringField("Tracking number")
         comments = TextAreaField("Comments")
         date = DateField(
             "Shipment Status Updated Date",

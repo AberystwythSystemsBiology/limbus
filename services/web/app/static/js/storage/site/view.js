@@ -25,7 +25,7 @@ function set_default_address(id_checked, i_checked){
         $("#"+id_checked).prop('checked', false);
     }
     else {
-        console.log("default ass", i_checked, ' checked', checked);
+        //console.log("default ass", i_checked, ' checked', checked);
         addr_active.forEach(function (k, index) {
             if (k != i_checked)
                 $("#addresses-" + k + "-is_default").prop('checked', false);
@@ -35,7 +35,7 @@ function set_default_address(id_checked, i_checked){
 }
 
 function delete_address(id_checked, i_checked){
-    //alert(addr_active);
+
     if (addr_active.length==1) {
         msg = "Need to keep at least one address for the site!";
         alert(msg);
@@ -86,10 +86,8 @@ $(document).ready(function () {
     });
 
     // last address table is for new address, hide unless click new address
-
     var num_actual = parseInt($("#num_addresses").val());
-    console.log("num_actual", num_actual);
-
+    //console.log("num_actual", num_actual);
 
     for (var k = 0; k < num_addr; k++) {
         if (k >= num_actual) {

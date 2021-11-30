@@ -108,8 +108,20 @@ function fill_table(shipment_data) {
     h1 += '<i class="fa fa-hospital"></i>'
     h1 += shipment_data["shipment"]["new_site"]["name"]
     h1 += '</a>'
-    html += render_content("Shipping destination", h1);
-
+    ad = "";
+    addr_data = shipment_data["shipment"]["to_address"];
+    if (addr_data==null)
+        addr_data = shipment_data["shipment"]["new_site"]["address"];
+    if (addr_data!=null) {
+        ad += addr_data["street_address_one"] + ", ";
+        ad += addr_data["street_address_two"] + ", ";
+        ad += addr_data["city"] + ", ";
+        ad += addr_data["county"] + ", ";
+        ad += addr_data["post_code"];
+        ad += addr_data["country"] + ", ";
+    }
+    html += render_content("Destination", h1);
+    html += render_content("Shipment address", ad);
     html += render_content("Created Date", shipment_data["shipment"]["created_on"]);
     html += render_content("Comments", shipment_data["shipment"]["comments"]);
 

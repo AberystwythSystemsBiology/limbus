@@ -48,6 +48,7 @@ class BasicAddressSchema(masql.SQLAlchemySchema):
     county = masql.auto_field()
     post_code = masql.auto_field()
     country = masql.auto_field()
+    site_id = masql.auto_field()
 
 basic_address_schema = BasicAddressSchema()
 basic_addresses_schema = BasicAddressSchema(many=True)

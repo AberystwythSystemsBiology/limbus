@@ -108,7 +108,7 @@ def shipment_update_status(uuid: str, tokenuser: UserAccount):
             .filter(SampleShipmentToSample.shipment_id == shipment.id) \
             .all()
 
-        # - Prior to delete protocol evennt, deassoicate with event, which is used by sampleshipment
+        # - Prior to delete protocol event, deassoicate with event, which is used by sampleshipment
         for pe in protocol_events:
             pe.event_id = None
             db.session.add(pe)
@@ -275,16 +275,16 @@ def shipment_new_shipment(tokenuser: UserAccount):
         return validation_error_response("No Samples in Cart")
 
     values = request.get_json()
-    print("values", values)
+    # print("values", values)
     if not values:
         return no_values_response()
 
     protocol_id = values.pop("protocol_id")
-    print("protocol", protocol_id)
     try:
         new_shipment_event_values = new_sample_shipment_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
+
 
     new_event = Event(
         comments=new_shipment_event_values["event"]["comments"],
@@ -303,6 +303,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     new_shipment_event = SampleShipment(
         site_id=new_shipment_event_values["site_id"],
+        address_id = new_shipment_event_values["address_id"],
         event_id=new_event.id,
         author_id=tokenuser.id,
     )
