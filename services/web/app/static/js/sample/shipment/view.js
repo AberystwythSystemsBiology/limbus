@@ -392,6 +392,31 @@ function fill_involved_samples(involved_samples) {
 
 }
 
+
+function shipment_status_update_logic(new_site){
+    $("#status").change(function(){
+        if ($(this).val() == "DEL") {
+            if( new_site["is_external"]) {
+                alert("Set status to delivered for shipment to an external site will close the shipment! " +
+                    "The samples will be locked from future data entry!")
+            }
+            else {
+                alert("Set status to delivered to internal site will change the current site" +
+                    " The shipment will be closed after the samples are " +
+                    "added back to cart for storage/process in destination site! ")
+            }
+        } else if (["CAN", "UND"].includes($(this).val()) ) {
+            if( new_site["is_external"]) {
+                alert("Set status to 'Cancel' or 'Undelivered' will leave the sample in the original site." +
+                    " The shipment will be closed after the samples are " +
+                    "added back to cart for storage/process in original site! ")
+            }
+        }
+
+    })
+
+}
+
 $(document).ready(function() {
     var shipment_data = get_shipment();
 
@@ -432,5 +457,6 @@ $(document).ready(function() {
 
     });
 
+    shipment_status_update_logic(shipment_data['shipment']['new_site'])
 
 });

@@ -790,6 +790,7 @@ def func_update_sample_status(
         sample_id = sample.id
     msgs = []
     updated = False
+
     if not sample:
         msg = "Sample/sample_id not found! "
         res = {"sample": None, "message": msg, "success": False}
@@ -813,41 +814,42 @@ def func_update_sample_status(
                 subq = db.session.query(SampleShipmentToSample.sample_id).\
                     filter(SampleShipmentToSample.shipment_id==shipment_status.shipment_id)
                 samples = Sample.query.filter(Sample.id.in_(subq)).all()
-                if not samples:
+                print("samples", samples)
+                if len(samples)==0:
                     msg = "No involved samples found for the shipment status! "
                     return {'sample': None, 'message': msg, "success": True}
                 print('sss', shipment_status.status)
-                #if shipment_status.status is not None: #not in [None, '']: #, "TBC", SampleShipmentStatusStatus.TBC]:
-                if shipment:
-                    updated = True
-                    for sample in samples:
-                        sample.status = SampleStatus.TRA
 
-                    # if Delievered change the current_site_id to new site
-                    if shipment_status.status in [
-                        "DEL",
-                        SampleShipmentStatusStatus.DEL,
-                    ]:
-                        shipment = SampleShipment.query.filter_by(
-                            id=shipment_status.shipment_id
-                        ).first()
+                updated = True
+                for sample in samples:
+                    sample.status = SampleStatus.TRA
 
-                        if shipment:
-                            for sample in samples:
-                                sample.current_site_id = shipment.site_id
-                        else:
-                            for sample in samples:
-                                sample.current_site_id = None
+                # if Delievered change the current_site_id to new site
+                if shipment_status.status in [
+                    "DEL",
+                    SampleShipmentStatusStatus.DEL,
+                ]:
+                    shipment = SampleShipment.query.filter_by(
+                        id=shipment_status.shipment_id
+                    ).first()
 
-                    for sample in samples:
-                        sample.update({"editor_id": tokenuser.id})
+                    # If external site: lock the sample
+                    if shipment:
+                        for sample in samples:
+                            external_site = SiteInformation.query.filter_by(id=shipment.site_id,
+                                                                            is_external=True).first()
+                            if external_site:
+                                sample.is_locked = True
+                            sample.current_site_id = shipment.site_id
+                    else:
+                        for sample in samples:
+                            sample.current_site_id = None
 
-                    msg = "%d samples shipped!" % (len(samples))
-                    res = {"sample": samples, "message": msg, "success": True}
+                for sample in samples:
+                    sample.update({"editor_id": tokenuser.id})
 
-                else:
-                    msg = "No related sample shipment status for update!"
-                    res = {"sample": None, "message": msg, "success": True}
+                msg = "%d samples shipped!" % (len(samples))
+                res = {"sample": samples, "message": msg, "success": True}
 
             return res
 
@@ -1046,6 +1048,15 @@ def func_update_sample_status(
                             sample.current_site_id = shipment.site_id
                             updated = True
                             msg = "Sample shipped to site %s !" % sample.current_site_id
+
+                            #If External site, lock the sample
+                            external_site = SiteInformation.query.filter_by(id=shipment.site_id,
+                                                                            is_external=True).first()
+                            if external_site:
+                                sample.is_locked = True
+
+
+
 
             else:
                 msg = "No related sample shipment status for update!"

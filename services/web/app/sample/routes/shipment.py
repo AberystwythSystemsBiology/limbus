@@ -182,7 +182,6 @@ def shipment_new_step_one():
 
     sites = [[0, "None"]]
     sites_ext = [[0, "None"]];
-    addresses = [[0, "None"]]
 
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
@@ -252,10 +251,9 @@ def shipment_new_step_one():
 
             if new_shipment_response.status_code == 200:
                 flash("Shipment successfully added")
+                return redirect(url_for("sample.shipment_index"))
             else:
-                flash(new_shipment_response.json())#["message"])
-
-            return redirect(url_for("sample.shipment_index"))
+                flash(new_shipment_response.json()["message"])
 
         return render_template("sample/shipment/new/new.html", form=form, addresses=addresses)
 

@@ -591,9 +591,10 @@ function fill_protocol_events(events) {
         html += "<a href='" + event_info["_links"]["edit"] + "'>"
         html += "<div id='edit-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
-
+        if (!["Sample Transfer", "Sample Destruction"].includes(event_info["protocol"]["type"]) ) {
         html += "<div id='remove-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-danger float-right'>Remove</div>"
         html += "</div>"
+        }
         html += "</div>"
 
         // End ul

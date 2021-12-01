@@ -39,6 +39,7 @@ from ...database import (
     SampleRack,
     SampleShipmentStatus,
     SampleProtocolEvent,
+    SiteInformation,
 )
 
 from ..views import (
@@ -108,7 +109,7 @@ def shipment_update_status(uuid: str, tokenuser: UserAccount):
             .filter(SampleShipmentToSample.shipment_id == shipment.id) \
             .all()
 
-        # - Prior to delete protocol event, deassoicate with event, which is used by sampleshipment
+        # - Prior to delete protocol event, deassociate with event, which is used by sampleshipment
         for pe in protocol_events:
             pe.event_id = None
             db.session.add(pe)
@@ -131,7 +132,13 @@ def shipment_update_status(uuid: str, tokenuser: UserAccount):
         tokenuser=tokenuser, auto_query=True, sample=None, events=sample_status_events
     )
 
+    # if shipped to external site, set status to delivered will close the shipment
+    to_external = SiteInformation.query.filter_by(id=shipment.site_id, is_external=True).first()
+    if to_external:
+        shipment.is_locked = True
+
     message = "Shipment status successfully updated! " + res["message"]
+
 
     try:
         if res["success"] is True and res["sample"]:
@@ -279,12 +286,19 @@ def shipment_new_shipment(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
+    for sample in cart:
+        # -- check if it is of the same site
+        if sample.sample.current_site_id == values["site_id"]:
+            return validation_error_response(
+                "Destination site same as the current site of sample (%s)! "
+                %sample.sample.uuid
+            )
+
     protocol_id = values.pop("protocol_id")
     try:
         new_shipment_event_values = new_sample_shipment_schema.load(values)
     except ValidationError as err:
         return validation_error_response(err)
-
 
     new_event = Event(
         comments=new_shipment_event_values["event"]["comments"],
@@ -318,7 +332,6 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
     for sample in cart:
         s = sample.sample
-
         # -- protocol event for each sample to be transferred. Event shared for all samples
         new_protocol_event = SampleProtocolEvent(
             sample_id=s.id,
@@ -364,7 +377,7 @@ def shipment_new_shipment(tokenuser: UserAccount):
         #     author_id=tokenuser.id, selected=True
         # ).delete()
         db.session.commit()
-        db.session.flush()
+        # db.session.flush()
 
         return success_with_content_response(
             sample_shipment_schema.dump(new_shipment_event)
