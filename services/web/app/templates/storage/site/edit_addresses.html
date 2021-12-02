@@ -30,8 +30,21 @@
                 {{ form_field(form.url) }}
                 {{ form_field(form.description) }}
                 {{ form.num_addresses }}
-                {{ form.addresses }}
 
+                <div class="container" id="addresses">
+                {% for address in form.addresses -%}
+                  <div class="card" id=li-{{ address.id}}>
+                    <div class='card-header'>
+                        <h5 id="h-{{ address.id}}">{{ address.id}}</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="form-group" >
+                      {{ address }}
+                     </div>
+                    </div>
+                    </div>
+                {% endfor %}
+                </div>
                 <div class="btn-group mr-2" role="group" aria-label="Second group">
                             <button id="btn_add_address" type="button"
                                     class="btn btn-success"><i class="fa fa-plus"></i>

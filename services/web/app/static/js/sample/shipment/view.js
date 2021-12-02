@@ -101,6 +101,19 @@ function fill_jumbotron(shipment_data) {
         $("#add-cart-btn").parent().hide();
     }
 }
+function address_pretty(addr_data) {
+    for (const key in addr_data) {
+        console.log(`${key}: ${addr_data[key]}`);
+    }
+
+}/*
+        ad += addr_data["street_address_one"] + ", ";
+        ad += addr_data["street_address_two"] + ", ";
+        ad += addr_data["city"] + ", ";
+        ad += addr_data["county"] + ", ";
+        ad += addr_data["post_code"];
+        ad += addr_data["country"] + ", ";
+*/
 
 function fill_table(shipment_data) {
     html = ""
@@ -113,6 +126,7 @@ function fill_table(shipment_data) {
     if (addr_data==null)
         addr_data = shipment_data["shipment"]["new_site"]["address"];
     if (addr_data!=null) {
+        address_pretty(addr_data);
         ad += addr_data["street_address_one"] + ", ";
         ad += addr_data["street_address_two"] + ", ";
         ad += addr_data["city"] + ", ";

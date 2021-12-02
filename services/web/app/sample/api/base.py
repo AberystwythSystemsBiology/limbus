@@ -814,7 +814,7 @@ def func_update_sample_status(
                 subq = db.session.query(SampleShipmentToSample.sample_id).\
                     filter(SampleShipmentToSample.shipment_id==shipment_status.shipment_id)
                 samples = Sample.query.filter(Sample.id.in_(subq)).all()
-                print("samples", samples)
+
                 if len(samples)==0:
                     msg = "No involved samples found for the shipment status! "
                     return {'sample': None, 'message': msg, "success": True}

@@ -25,7 +25,6 @@ function set_default_address(id_checked, i_checked){
         $("#"+id_checked).prop('checked', false);
     }
     else {
-        //console.log("default ass", i_checked, ' checked', checked);
         addr_active.forEach(function (k, index) {
             if (k != i_checked)
                 $("#addresses-" + k + "-is_default").prop('checked', false);
@@ -47,7 +46,7 @@ function delete_address(id_checked, i_checked){
         return false;
     }
 
-    $("#addresses").children("li:eq(" + i_checked + ")").hide();
+    $("#li-addresses-"+i_checked).hide();
 
     addr_active = addr_active.filter( (el) => el != i_checked);
     if ($("#addresses-" + i_checked + "-is_default").is(":checked")) {
@@ -59,12 +58,14 @@ function delete_address(id_checked, i_checked){
 function active_address_logic() {
     for (var k = 0; k < num_addr; k++) {
         if (addr_active.includes(k)) {
-            $("#addresses").children("li:eq(" + k + ")").show();
+            $("#li-addresses-"+k).show();
             $("#addresses-" + k + "-delete").prop('checked', false);
         }
-        else
-            $("#addresses").children("li:eq(" + k + ")").hide();
-            //$("#addresses-" + k + "-delete").prop('checked', true);
+        else {
+
+            $("#li-addresses-" + k).hide();
+            $("#addresses-" + k + "-delete").prop('checked', true);
+        }
     }
 }
 
@@ -90,10 +91,11 @@ $(document).ready(function () {
     //console.log("num_actual", num_actual);
 
     for (var k = 0; k < num_addr; k++) {
+        $("#h-addresses-"+k).html("Address-"+(k+1));
         if (k >= num_actual) {
-            $("#addresses").children("li:eq(" + k + ")").hide();
+            $("#li-addresses-"+k).hide();
         } else {
-            $("#addresses").children("li:eq(" + k + ")").show();
+            $("#li-addresses-"+k).show();
             addr_active.push(k);
         }
     }
@@ -101,7 +103,7 @@ $(document).ready(function () {
     active_address_logic();
 
     $("#btn_add_address").click(function () {
-         $("#addresses").children("li:eq(" + num_actual + ")").show();
+         $("#li-addresses-"+num_actual).show();
          addr_active.push(num_actual);
          num_actual += 1;
          active_address_logic();

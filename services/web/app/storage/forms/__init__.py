@@ -97,18 +97,28 @@ def func_get_samples_choices(samples: list):
 class AddressForm(FlaskForm):
     address_id = HiddenField()
     country_choices = [(country.alpha_2, country.name) for country in pycountry.countries]
-    street_address_one = StringField("Address Line1", validators=[Optional()])
-    street_address_two = StringField("Address Line2")
-    city = StringField("Town/City", validators=[Optional()])#, DataRequired()])
-    county = StringField("County", validators=[Optional()])#, DataRequired()])
+    street_address_one = StringField("Address Line1", validators=[Optional()],
+                                     render_kw={"class":"form-control bd-light"}
+    )
+    street_address_two = StringField("Address Line2",
+                                     render_kw={"class":"form-control bd-light"}
+                                     )
+    city = StringField("Town/City", validators=[Optional()],
+                                     render_kw={"class":"form-control bd-light"}
+                       )
+    county = StringField("County", validators=[Optional()],
+                                     render_kw={"class":"form-control bd-light"}
+                         )
     country = SelectField(
         "Country",
-        validators=[Optional()],  # DataRequired()],
+        validators=[Optional()],
         default = "GB",
         choices=country_choices,
+        render_kw={"class":"form-control bd-light"}
     )
     post_code = StringField(
-        "Post Code", validators=[Optional(), post_code_validator], #, DataRequired()]
+        "Post Code", validators=[Optional(), post_code_validator],
+        render_kw={"class":"form-control bd-light"}
     )
 
     is_default = BooleanField("Set as default")

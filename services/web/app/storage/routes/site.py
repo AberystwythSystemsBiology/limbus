@@ -188,14 +188,20 @@ def site_edit_addresses(id):
     site_info["id"]  = id
     site_info["num_addresses"] = len(site_info["addresses"])
 
+    addr0 = []
+    addr1 = []
     for address in site_info["addresses"]:
         address["address_id"] = address["id"]
         address["delete"] = False
         if address["id"] == site_info["address_id"]:
             address["is_default"] = True
+            addr0.append(address)
         else:
             address["is_default"] = False
-    #print("site_info", site_info)
+            addr1.append(address)
+
+    # - default address first
+    site_info["addresses"] = addr0 + addr1
 
     form = SiteAddressEditForm(site_info)
     address_id = site_info["address_id"]
@@ -255,5 +261,10 @@ def site_edit_addresses(id):
             flash(edit_addresses_request.json()["message"])
 
         return redirect(url_for("storage.view_site", id=id))
+
+    else:
+        print(form.errors)
+        if form.errors != {}:
+            flash("Form validation errors!" + str(form.errors))
 
     return render_template("/storage/site/edit_addresses.html", form=form, site=site_info)

@@ -65,7 +65,7 @@ def shipment_index_data():
         shipment_response.headers.items(),
     )
 
-
+from flask import session
 @sample.route("/shipment/view/<uuid>")
 @login_required
 def shipment_view_shipment(uuid):
@@ -118,12 +118,13 @@ def shipment_update_status(uuid):
             )
 
             if update_response.status_code == 200:
-                #flash("Shipment Status Successfully Updated!")
                 flash(update_response.json()["message"])
+                #return render_template("sample/shipment/view.html", uuid=uuid)
+                return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
+
             else:
                 flash("We have a problem: %s" % (update_response.json()["message"]))
 
-            return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
         return render_template(
             "sample/shipment/update_status.html", uuid=uuid, form=form
         )
