@@ -89,6 +89,19 @@ def rack_endpoint():
         return response.json()
     return response.content
 
+# @storage.route("/rack/endpoint_tokenuser")
+# @login_required
+# def rack_endpoint_tokenuser():
+#     response = requests.get(
+#         #url_for("api.storage_rack_info", _external=True),
+#         url_for("api.storage_rack_home_toke", _external=True),
+#         headers=get_internal_api_header(),
+#     )
+#
+#     if response.status_code == 200:
+#         return response.json()
+#     return response.content
+
 @storage.route("/rack/info")
 @login_required
 def rack_info():
@@ -1075,21 +1088,41 @@ def edit_rack(id):
             # url_for("api.storage_rack_view", id=id, _external=True),
             headers=get_internal_api_header(),
         )
+
+        sites_response = requests.get(
+            url_for("api.site_home_tokenuser", _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if sites_response.status_code == 200:
+            sites = sites_response.json()["content"]['choices']
+            user_site_id = sites_response.json()["content"]['user_site_id']
+
         # For SampleRack with location info.
         rack = response.json()["content"]
         # print("Rack: ", rack)
         shelves = []
+        shelf_dict = {}
         shelf_required = True
-
         response1 = requests.get(
-            url_for("api.storage_shelves_onsite", id=id, _external=True),
+            url_for("api.storage_shelf_overview", _external=True),
+            #url_for("api.storage_onsite_shelves", id=id, _external=True),
             headers=get_internal_api_header(),
         )
+
         if response1.status_code == 200:
-            shelves = response1.json()["content"]
+            print(response1.text)
+
+            for site in sites:
+                shelf_dict[site[0]] = []
+
+            for shelf in response1.json()["content"]["shelf_info"]:
+                shelf_dict[shelf["site_id"]].append( [int(shelf["shelf_id"]), shelf["name"]])
+                shelves.append([int(shelf["shelf_id"]), shelf["name"]])
             # shelf_required = len(shelves) > 0
 
         form = EditSampleRackForm(
+            sites = sites,
             shelves=shelves,
             data={
                 "serial": rack["serial_number"],
@@ -1125,13 +1158,13 @@ def edit_rack(id):
 
             if edit_response.status_code == 200:
                 flash("Rack Successfully Edited")
-            else:
-                flash("We have a problem: %s" % (edit_response.json()))
+                return redirect(url_for("storage.view_rack", id=id))
 
-            return redirect(url_for("storage.view_rack", id=id))
+            else:
+                flash("We have a problem: %s" % (edit_response.json()["message"]))
 
         return render_template(
-            "storage/rack/edit.html", rack=response.json()["content"], form=form
+            "storage/rack/edit.html", form=form, rack=response.json()["content"], shelves=shelf_dict
         )
 
     abort(response.status_code)

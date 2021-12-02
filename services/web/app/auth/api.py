@@ -137,11 +137,8 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
 
     user = UserAccount.query.filter_by(id=id).first_or_404()
 
-    settings = {
-        # "projects":[2,3,4],
-        # "sites":[2,3],
-        "data_entry": {
-            "site": {"default":1, "choices":[2]},
+    data_entry = {
+            "site": {"default":1, "choices":[1,2]},
 
             "consent_template": {"default": 2, "choices":[]},
             "protocol": {
@@ -160,18 +157,14 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
                 "base_type": {"default": "LTS"},
                 "PRM": {
                     "container": {"default": "CAT"},
-                    #"fixation_type": FixationType.choices(),
                 },
                 "LTS": {
                     "container": {"default": "D"},
-                    #"fixation_type": FixationType.choices(),
                 },
             },
+        }
 
-
-        },
-    }
-
+    settings = {"data_entry": data_entry}
     user.update({"settings": settings, "editor_id": tokenuser.id})
 
     try:
@@ -180,6 +173,39 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
         return success_with_content_response(user_account_setting_schema.dump(user))
     except Exception as err:
         return transaction_error_response(err)
+
+    # settings = {
+    #     "data_entry": {
+    #         "site": {"default":1, "choices":[]},
+    #
+    #         "consent_template": {"default": 2, "choices":[]},
+    #         "protocol": {
+    #             "STU": {"default": 19},
+    #             "ACQ": {"default": 5},
+    #         },
+    #
+    #         "sample_type": {
+    #             "base_type": "FLU",
+    #             "FLU": {"default": "BLD",
+    #                     "choices": [],
+    #                     },
+    #             },
+    #
+    #         "container_type": {
+    #             "base_type": {"default": "LTS"},
+    #             "PRM": {
+    #                 "container": {"default": "CAT"},
+    #                 #"fixation_type": FixationType.choices(),
+    #             },
+    #             "LTS": {
+    #                 "container": {"default": "D"},
+    #                 #"fixation_type": FixationType.choices(),
+    #             },
+    #         },
+    #
+    #
+    #     },
+    # }
 
 @api.route("/auth/user/new", methods=["POST"])
 @token_required

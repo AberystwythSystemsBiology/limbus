@@ -23,9 +23,22 @@
                 {{ form.csrf_token() }}
                 {{ form_field(form.serial) }}
                 {{ form_field(form.description) }}
+            <div class="form-group ">
+                <label for="site_id">{{ form.site_id.label }}</label>
+{#                {{ form_field(form.site_id) }}#}
+                {{ form.site_id }}
+            </div>
+            <div class="form-group ">
+                <label for="shelf_id">{{ form.shelf_id.label }}</label>
                 {% if form.shelf_required %}
-                    {{ form_field(form.shelf_id) }}
+                    {{ form.shelf_id }}
+{#                    {{ form_field(form.shelf_id) }}#}
                 {% endif %}
+            </div>
+                <div style="visibility: hidden; display: none">
+                    <input type="hidden" name="shelves" value="{{ shelves }}">
+                </div>
+
 {#                {{ form_field(form.submit) }}#}
                 <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
@@ -47,5 +60,12 @@
 
 
 {% block javascript %}
+<script>
+    //sessionStorage.clear();
+    sessionStorage.removeItem("shelves");
+	shelves = {{ shelves | tojson }};
+    sessionStorage.setItem("shelves", JSON.stringify(shelves));
+</script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/rack/rack_edit.js') }}"></script>
 {% endblock %}

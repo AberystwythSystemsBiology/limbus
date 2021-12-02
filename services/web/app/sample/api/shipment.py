@@ -447,6 +447,33 @@ def remove_rack_from_cart(id: int, tokenuser: UserAccount):
     else:
         return success_with_content_response(rack_response.content)
 
+def func_validate_settings(tokenuser, keys = {}, check=True):
+    # {"current_site_id": current_site_id}
+    success = True
+    msg = "Setting ok!"
+    sites_tokenuser=None
+    if "site_id" in keys:
+        if not tokenuser.is_admin:
+            sites_tokenuser = {tokenuser.site_id}
+            try:
+                choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+                if len(choices0) > 0:
+                    sites_tokenuser.update(set(choices0))
+            except:
+                pass
+
+            if check:
+                if keys["site_id"] not in sites_tokenuser:
+                    success = False
+                    msg = "Data entry role required for handling the sample in its current site! "
+                    return sites_tokenuser, success, msg
+            else:
+                return sites_tokenuser
+
+    if check:
+        return sites_tokenuser, success, msg
+    else:
+        return sites_tokenuser
 
 @api.route("/cart/add/<uuid>", methods=["POST"])
 @token_required
@@ -466,10 +493,14 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
             return locked_response('Sample: %s' %sample_id)
 
         # print('tokenuser.is_admin', tokenuser.is_admin, 'sample_id', sample_id)
-        if not tokenuser.is_admin:
-            if sample.current_site_id!=None and sample.current_site_id!=tokenuser.site_id:
-                return validation_error_response(
-                    "Sample in a different site: %s!!" % sample.current_site_id)
+        # if not tokenuser.is_admin:
+        #     if sample.current_site_id!=None and sample.current_site_id!=tokenuser.site_id:
+        #         return validation_error_response(
+        #             "Sample in a different site: %s!!" % sample.current_site_id)
+
+        sites_tokenuser, success, msg = func_validate_settings(tokenuser, keys={"site_id": sample.current_site_id})
+        if not success:
+            return validation_error_response(msg)
 
         # check if rack is locked?
         rack_locked = db.session.query(EntityToStorage).join(SampleRack, SampleRack.id==EntityToStorage.rack_id). \
@@ -559,13 +590,17 @@ def add_samples_to_cart(tokenuser: UserAccount):
         filter(Sample.id.in_(sample_ids), Sample.is_locked == False,
                EntityToStorage.removed is not True, SampleRack.is_locked == True).\
         union(samples_locked)
+
     nlocked = samples_locked.count()
     if nlocked>0:
         msg_locked = msg_locked + ' | %d samples (rack) locked/! '%nlocked
 
     if not tokenuser.is_admin:
+        sites_tokenuser = func_validate_settings(tokenuser,keys={"site_id"}, check=False)
+        sites_tokenuser = [None] + list(sites_tokenuser)
         samples_other = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked==False,
-                    Sample.current_site_id.in_([None, tokenuser.site_id]))
+                                                           Sample.current_site_id.in_(sites_tokenuser))
+        #            Sample.current_site_id.in_([None, tokenuser.site_id]))
         nlocked = samples_other.count()
         if nlocked > 0:
 
@@ -693,8 +728,14 @@ def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
 
     if not tokenuser.is_admin:
         # Can only add samples of same site as for the operator
-        samples_other = db.session.query(Sample.id).filter(Sample.id.in_(sample_ids), Sample.is_locked.is_(False),
-                                                           Sample.current_site_id.in_([None, tokenuser.site_id]))
+        sites_tokenuser = func_validate_settings(tokenuser,keys={"site_id"}, check=False)
+        sites_tokenuser = [None] + list(sites_tokenuser)
+        samples_other = db.session.query(Sample.id)\
+            .filter(Sample.id.in_(sample_ids),
+                    Sample.is_locked.is_(False),
+                    Sample.current_site_id.in_(sites_tokenuser)
+                    )
+                    #Sample.current_site_id.in_([None, tokenuser.site_id]))
 
         n_other = samples_other.count()
         if n_other > 0:

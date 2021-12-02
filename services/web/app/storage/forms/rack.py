@@ -51,17 +51,20 @@ class NewSampleRackForm(FlaskForm):
     submit = SubmitField("Register")
 
 
-def EditSampleRackForm(shelves: list, data={}):
-    shelf_choices = [(0, "-- Select cold storage shelf --")]
+def EditSampleRackForm(sites: list, shelves: list, data={}):
+    #site_choices = [(0, "-- Select a storage site --")] + sites
+
 
     if len(shelves) == 0:
         data["shelf_required"] = False
     else:
-        for shelf in shelves:
-            shelf_choices.append(
-                (shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"]))
-            )
+        # for shelf in shelves:
+        #     shelf_choices.append(
+        #         (shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"]))
+        #     )
         data["shelf_required"] = True
+
+    shelves = [(0, "-- Select cold storage shelf --")] + shelves
 
     class StaticForm(FlaskForm):
         serial = StringField("Serial Number", validators=[DataRequired()])
@@ -76,16 +79,29 @@ def EditSampleRackForm(shelves: list, data={}):
 
         storage_id = HiddenField("Entity to storage id")
         shelf_required = BooleanField("Shelf located or not")
+
+        site_id = SelectField(
+            "Site",
+            choices=sites,
+            validators=[DataRequired()],
+            description="The site where the shelf is located.",
+            coerce=int,
+            render_kw={"class": "form-control"} #bd-light"}
+        )
+
         shelf_id = SelectField(
             "Shelf",
-            choices=shelf_choices,
+            choices=shelves,
             validators=[DataRequired()],
             description="The shelf where the rack is located.",
             coerce=int,
+            render_kw={"class": "form-control"}# bd-light"}
+
         )
 
         submit = SubmitField("Register")
 
+    print(str(StaticForm(data=data).data))
     return StaticForm(data=data)
 
 

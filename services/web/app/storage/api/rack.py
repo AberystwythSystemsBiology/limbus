@@ -19,10 +19,11 @@ from ...api import api
 from ...misc import get_internal_api_header
 from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
-from ...sample.api.base import func_update_sample_status
+from ...sample.api.base import func_update_sample_status, func_shelf_location
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
+
 from ...database import (
     db,
     SampleRack,
@@ -773,6 +774,60 @@ def storage_rack_location(id, tokenuser: UserAccount):
     return success_with_content_response(result)
 
 
+def func_rack_storage_location(rack_id):
+    stored_flag = False
+    rack_storage = (
+        EntityToStorage.query.filter(
+            EntityToStorage.rack_id == rack_id,
+            EntityToStorage.removed is not True,
+            EntityToStorage.shelf_id != None,
+            EntityToStorage.storage_type == 'BTS'
+        )
+        .order_by(EntityToStorage.entry_datetime.desc())
+        .first()
+    )
+
+    rack_storage_info = None
+    msg = "No rack storage info! "
+    if rack_storage:
+        shelf_id = rack_storage.shelf_id
+
+        if shelf_id is None:
+            shelf_storage = (
+                EntityToStorage.query.filter(
+                    EntityToStorage.rack_id == rack_storage.rack_id,
+                    EntityToStorage.shelf_id != None,
+                    EntityToStorage.removed is not True,
+                )
+                .order_by(EntityToStorage.entry_datetime.desc())
+                .first()
+            )
+            if shelf_storage:
+                shelf_id = shelf_storage.shelf_id
+
+                sample_storage_info = NewSampleRackToShelfSchema.dump(shelf_storage)
+                sample_storage_info["sample_id"] = sample_id
+        else:
+            sample_storage_info = NewSampleRackToShelfSchema.dump(sample_storage)
+            sample_storage_info["sample_id"] = sample_id
+
+        msg = "No sample storage location info! "
+        if shelf_id:
+            shelf_loc = func_shelf_location(shelf_id)
+            if shelf_loc["location"] is not None:
+                sample_storage_info.update(shelf_loc["location"])
+                msg = "Sample stored in %s! " % shelf_loc["pretty"]
+
+        return {"sample_storage_info": sample_storage_info, "message": msg}
+
+
+
+@api.route("/storage/rack/shelves_tokenuser/LIMBRACK-<id>", methods=["GET"])
+@token_required
+def storage_shelves_tokenuser(id, tokenuser: UserAccount):
+    pass
+
+
 @api.route("/storage/rack/shelves_onsite/LIMBRACK-<id>", methods=["GET"])
 @token_required
 def storage_shelves_onsite(id, tokenuser: UserAccount):
@@ -863,7 +918,7 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
 @api.route("/storage/rack/info", methods=["GET"])
 @token_required
 def storage_rack_info(tokenuser: UserAccount):
-    # Get the list of racks of the same site for a given rack id
+    # Get the list of racks of the same site for a given user id
     stmt = (
         db.session.query(SampleRack)
         .outerjoin(

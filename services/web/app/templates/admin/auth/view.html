@@ -14,8 +14,22 @@
                     <i class="fa fa-lock"></i> {% if user.is_locked %}Unl{%else%}L{%endif%}ock Account
                 </button>
             </div>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href={{ url_for("auth.user_settings", id=user.id) }}>
+                <button type="button" class="btn btn-outline-dark">
+{#                    data-toggle="modal" data-target="#setting-modal">#}
+                    <i class="fa fa-cog" aria-hidden="true"></i> Settings
+                </button></a>
+            </div>
+
             
         </div>
+    {% if not user.is_locked %}
+            <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+
+        </div>
+    {%endif%}
+
     </div>
 </div>
 <div class="container">

@@ -33,7 +33,7 @@ from ..views.misc import (
 )
 
 from ...sample.enums import CartSampleStorageType
-
+from ...storage.enums import FixedColdStorageType, FixedColdStorageTemps
 
 @api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
 @token_required
@@ -424,3 +424,118 @@ def storage_view_panel(tokenuser: UserAccount):
     }
 
     return success_with_content_response(data)
+
+
+
+@api.route("/storage/shelf_overview", methods=["GET"])
+@token_required
+def storage_shelf_overview(tokenuser: UserAccount):
+    locations = (
+        db.session.query(SiteInformation)
+        .join(Building)
+        .join(Room)
+        .join(ColdStorage)
+        .join(ColdStorageShelf)
+        .with_entities(
+            SiteInformation.id,
+            SiteInformation.name,
+            Building.id,
+            Building.name,
+            Room.id,
+            Room.name,
+            ColdStorage.id,
+            ColdStorage.alias,
+            #ColdStorage.type,
+            #ColdStorage.temp,
+            ColdStorageShelf.id,
+            ColdStorageShelf.name,
+        )
+        .all()
+    )
+
+    choices = []
+    shelf_info = []
+    for location in locations:
+        names = [str(item) for item in location if type(item) is not int]
+        #print("names ", names)
+        # pretty = "%s-%s-%s-%s(%s@%s)-%s" % tuple(names)
+        pretty = "%s-%s-%s-%s-%s" % tuple(names)
+        colnames = [
+            "site_id",
+            "site_name",
+            "building_id",
+            "building_name",
+            "room_id",
+            "room_name",
+            "coldstorage_id",
+            # "coldstorage_name",
+            # "coldstorage_type",
+            "coldstorage_temp",
+            "shelf_id",
+            "shelf_name",
+        ]
+        loc = dict(zip(colnames, location))
+        name = "LIMBSHLF-%i: %s" % (loc["shelf_id"], pretty)
+        # pretty = "LIMBSHLF-%i:" % loc["shelf_id"] + pretty
+        loc["name"] = name
+
+        choices.append([loc["shelf_id"], name])
+        shelf_info.append(loc)
+
+    #print(choices)
+
+    return success_with_content_response({"shelf_info": shelf_info, "choices": choices})
+
+    # choices.append( [
+        #     {
+        #         "shelf_id": shelf_id,
+        #         "site_id": site_id,
+        #         "pretty": "[%d] %s - %s %s - %s - %s (%s) - %s"
+        #                 % (
+        #                     shelf_id,
+        #                     site_name,
+        #                     bulding_id,
+        #                     building_name,
+        #                     room_name,
+        #                     csalias, #cstype,
+        #                     cstemp,
+        #                     shelf_name
+        #                   ),
+        #     }
+        #     for (
+        #         site_id,
+        #         site_name,
+        #         bulding_id,
+        #         building_name,
+        #         room_id,
+        #         room_name,
+        #         csid,
+        #         csalias,
+        #         cstype,
+        #         cstemp,
+        #         shelf_id,
+        #         shelf_name,
+        #     ) in location
+        # ])
+        # print("choices", choices)
+        # return success_with_content_response({"shelf_info": locations, "choices": choices})
+
+
+        # names = []
+        # for item in location:
+        #
+        #     if item is int:
+        #         continue
+        #
+        #     if type(item) is FixedColdStorageType:
+        #         print(item)
+        #         names.append(FixedColdStorageType[item.name])
+        #         print(item.name, FixedColdStorageType[item.name])
+        #
+        #     elif type(item) is FixedColdStorageTemps:
+        #         print(item)
+        #         names.append(FixedColdStorageTemps[item.name])
+        #         print(item.name, FixedColdStorageTemps[item.name])
+        #
+        #     else:
+        #         names.append(item)

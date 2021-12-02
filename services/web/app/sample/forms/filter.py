@@ -24,7 +24,7 @@ from ...consent.enums import QuestionType
 
 def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
     sampletypes.insert(0, (None, "None"))
-    sites.insert(0, (None, "None"))
+    #sites.insert(0, (None, "None"))
     class StaticForm(FlaskForm):
         biohazard_level = SelectField(
             "Biohazard Level", choices=BiohazardLevel.choices(with_none=True)
@@ -52,6 +52,7 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         StaticForm,
         "current_site_id",
         SelectField(
+        #SelectMultipleField(
             "Site", choices=sites,
             default=None
         ),

@@ -299,6 +299,7 @@ def site_home_tokenuser(tokenuser: UserAccount):
         # -- Insert default
         choices = [(id0, nm0)] + choices
 
+    # print({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
     return success_with_content_response({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
 
 
