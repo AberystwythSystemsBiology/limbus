@@ -81,7 +81,8 @@ def rack_index():
 def rack_endpoint():
     response = requests.get(
         #url_for("api.storage_rack_info", _external=True),
-        url_for("api.storage_rack_home", _external=True),
+        #url_for("api.storage_rack_home", _external=True),
+        url_for("api.storage_rack_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
     )
 
@@ -1002,11 +1003,6 @@ def update_rack_samples(id):
 
             if sample_move_response.status_code == 200:
                 sampletostore = sample_move_response.json()["content"]
-                # print("sampletostore: ", sampletostore)
-                # for sample in sampletostore["samples"]:
-                #     for item in sample_response.json()["content"]:
-                #         if item["sample"]["id"] == sample["id"]:
-                #             sample.update(item["sample"])
 
                 return render_template("storage/rack/view_sample_to_rack.html", id=id,
                                        sampletostore=sampletostore
@@ -1111,13 +1107,12 @@ def edit_rack(id):
         )
 
         if response1.status_code == 200:
-            print(response1.text)
 
             for site in sites:
                 shelf_dict[site[0]] = []
 
             for shelf in response1.json()["content"]["shelf_info"]:
-                shelf_dict[shelf["site_id"]].append( [int(shelf["shelf_id"]), shelf["name"]])
+                shelf_dict[int(shelf["site_id"])].append( [int(shelf["shelf_id"]), shelf["name"]])
                 shelves.append([int(shelf["shelf_id"]), shelf["name"]])
             # shelf_required = len(shelves) > 0
 

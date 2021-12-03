@@ -59,6 +59,58 @@ def storage_rack_home(tokenuser: UserAccount):
         basic_sample_racks_schema.dump(SampleRack.query.all())
     )
 
+@api.route("/storage/rack_tokenuser", methods=["GET"])
+@token_required
+def storage_rack_home_tokenuser(tokenuser: UserAccount):
+    if tokenuser.is_admin:
+        return success_with_content_response(
+            basic_sample_racks_schema.dump(SampleRack.query.all())
+        )
+
+    sites=[tokenuser.site_id]
+    try:
+        choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+        if len(choices0) >  0:
+            sites= list(set([sites + choices0]))
+    except:
+        pass
+
+    # print("stites", sites)
+    stmt = db.session.query(SampleRack)\
+        .outerjoin(
+            EntityToStorage,
+            and_(
+                SampleRack.id == EntityToStorage.rack_id,
+                EntityToStorage.storage_type == "BTS",
+            ))\
+        .filter(EntityToStorage.rack_id==None)
+        # .join(UserAccount, UserAccount.id == SampleRack.author_id) \
+        # .filter(UserAccount.site_id.in_(sites))\
+
+    stmt1 = (
+        db.session.query(SampleRack)\
+        .join(
+            EntityToStorage,
+            and_(
+                SampleRack.id == EntityToStorage.rack_id,
+                EntityToStorage.storage_type == "BTS",
+            ),
+        )
+        .join(ColdStorageShelf, EntityToStorage.shelf_id == ColdStorageShelf.id)
+        .join(ColdStorage, ColdStorageShelf.storage_id == ColdStorage.id)
+        .join(Room, ColdStorage.room_id == Room.id)
+        .join(Building, Room.building_id == Building.id)
+        .join(
+            SiteInformation,
+            and_(
+                Building.site_id == SiteInformation.id,
+                Building.site_id.in_(sites),
+            )) \
+    )
+
+    stmt=stmt.union(stmt1).distinct(SampleRack.id).all()
+    return success_with_content_response(basic_sample_racks_schema.dump(stmt))
+
 
 @api.route("/storage/rack/LIMBRACK-<id>", methods=["GET"])
 @token_required
@@ -919,6 +971,7 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
 @token_required
 def storage_rack_info(tokenuser: UserAccount):
     # Get the list of racks of the same site for a given user id
+    # Not in use, replaced by storage_rack_home_tokenuser
     stmt = (
         db.session.query(SampleRack)
         .outerjoin(

@@ -430,6 +430,15 @@ def storage_view_panel(tokenuser: UserAccount):
 @api.route("/storage/shelf_overview", methods=["GET"])
 @token_required
 def storage_shelf_overview(tokenuser: UserAccount):
+
+    sites=[tokenuser.site_id]
+    try:
+        choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+        if len(choices0) >  0:
+            sites= list(set([sites + choices0]))
+    except:
+        pass
+
     locations = (
         db.session.query(SiteInformation)
         .join(Building)
@@ -450,6 +459,8 @@ def storage_shelf_overview(tokenuser: UserAccount):
             ColdStorageShelf.id,
             ColdStorageShelf.name,
         )
+        .filter( or_(SiteInformation.id.in_(sites),
+                     tokenuser.is_admin))
         .all()
     )
 

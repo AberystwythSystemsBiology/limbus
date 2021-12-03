@@ -17,7 +17,7 @@ from .. import admin
 from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
-from ...auth.forms import UserAccountRegistrationForm
+from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
 from ..forms.auth import AccountLockForm
 
 from flask import render_template, url_for, redirect, abort, flash
@@ -99,13 +99,13 @@ def auth_view_account(id):
             )
 
             if lock_response.status_code == 200:
-                if response.json()["is_locked"]:
-                    flash("User Account Unlocked!")
+                if lock_response.json()["content"]["is_locked"]:
+                    flash("User Account locked!")
                 else:
-                    flash("User Account Locked!")
+                    flash("User Account unLocked!")
                 return redirect(url_for("admin.auth_index"))
             else:
-                flash("We were unable to lock the User Account.")
+                flash("We were unable to umllock the User Account.")
 
         return render_template(
             "admin/auth/view.html", user=response.json()["content"], form=form
@@ -126,3 +126,49 @@ def auth_data():
     if auth_response.status_code == 200:
         return auth_response.json()
     return auth_response.content
+
+
+
+@admin.route("/auth/<id>/edit", methods=["GET", "POST"])
+@check_if_admin
+@login_required
+def auth_edit_account(id):
+    # TODO
+    response = requests.get(
+        url_for("api.auth_view_user", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    print("resps", response.text)
+    account_data = response.json()["content"]
+    account_data = {}
+    for k in ["account_type", "email"]:
+        account_data[k] = response.json()["content"][k]
+        account_data.update({"site_id": response.json()["content"]["site"]["id"]})
+        print("account_data", account_data)
+
+    if response.status_code == 200:
+        form = UserAccountEditForm(account_data)
+        #["email"])
+        print(str(form.data))
+        form.data_entry.sites.choices = []
+        form.data_entry.consent_templates.choices = []
+        form.data_entry.stu_protocols.choices = []
+        form.data_entry.acq_protocols.choices = []
+        if form.validate_on_submit():
+            edit_response = requests.put(
+                url_for("api.auth_edit_account", id=id, _external=True),
+                headers=get_internal_api_header(),
+            )
+
+            if edit_response.status_code == 200:
+                flash("User account setting updated successfully!")
+                return redirect(url_for("api.auth_view_user", id=id))
+            else:
+                flash(edit_response.json()["message"])
+
+        return render_template(
+            "admin/auth/edit.html", user=response.json()["content"], form=form
+        )
+    else:
+        return abort(response.status_code)

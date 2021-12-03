@@ -119,6 +119,36 @@ def auth_edit_user(id: int, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+
+
+@api.route("/auth/<id>/edit", methods=["PUT"])
+@token_required
+def auth_edit_account(id: int, tokenuser: UserAccount):
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = edit_user_account_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    user = UserAccount.query.filter_by(id=id).first_or_404()
+
+    for attr, value in values.items():
+        setattr(user, attr, value)
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+        db.session.flush()
+        return success_with_content_response(basic_user_account_schema.dump(user))
+    except Exception as err:
+        return transaction_error_response(err)
+
+
+
 @api.route("/auth/user/<id>/settings", methods=["PUT"])
 @token_required
 def auth_user_settings(id: int, tokenuser: UserAccount):
@@ -138,6 +168,34 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
     user = UserAccount.query.filter_by(id=id).first_or_404()
 
     data_entry = {
+        "site": {"default": tokenuser.site_id, "choices": []},
+
+        "consent_template": {"default": 8, "choices": []},
+        "protocol": {
+            #"STU": {"default": },
+            #"ACQ": {"default": },
+        },
+
+        "sample_type": {
+            "base_type": "FLU",
+            "FLU": {"default": "BLD",
+                    "choices": [],
+                    },
+        },
+
+        "container_type": {
+            "base_type": {"default": "LTS"},
+            "PRM": {
+                "container": {"default": "CAT"},
+            },
+            "LTS": {
+                "container": {"default": "D"},
+            },
+        },
+    }
+
+    if False:
+        data_entry = {
             "site": {"default":1, "choices":[1,2]},
 
             "consent_template": {"default": 2, "choices":[]},
