@@ -38,7 +38,8 @@ from ...misc import get_internal_api_header
 from ...validators import validate_barcode
 
 
-def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
+#def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
+def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
     class StaticForm(FlaskForm):
         aliquot_date = DateField(
             "Aliquot Date", validators=[DataRequired()], default=datetime.today()
@@ -59,18 +60,17 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
         )
         submit = SubmitField("Submit")
 
-    processing_template_choices = []
-
-    for protocol in processing_templates:
-        processing_template_choices.append(
-            [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
-        )
+    # processing_template_choices = []
+    # for protocol in processing_templates:
+    #     processing_template_choices.append(
+    #         [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+    #     )
 
     setattr(
         StaticForm,
         "processing_protocol",
         SelectField(
-            "Processing Protocol", choices=processing_template_choices, coerce=int
+            "Processing Protocol", choices=aliquot_protocols, coerce=int
         ),
     )
 
@@ -85,7 +85,8 @@ def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
     return StaticForm()
 
 
-def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
+#def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
+def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> FlaskForm:
     class StaticForm(FlaskForm):
         processing_date = DateField(
             "Processing Date", validators=[DataRequired()], default=datetime.today()
@@ -115,24 +116,24 @@ def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
 
         submit = SubmitField("Submit")
 
-    processing_template_choices = []
-    derivation_template_choices = []
-    for protocol in protocol_templates:
-        # print("protocol:", protocol)
-        if protocol['type'] in ["SAP", 'Sample Processing']:
-            processing_template_choices.append(
-                [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
-            )
-        elif protocol['type'] in ["ALD", 'Sample Aliquot / Derivation']:
-            derivation_template_choices.append(
-                [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
-            )
-    processing_template_choices.append((0, "None"))
+    # processing_template_choices = []
+    # derivation_template_choices = []
+    # for protocol in protocol_templates:
+    #     # print("protocol:", protocol)
+    #     if protocol['type'] in ["SAP", 'Sample Processing']:
+    #         processing_template_choices.append(
+    #             [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+    #         )
+    #     elif protocol['type'] in ["ALD", 'Sample Aliquot / Derivation']:
+    #         derivation_template_choices.append(
+    #             [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
+    #         )
+    # processing_template_choices.append((0, "None"))
     setattr(
         StaticForm,
         "processing_protocol",
         SelectField(
-            "Processing Protocol", choices=processing_template_choices, coerce=int
+            "Processing Protocol", choices=processing_protocols, coerce=int
         ),
     )
 
@@ -140,7 +141,7 @@ def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
         StaticForm,
         "derivation_protocol",
         SelectField(
-            "Derivation/Aliquot Protocol", choices=derivation_template_choices, coerce=int
+            "Derivation/Aliquot Protocol", choices=derivation_protocols, coerce=int
         ),
     )
 

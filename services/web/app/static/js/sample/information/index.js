@@ -90,14 +90,14 @@ $(document).ready(function() {
     
     $("#reset").click(function() {
 
-        $('#sampleTable').DataTable().destroy()
+        $('#sampleTable').DataTable().destroy();
         //render_table({});
         window.location.reload();
     });
 
     $("#filter").click(function() {
         $("#table_view").fadeOut();
-        $('#sampleTable').DataTable().destroy()
+        $('#sampleTable').DataTable().destroy();
         var filters = get_filters();
         render_table(filters);
     });

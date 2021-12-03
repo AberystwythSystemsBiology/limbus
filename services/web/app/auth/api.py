@@ -172,8 +172,10 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
 
         "consent_template": {"default": 8, "choices": []},
         "protocol": {
+            "ACQ": {"default":2},
+            "SAP": {"default":1}
             #"STU": {"default": },
-            #"ACQ": {"default": },
+
         },
 
         "sample_type": {
