@@ -433,7 +433,7 @@ function shipment_status_update_logic(new_site){
 
 $(document).ready(function() {
     var shipment_data = get_shipment();
-
+    console.log("ship:", shipment_data)
     $("#loading-screen").fadeOut();
     fill_jumbotron(shipment_data);
     fill_table(shipment_data);

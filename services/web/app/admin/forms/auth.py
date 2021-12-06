@@ -88,7 +88,7 @@ def AccountLockForm(email):
     return StaticForm()
 
 
-def UserAccountEditForm(data={})->FlaskForm:
+def AdminUserAccountEditForm(sites=[], data={})->FlaskForm:
     class StaticForm(FlaskForm):
         title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
 
@@ -101,12 +101,19 @@ def UserAccountEditForm(data={})->FlaskForm:
             description="We'll never share your email with anyone else.",
             validators=[DataRequired(), Email()],
         )
+        site_id = SelectField(
+            "Affiliated Site",
+            coerce=int,
+            choices=sites,
+        )
+
 
         # is_admin = BooleanField("Is Admin?")
 
-        account_type = SelectField("Account Type", validators=[DataRequired()], choices=AccountType.choices())
+        account_type = SelectField("Account Type",
+                                   validators=[DataRequired()], choices=AccountType.choices())
 
-        data_entry = FormField("UserSettings")
+        #data_entry = FormField("UserSettings")
         # viewing = FormField("UserSettings")
 
         submit = SubmitField("Register")

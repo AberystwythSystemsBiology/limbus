@@ -38,7 +38,6 @@ from ...misc import get_internal_api_header
 from ...validators import validate_barcode
 
 
-#def SampleAliquotingForm(processing_templates: dict) -> FlaskForm:
 def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
     class StaticForm(FlaskForm):
         aliquot_date = DateField(
@@ -60,12 +59,6 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
         )
         submit = SubmitField("Submit")
 
-    # processing_template_choices = []
-    # for protocol in processing_templates:
-    #     processing_template_choices.append(
-    #         [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
-    #     )
-
     setattr(
         StaticForm,
         "processing_protocol",
@@ -85,7 +78,7 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
     return StaticForm()
 
 
-#def SampleDerivationForm(protocol_templates: dict) -> FlaskForm:
+
 def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> FlaskForm:
     class StaticForm(FlaskForm):
         processing_date = DateField(
@@ -116,19 +109,6 @@ def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> Fl
 
         submit = SubmitField("Submit")
 
-    # processing_template_choices = []
-    # derivation_template_choices = []
-    # for protocol in protocol_templates:
-    #     # print("protocol:", protocol)
-    #     if protocol['type'] in ["SAP", 'Sample Processing']:
-    #         processing_template_choices.append(
-    #             [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
-    #         )
-    #     elif protocol['type'] in ["ALD", 'Sample Aliquot / Derivation']:
-    #         derivation_template_choices.append(
-    #             [protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"])]
-    #         )
-    # processing_template_choices.append((0, "None"))
     setattr(
         StaticForm,
         "processing_protocol",
@@ -214,24 +194,6 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
             coerce=int,
             choices=collection_sites,
         )
-
-        # sample_type = SelectField("Sample Base Type", choices=SampleBaseType.choices())
-        # fluid_sample_type = SelectField(
-        #     "Fluid Sample Type", choices=FluidSampleType.choices()
-        # )
-        #
-        # tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
-        #
-        # molecular_sample_type = SelectField(
-        #     "Molecular Sample Type", choices=MolecularSampleType.choices()
-        # )
-        # cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
-        #
-        # fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
-        #
-        # container_base_type = SelectField("Container Base Type", choices=ContainerBaseType.choices())
-        # fluid_container = SelectField("Primary Container", choices=FluidContainer.choices())
-        # cell_container = SelectField("Long-term Preservation", choices=CellContainer.choices())
 
         submit = SubmitField("Save Changes")
 

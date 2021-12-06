@@ -30,7 +30,7 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
     biohazard_level = masql.auto_field()
     source = masql.auto_field()
     status = masql.auto_field()
-    current_site_id = fields.Int()
+    current_site_id = fields.String()
     sample_type = fields.String()
     protocol_id = fields.Int()
 

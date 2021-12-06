@@ -71,7 +71,7 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         StaticForm,
         "consent_type",
         SelectMultipleField(
-            "Consent type", choices=QuestionType.choices(), #(with_none=True),
+            "Consent for", choices=QuestionType.choices(with_none=False),
         ),
     )
 

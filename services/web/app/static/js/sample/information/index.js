@@ -67,6 +67,11 @@ function get_filters() {
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
+        //console.log('f', filter);
+        // if (typeof(value) == 'string' && filter == "current_site_id") {
+        //         value = value.split(",");
+        //         filters[filter] = value;
+        // } else
         if (typeof(value) == 'object') {
             if (value.length>0) {
                 filters[filter] = value.join();

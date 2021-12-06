@@ -119,8 +119,7 @@ def shipment_update_status(uuid):
 
             if update_response.status_code == 200:
                 flash(update_response.json()["message"])
-                #return render_template("sample/shipment/view.html", uuid=uuid)
-                return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
+                return redirect(url_for("sample.shipment_index", uuid=uuid))
 
             else:
                 flash("We have a problem: %s" % (update_response.json()["message"]))

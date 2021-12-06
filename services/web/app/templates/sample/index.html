@@ -32,16 +32,19 @@
             {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
             {{ form_field(form.status) }}
-{#            <b>{{ form.current_site_id.label }}</b>#}
-{#            {{ form.current_site_id(size="2", class="form-control") }}#}
-            {{ form_field(form.current_site_id) }}
+            <div class="form-group">
+            <strong>{{ form.current_site_id.label }}</strong>
+            {{ form.current_site_id(size="1", class="selectpicker w-100") }}
+            </div>
+{#            {{ form_field(form.current_site_id) }}#}
 {#            {{ form.current_site_id }}#}
             {{ form_field(form.protocol_id) }}
             {{ form_field(form.source_study) }}
             {{ form_field(form.consent_status) }}
+            <div class="form-group">
             <b>{{ form.consent_type.label }}</b>
-            {{ form.consent_type(size="2", class="form-control") }}
-
+            {{ form.consent_type(size="1", class="selectpicker w-100") }}
+            </div>
                 <div style="visibility: hidden; display: none">
                     <input type="hidden" name="sampletypes" value="{{ sampletotype }}">
                 </div>

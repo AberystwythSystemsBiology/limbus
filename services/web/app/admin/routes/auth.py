@@ -18,6 +18,7 @@ from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
+from ..forms import AdminUserAccountEditForm
 from ..forms.auth import AccountLockForm
 
 from flask import render_template, url_for, redirect, abort, flash
@@ -132,38 +133,52 @@ def auth_data():
 @admin.route("/auth/<id>/edit", methods=["GET", "POST"])
 @check_if_admin
 @login_required
-def auth_edit_account(id):
+def admin_edit_account(id):
     # TODO
     response = requests.get(
         url_for("api.auth_view_user", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
+    )
+    sites=[0, None]
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+    else:
+        flash("No site created!")
+        return render_template(
+            "admin/auth/edit.html", user=response.json()["content"], form=form
+        )
+
     print("resps", response.text)
     account_data = response.json()["content"]
     account_data = {}
+
     for k in ["account_type", "email"]:
         account_data[k] = response.json()["content"][k]
         account_data.update({"site_id": response.json()["content"]["site"]["id"]})
         print("account_data", account_data)
 
     if response.status_code == 200:
-        form = UserAccountEditForm(account_data)
+        form = AdminUserAccountEditForm(account_data)
         #["email"])
         print(str(form.data))
-        form.data_entry.sites.choices = []
-        form.data_entry.consent_templates.choices = []
-        form.data_entry.stu_protocols.choices = []
-        form.data_entry.acq_protocols.choices = []
+        # form.data_entry.sites.choices = []
+        # form.data_entry.consent_templates.choices = []
+        # form.data_entry.stu_protocols.choices = []
+        # form.data_entry.acq_protocols.choices = []
         if form.validate_on_submit():
             edit_response = requests.put(
-                url_for("api.auth_edit_account", id=id, _external=True),
+                url_for("api.admin_edit_account", id=id, _external=True),
                 headers=get_internal_api_header(),
             )
 
             if edit_response.status_code == 200:
-                flash("User account setting updated successfully!")
-                return redirect(url_for("api.auth_view_user", id=id))
+                #flash("User account setting updated successfully!")
+                flash("User account updated successfully!")
+                return redirect(url_for("admin.auth_view_account", id=id))
             else:
                 flash(edit_response.json()["message"])
 

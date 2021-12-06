@@ -119,41 +119,41 @@
 {#          </button>#}
 {#        </div>#}
 {#        <div class="modal-body">#}
-        <div class="card">
+{#        <div class="card">#}
             <form action="{{ url_for('admin.auth_view_account', id=user.id) }}" method="POST">
                 {{ form.csrf_token() }}
                 {{ form_field(form.email) }}
                 {{ form_field(form.site_id) }}
 {#                {{ form_field(form.is_admin) }}#}
-                {{ form_field(form.account_type) }}
-                <div class="container" id="user_settings">
+                {{ form.account_type }}
+{#                <div class="container" id="user_settings">#}
 {#                {% for address in form.addresses -%}#}
-                  <div class="card" >
-                    <div class='card-header'>
-                        <h5 id="data_entry_settings</h5>
-                    </div>
-                    <div class="card-body">
-                      <div class="form-group" >
-                      {{ form.data_entry }}
-                     </div>
-                    </div>
-                    </div>
+{#                  <div class="card" >#}
+{#                    <div class='card-header'>#}
+{#                        <h5 id="data_entry_settings</h5>#}
+{#                    </div>#}
+{#                    <div class="card-body">#}
+{#                      <div class="form-group" >#}
+{#                      {{ form.data_entry }}#}
+{#                     </div>#}
+{#                    </div>#}
+{#                    </div>#}
 {#                {% endfor %}#}
-                </div>
+{#                </div>#}
 {#                <div class="form-group">#}
 {#                {{ form.data_entry }}#}
 {#                </div>#}
                 {{ form_field(form.submit) }}
             </form>
 
-        </div>
+{#        </div>#}
 
 {#      </div>#}
 {#    </div>#}
 {#  </div>#}
 
 <!-- Modal -->
-<div class="modal fade" id="lock-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+{#<div class="modal fade" id="lock-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -178,5 +178,5 @@
 
       </div>
     </div>
- </div>
+ </div>#}
 {% endblock %}

@@ -64,7 +64,7 @@ def storage_rack_home(tokenuser: UserAccount):
 def storage_rack_home_tokenuser(tokenuser: UserAccount):
     if tokenuser.is_admin:
         return success_with_content_response(
-            basic_sample_racks_schema.dump(SampleRack.query.all())
+            basic_sample_racks_schema.dump(SampleRack.query.filter_by(is_locked=False).all())
         )
 
     sites=[tokenuser.site_id]
@@ -84,8 +84,6 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
                 EntityToStorage.storage_type == "BTS",
             ))\
         .filter(EntityToStorage.rack_id==None)
-        # .join(UserAccount, UserAccount.id == SampleRack.author_id) \
-        # .filter(UserAccount.site_id.in_(sites))\
 
     stmt1 = (
         db.session.query(SampleRack)\
@@ -108,7 +106,10 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
             )) \
     )
 
-    stmt=stmt.union(stmt1).distinct(SampleRack.id).all()
+    stmt=stmt.union(stmt1)\
+        .distinct(SampleRack.id)\
+        .filter(SampleRack.is_locked==False)\
+        .all()
     return success_with_content_response(basic_sample_racks_schema.dump(stmt))
 
 
@@ -235,7 +236,8 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
             stb_batch.append(new_stb)
 
-            usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
+            # usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
+            usercart = UserCart.query.filter_by(sample_id=sample_id).first()
 
             if usercart:
                 try:
@@ -538,7 +540,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == 'POST':
       values = request.get_json()
-      print("values", values)
+      #print("values", values)
       if "samples" in values:
           samples = values["samples"]
     else:
@@ -560,7 +562,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         commit = True
     else:
         samples, n_found = func_get_samples(values["barcode_type"], samples)
-        print("samples_ids", samples)
+        #print("samples_ids", samples)
 
     if rack_id:
         # Step 1. Validate and add new sample rack
@@ -1089,7 +1091,7 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         msg = "Sample successfully assigned to rack! "
         # return success_with_content_response(view_sample_to_sample_rack_schema.dump(ets))
     except Exception as err:
-        print(">>>>>>>>>>>>>>>", err)
+        #print(">>>>>>>>>>>>>>>", err)
         db.session.rollback()
         return transaction_error_response(err)
 

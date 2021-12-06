@@ -30,17 +30,6 @@ from ...misc import get_internal_api_header
 def aliquot(uuid: str):
     # An aliquot creates a specimen from the same type as the parent.
 
-    # protocol_response = requests.get(
-    #     url_for("api.protocol_query", _external=True),
-    #     headers=get_internal_api_header(),
-    #     json={"is_locked": False, "type": ["ALD"]},
-    # )
-    #
-    # if protocol_response.status_code != 200:
-    #     abort(400)
-    #
-    # processing_templates = protocol_response.json()["content"]
-
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="ALD", _external=True),
         headers=get_internal_api_header(),
@@ -110,20 +99,6 @@ def derive(uuid: str):
     # This function will record both processing and derivation protocol events
     # A derivative creates a different specimen type from the parent.
 
-    # protocol_response = requests.get(
-    #     url_for("api.protocol_query", _external=True),
-    #     headers=get_internal_api_header(),
-    #     json={"is_locked": False},
-    #     #json={"is_locked": False, "type": ["ALD"]},
-    # )
-    # if protocol_response.status_code != 200:
-    #     abort(400)
-    #if protocols_response.status_code == 200:
-    #    protocol_templates = protocol_response.json()["content"]
-
-
-    processing_protocols = [0, ""]
-    aliquot_protocols = [0, ""]
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="SAP", _external=True),
         headers=get_internal_api_header(),
@@ -132,6 +107,8 @@ def derive(uuid: str):
     if protocols_response.status_code == 200:
         processing_protocols = protocols_response.json()["content"]["choices"]
         processing_protocols = processing_protocols + [[0, "None"]]
+    else:
+        processing_protocols = [0, "None"]
 
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="ALD", _external=True),
@@ -146,7 +123,6 @@ def derive(uuid: str):
         flash("No sample aliquot/derivation protocol!")
         return render_template("sample/view.html", uuid=uuid)
 
-    #form = SampleDerivationForm(protocol_templates)
     form = SampleDerivationForm(processing_protocols, aliquot_protocols)
 
     return render_template(

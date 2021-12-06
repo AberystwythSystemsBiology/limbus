@@ -416,7 +416,14 @@ def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
     # -- To exclude empty samples in the index list
     joins.append(getattr(Sample, 'remaining_quantity').__gt__(0))
-    print("filters", filters)
+
+    if not tokenuser.is_admin:
+        sites_tokenuser = func_validate_settings(tokenuser, keys={"site_id"}, check=False)
+        if "current_site_id" not in filters:
+            joins.append(getattr(Sample, "current_site_id").in_(sites_tokenuser))
+    #print("filter", filters)
+    #print("joins", joins)
+
     flag_sample_type = False
     flag_consent_status = False
     flag_consent_type = False
@@ -769,6 +776,33 @@ def func_sample_storage_location(sample_id):
 
         return {"sample_storage_info": sample_storage_info, "message": msg}
 
+def func_validate_settings(tokenuser, keys = {}, check=True):
+    success = True
+    msg = "Setting ok!"
+    sites_tokenuser=None
+    if "site_id" in keys:
+        if not tokenuser.is_admin:
+            sites_tokenuser = {tokenuser.site_id}
+            try:
+                choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+                if len(choices0) > 0:
+                    sites_tokenuser.update(set(choices0))
+            except:
+                pass
+
+            sites_tokenuser = list(sites_tokenuser)
+            if check:
+                if keys["site_id"] not in sites_tokenuser:
+                    success = False
+                    msg = "Data entry role required for handling the sample in its current site! "
+                    return sites_tokenuser, success, msg
+            else:
+                return sites_tokenuser
+
+    if check:
+        return sites_tokenuser, success, msg
+    else:
+        return sites_tokenuser
 
 def func_update_sample_status(
     tokenuser: UserAccount, auto_query=True, sample_id=None, sample=None, events={}
