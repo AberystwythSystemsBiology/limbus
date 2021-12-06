@@ -102,7 +102,7 @@ def get_data(tokenuser: UserAccount):
     """
 
     data = {
-        "name": SiteInformation.query.first().name,
+        "name": SiteInformation.query.filter_by(is_external=False).order_by(SiteInformation.id).first().name,
         "basic_statistics": {
             "sample_count": Sample.query.filter(Sample.remaining_quantity>0).count(),
             "user_count": UserAccount.query.count(),
