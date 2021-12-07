@@ -5,6 +5,7 @@
 
 {% block body %}
 <div class="jumbotron">
+{#
     <div class="container">
         <h1><span class="secondary-heading"><i class="fa fa-cog"></i> Administrator Panel</span><i class="fa fa-user"></i> {{ user.email }} </h1>
 
@@ -17,7 +18,9 @@
             <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href={{ url_for("auth.user_settings", id=user.id) }}>
                 <button type="button" class="btn btn-outline-dark">
-{#                    data-toggle="modal" data-target="#setting-modal">#}
+#}
+{#                    data-toggle="modal" data-target="#setting-modal">#}{#
+
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </button></a>
             </div>
@@ -31,45 +34,62 @@
     {%endif%}
 
     </div>
+#}
 </div>
 <div class="container">
 
 
 
-
+<form action="{{ url_for('admin.admin_edit_account', id=user.id) }}" method="POST">
     <div class="row">
-        <div class="col col-sm-7">
-            <h2>Personal Information</h2>
-            <table class="table table-striped">
 
-                {{ show_value(user.email, "Email Address", "text") }}
-                {{ show_value(user.title, "Title", "text") }}
+        <div class="col col-sm-7">
+
+            {{ form.csrf_token() }}
+
+            <h2>Account Information</h2>
+            <table class="table table-striped">
+                {{ form_field(form.email) }}
+                {{ form_field(form.title) }}
+                {{ form_field(form.first_name) }}
+                {{ form_field(form.middle_name) }}
+                {{ form_field(form.last_name) }}
+                {{ form_field(form.account_type) }}
+                {{ form_field(form.site_id) }}
+
+{#                {{ show_value(user.email, "Email Address", "text") }}#}
+{#                {{ show_value(user.title, "Title", "text") }}
                 {{ show_value(user.first_name, "First Name", "text") }}
                 {{ show_value(user.middle_name, "Middle Name", "text") }}
-                {{ show_value(user.last_name, "Last Name", "text") }}
-            </table>
-
-            <h2>Affiliated Site</h2>
-            <table class="table table-striped">
-
-                {{ show_value(user.site.name, "Site Name", "text") }}
-
-
+                {{ show_value(user.last_name, "Last Name", "text") }}#}
 
             </table>
-            <h4>Address</h4>
-            <table class="table table-striped">
 
-                {{ show_value(user.site.address.street_address_one, "Address Line One", "text") }}
-                {{ show_value(user.site.address.street_address_two, "Address Line Two", "text") }}
-                {{ show_value(user.site.address.city, "City", "text") }}
-                {{ show_value(user.site.address.county, "County", "text") }}
-                {{ show_value(user.site.address.country, "Country", "text") }}
-                {{ show_value(user.site.address.post_code, "Post Code", "text") }}
-            </table>{##}
 
+    <h2>User Settings</h2>
+
+{#<div class="row">#}
+         {% for setting in form.settings -%}
+{#        <div class="col col-sm-6">#}
+                <div class="container">
+                  <div class="card" id=li-{{ setting.id}}>
+                    <div class='card-header'>
+{#                        <h5 id="setting"</h5>#}
+                    </div>
+                    <div class="card-body">
+                      <div class="form-group" >
+                      {{ setting }}
+                     </div>
+                    </div>
+                    </div>
+{#                </div>#}
+                </div>
+                {% endfor %}
+{#    </div>#}
 
         </div>
+
+
         <div class="col-sm-5">
             <div class="card">
                 <div class="card-header text-center">
@@ -81,13 +101,22 @@
                     </div>
                 </div>
             </div>
-
-
-            <h2>Account Information</h2>
+            <h4>Address</h4>
             <table class="table table-striped">
 
+                {{ show_value(user.site.address.street_address_one, "Address Line One", "text") }}
+                {{ show_value(user.site.address.street_address_two, "Address Line Two", "text") }}
+                {{ show_value(user.site.address.city, "City", "text") }}
+                {{ show_value(user.site.address.county, "County", "text") }}
+                {{ show_value(user.site.address.country, "Country", "text") }}
+                {{ show_value(user.site.address.post_code, "Post Code", "text") }}
+            </table>{##}
+
+{#            <h2>Account Information</h2>#}
+            <table class="table table-striped">
                 {{ show_value(user.created_on, "Created On", "text") }}
-                {{ show_value(user.account_type, "Account Type", "text") }}
+{#                {{ show_value(user.account_type, "Account Type", "text") }}#}
+
             </table>
 
             <h2>Token Information</h2>
@@ -97,86 +126,13 @@
                 {{ show_value(user.token.updated_on, "Updated On", "text") }}
 
             </table>
-
+            <div class="row float-left">
+        {{ form_field(form.submit) }}
+                </div>
         </div>
-    </div>{##}
-
-
-
-</div>
-
-
-<!-- Modal -->
-{#<div class="modal fade" id="lock-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">#}
-{#    <div class="modal-dialog" role="document">#}
-{#      <div class="modal-content">#}
-{#        <div class="modal-header">#}
-{#          <h5 class="modal-title" id="staticBackdropLabel">#}
-{#              {%if user.is_locked %}Unl{%else %}L{% endif %}ock User Account#}
-{#            </h5>#}
-{#          <button type="button" class="close" data-dismiss="modal" aria-label="Close">#}
-{#            <span aria-hidden="true">&times;</span>#}
-{#          </button>#}
-{#        </div>#}
-{#        <div class="modal-body">#}
-{#        <div class="card">#}
-            <form action="{{ url_for('admin.auth_view_account', id=user.id) }}" method="POST">
-                {{ form.csrf_token() }}
-                {{ form_field(form.email) }}
-                {{ form_field(form.site_id) }}
-{#                {{ form_field(form.is_admin) }}#}
-                {{ form.account_type }}
-{#                <div class="container" id="user_settings">#}
-{#                {% for address in form.addresses -%}#}
-{#                  <div class="card" >#}
-{#                    <div class='card-header'>#}
-{#                        <h5 id="data_entry_settings</h5>#}
-{#                    </div>#}
-{#                    <div class="card-body">#}
-{#                      <div class="form-group" >#}
-{#                      {{ form.data_entry }}#}
-{#                     </div>#}
-{#                    </div>#}
-{#                    </div>#}
-{#                {% endfor %}#}
-{#                </div>#}
-{#                <div class="form-group">#}
-{#                {{ form.data_entry }}#}
-{#                </div>#}
-                {{ form_field(form.submit) }}
-            </form>
-
-{#        </div>#}
-
-{#      </div>#}
-{#    </div>#}
-{#  </div>#}
-
-<!-- Modal -->
-{#<div class="modal fade" id="lock-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="staticBackdropLabel">
-              {%if user.is_locked %}Unl{%else %}L{% endif %}ock User Account
-            </h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <form action="{{ url_for('admin.auth_view_account', id=user.id) }}" method="POST">
-                {{ form.csrf_token() }}
-                {{ form_field(form.email) }}
-                {{ form_field(form.site_id) }}
-                {{ form_field(form.is_admin) }}
-                {{ form_field(form.access_control) }}
-                {{ form_field(form.submit) }}
-            </form>
-
-        </div>
-
-      </div>
+</form>
     </div>
- </div>#}
+
+
+
 {% endblock %}

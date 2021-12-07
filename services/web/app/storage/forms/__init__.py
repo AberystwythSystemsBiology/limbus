@@ -228,6 +228,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
+            validators = [DataRequired()]
         )
 
         submit = SubmitField("Submit")
@@ -261,6 +262,7 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
+            validators=[DataRequired()]
         )
         submit = SubmitField("Submit")
 

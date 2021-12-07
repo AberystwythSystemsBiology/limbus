@@ -254,7 +254,7 @@ class CellContainer(FormEnum):
     T = "PP tube 40-500 @ -35 to -18°C"
     W = "PP tube 40-500μL @ < 135°C"
     Y = "Original Container @ -85 to -18°C"
-    X = "Unknown"
+    X = "Not specified"
     Z = "Other"
     Z1 = "falcon tube 50 mL"
     Z2 = "biobank tube 300 uL"

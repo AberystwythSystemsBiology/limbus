@@ -145,14 +145,14 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
 
     if "status" in data:
         # - Find a match either in the type or the expression value
-        data["status"] = [k for (k, nm) in SampleStatus.choices() if data["status"] in (k,nm)][0]
+        data["status"] = SampleStatus(data["status"]).name
 
     if "biohazard_level" in data:
         # - Find a match either in the type or the expression value
-        data["biohazard_level"] = [k for (k, nm) in BiohazardLevel.choices() if data["biohazard_level"] in (k,nm)][0]
+        data["biohazard_level"] = BiohazardLevel(data["biohazard_level"]).name
 
     if "colour" in data:
-        data["colour"] = [k for (k, nm) in Colour.choices() if data["colour"] in (k, nm)][0]
+        data["colour"] = Colour(data["colour"]).name
 
     class StaticForm(FlaskForm):
 

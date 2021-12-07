@@ -28,6 +28,7 @@ from .views import (
     basic_user_accounts_schema,
     full_user_account_schema,
     edit_user_account_schema,
+    admin_edit_user_account_schema,
     user_account_setting_schema
 )
 
@@ -119,26 +120,65 @@ def auth_edit_user(id: int, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+from sqlalchemy.orm.attributes import flag_modified
 
-
-@api.route("/auth/<id>/edit", methods=["PUT"])
+@api.route("/admin/user/<id>/edit", methods=["PUT"])
 @token_required
-def auth_edit_account(id: int, tokenuser: UserAccount):
+def admin_edit_account(id: int, tokenuser: UserAccount):
     values = request.get_json()
-
+    print("va", values)
     if not values:
         return no_values_response()
 
-    try:
-        result = edit_user_account_schema.load(values)
-    except ValidationError as err:
-        return validation_error_response(err)
+    # try:
+    #     result = admin_edit_user_account_schema.load(values)
+    # except ValidationError as err:
+    #     return validation_error_response(err)
 
     user = UserAccount.query.filter_by(id=id).first_or_404()
+    if not user.settings:
+        settings = {
+            "site": {},
 
+            "consent_template": {"default": 8, "choices": []},
+            "protocol": {
+                "ACQ": {"default":2},
+                "SAP": {"default":1}
+                #"STU": {"default": },
+
+            },
+
+            "sample_type": {
+                "base_type": "FLU",
+                "FLU": {"default": "BLD",
+                        "choices": [],
+                        },
+            },
+
+            "container_type": {
+                "base_type": {"default": "LTS"},
+                "PRM": {
+                    "container": {"default": "CAT"},
+                },
+                "LTS": {
+                    "container": {"default": "X"},
+                },
+            },
+        }
+    else:
+        settings = user.settings
+
+    for key in values["settings"]:
+        settings[key].update(values["settings"][key])
+
+    user.update({"settings": settings, "editor_id": tokenuser.id})
+
+    values.pop("settings")
     for attr, value in values.items():
+        print(attr)
         setattr(user, attr, value)
 
+    flag_modified(user, "settings")
     try:
         db.session.add(user)
         db.session.commit()
@@ -157,8 +197,8 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
     if not tokenuser.is_admin:
         return not_allowed()
 
-    #if not values:
-    #    return no_values_response()
+    if not values:
+       return no_values_response()
 
     try:
         result = edit_user_account_schema.load(values)
@@ -191,7 +231,7 @@ def auth_user_settings(id: int, tokenuser: UserAccount):
                 "container": {"default": "CAT"},
             },
             "LTS": {
-                "container": {"default": "D"},
+                "container": {"default": "X"},
             },
         },
     }

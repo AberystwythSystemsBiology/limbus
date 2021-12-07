@@ -22,6 +22,7 @@ from wtforms import (
     SelectField,
     BooleanField,
     FormField,
+    FieldList,
     SelectField,
     SelectMultipleField
 )
@@ -36,7 +37,7 @@ from ...auth.models import UserAccount
 from ...sample.enums import SampleBaseType, FluidSampleType, \
                     ContainerBaseType, FluidContainer, CellContainer
 
-
+from flask import flash
 
 class UserAccountRegistrationForm(FlaskForm):
 
@@ -89,6 +90,10 @@ def AccountLockForm(email):
 
 
 def AdminUserAccountEditForm(sites=[], data={})->FlaskForm:
+    # print("data", data)
+    if "account_type" in data:
+        data["account_type"]= AccountType(data["account_type"]).name
+
     class StaticForm(FlaskForm):
         title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
 
@@ -107,54 +112,70 @@ def AdminUserAccountEditForm(sites=[], data={})->FlaskForm:
             choices=sites,
         )
 
-
-        # is_admin = BooleanField("Is Admin?")
-
         account_type = SelectField("Account Type",
-                                   validators=[DataRequired()], choices=AccountType.choices())
+               validators=[DataRequired()], choices=AccountType.choices())
 
-        #data_entry = FormField("UserSettings")
-        # viewing = FormField("UserSettings")
+        settings = FieldList(FormField(UserSettings), min_entries=1)
 
-        submit = SubmitField("Register")
+        submit = SubmitField("Update")
 
-        # def validate_email(self, field):
-        #     if UserAccount.query.filter_by(email=field.data).first():
-        #         raise ValidationError("Email address already in use.")
+        def validate(self):
+            for entry in self.settings.entries:
+                print("access_level", entry.access_level.data)
+                print("sites", entry.site_choices.data)
+
+            # if not FlaskForm.validate(self):
+            #     print("ok")
+            #     return False
+
+            if UserAccount.query.filter_by(email=self.email.data)\
+                    .filter(UserAccount.id!=data["id"]).first():
+                self.email.errors.append("Email address already in use.")
+                flash("Email address already in use.")
+                return False
+                #raise ValidationError("Email address already in use.")
+
+            return True
 
     return StaticForm(data=data)
 
 
 class UserSettings(FlaskForm):
+    class Meta:
+        csrf = False
 
-    site_default = StringField("Default working site")
-    site_choices = SelectMultipleField(
-            "Consent type", choices=[]) #sites)
-    #
-    # consent_template_default = StringField("Default working consent template")
+    access_choices = [(0, "None"), (1, "data_entry"), (2, "view_only")]
+    access_level = SelectField("Access level", choices=access_choices,
+                    render_kw={"size": "1", "class": "form-control"})
+
+    site_choices = SelectMultipleField("Work Sites",
+                    choices=[],
+                    render_kw={"size":"2", "class":"selectpicker"})
+    # site_default = StringField("Default working site")
+
+    # consent_template_default = SelectField("Default working consent template")
     # consent_template_choices = SelectMultipleField(
-    #         "Consent template choices", choices=[]) #=consent_templates),
+    #         "Consent template choices", choices=[])
     #
     # study_protocol_default = StringField("Default project/study protocol")#, choices=stu_protocols)
     # study_protocol_choices = SelectMultipleField(
-    #         "Study/Project Protocol choices")#, choices=stu_protocols),
+    #         "Study/Project Protocol choices", choices=[])#, choices=stu_protocols),
     #
     # acquisition_protocol_default = StringField(
-    #         "Default project/study protocol",
-    #         choices=[])#acq_protocols)
+    #         "Default project/study protocol")
+    #
     # acquisition_protocol_choices = SelectMultipleField(
     #         "Sample Acquisition Protocol choices",
-    #         choices=[], #acq_protocols,
-    #         default=[])
+    #         choices=[])
     #
     # # sample_basetype_default = StringField("Default sample base type")
     # sample_basetype_choices = SelectMultipleField(
     #         "Sample base type choices", choices=SampleBaseType.choices()),
 
-    sample_basetype_default = StringField(
-            "Default sample base type",
-            choices=SampleBaseType.choices(),
-            default="FLU")
+    # sample_basetype_default = StringField(
+    #         "Default sample base type",
+    #         choices=SampleBaseType.choices(),
+    #         default="FLU")
     #
     # sample_basetype_choices = SelectMultipleField(
     #         "Sample base type choices",
@@ -221,7 +242,7 @@ class UserSettings(FlaskForm):
     #                 "container": {"default": "CAT"},
     #             },
     #             "LTS": {
-    #                 "container": {"default": "D"},
+    #                 "container": {"default": "X"},
     #             },
     #         },
     #     }

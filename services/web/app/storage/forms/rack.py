@@ -47,7 +47,7 @@ class NewSampleRackForm(FlaskForm):
     )
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
-    entry = StringField("Entry by")
+    entry = StringField("Entry by", validators=[DataRequired()])
     submit = SubmitField("Register")
 
 
@@ -219,7 +219,7 @@ class UpdateRackFileUploadForm(FlaskForm):
     )
 
     entry = StringField("Created by",
-                        description="The initials of the individual who created the sample rack"
-                        )
+                        description="The initials of the individual who created the sample rack",
+                        validators=[DataRequired()])
 
     submit = SubmitField("Upload File")

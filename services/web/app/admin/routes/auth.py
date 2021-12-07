@@ -134,7 +134,7 @@ def auth_data():
 @check_if_admin
 @login_required
 def admin_edit_account(id):
-    # TODO
+
     response = requests.get(
         url_for("api.auth_view_user", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -152,31 +152,56 @@ def admin_edit_account(id):
             "admin/auth/edit.html", user=response.json()["content"], form=form
         )
 
-    print("resps", response.text)
     account_data = response.json()["content"]
-    account_data = {}
+    account_data.update({"site_id": account_data["site"]["id"]})
 
-    for k in ["account_type", "email"]:
-        account_data[k] = response.json()["content"][k]
-        account_data.update({"site_id": response.json()["content"]["site"]["id"]})
-        print("account_data", account_data)
+    print("account_data", account_data)
 
     if response.status_code == 200:
-        form = AdminUserAccountEditForm(account_data)
-        #["email"])
-        print(str(form.data))
-        # form.data_entry.sites.choices = []
-        # form.data_entry.consent_templates.choices = []
+        form = AdminUserAccountEditForm(sites=sites, data=account_data)
+        for setting in form.settings.entries:
+            setting.site_choices.choices = sites
+            #setting.consent_templates.choices = []
         # form.data_entry.stu_protocols.choices = []
         # form.data_entry.acq_protocols.choices = []
         if form.validate_on_submit():
+            json = {
+                "title": form.title.data,
+                "first_name": form.first_name.data,
+                "middle_name": form.middle_name.data,
+                "last_name": form.last_name.data,
+                "email": form.email.data,
+                "account_type": form.account_type.data,
+                # "password": form.password.data,
+                "site_id": form.site_id.data,
+            }
+
+            settings = {}
+            for setting in form.settings.entries:
+                print("setting : ", setting.site_choices.data)
+                site_choices = []
+                if len(setting.site_choices.data)>0:
+                    site_choices = [int(k) for k
+                                    in setting.site_choices.data
+                                    if int(k)!=account_data["site_id"]
+                                    ]
+                    site_choices = [account_data["site_id"]] + site_choices
+
+                if setting.access_level == 2:
+                    settings["view_only"]= {"site": {"choices": site_choices}}
+                else:
+                    settings["data_entry"]= {"site": {"choices": site_choices}}
+
+            json["settings"] = settings
+
+            print("json", json)
             edit_response = requests.put(
                 url_for("api.admin_edit_account", id=id, _external=True),
                 headers=get_internal_api_header(),
+                json = json
             )
-
+            print("edit_response", edit_response.text)
             if edit_response.status_code == 200:
-                #flash("User account setting updated successfully!")
                 flash("User account updated successfully!")
                 return redirect(url_for("admin.auth_view_account", id=id))
             else:

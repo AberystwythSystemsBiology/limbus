@@ -45,6 +45,7 @@ class UserAccountSettingSchema(masql.SQLAlchemySchema):
     email = masql.auto_field()
     first_name = masql.auto_field()
     last_name = masql.auto_field()
+    site_id = masql.auto_field()
     settings =  masql.auto_field()
 
 user_account_setting_schema = UserAccountSettingSchema()
@@ -118,6 +119,26 @@ class EditUserAccountSchema(masql.SQLAlchemySchema):
 edit_user_account_schema = EditUserAccountSchema()
 
 from ..misc.views import basic_site_schema
+
+
+
+class AdminEditUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    is_locked = masql.auto_field(required=False)
+    email = masql.auto_field(required=False)
+    title = masql.auto_field(required=False)
+    first_name = masql.auto_field(required=False)
+    middle_name = masql.auto_field(required=False)
+    last_name = masql.auto_field(required=False)
+
+    account_type = masql.auto_field(required=False)
+    access_control = masql.auto_field(required=False)
+    settings = masql.auto_field(required=False)
+    site_id = masql.auto_field(required=False)
+
+admin_edit_user_account_schema = AdminEditUserAccountSchema()
 
 
 class TokenSchema(masql.SQLAlchemySchema):
