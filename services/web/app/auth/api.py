@@ -126,26 +126,18 @@ from sqlalchemy.orm.attributes import flag_modified
 @token_required
 def admin_edit_account(id: int, tokenuser: UserAccount):
     values = request.get_json()
-    print("va", values)
     if not values:
         return no_values_response()
 
-    # try:
-    #     result = admin_edit_user_account_schema.load(values)
-    # except ValidationError as err:
-    #     return validation_error_response(err)
-
     user = UserAccount.query.filter_by(id=id).first_or_404()
     if not user.settings:
-        settings = {
+        data_entry = {
             "site": {},
 
             "consent_template": {"default": 8, "choices": []},
             "protocol": {
                 "ACQ": {"default":2},
                 "SAP": {"default":1}
-                #"STU": {"default": },
-
             },
 
             "sample_type": {
@@ -165,17 +157,21 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
                 },
             },
         }
+        settings = {"data_entry": data_entry}
+
     else:
         settings = user.settings
 
     for key in values["settings"]:
-        settings[key].update(values["settings"][key])
+        try:
+            settings[key].update(values["settings"][key])
+        except:
+            settings[key] = values["settings"][key]
 
     user.update({"settings": settings, "editor_id": tokenuser.id})
 
     values.pop("settings")
     for attr, value in values.items():
-        print(attr)
         setattr(user, attr, value)
 
     flag_modified(user, "settings")

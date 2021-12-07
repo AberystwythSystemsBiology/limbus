@@ -145,8 +145,10 @@ class UserSettings(FlaskForm):
         csrf = False
 
     access_choices = [(0, "None"), (1, "data_entry"), (2, "view_only")]
-    access_level = SelectField("Access level", choices=access_choices,
-                    render_kw={"size": "1", "class": "form-control"})
+    access_level = SelectField("Access level", coerce=int,
+                               choices=access_choices,
+                               render_kw={"size": "1", "class": "form-control"}
+                               )
 
     site_choices = SelectMultipleField("Work Sites",
                     choices=[],

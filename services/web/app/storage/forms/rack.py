@@ -47,7 +47,7 @@ class NewSampleRackForm(FlaskForm):
     )
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
-    entry = StringField("Entry by", validators=[DataRequired()])
+    entry = StringField("Entry by")
     submit = SubmitField("Register")
 
 

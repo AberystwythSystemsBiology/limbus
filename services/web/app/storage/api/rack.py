@@ -125,6 +125,7 @@ def storage_rack_view(id, tokenuser: UserAccount):
 @token_required
 def storage_rack_new(tokenuser: UserAccount):
     values = request.get_json()
+    print("values", values)
     return generic_new(
         db,
         SampleRack,

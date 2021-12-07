@@ -64,66 +64,7 @@ function get_barcode(sample_info, barc_type) {
 
     });
 
-
-
 }
-
-/*function get_rack() {
-    var split_url = encodeURI(window.location).split("/");
-    split_url = split_url.slice(0, -2)
-    split_url.push("storage", "rack", "info")
-    var api_url = split_url.join("/")
-
-    var json = (function () {
-        var json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'dataType': "json",
-            'success': function (data) {
-                json = data;
-            },
-            'failure': function (data) {
-                json = data;
-            }
-
-        });
-        return json;
-    })();
-
-    return json;
-
-}*/
-
-/*function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
-    var json = (function () {
-        var json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'type': 'POST',
-            'dataType': "json",
-            'data': JSON.stringify({'rack_id': rack_id,
-                'samples':(sampletostore), 'commit': commit
-            }),
-            'contentType': 'application/json; charset=utf-8',
-            'success': function (data) {
-                json = data
-            },
-            'failure': function (data) {
-                json = data;
-            }
-
-        });
-        console.log('json', json)
-        return json;
-    })();
-
-    return json;
-
-}*/
 
 
 function add_samples_to_cart(api_url, samples) {
@@ -259,16 +200,6 @@ function fill_consent_information(consent_information) {
             $("#questionnaire-list").append(answer_html);
 
     }
-
-    /*for (answer in consent_information["answers"]) {
-        var answer_info = consent_information["answers"][answer];
-
-        var answer_html = '';
-        answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
-        answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
-
-        $("#questionnaire-list").append(answer_html);
-    }*/
 
     var consent_status = "Active"
     if (consent_information["withdrawn"]==true) {

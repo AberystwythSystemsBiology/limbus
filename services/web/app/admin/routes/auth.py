@@ -152,18 +152,43 @@ def admin_edit_account(id):
             "admin/auth/edit.html", user=response.json()["content"], form=form
         )
 
-    account_data = response.json()["content"]
-    account_data.update({"site_id": account_data["site"]["id"]})
-
-    print("account_data", account_data)
-
     if response.status_code == 200:
+        account_data = response.json()["content"]
+        site_id = account_data["site"]["id"]
+        account_data.update({"site_id": site_id})
+
+        default_sites = [site_id]
+        # -- prepare data population to the form
+        if "settings" in account_data:
+            settings = []
+            for access_type in account_data["settings"]:
+                setting = {}
+                if access_type == "data_entry":
+                    setting["access_level"] = 1
+                else: #if access_type == "view_only":
+                    setting["access_level"] = 2
+
+                try:
+                    setting["site_choices"] \
+                        = account_data["settings"][access_type]["site"]["choices"]
+                    if setting["site_choices"] is None or len(setting["site_choices"]) == 0:
+                        setting["site_choices"] = default_sites
+                except:
+                    setting["site_choices"] = default_sites
+
+                settings.append(setting)
+
+            account_data["settings"] = settings
+        else:
+            account_data["settings"] = [{"access_level":1, "site_choices": default_sites}]
+
+        print("account_data", account_data)
+        print("setting", account_data["settings"])
+
         form = AdminUserAccountEditForm(sites=sites, data=account_data)
         for setting in form.settings.entries:
             setting.site_choices.choices = sites
-            #setting.consent_templates.choices = []
-        # form.data_entry.stu_protocols.choices = []
-        # form.data_entry.acq_protocols.choices = []
+
         if form.validate_on_submit():
             json = {
                 "title": form.title.data,
@@ -187,7 +212,7 @@ def admin_edit_account(id):
                                     ]
                     site_choices = [account_data["site_id"]] + site_choices
 
-                if setting.access_level == 2:
+                if setting.access_level.data == 2:
                     settings["view_only"]= {"site": {"choices": site_choices}}
                 else:
                     settings["data_entry"]= {"site": {"choices": site_choices}}
