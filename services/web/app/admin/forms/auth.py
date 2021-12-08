@@ -17,6 +17,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     PasswordField,
     StringField,
+    TextAreaField,
     SubmitField,
     ValidationError,
     SelectField,
@@ -144,15 +145,20 @@ class UserSettings(FlaskForm):
     class Meta:
         csrf = False
 
-    access_choices = [(0, "None"), (1, "data_entry"), (2, "view_only")]
+    access_choices = [(1, "data_entry"), (2, "view_only")]
     access_level = SelectField("Access level", coerce=int,
                                choices=access_choices,
-                               render_kw={"size": "1", "class": "form-control"}
+                               render_kw={"size": "1", "class": "form-control bd-light"}
                                )
 
     site_choices = SelectMultipleField("Work Sites",
                     choices=[],
-                    render_kw={"size":"2", "class":"selectpicker"})
+                    render_kw={"size":"1", "class":"selectpicker form-control"})
+    site_selected = TextAreaField("Current",
+                    render_kw={"readonly":True,
+                               "rows":5,
+                               "class":"form-control bd-light"})
+
     # site_default = StringField("Default working site")
 
     # consent_template_default = SelectField("Default working consent template")

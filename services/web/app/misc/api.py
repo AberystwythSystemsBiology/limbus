@@ -265,15 +265,18 @@ def site_home_tokenuser(tokenuser: UserAccount):
 
     choices = []
     settings = tokenuser.settings
+    site_key = "data_entry"
+    if "view_only" in settings and "data_entry" not in settings:
+        site_key = "view_only"
 
     try:
-        id0 = settings["data_entry"]["site"]["default"]
+        id0 = settings[site_key]["site"]["default"]
         nm0 = None
     except:
         id0 = None
 
     try:
-        choices0 = settings["data_entry"]["site"]["choices"]
+        choices0 = settings[site_key]["site"]["choices"]
         if len(choices0) ==  0:
             choices0 = None
     except:
@@ -364,8 +367,17 @@ def misc_new_site(tokenuser: UserAccount):
 
     try:
         db.session.add(new_site)
-        db.session.commit()
         db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    address = Address.query.filter_by(id=new_site.address_id).first()
+    if address:
+        address.site_id = new_site.id
+        db.session.add(address)
+
+    try:
+        db.session.commit()
         return success_with_content_response(basic_site_schema.dumps(new_site))
     except Exception as err:
         return transaction_error_response(err)

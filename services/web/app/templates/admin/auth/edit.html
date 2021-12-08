@@ -68,25 +68,19 @@
 
     <h2>User Settings</h2>
 
-{#<div class="row">#}
          {% for setting in form.settings -%}
-{#        <div class="col col-sm-6">#}
                 <div class="container">
                   <div class="card" id=li-{{ setting.id}}>
                     <div class='card-header'>
-{#                        <h5 id="setting"</h5>#}
                     </div>
-                    <div class="card-body">
-                      <div class="form-group" >
+                    <div class="card-body" >
+                      <div class="form-group">
                       {{ setting }}
                      </div>
                     </div>
                     </div>
-{#                </div>#}
                 </div>
                 {% endfor %}
-{#    </div>#}
-
         </div>
 
 
@@ -126,13 +120,16 @@
                 {{ show_value(user.token.updated_on, "Updated On", "text") }}
 
             </table>
-            <div class="row float-left">
-        {{ form_field(form.submit) }}
-                </div>
-        </div>
+            <div class="footer float-left">
+            {{ form_field(form.submit) }}
+            {#            <div class="row float-left">#}
+                <a href={{ url_for("admin.auth_view_account", id=user.id) }}>
+                <button type="button" class="btn btn-cancel">
+                    Cancel
+                </button></a>
+            </div>
 </form>
     </div>
-
 
 
 {% endblock %}

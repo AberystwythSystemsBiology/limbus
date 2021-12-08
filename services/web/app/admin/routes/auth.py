@@ -143,7 +143,7 @@ def admin_edit_account(id):
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
     )
-    sites=[0, None]
+    # sites=[0, None]
     if sites_response.status_code == 200:
         sites = sites_response.json()["content"]["choices"]
     else:
@@ -154,12 +154,13 @@ def admin_edit_account(id):
 
     if response.status_code == 200:
         account_data = response.json()["content"]
-        site_id = account_data["site"]["id"]
+        site_id = int(account_data["site"]["id"])
         account_data.update({"site_id": site_id})
 
         default_sites = [site_id]
         # -- prepare data population to the form
-        if "settings" in account_data:
+        # -- currently only either "data_entry" or "view_only", not both can be stored in the DB
+        if "settings" in account_data and account_data["settings"] is not None:
             settings = []
             for access_type in account_data["settings"]:
                 setting = {}
@@ -176,11 +177,16 @@ def admin_edit_account(id):
                 except:
                     setting["site_choices"] = default_sites
 
+                setting["site_selected"] = "\n".join([s[1] for s in sites if s[0] in setting["site_choices"]])
                 settings.append(setting)
 
             account_data["settings"] = settings
         else:
-            account_data["settings"] = [{"access_level":1, "site_choices": default_sites}]
+            account_data["settings"] = [ {"access_level":1,
+                                          "site_choices": default_sites,
+                                          "site_selected": [s[1] for s in sites if s[0] == site_id][0]
+                                         }
+                                       ]
 
         print("account_data", account_data)
         print("setting", account_data["settings"])

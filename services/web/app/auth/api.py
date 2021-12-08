@@ -168,6 +168,11 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
         except:
             settings[key] = values["settings"][key]
 
+    # -- Currently only setings for either view_only or data_entry to avoid confusion
+    for key in ["view_only", "data_entry"]:
+        if key not in values["settings"]:
+            settings.pop(key, None)
+
     user.update({"settings": settings, "editor_id": tokenuser.id})
 
     values.pop("settings")
@@ -184,124 +189,91 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-
-@api.route("/auth/user/<id>/settings", methods=["PUT"])
-@token_required
-def auth_user_settings(id: int, tokenuser: UserAccount):
-    values = request.get_json()
-
-    if not tokenuser.is_admin:
-        return not_allowed()
-
-    if not values:
-       return no_values_response()
-
-    try:
-        result = edit_user_account_schema.load(values)
-    except ValidationError as err:
-        return validation_error_response(err)
-
-    user = UserAccount.query.filter_by(id=id).first_or_404()
-
-    data_entry = {
-        "site": {"default": tokenuser.site_id, "choices": []},
-
-        "consent_template": {"default": 8, "choices": []},
-        "protocol": {
-            "ACQ": {"default":2},
-            "SAP": {"default":1}
-            #"STU": {"default": },
-
-        },
-
-        "sample_type": {
-            "base_type": "FLU",
-            "FLU": {"default": "BLD",
-                    "choices": [],
-                    },
-        },
-
-        "container_type": {
-            "base_type": {"default": "LTS"},
-            "PRM": {
-                "container": {"default": "CAT"},
-            },
-            "LTS": {
-                "container": {"default": "X"},
-            },
-        },
-    }
-
-    if False:
-        data_entry = {
-            "site": {"default":1, "choices":[1,2]},
-
-            "consent_template": {"default": 2, "choices":[]},
-            "protocol": {
-                "STU": {"default": 19},
-                "ACQ": {"default": 5},
-            },
-
-            "sample_type": {
-                "base_type": "FLU",
-                "FLU": {"default": "BLD",
-                        "choices": [],
-                        },
-                },
-
-            "container_type": {
-                "base_type": {"default": "LTS"},
-                "PRM": {
-                    "container": {"default": "CAT"},
-                },
-                "LTS": {
-                    "container": {"default": "D"},
-                },
-            },
-        }
-
-    settings = {"data_entry": data_entry}
-    user.update({"settings": settings, "editor_id": tokenuser.id})
-
-    try:
-        db.session.add(user)
-        db.session.commit()
-        return success_with_content_response(user_account_setting_schema.dump(user))
-    except Exception as err:
-        return transaction_error_response(err)
-
-    # settings = {
-    #     "data_entry": {
-    #         "site": {"default":1, "choices":[]},
-    #
-    #         "consent_template": {"default": 2, "choices":[]},
-    #         "protocol": {
-    #             "STU": {"default": 19},
-    #             "ACQ": {"default": 5},
-    #         },
-    #
-    #         "sample_type": {
-    #             "base_type": "FLU",
-    #             "FLU": {"default": "BLD",
-    #                     "choices": [],
-    #                     },
-    #             },
-    #
-    #         "container_type": {
-    #             "base_type": {"default": "LTS"},
-    #             "PRM": {
-    #                 "container": {"default": "CAT"},
-    #                 #"fixation_type": FixationType.choices(),
-    #             },
-    #             "LTS": {
-    #                 "container": {"default": "D"},
-    #                 #"fixation_type": FixationType.choices(),
-    #             },
-    #         },
-    #
-    #
-    #     },
-    # }
+#
+# @api.route("/auth/user/<id>/settings", methods=["PUT"])
+# @token_required
+# def auth_user_settings(id: int, tokenuser: UserAccount):
+#     values = request.get_json()
+#
+#     if not tokenuser.is_admin:
+#         return not_allowed()
+#
+#     if not values:
+#        return no_values_response()
+#
+#     try:
+#         result = edit_user_account_schema.load(values)
+#     except ValidationError as err:
+#         return validation_error_response(err)
+#
+#     user = UserAccount.query.filter_by(id=id).first_or_404()
+#
+#     data_entry = {
+#         "site": {"default": tokenuser.site_id, "choices": []},
+#
+#         "consent_template": {"default": 8, "choices": []},
+#         "protocol": {
+#             "ACQ": {"default":2},
+#             "SAP": {"default":1}
+#             #"STU": {"default": },
+#
+#         },
+#
+#         "sample_type": {
+#             "base_type": "FLU",
+#             "FLU": {"default": "BLD",
+#                     "choices": [],
+#                     },
+#         },
+#
+#         "container_type": {
+#             "base_type": {"default": "LTS"},
+#             "PRM": {
+#                 "container": {"default": "CAT"},
+#             },
+#             "LTS": {
+#                 "container": {"default": "X"},
+#             },
+#         },
+#     }
+#
+#     if False:
+#         data_entry = {
+#             "site": {"default":1, "choices":[1,2]},
+#
+#             "consent_template": {"default": 2, "choices":[]},
+#             "protocol": {
+#                 "STU": {"default": 19},
+#                 "ACQ": {"default": 5},
+#             },
+#
+#             "sample_type": {
+#                 "base_type": "FLU",
+#                 "FLU": {"default": "BLD",
+#                         "choices": [],
+#                         },
+#                 },
+#
+#             "container_type": {
+#                 "base_type": {"default": "LTS"},
+#                 "PRM": {
+#                     "container": {"default": "CAT"},
+#                 },
+#                 "LTS": {
+#                     "container": {"default": "D"},
+#                 },
+#             },
+#         }
+#
+#     settings = {"data_entry": data_entry}
+#     user.update({"settings": settings, "editor_id": tokenuser.id})
+#
+#     try:
+#         db.session.add(user)
+#         db.session.commit()
+#         return success_with_content_response(user_account_setting_schema.dump(user))
+#     except Exception as err:
+#         return transaction_error_response(err)
 
 @api.route("/auth/user/new", methods=["POST"])
 @token_required

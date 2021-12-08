@@ -118,25 +118,25 @@ def change_password():
 
     return render_template("auth/password.html", form=form)
 
-
-@auth.route("/user_settings", methods=["GET", "POST"])
-def user_settings():
-    # response = requests.get(
-    #     url_for("api.auth_view_user", id=current_user.id, _external=True),
-    #     headers=get_internal_api_header(),
-    # )
-    user_information = {}
-    edit_response = requests.put(
-        url_for("api.auth_user_settings", id=current_user.id, _external=True),
-        headers=get_internal_api_header(),
-        json=user_information,
-    )
-    if edit_response.status_code == 200:
-        flash("User setting updated")
-        return edit_response.json()
-        #return redirect(url_for("auth.profile"))
-    else:
-        return edit_response.content
+#
+# @auth.route("/user_settings", methods=["GET", "POST"])
+# def user_settings():
+#     # response = requests.get(
+#     #     url_for("api.auth_view_user", id=current_user.id, _external=True),
+#     #     headers=get_internal_api_header(),
+#     # )
+#     user_information = {}
+#     edit_response = requests.put(
+#         url_for("api.auth_user_settings", id=current_user.id, _external=True),
+#         headers=get_internal_api_header(),
+#         json=user_information,
+#     )
+#     if edit_response.status_code == 200:
+#         flash("User setting updated")
+#         return edit_response.json()
+#         #return redirect(url_for("auth.profile"))
+#     else:
+#         return edit_response.content
 
 
 
