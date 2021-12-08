@@ -4,7 +4,7 @@ name: default
 
 steps:
 - name: build limbus
-  image: ubuntu-latest
+  image: ubuntu
   commands:
   - echo "🎉 The job was automatically triggered by an event."
   - echo "🐧 This job is now running on a drone server!"
