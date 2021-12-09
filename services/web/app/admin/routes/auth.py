@@ -124,8 +124,46 @@ def auth_data():
         headers=get_internal_api_header(),
     )
 
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
+    )
+
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+        sites_dict = {s[0]: s[1] for s in sites}
+    else:
+        sites_dict = None
+
     if auth_response.status_code == 200:
-        return auth_response.json()
+        auth_info = auth_response.json()["content"]
+
+        for user in auth_info:
+            # Default
+            try:
+                user["affiliated_site"] = sites_dict[user["site_id"]]
+                user["working_sites"] = [user["affiliated_site"]]
+            except:
+                user["affiliated_site"] = user["site_id"]
+                user["working_sites"] = [user["site_id"]]
+
+            try:
+                if "view_only" in user["settings"]:
+                    entry_key = "view_only"
+                elif "data_entry" in user["settings"]:
+                    entry_key = "data_entry"
+                else:
+                    entry_key = None
+                if entry_key:
+                    user["working_sites"] = [sites_dict[s]
+                                             for s
+                                             in user["settings"][entry_key]["site"]["choices"]
+                                             ]
+
+            except:
+                pass
+        # print("auth_info_final", auth_info)
+        return {"content": auth_info, "success": True}
+
     return auth_response.content
 
 

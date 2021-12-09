@@ -29,16 +29,17 @@ function get_users() {
                 json = data;
             }
         });
-        return json;
+        return json["content"];
     })();
 
-    return json["content"];
+    return json;
 }
 
 function fill_accounts_table(accounts) {
+
     $('#accounts-table').DataTable({
         data: accounts,
-        pageLength: 5,
+        pageLength: 25,
         columns: [
             { 
                 mData: {},
@@ -62,19 +63,36 @@ function fill_accounts_table(accounts) {
                     return email_html
                 }
             },
-            { data: "account_type" },
+
             {  
                 mData: {},
                 mRender: function (data, type, row) {
                     if (data["is_locked"]) {
-                        return "✅"
+                        //return "❌";
+                        return "<i class='fa fa-lock fa-1x'></i>"
                     }
                     else {
-                        return "❌"
+                        return "✅";
                     }
                 
             }
-        },
+            },
+
+            { data: "account_type" },
+
+            { data: "affiliated_site"},
+            { // Working sites
+                mData: {},
+                mRender: function (data, type, row) {
+                    var site_info = data["working_sites"];
+                    if (typeof(site_info)=="object"){
+                        return site_info.join("<br>");
+                    }
+                    return site_info;
+                }
+            },
+
+
             { data: "created_on"},
         ],  
 
