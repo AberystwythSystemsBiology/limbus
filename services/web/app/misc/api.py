@@ -265,9 +265,13 @@ def site_home_tokenuser(tokenuser: UserAccount):
 
     choices = []
     settings = tokenuser.settings
+
     site_key = "data_entry"
-    if "view_only" in settings and "data_entry" not in settings:
-        site_key = "view_only"
+    try:
+        if "view_only" in settings and "data_entry" not in settings:
+            site_key = "view_only"
+    except:
+        pass
 
     try:
         id0 = settings[site_key]["site"]["default"]

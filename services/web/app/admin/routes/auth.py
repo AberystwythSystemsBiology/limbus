@@ -149,7 +149,7 @@ def admin_edit_account(id):
     else:
         flash("No site created!")
         return render_template(
-            "admin/auth/edit.html", user=response.json()["content"], form=form
+            "admin/auth/edit.html", user=response.json()["content"], form={}
         )
 
     if response.status_code == 200:

@@ -69,22 +69,52 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
 
     sites=[tokenuser.site_id]
     try:
-        choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+        if "view_only" in tokenuser.settings:
+            choices0 = tokenuser.settings["view_only"]["site"]["choices"]
+        else:
+            choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
         if len(choices0) >  0:
             sites= list(set([sites + choices0]))
     except:
         pass
 
-    # print("stites", sites)
+    # -- Union of three types of rack
+    # -- Type 1: empty rack not stored to shelf
     stmt = db.session.query(SampleRack)\
         .outerjoin(
             EntityToStorage,
             and_(
                 SampleRack.id == EntityToStorage.rack_id,
-                EntityToStorage.storage_type == "BTS",
+                EntityToStorage.storage_type == "BTS"
+            )) \
+        .outerjoin(
+            Sample,
+            and_(Sample.id == EntityToStorage.sample_id,
+                SampleRack.id == EntityToStorage.rack_id,
+                EntityToStorage.storage_type == "STB"
             ))\
-        .filter(EntityToStorage.rack_id==None)
+        .filter(EntityToStorage.shelf_id is None) \
+        .filter(Sample.current_site_id is None)
 
+    #-- Type 2: rack not stored to shelf but with associated samples with current_site_id in sites
+    stmt = stmt.union(
+        db.session.query(SampleRack)\
+        .join(
+            EntityToStorage,
+            and_(
+                SampleRack.id == EntityToStorage.rack_id,
+                EntityToStorage.storage_type == "STB",
+            ))\
+        .join(
+            Sample,
+            and_(Sample.id == EntityToStorage.sample_id,
+                SampleRack.id == EntityToStorage.rack_id
+            ))\
+        .filter(EntityToStorage.shelf_id is None)\
+        .filter(Sample.current_site_id.in_(sites))
+    )
+
+    # -- Type 3: racks stored on shelf in tokenuser's working sites
     stmt1 = (
         db.session.query(SampleRack)\
         .join(

@@ -80,8 +80,6 @@ def rack_index():
 @login_required
 def rack_endpoint():
     response = requests.get(
-        #url_for("api.storage_rack_info", _external=True),
-        #url_for("api.storage_rack_home", _external=True),
         url_for("api.storage_rack_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
     )

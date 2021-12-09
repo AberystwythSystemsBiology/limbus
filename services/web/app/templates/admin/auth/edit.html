@@ -121,11 +121,11 @@
 
             </table>
             <div class="footer float-left">
-            {{ form_field(form.submit) }}
-            {#            <div class="row float-left">#}
+                {{ form_field(form.submit) }}
+
                 <a href={{ url_for("admin.auth_view_account", id=user.id) }}>
-                <button type="button" class="btn btn-cancel">
-                    Cancel
+                    <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                        Cancel
                 </button></a>
             </div>
 </form>

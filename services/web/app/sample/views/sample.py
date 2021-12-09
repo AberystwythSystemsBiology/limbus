@@ -20,6 +20,7 @@ from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...extensions import ma
 from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
+
 from . import (
     SampleUUIDSchema,
     SampleTypeSchema,
@@ -200,6 +201,8 @@ class SampleSchema(masql.SQLAlchemySchema):
 
 
 sample_schema = SampleSchema()
+samples_schema = SampleSchema(many=True)
+
 
 #
 # class SubSampleToSampleSchema(masql.SQLAlchemySchema):

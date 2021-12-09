@@ -101,7 +101,7 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
 
         submit = SubmitField("Register")
 
-    print(str(StaticForm(data=data).data))
+    # print(str(StaticForm(data=data).data))
     return StaticForm(data=data)
 
 
@@ -116,6 +116,7 @@ def EditRackToShelfForm(shelves: list) -> FlaskForm:
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
+            validators=[DataRequired()],
         )
         submit = SubmitField("Submit")
 
