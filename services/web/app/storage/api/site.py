@@ -50,7 +50,6 @@ def site_addresses_view(id, tokenuser: UserAccount):
 @token_required
 def storage_site_edit(id, tokenuser: UserAccount):
     values = request.get_json()
-    print("values", values)
     site = SiteInformation.query.filter_by(id=id).first()
     if not site:
         return not_found("Site %s"%id)
@@ -58,13 +57,7 @@ def storage_site_edit(id, tokenuser: UserAccount):
     if site.is_locked:
         return locked_response("Site %s"%id)
 
-    try:
-        result = new_site_schema.load(values)
-    except ValidationError as err:
-        return validation_error_response(err)
-
     address_values = values.pop("address", None)
-    site.update(values)
 
     if address_values:
         address = Address.query.filter_by(id=site.address_id).first()
@@ -76,12 +69,20 @@ def storage_site_edit(id, tokenuser: UserAccount):
             address.author_id = tokenuser.id
 
         db.session.add(address)
+
         try:
             db.session.flush()
             site.address_id = address.id
         except Exception as err:
             return transaction_error_response(err)
 
+
+    # try:
+    #     result = new_site_schema.load(values)
+    # except ValidationError as err:
+    #     return validation_error_response(err)
+
+    site.update(values)
     db.session.add(site)
     try:
         db.session.commit()
@@ -94,7 +95,7 @@ def storage_site_edit(id, tokenuser: UserAccount):
 @token_required
 def site_edit_addresses(id, tokenuser: UserAccount):
     values = request.get_json()
-    print("values", values)
+    # print("values", values)
     new_address_id = values.pop("address_id", None)
 
     site = SiteInformation.query.filter_by(id=id).first()
