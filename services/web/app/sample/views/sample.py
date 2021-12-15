@@ -169,6 +169,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     subsamples = ma.Nested(BasicSampleSchema, many=True)
 
     events = ma.Nested(SampleProtocolEventSchema, many=True)
+    subsample_event = ma.Nested(SampleProtocolEventSchema, many=False)
     reviews = ma.Nested(SampleReviewSchema, many=True)
     shipments = ma.Nested(SampleShipmentToSampleInfoSchema, many=True)
 

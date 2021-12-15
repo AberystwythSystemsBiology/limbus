@@ -62,6 +62,13 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     consent_information = db.relationship("SampleConsent", uselist=False)
 
     events = db.relationship("SampleProtocolEvent", uselist=True)
+    subsample_event = db.relationship(
+        "SampleProtocolEvent", uselist=False,
+        secondary="subsampletosample",
+        primaryjoin="Sample.id==SubSampleToSample.subsample_id",
+        secondaryjoin="SampleProtocolEvent.id==SubSampleToSample.protocol_event_id",
+        #viewonly=True
+    )
     reviews = db.relationship("SampleReview", uselist=True, cascade="all, delete")
     shipments = db.relationship("SampleShipmentToSample", uselist=True)
 

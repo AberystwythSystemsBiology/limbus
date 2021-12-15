@@ -138,7 +138,6 @@ function fill_title(sample) {
         $("#parent-div").show();
     }
 
-
 }
 
 function fill_comments(comments) {
@@ -477,7 +476,7 @@ function fill_protocol_events(events) {
         if (event_info["reduced_quantity"] != null)
             reduced_quantity = event_info["reduced_quantity"] + " " + measurement;
 
-        console.log("event_info", event_info);
+        //console.log("event_info", event_info);
         if (event_info["event"] != null || event_info["event"] != undefined) {
             if (event_info["event"].hasOwnProperty('datetime')) {
                 event_datetime = event_info["event"]["datetime"];
@@ -507,6 +506,15 @@ function fill_protocol_events(events) {
         html += "<a href='"+ event_info["protocol"]["_links"]["self"] +"'>"
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
+        if (event_info["parent"] != null) {
+            var parent_html = "<h6 > On parent sample :";
+            parent_html += '<a href="' + event_info["parent"]["_links"]["self"] + '" target="_blank">'
+            parent_html += '<i class="fas fa-vial"></i> ';
+            parent_html += event_info["parent"]["uuid"]
+            parent_html += '</a></h6>'
+            html += parent_html;
+        }
+
         html += "<table class='table table-striped'>"
         html += render_content("Sample Qty Reduction", reduced_quantity);
         html += render_content("Undertaken By", undertaken_by);
@@ -840,6 +848,10 @@ $(document).ready(function () {
         fill_lineage_table(sample_info["subsamples"]);
         fill_comments(sample_info["comments"]);
         fill_document_information(sample_info["documents"]);
+        if (sample_info["subsample_event"]!=undefined && sample_info["subsample_event"]!=null) {
+            sample_info["subsample_event"]["parent"] = sample_info["parent"];
+            sample_info["events"].unshift(sample_info["subsample_event"])
+        }
         fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
         //console.log('sample_info', sample_info)
