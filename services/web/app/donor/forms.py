@@ -217,8 +217,9 @@ class DonorStudyRegistrationForm(FlaskForm):
         csrf = False
 
     reference_id = StringField(
-        "Reference Number",
+        "Participant ID",
         description="The reference number for the donor within the study/trial.",
+        validators=[Optional()],
     )
     date = DateField(
         "Date of donor registration/consent",
@@ -272,6 +273,11 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
 
             if not FlaskForm.validate(self):
                 return False
+
+            if self.study_select.data and self.study_select.data>0:
+                if self.study.reference_id.data=="" or self.study.reference_id.data is None:
+                    self.study.reference_id.errors.append("Participant ID required if study selected")
+                    return False
 
             return True
 

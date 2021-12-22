@@ -792,7 +792,7 @@ def func_validate_settings(tokenuser, keys = {}, check=True):
 
             sites_tokenuser = list(sites_tokenuser)
             if check:
-                if keys["site_id"] not in sites_tokenuser:
+                if keys["site_id"] not in [None]+sites_tokenuser:
                     success = False
                     msg = "Data entry role required for handling the sample in its current site! "
                     return sites_tokenuser, success, msg

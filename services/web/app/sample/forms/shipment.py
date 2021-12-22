@@ -56,6 +56,7 @@ def SampleShipmentEventForm(protocols=[], sites=[], sites_ext=[], addresses=[],
         undertaken_by = StringField(
             "Undertaken By",
             description="The initials of the individual who undertook the shipment event.",
+            validators = [DataRequired()],
         )
 
         comments = TextAreaField("Comments", description="Any relevant observations.")

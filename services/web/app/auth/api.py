@@ -150,7 +150,7 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
             "container_type": {
                 "base_type": {"default": "LTS"},
                 "PRM": {
-                    "container": {"default": "CAT"},
+                    "container": {"default": "SST"},
                 },
                 "LTS": {
                     "container": {"default": "X"},
