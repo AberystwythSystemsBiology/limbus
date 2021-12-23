@@ -41,7 +41,8 @@ from ...database import (
 from ..enums import EntityToStorageType
 
 from sqlalchemy.sql import insert, func
-from sqlalchemy import or_, and_, not_
+from sqlalchemy import or_, and_, not_, select, text
+from sqlalchemy.orm import aliased
 
 from marshmallow import ValidationError
 
@@ -74,13 +75,32 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
         else:
             choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
         if len(choices0) >  0:
-            sites= list(set([sites + choices0]))
+            sites= list(set([sites + choices0 + [None]]))
     except:
         pass
 
     # -- Union of three types of rack
-    # -- Type 1: empty rack not stored to shelf
-    stmt = db.session.query(SampleRack)\
+    # -- Type 0: empty rack not stored to shelf and no sample attached
+    # sql_text = text("SELECT SampleRack.* " \
+    #            "FROM SampleRack " \
+    #            "LEFT OUTER JOIN EntityToStorage " \
+    #             "ON SampleRack.id = EntityToStorage.rack_id " \
+    #             "AND EntityToStorage.storage_type = 'BTS' " \
+    #             "LEFT OUTER JOIN Sample " \
+    #             "ON (Sample.id = EntityToStorage.sample_id " \
+    #            "AND SampleRack.id = EntityToStorage.rack_id " \
+    #            "AND EntityToStorage.storage_type = 'STB') " \
+    #            "WHERE EntityToStorage.shelf_id is NULL " \
+    #            "AND Sample.id is NULL "
+    #                 )
+    #
+    # stmt0 = db.session.query(SampleRack)\
+    #     .from_statement(sql_text)\
+    #     .all()
+
+    # -- Type 1: empty rack not stored to shelf with sample attached
+    #stmt = stmt0.union(
+    stmt =    db.session.query(SampleRack)\
         .outerjoin(
             EntityToStorage,
             and_(
@@ -95,6 +115,7 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
             ))\
         .filter(EntityToStorage.shelf_id is None) \
         .filter(Sample.current_site_id is None)
+    #)
 
     #-- Type 2: rack not stored to shelf but with associated samples with current_site_id in sites
     stmt = stmt.union(
@@ -136,10 +157,27 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
             )) \
     )
 
-    stmt=stmt.union(stmt1)\
+
+    stmt2 = (
+        db.session.query(SampleRack)\
+        .filter(SampleRack.author_id == tokenuser.id)
+    )
+    # print("stmt2: ", stmt2.count())
+
+    stmt = stmt.union(stmt1).union(stmt2)\
         .distinct(SampleRack.id)\
         .filter(SampleRack.is_locked==False)\
         .all()
+
+    # print("empty rack 0: ", len(stmt))
+    # for rack in stmt:
+    #     print("rack ", rack.id)
+    #     try:
+    #         basic_sample_rack_schema.dump(rack)
+    #     except:
+    #         pass
+
+    # print("empty rack 0: ", stmt2)
     return success_with_content_response(basic_sample_racks_schema.dump(stmt))
 
 

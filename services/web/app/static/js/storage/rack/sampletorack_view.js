@@ -597,7 +597,11 @@ function fill_sample_pos(api_url, sampletostore, commit) {
 function dragndrop_rack_view() {
        $("#confirm_position").hide();
        $("#cancel_change").hide();
+
+       $("#submit_sampletorack").fadeTo(1000, 0.3, function() { $(this).fadeTo(500, 1.0); });
        $("#submit_sampletorack").show();
+
+
         var dispopt = $("input[name='dispopt']:checked").val();
         var changed = [];
         document.ondragstart = function (event) {
@@ -766,7 +770,7 @@ if (rack_id==null || rack_id==undefined) {
                                 sampletostore["num_cols"]);
 }
 else {
-    console.log("ok2", rack_id)
+
     var rack_information = get_rack_information();
 }
 
@@ -836,6 +840,8 @@ $(document).ready(function () {
     else {
         $("#cancel_change").hide();
         dragndrop_rack_view();
+        $("#submit_sampletorack").show()
+
     }
 
 
@@ -848,6 +854,8 @@ $(document).ready(function () {
 
     });
 
+
+    alert("Note: Please check the storage info before pressing STORE-SAMPLE-TO-RACK button to confirm!!")
 
     $("#submit_sampletorack").click(function (event) {
         if (from_file) {
@@ -878,6 +886,6 @@ $(document).ready(function () {
     })
 
     $("#loading-screen").fadeOut();
-    $("#content").delay(500).fadeIn();
+    $("#content").delay(50).fadeIn();
 
 });

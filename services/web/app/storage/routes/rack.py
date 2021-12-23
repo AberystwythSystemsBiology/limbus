@@ -140,8 +140,11 @@ def rack_manual_entry():
         )
 
         if response.status_code == 200:
-            flash("Sample Rack Added")
-            return redirect(url_for("storage.rack_index"))
+            flash("Sample Rack Added! Next: Assign the new rack to a cold storage shelf!!!")
+            #return redirect(url_for("storage.rack_index"))
+            rack_id = response.json()["content"]["id"]
+            return redirect(url_for("storage.edit_rack", id=rack_id))
+
 
     return render_template("storage/rack/new/manual/new.html", form=form)
 
