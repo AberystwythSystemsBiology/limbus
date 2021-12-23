@@ -183,9 +183,9 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_events_locked = SampleProtocolEvent.query.join(Sample).\
         filter(Sample.id==protocol_event.sample_id, SampleProtocolEvent.is_locked==True)
 
-    if protocol_events_locked.count()>1:
-        err = {"messages": "Can't delete the protocol event as >1 events changed the remaining quantity!"}
-        return validation_error_response(err)
+    # if protocol_events_locked.count()>1:
+    #     err = {"messages": "Can't delete the protocol event as >1 events changed the remaining quantity!"}
+    #     return validation_error_response(err)
 
     msgs = []
     protocol_type = ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
