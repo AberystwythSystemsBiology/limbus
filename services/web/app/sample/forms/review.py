@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
+from wtforms.validators import DataRequired, Optional
 from wtforms import (
     SelectField,
     StringField,
@@ -56,6 +57,7 @@ def SampleReviewForm(data={}):
         conducted_by = StringField(
             "Review Conducted By",
             description="Initials of the individual who undertook the Sample Review.",
+            validators=[DataRequired()],
         )
 
         comments = TextAreaField("Comments", description="Any relevant observations.")

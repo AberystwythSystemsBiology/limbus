@@ -93,6 +93,7 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
         # Step 5 update sample status
 
         remaining_quantity = sample_response.json()["content"]["remaining_quantity"]
+        sample_id = sample_response.json()["content"]["id"]
         protocolevent_values = {"event" : values["event"],
                   "protocol_id": values["protocol_id"],
                   "sample_id": sample_id,

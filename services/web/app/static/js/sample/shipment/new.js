@@ -16,10 +16,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_cart() {
-    var current_url = encodeURI(window.location);
-    var split_url = current_url.split("/");
-    var api_url = split_url.join("/") + "/data"
-    
+    // var current_url = encodeURI(window.location);
+    // var split_url = current_url.split("/");
+    // var api_url = split_url.join("/") + "/data"
+    var api_url = encodeURI(window.location.origin);
+    api_url += "/sample/shipment/new/data";
+    console.log("api_url", api_url);
     var json = (function () {
         var json = null;
         $.ajax({

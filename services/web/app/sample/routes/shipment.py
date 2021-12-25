@@ -24,6 +24,7 @@ from ..enums import SampleShipmentStatusStatus
 
 
 @sample.route("/shipment/cart")
+@sample.route("/user/cart")
 @login_required
 def shipment_cart():
     return render_template("sample/shipment/cart.html")
