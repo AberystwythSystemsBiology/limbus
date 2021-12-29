@@ -1,5 +1,3 @@
-# Copyright (C) 2020  Keiron O'Shea <keo7@aber.ac.uk>
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -262,6 +260,22 @@ def func_remove_sampletocustomattributedata(sample, msgs=[]):
             msgs.append(validation_error_response(err))
     return (success, msgs)
 
+
+def func_remove_sampletusercart(sample, msgs=[]):
+    success = True
+    stas = UserCart.query.filter_by(sample_id=sample.id).all()
+    if len(stas)>0:
+        try:
+            for sta in stas:
+                db.session.delete(sta)
+                db.session.flush()
+            msgs.append('Sample removed from user cart')
+        except ValidationError as err:
+            db.session.rollback()
+            success = False
+            msgs.append(validation_error_response(err))
+    return (success, msgs)
+
 def func_remove_sample(sample, msgs=[]):
     success = True
     if sample.is_locked:
@@ -454,6 +468,9 @@ def func_deep_remove_sample(sample, msgs=[]):
     if not success:
         return False, msgs
     (success, msgs) = func_remove_sampletocustomattributedata(sample, msgs)
+    if not success:
+        return False, msgs
+    (success, msgs) = func_remove_sampletusercart(sample, msgs)
     if not success:
         return False, msgs
 

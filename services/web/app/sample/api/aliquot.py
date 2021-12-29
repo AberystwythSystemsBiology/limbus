@@ -271,6 +271,16 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
                 db.session.rollback()
                 return transaction_error_response(err)
 
+        ucs = UserCart.query.filter_by(sample_id=sample.id).all()
+        if ucs:
+            try:
+                for uc in ucs:
+                    db.session.delete(uc)
+
+            except Exception as err:
+                db.session.rollback()
+                return transaction_error_response(err)
+
     try:
         db.session.commit()
         flash("Sample Aliquots Added Successfully!" + " Awaiting storage in user cart!!")
@@ -507,6 +517,17 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
                     #et.removed=True
                     #et.update({"editor_id": tokenuser.id})
                     #db.session.add(et)
+            except Exception as err:
+                db.session.rollback()
+                return transaction_error_response(err)
+
+        ucs = UserCart.query.filter_by(sample_id=sample.id).all()
+
+        if ucs:
+            try:
+                for uc in ucs:
+                    db.session.delete(uc)
+
             except Exception as err:
                 db.session.rollback()
                 return transaction_error_response(err)
