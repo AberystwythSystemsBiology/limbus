@@ -210,6 +210,14 @@ def edit_sample_basic_info(uuid):
         flash("Sample is locked!")
         return abort(sample_response.status_code)
 
+    print('sample', sample_response.text)
+
+    data = sample_response.json()["content"]
+    consent_id = data["consent_information"]["id"]
+
+    consent_ids = [];
+    if data["consent_information"]["donor_id"] is None:
+        consent_ids = [[consent_id, "LIMBDC-%s" %consent_id]]
 
     consent_response = requests.get(
         url_for("api.sample_get_consents", _external=True),
@@ -217,12 +225,8 @@ def edit_sample_basic_info(uuid):
     )
 
     if consent_response.status_code == 200:
-        consent_ids = []
         for consent in consent_response.json()["content"]:
             consent_ids.append([consent["id"], consent["label"]])
-    else:
-        flash("No consent info!")
-        return abort(consent_response.status_code)
 
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
@@ -236,9 +240,8 @@ def edit_sample_basic_info(uuid):
         flash("Error in getting site info!")
         return abort(sites_response.status_code)
 
-    data = sample_response.json()["content"]
-    data.update({"consent_id": data["consent_information"]["id"]})
 
+    data.update({"consent_id": consent_id}) #data["consent_information"]["id"]})
 
     form = EditBasicForm(consent_ids, collection_sites, data=data)
 

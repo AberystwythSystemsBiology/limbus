@@ -130,7 +130,7 @@ function fill_title(sample) {
 
     if (sample["source"] != "New") {
         var parent_html = '';
-        parent_html += '<a href="' + sample["parent"]["_links"]["self"] + '" target="_blank">'
+        parent_html += '<a href="' + sample["parent"]["_links"]["self"] + '" target="_self">';
         parent_html += '<i class="fas fa-vial"></i> ';
         parent_html += sample["parent"]["uuid"]
         parent_html += '</a>'

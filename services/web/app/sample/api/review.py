@@ -66,6 +66,9 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
         review_event_id=review_event.id
     ).first()
     event = Event.query.filter_by(id=review_event.event_id).first()
+    review_same_event = SampleReview.query.filter_by(event_id=event.id)
+    if review_same_event.count()>0:
+        review_event.event_id = None
 
     if disposal_instruction:
         if disposal_instruction.approved is not None:
@@ -87,8 +90,8 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
     try:
         db.session.delete(review_event)
         db.session.flush()
-        if event:
-            db.session.delete(event)
+        # if event:
+        #     db.session.delete(event)
         db.session.commit()
         message = "Review/disposal instruction successfully deleted! "
     except Exception as err:
@@ -99,7 +102,7 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
         tokenuser=tokenuser,
         auto_query=True,
         sample=sample,
-        events={"sample_disposal": None, "sample_review": None},
+        events={}, #"sample_disposal": None, "sample_review": None},
     )
 
     if res["success"]:
