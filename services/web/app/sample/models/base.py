@@ -163,6 +163,14 @@ class SampleDisposal(Base, RefAuthorMixin, RefEditorMixin):
         db.Integer, db.ForeignKey("sampleprotocolevent.id", use_alter=True)
     )
 
+    review_event = db.relationship(
+        "SampleReview", uselist=False
+    )
+    disposal_event = db.relationship(
+        "SampleProtocolEvent", uselist=False, #foreign_keys=disposal_event_id,
+        #backref="disposal_instruction"
+    )
+
 
 class SampleDisposalEvent(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}

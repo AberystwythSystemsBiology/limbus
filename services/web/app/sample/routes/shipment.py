@@ -30,6 +30,7 @@ def shipment_cart():
     return render_template("sample/shipment/cart.html")
 
 
+@sample.route("/cart/data")
 @sample.route("/shipment/cart/data")
 @sample.route("/shipment/new/data")
 @login_required
@@ -45,6 +46,19 @@ def shipment_cart_data():
         cart_response.headers.items(),
     )
 
+# @sample.route("/cart/data")
+# @login_required
+# def cart_data():
+#     cart_response = requests.get(
+#         url_for("api.get_cart_disposal", _external=True),
+#         headers=get_internal_api_header(),
+#     )
+#
+#     return (
+#         cart_response.text,
+#         cart_response.status_code,
+#         cart_response.headers.items(),
+#     )
 
 @sample.route("/shipment")
 @login_required

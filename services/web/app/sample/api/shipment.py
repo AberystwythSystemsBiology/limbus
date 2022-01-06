@@ -63,6 +63,7 @@ def get_cart(tokenuser: UserAccount):
     return success_with_content_response(user_cart_samples_schema.dump(cart))
 
 
+
 @api.route("/shipment/update_status/<uuid>", methods=["PUT"])
 @token_required
 def shipment_update_status(uuid: str, tokenuser: UserAccount):

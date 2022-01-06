@@ -173,7 +173,7 @@ def associate_review(uuid: str) -> str:
                     flash(new_review_event_response.json()["message"])
 
         return render_template(
-            "sample/associate/review.html",
+            "sample/review/review.html",
             sample=sample_response.json()["content"],
             form=form,
         )
@@ -201,29 +201,6 @@ def batch_review():
             )
             #return redirect(url_for("sample.view_cart", id=id))
             return render_template("sample/shipment/cart.html")
-
-        # disposal_info = {}
-
-        # try:
-        #     disposal_info = sample_response.json()["content"]["disposal_information"]
-        #
-        #     if disposal_info["instruction"] in ["DES", "TRA"]:
-        #         disposal_date = datetime.strptime(
-        #             disposal_info["disposal_date"], "%Y-%m-%d"
-        #         ).date()
-        #         print("disposal date: ", disposal_date)
-        #     else:
-        #         disposal_date = None
-        #
-        #     disposal_info = {
-        #         "disposal_edit_on": True,
-        #         "disposal_date": disposal_date,
-        #         "disposal_instruction": disposal_info["instruction"],
-        #         "disposal_comments": disposal_info["comments"],
-        #     }
-        #
-        # except:
-        #     pass
 
         form = SampleReviewForm() #data=disposal_info)
 
@@ -265,7 +242,7 @@ def batch_review():
                 else:
                     disposal_info["disposal_date"] = None
 
-                print("disposal date:", disposal_date)
+                # print("disposal date:", disposal_date)
 
                 review_info["disposal_info"] = disposal_info
                 new_review_event_response = requests.post(
@@ -296,16 +273,15 @@ def batch_review():
                 )
 
                 if new_review_event_response.status_code == 200:
-                    flash("Sample Review Successfully Added!")
-                    # flash(new_review_event_response.json()["message"])
+                    # flash("Sample Review Successfully Added!")
+                    flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.shipment_cart"))
 
                 else:
                     flash(new_review_event_response.json()["message"])
 
         return render_template(
-            "sample/associate/batch_review.html",
-            #sample=sample_response.json()["content"],
+            "sample/review/batch_review.html",
             form=form,
         )
 

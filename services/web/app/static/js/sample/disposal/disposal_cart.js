@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 function get_cart() {
     var api_url = encodeURI(window.location.origin);
-    api_url += "/sample/shipment/new/data";
+    api_url += "/sample/cart/data";
 
     var json = (function () {
         var json = null;
@@ -49,7 +49,7 @@ function fill_cart_table(cart) {
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
-            {targets: [3], visible: false, "defaultContent": ""},
+            {targets: [3,5,10], visible: false, "defaultContent": ""},
             {
                 targets: -1,
                 orderable: false,
@@ -83,6 +83,34 @@ function fill_cart_table(cart) {
                     }
 
                     return col_data
+                }
+            },
+
+            { // Disposal
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var disposal = data["sample"]["disposal_information"];
+                    if (disposal != null) {
+                        var disposal_date = disposal['disposal_date'];
+                        disposal_info = ['LIMBDSP-' + disposal['id'] + ": " + disposal_date, disposal["instruction"]].join(" | ");
+                        return disposal_info;
+                    }
+                    return "";
+                }
+            },
+
+            { // Linked review
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var disposal = data["sample"]['disposal_information'];
+                    var review_event = "";
+                    if (disposal != null) {
+                        review = disposal["review_event"];
+                        if ( review != undefined && review != null ) {
+                           review_event = "LIMBREV-"+[review["id"], review["result"], review["review_type"], review["quality"]].join(" | ");
+                        }
+                    }
+                    return review_event;
                 }
             },
 
@@ -185,7 +213,7 @@ function fill_cart_table(cart) {
                     }
                 }
             },
-            {//Action Column
+/*            {//Action Column
                 "mData": {},
                 "mRender": function (data, type, row) {
 
@@ -218,7 +246,7 @@ function fill_cart_table(cart) {
                     }
                     return actions
                 }
-            },
+            },*/
             {} //check-box column
         ],
 
@@ -242,7 +270,6 @@ function fill_cart_table(cart) {
                 res = data;
             }
         });
-
 
         if (rowData[0]["storage_type"] === "RUC") {
             serial_num = rowData[0]["sample"]["storage"]["rack"]["serial_number"];
@@ -290,10 +317,32 @@ function fill_cart_table(cart) {
     return table;
 }
 
+/*function checkDisposal(data) {
+  var disposal_instr = false;
+  try {
+      disposal_date = data["sample"]["disposal_info"]["disposal_date"];
+      disposal_instr =  (disposal_date != undefined && disposal_date != null);
+  } catch {
+      disposal_instr = false;
+  }
+  return disposal_instr;
+}
+
+function checkSelected(data) {
+    var selected = false;
+    try {
+        var selected = data["selected"];
+    } catch {
+        selected = false;
+    }
+    return selected;
+}*/
 
 $(document).ready(function () {
     var cart = get_cart();
     //console.log("cart:", cart);
+    //cart = cart.filter(checkSelected);
+    //cart = cart.filter(checkDisposal);
     table = fill_cart_table(cart);
     rows = table.rows();
     rows.every(function () {
@@ -301,4 +350,14 @@ $(document).ready(function () {
             this.select();
         }
     })
+
+    $("#form-check").on("input", function(){
+        var num_selected = table.rows( { selected: true } ).count();
+        if (num_selected == $(this).val()) {
+            $("#submit").prop('disabled', false)
+        }
+        else {
+            $("#submit").prop('disabled', true)
+        }
+    });
 });

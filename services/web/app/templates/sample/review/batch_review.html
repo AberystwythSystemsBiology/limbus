@@ -3,14 +3,15 @@
 {% block title %}Sample Review :: Sample Acquisition Portal{% endblock %}
 
 {% block body %}
-{#<div class="jumbotron">
+<div class="jumbotron">
     <div class="container">
         <h1><span class="secondary-heading">
-            <a href="{{ sample._links.self }}">
-                <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
-        <i class="fas fa-file"></i> New Review </h1>
+            <a href="{{ url_for('sample.shipment_cart') }}">
+            <i class="fa fa-shopping-cart"></i> My Samples Cart
+            </a></span>
+        <i class="fa fa-trash"></i> Batch Sample Review </h1>
     </div>
-</div>#}
+</div>
 <div class="container">
     <div class="row">
         <div class="col-3">

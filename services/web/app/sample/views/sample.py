@@ -15,6 +15,7 @@
 
 from ...database import Sample, SampleProtocolEvent, SubSampleToSample
 from ...event.views import EventSchema
+from ..views import BasicSampleDisposalSchema, SampleDisposalSchema
 from ...protocol.views import BasicProtocolTemplateSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...extensions import ma
@@ -130,6 +131,53 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
 
+class BasicDisposalSampleSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    id = masql.auto_field()
+    is_locked = masql.auto_field()
+    uuid = masql.auto_field()
+    consent_information = ma.Nested(BasicConsentSchema, many=False)
+    base_type = EnumField(SampleBaseType, by_value=True)
+    quantity = masql.auto_field()
+    remaining_quantity = masql.auto_field()
+    status = EnumField(SampleStatus, by_value=True)
+
+    colour = EnumField(Colour, by_value=True)
+    source = EnumField(SampleSource, by_value=True)
+    created_on = ma.Date()
+    parent = ma.Nested(SampleUUIDSchema, many=False)
+
+    sample_type_information = ma.Nested(SampleTypeSchema)
+    storage = ma.Nested(EntityToStorageSchema, many=False)
+
+    barcode = masql.auto_field()
+    disposal_information = ma.Nested(SampleDisposalSchema, many=False)
+    #disposal_event = ma.Nested(SampleDiposalSchema, many=False)
+
+    _links = ma.Hyperlinks(
+        {
+            "add_sample_to_cart": ma.URLFor(
+                "sample.add_sample_to_cart", uuid="<uuid>", _external=True
+            ),
+            "remove_sample_from_cart": ma.URLFor(
+                "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
+            ),
+            "remove_rack_from_cart": ma.URLFor(
+                "sample.remove_rack_from_cart", id="<storage.rack_id>", _external=True
+            ),
+            "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "collection": ma.URLFor("sample.index", _external=True),
+            "barcode_generation": ma.URLFor(
+                "api.misc_generate_barcode", _external=True
+            ),
+        }
+    )
+
+
+basic_disposal_sample_schema = BasicDisposalSampleSchema()
+basic_disposal_samples_schema = BasicDisposalSampleSchema(many=True)
 
 class SampleSchema(masql.SQLAlchemySchema):
     class Meta:

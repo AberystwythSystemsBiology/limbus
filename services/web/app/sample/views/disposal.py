@@ -14,15 +14,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from ...extensions import ma
-from ...database import SampleDisposal, SampleDisposalEvent
-
-from ...consent.views import (
-    BasicConsentFormQuestionSchema,
-    BasicConsentFormTemplateSchema,
-)
+from ...database import SampleDisposal, SampleDisposalEvent, SampleReview
 
 from ..enums import DisposalInstruction, DisposalReason
 from ...event.views import NewEventSchema, EventSchema
+from ..views import SampleReviewSchema, SampleProtocolEventSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
@@ -49,7 +45,7 @@ class BasicSampleDiposalEventSchema(masql.SQLAlchemySchema):
     event = ma.Nested(NewEventSchema)
     reason = EnumField(DisposalReason)
     sample_id = masql.auto_field()
-
+    protocol_event_id = masql.auto_field()
 
 basic_sample_disposal_event_schema = BasicSampleDiposalEventSchema()
 
@@ -63,7 +59,6 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
     disposal_date = masql.auto_field()
-
 
 basic_disposal_schema = BasicSampleDisposalSchema()
 
@@ -81,4 +76,20 @@ class NewSampleDisposalSchema(masql.SQLAlchemySchema):
 
 new_sample_disposal_schema = NewSampleDisposalSchema()
 
-# TODO view on details for sample disposal
+
+class SampleDisposalSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = SampleDisposal
+
+    id = masql.auto_field()
+    sample_id = masql.auto_field()
+    instruction = EnumField(DisposalInstruction, by_value=True)
+    comments = masql.auto_field()
+    disposal_date = masql.auto_field()
+    review_event_id = masql.auto_field()
+    approval_event_id = masql.auto_field()
+    #disposal_event_id = masql.auto_field()
+    review_event = ma.Nested(SampleReviewSchema)
+    disposal_event = ma.Nested(SampleProtocolEventSchema)
+
+sample_disposal_schema = SampleDisposalSchema()
