@@ -90,7 +90,6 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
     fixation_type = EnumField(FixationType, by_value=True)
     cellular_container = EnumField(CellContainer, by_value=True)
 
-    #author = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
 
 

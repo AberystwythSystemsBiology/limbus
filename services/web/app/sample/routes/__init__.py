@@ -17,8 +17,6 @@ from .. import sample
 from flask import render_template, url_for, abort
 from flask_login import login_required
 
-from ...misc import get_internal_api_header
-
 from ..forms import SampleFilterForm
 
 import requests
@@ -100,4 +98,3 @@ from .review import *
 from .attribute import *
 from .dispose import *
 from .shipment import *
-from .audit import *
