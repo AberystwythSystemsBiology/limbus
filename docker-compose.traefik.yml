@@ -1,0 +1,48 @@
+version: '2.4'
+services:
+  limbus-web:
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/web/:/limbus/
+    ports:
+      - 5000
+    depends_on:
+      - db
+    env_file:
+      .env
+    restart: unless-stopped
+    command: python3 /limbus/run.py
+    networks:
+      - proxy
+      - limbus-internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.limbus.rule=Host(`limbus.keiron.xyz`)"
+      - "traefik.http.routers.limbus.tls=true"
+      - "treafik.port=5000"
+      - "traefik.http.routers.limbus.entrypoints=websecure"
+      - "traefik.http.routers.limbus.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.limbus.headers.SSLRedirect=true"
+      - "traefik.http.middlewares.limbus.headers.browserXSSFilter=true"
+      - "traefik.http.middlewares.limbus.headers.STSPreload=true"
+  db:
+    image: postgres:10
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks: 
+        - limbus-internal
+    restart: unless-stopped
+
+
+volumes:
+  postgres_data:
+
+networks:
+  proxy:
+    driver: bridge
+    name: proxy 
+  limbus-internal:
+    internal: true
