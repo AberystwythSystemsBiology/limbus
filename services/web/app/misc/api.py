@@ -149,6 +149,7 @@ def get_data(tokenuser: UserAccount):
                         func.date_trunc("day", Sample.created_on), func.count(Sample.id)
                     )
                     .group_by(func.date_trunc("day", Sample.created_on))
+                    .order_by(func.date_trunc("day", Sample.created_on))
                     .all()
                 ]
             ),
