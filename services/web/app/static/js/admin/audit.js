@@ -79,6 +79,14 @@ function render_audit_table(trails, div_id) {
                             var name = [data["editor"]["first_name"], data["editor"]["last_name"]].join(" ");
                             return "["+data["editor"]["id"]+"] " + data["editor"]["email"] + ": " + name;
                         } catch {
+                            if (data["operation_type"] == undefined) {
+                                try {
+                                    var name = [data["author"]["first_name"], data["author"]["last_name"]].join(" ");
+                                    return "["+data["author"]["id"]+"] " + data["author"]["email"] + ": " + name;
+                                } catch {
+                                    return "";
+                                }
+                            }
                             return "";
                         }
                     };

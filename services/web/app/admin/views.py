@@ -500,7 +500,8 @@ class AuditBasicSampleDisposalSchema(masql.SQLAlchemySchema):
 
 class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = version_class(EntityToStorage)
+        #model = version_class(EntityToStorage)
+        model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
@@ -518,14 +519,15 @@ class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
-    transaction_id = masql.auto_field()
-    end_transaction_id = masql.auto_field()
+    # operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    # transaction_id = masql.auto_field()
+    # end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
 
 class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        model = version_class(EntityToStorage)
+        #model = version_class(EntityToStorage)
+        model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
@@ -542,9 +544,9 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field()
-    transaction_id = masql.auto_field()
-    end_transaction_id = masql.auto_field()
+    # operation_type = masql.auto_field()
+    # transaction_id = masql.auto_field()
+    # end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
 
 audit_basic_entitytostorage_schema = AuditBasicEntityToStorageSchema()

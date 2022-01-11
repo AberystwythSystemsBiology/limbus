@@ -298,6 +298,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except Exception as err:
                     return transaction_error_response(err)
 
+
     # Postgres dialect, prefetch the id for batch insert
     identities = [
         val
@@ -306,7 +307,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             "generate_series(1,%s)" % len(stb_batch)
         )
     ]
-    # print("identities: ", identities)
+    print("identities: ", identities)
     for stb_id, new_stb in zip(identities, stb_batch):
         new_stb.id = stb_id
 
