@@ -45,7 +45,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     id = masql.auto_field()
     reduced_quantity = masql.auto_field()
-    #author = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
     event = ma.Nested(EventSchema)
     created_on = ma.Date()
@@ -62,6 +62,7 @@ class SampleProtocolEventSchema(masql.SQLAlchemySchema):
             ),
         }
     )
+
 
 sample_protocol_event_schema = SampleProtocolEventSchema()
 sample_protocol_events_schema = SampleProtocolEventSchema(many=True)
@@ -93,6 +94,7 @@ class DonorProtocolEventSchema(masql.SQLAlchemySchema):
     #     }
     # )
 
+
 donor_protocol_event_schema = DonorProtocolEventSchema()
 donor_protocol_events_schema = DonorProtocolEventSchema(many=True)
 
@@ -107,6 +109,7 @@ class BasicDonorProtocolEventSchema(masql.SQLAlchemySchema):
     donor_id = masql.auto_field()
     reference_id = masql.auto_field()
     protocol = ma.Nested(BasicProtocolTemplateSchema)
+
 
 basic_donor_protocol_event_schema = BasicDonorProtocolEventSchema()
 basic_donor_protocol_events_schema = BasicDonorProtocolEventSchema(many=True)

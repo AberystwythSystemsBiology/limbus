@@ -84,11 +84,26 @@ def func_get_samples_choices(samples: list):
             metric = "Cells"
         else:
             metric = "ml"
-        qty_info = "%s/%s %s"%(sample["remaining_quantity"], sample["quantity"], metric)
-        if sample["barcode"] and sample["barcode"]!= "":
-            sample_label = "%s: %s %s %s [%s]" % (sample["barcode"], sample_type, qty_info, container_type, sample["uuid"])
+        qty_info = "%s/%s %s" % (
+            sample["remaining_quantity"],
+            sample["quantity"],
+            metric,
+        )
+        if sample["barcode"] and sample["barcode"] != "":
+            sample_label = "%s: %s %s %s [%s]" % (
+                sample["barcode"],
+                sample_type,
+                qty_info,
+                container_type,
+                sample["uuid"],
+            )
         else:
-            sample_label = "%s %s %s [%s]" % (sample_type, qty_info, container_type, sample["uuid"])
+            sample_label = "%s %s %s [%s]" % (
+                sample_type,
+                qty_info,
+                container_type,
+                sample["uuid"],
+            )
 
         samples_choices.append([int(sample["id"]), sample_label])
     return samples_choices
@@ -96,29 +111,36 @@ def func_get_samples_choices(samples: list):
 
 class AddressForm(FlaskForm):
     address_id = HiddenField()
-    country_choices = [(country.alpha_2, country.name) for country in pycountry.countries]
-    street_address_one = StringField("Address Line1", validators=[Optional()],
-                                     render_kw={"class":"form-control bd-light"}
+    country_choices = [
+        (country.alpha_2, country.name) for country in pycountry.countries
+    ]
+    street_address_one = StringField(
+        "Address Line1",
+        validators=[Optional()],
+        render_kw={"class": "form-control bd-light"},
     )
-    street_address_two = StringField("Address Line2",
-                                     render_kw={"class":"form-control bd-light"}
-                                     )
-    city = StringField("Town/City", validators=[Optional()],
-                                     render_kw={"class":"form-control bd-light"}
-                       )
-    county = StringField("County", validators=[Optional()],
-                                     render_kw={"class":"form-control bd-light"}
-                         )
+    street_address_two = StringField(
+        "Address Line2", render_kw={"class": "form-control bd-light"}
+    )
+    city = StringField(
+        "Town/City",
+        validators=[Optional()],
+        render_kw={"class": "form-control bd-light"},
+    )
+    county = StringField(
+        "County", validators=[Optional()], render_kw={"class": "form-control bd-light"}
+    )
     country = SelectField(
         "Country",
         validators=[Optional()],
-        default = "GB",
+        default="GB",
         choices=country_choices,
-        render_kw={"class":"form-control bd-light"}
+        render_kw={"class": "form-control bd-light"},
     )
     post_code = StringField(
-        "Post Code", validators=[Optional(), post_code_validator],
-        render_kw={"class":"form-control bd-light"}
+        "Post Code",
+        validators=[Optional(), post_code_validator],
+        render_kw={"class": "form-control bd-light"},
     )
 
     is_default = BooleanField("Set as default")
@@ -129,14 +151,15 @@ class AddressForm(FlaskForm):
             return False
         fields_required = ["street_address_one", "city", "country", "post_code"]
         success = True
-        if( self.address_id.data in [None, ""]) and self.delete.data is False:
+        if (self.address_id.data in [None, ""]) and self.delete.data is False:
             for field in fields_required:
                 value = getattr(getattr(self, field, None), "data", None)
                 if value in [None, ""]:
                     err = getattr(getattr(self, field, None), "errors", None)
-                    err.append("%s required." %field)
+                    err.append("%s required." % field)
                     success = False
         return success
+
 
 def SiteAddressEditForm(data={}, num_entries=None) -> FlaskForm:
     if num_entries is None or num_entries <= 0:
@@ -162,18 +185,19 @@ def SiteAddressEditForm(data={}, num_entries=None) -> FlaskForm:
                 checked = "checked"
         except:
             pass
-        is_external = BooleanField("Is External", render_kw={"checked":  checked})
+        is_external = BooleanField("Is External", render_kw={"checked": checked})
 
-        addresses = FieldList(FormField(AddressForm), min_entries= num_entries)
+        addresses = FieldList(FormField(AddressForm), min_entries=num_entries)
 
         submit = SubmitField("Save")
-
 
     return StaticForm(data=data)
 
 
 def SiteEditForm(data={}) -> FlaskForm:
-    country_choices = [(country.alpha_2, country.name) for country in pycountry.countries]
+    country_choices = [
+        (country.alpha_2, country.name) for country in pycountry.countries
+    ]
 
     class StaticForm(FlaskForm):
         name = StringField("Site Name", validators=[DataRequired()])
@@ -193,7 +217,7 @@ def SiteEditForm(data={}) -> FlaskForm:
         country = SelectField(
             "Country",
             validators=[DataRequired()],
-            default = "GB",
+            default="GB",
             choices=country_choices,
         )
         post_code = StringField(
@@ -207,7 +231,7 @@ def SiteEditForm(data={}) -> FlaskForm:
         except:
             pass
 
-        is_external = BooleanField("Is External", render_kw={"checked":  checked})
+        is_external = BooleanField("Is External", render_kw={"checked": checked})
         submit = SubmitField("Save")
 
     return StaticForm(data=data)
@@ -215,7 +239,7 @@ def SiteEditForm(data={}) -> FlaskForm:
 
 def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices = func_get_samples_choices(samples)
-    samples_choices.insert(0, [0, '--- Select a samples ---'])
+    samples_choices.insert(0, [0, "--- Select a samples ---"])
 
     class StaticForm(FlaskForm):
 
@@ -228,7 +252,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
-            validators = [DataRequired()]
+            validators=[DataRequired()],
         )
 
         submit = SubmitField("Submit")
@@ -250,7 +274,7 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
 
 def SamplesToEntityForm(samples: list) -> FlaskForm:
     samples_choices = func_get_samples_choices(samples)
-    samples_choices.insert(0, [0, '--- Select at least one samples ---'])
+    samples_choices.insert(0, [0, "--- Select at least one samples ---"])
 
     class StaticForm(FlaskForm):
         date = DateField(
@@ -262,7 +286,7 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
-            validators=[DataRequired()]
+            validators=[DataRequired()],
         )
         submit = SubmitField("Submit")
 

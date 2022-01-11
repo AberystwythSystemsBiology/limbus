@@ -56,6 +56,7 @@ class NewSampleToSampleRackSchema(masql.SQLAlchemySchema):
     entry = masql.auto_field()
     entry_datetime = masql.auto_field()
 
+
 new_sample_to_sample_rack_schema = NewSampleToSampleRackSchema()
 
 
@@ -82,7 +83,7 @@ class SampleRackSchema(masql.SQLAlchemySchema):
     num_rows = masql.auto_field()
     num_cols = masql.auto_field()
     colour = EnumField(Colour, by_value=True)
-    #author = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
     entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema, many=True)
@@ -113,7 +114,6 @@ class SampleRackSchema(masql.SQLAlchemySchema):
                 id="<id>",
                 _external=True,
             ),
-
             "edit_samples_pos": ma.URLFor(
                 "storage.edit_rack_samples_pos",
                 id="<id>",

@@ -23,7 +23,7 @@ from wtforms import (
     BooleanField,
     DecimalField,
     DateField,
-    #TimeField,
+    # TimeField,
     IntegerField,
     TextAreaField,
     HiddenField,
@@ -59,8 +59,7 @@ from flask import url_for
 from ..misc import get_internal_api_header
 
 
-def DonorFilterForm(sites: list, data:{}) -> FlaskForm:
-
+def DonorFilterForm(sites: list, data: {}) -> FlaskForm:
     class StaticForm(FlaskForm):
         sex = SelectField(
             "Biological Sex",
@@ -78,12 +77,12 @@ def DonorFilterForm(sites: list, data:{}) -> FlaskForm:
         StaticForm,
         "enrollment_site_id",
         SelectField(
-            "Site", choices=sites,
+            "Site",
+            choices=sites,
         ),
     )
 
     return StaticForm()
-
 
 
 class DoidValidatingSelectField(SelectField):
@@ -117,7 +116,7 @@ def DonorSampleAssociationForm(samples: dict):
     # for sample in samples:
     #     sample_choices.append([sample["id"], sample["uuid"]])
 
-    sample_choices = [[0, '--- Select one sample ---']]
+    sample_choices = [[0, "--- Select one sample ---"]]
     for sample in samples:
         type_info = sample.pop("sample_type_information", "")
         sample_type = func_label_sample_type(type_info)
@@ -148,9 +147,7 @@ def DonorCreationForm(sites: dict, data={}):
         year = SelectField("Year", choices=[(str(x), x) for x in range(2020, 1899, -1)])
 
         sex = SelectField(
-            "Biological Sex",
-            choices=BiologicalSexTypes.choices(),
-            default="UNK"
+            "Biological Sex", choices=BiologicalSexTypes.choices(), default="UNK"
         )
 
         mpn = StringField("Master Patient Number")
@@ -166,11 +163,7 @@ def DonorCreationForm(sites: dict, data={}):
         weight = StringField("Weight (kg)", default="")
         height = StringField("Height (cm)", default="")
 
-        race = SelectField(
-            "Race",
-            choices=RaceTypes.choices(),
-            default="UNK"
-        )
+        race = SelectField("Race", choices=RaceTypes.choices(), default="UNK")
 
         site = SelectField(
             "Site",
@@ -211,7 +204,6 @@ def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
     return StaticForm()
 
 
-
 class DonorStudyRegistrationForm(FlaskForm):
     class Meta:
         csrf = False
@@ -223,7 +215,7 @@ class DonorStudyRegistrationForm(FlaskForm):
     )
     date = DateField(
         "Date of donor registration/consent",
-        validators = [DataRequired()],
+        validators=[DataRequired()],
         default=datetime.today(),
     )
 
@@ -236,8 +228,7 @@ class DonorStudyRegistrationForm(FlaskForm):
     )
 
 
-def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
-
+def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
     class StaticForm(FlaskForm):
 
         template_name = TextAreaField("template_name")
@@ -274,9 +265,14 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
             if not FlaskForm.validate(self):
                 return False
 
-            if self.study_select.data and self.study_select.data>0:
-                if self.study.reference_id.data=="" or self.study.reference_id.data is None:
-                    self.study.reference_id.errors.append("Participant ID required if study selected")
+            if self.study_select.data and self.study_select.data > 0:
+                if (
+                    self.study.reference_id.data == ""
+                    or self.study.reference_id.data is None
+                ):
+                    self.study.reference_id.errors.append(
+                        "Participant ID required if study selected"
+                    )
                     return False
 
             return True
@@ -290,9 +286,8 @@ def ConsentQuestionnaire(study_protocols: list, data={})-> FlaskForm:
             str(question["id"]),
             BooleanField(
                 question["question"],
-                render_kw={"question_type": question["type"], "checked":  checked},
+                render_kw={"question_type": question["type"], "checked": checked},
             ),
-
         )
 
     return StaticForm(data=data)
@@ -339,6 +334,7 @@ class ConsentAnswerForm(FlaskForm):
 #         )
 #
 #     return StaticForm(data)
+
 
 class ConsentSelectForm(FlaskForm):
     consent_id = SelectField("Select Consent ID", coerce=int)

@@ -37,6 +37,7 @@ class UserAccountSearchSchema(masql.SQLAlchemySchema):
 user_account_search_schema = UserAccountSearchSchema()
 user_accounts_search_schema = UserAccountSearchSchema(many=True)
 
+
 class UserAccountSettingSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -46,7 +47,8 @@ class UserAccountSettingSchema(masql.SQLAlchemySchema):
     first_name = masql.auto_field()
     last_name = masql.auto_field()
     site_id = masql.auto_field()
-    settings =  masql.auto_field()
+    settings = masql.auto_field()
+
 
 user_account_setting_schema = UserAccountSettingSchema()
 user_accounts_setting_schema = UserAccountSettingSchema(many=True)
@@ -63,7 +65,6 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
     last_name = masql.auto_field()
 
     account_type = EnumField(AccountType, by_value=True)
-
 
     created_on = ma.Date()
 
@@ -119,10 +120,10 @@ class EditUserAccountSchema(masql.SQLAlchemySchema):
     last_name = masql.auto_field(required=False)
     settings = masql.auto_field()
 
+
 edit_user_account_schema = EditUserAccountSchema()
 
 from ..misc.views import basic_site_schema
-
 
 
 class AdminEditUserAccountSchema(masql.SQLAlchemySchema):
@@ -140,6 +141,7 @@ class AdminEditUserAccountSchema(masql.SQLAlchemySchema):
     access_control = masql.auto_field(required=False)
     settings = masql.auto_field(required=False)
     site_id = masql.auto_field(required=False)
+
 
 admin_edit_user_account_schema = AdminEditUserAccountSchema()
 

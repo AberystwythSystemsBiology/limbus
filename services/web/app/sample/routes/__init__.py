@@ -33,8 +33,8 @@ def index() -> str:
     sites = []
     user_site_id = None
     if sites_response.status_code == 200:
-        sites = sites_response.json()["content"]['choices']
-        user_site_id = sites_response.json()["content"]['user_site_id']
+        sites = sites_response.json()["content"]["choices"]
+        user_site_id = sites_response.json()["content"]["user_site_id"]
 
     sampletype_response = requests.get(
         url_for("api.sampletype_data", _external=True),
@@ -44,7 +44,7 @@ def index() -> str:
     sampletypes = []
     if sampletype_response.status_code == 200:
         # print("sampletype_response.json()", sampletype_response.json())
-        stypes = sampletype_response.json()["content"]['sampletype_choices']
+        stypes = sampletype_response.json()["content"]["sampletype_choices"]
         for opt in stypes["FLU"]:
             sampletypes.append(["fluid_type:" + opt[0], opt[1]])
         for opt in stypes["MOL"]:
@@ -52,8 +52,12 @@ def index() -> str:
         for opt in stypes["CEL"]:
             sampletypes.append(["cellular_type:" + opt[0], opt[1]])
 
-    form = SampleFilterForm(sites, sampletypes, data={'current_site_id': user_site_id})
-    return render_template("sample/index.html", form=form, sampletotype=sampletype_response.json()["content"])
+    form = SampleFilterForm(sites, sampletypes, data={"current_site_id": user_site_id})
+    return render_template(
+        "sample/index.html",
+        form=form,
+        sampletotype=sampletype_response.json()["content"],
+    )
 
 
 @sample.route("/query", methods=["POST"])
@@ -87,7 +91,7 @@ def get_sampletotypes():
     if sampletype_response.status_code == 200:
         return sampletype_response.json()
 
-    return {"content":None, "success": False}
+    return {"content": None, "success": False}
 
 
 from .add import *

@@ -25,7 +25,7 @@ from ..forms import (
     SampleToDocumentAssociatationForm,
     SampleReviewForm,
     ProtocolEventForm,
-    EditBasicForm
+    EditBasicForm,
 )
 
 from ..enums import BiohazardLevel, Colour
@@ -39,7 +39,7 @@ def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
 
-@sample.route("<uuid>/cart/add", methods=["POST","PUT"])
+@sample.route("<uuid>/cart/add", methods=["POST", "PUT"])
 @login_required
 def add_sample_to_cart(uuid):
     sample_response = requests.get(
@@ -79,7 +79,6 @@ def add_samples_to_cart():
         return to_cart_response.json()
 
     return to_cart_response.json()
-
 
 
 @sample.route("samples_shipment_to_cart", methods=["POST"])
@@ -192,8 +191,6 @@ def associate_document(uuid):
     return abort(sample_response.status_code)
 
 
-
-
 @sample.route("<uuid>/edit/basic_info", methods=["GET", "POST"])
 @login_required
 def edit_sample_basic_info(uuid):
@@ -210,14 +207,14 @@ def edit_sample_basic_info(uuid):
         flash("Sample is locked!")
         return abort(sample_response.status_code)
 
-    print('sample', sample_response.text)
+    print("sample", sample_response.text)
 
     data = sample_response.json()["content"]
     consent_id = data["consent_information"]["id"]
 
-    consent_ids = [];
+    consent_ids = []
     if data["consent_information"]["donor_id"] is None:
-        consent_ids = [[consent_id, "LIMBDC-%s" %consent_id]]
+        consent_ids = [[consent_id, "LIMBDC-%s" % consent_id]]
 
     consent_response = requests.get(
         url_for("api.sample_get_consents", _external=True),
@@ -233,15 +230,14 @@ def edit_sample_basic_info(uuid):
     )
 
     if sites_response.status_code == 200:
-        collection_sites = [];
+        collection_sites = []
         for site in sites_response.json()["content"]:
             collection_sites.append([site["id"], site["name"]])
     else:
         flash("Error in getting site info!")
         return abort(sites_response.status_code)
 
-
-    data.update({"consent_id": consent_id}) #data["consent_information"]["id"]})
+    data.update({"consent_id": consent_id})  # data["consent_information"]["id"]})
 
     form = EditBasicForm(consent_ids, collection_sites, data=data)
 
@@ -254,7 +250,7 @@ def edit_sample_basic_info(uuid):
             "quantity": form.quantity.data,
             # "remaining_quantity": remaining_quantity
             "consent_id": form.consent_id.data,
-            "site_id": form.site_id.data
+            "site_id": form.site_id.data,
         }
         response = requests.put(
             url_for("api.sample_edit_basic_info", uuid=uuid, _external=True),
@@ -263,9 +259,10 @@ def edit_sample_basic_info(uuid):
         )
 
         if response.status_code == 200:
-            flash(response.json()["message"] +
-                  "  Sample collection information successfully edited!"
-                  )
+            flash(
+                response.json()["message"]
+                + "  Sample collection information successfully edited!"
+            )
 
         else:
             flash(response.json()["message"])
@@ -277,8 +274,6 @@ def edit_sample_basic_info(uuid):
         sample=sample_response.json()["content"],
         form=form,
     )
-
-
 
 
 @sample.route("<uuid>/data", methods=["GET"])
@@ -326,16 +321,17 @@ def remove_sample(uuid: str):
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            #return redirect(url_for("sample.index"))
+            # return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            #return redirect(url_for("sample.view", uuid=uuid))
+            # return redirect(url_for("sample.view", uuid=uuid))
 
-        return (remove_response.json())
+        return remove_response.json()
 
     flash(sample_response.json()["message"])
-    return(sample_response.json())
-    #return redirect(url_for("sample.view", uuid=uuid))
+    return sample_response.json()
+    # return redirect(url_for("sample.view", uuid=uuid))
+
 
 @sample.route("<uuid>/deep_remove", methods=["GET", "POST"])
 @login_required
@@ -353,13 +349,13 @@ def deep_remove_sample(uuid: str):
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            #return redirect(url_for("sample.index"))
+            # return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            #return redirect(url_for("sample.view", uuid=uuid))
+            # return redirect(url_for("sample.view", uuid=uuid))
 
-        return (remove_response.json())
+        return remove_response.json()
 
     flash(sample_response.json()["message"])
-    return (sample_response.json())
-    #return redirect(url_for("sample.view", uuid=uuid))
+    return sample_response.json()
+    # return redirect(url_for("sample.view", uuid=uuid))

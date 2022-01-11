@@ -22,6 +22,7 @@ from ..forms import AuditFilterForm
 from datetime import datetime
 from ..enums import *
 
+
 @admin.route("/audit/index", methods=["GET", "POST"])
 @login_required
 def audit_index():
@@ -33,12 +34,11 @@ def audit_index():
 
     sites = []
     if sites_response.status_code == 200:
-        sites = sites_response.json()["content"]['choices']
+        sites = sites_response.json()["content"]["choices"]
         # print("sites", sites)
 
-
     sites.append((99999, "Bots"))
-    users_by_site = {s[0]:[] for s in sites}
+    users_by_site = {s[0]: [] for s in sites}
     sites_dict = {s[0]: s[1] for s in sites}
 
     auth_response = requests.get(
@@ -56,17 +56,21 @@ def audit_index():
             else:
                 site_id = 99999
 
-            user_label = "|".join([
-                user["email"], user["account_type"],
-                user["first_name"] + " " + user["last_name"],
-            ])
+            user_label = "|".join(
+                [
+                    user["email"],
+                    user["account_type"],
+                    user["first_name"] + " " + user["last_name"],
+                ]
+            )
 
-            users.append((user["id"], user_label + "["+sites_dict[site_id]+"]"))
-            #users_by_site[site_id].append((user["id"], user_label))
-
+            users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
+            # users_by_site[site_id].append((user["id"], user_label))
 
     form = AuditFilterForm(sites, users)
-    return render_template("admin/audit/index.html", form=form) #, users_by_site=users_by_site)
+    return render_template(
+        "admin/audit/index.html", form=form
+    )  # , users_by_site=users_by_site)
 
 
 @admin.route("/audit/query", methods=["POST"])
@@ -74,7 +78,7 @@ def audit_index():
 def audit_query():
     args = request.json
     start_date = args.pop("start_date", datetime.today())
-    end_date=args.pop("end_date", datetime.today())
+    end_date = args.pop("end_date", datetime.today())
 
     args["start_date"] = start_date
     args["end_date"] = end_date

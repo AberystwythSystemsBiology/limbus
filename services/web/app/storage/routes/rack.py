@@ -44,7 +44,7 @@ from ..forms import (
     SamplesToEntityForm,
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
-    UpdateRackFileUploadForm
+    UpdateRackFileUploadForm,
 )
 from datetime import datetime
 
@@ -76,6 +76,7 @@ def rack_index():
 
     return abort(response.status_code)
 
+
 @storage.route("/rack/endpoint")
 @login_required
 def rack_endpoint():
@@ -87,6 +88,7 @@ def rack_endpoint():
     if response.status_code == 200:
         return response.json()
     return response.content
+
 
 # @storage.route("/rack/endpoint_tokenuser")
 # @login_required
@@ -100,6 +102,7 @@ def rack_endpoint():
 #     if response.status_code == 200:
 #         return response.json()
 #     return response.content
+
 
 @storage.route("/rack/info")
 @login_required
@@ -140,25 +143,26 @@ def rack_manual_entry():
         )
 
         if response.status_code == 200:
-            flash("Sample Rack Added! Next: Assign the new rack to a cold storage shelf!!!")
-            #return redirect(url_for("storage.rack_index"))
+            flash(
+                "Sample Rack Added! Next: Assign the new rack to a cold storage shelf!!!"
+            )
+            # return redirect(url_for("storage.rack_index"))
             rack_id = response.json()["content"]["id"]
             return redirect(url_for("storage.edit_rack", id=rack_id))
-
 
     return render_template("storage/rack/new/manual/new.html", form=form)
 
 
-
 def alpha2num(s):
     if s.isdigit():
-        return (s)
+        return s
     # Only the first letter will be used
     s = s.lower()
     num = 0
     for i in range(len(s)):
         num = num + (ord(s[-(i + 1)]) - 96) * (26 * i + 1)
-    return (num)
+    return num
+
 
 def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
 
@@ -170,9 +174,9 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             reads = request.files[csvfile].read().decode().strip()
         except:
             return {
-            "success": False,
-            "message": "File reading error! Make sure the file is in csv format!"
-        }
+                "success": False,
+                "message": "File reading error! Make sure the file is in csv format!",
+            }
 
     if reads.startswith("'") and reads.endswith("'"):
         reads = reads[1:-1]
@@ -183,21 +187,26 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     expected_uuid = ["identifier", "uuid"]
     expected_pos = ["tube position", "position", "pos"]
     resplit = re.compile(",")
-    for linesep in ["\n","\r\n","\r"]:
+    for linesep in ["\n", "\r\n", "\r"]:
         csvdata = reads.split(linesep)
         # print("csvdata", csvdata)
         # - check header
-        if len(csvdata)<2:
+        if len(csvdata) < 2:
             continue
 
-        header = [nm.lower().replace('"', '').replace("'", '') for nm in resplit.split(csvdata[0])]
+        header = [
+            nm.lower().replace('"', "").replace("'", "")
+            for nm in resplit.split(csvdata[0])
+        ]
 
         res = list(set.intersection(*map(set, [header, expected_pos])))
         if len(res) == 0:
             continue
 
-        res = list(set.intersection(*map(set, [header, (expected_barcode + expected_uuid)])))
-        if len(res)==0:
+        res = list(
+            set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
+        )
+        if len(res) == 0:
             continue
 
         # if len(csvdata) != nrow * ncol + 1:
@@ -205,7 +214,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         csv_data = []
         for row in csvdata:
             row = row.split(",")
-            row = [r.replace('"', '').replace("'", '').replace(",", "") for r in row]
+            row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
             csv_data.append(row)
 
         if len(csv_data) >= 2:
@@ -214,11 +223,11 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     if len(csv_data) < 2:
         return {
             "success": False,
-            "message": "File reading error! Check if the file format is comma separated, with headers"
+            "message": "File reading error! Check if the file format is comma separated, with headers",
         }
 
     # print("nrows, Header", len(csv_data[0]), csv_data[0])
-    print('header', header)
+    print("header", header)
     indexes = {}
 
     for key in expected_pos:
@@ -229,8 +238,8 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         return {
             "success": False,
             "message": "Missing column for tube position; "
-                   "should be one of the following in header (case insensitive): "
-                   "'Tube position', 'Position', 'Pos'"
+            "should be one of the following in header (case insensitive): "
+            "'Tube position', 'Position', 'Pos'",
         }
 
     for key in expected_barcode:
@@ -245,17 +254,13 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         return {
             "success": False,
             "message": "Missing column for sample code; "
-                       "should be one of the following in header (case insensitive): "
-                       "'Tube barcode', 'Barcode', 'identifier', 'uuid'"
+            "should be one of the following in header (case insensitive): "
+            "'Tube barcode', 'Barcode', 'identifier', 'uuid'",
         }
-
 
     code_types = [key for key in indexes]
 
-    indexes.update({
-        "row": [],
-        "column": []
-    })
+    indexes.update({"row": [], "column": []})
 
     print("codetype", code_types, indexes)
 
@@ -280,24 +285,20 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 if s.isdigit():
                     pos.append(int(s))
                 else:
-                    pos.append(ord(s.lower())-96)
+                    pos.append(ord(s.lower()) - 96)
 
-            indexes["row"].append(pos[0]) # Letter e.g. A2: => Row 1
-            indexes["column"].append(pos[1]) # Number A2 => Column 2
+            indexes["row"].append(pos[0])  # Letter e.g. A2: => Row 1
+            indexes["column"].append(pos[1])  # Number A2 => Column 2
         except:
-            return {"success": False,
-                    "message": "Error in reading positions"
-                    }
+            return {"success": False, "message": "Error in reading positions"}
 
     if max(indexes["row"]) > nrow or min(indexes["row"]) < 1:
-        return {"success": False,
-                "message": "Position (row number) out of range!"}
+        return {"success": False, "message": "Position (row number) out of range!"}
     if max(indexes["column"]) > ncol or min(indexes["column"]) < 1:
-        return {"success": False,
-                "message": "Position (column number) out of range!"}
+        return {"success": False, "message": "Position (column number) out of range!"}
 
-    data["num_rows"] = nrow # max(indexes["row"])
-    data["num_cols"] = ncol # max(indexes["column"])
+    data["num_rows"] = nrow  # max(indexes["row"])
+    data["num_cols"] = ncol  # max(indexes["column"])
     data["code_types"] = code_types
     data["success"] = True
     return data
@@ -315,36 +316,42 @@ def rack_create_from_file():
     if form.validate_on_submit():
         barcode_type = form.barcode_type.data
         err = None
-        _samples = func_csvfile_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
+        _samples = func_csvfile_to_json(
+            form.file.data, form.num_rows.data, form.num_cols.data
+        )
 
         if _samples["success"]:
             # print("barcode type", barcode_type, _samples["code_types"])
             if barcode_type not in _samples["code_types"]:
-                err = "The provided sample code doesn't matched with the chosen type %s! " %barcode_type
+                err = (
+                    "The provided sample code doesn't matched with the chosen type %s! "
+                    % barcode_type
+                )
         else:
             err = _samples["message"]
 
         if err:
             flash(err)
-            return render_template("storage/rack/new/from_file/step_one.html",
-                            form=form,
-                            session_data={}
-                            )
+            return render_template(
+                "storage/rack/new/from_file/step_one.html", form=form, session_data={}
+            )
 
         samples = []
-        for s in _samples['positions'].items():
-            samples.append({
-                "sample_code": s[1][barcode_type],
-                "row": alpha2num(s[0][0]),
-                "col": int(s[0][1:len(s[0])]),
-            })
+        for s in _samples["positions"].items():
+            samples.append(
+                {
+                    "sample_code": s[1][barcode_type],
+                    "row": alpha2num(s[0][0]),
+                    "col": int(s[0][1 : len(s[0])]),
+                }
+            )
 
         rack_entry = {
             "serial_number": form.serial.data,
             "num_rows": form.num_rows.data,
             "num_cols": form.num_cols.data,
             "colour": form.colour.data,
-            "description": form.description.data
+            "description": form.description.data,
         }
         rack_data = {
             "rack_id": None,
@@ -364,7 +371,7 @@ def rack_create_from_file():
         sample_move_response = requests.post(
             url_for("api.storage_rack_refill_with_samples", _external=True),
             headers=get_internal_api_header(),
-            json=rack_data
+            json=rack_data,
         )
 
         if sample_move_response.status_code == 200:
@@ -372,18 +379,19 @@ def rack_create_from_file():
             sampletostore["new_rack"] = True
             sampletostore.update({"rack": rack_entry})
 
-            return render_template("storage/rack/view_sample_to_rack.html", id=id,
-                                   sampletostore=sampletostore
+            return render_template(
+                "storage/rack/view_sample_to_rack.html",
+                id=id,
+                sampletostore=sampletostore,
             )
 
         else:
             flash(sample_move_response.json()["message"])
 
+    return render_template(
+        "storage/rack/new/from_file/step_one.html", form=form, session_data={}
+    )
 
-    return render_template("storage/rack/new/from_file/step_one.html",
-                           form=form,
-                           session_data={}
-                           )
 
 # @storage.route("rack/new/automatic", methods=["GET", "POST"])
 # @login_required
@@ -664,9 +672,11 @@ def view_rack_endpoint(id):
                 sample["editor"] = sample["author"]
 
             rack_view["content"]["view"][row][col].update(sample)
-            rack_view["content"]["view"][row][col].update({
+            rack_view["content"]["view"][row][col].update(
+                {
                     "empty": False,
-                })
+                }
+            )
             return 1, rack_view
         except Exception as e:
             pass
@@ -705,7 +715,6 @@ def view_rack_endpoint(id):
     return abort(view_response.status_code)
 
 
-
 @storage.route("/rack/LIMBRACK-<id>/assign/<row>/<column>", methods=["GET", "POST"])
 @login_required
 def assign_rack_sample(id, row, column):
@@ -718,11 +727,13 @@ def assign_rack_sample(id, row, column):
     )
 
     if view_response.json()["content"]["is_locked"]:
-        flash('The rack is locked!')
+        flash("The rack is locked!")
         return redirect(url_for("storage.view_rack", id=id))
 
     if view_response.json()["content"]["shelf"] is None:
-        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
@@ -795,11 +806,13 @@ def assign_rack_samples(id):
     )
 
     if view_response.json()["content"]["is_locked"]:
-        flash('The rack is locked!')
+        flash("The rack is locked!")
         return redirect(url_for("storage.view_rack", id=id))
 
     if view_response.json()["content"]["shelf"] is None:
-        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
@@ -898,28 +911,36 @@ def edit_rack_samples_pos(id):
     )
 
     if view_response.json()["content"]["is_locked"]:
-        flash('The rack is locked!')
+        flash("The rack is locked!")
         return redirect(url_for("storage.view_rack", id=id))
 
     if view_response.json()["content"]["shelf"] is None:
-        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
         return redirect(url_for("storage.edit_rack", id=id))
 
     sampletostore = view_response.json()["content"]
     id = int(sampletostore.pop("id"))
-    sampletostore = {"rack_id": id, "samples": [], "from_file": False, "update_only": True}
+    sampletostore = {
+        "rack_id": id,
+        "samples": [],
+        "from_file": False,
+        "update_only": True,
+    }
 
-    return render_template("storage/rack/view_sample_to_rack.html", id=id,
-                           sampletostore=sampletostore
-                           )
+    return render_template(
+        "storage/rack/view_sample_to_rack.html", id=id, sampletostore=sampletostore
+    )
+
 
 @storage.route("/rack/edit_samples_pos", methods=["GET", "POST"])
 @login_required
 def storage_rack_edit_samples_pos():
-    if request.method == 'POST':
-       values = request.json
+    if request.method == "POST":
+        values = request.json
     else:
-       return {'messages': 'Sample and storage info needed!', 'success': False}
+        return {"messages": "Sample and storage info needed!", "success": False}
 
     response = requests.post(
         url_for("api.storage_rack_edit_samples_pos", _external=True),
@@ -927,7 +948,6 @@ def storage_rack_edit_samples_pos():
         json=values,
     )
     return response.json()
-
 
 
 @storage.route("/rack/LIMBRACK-<id>/assign_samples_in_file", methods=["GET", "POST"])
@@ -942,11 +962,13 @@ def update_rack_samples(id):
     )
 
     if view_response.json()["content"]["is_locked"]:
-        flash('The rack is locked!')
+        flash("The rack is locked!")
         return redirect(url_for("storage.view_rack", id=id))
 
     if view_response.json()["content"]["shelf"] is None:
-        flash('The rack has not been assigned to a shelf! Edit the rack location first!')
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
@@ -964,7 +986,10 @@ def update_rack_samples(id):
             if _samples["success"]:
                 print("barcode type", barcode_type, _samples["code_types"])
                 if barcode_type not in _samples["code_types"]:
-                    err = "The provided sample code doesn't matched with the chosen type %s! " %barcode_type
+                    err = (
+                        "The provided sample code doesn't matched with the chosen type %s! "
+                        % barcode_type
+                    )
             else:
                 # err = "Errors in reading the file! "
                 err = _samples["message"]
@@ -974,12 +999,13 @@ def update_rack_samples(id):
                 return redirect(url_for("storage.view_rack", id=id))
 
             samples = []
-            for s in _samples['positions'].items():
-                samples.append({
-                    "sample_code": s[1][barcode_type],
-                    "row": alpha2num(s[0][0]),
-                    "col": int(s[0][1:len(s[0])]),
-                }
+            for s in _samples["positions"].items():
+                samples.append(
+                    {
+                        "sample_code": s[1][barcode_type],
+                        "row": alpha2num(s[0][0]),
+                        "col": int(s[0][1 : len(s[0])]),
+                    }
                 )
 
             rack_data = {
@@ -993,20 +1019,22 @@ def update_rack_samples(id):
                 ),
                 "entry": form.entry.data,
                 "barcode_type": form.barcode_type.data,
-                "samples": samples
+                "samples": samples,
             }
 
             sample_move_response = requests.post(
                 url_for("api.storage_rack_refill_with_samples", _external=True),
                 headers=get_internal_api_header(),
-                json=rack_data
+                json=rack_data,
             )
 
             if sample_move_response.status_code == 200:
                 sampletostore = sample_move_response.json()["content"]
 
-                return render_template("storage/rack/view_sample_to_rack.html", id=id,
-                                       sampletostore=sampletostore
+                return render_template(
+                    "storage/rack/view_sample_to_rack.html",
+                    id=id,
+                    sampletostore=sampletostore,
                 )
 
             else:
@@ -1020,13 +1048,14 @@ def update_rack_samples(id):
         )
     return abort(view_response.status_code)
 
+
 @storage.route("/rack/new_with_samples", methods=["GET", "POST"])
 @login_required
 def storage_rack_create_with_samples():
-    if request.method == 'POST':
-       values = request.json
+    if request.method == "POST":
+        values = request.json
     else:
-       return {'messages': 'Sample and storage info needed!', 'success': False}
+        return {"messages": "Sample and storage info needed!", "success": False}
 
     response = requests.post(
         url_for("api.storage_rack_new_with_samples", _external=True),
@@ -1035,13 +1064,14 @@ def storage_rack_create_with_samples():
     )
     return response.json()
 
+
 @storage.route("/rack/refill_with_samples", methods=["GET", "POST"])
 @login_required
 def storage_rack_refill_with_samples():
-    if request.method == 'POST':
-       values = request.json
+    if request.method == "POST":
+        values = request.json
     else:
-       return {'messages': 'Sample and storage info needed!', 'success': False}
+        return {"messages": "Sample and storage info needed!", "success": False}
 
     response = requests.post(
         url_for("api.storage_rack_refill_with_samples", _external=True),
@@ -1049,6 +1079,7 @@ def storage_rack_refill_with_samples():
         json=values,
     )
     return response.json()
+
 
 @storage.route("rack/LIMBRACK-<id>/to_cart", methods=["GET", "POST"])
 @login_required
@@ -1076,7 +1107,7 @@ def edit_rack(id):
         headers=get_internal_api_header(),
     )
     if response.json()["content"]["is_locked"]:
-        flash('The rack is locked!')
+        flash("The rack is locked!")
         return abort(401)
 
     if response.status_code == 200:
@@ -1092,8 +1123,8 @@ def edit_rack(id):
         )
 
         if sites_response.status_code == 200:
-            sites = sites_response.json()["content"]['choices']
-            user_site_id = sites_response.json()["content"]['user_site_id']
+            sites = sites_response.json()["content"]["choices"]
+            user_site_id = sites_response.json()["content"]["user_site_id"]
 
         # For SampleRack with location info.
         rack = response.json()["content"]
@@ -1103,7 +1134,7 @@ def edit_rack(id):
         shelf_required = True
         response1 = requests.get(
             url_for("api.storage_shelf_overview", _external=True),
-            #url_for("api.storage_onsite_shelves", id=id, _external=True),
+            # url_for("api.storage_onsite_shelves", id=id, _external=True),
             headers=get_internal_api_header(),
         )
 
@@ -1113,12 +1144,14 @@ def edit_rack(id):
                 shelf_dict[site[0]] = []
 
             for shelf in response1.json()["content"]["shelf_info"]:
-                shelf_dict[int(shelf["site_id"])].append( [int(shelf["shelf_id"]), shelf["name"]])
+                shelf_dict[int(shelf["site_id"])].append(
+                    [int(shelf["shelf_id"]), shelf["name"]]
+                )
                 shelves.append([int(shelf["shelf_id"]), shelf["name"]])
             # shelf_required = len(shelves) > 0
 
         form = EditSampleRackForm(
-            sites = sites,
+            sites=sites,
             shelves=shelves,
             data={
                 "serial": rack["serial_number"],
@@ -1160,7 +1193,10 @@ def edit_rack(id):
                 flash("We have a problem: %s" % (edit_response.json()["message"]))
 
         return render_template(
-            "storage/rack/edit.html", form=form, rack=response.json()["content"], shelves=shelf_dict
+            "storage/rack/edit.html",
+            form=form,
+            rack=response.json()["content"],
+            shelves=shelf_dict,
         )
 
     abort(response.status_code)

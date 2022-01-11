@@ -31,7 +31,7 @@ from ...database import (
     SampleToType,
     SampleDisposal,
     Event,
-    EntityToStorage
+    EntityToStorage,
 )
 
 from ..views import (
@@ -50,6 +50,7 @@ from ...database import db, Sample, UserAccount, SubSampleToSample, UserCart
 
 from ..views import basic_sample_schema, new_sample_schema
 from .queries import func_new_sample_type
+
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
 @token_required
@@ -109,7 +110,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         return locked_response("Parent sample (%s)" % sample.uuid)
 
     if sample.remaining_quantity <= 0:
-        return validation_error_response({"messages": "Insufficient quantity for parent sample!"})
+        return validation_error_response(
+            {"messages": "Insufficient quantity for parent sample!"}
+        )
 
     parent_values = new_sample_schema.dump(sample)
     parent_id = sample.id
@@ -232,7 +235,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             db.session.add(ali_sample)
             db.session.flush()
             # -- Added to sample user cart
-            new_ali_uc = UserCart(sample_id=ali_sample.id, selected=True, author_id=tokenuser.id)
+            new_ali_uc = UserCart(
+                sample_id=ali_sample.id, selected=True, author_id=tokenuser.id
+            )
             db.session.add(new_ali_uc)
         except Exception as err:
             db.session.rollback()
@@ -249,10 +254,13 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         db.session.flush()
 
     # T4. Update parent sample
-    sample.update({"remaining_quantity": sample.remaining_quantity - to_remove,
-                   "editor_id": tokenuser.id,
-                   #"status": 'UNU',
-                   })
+    sample.update(
+        {
+            "remaining_quantity": sample.remaining_quantity - to_remove,
+            "editor_id": tokenuser.id,
+            # "status": 'UNU',
+        }
+    )
     db.session.add(sample)
     new_sample_protocol_event.reduced_quantity = to_remove
 
@@ -264,9 +272,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
             try:
                 for et in ets:
                     db.session.delete(et)
-                    #et.removed=True
-                    #et.update({"editor_id": tokenuser.id})
-                    #db.session.add(et)
+                    # et.removed=True
+                    # et.update({"editor_id": tokenuser.id})
+                    # db.session.add(et)
             except Exception as err:
                 db.session.rollback()
                 return transaction_error_response(err)
@@ -283,11 +291,12 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        flash("Sample Aliquots Added Successfully!" + " Awaiting storage in user cart!!")
+        flash(
+            "Sample Aliquots Added Successfully!" + " Awaiting storage in user cart!!"
+        )
     except Exception as err:
         db.session.rollback()
         return transaction_error_response(err)
-
 
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
@@ -301,13 +310,11 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         valid = True
         for key in [
             "parent_id",
-
             "processing_protocol",
             "processing_date",
             "processing_time",
             "processed_by",
             "processing_comments",
-
             "derivation_protocol",
             "derivation_date",
             "derivation_time",
@@ -327,7 +334,14 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
             return False
 
         for derivative in derivatives:
-            for key in ["sample_base_type", "sample_type", "container_base_type", "container_type", "volume", "barcode"]:
+            for key in [
+                "sample_base_type",
+                "sample_type",
+                "container_base_type",
+                "container_type",
+                "volume",
+                "barcode",
+            ]:
                 try:
                     derivative[key]
                 except KeyError:
@@ -345,19 +359,23 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         return validation_error_response({"messages": "Values failed to validate."})
 
     if not _validate_derivatives(values["derivatives"]):
-        return validation_error_response({"messages": "Failed to load derivatives, sorry."})
+        return validation_error_response(
+            {"messages": "Failed to load derivatives, sorry."}
+        )
 
-    #to_remove = sum([float(a["volume"]) for a in values["derivatives"]])
+    # to_remove = sum([float(a["volume"]) for a in values["derivatives"]])
     # container_base_type = values["container_base_type"]
 
     # Parent Sample Basic Info
     sample = Sample.query.filter_by(uuid=uuid).first_or_404()
 
     if sample.is_locked or sample.is_closed:
-        return locked_response("Parent sample (%s)" %sample.uuid)
+        return locked_response("Parent sample (%s)" % sample.uuid)
 
     if sample.remaining_quantity <= 0:
-        return validation_error_response({"messages": "Insufficient quantity for parent sample!"})
+        return validation_error_response(
+            {"messages": "Insufficient quantity for parent sample!"}
+        )
 
     parent_values = new_sample_schema.dump(sample)
     parent_id = sample.id
@@ -375,7 +393,7 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
             disposal_values = new_sample_disposal_schema.dump(sampledisposal)
 
     # T0: New event and sampleprotocol_event for sample processing prior to derivation/aliquot
-    if values["processing_protocol"]!= "0":
+    if values["processing_protocol"] != "0":
         processing_event_values = {
             "datetime": str(
                 datetime.strptime(
@@ -458,7 +476,7 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         disposal_id = None
         if disposal_values:
             sdi = SampleDisposal(**disposal_values)
-            sdi.author_id=tokenuser.id,
+            sdi.author_id = (tokenuser.id,)
 
             db.session.add(sdi)
             db.session.flush()
@@ -483,7 +501,9 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
             db.session.add(der_sample)
             db.session.flush()
             # -- Add to user sample cart
-            new_der_uc = UserCart(sample_id=der_sample.id, selected=True, author_id=tokenuser.id)
+            new_der_uc = UserCart(
+                sample_id=der_sample.id, selected=True, author_id=tokenuser.id
+            )
             db.session.add(new_der_uc)
         except Exception as err:
             db.session.rollback()
@@ -499,11 +519,13 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         db.session.add(ssts)
         db.session.flush()
 
-
     # T4. Update parent sample
-    sample.update({"remaining_quantity": 0,
-                   "editor_id": tokenuser.id, #"status": 'UNU'
-                   })
+    sample.update(
+        {
+            "remaining_quantity": 0,
+            "editor_id": tokenuser.id,  # "status": 'UNU'
+        }
+    )
     db.session.add(sample)
 
     # T5. Remove parent sample if remaining quantity changed to zero!
@@ -514,9 +536,9 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
             try:
                 for et in ets:
                     db.session.delete(et)
-                    #et.removed=True
-                    #et.update({"editor_id": tokenuser.id})
-                    #db.session.add(et)
+                    # et.removed=True
+                    # et.update({"editor_id": tokenuser.id})
+                    # db.session.add(et)
             except Exception as err:
                 db.session.rollback()
                 return transaction_error_response(err)
@@ -534,11 +556,12 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        flash("Sample Derivatives Added Successfully!"+ "Awaiting storage in user cart!!")
+        flash(
+            "Sample Derivatives Added Successfully!" + "Awaiting storage in user cart!!"
+        )
     except Exception as err:
         return transaction_error_response(err)
 
     return success_with_content_response(
         basic_sample_schema.dump(Sample.query.filter_by(uuid=uuid).first_or_404())
     )
-

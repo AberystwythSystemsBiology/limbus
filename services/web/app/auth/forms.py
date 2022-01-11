@@ -110,7 +110,6 @@ def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
     return StaticForm()
 
 
-
 def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
     class StaticForm(FlaskForm):
 

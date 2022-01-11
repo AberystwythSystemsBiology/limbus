@@ -13,11 +13,11 @@
 
 from ..api import api
 from ..api.responses import *
-from ..decorators import  token_required
+from ..decorators import token_required
 from ..webarg_parser import use_args, use_kwargs, parser
 
-from ..database import (db, Sample, SubSampleToSample, UserAccount, SampleProtocolEvent)
-from ..admin.views import * #audit_samples_schema, audit_sample_protocol_events_schema
+from ..database import db, Sample, SubSampleToSample, UserAccount, SampleProtocolEvent
+from ..admin.views import *  # audit_samples_schema, audit_sample_protocol_events_schema
 from ..admin.enums import *
 
 from sqlalchemy_continuum import version_class
@@ -57,14 +57,20 @@ def audit_query(args, tokenuser: UserAccount):
     if type(objects) == str:
         objects = objects.split(",")
     elif objects is None:
-        objects = ["Sample", "SampleProtocolEvent", "EntityToStorage",
-                   "SampleReview", "SampleDisposal",
-                   "Donor", "DonorProtocolEvent"]
+        objects = [
+            "Sample",
+            "SampleProtocolEvent",
+            "EntityToStorage",
+            "SampleReview",
+            "SampleDisposal",
+            "Donor",
+            "DonorProtocolEvent",
+        ]
 
     print("objects:", objects)
     start_date = args.pop("start_date", datetime.today())
     end_date = args.pop("end_date", datetime.today())
-    audit_trails  =[]
+    audit_trails = []
     object_counts = {}
     for model in objects:
         if model == "EntityToStorage":
@@ -72,15 +78,16 @@ def audit_query(args, tokenuser: UserAccount):
         else:
             ModelVersion = version_class(eval(model))
 
-        stmt = db.session.query(ModelVersion) \
-            .filter(ModelVersion.updated_on >= start_date,
-                    ModelVersion.updated_on <= end_date)
-
+        stmt = db.session.query(ModelVersion).filter(
+            ModelVersion.updated_on >= start_date, ModelVersion.updated_on <= end_date
+        )
 
         if user_id:
-            stmt = stmt.filter(or_(ModelVersion.editor_id == user_id,
-                                   ModelVersion.author_id == user_id)
-                               )
+            stmt = stmt.filter(
+                or_(
+                    ModelVersion.editor_id == user_id, ModelVersion.author_id == user_id
+                )
+            )
         if uuid:
             try:
                 stmt = stmt.filter_by(uuid=uuid)
@@ -90,9 +97,9 @@ def audit_query(args, tokenuser: UserAccount):
         res = stmt.all()
         object_counts[model] = len(res)
 
-        print("len trails %s %s" %(model, len(res)))
+        print("len trails %s %s" % (model, len(res)))
         try:
-            schema = eval("AuditBasic%sSchema(many=True)" %model)
+            schema = eval("AuditBasic%sSchema(many=True)" % model)
         except:
             schema = eval("Audit%sSchema(many=True)" % model)
 
@@ -101,15 +108,15 @@ def audit_query(args, tokenuser: UserAccount):
     report_type = AuditTypes[audit_type].value
 
     if uuid:
-        report_type = "%s: %s" %(report_type, uuid)
+        report_type = "%s: %s" % (report_type, uuid)
 
-    if user_id==0:
+    if user_id == 0:
         report_user = "Not Specified"
 
     else:
         user = UserAccount.query.filter_by(id=user_id).first()
         if user:
-            report_user = "%s %s (%s)" %(user.first_name, user.last_name, user.email)
+            report_user = "%s %s (%s)" % (user.first_name, user.last_name, user.email)
         else:
             report_user = "Not Found"
 
@@ -120,8 +127,9 @@ def audit_query(args, tokenuser: UserAccount):
         "report_objects": objects,
         "report_object_counts": object_counts,
         "report_user": report_user,
-        "report_created_by": "%s %s (%s)" %(tokenuser.first_name, tokenuser.last_name, tokenuser.email),
-        "report_created_on": datetime.now()
+        "report_created_by": "%s %s (%s)"
+        % (tokenuser.first_name, tokenuser.last_name, tokenuser.email),
+        "report_created_on": datetime.now(),
     }
 
     return success_with_content_response({"data": audit_trails, "title": title})
@@ -129,7 +137,7 @@ def audit_query(args, tokenuser: UserAccount):
 
 @api.route("/audit/sample1/<uuid>", methods=["GET"])
 @token_required
-def audit_sample(uuid:str, tokenuser: UserAccount):
+def audit_sample(uuid: str, tokenuser: UserAccount):
     if not tokenuser.is_admin:
         return not_allowed()
 

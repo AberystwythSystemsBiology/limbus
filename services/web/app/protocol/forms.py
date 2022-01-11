@@ -30,11 +30,20 @@ from wtforms import (
 )
 
 
-from wtforms.validators import DataRequired, EqualTo, URL, Optional, Length, AnyOf, Regexp
+from wtforms.validators import (
+    DataRequired,
+    EqualTo,
+    URL,
+    Optional,
+    Length,
+    AnyOf,
+    Regexp,
+)
 from flask_mde import Mde, MdeField
 
 from .enums import ProtocolType, ProtocolTextType
 from ..misc import get_internal_api_header
+
 
 def ProtocolCreationForm(data={}) -> FlaskForm:
     patterns = {
@@ -43,9 +52,10 @@ def ProtocolCreationForm(data={}) -> FlaskForm:
         "NCT": "NCT\s*\d{8}$",
         "EUDRACT": "\s*EudraCT\s*:\s*[12]\d{3}-\d{6}-\d{2}$",
         "REC": "\s*REC\s*:\s*[-._;()/:A-Za-z0-9]+$",
-        "REF": "\s*REF\s*:\s*[-._;()/:A-Za-z0-9]+$"
+        "REF": "\s*REF\s*:\s*[-._;()/:A-Za-z0-9]+$",
     }
-    pats = [patterns[k]for k in patterns]
+    pats = [patterns[k] for k in patterns]
+
     class StaticForm(FlaskForm):
         name = StringField(
             "Protocol Name",
@@ -66,13 +76,13 @@ def ProtocolCreationForm(data={}) -> FlaskForm:
         doi = StringField(
             "Digital Object Identifier (DOI)",
             validators=[Regexp("|".join(pats), re.IGNORECASE), Optional()],
-            description= "Format DOI:10.xxxx/xxxxxxx (case insensitive); "
-                        "for study use DOI number or one of the following format: "                        
-                        "ISRCTNxxxxxxxx (8 digit with isrctn.com), " 
-                        "NCTxxxxxxxx (8 digit with clinicaltrials.gov), "
-                        "EudraCT:YYYY-xxxxxx-xx (with clinicaltrialsregister.eu), "
-                        "REC:xxxxx (REC number), "
-                        "REF:xxxxx (Internal reference number)."
+            description="Format DOI:10.xxxx/xxxxxxx (case insensitive); "
+            "for study use DOI number or one of the following format: "
+            "ISRCTNxxxxxxxx (8 digit with isrctn.com), "
+            "NCTxxxxxxxx (8 digit with clinicaltrials.gov), "
+            "EudraCT:YYYY-xxxxxx-xx (with clinicaltrialsregister.eu), "
+            "REC:xxxxx (REC number), "
+            "REF:xxxxx (Internal reference number).",
         )
 
         submit = SubmitField("Submit")
@@ -83,7 +93,9 @@ def ProtocolCreationForm(data={}) -> FlaskForm:
             print("!!! doi  ", self.doi.data)
             if self.doi.data != "" and self.doi.data is not None:
                 for k in patterns:
-                    matched = re.match(patterns[k], self.doi.data.replace(" ", ""), re.IGNORECASE)
+                    matched = re.match(
+                        patterns[k], self.doi.data.replace(" ", ""), re.IGNORECASE
+                    )
                     print("matched: ", matched)
                     if matched:
                         self.doi.data = matched[0].upper()
@@ -91,9 +103,7 @@ def ProtocolCreationForm(data={}) -> FlaskForm:
 
             return True
 
-
     return StaticForm(data=data)
-
 
 
 class MdeForm(FlaskForm):

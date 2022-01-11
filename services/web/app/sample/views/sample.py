@@ -35,7 +35,10 @@ from . import (
 
 from ...document.views import BasicDocumentSchema
 from ...attribute.views import AttributeDataSchema
-from ..views import SampleProtocolEventSchema, SampleReviewSchema#, SampleProtocolEventViewSchema
+from ..views import (
+    SampleProtocolEventSchema,
+    SampleReviewSchema,
+)  # , SampleProtocolEventViewSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
@@ -63,6 +66,7 @@ class NewSampleSchema(masql.SQLAlchemySchema):
 
 new_sample_schema = NewSampleSchema()
 
+
 class EditSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -74,7 +78,7 @@ class EditSampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour)
     biohazard_level = EnumField(BiohazardLevel)
     site_id = masql.auto_field()
-    #current_site_id = masql.auto_field()
+    # current_site_id = masql.auto_field()
 
     quantity = masql.auto_field()
     remaining_quantity = masql.auto_field()
@@ -84,6 +88,7 @@ class EditSampleSchema(masql.SQLAlchemySchema):
 
 
 edit_sample_schema = EditSampleSchema()
+
 
 class BasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -131,6 +136,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
 
+
 class BasicDisposalSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -154,7 +160,7 @@ class BasicDisposalSampleSchema(masql.SQLAlchemySchema):
 
     barcode = masql.auto_field()
     disposal_information = ma.Nested(SampleDisposalSchema, many=False)
-    #disposal_event = ma.Nested(SampleDiposalSchema, many=False)
+    # disposal_event = ma.Nested(SampleDiposalSchema, many=False)
 
     _links = ma.Hyperlinks(
         {
@@ -178,6 +184,7 @@ class BasicDisposalSampleSchema(masql.SQLAlchemySchema):
 
 basic_disposal_sample_schema = BasicDisposalSampleSchema()
 basic_disposal_samples_schema = BasicDisposalSampleSchema(many=True)
+
 
 class SampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -361,6 +368,3 @@ samples_schema = SampleSchema(many=True)
 #
 #
 # sample_view_schema = SampleViewSchema()
-
-
-

@@ -40,7 +40,7 @@ from ...database import (
     Event,
     SampleProtocolEvent,
     EntityToStorage,
-    UserCart
+    UserCart,
 )
 
 import requests
@@ -114,27 +114,34 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
 
     if disposal.instruction not in [DisposalInstruction.DES, DisposalInstruction.TRA]:
         success = False
-        message = "No instruction of destruction or transferring for sample %s" % (sample.uuid)
+        message = "No instruction of destruction or transferring for sample %s" % (
+            sample.uuid
+        )
         return success, message, None, None
 
     if disposal.disposal_date > datetime.now().date():
         success = False
-        message = "Too early to dispose for sample %s, expected disposal date: %s" \
-                  %(sample.uuid, disposal.disposal_date)
+        message = "Too early to dispose for sample %s, expected disposal date: %s" % (
+            sample.uuid,
+            disposal.disposal_date,
+        )
         return success, message, None, None
 
-
-    protocolevent_values = {"event" : values["event"],
-              "protocol_id": values["protocol_id"],
-              "sample_id": sample.id,
-              "reduced_quantity": 0 #sample.remaining_quantity,
-              }
+    protocolevent_values = {
+        "event": values["event"],
+        "protocol_id": values["protocol_id"],
+        "sample_id": sample.id,
+        "reduced_quantity": 0,  # sample.remaining_quantity,
+    }
 
     try:
         event_result = new_sample_protocol_event_schema.load(protocolevent_values)
     except ValidationError as err:
         success = False
-        message = "New protocol event validation error for sample %s: %s" % (sample.uuid, str(err))
+        message = "New protocol event validation error for sample %s: %s" % (
+            sample.uuid,
+            str(err),
+        )
         return success, message, None, None
 
     if not new_event:
@@ -146,7 +153,10 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
             db.session.flush()
         except Exception as err:
             success = False
-            message = "New event transaction error for sample %s: %s" % (sample.uuid, str(err))
+            message = "New event transaction error for sample %s: %s" % (
+                sample.uuid,
+                str(err),
+            )
             return success, message, None, None
 
     new_sample_protocol_event = SampleProtocolEvent(
@@ -165,7 +175,10 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
         db.session.add(disposal)
     except Exception as err:
         success = False
-        message = "New protocol event transaction error for sample %s: %s" % (sample.uuid, str(err))
+        message = "New protocol event transaction error for sample %s: %s" % (
+            sample.uuid,
+            str(err),
+        )
         return success, message, new_event, None
 
     try:
@@ -178,7 +191,10 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
         )
     except ValidationError as err:
         success = False
-        message = "New disposal event validation error for sample %s: %s" % (sample.uuid, str(err))
+        message = "New disposal event validation error for sample %s: %s" % (
+            sample.uuid,
+            str(err),
+        )
         return success, message, new_event, new_sample_protocol_event
 
     new_disposal_event = SampleDisposalEvent(**disposal_event_values)
@@ -190,7 +206,10 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
 
     except Exception as err:
         success = False
-        message = "New disposal event transaction error for sample %s: %s" % (sample.uuid, str(err))
+        message = "New disposal event transaction error for sample %s: %s" % (
+            sample.uuid,
+            str(err),
+        )
         return success, message, new_event, disposal
 
     ets = EntityToStorage.query.filter_by(sample_id=sample_id).all()
@@ -201,7 +220,10 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
                 db.session.delete(et)
         except Exception as err:
             success = False
-            message = "Storage removal for sample %s transaction error : %s" % (sample.uuid, str(err))
+            message = "Storage removal for sample %s transaction error : %s" % (
+                sample.uuid,
+                str(err),
+            )
             return success, message, new_event, disposal
 
     scs = UserCart.query.filter_by(sample_id=sample_id).all()
@@ -212,7 +234,10 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
                 db.session.delete(sc)
         except Exception as err:
             success = False
-            message = "Removal from carts for sample %s transaction error : %s" % (sample.uuid, str(err))
+            message = "Removal from carts for sample %s transaction error : %s" % (
+                sample.uuid,
+                str(err),
+            )
             return success, message, new_event, disposal
 
     sample_status_events = {"sample_disposal": disposal}
@@ -232,11 +257,14 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
 
         except Exception as err:
             success = False
-            message = "Errors in updating sample after disposal for sample %s: %s." %(sample.uuid, str(err))
+            message = "Errors in updating sample after disposal for sample %s: %s." % (
+                sample.uuid,
+                str(err),
+            )
             message = message + " | " + res["message"]
             return success, message, new_event, new_sample_protocol_event
 
-    message = "Successfully dispose sample %s." %sample.uuid
+    message = "Successfully dispose sample %s." % sample.uuid
     message = message + " | " + res["message"]
     return success, message, new_event, disposal
 
@@ -295,8 +323,6 @@ def sample_batch_disposal_event(tokenuser: UserAccount) -> flask_return_union:
 
     try:
         db.session.commit()
-        return success_with_content_message_response(
-            {}, msgs
-        )
+        return success_with_content_message_response({}, msgs)
     except Exception as err:
         return transaction_error_response(err)

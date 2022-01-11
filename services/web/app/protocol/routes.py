@@ -188,6 +188,7 @@ def new_text(id):
     else:
         return response.content
 
+
 @protocol.route("/LIMBPRO-<id>/remove", methods=["GET", "POST"])
 @login_required
 def remove(id):
@@ -201,4 +202,3 @@ def remove(id):
     else:
         flash(remove_response.json()["message"])
     return remove_response.json()
-

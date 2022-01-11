@@ -276,8 +276,10 @@ def assign_racks_to_shelf(id):
                         racks.append(item["rack"])
 
             if len(racks) == 0:
-                flash("Add racks with samples to your sample cart first and select from the cart!"
-                      "\n Or assign a shelf to the rack in rack edit. ")
+                flash(
+                    "Add racks with samples to your sample cart first and select from the cart!"
+                    "\n Or assign a shelf to the rack in rack edit. "
+                )
                 return redirect(url_for("storage.view_shelf", id=id))
 
             form = RacksToShelfForm(racks)

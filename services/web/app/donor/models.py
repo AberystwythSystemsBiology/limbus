@@ -41,7 +41,9 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     consents = db.relationship("SampleConsent", uselist=True, backref="sampleconsent")
     samples_new = db.relationship("Sample", uselist=True, secondary="donortosample")
-    samples = db.relationship("Sample", uselist=True, secondary="sampleconsent", viewonly=True)
+    samples = db.relationship(
+        "Sample", uselist=True, secondary="sampleconsent", viewonly=True
+    )
 
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):

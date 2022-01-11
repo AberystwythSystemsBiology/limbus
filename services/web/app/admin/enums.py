@@ -13,6 +13,7 @@
 
 from ..FormEnum import FormEnum
 
+
 class AuditTypes(FormEnum):
     GEN = "General"
     SMP = "Sample"
@@ -20,6 +21,7 @@ class AuditTypes(FormEnum):
     SOP = "SOP (Protocols & Forms)"
     LTS = "ColdStorage"
     AUT = "User & Site"
+
 
 class GeneralObject(FormEnum):
     Donor = "Donor"
@@ -33,6 +35,7 @@ class GeneralObject(FormEnum):
     ProtocolTemplate = "ProtocolTemplate"
     ConsentFormTemplate = "ConsentFormTemplate"
 
+
 class SampleObject(FormEnum):
     Sample = "Sample"
     SampleConsent = "SampleConsent"
@@ -44,6 +47,7 @@ class SampleObject(FormEnum):
     SampleShipmentStatus = "ShipmentStatus"
     # Event = "Event"
 
+
 class DonorObject(FormEnum):
     Donor = "Donor"
     SampleConsent = "DonorConsent"
@@ -51,24 +55,27 @@ class DonorObject(FormEnum):
     SampleConsentWithdrawal = "ConsentWithdrawal"
     DonorProtocolEvent = "Study"
     DonorDiagnosisEvent = "DonorDiagnosisEvent"
-    #Event = "Event"
+    # Event = "Event"
+
 
 class TemplateObject(FormEnum):
     ProtocolTemplate = "ProtocolTemplate"
     ConsentFormTemplate = "ConsentFormTemplate"
     ConsentFormTemplateQuestion = "ConsentFormTemplateQuestion"
 
+
 class AuthObject(FormEnum):
     UserAccount = "UserAccount"
     SiteInformation = "SiteInformation"
 
+
 class StorageObject(FormEnum):
     ColdStorage = "ColdStorage"
     ColdStorageService = "ColdStorageService"
+
 
 #
 # class OperationType(FormEnum):
 #     0 = "INSERT"
 #     1 = "UPDATE"
 #     2 = "DELETE"
-

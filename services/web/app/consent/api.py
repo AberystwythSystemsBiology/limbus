@@ -70,6 +70,7 @@ def consent_query(args, tokenuser: UserAccount):
         )
     )
 
+
 @api.route("/consent/query_tokenuser", methods=["GET"])
 @use_args(ConsentFormTemplateSearchSchema(), location="json")
 @token_required
@@ -90,7 +91,7 @@ def consent_query_tokenuser(args, tokenuser: UserAccount):
 
     try:
         choices0 = settings["data_entry"]["consent_template"]["choices"]
-        if len(choices0) ==  0:
+        if len(choices0) == 0:
             choices0 = None
     except:
         choices0 = None
@@ -107,11 +108,12 @@ def consent_query_tokenuser(args, tokenuser: UserAccount):
             (template["id"], "LIMBPCF-%i: %s" % (template["id"], template["name"]))
         )
 
-    if id0 and  nm0:
+    if id0 and nm0:
         choices = [(id0, nm0)] + choices
 
-    return success_with_content_response({'info': templates, 'choices': choices, 'default': id0})
-
+    return success_with_content_response(
+        {"info": templates, "choices": choices, "default": id0}
+    )
 
 
 @api.route("/consent/new_template", methods=["POST"])

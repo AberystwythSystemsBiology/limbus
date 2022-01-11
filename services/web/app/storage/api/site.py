@@ -23,7 +23,7 @@ from marshmallow import ValidationError
 
 from ...database import db, SiteInformation, UserAccount, Sample, Building, Address
 
-#from ..views import site_schema, new_site_schema, basic_site_schema, site_addresses_schema
+# from ..views import site_schema, new_site_schema, basic_site_schema, site_addresses_schema
 from ..views import site_schema, site_addresses_schema
 from ...misc.views import new_site_schema, basic_site_schema
 from ...api.generics import *
@@ -37,12 +37,15 @@ def site_view(id, tokenuser: UserAccount):
         site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
     )
 
+
 @api.route("/storage/site/LIMBSITE-<id>/addresses", methods=["GET"])
 @token_required
 def site_addresses_view(id, tokenuser: UserAccount):
 
     return success_with_content_response(
-        site_addresses_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
+        site_addresses_schema.dump(
+            SiteInformation.query.filter_by(id=id).first_or_404()
+        )
     )
 
 
@@ -52,10 +55,10 @@ def storage_site_edit(id, tokenuser: UserAccount):
     values = request.get_json()
     site = SiteInformation.query.filter_by(id=id).first()
     if not site:
-        return not_found("Site %s"%id)
+        return not_found("Site %s" % id)
 
     if site.is_locked:
-        return locked_response("Site %s"%id)
+        return locked_response("Site %s" % id)
 
     address_values = values.pop("address", None)
 
@@ -75,7 +78,6 @@ def storage_site_edit(id, tokenuser: UserAccount):
             site.address_id = address.id
         except Exception as err:
             return transaction_error_response(err)
-
 
     # try:
     #     result = new_site_schema.load(values)
@@ -101,10 +103,10 @@ def site_edit_addresses(id, tokenuser: UserAccount):
     site = SiteInformation.query.filter_by(id=id).first()
 
     if not site:
-        return not_found("Site %s"%id)
+        return not_found("Site %s" % id)
 
     if site.is_locked:
-        return locked_response("Site %s"%id)
+        return locked_response("Site %s" % id)
 
     new_values = values.pop("new_addresses", None)
     upd_values = values.pop("addresses", None)
@@ -131,7 +133,6 @@ def site_edit_addresses(id, tokenuser: UserAccount):
             if is_default:
                 site.address_id = address.id
 
-
     try:
         db.session.flush()
     except Exception as err:
@@ -156,7 +157,6 @@ def site_edit_addresses(id, tokenuser: UserAccount):
                     address.update(avalues)
                     address.update({"editor_id": tokenuser.id})
                     db.session.add(address)
-
 
             if is_default:
                 site.address_id = address.id

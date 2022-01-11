@@ -42,9 +42,9 @@ def sites_data(type="internal"):
     if type == "external":
         sites_response = requests.get(
             url_for("api.site_external_home", _external=True),
-            headers=get_internal_api_header()
-            )
-    elif type=="internal":
+            headers=get_internal_api_header(),
+        )
+    elif type == "internal":
         sites_response = requests.get(
             url_for("api.site_home", _external=True),
             headers=get_internal_api_header(),
@@ -105,4 +105,3 @@ def sites_new_site():
             return abort(new_address_request.status_code)
 
     return render_template("admin/sites/new.html", form=form)
-

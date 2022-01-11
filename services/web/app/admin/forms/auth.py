@@ -25,7 +25,7 @@ from wtforms import (
     FormField,
     FieldList,
     SelectField,
-    SelectMultipleField
+    SelectMultipleField,
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 from ...validators import validate_against_text
@@ -35,10 +35,16 @@ from ...auth.enums import Title, AccountType
 
 from ...auth.models import UserAccount
 
-from ...sample.enums import SampleBaseType, FluidSampleType, \
-                    ContainerBaseType, FluidContainer, CellContainer
+from ...sample.enums import (
+    SampleBaseType,
+    FluidSampleType,
+    ContainerBaseType,
+    FluidContainer,
+    CellContainer,
+)
 
 from flask import flash
+
 
 class UserAccountRegistrationForm(FlaskForm):
 
@@ -90,13 +96,15 @@ def AccountLockForm(email):
     return StaticForm()
 
 
-def AdminUserAccountEditForm(sites=[], data={})->FlaskForm:
+def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
     # print("data", data)
     if "account_type" in data:
-        data["account_type"]= AccountType(data["account_type"]).name
+        data["account_type"] = AccountType(data["account_type"]).name
 
     class StaticForm(FlaskForm):
-        title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
+        title = SelectField(
+            "Title", validators=[DataRequired()], choices=Title.choices()
+        )
 
         first_name = StringField("First Name", validators=[DataRequired()])
         middle_name = StringField("Middle Name")
@@ -113,8 +121,9 @@ def AdminUserAccountEditForm(sites=[], data={})->FlaskForm:
             choices=sites,
         )
 
-        account_type = SelectField("Account Type",
-               validators=[DataRequired()], choices=AccountType.choices())
+        account_type = SelectField(
+            "Account Type", validators=[DataRequired()], choices=AccountType.choices()
+        )
 
         settings = FieldList(FormField(UserSettings), min_entries=1)
 
@@ -129,12 +138,15 @@ def AdminUserAccountEditForm(sites=[], data={})->FlaskForm:
             #     print("ok")
             #     return False
 
-            if UserAccount.query.filter_by(email=self.email.data)\
-                    .filter(UserAccount.id!=data["id"]).first():
+            if (
+                UserAccount.query.filter_by(email=self.email.data)
+                .filter(UserAccount.id != data["id"])
+                .first()
+            ):
                 self.email.errors.append("Email address already in use.")
                 flash("Email address already in use.")
                 return False
-                #raise ValidationError("Email address already in use.")
+                # raise ValidationError("Email address already in use.")
 
             return True
 
@@ -146,18 +158,22 @@ class UserSettings(FlaskForm):
         csrf = False
 
     access_choices = [(1, "data_entry"), (2, "view_only")]
-    access_level = SelectField("Access level", coerce=int,
-                               choices=access_choices,
-                               render_kw={"size": "1", "class": "form-control bd-light"}
-                               )
+    access_level = SelectField(
+        "Access level",
+        coerce=int,
+        choices=access_choices,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
 
-    site_choices = SelectMultipleField("Work Sites",
-                    choices=[],
-                    render_kw={"size":"1", "class":"selectpicker form-control"})
-    site_selected = TextAreaField("Current",
-                    render_kw={"readonly":True,
-                               "rows":5,
-                               "class":"form-control bd-light"})
+    site_choices = SelectMultipleField(
+        "Work Sites",
+        choices=[],
+        render_kw={"size": "1", "class": "selectpicker form-control"},
+    )
+    site_selected = TextAreaField(
+        "Current",
+        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+    )
 
     # site_default = StringField("Default working site")
 

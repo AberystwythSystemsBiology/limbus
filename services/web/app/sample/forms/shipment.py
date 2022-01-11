@@ -29,15 +29,19 @@ from ..enums import SampleShipmentStatusStatus
 from datetime import datetime
 
 
-def SampleShipmentEventForm(protocols=[], sites=[], sites_ext=[], addresses=[],
-                            data={}) -> FlaskForm:
-
+def SampleShipmentEventForm(
+    protocols=[], sites=[], sites_ext=[], addresses=[], data={}
+) -> FlaskForm:
     class StaticForm(FlaskForm):
 
-        protocol_id = SelectField("Sample Transfer Protocol", choices=protocols, coerce=int)
+        protocol_id = SelectField(
+            "Sample Transfer Protocol", choices=protocols, coerce=int
+        )
 
         site_id = SelectField("Destination (internal)", choices=sites, coerce=int)
-        external_site_id = SelectField("Destination (external)", choices=sites_ext, coerce=int)
+        external_site_id = SelectField(
+            "Destination (external)", choices=sites_ext, coerce=int
+        )
 
         address_id = SelectField("Shipping Address", choices=addresses, coerce=int)
 
@@ -56,7 +60,7 @@ def SampleShipmentEventForm(protocols=[], sites=[], sites_ext=[], addresses=[],
         undertaken_by = StringField(
             "Undertaken By",
             description="The initials of the individual who undertook the shipment event.",
-            validators = [DataRequired()],
+            validators=[DataRequired()],
         )
 
         comments = TextAreaField("Comments", description="Any relevant observations.")
@@ -68,11 +72,11 @@ def SampleShipmentEventForm(protocols=[], sites=[], sites_ext=[], addresses=[],
                 return False
 
             success = True
-            if self.site_id.data==0 and self.external_site_id.data==0:
+            if self.site_id.data == 0 and self.external_site_id.data == 0:
                 self.site_id.errors.append("Site required.")
                 self.external_site_id.errors.append("Site required.")
                 success = False
-            if self.address_id.data==0 and self.external_site_id.data==0:
+            if self.address_id.data == 0 and self.external_site_id.data == 0:
                 self.address_id.errors.append("Address required.")
                 success = False
 

@@ -102,7 +102,7 @@ def derive(uuid: str):
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="SAP", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type":["SAP"]},
+        json={"is_locked": False, "type": ["SAP"]},
     )
     if protocols_response.status_code == 200:
         processing_protocols = protocols_response.json()["content"]["choices"]
@@ -113,7 +113,7 @@ def derive(uuid: str):
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="ALD", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type":["ALD"]},
+        json={"is_locked": False, "type": ["ALD"]},
     )
 
     if protocols_response.status_code == 200:
@@ -130,6 +130,7 @@ def derive(uuid: str):
         form=form,
         derivie_proc_count=len(aliquot_protocols),
     )
+
 
 @sample.route("<uuid>/derive/endpoint", methods=["POST"])
 @login_required

@@ -35,7 +35,15 @@ from ..enums import (
     SampleQuality,
     DisposalInstruction,
 )
-from ...database import db, Sample, SampleReview, SampleDisposal, UserAccount, Event, UserCart
+from ...database import (
+    db,
+    Sample,
+    SampleReview,
+    SampleDisposal,
+    UserAccount,
+    Event,
+    UserCart,
+)
 from sqlalchemy.sql import func
 
 
@@ -67,7 +75,7 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
     ).first()
     event = Event.query.filter_by(id=review_event.event_id).first()
     review_same_event = SampleReview.query.filter_by(event_id=event.id)
-    if review_same_event.count()>0:
+    if review_same_event.count() > 0:
         review_event.event_id = None
 
     if disposal_instruction:
@@ -102,7 +110,7 @@ def sample_remove_sample_review(uuid, tokenuser: UserAccount):
         tokenuser=tokenuser,
         auto_query=True,
         sample=sample,
-        events={}, #"sample_disposal": None, "sample_review": None},
+        events={},  # "sample_disposal": None, "sample_review": None},
     )
 
     if res["success"]:
@@ -147,9 +155,8 @@ def func_sample_review_disposal(tokenuser: UserAccount, values, new_event=None):
             results = new_sample_disposal_schema.load(disposal_info)
         except ValidationError as err:
             success = False
-            message = "Sample %s validation error : %s" %(sample.uuid, str(err))
+            message = "Sample %s validation error : %s" % (sample.uuid, str(err))
             return success, message, None, None
-
 
     if not new_event:
         new_event = Event(
@@ -164,9 +171,9 @@ def func_sample_review_disposal(tokenuser: UserAccount, values, new_event=None):
             db.session.flush()
             # print("new_event.id: ", new_event.id)
         except Exception as err:
-            #return transaction_error_response(err)
+            # return transaction_error_response(err)
             success = False
-            message = "Sample %s transaction error : %s" %(sample.uuid, str(err))
+            message = "Sample %s transaction error : %s" % (sample.uuid, str(err))
             return success, message, None, None
 
     new_sample_review = SampleReview(
@@ -217,7 +224,7 @@ def func_sample_review_disposal(tokenuser: UserAccount, values, new_event=None):
             db.session.flush()
             # print("disposal_id: ", disposal_instruction.id)
         except Exception as err:
-            #return transaction_error_response(err)
+            # return transaction_error_response(err)
             success = False
             message = "Sample %s transaction error : %s" % (sample.uuid, str(err))
             return success, message, new_event, new_sample_review
@@ -238,15 +245,16 @@ def func_sample_review_disposal(tokenuser: UserAccount, values, new_event=None):
 
         except Exception as err:
             success = False
-            message = "Errors in adding Review added for sample %s: %s." %(sample.uuid, str(err))
+            message = "Errors in adding Review added for sample %s: %s." % (
+                sample.uuid,
+                str(err),
+            )
             message = message + " | " + res["message"]
             return success, message, new_event, new_sample_review
 
-
-    message = "Review added for sample %s." %sample.uuid
+    message = "Review added for sample %s." % sample.uuid
     message = message + " | " + res["message"]
     return success, message, new_event, new_sample_review
-
 
 
 @api.route("/sample/new/review_disposal", methods=["POST"])
@@ -303,13 +311,10 @@ def sample_batch_review_disposal(tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        return success_with_content_message_response(
-            {}, msgs
-        )
+        return success_with_content_message_response({}, msgs)
 
     except Exception as err:
         return transaction_error_response(err)
-
 
 
 # No update of sample status or disposal instruction: not in use

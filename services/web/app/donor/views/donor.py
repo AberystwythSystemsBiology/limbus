@@ -26,7 +26,12 @@ from marshmallow_enum import EnumField
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ..enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
 from ...sample.enums import Colour
-from ...sample.views import BasicSampleSchema, ConsentSchema, SampleSchema, BasicConsentSchema
+from ...sample.views import (
+    BasicSampleSchema,
+    ConsentSchema,
+    SampleSchema,
+    BasicConsentSchema,
+)
 
 from .diagnosis import DonorDiagnosisEventSchema
 from ...event.views import NewEventSchema, EventSchema
@@ -39,10 +44,10 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
     uuid = masql.auto_field()
-    sex = EnumField(BiologicalSexTypes) #, by_value=True)
-    status = EnumField(DonorStatusTypes) #, by_value=True)
-    race = EnumField(RaceTypes) #, by_value=True)
-    colour = EnumField(Colour) #, by_value=True)
+    sex = EnumField(BiologicalSexTypes)  # , by_value=True)
+    status = EnumField(DonorStatusTypes)  # , by_value=True)
+    race = EnumField(RaceTypes)  # , by_value=True)
+    colour = EnumField(Colour)  # , by_value=True)
     enrollment_site_id = masql.auto_field()
 
 
@@ -76,7 +81,7 @@ class BasicDonorSchema(masql.SQLAlchemySchema):
     # consents = ma.Nested(ConsentSchema, many=True)
     consents = ma.Nested(BasicConsentSchema, many=True)
     samples_new = ma.Nested(BasicSampleSchema, many=True)
-    #samples = ma.Nested(SampleSchema, many=True)
+    # samples = ma.Nested(SampleSchema, many=True)
 
     created_on = ma.Date()
     updated_on = ma.Date()
@@ -101,6 +106,7 @@ class BasicDonorSchema(masql.SQLAlchemySchema):
 
 basic_donor_schema = BasicDonorSchema()
 basic_donors_schema = BasicDonorSchema(many=True)
+
 
 class DonorSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -132,7 +138,7 @@ class DonorSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
 
     consents = ma.Nested(ConsentSchema, many=True)
-    #samples = ma.Nested(BasicSampleSchema, many=True)
+    # samples = ma.Nested(BasicSampleSchema, many=True)
     samples = ma.Nested(SampleSchema, many=True)
 
     created_on = ma.Date()
@@ -206,8 +212,6 @@ class EditDonorSchema(masql.SQLAlchemySchema):
 edit_donor_schema = EditDonorSchema()
 
 
-
-
 class NewDonorProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DonorProtocolEvent
@@ -217,6 +221,7 @@ class NewDonorProtocolEventSchema(masql.SQLAlchemySchema):
     reference_id = masql.auto_field()
     protocol_id = masql.auto_field()
     event = ma.Nested(NewEventSchema())
+
 
 new_donor_protocol_event_schema = NewDonorProtocolEventSchema()
 
@@ -246,6 +251,7 @@ class DonorProtocolEventInfoSchema(masql.SQLAlchemySchema):
             ),
         }
     )
+
 
 donor_protocol_event_info_schema = DonorProtocolEventInfoSchema()
 donor_protocol_events_info_schema = DonorProtocolEventInfoSchema(many=True)

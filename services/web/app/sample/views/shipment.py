@@ -138,7 +138,7 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserCart
 
-    #sample = ma.Nested(BasicSampleSchema, many=False)
+    # sample = ma.Nested(BasicSampleSchema, many=False)
     sample = ma.Nested(BasicDisposalSampleSchema, many=False)
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     selected = masql.auto_field()
@@ -146,5 +146,5 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
 
-user_cart_samples_schema = UserCartSampleSchema(many=True)
 
+user_cart_samples_schema = UserCartSampleSchema(many=True)

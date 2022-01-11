@@ -50,6 +50,7 @@ class BasicAddressSchema(masql.SQLAlchemySchema):
     country = masql.auto_field()
     site_id = masql.auto_field()
 
+
 basic_address_schema = BasicAddressSchema()
 basic_addresses_schema = BasicAddressSchema(many=True)
 
@@ -67,7 +68,6 @@ class NewSiteInformationSchema(masql.SQLAlchemySchema):
 
     author_id = masql.auto_field()
     address_id = masql.auto_field()
-
 
 
 new_site_schema = NewSiteInformationSchema()

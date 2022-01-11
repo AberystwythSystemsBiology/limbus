@@ -51,7 +51,7 @@ strconv = lambda i: i or None
 
 @donor.route("/")
 @login_required
-def index()-> str:
+def index() -> str:
 
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True),
@@ -59,10 +59,10 @@ def index()-> str:
     )
 
     if sites_response.status_code == 200:
-        sites = sites_response.json()["content"]['choices']
-        user_site_id = sites_response.json()["content"]['user_site_id']
+        sites = sites_response.json()["content"]["choices"]
+        user_site_id = sites_response.json()["content"]["user_site_id"]
 
-    form = DonorFilterForm(sites, data={'enrollment_site_id': user_site_id})
+    form = DonorFilterForm(sites, data={"enrollment_site_id": user_site_id})
     return render_template("donor/index.html", form=form)
 
 
@@ -117,11 +117,13 @@ def associate_sample(id):
         if sample_response.status_code == 200:
             samples = []
             for sample in sample_response.json()["content"]:
-                if sample["is_locked"] :
+                if sample["is_locked"]:
                     continue
 
-                if sample["consent_information"]["donor_id"] is None \
-                        and sample["consent_information"]['withdrawn'] is False:
+                if (
+                    sample["consent_information"]["donor_id"] is None
+                    and sample["consent_information"]["withdrawn"] is False
+                ):
                     samples.append(sample)
 
             form = DonorSampleAssociationForm(samples)
@@ -206,7 +208,6 @@ def remove_diagnosis(id):
     return remove_response.json()
 
 
-
 @donor.route("/LIMBDON-<id>/new/consent", methods=["GET", "POST"])
 @login_required
 def new_consent(id):
@@ -226,7 +227,6 @@ def new_consent(id):
 
         if consent_templates_response.status_code == 200:
             consent_templates = consent_templates_response.json()["content"]["choices"]
-
 
         form = ConsentTemplateSelectForm(consent_templates)
 
@@ -279,8 +279,7 @@ def add_consent_answers(template_id, donor_id):
     if protocols_response.status_code == 200:
         study_protocols = protocols_response.json()["content"]["choices"]
 
-
-    study_protocols = [(0, '--- Select a study ---')] + study_protocols
+    study_protocols = [(0, "--- Select a study ---")] + study_protocols
 
     form = ConsentQuestionnaire(study_protocols, data=consent_data)
 
@@ -307,11 +306,15 @@ def add_consent_answers(template_id, donor_id):
 
         else:
             consent_details["study"]["event"] = {
-                "datetime": str(datetime.strptime("%s %s" % (consent_details["study"].pop("date"), "00:00:00"), "%Y-%m-%d %H:%M:%S")),
+                "datetime": str(
+                    datetime.strptime(
+                        "%s %s" % (consent_details["study"].pop("date"), "00:00:00"),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                ),
                 "comments": consent_details["study"].pop("comments"),
                 "undertaken_by": consent_details["study"].pop("undertaken_by"),
             }
-
 
         consent_response = requests.post(
             url_for("api.donor_new_consent", _external=True),
@@ -332,6 +335,7 @@ def add_consent_answers(template_id, donor_id):
         template_id=template_id,
     )
 
+
 @donor.route("/sample/<sample_uuid>/consent/LIMBDC-<id>/edit", methods=["GET", "POST"])
 @donor.route("/LIMBDON-<donor_id>/consent/LIMBDC-<id>/edit", methods=["GET", "POST"])
 @login_required
@@ -340,28 +344,27 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
     consent_id = int(id)
     consent_response = requests.get(
         url_for("api.donor_consent_view", id=consent_id, _external=True),
-        headers=get_internal_api_header()
+        headers=get_internal_api_header(),
     )
 
     if consent_response.status_code != 200:
         return consent_response.response
 
-
     consent_info = consent_response.json()["content"]
     donor_id = consent_info["donor_id"]
-    consent_info.update({
-                    'template_id': consent_info["template"]['id'],
-                    'template_name': consent_info["template"]['name'],
-                    'template_version': consent_info["template"]['version'],
-                    'questions': consent_info.pop("template_questions"),
-                })
+    consent_info.update(
+        {
+            "template_id": consent_info["template"]["id"],
+            "template_name": consent_info["template"]["name"],
+            "template_version": consent_info["template"]["version"],
+            "questions": consent_info.pop("template_questions"),
+        }
+    )
 
-    consent_info["date"] = datetime.strptime(
-            consent_info["date"], "%Y-%m-%d"
-        )
+    consent_info["date"] = datetime.strptime(consent_info["date"], "%Y-%m-%d")
 
     try:
-        consent_info["study_select"] = consent_info["study"]["protocol"]['id']
+        consent_info["study_select"] = consent_info["study"]["protocol"]["id"]
         consent_info["study"]["event"]["date"] = datetime.strptime(
             consent_info["study"]["event"]["datetime"], "%Y-%m-%dT%H:%M:%S"
         ).date()
@@ -379,7 +382,6 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
         else:
             question["checked"] = ""
 
-
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="STU", _external=True),
         headers=get_internal_api_header(),
@@ -390,7 +392,7 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
     if protocols_response.status_code == 200:
         study_protocols = protocols_response.json()["content"]["choices"]
 
-    study_protocols = [(0, '--- Select a study ---')] + study_protocols
+    study_protocols = [(0, "--- Select a study ---")] + study_protocols
 
     template_id = consent_info["id"]
 
@@ -419,7 +421,12 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
 
         else:
             consent_details["study"]["event"] = {
-                "datetime": str(datetime.strptime("%s %s" % (consent_details["study"].pop("date"), "00:00:00"), "%Y-%m-%d %H:%M:%S")),
+                "datetime": str(
+                    datetime.strptime(
+                        "%s %s" % (consent_details["study"].pop("date"), "00:00:00"),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                ),
                 "comments": consent_details["study"].pop("comments"),
                 "undertaken_by": consent_details["study"].pop("undertaken_by"),
             }
@@ -441,10 +448,13 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
 
         flash("We have a problem :( %s" % consent_response.json()["message"])
 
-
     return render_template(
-        "donor/consent/donor_consent_answers.html", form=form, consent_id=consent_id,
-        donor_id=donor_id, sample_uuid=sample_uuid, template_id=template_id
+        "donor/consent/donor_consent_answers.html",
+        form=form,
+        consent_id=consent_id,
+        donor_id=donor_id,
+        sample_uuid=sample_uuid,
+        template_id=template_id,
     )
 
 
@@ -654,14 +664,15 @@ def add_sample_step_one(id):
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="ACQ", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type":["ACQ"]},
+        json={"is_locked": False, "type": ["ACQ"]},
     )
 
     if protocols_response.status_code == 200:
         collection_protocols = protocols_response.json()["content"]["choices"]
 
     sites_response = requests.get(
-        url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
     )
 
     if sites_response.status_code == 200:
@@ -820,24 +831,27 @@ def add_sample_rerouter(id, hash):
         return redirect(url_for("donor.add_sample_step_one", id=id))
 
     if "step_one" in data:
-            if "step_three" in data:
-                api_data = prepare_new_sample_form_data(data)
+        if "step_three" in data:
+            api_data = prepare_new_sample_form_data(data)
 
-                new_sample_response = requests.post(
-                    url_for("api.sample_new_sample", _external=True),
-                    headers=get_internal_api_header(),
-                    json=api_data,
+            new_sample_response = requests.post(
+                url_for("api.sample_new_sample", _external=True),
+                headers=get_internal_api_header(),
+                json=api_data,
+            )
+
+            if new_sample_response.status_code == 200:
+                # donor_id = api_data["consent_information"]["donor_id"]
+                return redirect(
+                    # url_for("donor.view", id=donor_id, _external=True)
+                    new_sample_response.json()["content"]["_links"]["self"]
                 )
-
-                if new_sample_response.status_code == 200:
-                    # donor_id = api_data["consent_information"]["donor_id"]
-                    return redirect(
-                        #url_for("donor.view", id=donor_id, _external=True)
-                        new_sample_response.json()["content"]["_links"]["self"]
-                    )
-                else:
-                    flash("We have encountered an error. %s " % new_sample_response.json()["message"])
-            return redirect(url_for("donor.add_sample_step_three", hash=hash))
+            else:
+                flash(
+                    "We have encountered an error. %s "
+                    % new_sample_response.json()["message"]
+                )
+        return redirect(url_for("donor.add_sample_step_three", hash=hash))
 
 
 @donor.route("add/sample_information/<hash>", methods=["GET", "POST"])
@@ -860,8 +874,8 @@ def add_sample_step_three(hash):
 
     if sampletype_response.status_code == 200:
         # print("sampletype_response.json()", sampletype_response.json())
-        sampletypes = sampletype_response.json()["content"]['sampletype_choices']
-        containertypes = sampletype_response.json()["content"]['container_choices']
+        sampletypes = sampletype_response.json()["content"]["sampletype_choices"]
+        containertypes = sampletype_response.json()["content"]["container_choices"]
 
     form = SampleTypeSelectForm(sampletypes, containertypes)
 
@@ -921,7 +935,7 @@ def withdraw_consent(id):
             flash("No consent for this donor!")
             return redirect(url_for("donor.view", id=id))
 
-        consents = [consent for consent in data['consents'] if not consent['withdrawn']]
+        consents = [consent for consent in data["consents"] if not consent["withdrawn"]]
         consent_ids = []
         for consent in consents:
             consent_ids.append(
@@ -936,10 +950,10 @@ def withdraw_consent(id):
                 ]
             )
 
-            consent['future'] = False
-            for ans in consent['answers']:
-                if ans['type'] == 'FUTU':
-                    consent['future'] = True
+            consent["future"] = False
+            for ans in consent["answers"]:
+                if ans["type"] == "FUTU":
+                    consent["future"] = True
             # print('sample: ', data["samples"])
             samples = [
                 sample
@@ -947,7 +961,7 @@ def withdraw_consent(id):
                 if sample["consent_information"]["id"] == consent["id"]
             ]
 
-            consent['num_sample'] = len(samples)
+            consent["num_sample"] = len(samples)
 
         if len(consent_ids) == 0:
             flash("No active consent!")
@@ -955,7 +969,7 @@ def withdraw_consent(id):
 
         # - Default consent
         for consent in consents:
-            if consent['id'] == consent_ids[0][0]:
+            if consent["id"] == consent_ids[0][0]:
                 break
 
         consent_info = {
@@ -976,7 +990,7 @@ def withdraw_consent(id):
             consent_id = form.consent_select.consent_id.data
             print("consent_id ", consent_id)
             for consent in consents:
-                if consent['id'] == consent_id:
+                if consent["id"] == consent_id:
                     break
             consent_info = {
                 "consent_id": consent["id"],

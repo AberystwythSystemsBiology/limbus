@@ -52,8 +52,7 @@ class NewSampleRackForm(FlaskForm):
 
 
 def EditSampleRackForm(sites: list, shelves: list, data={}):
-    #site_choices = [(0, "-- Select a storage site --")] + sites
-
+    # site_choices = [(0, "-- Select a storage site --")] + sites
 
     if len(shelves) == 0:
         data["shelf_required"] = False
@@ -86,7 +85,7 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
             validators=[DataRequired()],
             description="The site where the shelf is located.",
             coerce=int,
-            render_kw={"class": "form-control"} #bd-light"}
+            render_kw={"class": "form-control"},  # bd-light"}
         )
 
         shelf_id = SelectField(
@@ -95,8 +94,7 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
             validators=[DataRequired()],
             description="The shelf where the rack is located.",
             coerce=int,
-            render_kw={"class": "form-control"}# bd-light"}
-
+            render_kw={"class": "form-control"},  # bd-light"}
         )
 
         submit = SubmitField("Register")
@@ -141,6 +139,7 @@ def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
         num_cols = IntegerField("Number of Columns", validators=[DataRequired()])
 
         submit = SubmitField("Submit Cryovial Box")
+
     print("sample_data form", sample_data)
     for position, info in sample_data.items():
         setattr(
@@ -157,12 +156,15 @@ def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
 
     return StaticForm(data=data)
 
+
 class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
     description = TextAreaField("Description")
     colour = SelectField("Colour", choices=Colour.choices())
     num_rows = IntegerField("Number of Rows", default=8, validators=[DataRequired()])
-    num_cols = IntegerField("Number of Columns", default=12, validators=[DataRequired()])
+    num_cols = IntegerField(
+        "Number of Columns", default=12, validators=[DataRequired()]
+    )
 
     barcode_type = SelectField(
         "Barcode Type",
@@ -219,8 +221,10 @@ class UpdateRackFileUploadForm(FlaskForm):
         validators=[DataRequired()],
     )
 
-    entry = StringField("Created by",
-                        description="The initials of the individual who created the sample rack",
-                        validators=[DataRequired()])
+    entry = StringField(
+        "Created by",
+        description="The initials of the individual who created the sample rack",
+        validators=[DataRequired()],
+    )
 
     submit = SubmitField("Upload File")

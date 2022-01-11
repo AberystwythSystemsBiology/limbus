@@ -130,6 +130,7 @@ def dispose(uuid: str) -> flask_return_union:
     else:
         abort(sample_response.status_code)
 
+
 @sample.route("batch/dispose", methods=["GET", "POST"])
 @login_required
 def batch_dispose() -> flask_return_union:
@@ -141,13 +142,11 @@ def batch_dispose() -> flask_return_union:
     if sample_response.status_code == 200:
         samples = []
         for item in sample_response.json()["content"]:
-            if item["selected"]:# and item["storage_type"] != "RUC":
+            if item["selected"]:  # and item["storage_type"] != "RUC":
                 samples.append(item["sample"])
 
         if len(samples) == 0:
-            flash(
-                "No sample selected in the user sample cart! "
-            )
+            flash("No sample selected in the user sample cart! ")
             return render_template("sample/shipment/cart.html")
 
         protocols_response = requests.get(
@@ -195,7 +194,6 @@ def batch_dispose() -> flask_return_union:
 
             else:
                 flash(batch_disposal_response.json()["message"])
-
 
         return render_template(
             "sample/disposal/batch_dispose.html",

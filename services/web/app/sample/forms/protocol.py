@@ -22,7 +22,7 @@ from wtforms import (
     DateField,
     TextAreaField,
     TimeField,
-    FloatField
+    FloatField,
 )
 
 from wtforms.validators import DataRequired, Optional, NumberRange
@@ -30,7 +30,6 @@ from datetime import datetime
 
 
 def ProtocolEventForm(protocols: list, data={}):
-
     class StaticForm(FlaskForm):
         protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
 
@@ -68,20 +67,20 @@ def ProtocolEventForm(protocols: list, data={}):
             StaticForm,
             "reduced_quantity",
             FloatField(
-                label = "Reduction in Sample Quantity",
-                description = "Quantity Reduced from the event (%s)" %metric,
-                default = 0,
-                validators = [Optional(), NumberRange(0, data["remaining_quantity"])]
+                label="Reduction in Sample Quantity",
+                description="Quantity Reduced from the event (%s)" % metric,
+                default=0,
+                validators=[Optional(), NumberRange(0, data["remaining_quantity"])],
             ),
         )
         setattr(
             StaticForm,
             "remaining_quantity",
             FloatField(
-                label = "Remaining Quantity",
+                label="Remaining Quantity",
                 description="Original quantity (%s %s)" % (data["quantity"], metric),
-                render_kw={'readonly': True},
-                validators = [NumberRange(0, data["remaining_quantity"])]
+                render_kw={"readonly": True},
+                validators=[NumberRange(0, data["remaining_quantity"])],
             ),
         )
 

@@ -21,6 +21,7 @@ import requests
 from ...misc import get_internal_api_header
 from ..forms import ProtocolEventForm
 from datetime import datetime
+
 strconv = lambda i: i or None
 
 
@@ -58,8 +59,10 @@ def new_protocol_event(uuid):
 
         sample_data = {
             "quantity": sample_response.json()["content"]["quantity"],
-            "remaining_quantity": sample_response.json()["content"]["remaining_quantity"],
-            "base_type": sample_response.json()["content"]["base_type"]
+            "remaining_quantity": sample_response.json()["content"][
+                "remaining_quantity"
+            ],
+            "base_type": sample_response.json()["content"]["base_type"],
         }
         form = ProtocolEventForm(protocols, data=sample_data)
 
@@ -116,7 +119,7 @@ def edit_protocol_event(uuid: object) -> object:
             flash("Sample is locked!")
             return redirect(url_for("sample.view", uuid=sample_uuid))
 
-        print('prot: ', protocolevent_response.json())
+        print("prot: ", protocolevent_response.json())
         data = protocolevent_response.json()
 
         type = data["protocol"]["type"]
@@ -129,14 +132,15 @@ def edit_protocol_event(uuid: object) -> object:
 
         if protocols_response.status_code == 200:
             for protocol in protocols_response.json()["content"]:
-                #if protocol["type"] not in ("Sample Aliquot / Derivation",
+                # if protocol["type"] not in ("Sample Aliquot / Derivation",
                 #                            "Sample Destruction", "Sample Transfer"):
                 # -- Protocol can only be changed to another protocol of the same type.
                 if protocol["type"] == type:
                     protocols.append(
                         (
                             int(protocol["id"]),
-                            "[%s] LIMBPRO-%s: %s" % (protocol["type"], protocol["id"], protocol["name"]),
+                            "[%s] LIMBPRO-%s: %s"
+                            % (protocol["type"], protocol["id"], protocol["name"]),
                         )
                     )
 
@@ -145,8 +149,8 @@ def edit_protocol_event(uuid: object) -> object:
         data["protocol_id"] = data["protocol"]["id"]
         data.pop("protocol")
         sample_data = data.pop("sample")
-        data["date"]=datetime.strptime(data["datetime"], "%Y-%m-%dT%H:%M:%S").date()
-        data["time"]=datetime.strptime(data["datetime"], "%Y-%m-%dT%H:%M:%S").time()
+        data["date"] = datetime.strptime(data["datetime"], "%Y-%m-%dT%H:%M:%S").date()
+        data["time"] = datetime.strptime(data["datetime"], "%Y-%m-%dT%H:%M:%S").time()
 
         if "reduced_quantity" not in data:
             data["reduced_quantity"] = None
@@ -161,19 +165,19 @@ def edit_protocol_event(uuid: object) -> object:
 
         if form.validate_on_submit():
             form_info = {
-                       "event": {
-                           "datetime": str(
-                               datetime.strptime(
-                                   "%s %s" % (form.date.data, form.time.data),
-                                   "%Y-%m-%d %H:%M:%S",
-                               )
-                           ),
-                           "undertaken_by": form.undertaken_by.data,
-                           "comments": form.comments.data,
-                       },
-                       "protocol_id": form.protocol_id.data
-                       # "sample_id": sample_response.json()["content"]["id"],
-                   }
+                "event": {
+                    "datetime": str(
+                        datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S",
+                        )
+                    ),
+                    "undertaken_by": form.undertaken_by.data,
+                    "comments": form.comments.data,
+                },
+                "protocol_id": form.protocol_id.data
+                # "sample_id": sample_response.json()["content"]["id"],
+            }
 
             try:
                 form_info["reduced_quantity"] = form.reduced_quantity.data
@@ -185,9 +189,11 @@ def edit_protocol_event(uuid: object) -> object:
                 form_info[i] = strconv(form_info[i])
             print("form_info", form_info)
             event_response = requests.put(
-                url_for("api.sample_edit_sample_protocol_event", uuid=uuid, _external=True),
+                url_for(
+                    "api.sample_edit_sample_protocol_event", uuid=uuid, _external=True
+                ),
                 headers=get_internal_api_header(),
-                json=form_info
+                json=form_info,
             )
 
             if event_response.status_code == 200:
@@ -199,8 +205,9 @@ def edit_protocol_event(uuid: object) -> object:
 
         return render_template(
             "sample/protocol/edit.html",
-            form=form, uuid=uuid,
-            sample=sample_data, #protocolevent_response.json()["sample"],
+            form=form,
+            uuid=uuid,
+            sample=sample_data,  # protocolevent_response.json()["sample"],
         )
 
     else:
@@ -229,7 +236,9 @@ def remove_protocol_event(uuid):
 @login_required
 def lock_sample_creation_event(uuid):
     response = requests.post(
-        url_for("api.sample_lock_sample_creation_protocol_event", uuid=uuid, _external=True),
+        url_for(
+            "api.sample_lock_sample_creation_protocol_event", uuid=uuid, _external=True
+        ),
         headers=get_internal_api_header(),
     )
 

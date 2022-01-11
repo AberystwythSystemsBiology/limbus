@@ -35,4 +35,3 @@ class ProtocolType(FormEnum):
     COL = "Collection"
     STU = "Study"
     TMP = "Temporary Storage"
-

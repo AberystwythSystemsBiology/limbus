@@ -90,7 +90,8 @@ class SampleShipmentToSampleInfoSchema(masql.SQLAlchemySchema):
 
 from .filter import *
 from .consent import *
-#from .disposal import *
+
+# from .disposal import *
 from .document import *
 from .filter import *
 from .protocol import *

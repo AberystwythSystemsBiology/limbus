@@ -193,22 +193,20 @@ def batch_review():
     if sample_response.status_code == 200:
         samples = []
         for item in sample_response.json()["content"]:
-            if item["selected"]:# and item["storage_type"] != "RUC":
+            if item["selected"]:  # and item["storage_type"] != "RUC":
                 samples.append(item["sample"])
         if len(samples) == 0:
-            flash(
-                "No sample selected in the user smaple cart! "
-            )
-            #return redirect(url_for("sample.view_cart", id=id))
+            flash("No sample selected in the user smaple cart! ")
+            # return redirect(url_for("sample.view_cart", id=id))
             return render_template("sample/shipment/cart.html")
 
-        form = SampleReviewForm() #data=disposal_info)
+        form = SampleReviewForm()  # data=disposal_info)
 
         if form.validate_on_submit():
             review_info = {
                 "review_type": form.review_type.data,
                 "result": form.result.data,
-                #"sample_id": sample_response.json()["content"]["id"],
+                # "sample_id": sample_response.json()["content"]["id"],
                 "event": {
                     "undertaken_by": form.conducted_by.data,
                     "datetime": str(
@@ -257,7 +255,7 @@ def batch_review():
                 print("msg: ", new_review_event_response.json()["message"])
                 if new_review_event_response.status_code == 200:
                     flash("Sample Review and Disposal Instruction Successfully Added!")
-                    #flash(new_review_event_response.json()["message"])
+                    # flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.shipment_cart"))
 
                 else:

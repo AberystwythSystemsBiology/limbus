@@ -98,6 +98,7 @@ class FluidSampleType(FormEnum):
     URI = "Urine"
     VIT = "Vitreous Fluid"
 
+
 class BloodSampleType(FormEnum):
     SER = "Serum"
     PLA = "Plasma"

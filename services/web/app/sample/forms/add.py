@@ -48,9 +48,7 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
         )
         comments = TextAreaField("Comments")
         container_base_type = SelectField(
-            "Container base type",
-            choices=ContainerBaseType.choices(),
-            default="LTS"
+            "Container base type", choices=ContainerBaseType.choices(), default="LTS"
         )
 
         processed_by = StringField(
@@ -62,9 +60,7 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
     setattr(
         StaticForm,
         "processing_protocol",
-        SelectField(
-            "Processing Protocol", choices=aliquot_protocols, coerce=int
-        ),
+        SelectField("Processing Protocol", choices=aliquot_protocols, coerce=int),
     )
 
     setattr(
@@ -76,7 +72,6 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
     )
 
     return StaticForm()
-
 
 
 def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> FlaskForm:
@@ -112,9 +107,7 @@ def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> Fl
     setattr(
         StaticForm,
         "processing_protocol",
-        SelectField(
-            "Processing Protocol", choices=processing_protocols, coerce=int
-        ),
+        SelectField("Processing Protocol", choices=processing_protocols, coerce=int),
     )
 
     setattr(
@@ -126,6 +119,7 @@ def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> Fl
     )
 
     return StaticForm()
+
 
 def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
     class StaticForm(FlaskForm):
@@ -209,7 +203,9 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
                         )
                         return False
                 else:
-                    self.status.errors.append("Sample status can't be changed in case of destroyed/transferred")
+                    self.status.errors.append(
+                        "Sample status can't be changed in case of destroyed/transferred"
+                    )
                     return False
 
             return True

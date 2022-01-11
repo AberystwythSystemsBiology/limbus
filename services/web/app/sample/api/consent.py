@@ -22,7 +22,14 @@ from ...misc import get_internal_api_header
 
 from ..views import new_consent_schema, consent_schema, new_consent_answer_schema
 
-from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount, SiteInformation, Donor
+from ...database import (
+    db,
+    SampleConsent,
+    SampleConsentAnswer,
+    UserAccount,
+    SiteInformation,
+    Donor,
+)
 
 # -- Legacy: use donor/new/consent instead
 # @api.route("/sample/new/consent", methods=["POST"])
@@ -96,14 +103,33 @@ from ...database import db, SampleConsent, SampleConsentAnswer, UserAccount, Sit
 @api.route("/sample/get_consents", methods=["GET"])
 @token_required
 def sample_get_consents(tokenuser: UserAccount):
-    consents = SampleConsent.query.outerjoin(Donor, Donor.id == SampleConsent.donor_id).\
-            outerjoin(SiteInformation, SiteInformation.id==Donor.enrollment_site_id).\
-            filter_by(is_locked=False).\
-            with_entities(Donor.enrollment_site_id, SiteInformation.name, Donor.id ,
-                      SampleConsent.id, SampleConsent.date).all()
+    consents = (
+        SampleConsent.query.outerjoin(Donor, Donor.id == SampleConsent.donor_id)
+        .outerjoin(SiteInformation, SiteInformation.id == Donor.enrollment_site_id)
+        .filter_by(is_locked=False)
+        .with_entities(
+            Donor.enrollment_site_id,
+            SiteInformation.name,
+            Donor.id,
+            SampleConsent.id,
+            SampleConsent.date,
+        )
+        .all()
+    )
 
-    results = [{'id':consent_id,'label':'[SITE%s-%s] LIMBDON-%s: LIMBDC-%s(%s)'
-               % (site_id, site_name, donor_id, consent_id, consent_date, )}
-                for (site_id, site_name, donor_id, consent_id, consent_date) in consents]
+    results = [
+        {
+            "id": consent_id,
+            "label": "[SITE%s-%s] LIMBDON-%s: LIMBDC-%s(%s)"
+            % (
+                site_id,
+                site_name,
+                donor_id,
+                consent_id,
+                consent_date,
+            ),
+        }
+        for (site_id, site_name, donor_id, consent_id, consent_date) in consents
+    ]
 
     return success_with_content_response(results)

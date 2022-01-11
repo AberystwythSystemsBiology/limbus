@@ -22,7 +22,7 @@ from .. import sample
 
 from ..forms import (
     CollectionConsentAndDisposalForm,
-    #PatientConsentQuestionnaire,
+    # PatientConsentQuestionnaire,
     SampleTypeSelectForm,
     SampleReviewForm,
     CustomAttributeSelectForm,
@@ -67,7 +67,7 @@ def prepare_form_data(data: dict):
             "undertaken_by": step_two["undertaken_by"],
             "answers": step_two["answers"],
             "template_id": step_one["consent_form_id"],
-            "study_protocol_id":step_two["study_protocol_id"],
+            "study_protocol_id": step_two["study_protocol_id"],
             "study": step_two["study"],
         },
         "disposal_information": {
@@ -143,7 +143,10 @@ def add_rerouter(hash):
                         new_sample_response.json()["content"]["_links"]["self"]
                     )
                 else:
-                    flash("We have encountered an error. %s " % new_sample_response.json()["message"])
+                    flash(
+                        "We have encountered an error. %s "
+                        % new_sample_response.json()["message"]
+                    )
             return redirect(url_for("sample.add_step_three", hash=hash))
 
         return redirect(url_for("sample.add_step_two", hash=hash))
@@ -168,7 +171,7 @@ def add_step_one():
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="ACQ", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type":["ACQ"]},
+        json={"is_locked": False, "type": ["ACQ"]},
     )
 
     if protocols_response.status_code == 200:
@@ -185,8 +188,9 @@ def add_step_one():
         #         )
 
     sites_response = requests.get(
-        #url_for("api.site_home", _external=True), headers=get_internal_api_header()
-        url_for("api.site_home_tokenuser", _external=True), headers = get_internal_api_header()
+        # url_for("api.site_home", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
     )
     print("site", sites_response.json())
     if sites_response.status_code == 200:
@@ -273,28 +277,29 @@ def add_step_two(hash):
         return consent_response.response
 
     consent_template = consent_response.json()["content"]
-    consent_data = {'template_name': consent_template['name'],
-                     'template_version': consent_template['version'],
-                     'questions': consent_template['questions']}
-
+    consent_data = {
+        "template_name": consent_template["name"],
+        "template_version": consent_template["version"],
+        "questions": consent_template["questions"],
+    }
 
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="STU", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type":["STU"]},
+        json={"is_locked": False, "type": ["STU"]},
     )
 
     if protocols_response.status_code == 200:
         study_protocols = protocols_response.json()["content"]["choices"]
 
-    study_protocols = [(0, '--- Select a study ---')] + study_protocols
+    study_protocols = [(0, "--- Select a study ---")] + study_protocols
 
     form = ConsentQuestionnaire(study_protocols, data=consent_data)
 
     if form.validate_on_submit():
 
         consent_details = {
-            #"donor_id": donor_id,
+            # "donor_id": donor_id,
             "identifier": form.identifier.data,
             "comments": form.comments.data,
             "date": str(form.date.data),
@@ -314,7 +319,12 @@ def add_step_two(hash):
 
         else:
             consent_details["study"]["event"] = {
-                "datetime": str(datetime.strptime("%s %s" % (consent_details["study"].pop("date"), "00:00:00"), "%Y-%m-%d %H:%M:%S")),
+                "datetime": str(
+                    datetime.strptime(
+                        "%s %s" % (consent_details["study"].pop("date"), "00:00:00"),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                ),
                 "comments": consent_details["study"].pop("comments"),
                 "undertaken_by": consent_details["study"].pop("undertaken_by"),
             }
@@ -362,11 +372,10 @@ def add_step_three(hash):
         headers=get_internal_api_header(),
     )
 
-
     if sampletype_response.status_code == 200:
 
-        sampletypes = sampletype_response.json()["content"]['sampletype_choices']
-        containertypes = sampletype_response.json()["content"]['container_choices']
+        sampletypes = sampletype_response.json()["content"]["sampletype_choices"]
+        containertypes = sampletype_response.json()["content"]["container_choices"]
 
     form = SampleTypeSelectForm(sampletypes, containertypes)
 

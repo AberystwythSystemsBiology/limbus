@@ -63,7 +63,7 @@ class SiteRegistrationForm(FlaskForm):
     country = SelectField(
         "Country",
         validators=[DataRequired()],
-        default = "GB",
+        default="GB",
         choices=sorted(
             [(country.alpha_2, country.name) for country in pycountry.countries],
             key=lambda x: x[1],

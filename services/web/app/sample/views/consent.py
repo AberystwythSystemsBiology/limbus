@@ -68,7 +68,7 @@ class ConsentSchema(masql.SQLAlchemySchema):
     undertaken_by = masql.auto_field()
     template = ma.Nested(BasicConsentFormTemplateSchema, many=False)
     template_questions = ma.Nested(BasicConsentFormQuestionSchema, many=True)
-    #author = ma.Nested(BasicUserAccountSchema, many=False)
+    # author = ma.Nested(BasicUserAccountSchema, many=False)
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
     date = ma.Date()
@@ -78,9 +78,17 @@ class ConsentSchema(masql.SQLAlchemySchema):
     study = ma.Nested(DonorProtocolEventSchema, many=False)
     _links = ma.Hyperlinks(
         {
-            "edit": ma.URLFor("donor.edit_donor_consent", id="<id>", donor_id="<donor_id>", _external=True),
-            "remove": ma.URLFor("donor.remove_donor_consent", id="<id>", _external=True)
-        })
+            "edit": ma.URLFor(
+                "donor.edit_donor_consent",
+                id="<id>",
+                donor_id="<donor_id>",
+                _external=True,
+            ),
+            "remove": ma.URLFor(
+                "donor.remove_donor_consent", id="<id>", _external=True
+            ),
+        }
+    )
 
 
 consent_schema = ConsentSchema()

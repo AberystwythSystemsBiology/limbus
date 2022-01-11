@@ -12,9 +12,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, BooleanField, SelectMultipleField, DateField
+from wtforms import (
+    SelectField,
+    StringField,
+    SubmitField,
+    BooleanField,
+    SelectMultipleField,
+    DateField,
+)
 from datetime import datetime
 from ..enums import *
+
 
 def AuditFilterForm(sites: list, users: list, data={}) -> FlaskForm:
     users.insert(0, (0, "None"))
@@ -31,33 +39,40 @@ def AuditFilterForm(sites: list, users: list, data={}) -> FlaskForm:
         )
 
         audit_type = SelectField(
-            "Audit Type", choices=AuditTypes.choices(with_none=False),
+            "Audit Type",
+            choices=AuditTypes.choices(with_none=False),
         )
 
         general_object = SelectMultipleField(
-            "General Objects", choices=GeneralObject.choices(),#with_none=True),
+            "General Objects",
+            choices=GeneralObject.choices(),  # with_none=True),
             default=[k[0] for k in GeneralObject.choices()],
         )
         sample_object = SelectMultipleField(
-            "Sample Objects", choices=SampleObject.choices(),#with_none=False),
+            "Sample Objects",
+            choices=SampleObject.choices(),  # with_none=False),
             default=[k[0] for k in SampleObject.choices()],
         )
 
         donor_object = SelectMultipleField(
-            "Donor Objects", choices=DonorObject.choices(), #with_none=False),
+            "Donor Objects",
+            choices=DonorObject.choices(),  # with_none=False),
             default=[k[0] for k in DonorObject.choices()],
         )
 
         template_object = SelectMultipleField(
-            "SOP Objects", choices=TemplateObject.choices(), #with_none=False),
+            "SOP Objects",
+            choices=TemplateObject.choices(),  # with_none=False),
             default=[k[0] for k in TemplateObject.choices()],
         )
         storage_object = SelectMultipleField(
-            "Cold Storage", choices=StorageObject.choices(), #with_none=False),
+            "Cold Storage",
+            choices=StorageObject.choices(),  # with_none=False),
             default=[k[0] for k in StorageObject.choices()],
         )
         auth_object = SelectMultipleField(
-            "User & Sites", choices=AuthObject.choices(), #with_none=False),
+            "User & Sites",
+            choices=AuthObject.choices(),  # with_none=False),
             default=[k[0] for k in AuthObject.choices()],
         )
 

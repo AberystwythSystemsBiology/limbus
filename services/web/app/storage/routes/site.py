@@ -49,9 +49,7 @@ def view_site(id):
         if "is_external" in site_info and site_info["is_external"]:
             site_info["type"] = "External"
 
-        return render_template(
-            "storage/site/view.html", site=site_info
-        )
+        return render_template("storage/site/view.html", site=site_info)
 
     return abort(response.status_code)
 
@@ -120,7 +118,6 @@ def edit_site(id):
         flash("The site is locked!")
         return redirect(url_for("storage.view_site", id=id))
 
-
     if response.status_code == 200:
 
         site_info = response.json()["content"]["address"]
@@ -138,12 +135,12 @@ def edit_site(id):
                 "address": {
                     "street_address_one": form.street_address_one.data,
                     "street_address_two": form.street_address_two.data,
-                    "city" : form.city.data,
-                    "county" : form.county.data,
-                    "post_code" : form.post_code.data,
-                    "country" : form.country.data,
+                    "city": form.city.data,
+                    "county": form.county.data,
+                    "post_code": form.post_code.data,
+                    "country": form.country.data,
                 },
-                "is_external": form.is_external.data
+                "is_external": form.is_external.data,
             }
 
             edit_response = requests.put(
@@ -159,13 +156,11 @@ def edit_site(id):
 
             return redirect(url_for("storage.view_site", id=id))
 
-
         return render_template(
             "storage/site/edit.html", room=response.json()["content"], form=form
         )
 
     return abort(response.status_code)
-
 
 
 @storage.route("/site/LIMBSITE-<id>/edit_addresses", methods=["GET", "POST"])
@@ -185,7 +180,7 @@ def site_edit_addresses(id):
         return redirect(url_for("storage.view_site", id=id))
 
     site_info = response.json()["content"]
-    site_info["id"]  = id
+    site_info["id"] = id
     site_info["num_addresses"] = len(site_info["addresses"])
 
     addr0 = []
@@ -212,8 +207,8 @@ def site_edit_addresses(id):
         new = []
         address_id = site_info["address_id"]
         for addr in form.addresses.entries:
-            #address = eval(str(addr.data))
-            #address.pop("csrf_token", None)
+            # address = eval(str(addr.data))
+            # address.pop("csrf_token", None)
             address = {
                 "id": addr.address_id.data,
                 "street_address_one": addr.street_address_one.data,
@@ -245,7 +240,7 @@ def site_edit_addresses(id):
             "address_id": address_id,
             "addresses": addresses,
             "new_addresses": new,
-            "is_external": form.is_external.data
+            "is_external": form.is_external.data,
         }
 
         # print("form_informationn", form_information)
@@ -267,4 +262,6 @@ def site_edit_addresses(id):
         if form.errors != {}:
             flash("Form validation errors!" + str(form.errors))
 
-    return render_template("/storage/site/edit_addresses.html", form=form, site=site_info)
+    return render_template(
+        "/storage/site/edit_addresses.html", form=form, site=site_info
+    )

@@ -44,7 +44,7 @@ def endpoint():
 @login_required
 def storage_navbar_api():
     response = requests.get(
-        #url_for("api.storage_view_tree", _external=True),
+        # url_for("api.storage_view_tree", _external=True),
         url_for("api.storage_view_tree_tokenuser", _external=True),
         headers=get_internal_api_header(),
     )

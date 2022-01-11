@@ -15,14 +15,30 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 
 from ..database import (
-    Sample, SampleProtocolEvent, SubSampleToSample, Event,
-    SampleConsent, SampleConsentWithdrawal, SampleConsentAnswer,
-    SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
-    SampleReview, SampleDisposal,
-    Donor, DonorProtocolEvent, DonorDiagnosisEvent,
-    ConsentFormTemplate, ConsentFormTemplateQuestion, ProtocolTemplate,
-    UserAccount, SiteInformation, Address,
-    EntityToStorage, ColdStorage, ColdStorageService
+    Sample,
+    SampleProtocolEvent,
+    SubSampleToSample,
+    Event,
+    SampleConsent,
+    SampleConsentWithdrawal,
+    SampleConsentAnswer,
+    SampleShipment,
+    SampleShipmentToSample,
+    SampleShipmentStatus,
+    SampleReview,
+    SampleDisposal,
+    Donor,
+    DonorProtocolEvent,
+    DonorDiagnosisEvent,
+    ConsentFormTemplate,
+    ConsentFormTemplateQuestion,
+    ProtocolTemplate,
+    UserAccount,
+    SiteInformation,
+    Address,
+    EntityToStorage,
+    ColdStorage,
+    ColdStorageService,
 )
 
 from ..protocol.views import BasicProtocolTemplateSchema
@@ -38,18 +54,22 @@ from ..consent.enums import *
 from .enums import *
 from ..auth.enums import *
 
-#from ..sample.views import *
+# from ..sample.views import *
 
 from ..document.views import BasicDocumentSchema
 from ..attribute.views import AttributeDataSchema
-from ..sample.views import SampleTypeSchema, SampleReviewSchema#, SampleProtocolEventSchema, SampleProtocolEventViewSchema
+from ..sample.views import (
+    SampleTypeSchema,
+    SampleReviewSchema,
+)  # , SampleProtocolEventSchema, SampleProtocolEventViewSchema
 
 import marshmallow_sqlalchemy as masql
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
 from sqlalchemy_continuum import version_class
-#from sqlalchemy_continuum import transaction_class
-#from sqlalchemy_continuum import Operation
+
+# from sqlalchemy_continuum import transaction_class
+# from sqlalchemy_continuum import Operation
 
 
 class AuditFilterSchema(Schema):
@@ -69,7 +89,6 @@ class AuditFilterSchema(Schema):
     storage_object = fields.String()
 
     source_study = fields.Int()
-
 
 
 class AuditBasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
@@ -93,6 +112,7 @@ class AuditBasicConsentFormTemplateSchema(masql.SQLAlchemySchema):
 class AuditConsentFormTemplateQuestionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(ConsentFormTemplateQuestion)
+
     id = masql.auto_field()
     question = masql.auto_field()
     type = EnumField(QuestionType, by_value=True)
@@ -111,19 +131,20 @@ class AuditConsentFormTemplateQuestionSchema(masql.SQLAlchemySchema):
 class AuditInfoConsentFormTemplateQuestionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(ConsentFormTemplateQuestion)
+
     id = masql.auto_field()
     question = masql.auto_field()
     type = EnumField(QuestionType, by_value=True)
     template_id = masql.auto_field()
 
-    #created_on = masql.auto_field()
-    #author = ma.Nested(UserAccountSearchSchema, many=False)
+    # created_on = masql.auto_field()
+    # author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
-    #editor = ma.Nested(UserAccountSearchSchema, many=False)
+    # editor = ma.Nested(UserAccountSearchSchema, many=False)
     operation_type = masql.auto_field()
     transaction_id = masql.auto_field()
-    #end_transaction_id = masql.auto_field()
-    #object = fields.Constant("ConsentFormTemplateQuestion")
+    # end_transaction_id = masql.auto_field()
+    # object = fields.Constant("ConsentFormTemplateQuestion")
 
 
 class AuditEventSchema(masql.SQLAlchemySchema):
@@ -139,13 +160,15 @@ class AuditEventSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("Event")
 
+
 audit_event_schema = AuditEventSchema()
 audit_events_schema = AuditEventSchema(many=True)
+
 
 class AuditInfoEventSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -156,14 +179,14 @@ class AuditInfoEventSchema(masql.SQLAlchemySchema):
     undertaken_by = masql.auto_field()
     comments = masql.auto_field()
 
-    #created_on = masql.auto_field()
-    #author = ma.Nested(UserAccountSearchSchema, many=False)
+    # created_on = masql.auto_field()
+    # author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
-    #editor = ma.Nested(UserAccountSearchSchema, many=False)
+    # editor = ma.Nested(UserAccountSearchSchema, many=False)
     operation_type = masql.auto_field()
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
-    #object = fields.Constant("Event")
+    # object = fields.Constant("Event")
 
 
 class AuditDonorSchema(masql.SQLAlchemySchema):
@@ -189,10 +212,11 @@ class AuditDonorSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("Donor")
+
 
 audit_donor_schema = AuditDonorSchema()
 
@@ -220,11 +244,10 @@ class AuditBasicDonorSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("Donor")
-
 
 
 class AuditDonorProtocolEventSchema(masql.SQLAlchemySchema):
@@ -237,19 +260,21 @@ class AuditDonorProtocolEventSchema(masql.SQLAlchemySchema):
     donor_id = masql.auto_field()
     reference_id = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
-    #protocol_id = masql.auto_field()
+    # protocol_id = masql.auto_field()
     protocol = ma.Nested(BasicProtocolTemplateSchema)
 
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("DonorProtocolEvent")
 
+
 audit_donor_protocol_event_schema = AuditDonorProtocolEventSchema()
+
 
 class AuditBasicDonorProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -262,16 +287,15 @@ class AuditBasicDonorProtocolEventSchema(masql.SQLAlchemySchema):
     reference_id = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
     protocol_id = masql.auto_field()
-    #protocol = ma.Nested(BasicProtocolTemplateSchema)
+    # protocol = ma.Nested(BasicProtocolTemplateSchema)
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("DonorProtocolEvent")
-
 
 
 class AuditDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
@@ -288,7 +312,7 @@ class AuditDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("DonorDiagnosisEvent")
@@ -305,7 +329,7 @@ class AuditSampleConsentSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     undertaken_by = masql.auto_field()
     template = ma.Nested(AuditBasicConsentFormTemplateSchema, many=False)
-    #template_questions = ma.Nested(ConsentFormQuestionSchema, many=True)
+    # template_questions = ma.Nested(ConsentFormQuestionSchema, many=True)
     date = ma.Date()
     answers = ma.Nested(AuditInfoConsentFormTemplateQuestionSchema, many=True)
     withdrawn = masql.auto_field()
@@ -333,10 +357,10 @@ class AuditBasicSampleConsentSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     undertaken_by = masql.auto_field()
     template_id = masql.auto_field()
-    #template = ma.Nested(AuditBasicConsentFormTemplateSchema, many=False)
-    #template_questions = ma.Nested(BasicConsentFormQuestionSchema, many=True)
+    # template = ma.Nested(AuditBasicConsentFormTemplateSchema, many=False)
+    # template_questions = ma.Nested(BasicConsentFormQuestionSchema, many=True)
     date = ma.Date()
-    #answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
+    # answers = ma.Nested(BasicConsentFormQuestionSchema, many=True)
     withdrawn = masql.auto_field()
     withdrawal_date = ma.Date()
     # study = ma.Nested(DonorProtocolEventSchema, many=False)
@@ -390,6 +414,7 @@ class AuditBasicSampleConsentWithdrawalSchema(masql.SQLAlchemySchema):
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleConsentWithdrawal")
 
+
 class AuditSampleProtocolEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(SampleProtocolEvent)
@@ -398,7 +423,7 @@ class AuditSampleProtocolEventSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     id = masql.auto_field()
     reduced_quantity = masql.auto_field()
-    #author = ma.Nested(UserAccountSearchSchema)
+    # author = ma.Nested(UserAccountSearchSchema)
     event = ma.Nested(AuditInfoEventSchema)
     protocol = ma.Nested(BasicProtocolTemplateSchema)
 
@@ -406,10 +431,11 @@ class AuditSampleProtocolEventSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleProtocolEvent")
+
 
 audit_sample_protocol_event_schema = AuditSampleProtocolEventSchema()
 audit_sample_protocol_events_schema = AuditSampleProtocolEventSchema(many=True)
@@ -425,22 +451,24 @@ class AuditBasicSampleProtocolEventSchema(masql.SQLAlchemySchema):
     reduced_quantity = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
     protocol_id = masql.auto_field()
-    #protocol = ma.Nested(BasicProtocolTemplateSchema)
+    # protocol = ma.Nested(BasicProtocolTemplateSchema)
 
     created_on = masql.auto_field()
     author_id = masql.auto_field
-    #author = ma.Nested(UserAccountSearchSchema, many=False)
+    # author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor_id = masql.auto_field
-    #editor = ma.Nested(UserAccountSearchSchema, many=False)
+    # editor = ma.Nested(UserAccountSearchSchema, many=False)
     operation_type = masql.auto_field()
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleProtocolEvent")
 
-audit_basic_sample_protocol_event_schema = AuditBasicSampleProtocolEventSchema()
-audit_basic_sample_protocol_events_schema = AuditBasicSampleProtocolEventSchema(many=True)
 
+audit_basic_sample_protocol_event_schema = AuditBasicSampleProtocolEventSchema()
+audit_basic_sample_protocol_events_schema = AuditBasicSampleProtocolEventSchema(
+    many=True
+)
 
 
 class AuditSampleDisposalSchema(masql.SQLAlchemySchema):
@@ -454,8 +482,8 @@ class AuditSampleDisposalSchema(masql.SQLAlchemySchema):
     disposal_date = masql.auto_field()
     review_event_id = masql.auto_field()
     approval_event_id = masql.auto_field()
-    #disposal_event_id = masql.auto_field()
-    #review_event = ma.Nested(SampleReviewSchema)
+    # disposal_event_id = masql.auto_field()
+    # review_event = ma.Nested(SampleReviewSchema)
     disposal_event = ma.Nested(AuditBasicSampleProtocolEventSchema)
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
@@ -466,7 +494,9 @@ class AuditSampleDisposalSchema(masql.SQLAlchemySchema):
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleDisposal")
 
+
 audit_sample_disposal_schema = AuditSampleDisposalSchema()
+
 
 class AuditBasicSampleDisposalSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -479,11 +509,11 @@ class AuditBasicSampleDisposalSchema(masql.SQLAlchemySchema):
     disposal_date = masql.auto_field()
     review_event_id = masql.auto_field()
     approval_event_id = masql.auto_field()
-    #disposal_event_id = masql.auto_field()
+    # disposal_event_id = masql.auto_field()
     review_event_id = masql.auto_field()
-    #review_event = ma.Nested(SampleReviewSchema)
+    # review_event = ma.Nested(SampleReviewSchema)
     disposal_event_id = masql.auto_field()
-    #disposal_event = ma.Nested(SampleProtocolEventSchema)
+    # disposal_event = ma.Nested(SampleProtocolEventSchema)
 
     created_on = masql.auto_field()
     author_id = masql.auto_field()
@@ -497,10 +527,9 @@ class AuditBasicSampleDisposalSchema(masql.SQLAlchemySchema):
     object = fields.Constant("SampleDisposal")
 
 
-
 class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        #model = version_class(EntityToStorage)
+        # model = version_class(EntityToStorage)
         model = EntityToStorage
 
     id = masql.auto_field()
@@ -508,8 +537,8 @@ class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
 
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
-    #rack_id = masql.auto_field()
-    #shelf_id = masql.auto_field()
+    # rack_id = masql.auto_field()
+    # shelf_id = masql.auto_field()
     row = masql.auto_field()
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
@@ -524,17 +553,18 @@ class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     # end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
 
+
 class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        #model = version_class(EntityToStorage)
+        # model = version_class(EntityToStorage)
         model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
     rack_id = masql.auto_field()
-    #rack = ma.Nested(BasicSampleRackSchema, many=False)
+    # rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf_id = masql.auto_field()
-    #shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
+    # shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
     row = masql.auto_field()
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
@@ -549,8 +579,10 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     # end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
 
+
 audit_basic_entitytostorage_schema = AuditBasicEntityToStorageSchema()
 audit_basic_entitytostorages_schema = AuditBasicEntityToStorageSchema(many=True)
+
 
 class AuditBasicSampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -560,17 +592,18 @@ class AuditBasicSampleShipmentSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     new_site = ma.Nested(SiteNameSchema, many=False)
     created_on = ma.Date()
-    #shipment_status = ma.Nested(BasicSampleShipmentStatusSchema)  # , many=False)
+    # shipment_status = ma.Nested(BasicSampleShipmentStatusSchema)  # , many=False)
     event = ma.Nested(AuditInfoEventSchema)
 
     created_on = ma.Date()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = ma.Date()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleShipment")
+
 
 class AuditInfoSampleShipmentSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -579,17 +612,16 @@ class AuditInfoSampleShipmentSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     id = masql.auto_field()
     new_site = ma.Nested(SiteNameSchema, many=False)
-    event_id = masql.auto_field() #ma.Nested(AuditInfoEventSchema)
+    event_id = masql.auto_field()  # ma.Nested(AuditInfoEventSchema)
 
     updated_on = ma.Date()
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
 
 
 class AuditSampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(SampleShipmentToSample)
-
 
     shipment = ma.Nested(AuditInfoSampleShipmentSchema, many=False)
     old_site = ma.Nested(SiteNameSchema, many=False)
@@ -598,10 +630,11 @@ class AuditSampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = ma.Date()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleShipmentToSample")
+
 
 class AuditBasicSampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -610,14 +643,14 @@ class AuditBasicSampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     shipment_id = masql.auto_field()
     sample_id = masql.auto_field()
-    #shipment = ma.Nested(BasicSampleShipmentSchema, many=False)
+    # shipment = ma.Nested(BasicSampleShipmentSchema, many=False)
     old_site = ma.Nested(SiteNameSchema, many=False)
 
     created_on = ma.Date()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = ma.Date()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleShipmentToSample")
@@ -638,10 +671,11 @@ class AuditBasicSampleShipmentStatusSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = ma.Date()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleShipmentStatus")
+
 
 class AuditSampleReviewSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -663,8 +697,10 @@ class AuditSampleReviewSchema(masql.SQLAlchemySchema):
     end_transaction_id = masql.auto_field()
     object = fields.Constant("SampleReview")
 
+
 audit_sample_review_schema = AuditSampleReviewSchema()
 audit_sample_reviews_schema = AuditSampleReviewSchema(many=True)
+
 
 class AuditSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -698,8 +734,8 @@ class AuditSampleSchema(masql.SQLAlchemySchema):
     attributes = ma.Nested(AttributeDataSchema, many=True)
     documents = ma.Nested(BasicDocumentSchema, many=True)
 
-    #parent = ma.Nested(BasicSampleSchema, many=False)
-    #subsamples = ma.Nested(BasicSampleSchema, many=True)
+    # parent = ma.Nested(BasicSampleSchema, many=False)
+    # subsamples = ma.Nested(BasicSampleSchema, many=True)
 
     events = ma.Nested(AuditBasicSampleProtocolEventSchema, many=True)
     reviews = ma.Nested(AuditSampleReviewSchema, many=True)
@@ -709,13 +745,15 @@ class AuditSampleSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("Sample")
 
+
 audit_sample_schema = AuditSampleSchema()
 audit_samples_schema = AuditSampleSchema(many=True)
+
 
 class AuditBasicSampleSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -733,7 +771,7 @@ class AuditBasicSampleSchema(masql.SQLAlchemySchema):
     comments = masql.auto_field()
     barcode = masql.auto_field()
     sample_to_type_id = masql.auto_field()
-    #sample_type_information = ma.Nested(SampleTypeSchema)
+    # sample_type_information = ma.Nested(SampleTypeSchema)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
@@ -750,10 +788,11 @@ class AuditBasicSampleSchema(masql.SQLAlchemySchema):
     updated_on = masql.auto_field()
     editor_id = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("Sample")
+
 
 audit_basic_sample_schema = AuditBasicSampleSchema()
 audit_basic_samples_schema = AuditBasicSampleSchema(many=True)
@@ -781,6 +820,7 @@ class AuditBasicProtocolTemplateSchema(masql.SQLAlchemySchema):
 class AuditBasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(UserAccount)
+
     id = masql.auto_field()
     email = masql.auto_field()
     first_name = masql.auto_field()
@@ -796,7 +836,6 @@ class AuditBasicUserAccountSchema(masql.SQLAlchemySchema):
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("UserAccount")
-
 
 
 class AuditBasicAddressSchema(masql.SQLAlchemySchema):
@@ -821,6 +860,7 @@ class AuditBasicAddressSchema(masql.SQLAlchemySchema):
     end_transaction_id = masql.auto_field()
     object = fields.Constant("Address")
 
+
 class AuditInfoAddressSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(Address)
@@ -836,6 +876,7 @@ class AuditInfoAddressSchema(masql.SQLAlchemySchema):
     updated_on = masql.auto_field()
     operation_type = masql.auto_field()
     transaction_id = masql.auto_field()
+
 
 class AuditSiteInformationSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -876,9 +917,9 @@ class AuditBasicColdStorageSchema(masql.SQLAlchemySchema):
     temp = EnumField(FixedColdStorageTemps, by_value=True)
     type = EnumField(FixedColdStorageType, by_value=True)
     room_id = masql.auto_field()
-    #shelves = ma.Nested(ColdStorageShelfSchema, many=True)
-    status =  EnumField(FixedColdStorageStatus, by_value=True)
-    #service_history = ma.Nested(ColdStorageServiceSchema, many=True)
+    # shelves = ma.Nested(ColdStorageShelfSchema, many=True)
+    status = EnumField(FixedColdStorageStatus, by_value=True)
+    # service_history = ma.Nested(ColdStorageServiceSchema, many=True)
     # documents = ma.Nested(DocumentSchema(), many=True)
 
     created_on = masql.auto_field()
@@ -910,4 +951,3 @@ class AuditColdStorageServiceSchema(masql.SQLAlchemySchema):
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("ColdStorageService")
-

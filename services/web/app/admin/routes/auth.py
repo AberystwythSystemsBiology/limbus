@@ -125,7 +125,8 @@ def auth_data():
     )
 
     sites_response = requests.get(
-        url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
     )
 
     if sites_response.status_code == 200:
@@ -154,10 +155,10 @@ def auth_data():
                 else:
                     entry_key = None
                 if entry_key:
-                    user["working_sites"] = [sites_dict[s]
-                                             for s
-                                             in user["settings"][entry_key]["site"]["choices"]
-                                             ]
+                    user["working_sites"] = [
+                        sites_dict[s]
+                        for s in user["settings"][entry_key]["site"]["choices"]
+                    ]
 
             except:
                 pass
@@ -165,7 +166,6 @@ def auth_data():
         return {"content": auth_info, "success": True}
 
     return auth_response.content
-
 
 
 @admin.route("/auth/<id>/edit", methods=["GET", "POST"])
@@ -179,7 +179,8 @@ def admin_edit_account(id):
     )
 
     sites_response = requests.get(
-        url_for("api.site_home_tokenuser", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
     )
     # sites=[0, None]
     if sites_response.status_code == 200:
@@ -204,27 +205,35 @@ def admin_edit_account(id):
                 setting = {}
                 if access_type == "data_entry":
                     setting["access_level"] = 1
-                else: #if access_type == "view_only":
+                else:  # if access_type == "view_only":
                     setting["access_level"] = 2
 
                 try:
-                    setting["site_choices"] \
-                        = account_data["settings"][access_type]["site"]["choices"]
-                    if setting["site_choices"] is None or len(setting["site_choices"]) == 0:
+                    setting["site_choices"] = account_data["settings"][access_type][
+                        "site"
+                    ]["choices"]
+                    if (
+                        setting["site_choices"] is None
+                        or len(setting["site_choices"]) == 0
+                    ):
                         setting["site_choices"] = default_sites
                 except:
                     setting["site_choices"] = default_sites
 
-                setting["site_selected"] = "\n".join([s[1] for s in sites if s[0] in setting["site_choices"]])
+                setting["site_selected"] = "\n".join(
+                    [s[1] for s in sites if s[0] in setting["site_choices"]]
+                )
                 settings.append(setting)
 
             account_data["settings"] = settings
         else:
-            account_data["settings"] = [ {"access_level":1,
-                                          "site_choices": default_sites,
-                                          "site_selected": [s[1] for s in sites if s[0] == site_id][0]
-                                         }
-                                       ]
+            account_data["settings"] = [
+                {
+                    "access_level": 1,
+                    "site_choices": default_sites,
+                    "site_selected": [s[1] for s in sites if s[0] == site_id][0],
+                }
+            ]
 
         print("account_data", account_data)
         print("setting", account_data["settings"])
@@ -249,17 +258,18 @@ def admin_edit_account(id):
             for setting in form.settings.entries:
                 print("setting : ", setting.site_choices.data)
                 site_choices = []
-                if len(setting.site_choices.data)>0:
-                    site_choices = [int(k) for k
-                                    in setting.site_choices.data
-                                    if int(k)!=account_data["site_id"]
-                                    ]
+                if len(setting.site_choices.data) > 0:
+                    site_choices = [
+                        int(k)
+                        for k in setting.site_choices.data
+                        if int(k) != account_data["site_id"]
+                    ]
                     site_choices = [account_data["site_id"]] + site_choices
 
                 if setting.access_level.data == 2:
-                    settings["view_only"]= {"site": {"choices": site_choices}}
+                    settings["view_only"] = {"site": {"choices": site_choices}}
                 else:
-                    settings["data_entry"]= {"site": {"choices": site_choices}}
+                    settings["data_entry"] = {"site": {"choices": site_choices}}
 
             json["settings"] = settings
 
@@ -267,7 +277,7 @@ def admin_edit_account(id):
             edit_response = requests.put(
                 url_for("api.admin_edit_account", id=id, _external=True),
                 headers=get_internal_api_header(),
-                json = json
+                json=json,
             )
             print("edit_response", edit_response.text)
             if edit_response.status_code == 200:

@@ -28,24 +28,46 @@ from ...webarg_parser import use_args, use_kwargs, parser
 from ..views import (
     basic_samples_schema,
     basic_sample_schema,
-    sample_schema, #sample_view_schema,
+    sample_schema,  # sample_view_schema,
     SampleFilterSchema,
     new_fluid_sample_schema,
     sample_type_schema,
     new_cell_sample_schema,
     new_molecular_sample_schema,
-    new_sample_schema, edit_sample_schema,
-    sample_types_schema
+    new_sample_schema,
+    edit_sample_schema,
+    sample_types_schema,
 )
 
-from ...database import (db, Sample, SampleToType, SubSampleToSample, UserAccount, Event,
-                         SampleProtocolEvent, ProtocolTemplate, SampleReview, DonorProtocolEvent,
-                         SampleDisposalEvent, SampleDisposal,
-                         UserCart, SampleShipment, SampleShipmentToSample, SampleShipmentStatus,
-                         EntityToStorage,
-                         SiteInformation, Building, Room, ColdStorage, ColdStorageShelf,
-                         SampleConsent, DonorToSample, SampleToCustomAttributeData,
-                         SampleConsentAnswer, ConsentFormTemplateQuestion)
+from ...database import (
+    db,
+    Sample,
+    SampleToType,
+    SubSampleToSample,
+    UserAccount,
+    Event,
+    SampleProtocolEvent,
+    ProtocolTemplate,
+    SampleReview,
+    DonorProtocolEvent,
+    SampleDisposalEvent,
+    SampleDisposal,
+    UserCart,
+    SampleShipment,
+    SampleShipmentToSample,
+    SampleShipmentStatus,
+    EntityToStorage,
+    SiteInformation,
+    Building,
+    Room,
+    ColdStorage,
+    ColdStorageShelf,
+    SampleConsent,
+    DonorToSample,
+    SampleToCustomAttributeData,
+    SampleConsentAnswer,
+    ConsentFormTemplateQuestion,
+)
 
 
 # from ...database import (
@@ -77,50 +99,91 @@ from ...protocol.enums import ProtocolType
 import requests
 
 
-def sample_protocol_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
+def sample_protocol_query_stmt(
+    filters_protocol=None, filter_sample_id=None, filters=None, joins=None
+):
     # Find all parent samples (id) with matching protocol events (by protocol_template_id)
     if filter_sample_id is None:
-        stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-            join(SampleProtocolEvent).filter_by(**filters_protocol)#.subquery()
+        stmt = (
+            db.session.query(Sample.id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .join(SampleProtocolEvent)
+            .filter_by(**filters_protocol)
+        )  # .subquery()
     else:
-        stmt = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
-            join(SampleProtocolEvent).filter_by(**filters_protocol)#.subquery()
+        stmt = (
+            db.session.query(Sample.id)
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleProtocolEvent)
+            .filter_by(**filters_protocol)
+        )  # .subquery()
 
     return stmt
 
-def sample_source_study_query_stmt(filters_protocol=None, filter_sample_id=None, filters=None, joins=None):
+
+def sample_source_study_query_stmt(
+    filters_protocol=None, filter_sample_id=None, filters=None, joins=None
+):
     # -- Find samples with protocols of Collection/Study
     # -- 1. Find samples with sample consent linked to the source study.
 
     if filter_sample_id is None:
-        s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
-            filter_by(**filters).filter(*joins).filter_by(**filters_protocol)
+        s1 = (
+            db.session.query(Sample.id)
+            .join(SampleConsent)
+            .join(DonorProtocolEvent)
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter_by(**filters_protocol)
+        )
     else:
-        s1 = db.session.query(Sample.id).join(SampleConsent).join(DonorProtocolEvent).\
-            filter(Sample.id.in_(filter_sample_id)).filter_by(**filters_protocol)
+        s1 = (
+            db.session.query(Sample.id)
+            .join(SampleConsent)
+            .join(DonorProtocolEvent)
+            .filter(Sample.id.in_(filter_sample_id))
+            .filter_by(**filters_protocol)
+        )
 
     # -- 2. Find all parent samples (id) with matching protocol events (by protocol_template_id)
     if filter_sample_id is None:
-        subq = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-            join(SampleProtocolEvent).filter_by(**filters_protocol)
+        subq = (
+            db.session.query(Sample.id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .join(SampleProtocolEvent)
+            .filter_by(**filters_protocol)
+        )
     else:
-        subq = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)). \
-            join(SampleProtocolEvent).filter_by(**filters_protocol)
+        subq = (
+            db.session.query(Sample.id)
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleProtocolEvent)
+            .filter_by(**filters_protocol)
+        )
 
-    if subq.count()>0:
+    if subq.count() > 0:
         subq = subq.subquery()
         # -- 3. Find all sub-samples of the matching samples
         # and take the union of parent and sub-sample ID
         if filter_sample_id is None:
-            s2 = db.session.query(Sample.id).filter_by(**filters).filter(*joins).\
-                join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                join(subq, subq.c.id == SubSampleToSample.parent_id)
+            s2 = (
+                db.session.query(Sample.id)
+                .filter_by(**filters)
+                .filter(*joins)
+                .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
+                .join(subq, subq.c.id == SubSampleToSample.parent_id)
+            )
         else:
-            s2 = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id)).\
-                join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id).\
-                join(subq, subq.c.id == SubSampleToSample.parent_id)
+            s2 = (
+                db.session.query(Sample.id)
+                .filter(Sample.id.in_(filter_sample_id))
+                .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
+                .join(subq, subq.c.id == SubSampleToSample.parent_id)
+            )
 
-        if s2.count()>0:
+        if s2.count() > 0:
             s1 = s1.union(s2)
 
         stmt = db.session.query(subq).union(s1)
@@ -129,64 +192,101 @@ def sample_source_study_query_stmt(filters_protocol=None, filter_sample_id=None,
 
     return stmt
 
-def sample_sampletype_query_stmt(filters_sampletype=None, filter_sample_id=None, filters=None, joins=None):
+
+def sample_sampletype_query_stmt(
+    filters_sampletype=None, filter_sample_id=None, filters=None, joins=None
+):
     if filter_sample_id is None:
-        stmt = db.session.query(Sample.id).join(SampleToType).\
-                filter_by(**filters).filter(*joins)
+        stmt = (
+            db.session.query(Sample.id)
+            .join(SampleToType)
+            .filter_by(**filters)
+            .filter(*joins)
+        )
     else:
-        stmt = db.session.query(Sample.id).join(SampleToType).\
-                filter(Sample.id.in_(filter_sample_id))
+        stmt = (
+            db.session.query(Sample.id)
+            .join(SampleToType)
+            .filter(Sample.id.in_(filter_sample_id))
+        )
 
     for attr, value in filters_sampletype.items():
-        stmt = stmt.filter(getattr(SampleToType, attr)==value)
+        stmt = stmt.filter(getattr(SampleToType, attr) == value)
 
     return stmt
 
-def sample_consent_status_query_stmt(filters_consent=None, filter_sample_id=None, filters=None, joins=None):
+
+def sample_consent_status_query_stmt(
+    filters_consent=None, filter_sample_id=None, filters=None, joins=None
+):
     if "withdrawn" not in filters_consent:
         return filter_sample_id
 
-    withdrawn = filters_consent["withdrawn"] # True/False
+    withdrawn = filters_consent["withdrawn"]  # True/False
     if filter_sample_id is None:
-        stmt = db.session.query(Sample.id).\
-            filter_by(**filters).filter(*joins). \
-            join(SampleConsent).filter(SampleConsent.withdrawn == withdrawn)
+        stmt = (
+            db.session.query(Sample.id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .join(SampleConsent)
+            .filter(SampleConsent.withdrawn == withdrawn)
+        )
     else:
-        stmt = db.session.query(Sample.id). \
-            filter(Sample.id.in_(filter_sample_id)). \
-            join(SampleConsent).filter(SampleConsent.withdrawn == withdrawn)
+        stmt = (
+            db.session.query(Sample.id)
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleConsent)
+            .filter(SampleConsent.withdrawn == withdrawn)
+        )
 
     return stmt
 
 
-def sample_consent_type_query_stmt(filters_consent=None, filter_sample_id=None, filters=None, joins=None):
+def sample_consent_type_query_stmt(
+    filters_consent=None, filter_sample_id=None, filters=None, joins=None
+):
     if "type" not in filters_consent:
         return filter_sample_id
 
     # Filter to get samples with consent to given question types
-    num_types = len(filters_consent['type'])
-    filter_types = filters_consent['type']
+    num_types = len(filters_consent["type"])
+    filter_types = filters_consent["type"]
 
     if filter_sample_id is None:
-        stmt = db.session.query(Sample.id.label("sample_id"),
-                                ConsentFormTemplateQuestion.type.label("consent_type")).\
-            filter_by(**filters).filter(*joins). \
-            join(SampleConsent).join(SampleConsentAnswer).join(ConsentFormTemplateQuestion).\
-            filter(ConsentFormTemplateQuestion.type.in_(filter_types)). \
-            distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        stmt = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+            .filter_by(**filters)
+            .filter(*joins)
+            .join(SampleConsent)
+            .join(SampleConsentAnswer)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
 
     else:
-        stmt = db.session.query(Sample.id.label("sample_id"),
-                                ConsentFormTemplateQuestion.type.label("consent_type")).\
-            filter(Sample.id.in_(filter_sample_id)). \
-            join(SampleConsent).join(SampleConsentAnswer).join(ConsentFormTemplateQuestion). \
-            filter(ConsentFormTemplateQuestion.type.in_(filter_types)). \
-            distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        stmt = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleConsent)
+            .join(SampleConsentAnswer)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
 
     subq = stmt.subquery()
-    stmt = db.session.query(subq.c.sample_id). \
-        group_by(subq.c.sample_id). \
-        having(func.count(subq.c.sample_id)==num_types)
+    stmt = (
+        db.session.query(subq.c.sample_id)
+        .group_by(subq.c.sample_id)
+        .having(func.count(subq.c.sample_id) == num_types)
+    )
 
     return stmt
 
@@ -254,12 +354,9 @@ def sample_get_containers():
     )
 
 
-
 @api.route("/sample/containerbasetypes", methods=["GET"])
 def sample_get_containerbasetypes():
-    return success_with_content_response(
-        ContainerBaseType.choices()
-    )
+    return success_with_content_response(ContainerBaseType.choices())
 
 
 @api.route("/sample/containertypes", methods=["GET"])
@@ -285,9 +382,8 @@ def sample_get_containertypes():
 @api.route("/sample/samplebasetypes", methods=["GET"])
 def sample_get_samplebasetypes():
     # print("SampleBaseType.choices()", SampleBaseType.choices())
-    return success_with_content_response(
-        SampleBaseType.choices()
-    )
+    return success_with_content_response(SampleBaseType.choices())
+
 
 @api.route("/sample/sampletypes", methods=["GET"])
 def sample_get_sampletypes():
@@ -296,10 +392,10 @@ def sample_get_sampletypes():
             "FLU": {
                 "sample_type": FluidSampleType.choices(),
                 # -- subtypes for whole blood
-                "blood_subtype": BloodSampleType.choices()
+                "blood_subtype": BloodSampleType.choices(),
             },
             "MOL": {"sample_type": MolecularSampleType.choices()},
-            "CEL": {"sample_type": CellSampleType.choices()}
+            "CEL": {"sample_type": CellSampleType.choices()},
         }
     )
 
@@ -307,10 +403,11 @@ def sample_get_sampletypes():
 @api.route("/sample/sampletype", methods=["GET"])
 @token_required
 def sampletype_data(tokenuser: UserAccount):
-    sts = SampleToType.query.distinct(SampleToType.fluid_type, SampleToType.molecular_type,
-                                       SampleToType.cellular_type).all();
-    #, SampleToType.tissue_type).all()
-    sampletype_info = {} #sample_types_schema.dump(sts)
+    sts = SampleToType.query.distinct(
+        SampleToType.fluid_type, SampleToType.molecular_type, SampleToType.cellular_type
+    ).all()
+    # , SampleToType.tissue_type).all()
+    sampletype_info = {}  # sample_types_schema.dump(sts)
     sampletype_choices = {"FLU": [], "CEL": [], "MOL": []}
 
     # - Read default settings
@@ -327,12 +424,12 @@ def sampletype_data(tokenuser: UserAccount):
                         sampletype_choices[bt].append((id0, nm))
                         break
 
-            elif bt=='CEL':
+            elif bt == "CEL":
                 for (k, nm) in CellSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
-            elif bt=='MOL':
+            elif bt == "MOL":
                 for (k, nm) in MolecularSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
@@ -340,31 +437,35 @@ def sampletype_data(tokenuser: UserAccount):
 
     for st in sts:
         if st.fluid_type:
-            if len(sampletype_choices["FLU"])>1:
+            if len(sampletype_choices["FLU"]) > 1:
                 if st.fluid_type.name == sampletype_choices["FLU"][0][0]:
                     continue
             sampletype_choices["FLU"].append((st.fluid_type.name, st.fluid_type.value))
         elif st.molecular_type:
-            if len(sampletype_choices["MOL"])>1:
+            if len(sampletype_choices["MOL"]) > 1:
                 if st.molecular_type.name == sampletype_choices["MOL"][0][0]:
                     continue
-            sampletype_choices["MOL"].append((st.molecular_type.name, st.molecular_type.value))
+            sampletype_choices["MOL"].append(
+                (st.molecular_type.name, st.molecular_type.value)
+            )
         elif st.cellular_type:
-            if len(sampletype_choices["CEL"])>1:
+            if len(sampletype_choices["CEL"]) > 1:
                 if st.cellular_type.name == sampletype_choices["CEL"][0][0]:
                     continue
-            sampletype_choices["CEL"].append((st.cellular_type.name, st.cellular_type.value))
+            sampletype_choices["CEL"].append(
+                (st.cellular_type.name, st.cellular_type.value)
+            )
         # if st.tissue_type:
         #     sampletype_choices.append(("tissue_type"+ ":" + st.tissue_type.name, st.tissue_type.value))
-
-
 
     container_choices = {"PRM": {"container": []}, "LTS": {"container": []}}
 
     # - Default setting for container types
     for bt in ["PRM", "LTS"]:
         try:
-            id0 = tokenuser.settings["data_entry"]["container_type"][bt]["container"]["default"]
+            id0 = tokenuser.settings["data_entry"]["container_type"][bt]["container"][
+                "default"
+            ]
 
         except:
             id0 = None
@@ -375,31 +476,40 @@ def sampletype_data(tokenuser: UserAccount):
                     if k == id0:
                         container_choices[bt]["container"].append((id0, nm))
                         break
-            elif bt=='LTS':
+            elif bt == "LTS":
                 for (k, nm) in CellContainer.choices():
                     if k == id0:
                         container_choices[bt]["container"].append((id0, nm))
                         break
 
-    sts = SampleToType.query.distinct(SampleToType.fluid_container, SampleToType.cellular_container).all()
+    sts = SampleToType.query.distinct(
+        SampleToType.fluid_container, SampleToType.cellular_container
+    ).all()
     for st in sts:
         if st.fluid_container:
-            if len(container_choices["PRM"])>1:
+            if len(container_choices["PRM"]) > 1:
                 if st.fluid_container.name == container_choices["PRM"][0][0]:
                     continue
 
-            container_choices["PRM"]["container"].append((st.fluid_container.name, st.fluid_container.value))
+            container_choices["PRM"]["container"].append(
+                (st.fluid_container.name, st.fluid_container.value)
+            )
 
         elif st.cellular_container:
-            if len(container_choices["LTS"])>1:
+            if len(container_choices["LTS"]) > 1:
                 if st.cellular_container.name == container_choices["LTS"][0][0]:
                     continue
 
-            container_choices["LTS"]["container"].append((st.cellular_container.name, st.cellular_container.value))
+            container_choices["LTS"]["container"].append(
+                (st.cellular_container.name, st.cellular_container.value)
+            )
 
     return success_with_content_response(
-        {"sampletype_choices": sampletype_choices, "container_choices": container_choices,
-         "sampletype_info": sampletype_info}
+        {
+            "sampletype_choices": sampletype_choices,
+            "container_choices": container_choices,
+            "sampletype_info": sampletype_info,
+        }
     )
 
 
@@ -415,14 +525,16 @@ def sample_home(tokenuser: UserAccount):
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
     # -- To exclude empty samples in the index list
-    joins.append(getattr(Sample, 'remaining_quantity').__gt__(0))
+    joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
 
     if not tokenuser.is_admin:
-        sites_tokenuser = func_validate_settings(tokenuser, keys={"site_id"}, check=False)
+        sites_tokenuser = func_validate_settings(
+            tokenuser, keys={"site_id"}, check=False
+        )
         if "current_site_id" not in filters:
             joins.append(getattr(Sample, "current_site_id").in_(sites_tokenuser))
-    #print("filter", filters)
-    #print("joins", joins)
+    # print("filter", filters)
+    # print("joins", joins)
 
     flag_sample_type = False
     flag_consent_status = False
@@ -462,10 +574,14 @@ def sample_query(args, tokenuser: UserAccount):
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
 
     if flag_consent_status:
-        stmt = sample_consent_status_query_stmt(filters_consent=filters_consent, filter_sample_id=stmt)
+        stmt = sample_consent_status_query_stmt(
+            filters_consent=filters_consent, filter_sample_id=stmt
+        )
 
     if flag_consent_type:
-        stmt = sample_consent_type_query_stmt(filters_consent=filters_consent, filter_sample_id=stmt)
+        stmt = sample_consent_type_query_stmt(
+            filters_consent=filters_consent, filter_sample_id=stmt
+        )
 
     if flag_protocol:
         stmt = sample_protocol_query_stmt(
@@ -473,10 +589,14 @@ def sample_query(args, tokenuser: UserAccount):
         )
 
     if flag_source_study:
-        stmt = sample_source_study_query_stmt(filters_protocol=filters_source_study, filter_sample_id=stmt)
+        stmt = sample_source_study_query_stmt(
+            filters_protocol=filters_source_study, filter_sample_id=stmt
+        )
 
     if flag_sample_type:
-        stmt = sample_sampletype_query_stmt(filters_sampletype=filters_sampletype, filter_sample_id=stmt)
+        stmt = sample_sampletype_query_stmt(
+            filters_sampletype=filters_sampletype, filter_sample_id=stmt
+        )
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     results = basic_samples_schema.dump(stmt.all())
@@ -503,7 +623,6 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
         return success_with_content_response(sample_schema.dump(sample))
     else:
         return not_found()
-
 
 
 @api.route("sample/new", methods=["POST"])
@@ -552,7 +671,7 @@ def sample_new_sample(tokenuser: UserAccount):
     if "template_id" in consent_information and "date" in consent_information:
         # - New Sample based consent
         consent_response = requests.post(
-            #url_for("api.sample_new_sample_consent", _external=True),
+            # url_for("api.sample_new_sample_consent", _external=True),
             url_for("api.donor_new_consent", _external=True),
             headers=get_internal_api_header(tokenuser),
             json=consent_information,
@@ -614,7 +733,9 @@ def sample_new_sample(tokenuser: UserAccount):
     sample_id = new_sample.id
     # -- Deal with NULL value in time
     collection_datetime = values["collection_information"]["event"]["datetime"]
-    values["collection_information"]["event"]["datetime"] = collection_datetime.replace("None","00:00:00")
+    values["collection_information"]["event"]["datetime"] = collection_datetime.replace(
+        "None", "00:00:00"
+    )
     # -- Indicator for protocol event that create new samples
     values["collection_information"]["is_locked"] = True
 
@@ -633,13 +754,13 @@ def sample_new_sample(tokenuser: UserAccount):
             protocol_event_response.headers.items(),
         )
 
-    #-- DonorToSample association
+    # -- DonorToSample association
     if "donor_id" in consent_information:
         donor_id = consent_information["donor_id"]
         if donor_id:
             try:
                 dts = DonorToSample(donor_id=donor_id, sample_id=sample_id)
-                dts.author_id=tokenuser.id
+                dts.author_id = tokenuser.id
                 db.session.add(dts)
                 db.session.commit()
             except Exception as err:
@@ -688,7 +809,6 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-
 @api.route("sample/<uuid>/edit/basic_info", methods=["PUT"])
 @token_required
 def sample_edit_basic_info(uuid, tokenuser: UserAccount):
@@ -705,14 +825,21 @@ def sample_edit_basic_info(uuid, tokenuser: UserAccount):
         return locked_response("sample")
 
     if values["quantity"] != sample.quantity:
-        samples_in_tree = Sample.query.join(SubSampleToSample,
-            Sample.id.in_([SubSampleToSample.parent_id, SubSampleToSample.subsample_id])).\
-            filter(Sample.uuid==uuid)
-        if samples_in_tree.count()>0:
-            return in_use_response("sample! quantity can't be changed via basic edit! " +
-            "| Need to delete the associated sample creation protocol event before quantity can be changed!")
+        samples_in_tree = Sample.query.join(
+            SubSampleToSample,
+            Sample.id.in_(
+                [SubSampleToSample.parent_id, SubSampleToSample.subsample_id]
+            ),
+        ).filter(Sample.uuid == uuid)
+        if samples_in_tree.count() > 0:
+            return in_use_response(
+                "sample! quantity can't be changed via basic edit! "
+                + "| Need to delete the associated sample creation protocol event before quantity can be changed!"
+            )
 
-    values["remaining_quantity"] = sample.remaining_quantity + values["quantity"] - sample.quantity
+    values["remaining_quantity"] = (
+        sample.remaining_quantity + values["quantity"] - sample.quantity
+    )
 
     try:
         sample_values = edit_sample_schema.load(values)
@@ -726,11 +853,11 @@ def sample_edit_basic_info(uuid, tokenuser: UserAccount):
     try:
         db.session.add(sample)
         db.session.commit()
-        return success_with_content_message_response(values, "Sample info successfully edited!")
+        return success_with_content_message_response(
+            values, "Sample info successfully edited!"
+        )
     except Exception as err:
         return transaction_error_response(err)
-
-
 
 
 def func_sample_storage_location(sample_id):
@@ -776,10 +903,11 @@ def func_sample_storage_location(sample_id):
 
         return {"sample_storage_info": sample_storage_info, "message": msg}
 
-def func_validate_settings(tokenuser, keys = {}, check=True):
+
+def func_validate_settings(tokenuser, keys={}, check=True):
     success = True
     msg = "Setting ok!"
-    sites_tokenuser=None
+    sites_tokenuser = None
     if "site_id" in keys:
         if not tokenuser.is_admin:
             sites_tokenuser = {tokenuser.site_id}
@@ -792,7 +920,7 @@ def func_validate_settings(tokenuser, keys = {}, check=True):
 
             sites_tokenuser = list(sites_tokenuser)
             if check:
-                if keys["site_id"] not in [None]+sites_tokenuser:
+                if keys["site_id"] not in [None] + sites_tokenuser:
                     success = False
                     msg = "Data entry role required for handling the sample in its current site! "
                     return sites_tokenuser, success, msg
@@ -803,6 +931,7 @@ def func_validate_settings(tokenuser, keys = {}, check=True):
         return sites_tokenuser, success, msg
     else:
         return sites_tokenuser
+
 
 def func_update_sample_status(
     tokenuser: UserAccount, auto_query=True, sample_id=None, sample=None, events={}
@@ -836,23 +965,26 @@ def func_update_sample_status(
             shipment_status = events["shipment_status"]
 
             if shipment_status:
-                shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id).first()
+                shipment = SampleShipment.query.filter_by(
+                    id=shipment_status.shipment_id
+                ).first()
                 if not shipment:
                     msg = "Associated shipment not found! "
-                    return {'sample': None, 'message': msg, "success": True}
+                    return {"sample": None, "message": msg, "success": True}
 
                 if shipment.is_locked:
                     msg = "Associated shipment locked! "
-                    return {'sample': None, 'message': msg, "success": True}
+                    return {"sample": None, "message": msg, "success": True}
 
-                subq = db.session.query(SampleShipmentToSample.sample_id).\
-                    filter(SampleShipmentToSample.shipment_id==shipment_status.shipment_id)
+                subq = db.session.query(SampleShipmentToSample.sample_id).filter(
+                    SampleShipmentToSample.shipment_id == shipment_status.shipment_id
+                )
                 samples = Sample.query.filter(Sample.id.in_(subq)).all()
 
-                if len(samples)==0:
+                if len(samples) == 0:
                     msg = "No involved samples found for the shipment status! "
-                    return {'sample': None, 'message': msg, "success": True}
-                print('sss', shipment_status.status)
+                    return {"sample": None, "message": msg, "success": True}
+                print("sss", shipment_status.status)
 
                 updated = True
                 for sample in samples:
@@ -870,8 +1002,9 @@ def func_update_sample_status(
                     # If external site: lock the sample
                     if shipment:
                         for sample in samples:
-                            external_site = SiteInformation.query.filter_by(id=shipment.site_id,
-                                                                            is_external=True).first()
+                            external_site = SiteInformation.query.filter_by(
+                                id=shipment.site_id, is_external=True
+                            ).first()
                             if external_site:
                                 sample.is_locked = True
                             sample.current_site_id = shipment.site_id
@@ -1041,12 +1174,14 @@ def func_update_sample_status(
         if shipment_status and shipment_to_sample:
             if shipment_to_sample.sample_id != sample.id:
                 msg = "Non-matched sample id in shipment info! "
-                return {'sample': None, 'message': msg, "success": False}
+                return {"sample": None, "message": msg, "success": False}
 
-            shipment = SampleShipment.query.filter_by(id=shipment_status.shipment_id, is_locked=False).first()
+            shipment = SampleShipment.query.filter_by(
+                id=shipment_status.shipment_id, is_locked=False
+            ).first()
             if not shipment:
                 msg = "No associated open shipment! "
-                return {'sample': None, 'message': msg, "success": False}
+                return {"sample": None, "message": msg, "success": False}
 
         elif auto_query:
             shipment_status = (
@@ -1055,16 +1190,16 @@ def func_update_sample_status(
                     SampleShipmentToSample.shipment_id
                     == SampleShipmentStatus.shipment_id,
                 )
-                    .filter(SampleShipmentToSample.sample_id == sample_id)
-                    .order_by(SampleShipmentStatus.datetime.desc())
-                    .first()
+                .filter(SampleShipmentToSample.sample_id == sample_id)
+                .order_by(SampleShipmentStatus.datetime.desc())
+                .first()
             )
 
         msg = "No related sample shipment status for update! "
-        res = {'sample': None, 'message': msg, "success": False}
+        res = {"sample": None, "message": msg, "success": False}
         if shipment_status:
             if shipment_status.status not in [None]:
-                #, "TBC", SampleShipmentStatusStatus.TBC]:
+                # , "TBC", SampleShipmentStatusStatus.TBC]:
                 if sample.status not in ["TRA", SampleStatus.TRA]:
                     sample.status = SampleStatus.TRA
                     updated = True
@@ -1083,14 +1218,12 @@ def func_update_sample_status(
                             updated = True
                             msg = "Sample shipped to site %s !" % sample.current_site_id
 
-                            #If External site, lock the sample
-                            external_site = SiteInformation.query.filter_by(id=shipment.site_id,
-                                                                            is_external=True).first()
+                            # If External site, lock the sample
+                            external_site = SiteInformation.query.filter_by(
+                                id=shipment.site_id, is_external=True
+                            ).first()
                             if external_site:
                                 sample.is_locked = True
-
-
-
 
             else:
                 msg = "No related sample shipment status for update!"

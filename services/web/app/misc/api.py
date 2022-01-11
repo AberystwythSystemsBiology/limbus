@@ -102,9 +102,12 @@ def get_data(tokenuser: UserAccount):
     """
 
     data = {
-        "name": SiteInformation.query.filter_by(is_external=False).order_by(SiteInformation.id).first().name,
+        "name": SiteInformation.query.filter_by(is_external=False)
+        .order_by(SiteInformation.id)
+        .first()
+        .name,
         "basic_statistics": {
-            "sample_count": Sample.query.filter(Sample.remaining_quantity>0).count(),
+            "sample_count": Sample.query.filter(Sample.remaining_quantity > 0).count(),
             "user_count": UserAccount.query.count(),
             "site_count": SiteInformation.query.filter_by(is_external=False).count(),
             "donor_count": Donor.query.count(),
@@ -248,7 +251,9 @@ def site_external_home(tokenuser: UserAccount):
 @token_required
 def site_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sites_schema.dump(SiteInformation.query.filter_by(is_external=False).all())
+        basic_sites_schema.dump(
+            SiteInformation.query.filter_by(is_external=False).all()
+        )
     )
 
 
@@ -257,11 +262,15 @@ def site_home(tokenuser: UserAccount):
 def site_home_tokenuser(tokenuser: UserAccount):
 
     if tokenuser.is_admin:
-        sites = basic_sites_schema.dump(SiteInformation.query.filter_by(is_external=False).all())
+        sites = basic_sites_schema.dump(
+            SiteInformation.query.filter_by(is_external=False).all()
+        )
 
     else:
         sites = basic_sites_schema.dump(
-            SiteInformation.query.filter_by(is_external=False, id=tokenuser.site_id).all()
+            SiteInformation.query.filter_by(
+                is_external=False, id=tokenuser.site_id
+            ).all()
         )
 
     choices = []
@@ -282,7 +291,7 @@ def site_home_tokenuser(tokenuser: UserAccount):
 
     try:
         choices0 = settings[site_key]["site"]["choices"]
-        if len(choices0) ==  0:
+        if len(choices0) == 0:
             choices0 = None
     except:
         choices0 = None
@@ -299,16 +308,18 @@ def site_home_tokenuser(tokenuser: UserAccount):
         choices.append(
             (
                 site["id"],
-                "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+                "<%s>%s - %s" % (site["id"], site["name"], site["description"]),
             )
         )
 
-    if id0 and  nm0:
+    if id0 and nm0:
         # -- Insert default
         choices = [(id0, nm0)] + choices
 
     # print({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
-    return success_with_content_response({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
+    return success_with_content_response(
+        {"site_info": sites, "choices": choices, "user_site_id": tokenuser.site_id}
+    )
 
 
 @api.route("/misc/site/LIMBSIT-<id>", methods=["GET"])

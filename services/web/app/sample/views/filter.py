@@ -19,6 +19,7 @@ from marshmallow import fields
 from ...extensions import ma
 from ...database import Sample
 
+
 class SampleFilterSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -38,4 +39,3 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
 
     consent_status = fields.String()
     consent_type = fields.String()
-

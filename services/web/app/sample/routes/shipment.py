@@ -46,6 +46,7 @@ def shipment_cart_data():
         cart_response.headers.items(),
     )
 
+
 # @sample.route("/cart/data")
 # @login_required
 # def cart_data():
@@ -60,6 +61,7 @@ def shipment_cart_data():
 #         cart_response.headers.items(),
 #     )
 
+
 @sample.route("/shipment")
 @login_required
 def shipment_index():
@@ -70,8 +72,9 @@ def shipment_index():
 @login_required
 def shipment_index_data():
     shipment_response = requests.get(
-        #url_for("api.shipment_index", _external=True), headers=get_internal_api_header()
-        url_for("api.shipment_index_tokenuser", _external=True), headers = get_internal_api_header()
+        # url_for("api.shipment_index", _external=True), headers=get_internal_api_header()
+        url_for("api.shipment_index_tokenuser", _external=True),
+        headers=get_internal_api_header(),
     )
 
     return (
@@ -80,7 +83,10 @@ def shipment_index_data():
         shipment_response.headers.items(),
     )
 
+
 from flask import session
+
+
 @sample.route("/shipment/view/<uuid>")
 @login_required
 def shipment_view_shipment(uuid):
@@ -108,7 +114,9 @@ def shipment_update_status(uuid):
             return redirect(url_for("sample.shipment_view_shipment", uuid=uuid))
 
         shipment_info["courier"] = shipment_response.json()["content"]["courier"]
-        shipment_info["tracking_number"] = shipment_response.json()["content"]["tracking_number"]
+        shipment_info["tracking_number"] = shipment_response.json()["content"][
+            "tracking_number"
+        ]
         shipment_info["comments"] = shipment_response.json()["content"]["comments"]
 
         form = SampleShipmentStatusUpdateform(data=shipment_info)
@@ -173,19 +181,27 @@ def shipment_view_shipment_data(uuid):
         shipment_response.headers.items(),
     )
 
+
 def address_label(address):
-    pretty =", ".join([address["street_address_one"], address["city"],
-                         address["post_code"], address["country"]])
+    pretty = ", ".join(
+        [
+            address["street_address_one"],
+            address["city"],
+            address["post_code"],
+            address["country"],
+        ]
+    )
     return pretty
+
 
 @sample.route("/shipment/new/", methods=["GET", "POST"])
 @login_required
 def shipment_new_step_one():
-    protocols =[]
+    protocols = []
     protocols_response = requests.get(
         url_for("api.protocol_query_tokenuser", default_type="STR", _external=True),
         headers=get_internal_api_header(),
-        json={"is_locked": False, "type":["STR"]},
+        json={"is_locked": False, "type": ["STR"]},
     )
 
     if protocols_response.status_code == 200:
@@ -196,24 +212,28 @@ def shipment_new_step_one():
         return redirect(url_for("sample.shipment_index"))
 
     sites = [[0, "None"]]
-    sites_ext = [[0, "None"]];
+    sites_ext = [[0, "None"]]
 
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
     )
     external_sites_response = requests.get(
-        url_for("api.site_external_home", _external=True), headers=get_internal_api_header()
+        url_for("api.site_external_home", _external=True),
+        headers=get_internal_api_header(),
     )
 
     addresses_response = requests.get(
-        url_for("api.address_home", _external=True), headers=get_internal_api_header(),
+        url_for("api.address_home", _external=True),
+        headers=get_internal_api_header(),
     )
 
     addr_default = []
     addresses = {}
     if external_sites_response.status_code == 200:
         for site in external_sites_response.json()["content"]:
-            sites_ext.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
+            sites_ext.append(
+                [site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])]
+            )
             address = site["address"]
             addresses[site["id"]] = [[address["id"], address_label(address)]]
             addr_default.append(address["id"])
@@ -229,7 +249,9 @@ def shipment_new_step_one():
         for address in addresses_response.json()["content"]:
             if address["site_id"]:
                 if address["id"] not in addr_default:
-                    addresses[address["site_id"]].append([address["id"], address_label(address)])
+                    addresses[address["site_id"]].append(
+                        [address["id"], address_label(address)]
+                    )
 
         addr_all = [(0, "-- No Address --")]
         for k in addresses:
@@ -239,9 +261,9 @@ def shipment_new_step_one():
 
         if form.validate_on_submit():
             site_id = 0
-            if form.site_id.data>0:
+            if form.site_id.data > 0:
                 site_id = form.site_id.data
-            elif form.external_site_id.data>0:
+            elif form.external_site_id.data > 0:
                 site_id = form.external_site_id.data
 
             new_shipment_response = requests.post(
@@ -270,7 +292,9 @@ def shipment_new_step_one():
             else:
                 flash(new_shipment_response.json()["message"])
 
-        return render_template("sample/shipment/new/new.html", form=form, addresses=addresses)
+        return render_template(
+            "sample/shipment/new/new.html", form=form, addresses=addresses
+        )
 
     else:
         return sites_response.content

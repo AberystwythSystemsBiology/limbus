@@ -29,7 +29,7 @@ from .views import (
     full_user_account_schema,
     edit_user_account_schema,
     admin_edit_user_account_schema,
-    user_account_setting_schema
+    user_account_setting_schema,
 )
 
 from ..sample.enums import FluidSampleType
@@ -53,10 +53,13 @@ def auth_view_user(id: int):
         full_user_account_schema.dump(UserAccount.query.filter_by(id=id).first_or_404())
     )
 
+
 @api.route("/auth/user/<id>/get_settings", methods=["GET"])
 @token_required
 def auth_get_settings(id: int, tokenuser: UserAccount):
-    settings = user_account_setting_schema.dump(UserAccount.query.filter_by(id=id).first_or_404())
+    settings = user_account_setting_schema.dump(
+        UserAccount.query.filter_by(id=id).first_or_404()
+    )
     return settings
 
 
@@ -122,6 +125,7 @@ def auth_edit_user(id: int, tokenuser: UserAccount):
 
 from sqlalchemy.orm.attributes import flag_modified
 
+
 @api.route("/admin/user/<id>/edit", methods=["PUT"])
 @token_required
 def admin_edit_account(id: int, tokenuser: UserAccount):
@@ -133,20 +137,15 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
     if not user.settings:
         data_entry = {
             "site": {},
-
             "consent_template": {"default": 8, "choices": []},
-            "protocol": {
-                "ACQ": {"default":2},
-                "SAP": {"default":1}
-            },
-
+            "protocol": {"ACQ": {"default": 2}, "SAP": {"default": 1}},
             "sample_type": {
                 "base_type": "FLU",
-                "FLU": {"default": "BLD",
-                        "choices": [],
-                        },
+                "FLU": {
+                    "default": "BLD",
+                    "choices": [],
+                },
             },
-
             "container_type": {
                 "base_type": {"default": "LTS"},
                 "PRM": {
@@ -275,6 +274,7 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
 #     except Exception as err:
 #         return transaction_error_response(err)
 
+
 @api.route("/auth/user/new", methods=["POST"])
 @token_required
 def auth_new_user(tokenuser: UserAccount) -> dict:
@@ -310,4 +310,3 @@ def auth_new_user(tokenuser: UserAccount) -> dict:
         )
     except Exception as err:
         return transaction_error_response(err)
-

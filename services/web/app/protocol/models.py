@@ -28,7 +28,10 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
     doi = db.Column(db.String(64))
     texts = db.relationship("ProtocolText", uselist=True, cascade="all, delete")
     documents = db.relationship(
-        "Document", uselist=True, secondary="protocoltemplatetodocument", cascade="all, delete"
+        "Document",
+        uselist=True,
+        secondary="protocoltemplatetodocument",
+        cascade="all, delete",
     )
 
 
@@ -48,6 +51,7 @@ class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
     protocol_id = db.Column(
         db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
     )
+
 
 class ProtocolTemplateAssociate(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}

@@ -122,9 +122,13 @@ def doi2url(code):
     elif code.find("NCT") == 0:
         return "https://clinicaltrials.gov/show/" + code
     elif code.find("EUDRACT") == 0:
-        return "https://www.clinicaltrialsregister.eu/ctr-search/trial/%s/results" % code.split("EUDRACT")[1]
+        return (
+            "https://www.clinicaltrialsregister.eu/ctr-search/trial/%s/results"
+            % code.split("EUDRACT")[1]
+        )
     else:
         return code
+
 
 class ProtocolTemplateSchema(masql.SQLAlchemySchema):
     class Meta:

@@ -34,10 +34,12 @@ class Address(Base, RefAuthorMixin):
     site_id = db.Column(
         db.Integer, db.ForeignKey("siteinformation.id", use_alter=True), nullable=True
     )
-    site = db.relationship("SiteInformation",
-                           primaryjoin="SiteInformation.id==Address.site_id",
-                           uselist=False,
-                           backref="addresses")
+    site = db.relationship(
+        "SiteInformation",
+        primaryjoin="SiteInformation.id==Address.site_id",
+        uselist=False,
+        backref="addresses",
+    )
 
 
 class SiteInformation(Base, RefAuthorMixin):
@@ -54,9 +56,8 @@ class SiteInformation(Base, RefAuthorMixin):
     address_id = db.Column(
         db.Integer, db.ForeignKey("address.id", use_alter=True), nullable=False
     )
-    address = db.relationship("Address",
-                              primaryjoin="SiteInformation.address_id==Address.id",
-                              uselist=False)
+    address = db.relationship(
+        "Address", primaryjoin="SiteInformation.address_id==Address.id", uselist=False
+    )
 
     buildings = db.relationship("Building", uselist=True)
-

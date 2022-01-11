@@ -41,7 +41,7 @@ class SiteSchema(masql.SQLAlchemySchema):
     address = ma.Nested(BasicAddressSchema)
     buildings = ma.Nested(BasicBuildingSchema, many=True)
 
-    #author = ma.Nested(BasicUserAccountSchema)
+    # author = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
 
 
@@ -61,12 +61,13 @@ class SiteAddressesSchema(masql.SQLAlchemySchema):
     name = masql.auto_field()
     description = masql.auto_field()
     url = masql.auto_field()
-    #address = ma.Nested(BasicAddressSchema)
+    # address = ma.Nested(BasicAddressSchema)
     address_id = masql.auto_field()
     addresses = ma.Nested(BasicAddressSchema, many=True)
     buildings = ma.Nested(BasicBuildingSchema, many=True)
 
     author = ma.Nested(BasicUserAccountSchema)
+
 
 site_addresses_schema = SiteAddressesSchema()
 sites_addresses_schema = SiteAddressesSchema(many=True)

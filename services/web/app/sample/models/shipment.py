@@ -41,11 +41,10 @@ class SampleShipment(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin
     involved_samples = db.relationship(
         "SampleShipmentToSample",
         primaryjoin="SampleShipmentToSample.shipment_id == SampleShipment.id",
-        cascade = "all, delete"
+        cascade="all, delete",
     )
 
     shipment_status = db.relationship("SampleShipmentStatus", uselist=False)
-
 
 
 class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
@@ -68,6 +67,7 @@ class SampleShipmentToSample(Base, RefAuthorMixin, RefEditorMixin):
     )
 
     transfer_protocol = db.relationship("SampleProtocolEvent", backref="shipment")
+
 
 class SampleShipmentStatus(Base, RefAuthorMixin, RefEditorMixin):
     __versioned__ = {}

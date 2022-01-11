@@ -47,6 +47,7 @@ class BasicSampleDiposalEventSchema(masql.SQLAlchemySchema):
     sample_id = masql.auto_field()
     protocol_event_id = masql.auto_field()
 
+
 basic_sample_disposal_event_schema = BasicSampleDiposalEventSchema()
 
 
@@ -59,6 +60,7 @@ class BasicSampleDisposalSchema(masql.SQLAlchemySchema):
     instruction = EnumField(DisposalInstruction)
     comments = masql.auto_field()
     disposal_date = masql.auto_field()
+
 
 basic_disposal_schema = BasicSampleDisposalSchema()
 
@@ -88,8 +90,9 @@ class SampleDisposalSchema(masql.SQLAlchemySchema):
     disposal_date = masql.auto_field()
     review_event_id = masql.auto_field()
     approval_event_id = masql.auto_field()
-    #disposal_event_id = masql.auto_field()
+    # disposal_event_id = masql.auto_field()
     review_event = ma.Nested(SampleReviewSchema)
     disposal_event = ma.Nested(SampleProtocolEventSchema)
+
 
 sample_disposal_schema = SampleDisposalSchema()

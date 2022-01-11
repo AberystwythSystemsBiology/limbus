@@ -29,16 +29,21 @@ from .views import (
     basic_protocol_templates_schema,
     basic_protocol_template_schema,
     new_protocol_template_schema,
-    protocol_template_schema, doi2url,
+    protocol_template_schema,
+    doi2url,
     new_protocol_text_schema,
     basic_protocol_text_schema,
     new_protocol_template_to_document_schema,
     ProtocolTemplateSearchSchema,
 )
 
-from ..database import (ProtocolTemplate, ProtocolText, ProtocolTemplateToDocument,
-    SampleProtocolEvent, DonorProtocolEvent
-    )
+from ..database import (
+    ProtocolTemplate,
+    ProtocolText,
+    ProtocolTemplateToDocument,
+    SampleProtocolEvent,
+    DonorProtocolEvent,
+)
 
 from ..webarg_parser import use_args, use_kwargs, parser
 
@@ -64,6 +69,7 @@ def protocol_query(args, tokenuser: UserAccount):
         )
     )
 
+
 @api.route("/protocol/query_tokenuser/<default_type>", methods=["GET"])
 @use_args(ProtocolTemplateSearchSchema(), location="json")
 @token_required
@@ -85,7 +91,7 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
 
     try:
         choices0 = settings["data_entry"]["protocol"][default_type]["choices"]
-        if len(choices0) ==  0:
+        if len(choices0) == 0:
             choices0 = None
     except:
         choices0 = None
@@ -100,18 +106,18 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
             continue
 
         choices.append(
-            (protocol["id"],
-            "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]))
+            (protocol["id"], "LIMBPRO-%i: %s" % (protocol["id"], protocol["name"]))
         )
 
-    if id0 and  nm0:
+    if id0 and nm0:
         # -- Insert default
         choices = [(id0, nm0)] + choices
 
     print("sett", settings, "default_type", default_type)
     print("choices", choices)
-    return success_with_content_response({'info': protocols, 'choices': choices, 'default': id0})
-
+    return success_with_content_response(
+        {"info": protocols, "choices": choices, "default": id0}
+    )
 
 
 @api.route("/protocol/new", methods=["POST"])
@@ -208,11 +214,11 @@ def protocol_new_protocol_text(id, tokenuser: UserAccount):
 @api.route("/protocol/LIMBPRO-<id>")
 @token_required
 def protocol_view_protocol(id, tokenuser: UserAccount):
-    protocol_info = protocol_template_schema.dump(ProtocolTemplate.query.filter_by(id=id).first())
-    protocol_info["doi_url"] = doi2url(protocol_info["doi"])
-    return success_with_content_response(
-        protocol_info
+    protocol_info = protocol_template_schema.dump(
+        ProtocolTemplate.query.filter_by(id=id).first()
     )
+    protocol_info["doi_url"] = doi2url(protocol_info["doi"])
+    return success_with_content_response(protocol_info)
 
 
 @api.route("/protocol/LIMBPRO-<id>/doc/assign", methods=["POST"])
@@ -266,15 +272,21 @@ def protocol_remove_protocol(id, tokenuser: UserAccount):
 
     sample_event = SampleProtocolEvent.query.filter_by(protocol_id=protocol.id).first()
     if sample_event:
-        return in_use_response("protocol events (samples %s ...)"%(sample_event.sample_id or ""))
+        return in_use_response(
+            "protocol events (samples %s ...)" % (sample_event.sample_id or "")
+        )
 
     donor_event = DonorProtocolEvent.query.filter_by(protocol_id=protocol.id).first()
     if donor_event:
-        return in_use_response("protocol events (donors %s ...)"%(donor_event.donor_id or ""))
+        return in_use_response(
+            "protocol events (donors %s ...)" % (donor_event.donor_id or "")
+        )
 
     try:
         db.session.delete(protocol)
         db.session.commit()
-        return success_with_content_message_response({"id":id},"Protocol successfully deleted!")
+        return success_with_content_message_response(
+            {"id": id}, "Protocol successfully deleted!"
+        )
     except Exception as err:
         return transaction_error_response(err)
