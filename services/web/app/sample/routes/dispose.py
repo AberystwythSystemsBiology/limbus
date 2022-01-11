@@ -38,7 +38,7 @@ def dispose(uuid: str) -> flask_return_union:
         disposal_approved = False
         try:
             disposal_info = sample_response.json()["content"]["disposal_information"]
-            print("disposal_info", disposal_info)
+            # print("disposal_info", disposal_info)
 
             message = "No disposal instruction!"
             if disposal_info is not None:
@@ -95,13 +95,6 @@ def dispose(uuid: str) -> flask_return_union:
         form = SampleDisposalEventForm(protocols)
 
         if form.validate_on_submit():
-
-            # These to be done in a single API call.
-
-            ## Create new Protocol Event: Done
-            ## Create new Disposal Event
-            ## Close Sample
-
             new_disposal_event_response = requests.post(
                 url_for("api.sample_new_disposal_event", _external=True),
                 headers=get_internal_api_header(),
@@ -123,7 +116,6 @@ def dispose(uuid: str) -> flask_return_union:
             )
 
             if new_disposal_event_response.status_code == 200:
-                # flash("Sample Disposed Successfully")
                 flash(new_disposal_event_response.json()["message"])
                 return redirect(url_for("sample.view", uuid=uuid))
 
@@ -135,5 +127,78 @@ def dispose(uuid: str) -> flask_return_union:
             sample=sample_response.json()["content"],
             form=form,
         )
+    else:
+        abort(sample_response.status_code)
+
+
+@sample.route("batch/dispose", methods=["GET", "POST"])
+@login_required
+def batch_dispose() -> flask_return_union:
+    sample_response = requests.get(
+        url_for("api.get_cart", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        samples = []
+        for item in sample_response.json()["content"]:
+            if item["selected"]:  # and item["storage_type"] != "RUC":
+                samples.append(item["sample"])
+
+        if len(samples) == 0:
+            flash("No sample selected in the user sample cart! ")
+            return render_template("sample/shipment/cart.html")
+
+        protocols_response = requests.get(
+            url_for("api.protocol_query", _external=True),
+            headers=get_internal_api_header(),
+            json={"is_locked": False, "type": ["SDE"]},
+        )
+
+        protocols = []
+
+        if protocols_response.status_code == 200:
+            for protocol in protocols_response.json()["content"]:
+                protocols.append(
+                    (
+                        int(protocol["id"]),
+                        "LIMBPRO-%s: %s" % (protocol["id"], protocol["name"]),
+                    )
+                )
+
+        form = SampleDisposalEventForm(protocols)
+
+        if form.validate_on_submit():
+            batch_disposal_response = requests.post(
+                url_for("api.sample_batch_disposal_event", _external=True),
+                headers=get_internal_api_header(),
+                json={
+                    "reason": form.reason.data,
+                    "event": {
+                        "datetime": str(
+                            datetime.strptime(
+                                "%s %s" % (form.date.data, form.time.data),
+                                "%Y-%m-%d %H:%M:%S",
+                            )
+                        ),
+                        "comments": form.comments.data,
+                        "undertaken_by": form.undertaken_by.data,
+                    },
+                    "protocol_id": form.protocol_id.data,
+                },
+            )
+
+            if batch_disposal_response.status_code == 200:
+                flash(batch_disposal_response.json()["message"])
+                return render_template("sample/shipment/cart.html")
+
+            else:
+                flash(batch_disposal_response.json()["message"])
+
+        return render_template(
+            "sample/disposal/batch_dispose.html",
+            form=form,
+        )
+
     else:
         abort(sample_response.status_code)

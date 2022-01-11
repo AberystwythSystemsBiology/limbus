@@ -60,6 +60,7 @@ function calculate_bmi(height, weight) {
 
 
 function fill_sample_table(samples) {
+
     let table = $('#donor-samples-table').DataTable({
         data: samples,
         dom: 'Blfrtip',
@@ -262,10 +263,15 @@ function fill_basic_information(donor_information, age, dob) {
 
     html = render_content("Date of Birth", dob);
     html += render_content("Age", age)
-    html += render_content("Height", donor_information["height"]+"cm");
-    html += render_content("Weight", donor_information["weight"]+"kg");
+    if (donor_information["height"] != null)
+        html += render_content("Height", donor_information["height"]+" cm");
+    if (donor_information["weight"] != null)
+    html += render_content("Weight", donor_information["weight"]+" kg");
+    if (donor_information["sex"] != null)
     html += render_content("Biological Sex", donor_information["sex"])
-    html += render_content("Body Mass Index", calculate_bmi(donor_information["height"], donor_information["weight"]));
+
+    if (donor_information["height"] != null && donor_information["weight"] != null)
+        html += render_content("Body Mass Index", calculate_bmi(donor_information["height"], donor_information["weight"]));
     html += render_content("Race", donor_information["race"]);
     html += render_content("Status", donor_information["status"]);
 
@@ -319,72 +325,181 @@ function add_samples_to_cart(api_url, samples) {
 
 function fill_diagnosis_information(diagnoses, date) {
 
-    html = ""
+    //html = ""
+    let diag = new Map();
+    $.each(diagnoses, function(index, value){
+        console.log('value', value)
+        html = ""
+        html += "<div class='card' style='border: 2px solid darkgrey ;'>"
+        // Start card body
+        html += "<div class='card-body'>"
 
-    $.each(diagnoses,function(index, value){
-        var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div><div class='media-body'>"
-
+        var media_html = "<div class='jumbotron media' style='padding:1em;'><div class='align-self-center mr-3'><h1><i class='fa fa-stethoscope'></i></h1></div>" +
+            "<div class='media-body'>"
+        var refs = "";
+        for (const [code, url] of Object.entries(value["doid_ref"]["references"])) {
+          refs += "<a href="+url+">"+ code + "</a>, ";
+        }
         media_html += "<h2>"
+        media_html += "<a href=" + value['doid_ref']['iri'] +">"
         media_html += value["doid_ref"]["label"]
+        media_html += "</a>"
         media_html +=' <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">'
         media_html += value["doid_ref"]["name"]
         media_html += "</span></h2>";
-        
+
 
         media_html += "<table class='table table-striped'>";
         media_html += render_content("Description", value["doid_ref"]["description"]);
+        media_html += render_content("References", refs);
         media_html += render_content("Stage", value["stage"]);
         media_html += render_content("Comments", value["comments"]);
         media_html += render_content("Date of Diagnosis", value["diagnosis_date"]);
-
         media_html += "</table>"
-
-        media_html += "</div>"
-
-        media_html += "</div></div></div>"
-
+        media_html += "</div></div>"
 
         html += media_html;
-    });
+        // end card body
+        html += "<div id='remove-diagnosis-" + value["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+
+        html += "</div>"
+        html += "</div>"
+        // End ul
+        //html += "</li>"
+        diag.set(value["id"].toString(), value);
+
+        $("#diagnosis-div").append(html);
+
+    $("#remove-diagnosis-" + value["id"]).on("click", function () {
+            var id = $(this).attr("id").split("-")[2];
+            var warning_msg = "Press confirm to delete diagnosis!";
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Donor Diagnosis Removal")
+            $("#delete-protocol-event-confirm").html("")
+            $("#protocol-id-remove-confirmation-input").hide()
+
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = window.location.origin + "/donor/LIMBDIAG-" + id +"/remove";
+            $("#protocol-remove-confirm-button").prop("disabled", false);
+            $('#protocol-remove-confirm-button').click(function () {
+                // window.location.href = removal_link;
+                $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                $.ajax({
+                    type: "POST",
+                    url: removal_link,
+                    dataType: "json",
+                    success: function (data) {
+                        $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                        });
+
+                        if (data["success"]) {
+                            window.location.reload();
+                        } else {
+                            window.location.reload();
+                            //alert("We have a problem! "+data["message"]);
+                            return false
+                        }
+                    }
+                });
+            });
+       });
+     });
 
     if (html == "" ) {
         html += "<h2>No diagnosis information found.</h2>"
     }
-
-    $("#diagnosis-div").html(html);
-    
- }
+}
 
 function fill_consent_information(consent_information) {
+
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);
     $("#consent_identifier").html(consent_information["identifier"]);
     $("#consent_comments").html(consent_information["comments"]);
+    $("#consent_undertakenby").html(consent_information["undertaken_by"]);
 
+    var study = consent_information["study"]
+    try {
+        doilink="";
+        if (study["protocol"]["name"]["doi"]!="") {
+            var link = doi2url(study["protocol"]["doi"]);
+            doilink += '<a href=' + link + '>' + '<a href=' + link + '>' + '[' + study["protocol"]["doi"] + '] ';
+            doilink += study["protocol"]["name"] + '</a>';
+        }  else {
+            doilink += study["protocol"]["name"];
+        }
+        $("#consent_study").html(doilink);
+        $("#consent_refno").html(study['reference_id']);
+    } catch {
+        $("#consent_study").html("");
+        $("#consent_refno").html("");
+   }
 
+    let answer_ids = [];
     for (answer in consent_information["answers"]) {
         var answer_info = consent_information["answers"][answer];
-
-        var answer_html = '';
-        answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
-        answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
-
-        $("#questionnaire-list").append(answer_html);
+        answer_ids.push(answer_info["id"])
     }
+    $("#questionnaire-list").html("")
+    for (question in consent_information["template_questions"]) {
+            var question_info = consent_information["template_questions"][question];
+            var answer_html = '';
+            answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Item ';
+            answer_html += +(parseInt(question) + 1);
+            if (answer_ids.includes(question_info["id"])) {
+                answer_html += '  <i class="fas fa-check" style="color:green;"></i><h5></div>';
+                answer_html += '<p class="mb-1">' + question_info["question"] + '</p>';
+            } else {
+                answer_html += '<i class="fas fa-minus-circle" style="color:red;"></i><h5></div>';
+                answer_html += '<p class="mb-1" style="text-decoration: line-through;">' + question_info["question"]+ '</p>';
+            }
+
+            answer_html += '</li>';
+
+            $("#questionnaire-list").append(answer_html);
+
+    }
+
 
     var consent_status = "Active"
     if (consent_information["withdrawn"]==true) {
         consent_status = "Withdrawn"
     }
-    var donor_id = "LIMBDON-"+consent_information["donor_id"];
-    donor_link = "<a href="+window.location.origin+"/donor/"+donor_id+">";
-    donor_link += donor_id+"</a>";
-    $("#donor_id").html(donor_link);
+    var donor_id = consent_information["donor_id"];
+    donor_link = ""
+    if (donor_id != null) {
+        donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + donor_id + ">";
+        donor_link += "LIMBDON-" + donor_id + "</a>";
+        $("#donor_id").html(donor_link);
+    } else {
+        $("#donor_id").text(donor_link);
+    }
     $("#consent_date").html(consent_information["date"]);
     $("#consent_status").html(consent_status);
     $("#withdrawal_date").html(consent_information["withdrawal_date"]);
 
+    $('#print-consent').on('click', function () {
+      var header = "Digital Consent Form: "+"LIMBDC-"+consent_information["id"];
+      console.log('header', header)
+      printCard(header);
+    })
+
+    function printCard(header) {
+        var divContents = document.getElementById("card-content").innerHTML;
+        var doc = window.open('', '');
+        doc.document.write('<html>');
+        doc.document.write('<body ><h5>'+ header +'</h5><br>');
+        doc.document.write(divContents);
+        doc.document.write('</body></html>');
+        doc.document.close();
+        doc.print();
+    }
 
 }
 
@@ -419,7 +534,6 @@ function fill_consents_information(consent_information) {
 
         // Start ul
         html = "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
         html += "<p class='text-muted'>Undertaken on " + consent_date + "</p>"
 
         // Start card body
@@ -462,14 +576,11 @@ function fill_consents_information(consent_information) {
         // End card body
         html += "</div>"
         html += "<div class='card-footer'>"
-        //html += "<a href='" + consent_info["_links"]["edit"] + "'>
-        //<button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
-        //                     class="fa fa-question"></i> View Consent</button>"
-        //html += '<div class='btn btn-warning float-left' data-toggle='modal' data-target='#consentModal'>View</div>"
-        html += "<div id='view-consent-" + consent_info["id"] + "' class='btn btn-warning float-left'>View</div>"
-        //html += "</a>"
-
-        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='view-consent-" + consent_info["id"] + "' class='btn btn-secondary float-left'>View</div>"
+        html += "<a href='" + consent_info["_links"]["edit"] + "'>";
+        html += "<button class='btn btn-secondary'>Edit</button>";
+        html += "</a>";
+        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-delete float-right'>Remove</div>"
         html += "</div>"
         html += "</div>"
 
@@ -480,13 +591,15 @@ function fill_consents_information(consent_information) {
         $("#consent-li").append(html);
 
         $("#view-consent-" + consent_info["id"]).on("click", function () {
-            fill_consent_information(consent_info);
+            var id = $(this).attr("id").split("-")[2];
+            fill_consent_information(consents.get(id));
             $("#consentModal").modal('show');
         });
 
-        if (consent_info['withdrawn']==true|consent_information["is_Locked"]==true) {
+        if (consent_info['withdrawn']==true || consent_information["is_Locked"]==true) {
             $("#remove-consent-" + consent_info["id"]).hide();
         }
+
         $("#remove-consent-" + consent_info["id"]).on("click", function () {
             var id = $(this).attr("id").split("-")[2];
             var limbdc_id = $("#consent-id-" + id).text();
@@ -495,7 +608,6 @@ function fill_consents_information(consent_information) {
             });
 
             var removal_link = consents.get(id)["_links"]["remove"];
-
             $("#protocol-id-remove-confirmation-input").on("change", function () {
                 var user_entry = $(this).val();
                 if (user_entry == limbdc_id) {
@@ -538,7 +650,7 @@ $(document).ready(function () {
     var donor_information = get_donor();
     var consents = {};
 
-
+    console.log("donor_info", donor_information)
     //render_sample_table(donor_information["samples"]);
     fill_sample_table(donor_information["samples"]);
 
@@ -558,6 +670,7 @@ $(document).ready(function () {
 
     $("#new-sample-btn").on("click", function() {
         window.location.href = donor_information["_links"]["new_sample"]
+        //window.open(donor_information["_links"]["new_sample"], "_blank");
     });
 
     $("#assign-sample-btn").on("click", function() {

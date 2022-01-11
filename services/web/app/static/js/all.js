@@ -37,8 +37,9 @@ function render_sample_table(samples, div_id) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            { targets: [3,6], visible: false, "defaultContent": ""},
+            { targets: [1, 4, 5, 9, -1], visible: false, "defaultContent": ""},
         ],
+        order: [[1, 'desc']],
         columns: [
             {
                 "mData": {},
@@ -65,6 +66,21 @@ function render_sample_table(samples, div_id) {
 
             {data: "id"},
             {data: "barcode"},
+            { // Donor ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    col_data = "";
+                    if (consent['donor_id']!=null) {
+                        var donor_link = window.location.origin+'/donor/LIMBDON-'+consent['donor_id'];
+                        col_data += '<a href="'+donor_link+'" target="_blank">';
+                        col_data += '<i class="fa fa-user-circle"></i>'+ 'LIMBDON-'+consent['donor_id'];
+                        col_data += '</a>';
+                    }
+                    return col_data;
+                }
+            },
+
             { // Consent ID
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -81,6 +97,43 @@ function render_sample_table(samples, div_id) {
                         consent_status = 'Withdrawn';
                     }
                     return consent_status;
+                }
+            },
+
+            { // study ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    var col_data = "";
+
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        doi = consent['study']['protocol']['doi'];
+                        if (doi == null)
+                            doi = "";
+
+                        protocol_name = consent['study']['protocol']['name'];
+                        if (protocol_name == null)
+                            protocol_name = "";
+
+                        col_data += '<i class="fas fa-users"></i>'+ protocol_name;
+                        col_data += ',  <a href="'+doi2url(doi)+'" target="_blank">';
+                        col_data += doi;
+                        col_data += '</a>';
+
+                    }
+                    return col_data;
+                }
+            },
+
+            { // donor reference no
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['consent_information'];
+                    var reference_id = "";
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        reference_id = consent['study']['reference_id']
+                    }
+                    return reference_id;
                 }
             },
 
@@ -252,6 +305,18 @@ function dynamicColours(length) {
 }
 
 
+function doi2url(code="") {
+    if (code.search("DOI") == 0)
+        return "https://doi.org/" + code.split("DOI:")[1];
+    else if (code.search("ISRCTN") == 0)
+        return "https://www.isrctn.com/" + code;
+    else if (code.search("NCT") == 0)
+        return "https://clinicaltrials.gov/show/" + code;
+    else if (code.search("EUDRACT") == 0)
+        return "https://www.clinicaltrialsregister.eu/ctr-search/trial/"+code.split("EUDRACT")[1]+"/results";
+    else
+        return code
+}
 
 
 function get_greeting() {

@@ -141,7 +141,7 @@
                                     class="fab fa-buffer"></i> Attribute Portal</a>
                             <a class="dropdown-item" href="{{ url_for('protocol.index') }}"><i
                                     class="fa fa-project-diagram"></i> Protocol Portal</a>
-                            <a class="dropdown-item" href="{{ url_for('procedure.index') }}"><i class="fa fa-stethoscope"></i> Diagnositc
+                            <a class="dropdown-item" href="{{ url_for('procedure.index') }}"><i class="fa fa-stethoscope"></i> Diagnostic
                                 Procedures</a>
                         </div>
                     </li>
@@ -175,12 +175,14 @@
                             {% if current_user.is_admin == true  %}
                             <a class="dropdown-item" href="{{ url_for('admin.index') }}">
                                 <i class="fa fa-cog"></i> Administrator Panel</a>
-                            {% endif %}
-                            <a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> My
-                                Profile</a>
+
                             <a class="dropdown-item" href="{{ url_for('tmpstore.index') }}">
                                 <i class="fa fa-hourglass-end"></i> My TempStore
                             </a>
+                            {% endif %}
+                            <a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> My
+                                Profile</a>
+
                             <a class="dropdown-item" href="{{ url_for('sample.shipment_cart') }}">
                                 <i class="fa fa-shopping-cart"></i> My Samples Cart
                             </a>
@@ -327,6 +329,10 @@
     <script src="{{ url_for('static', filename='node_modules/jstree/dist/jstree.min.js') }}"></script>
     <script
         src="{{ url_for('static', filename='node_modules/bootstrap-select/dist/js/bootstrap-select.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/moment/min/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='node_modules/chartjs-adapter-moment/dist/chartjs-adapter-moment.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/all.js') }}"></script>
 

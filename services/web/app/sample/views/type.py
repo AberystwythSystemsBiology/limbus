@@ -29,7 +29,7 @@ from ..enums import (
     MolecularSampleType,
 )
 
-from ...auth.views import BasicUserAccountSchema
+from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 
 class NewFluidSampleSchema(ma.Schema):
@@ -90,7 +90,8 @@ class SampleTypeSchema(ma.SQLAlchemySchema):
     fixation_type = EnumField(FixationType, by_value=True)
     cellular_container = EnumField(CellContainer, by_value=True)
 
-    author = ma.Nested(BasicUserAccountSchema)
+    author = ma.Nested(UserAccountSearchSchema)
 
 
 sample_type_schema = SampleTypeSchema()
+sample_types_schema = SampleTypeSchema(many=True)

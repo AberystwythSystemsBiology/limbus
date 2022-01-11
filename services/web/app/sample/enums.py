@@ -62,17 +62,17 @@ class SampleBaseType(FormEnum):
 
 
 class BiohazardLevel(FormEnum):
-    ONE = "Level One"
     TWO = "Level Two"
+    ONE = "Level One"
     THR = "Level Three"
     FOU = "Level Four"
 
 
 class FluidSampleType(FormEnum):
+    BLD = "Blood (whole)"
     ASC = "Ascites fluid"
     AMN = "Amniotic fluid"
     BAL = "Bronchoalveolar lavage"
-    BLD = "Blood (whole)"
     BMA = "Bone marrow aspirate"
     BMK = "Breast milk"
     BUC = "Buccal cells"
@@ -97,6 +97,16 @@ class FluidSampleType(FormEnum):
     SYN = "Synovial Fluid"
     URI = "Urine"
     VIT = "Vitreous Fluid"
+
+
+class BloodSampleType(FormEnum):
+    SER = "Serum"
+    PLA = "Plasma"
+    BUF = "Unficolled buffy coat, viable"
+    BFF = "Unficolled buffy coat, non-viable"
+    CEL = "Ficoll mononuclear cells, viable"
+    RNA = "RNALater"
+    BLD = "Blood (whole)"
 
 
 class MolecularSampleType(FormEnum):
@@ -245,7 +255,7 @@ class CellContainer(FormEnum):
     T = "PP tube 40-500 @ -35 to -18°C"
     W = "PP tube 40-500μL @ < 135°C"
     Y = "Original Container @ -85 to -18°C"
-    X = "Unknown"
+    X = "Not specified"
     Z = "Other"
     Z1 = "falcon tube 50 mL"
     Z2 = "biobank tube 300 uL"
@@ -266,19 +276,26 @@ class LongTermStorage(FormEnum):
     D = "Cryotube 1-2mL @ -85 to -60°C"
     E = "Cryotube 1-2mL @ < 135°C"
     F = "Plastic cryo straw in Liquid Nitrogen"
+
     G = "Straw @ -85 to -60°C"
     H = "Straw @ -35 to -18°C"
     I = "Straw @ < -135°C"
+
     J = "PP tube > 5mL @ -85 to -60°C"
     K = "PP tube > 5mL @ -35 to -18°C"
+
     L = "Microplate @ -85 to -60°C"
     M = "Microplate @ -35 to -18°C"
+
     N = "Cryotube 1-2mL in Liquid Nitrogen"
     O = "Plastic cryo straw in Liquid Nitrogen"
+
     P = "Paraffin block @ Room Temp or 2 - 10°C"
     U = "Paraffin block @ -35 to -18°C"
     Q = "Bag in Liquid Nitrogen"
+
     R = "Dry technology medium @ Room Temp"
+
     S = "PP tube 40-500μL @ -85 to -60°C"
     T = "PP tube 40-500μL @ -35 to -18°C"
     W = "PP tube 40-500μL @ < 135°C"
@@ -313,7 +330,7 @@ class SampleStatus(FormEnum):
 class SampleShipmentStatusStatus(FormEnum):
     TBC = "To Be Collected"
     COL = "Collected"
-    DES = "Despatched"
+    DES = "Dispatched"
     DEL = "Delivered"
     PRO = "Problem"
     UND = "Undelivered"

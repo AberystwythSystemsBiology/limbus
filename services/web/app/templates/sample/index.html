@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="jumbotron">
-    <div class="container">
+    <div class="container-fluid">
         <h1><i class="fas fa-vial"></i> Samples</h1>
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
@@ -17,22 +17,37 @@
         </div>
     </div>
 </div>
-<div class="container">
+<div class="container-fluid">
 
 
     <div class="row">
 
-        <div class="col-3">
+        <div class="col-2">
             <h3>Filters</h3>
             {{ form.csrf_token }}
             {{ form_field(form.barcode) }}
             {{ form_field(form.biohazard_level) }}
             {{ form_field(form.base_type) }}
+            {{ form_field(form.sample_type) }}
             {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
             {{ form_field(form.status) }}
-            {{ form_field(form.current_site_id) }}
+            <div class="form-group">
+            <strong>{{ form.current_site_id.label }}</strong>
+            {{ form.current_site_id(size="1", class="selectpicker w-100") }}
+            </div>
+{#            {{ form_field(form.current_site_id) }}#}
+{#            {{ form.current_site_id }}#}
             {{ form_field(form.protocol_id) }}
+            {{ form_field(form.source_study) }}
+            {{ form_field(form.consent_status) }}
+            <div class="form-group">
+            <b>{{ form.consent_type.label }}</b>
+            {{ form.consent_type(size="1", class="selectpicker w-100") }}
+            </div>
+                <div style="visibility: hidden; display: none">
+                    <input type="hidden" name="sampletypes" value="{{ sampletotype }}">
+                </div>
 
             <div class="row">
                 <div class="col-6">
@@ -45,7 +60,7 @@
             </div>
 
         </div>
-        <div class="col-9">
+        <div class="col-10">
 
 
 
@@ -69,8 +84,11 @@
                             <th>Identifier</th>
                             <th>DBid</th>
                             <th>Barcode</th>
+                            <th>DonorID</th>
                             <th>ConsentID</th>
                             <th>Consent</th>
+                            <th>SourceStudy</th>
+                            <th>SourceRef</th>
                             <th>Status</th>
                             <th>Base Type</th>
                             <th>Sample Type</th>
@@ -90,5 +108,11 @@
 {% endblock %}
 
 {% block javascript %}
+<script>
+    //sessionStorage.clear();
+    sessionStorage.removeItem("sampletotype");
+	sampletotype = {{ sampletotype | tojson }};
+    sessionStorage.setItem("sampletotype", JSON.stringify(sampletotype));
+</script>
 <script src="{{ url_for('static', filename='js/sample/information/index.js') }}"></script>
 {% endblock %}

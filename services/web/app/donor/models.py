@@ -39,8 +39,11 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     height = db.Column(db.Float)
     race = db.Column(db.Enum(RaceTypes))
 
-    consents = db.relationship("SampleConsent")
-    samples = db.relationship("Sample", uselist=True, secondary="donortosample")
+    consents = db.relationship("SampleConsent", uselist=True, backref="sampleconsent")
+    samples_new = db.relationship("Sample", uselist=True, secondary="donortosample")
+    samples = db.relationship(
+        "Sample", uselist=True, secondary="sampleconsent", viewonly=True
+    )
 
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):
@@ -58,3 +61,17 @@ class DonorDiagnosisEvent(Base, RefAuthorMixin, RefEditorMixin):
     diagnosis_date = db.Column(db.Date)
 
     comments = db.Column(db.Text())
+
+
+class DonorProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+
+    donor_id = db.Column(db.Integer, db.ForeignKey("donor.id"))
+    reference_id = db.Column(db.String(128))
+    event_id = db.Column(db.Integer, db.ForeignKey("event.id"))
+    protocol_id = db.Column(
+        db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
+    )
+
+    protocol = db.relationship("ProtocolTemplate")
+    event = db.relationship("Event", cascade="all, delete")

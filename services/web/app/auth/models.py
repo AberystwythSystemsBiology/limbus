@@ -20,6 +20,7 @@ from ..database import db, Base
 import hashlib
 
 from .enums import Title, AccountType, AccessControl
+from sqlalchemy.dialects.postgresql import JSONB
 
 
 class UserAccount(Base, UserMixin):
@@ -54,6 +55,8 @@ class UserAccount(Base, UserMixin):
         primaryjoin="UserAccount.site_id==SiteInformation.id",
         uselist=False,
     )
+
+    settings = db.Column(JSONB, nullable=True)
 
     @property
     def password(self) -> str:

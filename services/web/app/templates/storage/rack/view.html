@@ -46,27 +46,32 @@
                                     </a>
                                 </div>
 
-
-
-                                <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <button id="add-sample-btn" type="button" class="btn btn-outline-dark">
-                                        <i class="fas fa-vial"></i> Add Samples
-                                    </button>
-                                </div>
+                  <div class="btn-btn-group mr-2" role="group">
+                    <div class="dropdown">
+                      <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-vial"></i> Assign Samples
+                      </button>
+                      <div class="dropdown-menu">
+                        <a id="add-sample-btn" class="dropdown-item"><i class="fas fa-vial"></i>Add Samples from cart</a>
+                        <a id="repos-rack-btn" class="dropdown-item"><i class="fas fa-vial"></i>Reposition Samples in Rack</a>
+                        <a id="update-from-file-btn" class="dropdown-item">
+                          <i class="fa fa-file-csv"></i> Update from file</a>
+                      </div>
+                    </div></div>
                                 {% endif %}
 
 
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-{#                                        <a href="{{ url_for('storage.add_rack_to_cart',id=rack.id) }}">#}
                                     <button type="button" class="btn btn-outline-dark" id="add-rack-cart-btn">
                                         <i class="fa fa-cart-plus"></i> Rack to Cart
                                     </button>
-{#                                        </a>#}
+
                                 </div>
 
                                 {% if not rack.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                    <button type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                    <button id="delete-rack" type="button" class="btn btn-delete float-right" data-toggle="modal"
                                             data-target="#delete-confirmation">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
@@ -95,29 +100,7 @@
                         <h2>Information</h2>
 
 
-
                         <table id="rack-information" class="table table-striped"></table>
-
-    {#    <div class="container"> # for rack to shelf editing =>TO DO !
-
-            <form method="POST" action="{{ url_for('storage.assign_rack_to_shelf', id=shelf.id ) }}">
-                {{ form.csrf_token }}
-                {{ form_field(form.racks) }}
-                {{ form_field(form.shelf_id) }}
-                <div class="row">
-                    <div class="col-sm-6">
-                        {{ form_field(form.date) }}
-                    </div>
-                    <div class="col-sm-6">
-                        {{ form_field(form.time) }}
-                    </div>
-                </div>
-                {{ form_field(form.entered_by) }}
-
-                {{ form_field(form.submit) }}
-            </form>
-        </div>#}
-
 
 
                     </div>
@@ -144,13 +127,18 @@
                     <h2><i class="fa fa-grip-vertical"></i> Rack View (<span id="row"></span> x <span id="col"></span>)
                     </h2>
                     </div>
-                    <div class="col">
-                     <botton class="btn btn-secondary" >
-                      <input id="img_on" type="checkbox">
-                      <i></i>
-                      Display QR
-                     </botton>
+
+                    <div class="col float-center" style="background-color: white; margin-right: 50px  ">
+                        <h6>Display Option</h6>
+                        <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dispopt" value="id" id="id_on" ><label class="form-check-label" for="id_on">ID/Barcode</label>
+                        </div><div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dispopt" value="donor" checked id="donor_on"><label class="form-check-label" for="donor_on" >Donor/Ref</label>
+                        </div><div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="dispopt" value="qr" id="qr_on"><label class="form-check-label" for="img_on">QR(uuid)</label>
+                        </div>
                     </div>
+
                 </div>
 
                     <div id="view_area"></div>
@@ -169,16 +157,28 @@
                     <table id="sampleTable" class="table table-striped table-bordered" style="width:100%">
                         <thead>
                             <tr>
-                                <th>Pos</th>
+                                <th>Col</th>
+                                <th>Position</th>
+
+                                <th>Barcode</th>
+                                <th>DonorID</th>
+                                <th>ConsentID</th>
+                                <th>ConsentStatus</th>
+                                <th>SourceStudy</th>
+                                <th>SourceRef</th>
+
                                 <th>Identifier</th>
                                 <th>DBid</th>
-                                <th>Barcode</th>
                                 <th>Status</th>
                                 <th>BaseType</th>
                                 <th>Type</th>
                                 <th>Container</th>
                                 <th>Quantity</th>
-                                <th>created_on</th>
+{#                                <th>SampleCreatedOn</th>#}
+                                <th>StorageDatetime</th>
+                                <th>StoredBy</th>
+                                <th>UpdatedOn</th>
+                                <th>UpdatedBy</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -238,6 +238,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="sample_to_cart_btn" class="btn btn-success">Add to Cart</button>
                 <button type="button" id="sample_view_btn" class="btn btn-primary">View Sample</button>
             </div>
         </div>
@@ -285,8 +286,10 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}"></script>
+
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/storage/rack/rack_view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/rack/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
 {% endblock %}

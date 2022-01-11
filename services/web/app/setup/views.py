@@ -12,6 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from typing import Any
 
 import requests
 import json
@@ -92,7 +93,7 @@ def admin_registration(hash: str):
         site_information = session[hash]["site"]
         site_address = session[hash]["address"]
 
-        new_address_request = requests.post(
+        new_address_request: Any = requests.post(
             url_for("api.misc_new_address", _external=True),
             json=site_address,
             headers=get_internal_api_header(),

@@ -17,7 +17,8 @@ from .. import admin
 from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
-from ...auth.forms import UserAccountRegistrationForm
+from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
+from ..forms import AdminUserAccountEditForm
 from ..forms.auth import AccountLockForm
 
 from flask import render_template, url_for, redirect, abort, flash
@@ -99,13 +100,13 @@ def auth_view_account(id):
             )
 
             if lock_response.status_code == 200:
-                if response.json()["is_locked"]:
-                    flash("User Account Unlocked!")
+                if lock_response.json()["content"]["is_locked"]:
+                    flash("User Account locked!")
                 else:
-                    flash("User Account Locked!")
+                    flash("User Account unLocked!")
                 return redirect(url_for("admin.auth_index"))
             else:
-                flash("We were unable to lock the User Account.")
+                flash("We were unable to umllock the User Account.")
 
         return render_template(
             "admin/auth/view.html", user=response.json()["content"], form=form
@@ -123,6 +124,170 @@ def auth_data():
         headers=get_internal_api_header(),
     )
 
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+        sites_dict = {s[0]: s[1] for s in sites}
+    else:
+        sites_dict = None
+
     if auth_response.status_code == 200:
-        return auth_response.json()
+        auth_info = auth_response.json()["content"]
+
+        for user in auth_info:
+            # Default
+            try:
+                user["affiliated_site"] = sites_dict[user["site_id"]]
+                user["working_sites"] = [user["affiliated_site"]]
+            except:
+                user["affiliated_site"] = user["site_id"]
+                user["working_sites"] = [user["site_id"]]
+
+            try:
+                if "view_only" in user["settings"]:
+                    entry_key = "view_only"
+                elif "data_entry" in user["settings"]:
+                    entry_key = "data_entry"
+                else:
+                    entry_key = None
+                if entry_key:
+                    user["working_sites"] = [
+                        sites_dict[s]
+                        for s in user["settings"][entry_key]["site"]["choices"]
+                    ]
+
+            except:
+                pass
+        # print("auth_info_final", auth_info)
+        return {"content": auth_info, "success": True}
+
     return auth_response.content
+
+
+@admin.route("/auth/<id>/edit", methods=["GET", "POST"])
+@check_if_admin
+@login_required
+def admin_edit_account(id):
+
+    response = requests.get(
+        url_for("api.auth_view_user", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+    # sites=[0, None]
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+    else:
+        flash("No site created!")
+        return render_template(
+            "admin/auth/edit.html", user=response.json()["content"], form={}
+        )
+
+    if response.status_code == 200:
+        account_data = response.json()["content"]
+        site_id = int(account_data["site"]["id"])
+        account_data.update({"site_id": site_id})
+
+        default_sites = [site_id]
+        # -- prepare data population to the form
+        # -- currently only either "data_entry" or "view_only", not both can be stored in the DB
+        if "settings" in account_data and account_data["settings"] is not None:
+            settings = []
+            for access_type in account_data["settings"]:
+                setting = {}
+                if access_type == "data_entry":
+                    setting["access_level"] = 1
+                else:  # if access_type == "view_only":
+                    setting["access_level"] = 2
+
+                try:
+                    setting["site_choices"] = account_data["settings"][access_type][
+                        "site"
+                    ]["choices"]
+                    if (
+                        setting["site_choices"] is None
+                        or len(setting["site_choices"]) == 0
+                    ):
+                        setting["site_choices"] = default_sites
+                except:
+                    setting["site_choices"] = default_sites
+
+                setting["site_selected"] = "\n".join(
+                    [s[1] for s in sites if s[0] in setting["site_choices"]]
+                )
+                settings.append(setting)
+
+            account_data["settings"] = settings
+        else:
+            account_data["settings"] = [
+                {
+                    "access_level": 1,
+                    "site_choices": default_sites,
+                    "site_selected": [s[1] for s in sites if s[0] == site_id][0],
+                }
+            ]
+
+        print("account_data", account_data)
+        print("setting", account_data["settings"])
+
+        form = AdminUserAccountEditForm(sites=sites, data=account_data)
+        for setting in form.settings.entries:
+            setting.site_choices.choices = sites
+
+        if form.validate_on_submit():
+            json = {
+                "title": form.title.data,
+                "first_name": form.first_name.data,
+                "middle_name": form.middle_name.data,
+                "last_name": form.last_name.data,
+                "email": form.email.data,
+                "account_type": form.account_type.data,
+                # "password": form.password.data,
+                "site_id": form.site_id.data,
+            }
+
+            settings = {}
+            for setting in form.settings.entries:
+                print("setting : ", setting.site_choices.data)
+                site_choices = []
+                if len(setting.site_choices.data) > 0:
+                    site_choices = [
+                        int(k)
+                        for k in setting.site_choices.data
+                        if int(k) != account_data["site_id"]
+                    ]
+                    site_choices = [account_data["site_id"]] + site_choices
+
+                if setting.access_level.data == 2:
+                    settings["view_only"] = {"site": {"choices": site_choices}}
+                else:
+                    settings["data_entry"] = {"site": {"choices": site_choices}}
+
+            json["settings"] = settings
+
+            print("json", json)
+            edit_response = requests.put(
+                url_for("api.admin_edit_account", id=id, _external=True),
+                headers=get_internal_api_header(),
+                json=json,
+            )
+            print("edit_response", edit_response.text)
+            if edit_response.status_code == 200:
+                flash("User account updated successfully!")
+                return redirect(url_for("admin.auth_view_account", id=id))
+            else:
+                flash(edit_response.json()["message"])
+
+        return render_template(
+            "admin/auth/edit.html", user=response.json()["content"], form=form
+        )
+    else:
+        return abort(response.status_code)

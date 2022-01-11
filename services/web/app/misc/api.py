@@ -102,11 +102,14 @@ def get_data(tokenuser: UserAccount):
     """
 
     data = {
-        "name": SiteInformation.query.first().name,
+        "name": SiteInformation.query.filter_by(is_external=False)
+        .order_by(SiteInformation.id)
+        .first()
+        .name,
         "basic_statistics": {
-            "sample_count": Sample.query.count(),
+            "sample_count": Sample.query.filter(Sample.remaining_quantity > 0).count(),
             "user_count": UserAccount.query.count(),
-            "site_count": SiteInformation.query.count(),
+            "site_count": SiteInformation.query.filter_by(is_external=False).count(),
             "donor_count": Donor.query.count(),
         },
         "donor_statistics": {
@@ -149,6 +152,7 @@ def get_data(tokenuser: UserAccount):
                         func.date_trunc("day", Sample.created_on), func.count(Sample.id)
                     )
                     .group_by(func.date_trunc("day", Sample.created_on))
+                    .order_by(func.date_trunc("day", Sample.created_on))
                     .all()
                 ]
             ),
@@ -235,11 +239,86 @@ def get_data(tokenuser: UserAccount):
     return success_with_content_response(data)
 
 
+@api.route("/misc/site/external", methods=["GET"])
+@token_required
+def site_external_home(tokenuser: UserAccount):
+    return success_with_content_response(
+        basic_sites_schema.dump(SiteInformation.query.filter_by(is_external=True).all())
+    )
+
+
 @api.route("/misc/site", methods=["GET"])
 @token_required
 def site_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_sites_schema.dump(SiteInformation.query.all())
+        basic_sites_schema.dump(
+            SiteInformation.query.filter_by(is_external=False).all()
+        )
+    )
+
+
+@api.route("/misc/site/tokenuser", methods=["GET"])
+@token_required
+def site_home_tokenuser(tokenuser: UserAccount):
+
+    if tokenuser.is_admin:
+        sites = basic_sites_schema.dump(
+            SiteInformation.query.filter_by(is_external=False).all()
+        )
+
+    else:
+        sites = basic_sites_schema.dump(
+            SiteInformation.query.filter_by(
+                is_external=False, id=tokenuser.site_id
+            ).all()
+        )
+
+    choices = []
+    settings = tokenuser.settings
+
+    site_key = "data_entry"
+    try:
+        if "view_only" in settings and "data_entry" not in settings:
+            site_key = "view_only"
+    except:
+        pass
+
+    try:
+        id0 = settings[site_key]["site"]["default"]
+        nm0 = None
+    except:
+        id0 = None
+
+    try:
+        choices0 = settings[site_key]["site"]["choices"]
+        if len(choices0) == 0:
+            choices0 = None
+    except:
+        choices0 = None
+
+    for site in sites:
+        if choices0:
+            if site["id"] not in choices0:
+                continue
+
+        if id0 and site["id"] == id0:
+            nm0 = "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+            continue
+
+        choices.append(
+            (
+                site["id"],
+                "<%s>%s - %s" % (site["id"], site["name"], site["description"]),
+            )
+        )
+
+    if id0 and nm0:
+        # -- Insert default
+        choices = [(id0, nm0)] + choices
+
+    # print({'site_info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
+    return success_with_content_response(
+        {"site_info": sites, "choices": choices, "user_site_id": tokenuser.site_id}
     )
 
 
@@ -304,8 +383,17 @@ def misc_new_site(tokenuser: UserAccount):
 
     try:
         db.session.add(new_site)
-        db.session.commit()
         db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    address = Address.query.filter_by(id=new_site.address_id).first()
+    if address:
+        address.site_id = new_site.id
+        db.session.add(address)
+
+    try:
+        db.session.commit()
         return success_with_content_response(basic_site_schema.dumps(new_site))
     except Exception as err:
         return transaction_error_response(err)

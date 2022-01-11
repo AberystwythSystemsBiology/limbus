@@ -147,8 +147,8 @@ def associate_review(uuid: str) -> str:
                 )
 
                 if new_review_event_response.status_code == 200:
-                    # flash("Sample Review and Disposal Instruction Successfully Added!")
-                    flash(new_review_event_response.json()["message"])
+                    flash("Sample Review and Disposal Instruction Successfully Added!")
+                    # flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.view", uuid=uuid))
 
                 else:
@@ -165,16 +165,121 @@ def associate_review(uuid: str) -> str:
                 )
 
                 if new_review_event_response.status_code == 200:
-                    # flash("Sample Review Successfully Added!")
-                    flash(new_review_event_response.json()["message"])
+                    flash("Sample Review Successfully Added!")
+                    # flash(new_review_event_response.json()["message"])
                     return redirect(url_for("sample.view", uuid=uuid))
 
                 else:
                     flash(new_review_event_response.json()["message"])
 
         return render_template(
-            "sample/associate/review.html",
+            "sample/review/review.html",
             sample=sample_response.json()["content"],
+            form=form,
+        )
+
+    abort(sample_response.status_code)
+
+
+@sample.route("batch/review", methods=["GET", "POST"])
+@login_required
+def batch_review():
+
+    sample_response = requests.get(
+        url_for("api.get_cart", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        samples = []
+        for item in sample_response.json()["content"]:
+            if item["selected"]:  # and item["storage_type"] != "RUC":
+                samples.append(item["sample"])
+        if len(samples) == 0:
+            flash("No sample selected in the user smaple cart! ")
+            # return redirect(url_for("sample.view_cart", id=id))
+            return render_template("sample/shipment/cart.html")
+
+        form = SampleReviewForm()  # data=disposal_info)
+
+        if form.validate_on_submit():
+            review_info = {
+                "review_type": form.review_type.data,
+                "result": form.result.data,
+                # "sample_id": sample_response.json()["content"]["id"],
+                "event": {
+                    "undertaken_by": form.conducted_by.data,
+                    "datetime": str(
+                        datetime.strptime(
+                            "%s %s" % (form.date.data, form.time.data),
+                            "%Y-%m-%d %H:%M:%S",
+                        )
+                    ),
+                    "comments": form.comments.data,
+                },
+                "quality": form.quality.data,
+            }
+
+            if form.disposal_edit_on.data:
+                disposal_info = {
+                    # "id": disposal_id or None,
+                    # "disposal_date": disposal_date,
+                    "instruction": form.disposal_instruction.data,
+                    "comments": form.disposal_comments.data,
+                }
+
+                disposal_date = None
+                if form.disposal_instruction.data in ["DES", "TRA"]:
+                    disposal_date = str(
+                        datetime.strptime(
+                            str(form.disposal_date.data), "%Y-%m-%d"
+                        ).date()
+                    )
+                    disposal_info["disposal_date"] = disposal_date
+
+                else:
+                    disposal_info["disposal_date"] = None
+
+                # print("disposal date:", disposal_date)
+
+                review_info["disposal_info"] = disposal_info
+                new_review_event_response = requests.post(
+                    url_for(
+                        "api.sample_batch_review_disposal",
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
+                    json=review_info,
+                )
+
+                print("msg: ", new_review_event_response.json()["message"])
+                if new_review_event_response.status_code == 200:
+                    flash("Sample Review and Disposal Instruction Successfully Added!")
+                    # flash(new_review_event_response.json()["message"])
+                    return redirect(url_for("sample.shipment_cart"))
+
+                else:
+                    flash(new_review_event_response.json()["message"])
+            else:
+                new_review_event_response = requests.post(
+                    url_for(
+                        "api.sample_batch_review_disposal",
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
+                    json=review_info,
+                )
+
+                if new_review_event_response.status_code == 200:
+                    # flash("Sample Review Successfully Added!")
+                    flash(new_review_event_response.json()["message"])
+                    return redirect(url_for("sample.shipment_cart"))
+
+                else:
+                    flash(new_review_event_response.json()["message"])
+
+        return render_template(
+            "sample/review/batch_review.html",
             form=form,
         )
 

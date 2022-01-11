@@ -17,8 +17,6 @@ from .. import sample
 from flask import render_template, url_for, abort
 from flask_login import login_required
 
-from ...misc import get_internal_api_header
-
 from ..forms import SampleFilterForm
 
 import requests
@@ -27,9 +25,39 @@ import requests
 @sample.route("/")
 @login_required
 def index() -> str:
-    form = SampleFilterForm()
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
 
-    return render_template("sample/index.html", form=form)
+    sites = []
+    user_site_id = None
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+        user_site_id = sites_response.json()["content"]["user_site_id"]
+
+    sampletype_response = requests.get(
+        url_for("api.sampletype_data", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    sampletypes = []
+    if sampletype_response.status_code == 200:
+        # print("sampletype_response.json()", sampletype_response.json())
+        stypes = sampletype_response.json()["content"]["sampletype_choices"]
+        for opt in stypes["FLU"]:
+            sampletypes.append(["fluid_type:" + opt[0], opt[1]])
+        for opt in stypes["MOL"]:
+            sampletypes.append(["molecular_type:" + opt[0], opt[1]])
+        for opt in stypes["CEL"]:
+            sampletypes.append(["cellular_type:" + opt[0], opt[1]])
+
+    form = SampleFilterForm(sites, sampletypes, data={"current_site_id": user_site_id})
+    return render_template(
+        "sample/index.html",
+        form=form,
+        sampletotype=sampletype_response.json()["content"],
+    )
 
 
 @sample.route("/query", methods=["POST"])
@@ -51,6 +79,19 @@ def query_index():
 @login_required
 def biohazard_information() -> str:
     return render_template("sample/misc/biohazards.html")
+
+
+@sample.route("/sampletotypes")
+@login_required
+def get_sampletotypes():
+    sampletype_response = requests.get(
+        url_for("api.sampletype_data", _external=True),
+        headers=get_internal_api_header(),
+    )
+    if sampletype_response.status_code == 200:
+        return sampletype_response.json()
+
+    return {"content": None, "success": False}
 
 
 from .add import *

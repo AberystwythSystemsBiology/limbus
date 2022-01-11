@@ -26,7 +26,6 @@ function chart_placeholder(dom_id, data_length) {
 function make_timeseries(dom_id, data, labels) {
     if (chart_placeholder(dom_id, data.length)) {
 
-
         var ctx = document.getElementById(dom_id);
 
         new Chart(ctx, {
@@ -49,19 +48,23 @@ function make_timeseries(dom_id, data, labels) {
                     display: false
                 },
                 scales: {
-                    xAxes: [{
-                        type: 'time',
-                        time: {
-                            unit: 'day'
-                        }
-                    }],
-                    yAxes: [{
+                  x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day'
+                    },
+                    title: {
+                        display: false,
+                    },
+                  },
+                    y: {
                         ticks: {
                             min: 0,
                             max: Math.ceil(Math.max(...data)),
                             stepSize: Math.ceil(Math.max(...data)/10)
-                        }
-                    }]
+                        },
+                    }
+
                 },
                 
             }
@@ -147,7 +150,7 @@ function make_bar(dom_id, data, labels) {
                     display: false
                 },
                 scales: {
-                    yAxes: [{
+                    y: {
                         display: true,
                         ticks: {
                             beginAtZero: true,
@@ -162,7 +165,7 @@ function make_bar(dom_id, data, labels) {
                             stepValue: 1,
                         }
                     }
-                    ]
+
                 }
             }
         }

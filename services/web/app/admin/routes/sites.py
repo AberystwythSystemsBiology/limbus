@@ -34,13 +34,21 @@ def sites_index():
 
 
 @admin.route("/sites/data", methods=["GET"])
+@admin.route("/sites/<string:type>/data", methods=["GET"])
 @check_if_admin
 @login_required
-def sites_data():
-    sites_response = requests.get(
-        url_for("api.site_home", _external=True),
-        headers=get_internal_api_header(),
-    )
+def sites_data(type="internal"):
+    print("type", type)
+    if type == "external":
+        sites_response = requests.get(
+            url_for("api.site_external_home", _external=True),
+            headers=get_internal_api_header(),
+        )
+    elif type == "internal":
+        sites_response = requests.get(
+            url_for("api.site_home", _external=True),
+            headers=get_internal_api_header(),
+        )
 
     if sites_response.status_code == 200:
         return sites_response.json()
@@ -59,6 +67,7 @@ def sites_new_site():
             "name": form.name.data,
             "url": form.url.data,
             "description": form.description.data,
+            "is_external": form.is_external.data,
         }
 
         address = {

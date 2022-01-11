@@ -16,7 +16,7 @@
 from .models import Event
 import marshmallow_sqlalchemy as masql
 from ..extensions import ma
-from ..auth.views import BasicUserAccountSchema
+from ..auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 
 
 class NewEventSchema(masql.SQLAlchemySchema):
@@ -38,7 +38,9 @@ class EventSchema(masql.SQLAlchemySchema):
     id = masql.auto_field()
     datetime = masql.auto_field()
     undertaken_by = masql.auto_field()
-    author = ma.Nested(BasicUserAccountSchema, many=False)
+    comments = masql.auto_field()
+    # author = ma.Nested(BasicUserAccountSchema, many=False)
+    author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = masql.auto_field()
 
 

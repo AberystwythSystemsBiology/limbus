@@ -18,8 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 function get_samples(query) {
     var current_url = encodeURI(window.location);
     var split_url = current_url.split("/");
-    split_url.pop()
-    var api_url = split_url.join("/") + "/query"
+    split_url.pop();
+    var api_url = split_url.join("/") + "/query";
     
     var json = (function () {
         var json = null;
@@ -44,6 +44,7 @@ function get_samples(query) {
 
 function render_table(query) {
     var d = get_samples(query);
+    // console.log("samples", d)
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 
@@ -58,50 +59,53 @@ function render_table(query) {
 
 
 function get_filters() {
-    var filters = {
+    var filters = {};
 
-    }
-
-    //var f = ["barcode", "type", "colour", "source", "status"];
-    var f = ["barcode", "biohazard_level", "base_type", "colour", "source", "status", "current_site_id", "protocol_id"];
+    var f = ["barcode", "biohazard_level", "base_type", "sample_type", "colour", "source",
+            "status", "current_site_id", "consent_status", "consent_type", "protocol_id",
+        "source_study"];
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
-        if (value && value != "None") {
-            filters[filter] = value;
+        //console.log('f', filter);
+        // if (typeof(value) == 'string' && filter == "current_site_id") {
+        //         value = value.split(",");
+        //         filters[filter] = value;
+        // } else
+        if (typeof(value) == 'object') {
+            if (value.length>0) {
+                filters[filter] = value.join();
+            }
+        } else {
+            if (value && value != "None") {
+                filters[filter] = value;
+            }
         }
     });
 
     return filters;
 
-
 }
 
 
 $(document).ready(function() {
-
-    render_table({});
+    var filters = get_filters();
+    //render_table({});
+    render_table(filters);
     
     $("#reset").click(function() {
 
-        $('#sampleTable').DataTable().destroy()
-        render_table({});
+        $('#sampleTable').DataTable().destroy();
+        //render_table({});
+        window.location.reload();
     });
 
     $("#filter").click(function() {
         $("#table_view").fadeOut();
-        $('#sampleTable').DataTable().destroy()
+        $('#sampleTable').DataTable().destroy();
         var filters = get_filters();
         render_table(filters);
     });
-
-    // $("#export").click(function() {
-    //     //$("#table_view").fadeOut();
-    //     //$('#sampleTable').DataTable().destroy()
-    //     var filters = get_filters();
-    //     render_table(filters);
-    //
-    // });
 
 
 });

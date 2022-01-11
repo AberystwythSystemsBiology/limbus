@@ -15,6 +15,7 @@
 
 
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from wtforms import (
     StringField,
     SubmitField,
@@ -46,21 +47,23 @@ class NewSampleRackForm(FlaskForm):
     )
     description = TextAreaField("Description")
     colours = SelectField("Colour", choices=Colour.choices())
-    entry = StringField("Entry by")
+
     submit = SubmitField("Register")
 
 
-def EditSampleRackForm(shelves: list, data={}):
-    shelf_choices = [(0, "-- Select cold storage shelf --")]
+def EditSampleRackForm(sites: list, shelves: list, data={}):
+    # site_choices = [(0, "-- Select a storage site --")] + sites
 
     if len(shelves) == 0:
         data["shelf_required"] = False
     else:
-        for shelf in shelves:
-            shelf_choices.append(
-                (shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"]))
-            )
+        # for shelf in shelves:
+        #     shelf_choices.append(
+        #         (shelf["id"], "LIMBSHLF-%i: %s" % (shelf["id"], shelf["name"]))
+        #     )
         data["shelf_required"] = True
+
+    shelves = [(0, "-- Select cold storage shelf --")] + shelves
 
     class StaticForm(FlaskForm):
         serial = StringField("Serial Number", validators=[DataRequired()])
@@ -75,16 +78,28 @@ def EditSampleRackForm(shelves: list, data={}):
 
         storage_id = HiddenField("Entity to storage id")
         shelf_required = BooleanField("Shelf located or not")
+
+        site_id = SelectField(
+            "Site",
+            choices=sites,
+            validators=[DataRequired()],
+            description="The site where the shelf is located.",
+            coerce=int,
+            render_kw={"class": "form-control"},  # bd-light"}
+        )
+
         shelf_id = SelectField(
             "Shelf",
-            choices=shelf_choices,
+            choices=shelves,
             validators=[DataRequired()],
             description="The shelf where the rack is located.",
             coerce=int,
+            render_kw={"class": "form-control"},  # bd-light"}
         )
 
         submit = SubmitField("Register")
 
+    # print(str(StaticForm(data=data).data))
     return StaticForm(data=data)
 
 
@@ -99,6 +114,7 @@ def EditRackToShelfForm(shelves: list) -> FlaskForm:
         entered_by = StringField(
             "Entered By",
             description="The initials of the person that entered the sample.",
+            validators=[DataRequired()],
         )
         submit = SubmitField("Submit")
 
@@ -124,6 +140,7 @@ def CryoBoxFileUploadSelectForm(sample_data: dict, data={}):
 
         submit = SubmitField("Submit Cryovial Box")
 
+    print("sample_data form", sample_data)
     for position, info in sample_data.items():
         setattr(
             StaticForm,
@@ -144,9 +161,14 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     serial = StringField("Serial Number", validators=[DataRequired()])
     description = TextAreaField("Description")
     colour = SelectField("Colour", choices=Colour.choices())
+    num_rows = IntegerField("Number of Rows", default=8, validators=[DataRequired()])
+    num_cols = IntegerField(
+        "Number of Columns", default=12, validators=[DataRequired()]
+    )
+
     barcode_type = SelectField(
         "Barcode Type",
-        choices=[("uuid", "LImBuS UUID"), ("biobank_barcode", "Biobank Barcode")],
+        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])
@@ -167,6 +189,42 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
     entry = StringField(
         "Created by",
         description="The initials of the individual who created the sample rack",
+    )
+
+    submit = SubmitField("Upload File")
+
+
+class UpdateRackFileUploadForm(FlaskForm):
+    # serial = StringField("Serial Number", validators=[DataRequired()])
+    # description = TextAreaField("Description")
+    # colour = SelectField("Colour", choices=Colour.choices())
+    # num_rows = IntegerField("Number of Rows", default=8, validators=[DataRequired()])
+    # num_cols = IntegerField("Number of Columns", default=12, validators=[DataRequired()])
+
+    barcode_type = SelectField(
+        "Barcode Type",
+        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
+        description="The barcode attribute to cross reference against.",
+    )
+    file = FileField("File", validators=[DataRequired()])
+
+    # entry_datetime = StringField("Entry by")
+    entry_date = DateField(
+        "Sample Rack Creation Date",
+        validators=[DataRequired()],
+        default=datetime.today(),
+    )
+
+    entry_time = TimeField(
+        "Sample Rack Creation Time",
+        default=datetime.now(),
+        validators=[DataRequired()],
+    )
+
+    entry = StringField(
+        "Created by",
+        description="The initials of the individual who created the sample rack",
+        validators=[DataRequired()],
     )
 
     submit = SubmitField("Upload File")

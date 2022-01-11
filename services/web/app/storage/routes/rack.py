@@ -30,7 +30,7 @@ from .. import storage
 
 from string import ascii_uppercase
 import itertools
-import re
+import re, csv
 from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
@@ -44,21 +44,21 @@ from ..forms import (
     SamplesToEntityForm,
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
+    UpdateRackFileUploadForm,
 )
 from datetime import datetime
 
-
-def iter_all_strings():
-    for size in itertools.count(1):
-        for s in itertools.product(ascii_uppercase, repeat=size):
-            yield "".join(s)
-
-
-values = []
-for i in iter_all_strings():
-    values.append(i)
-    if i == "ZZZ":
-        break
+# def iter_all_strings():
+#     for size in itertools.count(1):
+#         for s in itertools.product(ascii_uppercase, repeat=size):
+#             yield "".join(s)
+#
+#
+# values = []
+# for i in iter_all_strings():
+#     values.append(i)
+#     if i == "ZZZ":
+#         break
 
 
 @storage.route("/rack")
@@ -75,6 +75,33 @@ def rack_index():
         )
 
     return abort(response.status_code)
+
+
+@storage.route("/rack/endpoint")
+@login_required
+def rack_endpoint():
+    response = requests.get(
+        url_for("api.storage_rack_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    return response.content
+
+
+# @storage.route("/rack/endpoint_tokenuser")
+# @login_required
+# def rack_endpoint_tokenuser():
+#     response = requests.get(
+#         #url_for("api.storage_rack_info", _external=True),
+#         url_for("api.storage_rack_home_toke", _external=True),
+#         headers=get_internal_api_header(),
+#     )
+#
+#     if response.status_code == 200:
+#         return response.json()
+#     return response.content
 
 
 @storage.route("/rack/info")
@@ -116,252 +143,476 @@ def rack_manual_entry():
         )
 
         if response.status_code == 200:
-            flash("Sample Rack Added")
-            return redirect(url_for("storage.rack_index"))
+            flash(
+                "Sample Rack Added! Next: Assign the new rack to a cold storage shelf!!!"
+            )
+            # return redirect(url_for("storage.rack_index"))
+            rack_id = response.json()["content"]["id"]
+            return redirect(url_for("storage.edit_rack", id=rack_id))
 
     return render_template("storage/rack/new/manual/new.html", form=form)
 
 
-@storage.route("rack/new/automatic", methods=["GET", "POST"])
-@login_required
-def rack_automatic_entry():
-    def _file_to_json(data_stream) -> dict:
-        data = {}
-        csv_data = [x.decode("UTF-8").replace("\n", "").split(",") for x in data_stream]
-        print(csv_data)
-        indexes = {
-            "Tube Barcode": csv_data[0].index("Tube Barcode"),
-            "Tube Position": csv_data[0].index("Tube Position"),
-            "Tube Row": [],
-            "Tube Column": [],
+def alpha2num(s):
+    if s.isdigit():
+        return s
+    # Only the first letter will be used
+    s = s.lower()
+    num = 0
+    for i in range(len(s)):
+        num = num + (ord(s[-(i + 1)]) - 96) * (26 * i + 1)
+    return num
+
+
+def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
+
+    data = {}
+    try:
+        reads = request.files[csvfile.name].read().decode().strip()
+    except:
+        try:
+            reads = request.files[csvfile].read().decode().strip()
+        except:
+            return {
+                "success": False,
+                "message": "File reading error! Make sure the file is in csv format!",
+            }
+
+    if reads.startswith("'") and reads.endswith("'"):
+        reads = reads[1:-1]
+
+    csv_data = []
+
+    expected_barcode = ["tube barcode", "barcode"]
+    expected_uuid = ["identifier", "uuid"]
+    expected_pos = ["tube position", "position", "pos"]
+    resplit = re.compile(",")
+    for linesep in ["\n", "\r\n", "\r"]:
+        csvdata = reads.split(linesep)
+        # print("csvdata", csvdata)
+        # - check header
+        if len(csvdata) < 2:
+            continue
+
+        header = [
+            nm.lower().replace('"', "").replace("'", "")
+            for nm in resplit.split(csvdata[0])
+        ]
+
+        res = list(set.intersection(*map(set, [header, expected_pos])))
+        if len(res) == 0:
+            continue
+
+        res = list(
+            set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
+        )
+        if len(res) == 0:
+            continue
+
+        # if len(csvdata) != nrow * ncol + 1:
+        #    continue
+        csv_data = []
+        for row in csvdata:
+            row = row.split(",")
+            row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
+            csv_data.append(row)
+
+        if len(csv_data) >= 2:
+            break
+
+    if len(csv_data) < 2:
+        return {
+            "success": False,
+            "message": "File reading error! Check if the file format is comma separated, with headers",
         }
 
-        positions = {
-            x[indexes["Tube Position"]]: x[indexes["Tube Barcode"]]
-            for x in csv_data[1:]
+    # print("nrows, Header", len(csv_data[0]), csv_data[0])
+    print("header", header)
+    indexes = {}
+
+    for key in expected_pos:
+        if key in header:
+            indexes["position"] = header.index(key)
+
+    if "position" not in indexes:
+        return {
+            "success": False,
+            "message": "Missing column for tube position; "
+            "should be one of the following in header (case insensitive): "
+            "'Tube position', 'Position', 'Pos'",
         }
 
-        data["positions"] = positions
+    for key in expected_barcode:
+        if key in header:
+            indexes["barcode"] = header.index(key)
 
-        # Going to use plain old regex to do the splits
-        regex = re.compile(r"(\d+|\s+)")
+    for key in expected_uuid:
+        if key in header:
+            indexes["uuid"] = header.index(key)
 
-        for position in data["positions"].keys():
-            splitted = regex.split(position)
-            # indexes["Tube Column"].append(splitted[0])
-            # indexes["Tube Row"].append(int(splitted[1]))
-            # print("splitted  0: ", ord(splitted[0].lower())-96)
-            # print("splitted 1: ", splitted[1])
-            pos = []
+    if "barcode" not in indexes and "uuid" not in indexes:
+        return {
+            "success": False,
+            "message": "Missing column for sample code; "
+            "should be one of the following in header (case insensitive): "
+            "'Tube barcode', 'Barcode', 'identifier', 'uuid'",
+        }
+
+    code_types = [key for key in indexes]
+
+    indexes.update({"row": [], "column": []})
+
+    print("codetype", code_types, indexes)
+
+    positions = {
+        # -- note: to ignore the second code in the same field separated by space.
+        x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+        for x in csv_data[1:]
+    }
+    print("positions", positions)
+
+    data["positions"] = positions
+
+    # Going to use plain old regex to do the splits
+    regex = re.compile(r"(\d+|\s+)")
+
+    for position in data["positions"].keys():
+        splitted = regex.split(position)
+        pos = []
+        try:
             for s in splitted[0:2]:
-                print(s)
+                # print("s: ", s)
                 if s.isdigit():
                     pos.append(int(s))
                 else:
                     pos.append(ord(s.lower()) - 96)
-            print("pos ", pos)
-            indexes["Tube Row"].append(pos[0])  # Letter e.g. A2: => Row 1
-            indexes["Tube Column"].append(pos[1])  # Number A2 => Column 2
 
-        # data["num_cols"] = len(list(set(indexes["Tube Column"])))
-        # data["num_rows"] = max(indexes["Tube Row"])
-        # data["num_rows"] = len(list(set(indexes["Tube Row"])))
-        data["num_rows"] = max(indexes["Tube Row"])
-        data["num_cols"] = max(indexes["Tube Column"])
+            indexes["row"].append(pos[0])  # Letter e.g. A2: => Row 1
+            indexes["column"].append(pos[1])  # Number A2 => Column 2
+        except:
+            return {"success": False, "message": "Error in reading positions"}
 
-        return data
+    if max(indexes["row"]) > nrow or min(indexes["row"]) < 1:
+        return {"success": False, "message": "Position (row number) out of range!"}
+    if max(indexes["column"]) > ncol or min(indexes["column"]) < 1:
+        return {"success": False, "message": "Position (column number) out of range!"}
+
+    data["num_rows"] = nrow  # max(indexes["row"])
+    data["num_cols"] = ncol  # max(indexes["column"])
+    data["code_types"] = code_types
+    data["success"] = True
+    return data
+
+
+@storage.route("/rack/new/from_file", methods=["GET", "POST"])
+@login_required
+def rack_create_from_file():
+    # ------
+    # new the whole rack occupancy using csv file (often from the rack saner).
+    # -----
 
     form = NewCryovialBoxFileUploadForm()
 
     if form.validate_on_submit():
-        _hash = str(uuid4())
-        # replace with tempstore
-        session[_hash] = {
-            "serial_number": form.serial.data,
-            "barcode_type": form.barcode_type.data,
-            "serial_number": form.serial.data,
-            "colour": form.colour.data,
-            "description": form.description.data,
-            "entry": form.entry.data,
-            "entry_date": str(form.entry_date.data),
-            "entry_time": str(form.entry_time.data),
-            "json": _file_to_json(form.file.data.stream),
-        }
-        return redirect(url_for("storage.rack_automatic_entry_validation", _hash=_hash))
+        barcode_type = form.barcode_type.data
+        err = None
+        _samples = func_csvfile_to_json(
+            form.file.data, form.num_rows.data, form.num_cols.data
+        )
 
-    return render_template("storage/rack/new/from_file/step_one.html", form=form)
+        if _samples["success"]:
+            # print("barcode type", barcode_type, _samples["code_types"])
+            if barcode_type not in _samples["code_types"]:
+                err = (
+                    "The provided sample code doesn't matched with the chosen type %s! "
+                    % barcode_type
+                )
+        else:
+            err = _samples["message"]
 
-
-@storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
-@login_required
-def rack_automatic_entry_validation(_hash: str):
-    session_data = session[_hash]
-    sample_data = {}
-    print("session_data: ", session_data)
-    for position, identifier in session_data["json"]["positions"].items():
-        sample = None
-        if "identifier" != "":
-            sample_response = requests.get(
-                url_for("api.sample_query", _external=True),
-                headers=get_internal_api_header(),
-                json={session_data["barcode_type"]: identifier},
+        if err:
+            flash(err)
+            return render_template(
+                "storage/rack/new/from_file/step_one.html", form=form, session_data={}
             )
 
-            if sample_response.status_code == 200:
-                sample = sample_response.json()["content"]
-                sample_data[position] = sample
+        samples = []
+        for s in _samples["positions"].items():
+            samples.append(
+                {
+                    "sample_code": s[1][barcode_type],
+                    "row": alpha2num(s[0][0]),
+                    "col": int(s[0][1 : len(s[0])]),
+                }
+            )
 
-    form = CryoBoxFileUploadSelectForm(sample_data, data=session_data["json"])
-
-    if form.validate_on_submit():
-
-        json = {
-            "serial_number": session_data["serial_number"],
-            "num_rows": session_data["json"]["num_rows"],
-            "num_cols": session_data["json"]["num_cols"],
-            "colour": session_data["colour"],
-            "description": session_data["description"],
+        rack_entry = {
+            "serial_number": form.serial.data,
+            "num_rows": form.num_rows.data,
+            "num_cols": form.num_cols.data,
+            "colour": form.colour.data,
+            "description": form.description.data,
+        }
+        rack_data = {
+            "rack_id": None,
+            "barcode_type": form.barcode_type.data,
+            "entry": form.entry.data,
             "entry_datetime": str(
                 datetime.strptime(
-                    "%s %s" % (session_data["entry_date"], session_data["entry_time"]),
+                    "%s %s" % (form.entry_date.data, form.entry_time.data),
                     "%Y-%m-%d %H:%M:%S",
                 )
             ),
-            "entry": session_data["entry"],
+            "samples": samples,
         }
+        rack_data.update(rack_entry)
 
-        print("json: ", json)
-        _samples = []
-
-        for element in form:
-            if element.type == "BooleanField":
-                if element.data:
-                    regex = re.compile(r"(\d+|\s+)")
-                    row, col, _ = regex.split(element.id)
-                    sample_id = element.render_kw["_sample"][0]["id"]
-                    _samples.append([sample_id, row, col])
-
-        def alpha2num(s):
-            if s.isdigit():
-                return s
-            # Only the first letter will be used
-            s = s.lower()
-            num = 0
-            for i in range(len(s)):
-                num = num + (ord(s[-(i + 1)]) - 96) * (26 * i + 1)
-            return num
-
-        samples_pos = []
-        for s in _samples:
-            samples_pos.append(
-                {
-                    "sample_id": s[0],
-                    "row": alpha2num(s[1]),
-                    "col": s[2],
-                }
-            ),
-
-        json["samples_pos"] = samples_pos
-        response = requests.post(
-            url_for("api.storage_rack_new_with_samples", _external=True),
+        rack_data["from_file"] = True
+        sample_move_response = requests.post(
+            url_for("api.storage_rack_refill_with_samples", _external=True),
             headers=get_internal_api_header(),
-            json=json,
+            json=rack_data,
         )
 
-        if response.status_code == 200:
-            print(response.json()["content"])
-            return redirect(
-                url_for("storage.view_rack", id=response.json()["content"]["id"])
+        if sample_move_response.status_code == 200:
+            sampletostore = sample_move_response.json()["content"]
+            sampletostore["new_rack"] = True
+            sampletostore.update({"rack": rack_entry})
+
+            return render_template(
+                "storage/rack/view_sample_to_rack.html",
+                id=id,
+                sampletostore=sampletostore,
             )
 
-        flash("We have an issue!")
+        else:
+            flash(sample_move_response.json()["message"])
 
     return render_template(
-        "storage/rack/new/from_file/step_two.html",
-        session_data=session_data,
-        form=form,
-        hash=_hash,
+        "storage/rack/new/from_file/step_one.html", form=form, session_data={}
     )
 
 
-# @storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
+# @storage.route("rack/new/automatic", methods=["GET", "POST"])
 # @login_required
-def rack_automatic_entry_validation_div(_hash: str):
-    session_data = session[_hash]
-    sample_data = {}
-    print("session_data: ", session_data)
-    for position, identifier in session_data["json"]["positions"].items():
-        sample = None
-        if "identifier" != "":
-            sample_response = requests.get(
-                url_for("api.sample_query", _external=True),
-                headers=get_internal_api_header(),
-                json={session_data["barcode_type"]: identifier},
-            )
-
-            if sample_response.status_code == 200:
-                sample = sample_response.json()["content"]
-                sample_data[position] = sample
-
-    form = CryoBoxFileUploadSelectForm(sample_data, data=session_data["json"])
-
-    if form.validate_on_submit():
-        response = requests.post(
-            url_for("api.storage_rack_new", _external=True),
-            headers=get_internal_api_header(),
-            json={
-                "serial_number": session_data["serial_number"],
-                "num_rows": session_data["json"]["num_rows"],
-                "num_cols": session_data["json"]["num_cols"],
-                "colour": session_data["colour"],
-                "description": session_data["description"],
-            },
-        )
-
-        if response.status_code == 200:
-
-            _samples = []
-
-            for element in form:
-                if element.type == "BooleanField":
-                    if element.data:
-                        regex = re.compile(r"(\d+|\s+)")
-                        # col, row, _ = regex.split(element.id)
-                        row, col, _ = regex.split(element.id)
-                        sample_id = element.render_kw["_sample"][0]["id"]
-                        # _samples.append([sample_id, values.index(col), row])
-                        _samples.append([sample_id, row, col])
-
-            responses = []
-
-            for s in _samples:
-
-                sample_move_response = requests.post(
-                    url_for("api.storage_transfer_sample_to_rack", _external=True),
-                    headers=get_internal_api_header(),
-                    json={
-                        "sample_id": s[0],
-                        "rack_id": response.json()["content"]["id"],
-                        "row": s[1],  # s[2],
-                        "col": s[2],  # s[1],
-                        "entry_datetime": str(datetime.now()),
-                    },
-                )
-
-                responses.append([sample_move_response, s[0]])
-
-            return redirect(
-                url_for("storage.view_rack", id=response.json()["content"]["id"])
-            )
-
-        flash("We have an issue!")
-
-    return render_template(
-        "storage/rack/new/from_file/step_two.html",
-        session_data=session_data,
-        form=form,
-        hash=_hash,
-    )
+# def rack_automatic_entry():
+#
+#     form = NewCryovialBoxFileUploadForm()
+#
+#     if form.validate_on_submit():
+#         _hash = str(uuid4())
+#         replace with tempstore
+#         session[_hash] = {
+#             "serial_number": form.serial.data,
+#             "num_rows": form.num_rows.data,
+#             "num_cols": form.num_cols.data,
+#             "barcode_type": form.barcode_type.data,
+#             "colour": form.colour.data,
+#             "description": form.description.data,
+#             "entry": form.entry.data,
+#             "entry_date": str(form.entry_date.data),
+#             "entry_time": str(form.entry_time.data),
+#             "json": func_csvfile_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
+#
+#         }
+#         err = None
+#
+#         barcode_type = form.barcode_type.data
+#
+#         _samples = func_csvfile_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
+#         if _samples["success"]:
+#             print("barcode type", barcode_type, _samples["code_types"])
+#             if barcode_type not in _samples["code_types"]:
+#                 err = "The provided sample code doesn't matched with the chosen type %s! " %barcode_type
+#         else:
+#
+#             err = _samples["message"]
+#
+#         if err is None:
+#             rack_entry = {
+#                 "serial_number": form.serial.data,
+#                 "num_rows": form.num_rows.data,
+#                 "num_cols": form.num_cols.data,
+#                 "barcode_type": form.barcode_type.data,
+#                 "colour": form.colour.data,
+#                 "description": form.description.data,
+#                 "entry": form.entry.data,
+#                 "entry_date": str(form.entry_date.data),
+#                 "entry_time": str(form.entry_time.data),
+#                 "json": _samples
+#             }
+#
+#             return render_template("storage/rack/new/from_file/step_two.html", form=form, session_data=rack_entry)
+#
+#     if err:
+#         flash(err)
+#     else:
+#         flash("Errors in reading the file! ")
+#     return render_template("storage/rack/new/from_file/step_one.html", form=form, session_data={})
+#
+#
+# #- Not in use
+# @storage.route("/rack/new/automatic/validation", methods=["GET", "POST"])
+# @login_required
+# def rack_automatic_entry_validation():
+#     # def rack_automatic_entry_validation(_hash: str):
+#     session_data = session[_hash]
+#     if "json" not in values or "positions" not in values["json"]:
+#        return {'messages': 'No sample and storage info for the rack!', 'success': False}
+#
+#     sample_data = {}
+#
+#     for position, identifier in values["json"]["positions"].items():
+#         if identifier != "":
+#             sample_response = requests.get(
+#                 url_for("api.sample_query", _external=True),
+#                 headers=get_internal_api_header(),
+#                 json={session_data["barcode_type"]: identifier},
+#             )
+#
+#             if sample_response.status_code == 200:
+#                 sample = sample_response.json()["content"]
+#                 sample_data[position] = sample
+#
+#     form = CryoBoxFileUploadSelectForm(sample_data, data=session_data["json"])
+#
+#     if form.validate_on_submit():
+#
+#         json = {
+#             "serial_number": values["serial_number"],
+#             "num_rows": values["json"]["num_rows"],
+#             "num_cols": values["json"]["num_cols"],
+#             "colour": values["colour"],
+#             "description": values["description"],
+#             "entry_datetime": str(
+#                 datetime.strptime(
+#                     "%s %s" % (values["entry_date"], values["entry_time"]),
+#                     "%Y-%m-%d %H:%M:%S",
+#                 )
+#             ),
+#             "entry": values["entry"],
+#         }
+#
+#         _samples = []
+#
+#         for element in form:
+#             if element.type == "BooleanField":
+#                 if element.data:
+#                     regex = re.compile(r"(\d+|\s+)")
+#                     row, col, _ = regex.split(element.id)
+#                     sample_code = element.render_kw["_sample"][0]["id"]
+#                     _samples.append([row, col, sample_code])
+#
+#         samples_pos = []
+#         for s in _samples:
+#             samples_pos.append({
+#                        "sample_code": s[2][barcode_type],
+#                         "row": alpha2num(s[0]),
+#                         "col": s[1],
+#             }
+#             ),
+#
+#         json["samples_pos"] = samples_pos
+#         response = requests.post(
+#             url_for("api.storage_rack_new_with_samples", _external=True),
+#             headers=get_internal_api_header(),
+#             json=json,
+#         )
+#
+#         if response.status_code == 200:
+#             response.json()["redirect"] = url_for("storage.view_rack", id=response.json()["content"]["id"])
+#             # return redirect(
+#             #     url_for("storage.view_rack", id=response.json()["content"]["id"])
+#             # )
+#
+#         #flash("We have an issue!")
+#         flash(response.json()["message"])
+#         return response.json
+#
+#     return render_template(
+#         "storage/rack/new/from_file/step_two.html",
+#         session_data=session_data,
+#         form=form,
+#         hash=_hash,
+#     )
+#
+#
+# # @storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
+# # @login_required
+# def rack_automatic_entry_validation_div(_hash: str):
+#     session_data = session[_hash]
+#     sample_data = {}
+#     # print("session_data: ", session_data)
+#     for position, identifier in session_data["json"]["positions"].items():
+#         sample = None
+#         if "identifier" != "":
+#             sample_response = requests.get(
+#                 url_for("api.sample_query", _external=True),
+#                 headers=get_internal_api_header(),
+#                 json={session_data["barcode_type"]: identifier},
+#             )
+#
+#             if sample_response.status_code == 200:
+#                 sample = sample_response.json()["content"]
+#                 sample_data[position] = sample
+#
+#     form = CryoBoxFileUploadSelectForm(sample_data, data=session_data["json"])
+#
+#     if form.validate_on_submit():
+#         response = requests.post(
+#             url_for("api.storage_rack_new", _external=True),
+#             headers=get_internal_api_header(),
+#             json={
+#                 "serial_number": session_data["serial_number"],
+#                 "num_rows": session_data["json"]["num_rows"],
+#                 "num_cols": session_data["json"]["num_cols"],
+#                 "colour": session_data["colour"],
+#                 "description": session_data["description"],
+#             },
+#         )
+#
+#         if response.status_code == 200:
+#
+#             _samples = []
+#
+#             for element in form:
+#                 if element.type == "BooleanField":
+#                     if element.data:
+#                         regex = re.compile(r"(\d+|\s+)")
+#                         row, col, _ = regex.split(element.id)
+#                         sample_id = element.render_kw["_sample"][0]["id"]
+#                         _samples.append([sample_id, row, col])
+#
+#             responses = []
+#
+#             for s in _samples:
+#
+#                 sample_move_response = requests.post(
+#                     url_for("api.storage_transfer_sample_to_rack", _external=True),
+#                     headers=get_internal_api_header(),
+#                     json={
+#                         "sample_id": s[0],
+#                         "rack_id": response.json()["content"]["id"],
+#                         "row": s[1],  # s[2],
+#                         "col": s[2],  # s[1],
+#                         "entry_datetime": str(datetime.now()),
+#                     },
+#                 )
+#
+#                 responses.append([sample_move_response, s[0]])
+#
+#             return redirect(
+#                 url_for("storage.view_rack", id=response.json()["content"]["id"])
+#             )
+#
+#         flash("We have an issue!")
+#
+#     return render_template(
+#         "storage/rack/new/from_file/step_two.html",
+#         session_data=session_data,
+#         form=form,
+#         hash=_hash,
+#     )
 
 
 @storage.route("/rack/query/rack", methods=["GET", "POST"])
@@ -417,10 +668,15 @@ def view_rack_endpoint(id):
     def _assign_view(sample, rack_view):
         try:
             row, col = sample["row"], sample["col"]
-            rack_view["content"]["view"][row][col] = {
-                "empty": False,
-                "sample": sample["sample"],
-            }
+            if sample["editor"] is None:
+                sample["editor"] = sample["author"]
+
+            rack_view["content"]["view"][row][col].update(sample)
+            rack_view["content"]["view"][row][col].update(
+                {
+                    "empty": False,
+                }
+            )
             return 1, rack_view
         except Exception as e:
             pass
@@ -440,19 +696,19 @@ def view_rack_endpoint(id):
         ):  # row, col: index in array
             _rack.append({})
             for col in range(rack_view["content"]["num_cols"] + 1):
-                # _rack[row]["%i\t%i" % (row, col)] = {"empty": True}  # row+1, col+1: position in the rack
                 _rack[row][col] = {"empty": True}  # row+1, col+1: position in the rack
 
+        # - Initialise rack_view['view'] to 2d array with empty cells
         rack_view["content"]["view"] = _rack
 
         count = 0
-
+        # - fill in the cells with samples
         for sample in rack_view["content"]["entity_to_storage_instances"]:
             add, rack_view = _assign_view(sample, rack_view)
             count += add
 
+        # rack_view["content"].pop("entity_to_storage_instances")
         total = rack_view["content"]["num_cols"] * rack_view["content"]["num_rows"]
-
         rack_view["content"]["counts"] = {"full": count, "empty": total - count}
 
         return rack_view
@@ -469,26 +725,29 @@ def assign_rack_sample(id, row, column):
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
+
     if view_response.json()["content"]["is_locked"]:
         flash("The rack is locked!")
-        return abort(401)
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
+        return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
 
         sample_response = requests.get(
-            # url_for("api.sample_home", _external=True),
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
         )
 
         if sample_response.status_code == 200:
-            # form = SampleToEntityForm(sample_response.json()["content"])
             samples = []
             for item in sample_response.json()["content"]:
                 if item["selected"] and item["storage_type"] != "RUC":
-                    # samples.append({"id": item["sample"]["id"], "uuid": item["sample"]["uuid"]})
                     samples.append(item["sample"])
-            # print("n: ", len(samples), samples)
             if len(samples) == 0:
                 flash(
                     "Add samples to your sample cart and select from the cart first! "
@@ -518,7 +777,7 @@ def assign_rack_sample(id, row, column):
                 )
 
                 if sample_move_response.status_code == 200:
-                    flash("Sample successfully added to rack!")
+                    flash(sample_move_response.json()["message"])
                     return redirect(url_for("storage.view_rack", id=id))
                 else:
                     flash(sample_move_response.json())
@@ -548,7 +807,13 @@ def assign_rack_samples(id):
 
     if view_response.json()["content"]["is_locked"]:
         flash("The rack is locked!")
-        return abort(401)
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
+        return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
 
@@ -565,9 +830,7 @@ def assign_rack_samples(id):
                     samples.append(item["sample"])
 
             if len(samples) == 0:
-                flash(
-                    "Add samples to your sample cart and select from the cart first! "
-                )
+                flash("Add samples to your sample cart and select from the cart! ")
                 return redirect(url_for("storage.view_rack", id=id))
 
             form = SamplesToEntityForm(samples)
@@ -611,6 +874,7 @@ def assign_rack_samples(id):
                 rack=view_response.json()["content"],
                 form=form,
             )
+
     return abort(view_response.status_code)
 
 
@@ -632,6 +896,185 @@ def storage_rack_fill_with_samples():
 
     response = requests.post(
         url_for("api.storage_rack_fill_with_samples", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
+
+
+@storage.route("/rack/LIMBRACK-<id>/edit_samples_in_rack", methods=["GET", "POST"])
+@login_required
+def edit_rack_samples_pos(id):
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if view_response.json()["content"]["is_locked"]:
+        flash("The rack is locked!")
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
+        return redirect(url_for("storage.edit_rack", id=id))
+
+    sampletostore = view_response.json()["content"]
+    id = int(sampletostore.pop("id"))
+    sampletostore = {
+        "rack_id": id,
+        "samples": [],
+        "from_file": False,
+        "update_only": True,
+    }
+
+    return render_template(
+        "storage/rack/view_sample_to_rack.html", id=id, sampletostore=sampletostore
+    )
+
+
+@storage.route("/rack/edit_samples_pos", methods=["GET", "POST"])
+@login_required
+def storage_rack_edit_samples_pos():
+    if request.method == "POST":
+        values = request.json
+    else:
+        return {"messages": "Sample and storage info needed!", "success": False}
+
+    response = requests.post(
+        url_for("api.storage_rack_edit_samples_pos", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
+
+
+@storage.route("/rack/LIMBRACK-<id>/assign_samples_in_file", methods=["GET", "POST"])
+@login_required
+def update_rack_samples(id):
+    # ------
+    # Update the whole rack occupancy using csv file (often from the rack saner).
+    # -----
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if view_response.json()["content"]["is_locked"]:
+        flash("The rack is locked!")
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
+        return redirect(url_for("storage.edit_rack", id=id))
+
+    if view_response.status_code == 200:
+        num_rows = view_response.json()["content"]["num_rows"]
+        num_cols = view_response.json()["content"]["num_cols"]
+
+        form = UpdateRackFileUploadForm()
+
+        if form.validate_on_submit():
+            barcode_type = form.barcode_type.data
+
+            err = None
+
+            _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
+            if _samples["success"]:
+                print("barcode type", barcode_type, _samples["code_types"])
+                if barcode_type not in _samples["code_types"]:
+                    err = (
+                        "The provided sample code doesn't matched with the chosen type %s! "
+                        % barcode_type
+                    )
+            else:
+                # err = "Errors in reading the file! "
+                err = _samples["message"]
+
+            if err:
+                flash(err)
+                return redirect(url_for("storage.view_rack", id=id))
+
+            samples = []
+            for s in _samples["positions"].items():
+                samples.append(
+                    {
+                        "sample_code": s[1][barcode_type],
+                        "row": alpha2num(s[0][0]),
+                        "col": int(s[0][1 : len(s[0])]),
+                    }
+                )
+
+            rack_data = {
+                # "samples": [{"id": id1} for id1 in form.samples.data],
+                "rack_id": id,
+                "entry_datetime": str(
+                    datetime.strptime(
+                        "%s %s" % (form.entry_date.data, form.entry_time.data),
+                        "%Y-%m-%d %H:%M:%S",
+                    )
+                ),
+                "entry": form.entry.data,
+                "barcode_type": form.barcode_type.data,
+                "samples": samples,
+            }
+
+            sample_move_response = requests.post(
+                url_for("api.storage_rack_refill_with_samples", _external=True),
+                headers=get_internal_api_header(),
+                json=rack_data,
+            )
+
+            if sample_move_response.status_code == 200:
+                sampletostore = sample_move_response.json()["content"]
+
+                return render_template(
+                    "storage/rack/view_sample_to_rack.html",
+                    id=id,
+                    sampletostore=sampletostore,
+                )
+
+            else:
+                flash(sample_move_response.json())
+                return redirect(url_for("storage.view_rack", id=id))
+
+        return render_template(
+            "storage/rack/sample_to_rack_from_file.html",
+            rack=view_response.json()["content"],
+            form=form,
+        )
+    return abort(view_response.status_code)
+
+
+@storage.route("/rack/new_with_samples", methods=["GET", "POST"])
+@login_required
+def storage_rack_create_with_samples():
+    if request.method == "POST":
+        values = request.json
+    else:
+        return {"messages": "Sample and storage info needed!", "success": False}
+
+    response = requests.post(
+        url_for("api.storage_rack_new_with_samples", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
+
+
+@storage.route("/rack/refill_with_samples", methods=["GET", "POST"])
+@login_required
+def storage_rack_refill_with_samples():
+    if request.method == "POST":
+        values = request.json
+    else:
+        return {"messages": "Sample and storage info needed!", "success": False}
+
+    response = requests.post(
+        url_for("api.storage_rack_refill_with_samples", _external=True),
         headers=get_internal_api_header(),
         json=values,
     )
@@ -660,11 +1103,11 @@ def add_rack_to_cart(id):
 @login_required
 def edit_rack(id):
     response = requests.get(
-        # url_for("api.storage_rack_location", id=id, _external=True),
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
     if response.json()["content"]["is_locked"]:
+        flash("The rack is locked!")
         return abort(401)
 
     if response.status_code == 200:
@@ -673,21 +1116,42 @@ def edit_rack(id):
             # url_for("api.storage_rack_view", id=id, _external=True),
             headers=get_internal_api_header(),
         )
-        # For SampleRack with location info.
-        rack = response.json()["content"]
-        print("Rack: ", rack)
-        shelves = []
-        shelf_required = True
 
-        response1 = requests.get(
-            url_for("api.storage_shelves_onsite", id=id, _external=True),
+        sites_response = requests.get(
+            url_for("api.site_home_tokenuser", _external=True),
             headers=get_internal_api_header(),
         )
+
+        if sites_response.status_code == 200:
+            sites = sites_response.json()["content"]["choices"]
+            user_site_id = sites_response.json()["content"]["user_site_id"]
+
+        # For SampleRack with location info.
+        rack = response.json()["content"]
+        # print("Rack: ", rack)
+        shelves = []
+        shelf_dict = {}
+        shelf_required = True
+        response1 = requests.get(
+            url_for("api.storage_shelf_overview", _external=True),
+            # url_for("api.storage_onsite_shelves", id=id, _external=True),
+            headers=get_internal_api_header(),
+        )
+
         if response1.status_code == 200:
-            shelves = response1.json()["content"]
+
+            for site in sites:
+                shelf_dict[site[0]] = []
+
+            for shelf in response1.json()["content"]["shelf_info"]:
+                shelf_dict[int(shelf["site_id"])].append(
+                    [int(shelf["shelf_id"]), shelf["name"]]
+                )
+                shelves.append([int(shelf["shelf_id"]), shelf["name"]])
             # shelf_required = len(shelves) > 0
 
         form = EditSampleRackForm(
+            sites=sites,
             shelves=shelves,
             data={
                 "serial": rack["serial_number"],
@@ -723,87 +1187,19 @@ def edit_rack(id):
 
             if edit_response.status_code == 200:
                 flash("Rack Successfully Edited")
-            else:
-                flash("We have a problem: %s" % (edit_response.json()))
+                return redirect(url_for("storage.view_rack", id=id))
 
-            return redirect(url_for("storage.view_rack", id=id))
+            else:
+                flash("We have a problem: %s" % (edit_response.json()["message"]))
 
         return render_template(
-            "storage/rack/edit.html", rack=response.json()["content"], form=form
+            "storage/rack/edit.html",
+            form=form,
+            rack=response.json()["content"],
+            shelves=shelf_dict,
         )
 
     abort(response.status_code)
-
-
-# @storage.route("rack/LIMBRACK-<id>/edit", methods=["GET", "POST"])
-# @login_required
-# def edit_rack(id):
-#     response = requests.get(
-#         # url_for("api.storage_rack_location", id=id, _external=True),
-#         url_for("api.storage_rack_view", id=id, _external=True),
-#         headers=get_internal_api_header(),
-#     )
-#
-#     # if response.json()["content"]["is_locked"]:
-#     #     return abort(401)
-#
-#     if response.status_code == 200:
-#         # For SampleRack with location info.
-#         rack = response.json()["content"]
-#         print("Rack: ", rack)
-#         shelves = []
-#         shelf_required = True
-#
-#         response1 = requests.get(
-#             url_for("api.storage_shelves_onsite", id=id, _external=True),
-#             headers=get_internal_api_header(),
-#         )
-#         if response1.status_code == 200:
-#             shelves = response1.json()["content"]
-#             #shelf_required = len(shelves) > 0
-#
-#         form = EditSampleRackForm(shelves=shelves,
-#             data={"serial": rack["serial_number"], "description": rack["description"],
-#                   "storage_id": rack['storage_id'], "shelf_id": rack["shelf_id"]}
-#         )
-#
-#         delattr(form, "num_cols")
-#         delattr(form, "num_rows")
-#         delattr(form, "colours")
-#         #if not shelf_required:
-#         #    delattr(form, "shelf_id")
-#
-#         if form.validate_on_submit():
-#             shelf_id = form.shelf_id.data
-#             if shelf_id == 0:
-#                 shelf_id = None
-#
-#             form_information = {
-#                 "serial_number": form.serial.data,
-#                 "description": form.description.data,
-#                 "storage_id": form.storage_id.data,
-#                 "shelf_id": shelf_id
-#             }
-#
-#
-#             edit_response = requests.put(
-#                 url_for("api.storage_rack_edit", id=id, _external=True),
-#                 headers=get_internal_api_header(),
-#                 json=form_information,
-#             )
-#
-#             if edit_response.status_code == 200:
-#                 flash("Rack Successfully Edited")
-#             else:
-#                 flash("We have a problem: %s" % (edit_response.json()))
-#
-#             return redirect(url_for("storage.view_rack", id=id))
-#
-#         return render_template(
-#             "storage/rack/edit.html", rack=response.json()["content"], form=form
-#         )
-#
-#     abort(response.status_code)
 
 
 @storage.route("/rack/LIMBRACK-<id>/delete", methods=["GET", "POST"])

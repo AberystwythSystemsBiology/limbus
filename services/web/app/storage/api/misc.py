@@ -33,6 +33,7 @@ from ..views.misc import (
 )
 
 from ...sample.enums import CartSampleStorageType
+from ...storage.enums import FixedColdStorageType, FixedColdStorageTemps
 
 
 @api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
@@ -354,13 +355,55 @@ def storage_view_tree(tokenuser: UserAccount):
     )
 
 
+# @use_args(SiteSearchSchema(), location="json")
+# @api.route("/storage/site_tokenuser", methods=["GET"])
+# @token_required
+# def site_home_tokenuser(tokenuser: UserAccount):
+#     if tokenuser.is_admin:
+#         # choices = [(None, "None")]
+#         choices = []
+#         sites = basic_sites_schema.dump(SiteInformation.query.all())
+#     else:
+#         choices = []
+#         sites = basic_sites_schema.dump(SiteInformation.query.filter_by(id=tokenuser.site_id).all())
+#
+#     for site in sites:
+#         choices.append(
+#             (
+#                 site["id"],
+#                 "<%s>%s - %s" % (site["id"], site["name"], site["description"])
+#             )
+#         )
+#
+#     return success_with_content_response({'info': sites, 'choices': choices, 'user_site_id': tokenuser.site_id})
+
+
+@api.route("/storage/tree/tokenuser", methods=["GET"])
+@token_required
+def storage_view_tree_tokenuser(tokenuser: UserAccount):
+    if tokenuser.is_admin:
+        return success_with_content_response(
+            tree_sites_schema.dump(
+                SiteInformation.query.filter_by(is_external=False).all()
+            )
+        )
+    else:
+        return success_with_content_response(
+            tree_sites_schema.dump(
+                SiteInformation.query.filter_by(is_external=False)
+                .filter_by(id=tokenuser.site_id)
+                .all()
+            )
+        )
+
+
 @api.route("/storage", methods=["GET"])
 @token_required
 def storage_view_panel(tokenuser: UserAccount):
 
     data = {
         "basic_statistics": {
-            "site_count": SiteInformation.query.count(),
+            "site_count": SiteInformation.query.filter_by(is_external=False).count(),
             "building_count": Building.query.count(),
             "room_count": Room.query.count(),
             "cold_storage_count": ColdStorage.query.count(),
@@ -390,3 +433,126 @@ def storage_view_panel(tokenuser: UserAccount):
     }
 
     return success_with_content_response(data)
+
+
+@api.route("/storage/shelf_overview", methods=["GET"])
+@token_required
+def storage_shelf_overview(tokenuser: UserAccount):
+
+    sites = [tokenuser.site_id]
+    try:
+        choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+        if len(choices0) > 0:
+            sites = list(set([sites + choices0]))
+    except:
+        pass
+
+    locations = (
+        db.session.query(SiteInformation)
+        .join(Building)
+        .join(Room)
+        .join(ColdStorage)
+        .join(ColdStorageShelf)
+        .with_entities(
+            SiteInformation.id,
+            SiteInformation.name,
+            Building.id,
+            Building.name,
+            Room.id,
+            Room.name,
+            ColdStorage.id,
+            ColdStorage.alias,
+            # ColdStorage.type,
+            # ColdStorage.temp,
+            ColdStorageShelf.id,
+            ColdStorageShelf.name,
+        )
+        .filter(or_(SiteInformation.id.in_(sites), tokenuser.is_admin))
+        .all()
+    )
+
+    choices = []
+    shelf_info = []
+    for location in locations:
+        names = [str(item) for item in location if type(item) is not int]
+        # print("names ", names)
+        # pretty = "%s-%s-%s-%s(%s@%s)-%s" % tuple(names)
+        pretty = "%s-%s-%s-%s-%s" % tuple(names)
+        colnames = [
+            "site_id",
+            "site_name",
+            "building_id",
+            "building_name",
+            "room_id",
+            "room_name",
+            "coldstorage_id",
+            # "coldstorage_name",
+            # "coldstorage_type",
+            "coldstorage_temp",
+            "shelf_id",
+            "shelf_name",
+        ]
+        loc = dict(zip(colnames, location))
+        name = "LIMBSHLF-%i: %s" % (loc["shelf_id"], pretty)
+        # pretty = "LIMBSHLF-%i:" % loc["shelf_id"] + pretty
+        loc["name"] = name
+
+        choices.append([loc["shelf_id"], name])
+        shelf_info.append(loc)
+
+    # print(choices)
+
+    return success_with_content_response({"shelf_info": shelf_info, "choices": choices})
+
+    # choices.append( [
+    #     {
+    #         "shelf_id": shelf_id,
+    #         "site_id": site_id,
+    #         "pretty": "[%d] %s - %s %s - %s - %s (%s) - %s"
+    #                 % (
+    #                     shelf_id,
+    #                     site_name,
+    #                     bulding_id,
+    #                     building_name,
+    #                     room_name,
+    #                     csalias, #cstype,
+    #                     cstemp,
+    #                     shelf_name
+    #                   ),
+    #     }
+    #     for (
+    #         site_id,
+    #         site_name,
+    #         bulding_id,
+    #         building_name,
+    #         room_id,
+    #         room_name,
+    #         csid,
+    #         csalias,
+    #         cstype,
+    #         cstemp,
+    #         shelf_id,
+    #         shelf_name,
+    #     ) in location
+    # ])
+    # print("choices", choices)
+    # return success_with_content_response({"shelf_info": locations, "choices": choices})
+
+    # names = []
+    # for item in location:
+    #
+    #     if item is int:
+    #         continue
+    #
+    #     if type(item) is FixedColdStorageType:
+    #         print(item)
+    #         names.append(FixedColdStorageType[item.name])
+    #         print(item.name, FixedColdStorageType[item.name])
+    #
+    #     elif type(item) is FixedColdStorageTemps:
+    #         print(item)
+    #         names.append(FixedColdStorageTemps[item.name])
+    #         print(item.name, FixedColdStorageTemps[item.name])
+    #
+    #     else:
+    #         names.append(item)

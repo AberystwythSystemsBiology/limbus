@@ -23,15 +23,14 @@ from ...extensions import ma
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
 
-from ..views import BasicSampleSchema
+from ..views import BasicSampleSchema, BasicDisposalSampleSchema
 from ...storage.views import BasicSampleRackSchema
-from ...sample.views import SampleUUIDSchema
+from ...sample.views import SampleUUIDSchema, SampleProtocolEventSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
-from ...misc.views import BasicSiteSchema
+from ...misc.views import BasicSiteSchema, BasicAddressSchema
 from ...event.views import NewEventSchema, EventSchema
 
 from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
-from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 
 class SampleShipmentToSampleUUIDSchema(masql.SQLAlchemySchema):
@@ -50,6 +49,7 @@ class SampleShipmentToSampleSchema(masql.SQLAlchemySchema):
     sample_id = masql.auto_field()
     sample = ma.Nested(BasicSampleSchema, many=False)
     old_site = ma.Nested(BasicSiteSchema, many=False)
+    transfer_protocol = ma.Nested(SampleProtocolEventSchema)
 
 
 class SampleShipmentSchema(masql.SQLAlchemySchema):
@@ -58,10 +58,12 @@ class SampleShipmentSchema(masql.SQLAlchemySchema):
 
     uuid = masql.auto_field()
     id = masql.auto_field()
+    is_locked = masql.auto_field()
 
     author = ma.Nested(UserAccountSearchSchema, many=False)
     created_on = ma.Date()
     new_site = ma.Nested(BasicSiteSchema, many=False)
+    to_address = ma.Nested(BasicAddressSchema, many=False)
 
     # involved_samples = ma.Nested(SampleShipmentToSampleUUIDSchema, many=True)
     involved_samples = ma.Nested(SampleShipmentToSampleSchema, many=True)
@@ -86,6 +88,7 @@ class SampleShipmentStatusSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleShipmentStatusStatus, by_value=True)
     datetime = masql.auto_field()
     comments = masql.auto_field()
+    courier = masql.auto_field()
     tracking_number = masql.auto_field()
     shipment = ma.Nested(SampleShipmentSchema, many=False)
 
@@ -102,6 +105,7 @@ class NewSampleShipmentStatusSchema(masql.SQLAlchemySchema):
     status = EnumField(SampleShipmentStatusStatus, by_value=False)
     datetime = masql.auto_field()
     comments = masql.auto_field()
+    courier = masql.auto_field()
     tracking_number = masql.auto_field()
 
 
@@ -113,6 +117,7 @@ class NewSampleShipmentSchema(masql.SQLAlchemySchema):
         model = SampleShipment
 
     site_id = masql.auto_field(required=True)
+    address_id = masql.auto_field(required=True)
     event = ma.Nested(NewEventSchema())
 
 
@@ -133,7 +138,8 @@ class UserCartSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserCart
 
-    sample = ma.Nested(BasicSampleSchema, many=False)
+    # sample = ma.Nested(BasicSampleSchema, many=False)
+    sample = ma.Nested(BasicDisposalSampleSchema, many=False)
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     selected = masql.auto_field()
     storage_type = EnumField(CartSampleStorageType)

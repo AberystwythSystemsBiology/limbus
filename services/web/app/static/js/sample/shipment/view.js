@@ -39,8 +39,8 @@ function get_shipment() {
 }
 
 
-function add_samples_with_rack_to_cart(api_url, samples) {
-    var msg = "The rack associated with the cart will be added to storage as well, press OK to proceed!";
+function shipment_to_cart(api_url, shipment) {
+    var msg = "Adding all samples and rack associated in the shipment to the cart will close the shipment, press OK to proceed!";
     if (!confirm(msg)) {
       return false;
     }
@@ -53,7 +53,7 @@ function add_samples_with_rack_to_cart(api_url, samples) {
            'url': api_url,
            'type': 'POST',
            'dataType': "json",
-           'data': JSON.stringify({"samples": samples}),
+           'data': JSON.stringify(shipment),
            'contentType': 'application/json; charset=utf-8',
            'success': function (data) {
                json = data;
@@ -73,22 +73,47 @@ function add_samples_with_rack_to_cart(api_url, samples) {
 
        return json;
     })();
+    console.log('json: ', json)
     return json;
 }
 
 
 function fill_jumbotron(shipment_data) {
-    $("#created-on").html(shipment_data["shipment"]["created_on"]);
-    $("#author").html(render_author(shipment_data["shipment"]["author"]));
+    $("#created-on").html(shipment_data['shipment']["created_on"]);
+    $("#author").html(render_author(shipment_data['shipment']["author"]));
 
+    var title_html = shipment_data['shipment']["uuid"];
+
+    if (shipment_data['shipment']["is_locked"]==true) {
+        title_html += "  <i class=\"fa fa-lock\" style=\"color:yellow; padding-left: 3px;\"></i>"
+    }
+    $("#uuid").html(title_html);
+    console.log('s', shipment_data)
     if (["Delivered","Cancelled", "Undelivered"].includes(shipment_data["status"])) {
         $("#update-status-btn").hide();
-        $("#add-cart-btn").show();
+        if ((shipment_data['shipment']["is_locked"]==false)) {
+            $("#add-cart-btn").parent().show();
+        } else {
+            $("#add-cart-btn").parent().hide();
+        }
     } else {
         $("#update-status-btn").show();
-        $("#add-cart-btn").hide();
+        $("#add-cart-btn").parent().hide();
     }
 }
+function address_pretty(addr_data) {
+    for (const key in addr_data) {
+        console.log(`${key}: ${addr_data[key]}`);
+    }
+
+}/*
+        ad += addr_data["street_address_one"] + ", ";
+        ad += addr_data["street_address_two"] + ", ";
+        ad += addr_data["city"] + ", ";
+        ad += addr_data["county"] + ", ";
+        ad += addr_data["post_code"];
+        ad += addr_data["country"] + ", ";
+*/
 
 function fill_table(shipment_data) {
     html = ""
@@ -96,8 +121,21 @@ function fill_table(shipment_data) {
     h1 += '<i class="fa fa-hospital"></i>'
     h1 += shipment_data["shipment"]["new_site"]["name"]
     h1 += '</a>'
-    html += render_content("Shipping destination", h1);
-
+    ad = "";
+    addr_data = shipment_data["shipment"]["to_address"];
+    if (addr_data==null)
+        addr_data = shipment_data["shipment"]["new_site"]["address"];
+    if (addr_data!=null) {
+        address_pretty(addr_data);
+        ad += addr_data["street_address_one"] + ", ";
+        ad += addr_data["street_address_two"] + ", ";
+        ad += addr_data["city"] + ", ";
+        ad += addr_data["county"] + ", ";
+        ad += addr_data["post_code"];
+        ad += addr_data["country"] + ", ";
+    }
+    html += render_content("Destination", h1);
+    html += render_content("Shipment address", ad);
     html += render_content("Created Date", shipment_data["shipment"]["created_on"]);
     html += render_content("Comments", shipment_data["shipment"]["comments"]);
 
@@ -125,24 +163,6 @@ function deactivate_nav() {
     $("#shipment-status-nav").removeClass("active");
 }
 
-function fill_involved_samples0(involved_samples, new_site) {
-    var html = "";
-    for (i in involved_samples) {
-        var inv = involved_samples[i];
-        html += '<li class="list-group-item"> '
-        html += '<a href="' + inv["sample"]["_links"]["self"] + '">'
-        html += '<i class="fas fa-vial"></i>'
-        html += inv["sample"]["uuid"]
-        html += '</a>'
-        html += '<p>'
-        html +=  inv["old_site"]["name"] + '->' + new_site["name"]
-        html += '</p>'
-
-        html += '</li>'
-    }
-
-    $("#involved-samples-list-group").html(html);
-}
 
 function fill_involved_samples(involved_samples) {
 
@@ -158,7 +178,7 @@ function fill_involved_samples(involved_samples) {
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
-            {targets: [1, 2, 3, 6], visible: false, "defaultContent": ""},
+            {targets: [2, 3, 7, 10], visible: false, "defaultContent": ""},
 
         ],
         order: [[2, 'desc']],
@@ -166,10 +186,29 @@ function fill_involved_samples(involved_samples) {
             'style': 'multi',
         },
         columns: [
+
+
+            {//Sample Transfer Protocol Column
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var event_info = data["transfer_protocol"]
+                    var col_data = '';
+                    if (event_info != undefined || event_info != null) {
+                        col_data += "<a href='" + event_info["protocol"]["_links"]["self"] + "'>";
+                        col_data += '<i class="fa fa-project-diagram"></i> '
+                        col_data += "LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"];
+                        col_data += "</a>";
+                    }
+                    return col_data
+                }
+            },
+
             {//Sample ID Column
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var col_data = '';
+                    if (data["sample"]==null || data["sample"]==undefined)
+                        return col_data;
                     col_data += render_colour(data["sample"]["colour"])
                     col_data += "<a href='" + data["sample"]["_links"]["self"] + "'>";
                     col_data += '<i class="fas fa-vial"></i> '
@@ -184,7 +223,7 @@ function fill_involved_samples(involved_samples) {
                             col_data += "</a></small>";
                     }
 
-                    return col_data
+                    return col_data;
                 }
             },
 
@@ -195,12 +234,66 @@ function fill_involved_samples(involved_samples) {
 
                 },
             },
-            {//DB ID Column
+
+            {//DB Barcode Column
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["sample"]["barcode"]
 
                 },
+            },
+
+            { // Donor ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    col_data = "";
+                    if (consent['donor_id']!=null) {
+                        var donor_link = window.location.origin+'/donor/LIMBDON-'+consent['donor_id'];
+                        col_data += '<a href="'+donor_link+'" target="_blank">';
+                        col_data += '<i class="fa fa-user-circle"></i>'+ 'LIMBDON-'+consent['donor_id'];
+                        col_data += '</a>';
+                    }
+                    return col_data;
+                }
+            },
+
+
+            { // study ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    var col_data = "";
+
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        doi = consent['study']['protocol']['doi'];
+                        if (doi == null)
+                            doi = "";
+
+                        protocol_name = consent['study']['protocol']['name'];
+                        if (protocol_name == null)
+                            protocol_name = "";
+
+                        col_data += '<i class="fas fa-users"></i>'+ protocol_name;
+                        col_data += ',  <a href="'+doi2url(doi)+'" target="_blank">';
+                        col_data += doi;
+                        col_data += '</a>';
+
+                    }
+                    return col_data;
+                }
+            },
+
+            { // donor reference no
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data['sample']['consent_information'];
+                    var reference_id = "";
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        reference_id = consent['study']['reference_id']
+                    }
+                    return reference_id;
+                }
             },
 
             {//Base Type Column
@@ -296,14 +389,14 @@ function fill_involved_samples(involved_samples) {
                     return col_data;
                 }
             },
-
-            {//Created On column
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    return data['sample']["created_on"]
-
-                }
-            },
+            //
+            // {//Created On column
+            //     "mData": {},
+            //     "mRender": function (data, type, row) {
+            //         return data['sample']["created_on"]
+            //
+            //     }
+            // },
 
         ],
 
@@ -313,9 +406,34 @@ function fill_involved_samples(involved_samples) {
 
 }
 
+
+function shipment_status_update_logic(new_site){
+    $("#status").change(function(){
+        if ($(this).val() == "DEL") {
+            if( new_site["is_external"]) {
+                alert("Set status to delivered for shipment to an external site will close the shipment! " +
+                    "The samples will be locked from future data entry!")
+            }
+            else {
+                alert("Set status to delivered to internal site will change the current site" +
+                    " The shipment will be closed after the samples are " +
+                    "added back to cart for storage/process in destination site! ")
+            }
+        } else if (["CAN", "UND"].includes($(this).val()) ) {
+            if( new_site["is_external"]) {
+                alert("Set status to 'Cancel' or 'Undelivered' will leave the sample in the original site." +
+                    " The shipment will be closed after the samples are " +
+                    "added back to cart for storage/process in original site! ")
+            }
+        }
+
+    })
+
+}
+
 $(document).ready(function() {
     var shipment_data = get_shipment();
-
+    console.log("ship:", shipment_data)
     $("#loading-screen").fadeOut();
     fill_jumbotron(shipment_data);
     fill_table(shipment_data);
@@ -344,24 +462,15 @@ $(document).ready(function() {
         $("#shipment-status-div").fadeIn(100);
     });
 
-
     $("#add-cart-btn").click(function (event) {
 
-        var sample_data=shipment_data['shipment']["involved_samples"];
-        var formdata = [];
-        $.each(sample_data, function (index, row){
-            formdata.push(row["sample"]);
-        })
+       formdata = shipment_data['shipment']
 
-       var api_url = window.location.origin+ "/sample/with_rack_to_cart";
-       res = add_samples_with_rack_to_cart(api_url, formdata);
+       var api_url = window.location.origin+ "/sample/samples_shipment_to_cart";
+       res = shipment_to_cart(api_url, formdata);
 
-       if (res.success == true) {
-
-       } else {
-        alert("No sample selected!");
-       }
     });
 
+    shipment_status_update_logic(shipment_data['shipment']['new_site'])
 
 });

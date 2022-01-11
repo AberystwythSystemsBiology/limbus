@@ -22,10 +22,15 @@ class SampleProtocolEvent(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditor
     __versioned__ = {}
 
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id", use_alter=True))
+    reduced_quantity = db.Column(db.Float)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
     protocol_id = db.Column(
         db.Integer, db.ForeignKey("protocoltemplate.id", use_alter=True), nullable=False
     )
 
     protocol = db.relationship("ProtocolTemplate")
-    event = db.relationship("Event")
+    event = db.relationship("Event", cascade="all, delete")
+
+    # subsamples_created = db.relationship(
+    #     "SubSampleToSample", uselist=True,
+    # )

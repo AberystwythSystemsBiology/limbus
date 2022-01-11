@@ -16,9 +16,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_cart() {
-    var current_url = encodeURI(window.location);
-    var split_url = current_url.split("/");
-    var api_url = split_url.join("/") + "/data"
+    var api_url = encodeURI(window.location.origin);
+    api_url += "/sample/shipment/new/data";
 
     var json = (function () {
         var json = null;
@@ -43,7 +42,7 @@ function fill_cart_table(cart) {
 
     let table = $('#cart-table').DataTable({
         data: cart,
-        dom: 'Bfrtip',
+        dom: 'Blfrtip',
         buttons: ['colvis', 'selectAll', 'selectNone'],
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
         //pageLength: 5,
@@ -294,6 +293,7 @@ function fill_cart_table(cart) {
 
 $(document).ready(function () {
     var cart = get_cart();
+    //console.log("cart:", cart);
     table = fill_cart_table(cart);
     rows = table.rows();
     rows.every(function () {

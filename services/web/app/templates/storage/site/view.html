@@ -25,16 +25,31 @@
                     <div class="col-7">
                         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                             {% if not site.is_locked %}
-                            <!-- Edit button not functioning -->
-<!--                            {% if current_user.is_admin == true  %}-->
-<!--                            <div class="btn-group mr-2" role="group" aria-label="First group">-->
-<!--                                <a href="{{ url_for('storage.edit_site', id=site.id) }}">-->
-<!--                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit-->
-<!--                                        Details-->
-<!--                                    </button>-->
-<!--                                </a>-->
-<!--                            </div>-->
-<!--                            {% endif %}-->
+                            {% if current_user.is_admin == true  %}
+{#                            <div class="btn-group mr-2" role="group" aria-label="First group">
+                                <a href="{{ url_for('storage.edit_site', id=site.id) }}">
+                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
+                                        Details
+                                    </button>
+                                </a>
+                            </div>#}
+
+                          <div class="btn-btn-group mr-2" role="group">
+                            <div class="dropdown">
+                              <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-edit"></i> Edit Details
+                              </button>
+                              <div class="dropdown-menu">
+                                <a id="edit-site-btn" class="dropdown-item" href="{{ url_for('storage.edit_site', id=site.id) }}">
+                                    <i class="fas fa-building"></i>  Primary Info
+                                </a>
+                                <a id="dit-addresses-btn" class="dropdown-item" href="{{ url_for('storage.site_edit_addresses', id=site.id) }}">
+                                    <i class="fa fa-address-book"></i> Addresses
+                                </a>
+                              </div>
+                            </div></div>
+                            {% endif %}
 
                             <div class="btn-group mr-2" role="group" aria-label="First group">
                                 <a href="{{ url_for('storage.new_building', id=site.id) }}">
@@ -84,12 +99,16 @@
 
             <h2>Site Information</h2>
             <table class="table table-striped">
+                {{ show_value(site.type, "External / Internal", "text") }}
                 {{ show_value(site.name, "Name", "text") }}
+                {{ show_value(site.description, "Description", "text") }}
                 {{ show_value(site.address.street_address_one, "Address Line One", "text") }}
                 {{ show_value(site.address.street_address_two, "Address Line Two", "text") }}
                 {{ show_value(site.address.city, "City", "text") }}
                 {{ show_value(site.address.county, "County", "text") }}
                 {{ show_value(site.address.post_code, "Post Code", "text") }}
+                {{ show_value(site.address.country, "Country", "text") }}
+
             </table>
             <div class="list-group">
                 <li class="list-group-item active">

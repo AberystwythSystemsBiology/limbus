@@ -32,13 +32,6 @@
                         <i class="fas fa-question"></i> Consent
                       </button>
                       <div class="dropdown-menu">
-{#                <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i#}
-{#                    class="fa fa-question"></i> View Consent</button>#}
-{#                        <a class="dropdown-item" href="{{ url_for('donor.new_consent', uuid=uuid) }}"><i class="fab fa-buffer"></i> New Consent</a>#}
-{#                        <a class="dropdown-item" href="{{ url_for('donor.edit_consent', uuid=uuid) }}"><i class="fab fa-buffer"></i> Edit Consent</a>#}
-{#                        <a id="action-withdraw" class="dropdown-item" href="{{ url_for('donor.withdraw_consent', uuid=uuid) }}">#}
-{#                          <i class="fa fa-trash"></i> Withdraw Consent</a>#}
-{#                        <a class="dropdown-item"><i class="fa fa-list"></i> View </a>#}
                         <a id="action-new-consent" class="dropdown-item"><i class="fa fa-file"></i> New </a>
 {#                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>#}
                         <a id="action-withdraw-consent" class="dropdown-item">
@@ -48,15 +41,19 @@
                     </div>
                   </div>
 
-                    <div class="btn-group mr-2" role="group" aria-label="First group">
-{#                      <a href="{{ url_for('sample.add_sample_step_one', id=id) }}">#}
-                        <button type="button" id="new-sample-btn" class="btn btn-outline-dark"><i class="fas fa-vial"></i> New Sample</button>
-{#                      </a>#}
+                  <div class="btn-btn-group mr-2" role="group">
+                    <div class="dropdown">
+                      <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-vial"></i> Sample Actions
+                      </button>
+                      <div class="dropdown-menu">
+                        <a id="new-sample-btn" class="dropdown-item"><i class="fas fa-plus"></i> New Sample for Donor</a>
+                        <a id="assign-sample-btn" class="dropdown-item"><i class="fas fa-paperclip"></i> Assign Sample to Donor</a>
+                      </div>
                     </div>
+                  </div>
 
-                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button type="button" id="assign-sample-btn" class="btn btn-outline-dark"><i class="fas fa-vial"></i> Assign Sample</button>
-                    </div>
                    </div>
 
             </div>
@@ -149,10 +146,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-danger" role="alert">
+        <div id="delete-protocol-warning" class="alert alert-danger" role="alert">
           <B>Warning:</B> This action cannot be undone!
         </div>
-        <p>Please enter the Donor Consent ID in form of LIMBDC-xx to confirm that you want to remove this consent:</p>
+        <p id="delete-protocol-event-confirm">Please enter the Donor Consent ID in form of LIMBDC-xx to confirm that you want to remove this consent:</p>
         <input type="text" class="form-control" id="protocol-id-remove-confirmation-input"></input>
 
       </div>
@@ -192,48 +189,68 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" id="print-consent" class="btn-icon">
+            <i class="fa fa-print" aria-hidden="true"></i>
+        </button>
         <h5 class="modal-title" id="consentModalLabel">Digital Consent Form</h5>
         <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="card">
+      <div class="card" id="card-content">
         <div class="card-header">
           <div class="text-center">
             <h2><span id="consent_name"></span></h2>
             <h3>Version: <span id="consent_version"></span></h3>
           </div>
 
-          <label>Donor Consent Form ID/Code</label>
-          <p><span id="consent_identifier"></span></p>
+           <div class="card" id="donorinfo">
+
+        <div class="row">
+            <div class="col-6">
+                <p><label style="font-weight:bold;">Donor ID &nbsp;   </label><span id="donor_id"></span></p>
+            </div>
+            <div class="col-6">
+          <p><label style="font-weight:bold;">Consent Reference No &nbsp; </label><span id="consent_identifier"></span></p>
+            </div>
         </div>
+            <div class = "row">
+             <div class="col-6">
+          <p><label style="font-weight:bold;">Study/Trial &nbsp; </label><span id="consent_study"></span></p>
+             </div>
+             <div class="col-6">
+          <p><label style="font-weight:bold;">Donor Reference No  &nbsp; </label><span id="consent_refno"></span></p>
+             </div>
+        </div>
+           </div>
         <ul id="questionnaire-list" class="list-group list-group-flush">
 
         </ul>
         <div class="card-footer">
-          <label>Comments</label>
+          <label style="font-weight:bold;">Comments</label>
+
+        <div class="row">
+            <div class="col-6">
+                <p><label style="font-weight:bold;">Communicated by &nbsp;   </label><span id="consent_undertakenby"></span></p>
+            </div>
+            <div class="col-6">
+                <p><label style="font-weight:bold;">Date of Consent &nbsp; </label><span id="consent_date"></span></p>
+            </div>
         </div>
 
         <div class="row">
             <div class="col-6">
-                <p><label>Donor ID:    </label><span id="donor_id"></span></p>
+                <p><label style="font-weight:bold;">Consent Status &nbsp;  </label><span id="consent_status"></span></p>
             </div>
             <div class="col-6">
-                <p><label>Date of Consent: </label><span id="consent_date"></span></p>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-6">
-                <p><label>Consent Status:    </label><span id="consent_status"></span></p>
-            </div>
-            <div class="col-6">
-            <p><label>Date of Withdrawal: </label><span id="withdrawal_date"></span></p>
+            <p><label style="font-weight:bold;">Date of Withdrawal &nbsp; </label><span id="withdrawal_date"></span></p>
             </div>
         </div>
       </div>
+    </div>
 
     </div>
+  </div>
   </div>
 </div>
 

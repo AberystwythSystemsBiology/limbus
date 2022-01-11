@@ -1,0 +1,42 @@
+{% extends "template.html" %}
+
+{% block title %}Edit Basic Information :: Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ sample._links.self }}">
+                <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
+        <i class="fas fa-file"></i> Edit Sample Basic Information </h1>
+    </div>
+</div>
+<div class="container">
+
+    <form action="{{ url_for('sample.edit_sample_basic_info', uuid=sample.uuid) }}" method="POST">
+        {{ form.csrf_token }}
+        {{ form_field(form.status) }}
+        {{ form_field(form.barcode) }}
+        {{ form_field(form.colour) }}
+        {{ form_field(form.biohazard_level) }}
+        {{ form_field(form.quantity) }}
+{#        <h6>{{ form.remaining_quantity.label.text }}:#}
+{#            <span id="remaining-qty" style="color: blue">   {{ form.remaining_quantity.data }}</span></h6>#}
+        {{ form_field(form.site_id) }}
+        {{ form_field(form.consent_id) }}
+
+    <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="Second group">
+            {{ form_field(form.submit) }}
+        </div>
+        <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+            <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
+                <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                    Cancel
+                </button></a>
+        </div>
+    </div>
+    </form>
+
+</div>
+{% endblock %}

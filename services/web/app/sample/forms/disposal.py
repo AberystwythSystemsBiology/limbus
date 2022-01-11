@@ -79,6 +79,7 @@ def SampleDisposalEventForm(protocols: list) -> FlaskForm:
 
         undertaken_by = StringField(
             "Undertaken By",
+            validators=[DataRequired()],
             description="The initials of the individual who undertook the disposal event.",
         )
 

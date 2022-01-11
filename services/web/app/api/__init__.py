@@ -32,7 +32,7 @@ from ..tmpstore.api import *
 from ..storage.api import *
 from ..procedure.api import *
 from ..disease.api import *
-
+from ..admin.api import *
 from .responses import *
 from .filters import *
 

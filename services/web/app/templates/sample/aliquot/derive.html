@@ -1,0 +1,199 @@
+{% extends "template.html" %}
+
+{% block title %}Process/Derive/Aliquot Samples{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1>
+            <span class="secondary-heading">
+                <a id="sample_href">
+                    <i class="fas fa-vial"></i> <span id="uuid"></span>
+                </a>
+            </span>
+            <i class="fa fa-code-branch"></i> Derive Samples
+        </h1>
+    </div>
+</div>
+<div class="container">
+
+
+    <div id="database_error" class="alert alert-danger" style="display:none;">
+        <b>ALERT:</b> It looks like one of your Sample Barcodes is already in the database. You must correct this
+        before you can submit.
+    </div>
+
+    <div id="duplicate_barcode" class="alert alert-danger" style="display:none;">
+        <b>ALERT:</b> It looks like you've accidentally entered duplicate barcodes. You must correct this
+        before you can submit.
+    </div>
+
+    <div id="quantityalert" class="alert alert-danger text-center" style="display:none;">
+        <b>ALERT:</b> Parent sample remaining quantity is 0! Unable to submit.
+    </div>
+
+
+    <div id="derivative_error" class="alert alert-danger text-center" style="display:none;">
+        <b>ERROR <span id="error_code"></span>:</b> Error submitting derivatives (<span id="error_message"></span>)
+    </div>
+
+    {% if derivie_proc_count > 0 %}
+
+    <div class="row">
+        <div class="col-9">
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label for="processing_protocol">Remaining Quantity</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="remaining_quantity" disabled>
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><span id="remaining_metric">ERR</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="form-group">
+                        <label for="processing_protocol">Original Quantity</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="original_quantity" disabled>
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><span id="original_metric">ERR</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-9">
+            {{ form_field(form.processing_protocol) }}
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.processing_date) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.processing_time) }}
+                </div>
+            </div>
+            {{ form_field(form.processed_by ) }}
+            {{ form_field(form.processing_comments) }}
+        </div>
+    </div>
+
+    <div class="card"  style="background-color: aliceblue ">
+    <div class="row">
+        <div class="col-9">
+            {{ form_field(form.derivation_protocol) }}
+
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.derivation_date) }}
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.derivation_time) }}
+                </div>
+            </div>
+            {{ form_field(form.derived_by ) }}
+            {{ form_field(form.derivation_comments) }}
+        </div>
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header text-center">
+                    Sample Quantity
+                </div>
+                <div id="chart-div" class="card-body" style="background-color: aliceblue ">
+                    <canvas id="quantity-chart" width="100%" height="100%"></canvas>
+                </div>
+
+            </div>
+        </div>
+    </div></div>
+
+    <h2 style="margin-bottom: 1em;">
+        Total Derived Samples: <span id="total_derivatives"></span>
+        <div name="new" class="btn btn-primary float-right">
+            <i class="fa fa-plus"></i> Add
+        </div>
+    </h2>
+
+    <table id="derived_sample_table" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+
+            <div class="row">
+                <div class="col-3" style="font-weight:bold;">Sample Type</div>
+                <div class="col-4" style="font-weight:bold;">Container / Fixation Type </div>
+                <div class="col-2"></div>
+                <div class="col-2"></div>
+                <div class="col-1" style="font-weight:bold;">Actions</div>
+
+            </div>
+
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col-9">
+            <botton class="btn btn-secondary" id="remove_zero_switch" type="hidden">
+                <input id="remove_zero_on" type="checkbox" checked>
+                <span style="color:red ; " type="hidden"> Uncheck to keep the parent sample of zero quantity in the storage.</span>
+            </botton>
+        </div>
+      <div class="col-3">
+        <button id="submit" class="btn btn-primary float-right">Submit</button>
+      </div>
+   </div>
+
+    {% else %}
+        <div class="jumbotron">
+            <div class="container">
+                 <h1>😔</h1>
+                <h2>No Suitable Aliquot/Derivation Protocol Found</h2>
+                <p>There doesn't seem to be any derivation protocols available.</p>
+                <a href="{{ url_for('protocol.new') }}">
+                    <div class="btn btn-outline-dark">
+                        New Protocol
+                    </div>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Submit Derivation</h5>
+
+            </div>
+            <div class="modal-body">
+                <p>Please ensure that the following are correct.</p>
+
+                <p>If successful, you will be returned to the Sample view page of the Parent Sample. Scroll down to see
+                    newly derived samples.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="modalSubmit">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}"></script>#
+<script src="{{ url_for('static', filename='js/sample/aliquot/derive.js') }}"></script>
+
+{% endblock %}

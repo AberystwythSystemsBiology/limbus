@@ -16,10 +16,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_cart() {
-    var current_url = encodeURI(window.location);
-    var split_url = current_url.split("/");
-    var api_url = split_url.join("/") + "/data"
-    
+    // var current_url = encodeURI(window.location);
+    // var split_url = current_url.split("/");
+    // var api_url = split_url.join("/") + "/data"
+    var api_url = encodeURI(window.location.origin);
+    api_url += "/sample/shipment/new/data";
+    console.log("api_url", api_url);
     var json = (function () {
         var json = null;
         $.ajax({
@@ -121,7 +123,54 @@ function fill_cart(cart) {
 }
 
 
+function update_site_addresses(site_id){
+    var choices = addresses[site_id];
+    var options = "";
+
+    if (choices != undefined) {
+        choices.forEach(function (value, index) {
+            options += '<option value="' + value[0] + '">' + value[1] + '</option>';
+        });
+        //console.log("options", options);
+        $("#address_id").empty().append(options);
+        $("#address_id").val(choices[0][0]).change();
+
+    } else {
+        options += '<option value="' + 0 + '">' + "-- No address associated--" + '</option>';
+        $("#address_id").empty().append(options);
+        $("#address_id").val(0).change();
+    }
+}
+
+
+function site_address_selection_logic() {
+    if (($("#site_id").val()==0) && ($("#external_site_id").val()!=0)) {
+        update_site_addresses(site_id);
+    }
+
+    $("#site_id").change(function(){
+        if ($("#site_id").val()!=0) {
+            $("#external_site_id").val(0).change();
+            var  site_id = $("#site_id").val();
+            update_site_addresses(site_id);
+        }
+    });
+    $("#external_site_id").change(function(){
+        if ($("#external_site_id").val()!=0) {
+            $("#site_id").val(0).change();
+            var  site_id = $("#external_site_id").val();
+            update_site_addresses(site_id);
+        }
+    });
+
+}
+
+var addresses = JSON.parse(sessionStorage.getItem("addresses"));
 $(document).ready(function() {
+    //console.log("addresses ", addresses);
     var cart = get_cart();
     fill_cart(cart);
+    site_address_selection_logic();
+
+
 });

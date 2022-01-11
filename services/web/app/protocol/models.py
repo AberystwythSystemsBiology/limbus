@@ -26,9 +26,12 @@ class ProtocolTemplate(Base, RefAuthorMixin, RefEditorMixin):
     type = db.Column(db.Enum(ProtocolType))
     description = db.Column(db.Text())
     doi = db.Column(db.String(64))
-    texts = db.relationship("ProtocolText", uselist=True)
+    texts = db.relationship("ProtocolText", uselist=True, cascade="all, delete")
     documents = db.relationship(
-        "Document", uselist=True, secondary="protocoltemplatetodocument"
+        "Document",
+        uselist=True,
+        secondary="protocoltemplatetodocument",
+        cascade="all, delete",
     )
 
 
@@ -48,3 +51,12 @@ class ProtocolText(Base, RefAuthorMixin, RefEditorMixin):
     protocol_id = db.Column(
         db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
     )
+
+
+class ProtocolTemplateAssociate(Base, RefAuthorMixin, RefEditorMixin):
+    __versioned__ = {}
+    description = db.Column(db.Text, nullable=True)
+    protocol_id = db.Column(
+        db.Integer, db.ForeignKey("protocoltemplate.id"), nullable=False
+    )
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id"), nullable=False)

@@ -14,6 +14,17 @@
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-shipping-fast"></i>
                         Ship Selected Samples</button></a>
             </div>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('sample.batch_review') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="far fa-eye"></i>
+                        Review Samples</button></a>
+            </div>
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <a href="{{ url_for('sample.batch_dispose') }}">
+                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i>
+                        Dispose Samples</button></a>
+            </div>
+
         </div>
     </div>
     </div>

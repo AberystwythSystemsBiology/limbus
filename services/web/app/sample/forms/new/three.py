@@ -33,35 +33,47 @@ from wtforms import SelectField, FloatField, SubmitField
 from wtforms.validators import DataRequired, Optional
 
 
-class SampleTypeSelectForm(FlaskForm):
+def SampleTypeSelectForm(sampletypes, containertypes) -> FlaskForm:
+    class StaticForm(FlaskForm):
 
-    biohazard_level = SelectField(
-        "Biohazard Level",
-        choices=BiohazardLevel.choices(),
-        description="BSL category for the sample.",
-    )
+        biohazard_level = SelectField(
+            "Biohazard Level",
+            choices=BiohazardLevel.choices(),
+            description="BSL category for the sample.",
+        )
 
-    sample_type = SelectField("Sample Base Type", choices=SampleBaseType.choices())
-    fluid_sample_type = SelectField(
-        "Fluid Sample Type", choices=FluidSampleType.choices()
-    )
+        sample_type = SelectField("Sample Base Type", choices=SampleBaseType.choices())
+        fluid_sample_type = SelectField(
+            "Fluid Sample Type", choices=sampletypes["FLU"] + FluidSampleType.choices()
+        )
 
-    tissue_sample_type = SelectField("Tissue Type", choices=TissueSampleType.choices())
+        tissue_sample_type = SelectField(
+            "Tissue Type", choices=TissueSampleType.choices()
+        )
 
-    molecular_sample_type = SelectField(
-        "Molecular Sample Type", choices=MolecularSampleType.choices()
-    )
-    cell_sample_type = SelectField("Cell Sample Type", choices=CellSampleType.choices())
+        molecular_sample_type = SelectField(
+            "Molecular Sample Type",
+            choices=sampletypes["MOL"] + MolecularSampleType.choices(),
+        )
+        cell_sample_type = SelectField(
+            "Cell Sample Type", choices=sampletypes["CEL"] + CellSampleType.choices()
+        )
 
-    quantity = FloatField("Quantity", validators=[DataRequired()])
-    fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
+        quantity = FloatField("Quantity", validators=[DataRequired()])
+        fixation_type = SelectField("Fixation Type", choices=FixationType.choices())
 
-    container_base_type = SelectField(
-        "Container Base Type", choices=ContainerBaseType.choices()
-    )
-    fluid_container = SelectField("Primary Container", choices=FluidContainer.choices())
-    cell_container = SelectField(
-        "Long-term Preservation", choices=CellContainer.choices()
-    )
+        container_base_type = SelectField(
+            "Container Base Type", choices=ContainerBaseType.choices()
+        )
+        fluid_container = SelectField(
+            "Primary Container",
+            choices=containertypes["PRM"]["container"] + FluidContainer.choices(),
+        )
+        cell_container = SelectField(
+            "Long-term Preservation",
+            choices=containertypes["LTS"]["container"] + CellContainer.choices(),
+        )
 
-    submit = SubmitField("Continue")
+        submit = SubmitField("Continue")
+
+    return StaticForm()

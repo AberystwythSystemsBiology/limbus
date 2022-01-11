@@ -30,12 +30,14 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     entity_to_storage_instances = db.relationship(
         "EntityToStorage",
-        primaryjoin="and_(SampleRack.id==EntityToStorage.rack_id, EntityToStorage.storage_type=='STB')",
+        primaryjoin="and_(SampleRack.id==EntityToStorage.rack_id, EntityToStorage.storage_type=='STB', "
+        "EntityToStorage.removed==False)",
     )
 
     shelf = db.relationship(
         "ColdStorageShelf",
         secondary="entitytostorage",
-        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.rack_id==SampleRack.id )",
+        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.rack_id==SampleRack.id,"
+        "EntityToStorage.removed==False)",
         uselist=False,
     )

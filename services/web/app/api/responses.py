@@ -67,10 +67,12 @@ def validation_error_response(err):
         message = err.messages
 
     except AttributeError:
-        if "messages" in err.keys():
-            message = err["messages"]
-        else:
+        if isinstance(err, str):
             message = err
+        elif "messages" in err.keys():
+            message = err["messages"]
+        elif "message" in err.keys():
+            message = err["message"]
 
     return (
         {"success": False, "message": message, "type": "Validation Error"},
@@ -97,7 +99,7 @@ def transaction_error_response(err):
 def not_allowed():
     return (
         {
-            "success": True,
+            "success": False,
             "message": "Naughty naughty, you're not supposed to be here.",
         },
         401,

@@ -18,11 +18,21 @@ from flask_wtf import FlaskForm
 from flask import render_template, redirect, session, url_for, flash, abort
 from ...misc import get_internal_api_header
 import requests
-from wtforms import SelectField, StringField, SubmitField, BooleanField
+from wtforms import (
+    SelectField,
+    StringField,
+    SubmitField,
+    BooleanField,
+    SelectMultipleField,
+)
 from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
+from ...consent.enums import QuestionType
 
 
-def SampleFilterForm() -> FlaskForm:
+def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
+    sampletypes.insert(0, (None, "None"))
+    sites.insert(0, (None, "None"))
+
     class StaticForm(FlaskForm):
         biohazard_level = SelectField(
             "Biohazard Level", choices=BiohazardLevel.choices(with_none=True)
@@ -32,7 +42,7 @@ def SampleFilterForm() -> FlaskForm:
         barcode = StringField("Barcode")
         colour = SelectField("Colour", choices=Colour.choices(with_none=True))
         base_type = SelectField(
-            "Sample Type", choices=SampleBaseType.choices(with_none=True)
+            "Base Type", choices=SampleBaseType.choices(with_none=True)
         )
         source = SelectField(
             "Sample Source", choices=SampleSource.choices(with_none=True)
@@ -43,27 +53,39 @@ def SampleFilterForm() -> FlaskForm:
 
         submit = SubmitField("Filter")
 
-    sites_response = requests.get(
-        url_for("api.site_home", _external=True),
-        headers=get_internal_api_header(),
+    setattr(
+        StaticForm,
+        "sample_type",
+        SelectField("Sample Type", choices=sampletypes, default=None),
     )
-
-    sites = [(None, "None")]
-    if sites_response.status_code == 200:
-        for site in sites_response.json()["content"]:
-            sites.append(
-                (
-                    site["id"],
-                    "<%s>%s - %s" % (site["id"], site["name"], site["description"]),
-                )
-            )
 
     setattr(
         StaticForm,
         "current_site_id",
         SelectField(
+            # SelectMultipleField(
             "Site",
             choices=sites,
+            default=None,
+        ),
+    )
+
+    setattr(
+        StaticForm,
+        "consent_status",
+        SelectField(
+            "Consent status",
+            choices=[(None, "None"), ("active", "Active"), ("withdrawn", "Withdrawn")],
+            default=None,
+        ),
+    )
+
+    setattr(
+        StaticForm,
+        "consent_type",
+        SelectMultipleField(
+            "Consent for",
+            choices=QuestionType.choices(with_none=False),
         ),
     )
 
@@ -75,23 +97,46 @@ def SampleFilterForm() -> FlaskForm:
     )
 
     protocols = [(None, "None")]
+    study_protocols = [(None, "None")]
     if protocols_response.status_code == 200:
         for protocol in protocols_response.json()["content"]:
-            protocols.append(
-                (
-                    protocol["id"],
-                    "<%s>%s - %s"
-                    % (protocol["type"], protocol["id"], protocol["name"]),
+            if protocol["type"] in ["Study", "Collection", "Temporary Storage"]:
+                doino = ""
+                if protocol["doi"] != "":
+                    doino = (
+                        protocol["doi"].replace("https://", "").replace("http://", "")
+                    )  # .split("/")[-1]
+                study_protocols.append(
+                    (
+                        protocol["id"],
+                        "<%s>%s [%s] %s"
+                        % (protocol["type"], protocol["id"], doino, protocol["name"]),
+                    )
                 )
-            )
+            else:
+                protocols.append(
+                    (
+                        protocol["id"],
+                        "<%s>%s - %s"
+                        % (protocol["type"], protocol["id"], protocol["name"]),
+                    )
+                )
 
     setattr(
         StaticForm,
         "protocol_id",
         SelectField(
-            "Protocol/Collection",
+            "Protocol",
             choices=protocols,
         ),
     )
 
+    setattr(
+        StaticForm,
+        "source_study",
+        SelectField(
+            "Source Study",
+            choices=study_protocols,
+        ),
+    )
     return StaticForm()

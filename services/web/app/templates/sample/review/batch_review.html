@@ -1,0 +1,106 @@
+{% extends "template.html" %}
+
+{% block title %}Sample Review :: Sample Acquisition Portal{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('sample.shipment_cart') }}">
+            <i class="fa fa-shopping-cart"></i> My Samples Cart
+            </a></span>
+        <i class="fa fa-trash"></i> Batch Sample Review </h1>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <ul class="list-group" id="samples-cart-list-group">
+                <a href="{{ url_for('sample.shipment_cart') }}" class="list-group-item bg-primary text-white">
+                    <i class="fa fa-shopping-cart"></i> My Samples Cart
+                </a>
+
+              </ul>
+        </div>
+
+        <div class="col-9">
+
+    <form action="{{ url_for('sample.batch_review') }}" method="POST">
+        {{ form.csrf_token() }}
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.review_type) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.result) }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.quality) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.conducted_by) }}
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-6">
+                {{ form_field(form.date) }}
+            </div>
+            <div class="col-6">
+                {{ form_field(form.time) }}
+            </div>
+        </div>
+
+        {{ form_field(form.comments) }}
+
+        <div class="alert alert-warning" role="alert">
+             <botton class="btn btn-secondary" >
+                 {{ form_field(form.disposal_edit_on) }}
+             </botton>
+             Check the box to view and edit disposal instruction.
+        </div>
+
+        <div id="disposal_edit_fields">
+            <div class="row">
+                <div class="col-6">
+                    {{ form_field(form.disposal_instruction) }}
+
+                </div>
+                <div class="col-6">
+                    {{ form_field(form.disposal_date) }}
+                </div>
+            </div>
+            {{ form_field(form.disposal_comments) }}
+        </div>
+
+                <div class="btn-toolbar form-group" style="float:right;" role="toolbar"
+                     aria-label="Toolbar with button groups">
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        {{ form_field(form.submit) }}
+                    </div>
+                    <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+                        <a href="{{ url_for('sample.shipment_cart') }}">
+                            <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                                Cancel
+                            </button>
+                        </a>
+                    </div>
+                </div>
+    </form>
+
+
+    </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/shipment/new.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sample/disposal/review_disposal.js') }}"></script>
+
+{% endblock %}

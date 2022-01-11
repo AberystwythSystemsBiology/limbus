@@ -25,7 +25,10 @@ from ..forms import (
     SampleToDocumentAssociatationForm,
     SampleReviewForm,
     ProtocolEventForm,
+    EditBasicForm,
 )
+
+from ..enums import BiohazardLevel, Colour
 
 from datetime import datetime
 
@@ -36,7 +39,7 @@ def view(uuid: str):
     return render_template("sample/view.html", uuid=uuid)
 
 
-@sample.route("<uuid>/cart/add", methods=["POST"])
+@sample.route("<uuid>/cart/add", methods=["POST", "PUT"])
 @login_required
 def add_sample_to_cart(uuid):
     sample_response = requests.get(
@@ -78,21 +81,21 @@ def add_samples_to_cart():
     return to_cart_response.json()
 
 
-@sample.route("with_rack_to_cart", methods=["POST"])
+@sample.route("samples_shipment_to_cart", methods=["POST"])
 @login_required
-def add_samples_with_rack_to_cart():
+def add_samples_shipment_to_cart():
     samples = []
     if request.method == "POST":
         values = request.json
-        samples = values.pop("samples", [])
-
-    if len(samples) == 0:
-        return {"success": False, "messages": "No sample selected!"}
+    #     shipment = values.pop('shipment', [])
+    #
+    # if len(samples) == 0:
+    #    return {'success': False, 'messages': 'No sample selected!'}
 
     to_cart_response = requests.post(
-        url_for("api.add_samples_with_rack_to_cart", _external=True),
+        url_for("api.add_samples_in_shipment_to_cart", _external=True),
         headers=get_internal_api_header(),
-        json={"samples": [{"id": sample["id"]} for sample in samples]},
+        json=values,
     )
 
     if to_cart_response.status_code == 200:
@@ -133,7 +136,7 @@ def remove_rack_from_cart(id: int):
             headers=get_internal_api_header(),
         )
 
-        flash(remove_response.json()["content"]["msg"])
+        flash(remove_response.json()["message"])
         return redirect(url_for("sample.shipment_cart"))
     return sample_response.content
 
@@ -188,6 +191,91 @@ def associate_document(uuid):
     return abort(sample_response.status_code)
 
 
+@sample.route("<uuid>/edit/basic_info", methods=["GET", "POST"])
+@login_required
+def edit_sample_basic_info(uuid):
+
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code != 200:
+        return abort(sample_response.status_code)
+
+    if sample_response.json()["content"]["is_locked"]:
+        flash("Sample is locked!")
+        return abort(sample_response.status_code)
+
+    print("sample", sample_response.text)
+
+    data = sample_response.json()["content"]
+    consent_id = data["consent_information"]["id"]
+
+    consent_ids = []
+    if data["consent_information"]["donor_id"] is None:
+        consent_ids = [[consent_id, "LIMBDC-%s" % consent_id]]
+
+    consent_response = requests.get(
+        url_for("api.sample_get_consents", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if consent_response.status_code == 200:
+        for consent in consent_response.json()["content"]:
+            consent_ids.append([consent["id"], consent["label"]])
+
+    sites_response = requests.get(
+        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if sites_response.status_code == 200:
+        collection_sites = []
+        for site in sites_response.json()["content"]:
+            collection_sites.append([site["id"], site["name"]])
+    else:
+        flash("Error in getting site info!")
+        return abort(sites_response.status_code)
+
+    data.update({"consent_id": consent_id})  # data["consent_information"]["id"]})
+
+    form = EditBasicForm(consent_ids, collection_sites, data=data)
+
+    if form.validate_on_submit():
+        sample_info = {
+            "status": form.status.data,
+            "barcode": form.barcode.data,
+            "colour": form.colour.data,
+            "biohazard_level": form.biohazard_level.data,
+            "quantity": form.quantity.data,
+            # "remaining_quantity": remaining_quantity
+            "consent_id": form.consent_id.data,
+            "site_id": form.site_id.data,
+        }
+        response = requests.put(
+            url_for("api.sample_edit_basic_info", uuid=uuid, _external=True),
+            headers=get_internal_api_header(),
+            json=sample_info,
+        )
+
+        if response.status_code == 200:
+            flash(
+                response.json()["message"]
+                + "  Sample collection information successfully edited!"
+            )
+
+        else:
+            flash(response.json()["message"])
+
+        return redirect(url_for("sample.view", uuid=uuid))
+
+    return render_template(
+        "sample/edit.html",
+        sample=sample_response.json()["content"],
+        form=form,
+    )
+
+
 @sample.route("<uuid>/data", methods=["GET"])
 @login_required
 def view_data(uuid: str):
@@ -215,3 +303,59 @@ def update_sample_status(uuid: str):
         flash(sample_response.json()["message"])
 
     return redirect(url_for("sample.view", uuid=uuid))
+
+
+@sample.route("<uuid>/remove", methods=["GET", "POST"])
+@login_required
+def remove_sample(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        remove_response = requests.delete(
+            url_for("api.sample_remove_sample", uuid=uuid, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if remove_response.status_code == 200:
+            flash(remove_response.json()["message"])
+            # return redirect(url_for("sample.index"))
+        else:
+            flash(remove_response.json()["message"])
+            # return redirect(url_for("sample.view", uuid=uuid))
+
+        return remove_response.json()
+
+    flash(sample_response.json()["message"])
+    return sample_response.json()
+    # return redirect(url_for("sample.view", uuid=uuid))
+
+
+@sample.route("<uuid>/deep_remove", methods=["GET", "POST"])
+@login_required
+def deep_remove_sample(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        remove_response = requests.delete(
+            url_for("api.sample_deep_remove_sample", uuid=uuid, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if remove_response.status_code == 200:
+            flash(remove_response.json()["message"])
+            # return redirect(url_for("sample.index"))
+        else:
+            flash(remove_response.json()["message"])
+            # return redirect(url_for("sample.view", uuid=uuid))
+
+        return remove_response.json()
+
+    flash(sample_response.json()["message"])
+    return sample_response.json()
+    # return redirect(url_for("sample.view", uuid=uuid))

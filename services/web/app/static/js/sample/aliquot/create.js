@@ -15,12 +15,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-function get_containers() {
-    // Not use
-    var current_url = encodeURI(window.location);
-    var split_url = current_url.split("/");
-    var url_stub = split_url.slice(0, 3); // url scheme, "://", domain+port
-    var api_url = url_stub.concat(['api', 'sample', 'containers']).join('/')
+function get_types(typename, api_url='') {
+    if (api_url=='') {
+        api_url = encodeURI(window.location.origin);
+        if (typename == "sampletotypes")
+            api_url = api_url + "/" + ['sample', typename].join('/');
+        else
+            api_url = api_url + "/" + ['api', 'sample', typename].join('/');
+    }
     var json = (function () {
         var json = null;
         $.ajax({
@@ -37,26 +39,6 @@ function get_containers() {
 
     return json["content"];}
 
-function get_containertypes() {
-    var current_url = encodeURI(window.location);
-    var split_url = current_url.split("/");
-    var url_stub = split_url.slice(0, 3); // url scheme, "://", domain+port
-    var api_url = url_stub.concat(['api', 'sample', 'containertypes']).join('/')
-    var json = (function () {
-        var json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'dataType': "json",
-            'success': function (data) {
-                json = data;
-            }
-        });
-        return json;
-    })();
-
-    return json["content"];}
 
 function get_sample() {
     var current_url = encodeURI(window.location);
@@ -132,17 +114,48 @@ function check_barcode_database(entered_barcode) {
 }
 
 
-// Global because I hate myself.
-var sample = get_sample();
-var container_information = get_containertypes();
+// Global
 var indexes = [];
+var sample = get_sample();
+var containertypes = get_types("containertypes");
+
+process_container_type();
+
+function process_container_type() {
+    // augment sample container types with existing hot sampletotype in the database
+    if (!("sampletotype" in sessionStorage)) {
+        var sampletotype = get_types("sampletotypes");
+        sessionStorage.removeItem("sampletotype");
+        sessionStorage.setItem("sampletotype", JSON.stringify(sampletotype));
+    } else {
+        var sampletotype = JSON.parse(sessionStorage.getItem("sampletotype"));
+    }
+
+    for (let key in containertypes) {
+        try {
+            let containertype_list = containertypes[key]["container"];
+            let choice1 = sampletotype["container_choices"][key]["container"];
+            containertypes[key]["container"] = choice1.concat(containertype_list);
+        } catch (e) {};
+    }
+
+    // set fixation_type default to NULL
+    for (let key in containertypes) {
+        let fixationtype_list = containertypes[key]["fixation_type"];
+        fixationtype_list.unshift([null, "-- Select FixationType --"]);
+    }
+
+}
+
+
 
 function update_graph() {
     var remaining_quantity = $("#remaining_quantity").val();
     var quantity = $("#original_quantity").val();
     var metric = $("#original_metric").html();
 
-
+    $("#chart-div").empty();
+    $("#chart-div").html('<canvas id="quantity-chart" width="100%" height="100%"></canvas>');
 
     new Chart(document.getElementById("quantity-chart"), {
         type: 'doughnut',
@@ -189,19 +202,25 @@ function subtract_quantity() {
         quantities += parseFloat($(this).val());
     });
 
+    var remaining_qty_cur = remaining_quantity - quantities;
+
     $("#remaining_quantity").attr("value",
-        parseFloat(((remaining_quantity-quantities).toFixed(4)).toString() ));
+        parseFloat((remaining_qty_cur.toFixed(4)).toString() ));
     update_graph();
 
-    if ((remaining_quantity - quantities) < 0) {
+    $("#submit").hide();
+    $("#remove_zero_switch").hide();
+    if (remaining_qty_cur < 0) {
         $("#quantityalert").show();
-        $("#submit").attr("disabled", true);
+        //$("#submit").attr("disabled", true);
+        //$("#submit").hide();
         $(window).scrollTop(0);
-    }
-
-    else {
+    } else if (quantities > 0) {
         $("#quantityalert").hide();
-        $("#submit").attr("disabled", false);
+        //$("#submit").attr("disabled", false);
+        $("#submit").show();
+        if (remaining_qty_cur == 0)
+            $("#remove_zero_switch").show();
     }
 
 }
@@ -211,12 +230,12 @@ function update_number() {
 }
 
 function generate_container_select(indx) {
-    //var containers = container_information[sample["base_type"]]
+    //var containers = containertypes[sample["base_type"]]
     var cbt = $("#container_base_type").val()
-    var containers = container_information[cbt]
+    var containers = containertypes[cbt]
 
     var containers_list = containers["container"];
-    console.table(containers_list)
+    //console.table(containers_list)
 
     var lastsel = containers_list[0][0] // Container code for last selection
     if (indx > 1) {
@@ -242,9 +261,9 @@ function generate_container_select(indx) {
 
 
 function generate_fixation_select(indx) {
-    //var containers = container_information[sample["base_type"]]
+    //var containers = containertypes[sample["base_type"]]
     var cbt = $("#container_base_type").val()
-    var containers = container_information[cbt]
+    var containers = containertypes[cbt]
 
     var fixation_list = containers["fixation_type"]
     var lastsel = fixation_list[0][0] // Fixation code for last selection
@@ -412,6 +431,7 @@ function prepare_data() {
         parent_id: sample["id"],
         comments: $("#comments").val(),
         container_base_type: $("#container_base_type").val(),
+        remove_zero_parent_on: $("#remove_zero_on").prop('checked'),
         aliquots: a
 
     }
@@ -446,7 +466,8 @@ function post_data(data) {
 
 $(document).ready(function () {
     fill_sample_info();
-    update_graph();
+    //update_graph();
+    subtract_quantity();
 
     var indx = 0;
     //make_new_form(indx);

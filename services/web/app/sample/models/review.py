@@ -28,4 +28,4 @@ class SampleReview(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     quality = db.Column(db.Enum(SampleQuality))
 
     event_id = db.Column(db.Integer, db.ForeignKey("event.id", use_alter=True))
-    event = db.relationship("Event")
+    event = db.relationship("Event", cascade="all, delete")

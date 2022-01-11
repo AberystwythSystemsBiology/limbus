@@ -23,6 +23,7 @@ from wtforms import (
     BooleanField,
     DecimalField,
     DateField,
+    # TimeField,
     IntegerField,
     TextAreaField,
     HiddenField,
@@ -49,25 +50,39 @@ from .enums import (
 )
 
 from ..sample.enums import Colour, ConsentWithdrawalRequester
+
+from ..storage.forms import func_label_sample_type, func_label_container_type
+
 from datetime import datetime, date
 import requests
 from flask import url_for
 from ..misc import get_internal_api_header
 
 
-class DonorFilterForm(FlaskForm):
+def DonorFilterForm(sites: list, data: {}) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        sex = SelectField(
+            "Biological Sex",
+            choices=BiologicalSexTypes.choices(with_none=True),
+        )
+        status = SelectField("Status", choices=DonorStatusTypes.choices(with_none=True))
+        race = SelectField(
+            "Race",
+            choices=RaceTypes.choices(with_none=True),
+        )
 
-    sex = SelectField(
-        "Biological Sex",
-        choices=BiologicalSexTypes.choices(with_none=True),
-    )
-    status = SelectField("Status", choices=DonorStatusTypes.choices(with_none=True))
-    race = SelectField(
-        "Race",
-        choices=RaceTypes.choices(with_none=True),
+        colour = SelectField("Colour", choices=Colour.choices())
+
+    setattr(
+        StaticForm,
+        "enrollment_site_id",
+        SelectField(
+            "Site",
+            choices=sites,
+        ),
     )
 
-    colour = SelectField("Colour", choices=Colour.choices())
+    return StaticForm()
 
 
 class DoidValidatingSelectField(SelectField):
@@ -97,9 +112,17 @@ def DonorSampleAssociationForm(samples: dict):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
 
-    sample_choices = []
+    # sample_choices = []
+    # for sample in samples:
+    #     sample_choices.append([sample["id"], sample["uuid"]])
+
+    sample_choices = [[0, "--- Select one sample ---"]]
     for sample in samples:
-        sample_choices.append([sample["id"], sample["uuid"]])
+        type_info = sample.pop("sample_type_information", "")
+        sample_type = func_label_sample_type(type_info)
+        container_type = func_label_container_type(type_info)
+        sample_label = "%s: %s %s" % (sample["uuid"], sample_type, container_type)
+        sample_choices.append([int(sample["id"]), sample_label])
 
     setattr(
         StaticForm, "sample", SelectField("Sample", choices=sample_choices, coerce=int)
@@ -124,8 +147,7 @@ def DonorCreationForm(sites: dict, data={}):
         year = SelectField("Year", choices=[(str(x), x) for x in range(2020, 1899, -1)])
 
         sex = SelectField(
-            "Biological Sex",
-            choices=BiologicalSexTypes.choices(),
+            "Biological Sex", choices=BiologicalSexTypes.choices(), default="UNK"
         )
 
         mpn = StringField("Master Patient Number")
@@ -141,10 +163,7 @@ def DonorCreationForm(sites: dict, data={}):
         weight = StringField("Weight (kg)", default="")
         height = StringField("Height (cm)", default="")
 
-        race = SelectField(
-            "Race",
-            choices=RaceTypes.choices(),
-        )
+        race = SelectField("Race", choices=RaceTypes.choices(), default="UNK")
 
         site = SelectField(
             "Site",
@@ -185,7 +204,31 @@ def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
     return StaticForm()
 
 
-def ConsentQuestionnaire(data={}) -> FlaskForm:
+class DonorStudyRegistrationForm(FlaskForm):
+    class Meta:
+        csrf = False
+
+    reference_id = StringField(
+        "Participant ID",
+        description="The reference number for the donor within the study/trial.",
+        validators=[Optional()],
+    )
+    date = DateField(
+        "Date of donor registration/consent",
+        validators=[DataRequired()],
+        default=datetime.today(),
+    )
+
+    comments = TextAreaField(
+        "Comments for donor within the study",
+    )
+
+    undertaken_by = StringField(
+        "Registration Undertaken By",
+    )
+
+
+def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
     class StaticForm(FlaskForm):
 
         template_name = TextAreaField("template_name")
@@ -200,15 +243,50 @@ def ConsentQuestionnaire(data={}) -> FlaskForm:
         comments = TextAreaField("Comments")
 
         date = DateField("Date of Consent", default=datetime.today())
+        undertaken_by = StringField(
+            "Communicated by",
+        )
 
-        submit = SubmitField("Continue")
+        study_select = SelectField(
+            "Study/Trial",
+            validators=[Optional()],
+            choices=study_protocols,
+            description="Protocol of the study/trial recruiting the donor originally.",
+            coerce=int,
+        )
+
+        study = FormField(DonorStudyRegistrationForm)
+        submit = SubmitField("Save")
+
+        def validate(self):
+            if self.study.date.data is None:
+                self.study.date.data = self.date.data
+
+            if not FlaskForm.validate(self):
+                return False
+
+            if self.study_select.data and self.study_select.data > 0:
+                if (
+                    self.study.reference_id.data == ""
+                    or self.study.reference_id.data is None
+                ):
+                    self.study.reference_id.errors.append(
+                        "Participant ID required if study selected"
+                    )
+                    return False
+
+            return True
 
     for question in data["questions"]:
+        checked = ""
+        if "checked" in question:
+            checked = question["checked"]
         setattr(
             StaticForm,
             str(question["id"]),
             BooleanField(
-                question["question"], render_kw={"question_type": question["type"]}
+                question["question"],
+                render_kw={"question_type": question["type"], "checked": checked},
             ),
         )
 
@@ -221,6 +299,41 @@ class ConsentAnswerForm(FlaskForm):
         description="The item that has been consented.",
     )
     answer = BooleanField("Consented", default="checked")
+
+
+# def DonorProtocolEventForm(protocols: list, data={}):
+#     class StaticForm(FlaskForm):
+#         protocol_id = SelectField("Protocol", choices=protocols, coerce=int)
+#
+#         reference_id = StringField(
+#             "Reference Number",
+#             description="The reference number for the donor within the study/trial.",
+#         )
+#
+#         date = DateField(
+#             "Protocol Event Date",
+#             validators=[DataRequired()],
+#             description="The date in which the protocol was undertaken.",
+#             default=datetime.today(),
+#         )
+#
+#         time = TimeField(
+#             "Protocol Event Time",
+#             default=datetime.now(),
+#             validators=[Optional()],
+#             description="The time at which the protocol was undertaken.",
+#         )
+#
+#         comments = TextAreaField(
+#             "Comments",
+#         )
+#
+#         undertaken_by = StringField(
+#             "Undertaken By",
+#             description="The initials of the individual who undertook the event.",
+#         )
+#
+#     return StaticForm(data)
 
 
 class ConsentSelectForm(FlaskForm):

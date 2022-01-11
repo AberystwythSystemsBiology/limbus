@@ -38,6 +38,22 @@ user_account_search_schema = UserAccountSearchSchema()
 user_accounts_search_schema = UserAccountSearchSchema(many=True)
 
 
+class UserAccountSettingSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    id = masql.auto_field()
+    email = masql.auto_field()
+    first_name = masql.auto_field()
+    last_name = masql.auto_field()
+    site_id = masql.auto_field()
+    settings = masql.auto_field()
+
+
+user_account_setting_schema = UserAccountSettingSchema()
+user_accounts_setting_schema = UserAccountSettingSchema(many=True)
+
+
 class BasicUserAccountSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccount
@@ -53,6 +69,8 @@ class BasicUserAccountSchema(masql.SQLAlchemySchema):
     created_on = ma.Date()
 
     is_locked = masql.auto_field()
+    site_id = masql.auto_field()
+    settings = masql.auto_field()
 
     gravatar = fields.Method("get_gravatar")
 
@@ -82,6 +100,7 @@ class NewUserAccountSchema(masql.SQLAlchemySchema):
 
     account_type = masql.auto_field()
     access_control = masql.auto_field()
+    settings = masql.auto_field()
 
     site_id = masql.auto_field()
 
@@ -99,11 +118,32 @@ class EditUserAccountSchema(masql.SQLAlchemySchema):
     first_name = masql.auto_field(required=False)
     middle_name = masql.auto_field(required=False)
     last_name = masql.auto_field(required=False)
+    settings = masql.auto_field()
 
 
 edit_user_account_schema = EditUserAccountSchema()
 
 from ..misc.views import basic_site_schema
+
+
+class AdminEditUserAccountSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    is_locked = masql.auto_field(required=False)
+    email = masql.auto_field(required=False)
+    title = masql.auto_field(required=False)
+    first_name = masql.auto_field(required=False)
+    middle_name = masql.auto_field(required=False)
+    last_name = masql.auto_field(required=False)
+
+    account_type = masql.auto_field(required=False)
+    access_control = masql.auto_field(required=False)
+    settings = masql.auto_field(required=False)
+    site_id = masql.auto_field(required=False)
+
+
+admin_edit_user_account_schema = AdminEditUserAccountSchema()
 
 
 class TokenSchema(masql.SQLAlchemySchema):
@@ -132,6 +172,8 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
 
     account_type = EnumField(AccountType, by_value=True)
     access_control = EnumField(AccessControl, by_value=True)
+
+    settings = masql.auto_field()
 
     created_on = fields.Date()
     updated_on = fields.Date()

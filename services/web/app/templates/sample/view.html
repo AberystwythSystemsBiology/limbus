@@ -30,22 +30,60 @@
     <div class="container">
       <div class="row">
         <div class="col-10">
-          <h1><span class="secondary-heading">
+            <h1>
+          <span class="secondary-heading">
               <a href="{{ url_for('sample.index') }}">
                 <i class="fas fa-vial"></i> Sample Portal
-              </a></span> <span id="uuid"></span></h1>
+              </a>
+              <span id="donor"></i></span></span>
+            <span id="uuid"></span></h1>
           <h4 id="parent-div" style="display: none; margin-top:-5px;" class="text-muted"> Parent Sample: <span
               id="parent"></span></h4>
 
 
           <div class="text-muted">
             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
+
+
+              <div class="btn-btn-group mr-2" role="group">
+                <div class="dropdown">
+                  <button class="btn btn-delete float-right dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+
+                  <div class="dropdown-menu">
+                    <a id="basic-edit" class="dropdown-item" title="Edit basic information for sample collection."
+                       href="{{ url_for('sample.edit_sample_basic_info', uuid=uuid) }}">
+                       <i class="fa fa-edit"></i> Basic Edit</a>
+
+                        {% if current_user.is_admin == true  %}
+                    <a id="shallow-remove" class="dropdown-item" title="Remove a sample without any sub- or parent samples.">
+{#                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}">#}
+                       <i class="fa fa-trash-alt"></i> Remove</a>
+
+                    <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples.">
+{#                       href="{{ url_for('sample.deep_remove_sample', uuid=uuid) }}">#}
+                        <i class="fa fa-trash"></i> Deep Remove</a>
+                        {% endif %}
+                   </div>
+                </div>
+                </div>
+
               <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
-                    class="fa fa-question"></i> View Consent</button>
+                <div class="dropdown">
+                  <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-question"></i> Consent Form
+                  </button>
+                  <div class="dropdown-menu">
+                    <button type="button" class="dropdown-item btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
+                        class="fa fa-question"></i> View Consent</button>
+                    <a id="action-edit-consent" class="dropdown-item" href="{{ url_for('donor.edit_donor_consent', id=consent_id, sample_uuid=uuid)}}">
+                      <i class="fas fa-edit"></i>Edit Consent</a>
+                  </div>
+                </div>
               </div>
-
-
 
               <div class="btn-btn-group mr-2" role="group">
                 <div class="dropdown">
@@ -54,24 +92,25 @@
                     <i class="fas fa-vial"></i> Sample Actions
                   </button>
                   <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
-                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
-                      <i class="fa fa-trash"></i> Dispose Sample</a>
-                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
-                      class="fas fa-file"></i> New Review</a>
-                      
-                    <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
-                        class="fa fa-project-diagram"></i> New Protocol Event</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
-                      class="fas fa-file"></i> Associate Document</a>
+                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
                     <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i> Aliquot Sample</a>
-                    <a id="action-derive" class="dropdown-item"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
-                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
+                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
+                      <i class="fa fa-trash"></i> Dispose Sample</a>
+                    <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
+                        class="fa fa-project-diagram"></i> Other Protocol Event</a>
+                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
+                      class="fas fa-file"></i> New Review</a>
+                      <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
+                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
+                      class="fas fa-file"></i> Associate Document</a>
+
+                    <a id="action-status" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
                     
                   </div>
                 </div>
               </div>
+
               <div class="btn-group mr-2" role="group" aria-label="First group">
                 <button type="button" class="btn btn-outline-dark" id="add-cart-btn"><i class="fa fa-cart-plus"></i>
                   Add to Cart</button>
@@ -81,6 +120,7 @@
                   Print
                   Label</button>
               </div>
+
 
             </div>
           </div>
@@ -176,10 +216,6 @@
       </table>
     </div>
 
-
-
-
-
     <div id="lineage-info" style="display:none;">
 
 {#    <form id="select_sample" method="POST"#}
@@ -205,57 +241,20 @@
 
         </tbody>
       </table>
-{#        <div class="col-9 float-left">#}
-{#            <select id="select_rack">#}
-{#                <option value=0>---- Store to a rack  ----</option>#}
-{#            </select>#}
-{#        </div>#}
-{#        <div class="col-9 float-left">#}
-{#            <select id="select_shelf" >#}
-{#                <option value=0>---- Store to a shelf ----</option>#}
-{#            </select>#}
-{#        </div>#}
+
 
       <div class="btn-group mr-2 float-right" role="group" aria-label="First group">
-{#        <button type="button" class="btn btn-outline-dark" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>#}
         <button type="button" class="btn btn-success float-right" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>
           Add Subsample to Cart</button>
       </div>
 
-{#        <button type="button" class="btn btn-success float-right" id="subsample_to_storage">Store</button>#}
-
-{#    </form>#}
-
 
     </div>
   </div>
 
 </div>
 
-</div>
-</div>
 
-
-
-<div class="modal fade" id="delete-protocol-event-confirm" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-event-confirm-label" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="delete-protocol-event-confirm-label">Modal title</h5>
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- Delete Review Modal -->
 <div class="modal fade" id="delete-review-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-review-confirm-modal-title" aria-hidden="true">
@@ -272,7 +271,7 @@
           <B>Warning:</B> This action cannot be undone!
         </div>
         <p>Please enter the Review UUID to confirm that you want to remove this Event:</p>
-        <input type="text" class="form-control" id="review-uuid-remove-confirmation-input"></input>
+        <input type="text" class="form-control" id="review-uuid-remove-confirmation-input">
 
       </div>
       <div class="modal-footer">
@@ -294,11 +293,11 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-danger" role="alert">
+        <div id="delete-protocol-warning" class="alert alert-danger" role="alert">
           <B>Warning:</B> This action cannot be undone!
         </div>
-        <p>Please enter the Protocol Event UUID to confirm that you want to remove this Event:</p>
-        <input type="text" class="form-control" id="protocol-uuid-remove-confirmation-input"></input>
+        <p id="delete-protocol-event-confirm">Please enter the Protocol Event UUID to confirm that you want to remove this Event:</p>
+        <input type="text" class="form-control" id="protocol-uuid-remove-confirmation-input">
 
       </div>
       <div class="modal-footer">
@@ -330,63 +329,84 @@
   </div>
 </div>
 
+
 <!-- Consent Modal -->
 <div class="modal fade bd-example-modal-lg" id="consentModal" tabindex="-1" role="dialog"
   aria-labelledby="consentModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" id="print-consent" class="btn-icon">
+            <i class="fa fa-print" aria-hidden="true"></i>
+        </button>
         <h5 class="modal-title" id="consentModalLabel">Digital Consent Form</h5>
         <button type="button" class="btn-close btn-close-black" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="card">
+      <div class="card" id="card-content">
         <div class="card-header">
           <div class="text-center">
             <h2><span id="consent_name"></span></h2>
             <h3>Version: <span id="consent_version"></span></h3>
           </div>
 
-          <label>Donor Consent Form ID/Code</label>
-          <p><span id="consent_identifier"></span></p>
+           <div class="card" id="donorinfo">
+
+        <div class="row">
+            <div class="col-6">
+                <p><label style="font-weight:bold;">Donor ID &nbsp;   </label><span id="donor_id"></span></p>
+            </div>
+            <div class="col-6">
+          <p><label style="font-weight:bold;">Consent Reference No &nbsp; </label><span id="consent_identifier"></span></p>
+            </div>
         </div>
+            <div class = "row">
+             <div class="col-6">
+          <p><label style="font-weight:bold;">Study/Trial &nbsp; </label><span id="consent_study"></span></p>
+             </div>
+             <div class="col-6">
+          <p><label style="font-weight:bold;">Participant ID &nbsp; </label><span id="consent_refno"></span></p>
+             </div>
+        </div>
+           </div>
         <ul id="questionnaire-list" class="list-group list-group-flush">
 
         </ul>
         <div class="card-footer">
-          <label>Comments</label>
+          <label style="font-weight:bold;">Comments</label>
 
         <div class="row">
             <div class="col-6">
-                <p><label>Donor ID:    </label><span id="donor_id"></span></p>
+                <p><label style="font-weight:bold;">Communicated by &nbsp;   </label><span id="consent_undertakenby"></span></p>
             </div>
             <div class="col-6">
-                <p><label>Date of Consent: </label><span id="consent_date"></span></p>
+                <p><label style="font-weight:bold;">Date of Consent &nbsp; </label><span id="consent_date"></span></p>
             </div>
         </div>
 
         <div class="row">
             <div class="col-6">
-                <p><label>Consent Status:    </label><span id="consent_status"></span></p>
+                <p><label style="font-weight:bold;">Consent Status &nbsp;  </label><span id="consent_status"></span></p>
             </div>
             <div class="col-6">
-            <p><label>Date of Withdrawal: </label><span id="withdrawal_date"></span></p>
+            <p><label style="font-weight:bold;">Date of Withdrawal &nbsp; </label><span id="withdrawal_date"></span></p>
             </div>
-        </div>
-
         </div>
       </div>
+    </div>
 
     </div>
   </div>
+  </div>
 </div>
+
 
 {% endblock %}
 
-
 {% block javascript %}
-<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.min.js') }}"></script>
+
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/sample/view.js') }}"></script>
 
 {% endblock %}

@@ -40,13 +40,13 @@ $(document).ready(function() {
     //     }
     // });
 
+
     view_consent_form();
     view_form_helper("consent_select");
 
     $("#consent_select").on("change", function() {
         view_form_helper("consent_select");
     });
-
 
 
 });

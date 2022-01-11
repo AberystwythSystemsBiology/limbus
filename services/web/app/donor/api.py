@@ -25,6 +25,7 @@ from ..database import (
     SampleConsentWithdrawal,
     SampleDisposal,
     Sample,
+    DonorProtocolEvent,
 )
 
 from ..api import api
@@ -47,11 +48,16 @@ from .views import (
     donors_schema,
     new_donor_schema,
     edit_donor_schema,
+    basic_donors_schema,
+    basic_donor_schema,
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,
+    new_donor_protocol_event_schema,
+    # donor_protocol_event_info_schema,
 )
 
+from ..event.views import new_event_schema
 
 from ..sample.models import SampleConsent, SampleConsentAnswer, Sample
 from ..sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
@@ -74,7 +80,7 @@ def donor_home(tokenuser: UserAccount):
 def donor_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Donor)
     return success_with_content_response(
-        donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
+        basic_donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
     )
 
 
@@ -156,19 +162,54 @@ def donor_associate_sample(id, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    new_diagnosis_to_sample = DonorToSample(sample_id=values["sample_id"], donor_id=id)
+    donor_id = id
+    sample_id = int(values["sample_id"])
 
-    new_diagnosis_to_sample.author_id = tokenuser.id
+    dts = DonorToSample.query.filter_by(sample_id=sample_id).first()
+    if dts:
+        return validation_error_response("The sample has been assigned to a donor!")
+
+    # Modify sample consent
+    consent = (
+        SampleConsent.query.join(Sample, Sample.consent_id == SampleConsent.id)
+        .filter(Sample.id == sample_id)
+        .first()
+    )
+    if not consent:
+        return not_found("Sample consent")
+
+    old_donor_id = consent.donor_id
+    if consent.donor_id is not None:
+        return validation_error_response(
+            "The sample's consent has been linked to donor LIMBDON-%d!"
+            % consent.donor_id
+        )
+    consent.donor_id = donor_id
+    consent.update({"editor_id": tokenuser.id})
+    new_donor_to_sample = DonorToSample(
+        sample_id=values["sample_id"], donor_id=id, author_id=tokenuser.id
+    )
+    try:
+        db.session.add(consent)
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+        return transaction_error_response(err)
 
     try:
-        db.session.add(new_diagnosis_to_sample)
+        db.session.add(new_donor_to_sample)
         db.session.commit()
-        db.session.flush()
-        return success_with_content_response(
-            {"sample_id": values["sample_id"], "donor_id": id}
+        return success_with_content_message_response(
+            {"sample_id": values["sample_id"], "donor_id": id},
+            "Sample associated to donor successfully!",
         )
     except Exception as err:
-        return transaction_error_response(err)
+        # Rollback: also set sample consent old_donor_id
+        db.session.rollback()
+        consent.donor_id = old_donor_id
+        db.add(consent)
+        db.session.commit()
+    return transaction_error_response(err)
 
 
 @api.route("/donor/LIMBDON-<id>/associate/diagnosis", methods=["POST"])
@@ -200,6 +241,73 @@ def donor_new_diagnosis(id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+@api.route("/donor/LIMBDIAG-<id>/remove", methods=["DELETE", "POST"])
+@token_required
+def donor_remove_diagnosis(id, tokenuser: UserAccount):
+    dde = DonorDiagnosisEvent.query.filter_by(id=id).first()
+    if not dde:
+        return no_values_response("Diagnosis Event")
+
+    donor_id = dde.donor_id
+    try:
+        db.session.delete(dde)
+        db.session.commit()
+        msg = "Diagnosis %s deleted succesfully! " % dde.id
+    except Exception as err:
+        return transaction_error_response(err)
+
+    return success_with_content_message_response({"donor_id": donor_id}, msg)
+
+
+def func_update_donor_protocol_event(
+    values, tokenuser: UserAccount, new_protocol_event=None
+):
+    # values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        event_result = new_donor_protocol_event_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    if new_protocol_event:
+        # -- update
+        new_event = Event.query.filter_by(id=new_protocol_event.event_id).first()
+        new_event.update(event_result["event"])
+        new_event.update({"editor_id": tokenuser.id})
+    else:
+        # -- insert new protocol event
+        new_event = Event(**event_result["event"])
+        new_event.author_id = tokenuser.id
+
+    try:
+        db.session.add(new_event)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    event_result.pop("event")
+
+    if new_protocol_event:
+        new_protocol_event.update(event_result)
+        new_protocol_event.update({"editor_id": tokenuser.id})
+        new_protocol_event.event_id = new_event.id
+    else:
+        new_protocol_event = DonorProtocolEvent(**event_result)
+        new_protocol_event.author_id = tokenuser.id
+        new_protocol_event.event_id = new_event.id
+
+    try:
+        db.session.add(new_protocol_event)
+        db.session.flush()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    return {"success": True, "new_protocol_event": new_protocol_event}
+
+
 @api.route("/donor/new/consent", methods=["POST"])
 @token_required
 def donor_new_consent(tokenuser: UserAccount):
@@ -208,15 +316,38 @@ def donor_new_consent(tokenuser: UserAccount):
         return no_values_response()
 
     errors = {}
-    for key in ["identifier", "donor_id", "comments", "template_id", "date", "answers"]:
+    for key in [
+        "identifier",
+        "comments",
+        "template_id",
+        "date",
+        "undertaken_by",
+        "answers",
+    ]:
         if key not in values.keys():
             errors[key] = ["Not found."]
 
     if len(errors.keys()) > 0:
         return validation_error_response(errors)
 
-    answers = values["answers"]
-    values.pop("answers")
+    answers = values.pop("answers")
+
+    study_protocol_id = values.pop("study_protocol_id", None)
+    study_event = None
+    study = values.pop("study", {})
+    if study_protocol_id:
+        study["protocol_id"] = study_protocol_id
+        if "donor_id" in values:
+            study["donor_id"] = values["donor_id"]
+        else:
+            study.pop("donor_id", None)
+
+        # -- Add donor protocol event
+        study_event = func_update_donor_protocol_event(study, tokenuser)
+        if not study_event["success"]:
+            return study_event
+
+        study_event = study_event["new_protocol_event"]
 
     try:
         consent_result = new_consent_schema.load(values)
@@ -225,13 +356,16 @@ def donor_new_consent(tokenuser: UserAccount):
 
     new_consent = SampleConsent(**consent_result)
     new_consent.author_id = tokenuser.id
+    new_consent.id = None
+    if study_event:
+        new_consent.study_event_id = study_event.id
 
     try:
         db.session.add(new_consent)
         db.session.flush()
-        db.session.commit()
+
     except Exception as err:
-        return transation_error_response(err)
+        return transaction_error_response(err)
 
     for answer in answers:
         try:
@@ -248,17 +382,138 @@ def donor_new_consent(tokenuser: UserAccount):
     try:
         db.session.commit()
     except Exception as err:
-        # Delete the new consent from database to avoid duplicates
-        db.session.delete(new_consent)
-        db.session.commit()
+
+        db.session.rollback()
         return transaction_error_response(err)
 
-    return success_with_content_response(
-        consent_schema.dump(SampleConsent.query.filter_by(id=new_consent.id).first())
+    consent_info = consent_schema.dump(
+        SampleConsent.query.filter_by(id=new_consent.id).first()
     )
+    return success_with_content_response(consent_info)
 
 
-@api.route("/donor/consent/<id>/remove", methods=["POST"])
+@api.route("/donor/consent/LIMBDC-<id>/edit", methods=["POST"])
+@token_required
+def donor_edit_consent(id, tokenuser: UserAccount):
+
+    new_consent = SampleConsent.query.filter_by(id=id).first()
+
+    if not new_consent:
+        return not_found("Consent (LIMBDC-%s)" % id)
+
+    values = request.get_json()
+    if not values:
+        return no_values_response()
+
+    values.pop("id", 0)
+
+    errors = {}
+    for key in [
+        "identifier",
+        "donor_id",
+        "comments",
+        "template_id",
+        "date",
+        "undertaken_by",
+        "answers",
+    ]:
+        if key not in values.keys():
+            errors[key] = ["Not found."]
+
+    if len(errors.keys()) > 0:
+        return validation_error_response(errors)
+
+    answers = values.pop("answers", [])
+
+    study_event = DonorProtocolEvent.query.filter_by(
+        id=new_consent.study_event_id
+    ).first()
+
+    study_protocol_id = values.pop("study_protocol_id", None)
+    study = values.pop("study", {})
+
+    if study_protocol_id:
+        study["protocol_id"] = study_protocol_id
+        if "donor_id" in values:
+            study["donor_id"] = values["donor_id"]
+        else:
+            study["donor_id"] = None
+
+        # -- Add/update donor protocol event
+        study_event = func_update_donor_protocol_event(study, tokenuser, study_event)
+        print("study_event", study_event)
+        if not study_event["success"]:
+            return study_event
+
+        study_event = study_event["new_protocol_event"]
+
+    try:
+        consent_result = new_consent_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    new_consent.update(consent_result)
+    new_consent.update({"editor_id": tokenuser.id})
+
+    del_study = False
+    if study_protocol_id and study_event:
+        new_consent.study_event_id = study_event.id
+    elif new_consent.study_event_id:
+        new_consent.study_event_id = None
+        del_study = True
+    else:
+        new_consent.study_event_id = None
+
+    try:
+        db.session.add(new_consent)
+        db.session.flush()
+        if del_study:
+            db.session.delete(study_event)
+    except Exception as err:
+        return transaction_error_response(err)
+
+    ans = (
+        db.session.query(SampleConsentAnswer.question_id)
+        .filter_by(consent_id=new_consent.id)
+        .all()
+    )
+    ans = [q[0] for q in ans]  # -- Get the list of question ids
+    print("ans", ans)
+    print("answers", answers)
+    # -- Delete the ones unchecked
+    todel = [q for q in ans if q not in answers]
+    for answer in todel:
+        ans1 = SampleConsentAnswer.query.filter_by(
+            consent_id=new_consent.id, question_id=int(answer)
+        ).first()
+        if ans1:
+            db.session.delete(ans1)
+
+    # -- Add the new checked question
+    toadd = [q for q in answers if q not in ans]
+    for answer in toadd:
+        try:
+            answer_result = new_consent_answer_schema.load(
+                {"question_id": int(answer), "consent_id": new_consent.id}
+            )
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        new_answer = SampleConsentAnswer(**answer_result)
+        new_answer.author_id = tokenuser.id
+        db.session.add(new_answer)
+
+    try:
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+        return transaction_error_response(err)
+
+    consent_info = consent_schema.dump(new_consent)
+    return success_with_content_response(consent_info)
+
+
+@api.route("/donor/consent/LIMBDC-<id>/remove", methods=["POST"])
 @token_required
 def donor_remove_consent(id, tokenuser: UserAccount):
     consent = SampleConsent.query.filter_by(id=id).first()
@@ -369,9 +624,9 @@ def donor_withdraw_consent(tokenuser: UserAccount):
     id = values.pop("donor_id")
     future_consent = values["future_consent"]
     if future_consent:
-        old_values = new_consent_scheme.dump(consent)
+        old_values = new_consent_schema.dump(consent)
         new_consent = SampleConsent(**old_values)
-        new_consent.date = values["withdrawal_date"]
+        new_consent.date = withdrawal_date
         new_consent.comments = (
             new_consent.comments + " | replacement consent for future collection."
         )
@@ -432,3 +687,11 @@ def donor_withdraw_consent(tokenuser: UserAccount):
         return success_with_content_response(donor_id)
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/donor/consent/LIMBDC-<id>", methods=["PUT", "GET", "POST"])
+@token_required
+def donor_consent_view(id, tokenuser: UserAccount):
+    return success_with_content_response(
+        consent_schema.dump(SampleConsent.query.filter_by(id=id).first())
+    )

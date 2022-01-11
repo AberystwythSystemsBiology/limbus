@@ -42,7 +42,7 @@ function fill_shipments_table(shipments) {
         data: shipments,
         dom: 'Bfrtip',
         buttons: [ 'print', 'csv', 'colvis' ],
-        order: [[ 6, 'desc' ]],
+        order: [[ 1, 'desc' ], [7, 'desc']],
         columnDefs: [
             {targets: '_all', defaultContent: ''},
         ],
@@ -57,6 +57,19 @@ function fill_shipments_table(shipments) {
                     uuid += data["uuid"];
                     uuid += '</a>'
                     return uuid
+                }
+            },
+            { // Open/Closed
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    data = data["shipment"];
+                    var col_data = '';
+                    if (data['is_locked'] == true) {
+                        col_data += 'Closed';
+                    } else {
+                        col_data += 'Open';
+                    }
+                    return col_data;
                 }
             },
 

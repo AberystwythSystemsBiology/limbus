@@ -54,7 +54,16 @@ nav img {
 .jumbotron table {
     color:#fff;
 }
+/*.bootstrap-select .bs-ok-default::after {*/
+/*  width: 0.3em;*/
+/*  height: 0.8em;*/
+/*  border-width: 0 0.1em 0.1em 0;*/
+/*  transform: rotate(45deg) translateY(0.5rem);*/
+/*}*/
 
+/*.btn.dropdown-toggle:focus {*/
+/*  outline: none !important;*/
+/*}*/
 
 .form-description {
     margin-top:-10px;
@@ -70,6 +79,17 @@ nav img {
     color:#000 !important;
 }
 
+.btn-close {
+  color: black;
+  float: right;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-close:hover {
+  color: grey;
+}
+
 .btn-secondary {
     background-color: #ffffff;
     color: #000;
@@ -82,13 +102,13 @@ nav img {
 }
 
 .btn-cancel {
-    background-color: #eb4034;
+    background-color: dimgray;
     color: #ffffff;
     margin-right:0.5em;
 }
 
 .btn-cancel:hover {
-    background-color:#a62b23;
+    background-color:slategray;
     color: #ffffff;
 }
 
@@ -117,6 +137,12 @@ nav img {
 .btn-form:hover{
     background-color: #0062cc;
     color: white;
+}
+
+.btn-icon{
+    border:none;
+    outline: none;
+    background: none;
 }
 
 #wmd-preview {
@@ -368,6 +394,9 @@ canvas {
 .form-control {
     border-radius: 0px;
     border: 2px solid #000;
+}
+.bd-light {
+    border: 1px solid #ccc;
 }
 
 .input-group-text {

@@ -64,65 +64,6 @@ function get_barcode(sample_info, barc_type) {
 
     });
 
-
-
-}
-
-function get_rack() {
-    var split_url = encodeURI(window.location).split("/");
-    split_url = split_url.slice(0, -2)
-    split_url.push("storage", "rack", "info")
-    var api_url = split_url.join("/")
-
-    var json = (function () {
-        var json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'dataType': "json",
-            'success': function (data) {
-                json = data;
-            },
-            'failure': function (data) {
-                json = data;
-            }
-
-        });
-        return json;
-    })();
-
-    return json;
-
-}
-
-function fill_sample_pos(api_url, rack_id, sampletostore, commit) {
-    var json = (function () {
-        var json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'type': 'POST',
-            'dataType': "json",
-            'data': JSON.stringify({'rack_id': rack_id,
-                'samples':(sampletostore), 'commit': commit
-            }),
-            'contentType': 'application/json; charset=utf-8',
-            'success': function (data) {
-                json = data
-            },
-            'failure': function (data) {
-                json = data;
-            }
-
-        });
-        console.log('json', json)
-        return json;
-    })();
-
-    return json;
-
 }
 
 
@@ -178,20 +119,24 @@ function fill_title(sample) {
 
     $("#uuid").html(title_html);
 
+    var edit_link = sample["consent_information"]["_links"]["remove"];
+    edit_link = edit_link.replace("/donor/consent/", "/donor/sample/"+sample["uuid"]+"/consent/");
+    edit_link = edit_link.replace("/remove", "/edit");
+    $("#action-edit-consent").attr("href", edit_link);
+
     var author_html = "" + author_information["first_name"] + " " + author_information["last_name"]
     $("#created_by").html(author_html);
     $("#created_on").html(sample["created_on"]);
 
     if (sample["source"] != "New") {
         var parent_html = '';
-        parent_html += '<a href="' + sample["parent"]["_links"]["self"] + '" target="_blank">'
+        parent_html += '<a href="' + sample["parent"]["_links"]["self"] + '" target="_self">';
         parent_html += '<i class="fas fa-vial"></i> ';
         parent_html += sample["parent"]["uuid"]
         parent_html += '</a>'
         $("#parent").html(parent_html);
         $("#parent-div").show();
     }
-
 
 }
 
@@ -204,37 +149,92 @@ function fill_comments(comments) {
 
 
 function fill_consent_information(consent_information) {
-
+    //console.log("consent_information", consent_information)
     $("#consentModalLabel").html("Digital Consent Form: "+"LIMBDC-"+consent_information["id"])
     $("#consent_name").html(consent_information["template"]["name"]);
     $("#consent_version").html(consent_information["template"]["version"]);
     $("#consent_identifier").html(consent_information["identifier"]);
     $("#consent_comments").html(consent_information["comments"]);
+    $("#consent_undertakenby").html(consent_information["undertaken_by"]);
 
 
+    var study = consent_information["study"]
+    try {
+        doilink="";
+        if (study["protocol"]["name"]["doi"]!="") {
+            var link = doi2url(study["protocol"]["doi"]);
+            doilink += '<a href=' + link + '>' + '<a href=' + link + '>' + '[' + study["protocol"]["doi"] + '] ';
+            doilink += study["protocol"]["name"] + '</a>';
+        }  else {
+            doilink += study["protocol"]["name"];
+        }
+        $("#consent_study").html(doilink);
+        $("#consent_refno").html(study['reference_id']);
+    } catch {
+        $("#consent_study").html("");
+        $("#consent_refno").html("");
+   }
+
+    let answer_ids = [];
     for (answer in consent_information["answers"]) {
         var answer_info = consent_information["answers"][answer];
+        answer_ids.push(answer_info["id"])
+    }
+    $("#questionnaire-list").html("")
+    for (question in consent_information["template_questions"]) {
+            var question_info = consent_information["template_questions"][question];
+            var answer_html = '';
+            answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Item ';
+            answer_html += +(parseInt(question) + 1);
+            if (answer_ids.includes(question_info["id"])) {
+                answer_html += '  <i class="fas fa-check" style="color:green;"></i><h5></div>';
+                answer_html += '<p class="mb-1">' + question_info["question"] + '</p>';
+            } else {
+                answer_html += '<i class="fas fa-minus-circle" style="color:red;"></i><h5></div>';
+                answer_html += '<p class="mb-1" style="text-decoration: line-through;">' + question_info["question"]+ '</p>';
+            }
 
-        var answer_html = '';
-        answer_html += '<li class="list-group-item flex-column align-items-start"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">Answer ';
-        answer_html += + (parseInt(answer) + 1) + '<h5></div><p class="mb-1">' + answer_info["question"] + '</p></li>';
+            answer_html += '</li>';
 
-        $("#questionnaire-list").append(answer_html);
+            $("#questionnaire-list").append(answer_html);
+
     }
 
     var consent_status = "Active"
     if (consent_information["withdrawn"]==true) {
         consent_status = "Withdrawn"
     }
-    var donor_id = "LIMBDON-"+consent_information["donor_id"];
-    donor_link = "<a href= "+window.location.origin+"/donor/"+donor_id+">";
-    donor_link += donor_id+"</a>";
-    $("#donor_id").html(donor_link);
+    donor_link = ""
+    var donor_id = consent_information["donor_id"];
+    if (donor_id != null) {
+        donor_link += "<a href=" + window.location.origin + "/donor/LIMBDON-" + donor_id + ">";
+        donor_link += '<i class="fa fa-user-circle"></i>' + "LIMBDON-" + donor_id + "</a>";
+        $("#donor_id").html(donor_link);
+        $("#donor").html(donor_link);
+
+    }
+    else {
+        $("#donor_id").text(donor_link);
+    }
     $("#consent_date").html(consent_information["date"]);
     $("#consent_status").html(consent_status);
     $("#withdrawal_date").html(consent_information["withdrawal_date"]);
 
+    $('#print-consent').on('click', function () {
+      var header = "Digital Consent Form: "+"LIMBDC-"+consent_information["id"];
+      printCard(header);
+    })
 
+    function printCard(header) {
+        var divContents = document.getElementById("card-content").innerHTML;
+        var doc = window.open('', '');
+        doc.document.write('<html>');
+        doc.document.write('<body ><h5>'+ header +'</h5><br>');
+        doc.document.write(divContents);
+        doc.document.write('</body></html>');
+        doc.document.close();
+        doc.print();
+    }
 }
 
 function fill_custom_attributes(custom_attributes) {
@@ -265,18 +265,18 @@ function fill_basic_information(sample_information) {
     var html = "";
 
     if (sample_information["base_type"] == "Fluid") {
-        var measurement = "mL";
+        measurement = "mL";
         var sample_type = sample_information["sample_type_information"]["fluid_type"];
     }
 
     else if (sample_information["base_type"] == "Molecular") {
-        var measurement = "μg/mL";
+        measurement = "μg/mL";
         var sample_type = sample_information["sample_type_information"]["molecular_type"];
 
     }
 
     else {
-        var measurement = "Cells";
+        measurement = "Cells";
         var sample_type = sample_information["sample_type_information"]["cellular_type"];
     }
 
@@ -285,7 +285,6 @@ function fill_basic_information(sample_information) {
     html += render_content("Biohazard Level", sample_information["biohazard_level"]);
     html += render_content("Type", sample_information["base_type"]);
     html += render_content("Sample Type", sample_type);
-
     html += render_content("Quantity", sample_information["remaining_quantity"] + " / " + sample_information["quantity"] + " " + measurement);
     if (sample_information["storage"] != null) {
         var storage_info = ""
@@ -308,9 +307,8 @@ function fill_basic_information(sample_information) {
     html += render_content("Collection site", sample_information["site_id"]);
     html += render_content("Current site", sample_information["current_site_id"]);
 
-    //html += render_content("Access status", sample_information["biohazard_level"]);
-
     $("#basic-information").html(html);
+
 }
 
 
@@ -360,11 +358,10 @@ function fill_sample_reviews(reviews) {
                 undertaken_by = review_info["event"]["undertaken_by"];
             }
             if (review_info["event"].hasOwnProperty('comments')) {
-                comments = review_info["event"]["datetime"];
+                comments = review_info["event"]["comments"];
             }
         }
         html = "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + review_info["event"]["datetime"] + "</p>"
         html += "<p class='text-muted'>Undertaken on " + event_datetime + "</p>"
 
         // Start card body
@@ -395,8 +392,8 @@ function fill_sample_reviews(reviews) {
         html += "<h5 class='mt-0' id='review-uuid-"+ review_info["id"] +"'>" + review_info["uuid"] + "</h5>";
         html += "<table class='table table-striped'>"
         html += render_content("Quality", review_info["quality"]);
-        html += render_content("Conducted By", undertaken_by); //, review_info["event"]["undertaken_by"]);
-        html += render_content("Comments", comments); //review_info["event"]["comments"]);
+        html += render_content("Conducted By", undertaken_by);
+        html += render_content("Comments", comments);
         html += "</table>"
         html += "</div>"
 
@@ -407,12 +404,9 @@ function fill_sample_reviews(reviews) {
         //html += "<a href='" + review_info["_links"]["edit"] + "'>"
         html += "<div class='btn btn-warning float-left disabled'>Edit</div>"
         //html += "</a>"
-        //html += "<div class='btn btn-danger float-right disabled'>Remove</div>"
-        //html += "<a href='" + review_info["_links"]["remove"] + "'>"
         html += "<div id='remove-review-"+review_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
-        //html += "</a>"
-        html += "</div>"
 
+        html += "</div>"
         html += "</div>"
 
         // End ul
@@ -474,10 +468,15 @@ function fill_protocol_events(events) {
 
     for (e in events) {
         var event_info = events[e];
-
         var event_datetime = '';
         var undertaken_by = '';
         var comments = '';
+        var reduced_quantity = '';
+
+        if (event_info["reduced_quantity"] != null)
+            reduced_quantity = event_info["reduced_quantity"] + " " + measurement;
+
+        //console.log("event_info", event_info);
         if (event_info["event"] != null || event_info["event"] != undefined) {
             if (event_info["event"].hasOwnProperty('datetime')) {
                 event_datetime = event_info["event"]["datetime"];
@@ -486,12 +485,11 @@ function fill_protocol_events(events) {
                 undertaken_by = event_info["event"]["undertaken_by"];
             }
             if (event_info["event"].hasOwnProperty('comments')) {
-                comments = event_info["event"]["datetime"];
+                comments = event_info["event"]["comments"];
             }
         }
         // Start ul
         html = "<li>"
-        //html += "<p class='text-muted'>Undertaken on " + event_info["event"]["datetime"] + "</p>"
         html += "<p class='text-muted'>Undertaken on " + event_datetime + "</p>"
         // Start card body
         html += "<div class='card'>"
@@ -508,9 +506,19 @@ function fill_protocol_events(events) {
         html += "<a href='"+ event_info["protocol"]["_links"]["self"] +"'>"
         html += "<h6 class='mt-0'>LIMBPRO-" + event_info["protocol"]["id"] + ": " + event_info["protocol"]["name"] + "</h6>";
         html += "</a>"
+        if (event_info["parent"] != null) {
+            var parent_html = "<h6 > On parent sample :";
+            parent_html += '<a href="' + event_info["parent"]["_links"]["self"] + '" target="_blank">'
+            parent_html += '<i class="fas fa-vial"></i> ';
+            parent_html += event_info["parent"]["uuid"]
+            parent_html += '</a></h6>'
+            html += parent_html;
+        }
+
         html += "<table class='table table-striped'>"
-        html += render_content("Undertaken By", undertaken_by); //event_info["event"]["undertaken_by"]);
-        html += render_content("Comments", comments); //event_info["event"]["comments"]);
+        html += render_content("Sample Qty Reduction", reduced_quantity);
+        html += render_content("Undertaken By", undertaken_by);
+        html += render_content("Comments", comments);
         html += "</table>"
         html += "</div>"
 
@@ -520,24 +528,30 @@ function fill_protocol_events(events) {
         html += "</div>"
         html += "<div class='card-footer'>"
         html += "<a href='" + event_info["_links"]["edit"] + "'>"
-        html += "<div class='btn btn-warning float-left'>Edit</div>"
+        html += "<div id='edit-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
-
-        html += "<div id='remove-protocol-"+event_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        if (!["Sample Transfer", "Sample Destruction"].includes(event_info["protocol"]["type"]) ) {
+        html += "<div id='remove-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-danger float-right'>Remove</div>"
         html += "</div>"
+        }
         html += "</div>"
 
-        
-        protocol_events.set(event_info["id"].toString(), event_info);
-        
         // End ul
         html += "</li>"
+
+        protocol_events.set(event_info["id"].toString(), event_info);
         $("#protocol-event-li").append(html);
 
-        $("#remove-protocol-"+event_info["id"]).on("click", function () {
+        $("#remove-protocol-"+event_info["id"]+'-'+event_info["is_locked"]).on("click", function () {
             var id = $(this).attr("id").split("-")[2];
+            var locked = $(this).attr("id").split("-")[3];
             
             var uuid = $("#protocol-uuid-"+id).text();
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            if (locked == 'true') {
+                warning_msg += "<br> <B>!!! This protocol event created sample(s), removing it will delete the sample(s) it created as well!!!</B>" ;
+            }
+            $("#delete-protocol-warning").html(warning_msg)
             $("#delete-protocol-confirm-modal").modal({
                 show: true
             });
@@ -560,7 +574,11 @@ function fill_protocol_events(events) {
                             });
 
                             if (data["success"]) {
-                                window.location.reload();
+                                if (locked == 'true') {
+                                    window.location.assign(window.location.origin + "/sample");
+                                } else {
+                                    window.location.reload();
+                                }
                             } else {
                                 window.location.reload();
                                 //alert("We have a problem! "+data["message"]);
@@ -576,8 +594,6 @@ function fill_protocol_events(events) {
                 }
             })
         });
-
-
     }
 }
 
@@ -724,21 +740,6 @@ function fill_lineage_table(subsamples) {
 
     });
 
-    // - Not in use -
-    // var rack_info = get_rack();
-    // if (rack_info["success"] == false) {
-    //     alert('No rack data!')
-    // }  else {
-    //     rack_info = rack_info["content"];
-    // }
-    // $.each(rack_info, function(index, r) {
-    //     var optval = '<option value='+ r['id'] + '>'
-    //     optval += 'LIMBRACK'+r['id'] + " ("+ r['num_rows']+'x'+r['num_cols'] + ", "+ r['serial_number']+') @'
-    //     optval += r['location']
-    //     optval += '</option>'
-    //     $("#select_rack").append(optval);
-    //     //$("#select_rack").append('<option value=xx >optval</option>');
-    // })
 
     $("#subsample-to-cart-btn").click(function (event) {
         var rows_selected = table.rows( { selected: true } ).data();
@@ -749,12 +750,8 @@ function fill_lineage_table(subsamples) {
                delete row['__proto__'];
                formdata.push(row)
            });
-           //console.log("formdata", formdata)
            var api_url = window.location.origin+ "/sample/to_cart";
            res = add_samples_to_cart(api_url, formdata);
-           //var api_url = window.location.origin+ "/sample/shipment/cart"
-           //window.open(api_url, "_blank");
-           //window.open(api_url"_self");
            if (res.success == true) {
                table.rows({selected: true}).deselect();
            }
@@ -765,51 +762,6 @@ function fill_lineage_table(subsamples) {
 
     });
 
-    // -- Not use for the moment, selected samples will be added to cart instead.
-    // $("#subsample_to_storage").click(function (event) {
-    //     var rows_selected = table.rows( { selected: true } ).data();
-    //
-    //     if (rows_selected.length>0) {
-    //        // select rack id or shelf id. TODO: ?? sample to shelf
-    //        var rack_id = $('select[id="select_rack"]').val();
-    //        var shelf_id = $('select[id="select_shelf"]').val();
-    //        if (rack_id==0 && shelf_id==0) {
-    //            alert('Select a rack or a shelf to store the sample(s)! ');
-    //            return false
-    //        }
-    //
-    //        var formdata = [];
-    //        $.each(rows_selected, function (index, row) {
-    //            delete row['__proto__'];
-    //            formdata.push(row)
-    //        });
-    //
-    //
-    //        var api_url = window.location.origin + "/storage/rack/fill_with_samples"
-    //        var sampletostore = fill_sample_pos(api_url, rack_id, formdata, commit=false)
-    //        if (sampletostore.success == false){
-    //             alert(sampletostore.message)
-    //             return false
-    //        } else {
-    //            if (sampletostore.content.length==0) {
-    //                alert('All selected samples have been stored in the selected rack!');
-    //                return false;
-    //            }
-    //            if (sampletostore.message != '') {
-    //                if (confirm(sampletostore.message)) {
-    //
-    //                } else {
-    //                    return false
-    //                }
-    //            }
-    //        }
-    //        sampletostore =  sampletostore['content']
-    //        sessionStorage.setItem("sampletostore", JSON.stringify(sampletostore)); //JSON.stringify(formdata));
-    //        window.open(api_url, "_self");
-    //
-    //     }
-    //
-    // });
 }
 
 
@@ -864,9 +816,17 @@ function lock_action() {
     $("#action-derive").hide();
 }
 
-$(document).ready(function () {
-        $('#myTable').DataTable();
+function qty_zero_action() {
+    $("#action-aliquot").hide();
+    $("#action-protocol-event").hide();
+    $("#action-derive").hide();
+}
 
+
+$(document).ready(function () {
+    $('#myTable').DataTable();
+
+    var measurement = "";
     //var versionNo = $.fn.dataTable.version;
     //alert(versionNo);
     var sample_info = get_sample();
@@ -888,12 +848,19 @@ $(document).ready(function () {
         fill_lineage_table(sample_info["subsamples"]);
         fill_comments(sample_info["comments"]);
         fill_document_information(sample_info["documents"]);
+        if (sample_info["subsample_event"]!=undefined && sample_info["subsample_event"]!=null) {
+            sample_info["subsample_event"]["parent"] = sample_info["parent"];
+            sample_info["events"].unshift(sample_info["subsample_event"])
+        }
         fill_protocol_events(sample_info["events"]);
         fill_sample_reviews(sample_info["reviews"]);
-
-        if (sample_info["is_locked"]==true) {
+        //console.log('sample_info', sample_info)
+        const intransit = ["Transferred", "Pending Collection"]
+        if (sample_info["is_locked"]==true || intransit.includes(sample_info["status"])) {
             lock_action()
         }
+        if (sample_info["remaining_quantity"]==0 )
+            qty_zero_action()
 
         $("#content").delay(500).fadeIn();
     
@@ -933,25 +900,103 @@ $(document).ready(function () {
                    show: true
                });
                }
-                    // success: function (data) {
-                    //     if (data["success"]) {
-                    //         $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                    //         $("#cart-confirmation-modal").modal({
-                    //             show: true
-                    //         });
-                    //     } else {
-                    //         $("#cart-confirmation-msg").html(data["content"]["msg"]);
-                    //         $("#cart-confirmation-modal").modal({
-                    //             show: true
-                    //         });
-                    //     }
-                    // }
                 });
             } else {
                 return false;
             }
         })
-    
+
+        $("#shallow-remove").on("click", function () {
+
+            var uuid = sample_info["uuid"];
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            warning_msg += "<br> <B>Shallow remove only removes a single sample without any sub- or parent samples associated. !!</B>" ;
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Sample Removal")
+            $("#delete-protocol-event-confirm").html("Please enter the Sample UUID to confirm that you want to remove this Sample!")
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = sample_info["_links"]["self"]+"/remove";
+            $("#protocol-uuid-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+                if (user_entry == uuid) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                //window.location.reload();
+                                window.location.assign(window.location.origin + "/sample");
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                return false
+                            }
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+        });
+
+        $("#deep-remove").on("click", function () {
+            var uuid = sample_info["uuid"];
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            warning_msg += "<br> <B>Deep remove will delete the sample and its sub-samples and associated data. !!</B>" ;
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Sample Removal")
+            $("#delete-protocol-event-confirm").html("Please enter the Sample UUID to confirm that you want to remove this Sample!")
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = sample_info["_links"]["self"]+"/deep_remove";
+            $("#protocol-uuid-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+                if (user_entry == uuid) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                //window.location.reload();
+                                window.location.assign(window.location.origin + "/sample");
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                //return false;
+                            }
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+        });
+
         $("#basic-info-nav").on("click", function () {
             deactivate_nav();
             $(this).addClass("active");

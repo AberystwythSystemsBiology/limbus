@@ -36,9 +36,13 @@ from wtforms.validators import DataRequired, Optional
 def CollectionConsentAndDisposalForm(
     consent_templates: list, collection_protocols: list, collection_sites: list
 ) -> FlaskForm:
+    sample_status_choices = [
+        (k, nm) for (k, nm) in SampleStatus.choices() if k not in ["DES", "TRA"]
+    ]
+
     class StaticForm(FlaskForm):
 
-        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
+        sample_status = SelectField("Sample Status", choices=sample_status_choices)
 
         colour = SelectField(
             "Colour",
@@ -123,13 +127,14 @@ def CollectionDonorConsentAndDisposalForm(
     consent_ids: list, collection_protocols: list, collection_sites: list, data={}
 ) -> FlaskForm:
 
-    print("consent_ids", consent_ids)
-    print("coll protol", collection_protocols)
+    sample_status_choices = [
+        (k, nm) for (k, nm) in SampleStatus.choices() if k not in ["DES", "TRA"]
+    ]
 
     class StaticForm(FlaskForm):
         donor_id = HiddenField("Donor id")
 
-        sample_status = SelectField("Sample Status", choices=SampleStatus.choices())
+        sample_status = SelectField("Sample Status", choices=sample_status_choices)
 
         colour = SelectField(
             "Colour",
