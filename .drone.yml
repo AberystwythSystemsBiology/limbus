@@ -1,0 +1,16 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: build limbus
+  image: ubuntu
+  commands:
+  - echo "🎉 The job was automatically triggered by an event."
+  - echo "🐧 This job is now running on a drone server!"
+  - wget https://users.aber.ac.uk/keo7/doid.xrdf ; mv doid.xrdf ./services/web/ontologies/ ; cp .env.example .env
+  - docker-compose build ; docker-compose run web sh -c "yarn install"
+  - mkdir -p ./services/web/migrations/versions ; docker-compose run web sh -c "alembic revision --autogenerate -m 'Generating database'; alembic upgrade head"
+  - docker-compose run web sh -c "flask cmd_setup create-kryten"
+  - docker-compose run web sh -c "flask cmd_setup create-testuser"
+  - docker-compose run --service-ports web sh -c "nose2 -v"
