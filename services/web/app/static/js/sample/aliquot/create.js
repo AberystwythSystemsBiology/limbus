@@ -154,7 +154,8 @@ function update_graph() {
     var quantity = $("#original_quantity").val();
     var metric = $("#original_metric").html();
 
-
+    $("#chart-div").empty();
+    $("#chart-div").html('<canvas id="quantity-chart" width="100%" height="100%"></canvas>');
 
     new Chart(document.getElementById("quantity-chart"), {
         type: 'doughnut',
