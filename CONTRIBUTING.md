@@ -1,6 +1,30 @@
 # Contributing Guidelines
 
-Note: This is deprecated.
+## ✔️ Proposing Changes
+
+All new contributions are required to follow a standard naming convention for branches:
+
+- `feature/name-of-the-feature`
+- `fix/name-of-the-fix`
+
+
+```
+git checkout -b feature/name-of-the-feature
+```
+
+Make a new branch and push to it
+
+```
+git pull origin master
+git push -u origin feature/name-of-the-feature
+```
+
+After you finish working, commit and push your code to your branch and create a pull request to merge the branch into `dev` branch.
+
+Assign someone for code review. The idea is to learn from each other, to make sure that all coding standards are met, and that code style is respected. Wait for the review, and if there are any questions/suggestions/fixes/changes requested from the person - the reviewer will request it with clear comments. The process will then start again until all comments are resolved and the reviewer accepts the pull request.
+
+Once your code has been successfully reviewed, your branch will be merged into the `dev` branch.
+
 
 ## 📝 Code Style
 
@@ -11,11 +35,8 @@ Note: This is deprecated.
 
 - Where appropriate, please make use of typehinting.
 - I don't care about tabs or spaces, I personally use four spaces - but do whatever feels right to you.
-- I try to keep to a limit of 80 characters, but don't care that much.
-- If you can, run it through yapf before committing your code. I don't do this as much as I should.
-
-#### Forms
-
+- I try to keep to a limit of 80 characters, but I don't care that much.
+- `black` is run by our CI system so that should cover most of our bases. 
 
 
 ### 🌐 HTML
@@ -41,24 +62,4 @@ Note: This is deprecated.
 - Add ```Element``` should be defined as a button class of ```btn-primary```.
 - Submit should be right aligned and defined as a button class of ```btn-success```.
 
-## ✔️ Proposing Changes
 
-**Step Zero:** Make a new branch and push it
-
-```
-git checkout -b feature_branch_name
-git push -u origin feature_branch_name
-```
-
-**Step One:** Update from Master
-
-```
-git pull origin master
-```
-
-**Step Two:** Merge from master
-
-```
-git checkout feature_branch_name
-git merge master
-```
