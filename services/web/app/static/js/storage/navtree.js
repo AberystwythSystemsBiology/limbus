@@ -88,16 +88,12 @@ function collapse_sidebar() {
         $('#sidebar').toggleClass('active');
         $('#sidebar-collapse-icon').toggleClass('fa-chevron-left');
         $('#sidebar-collapse-icon').toggleClass('fa-chevron-right');
-        $('#sidebar-collapse button').toggleClass('btn-light');
-        $('#sidebar-collapse button').toggleClass('btn-primary');
 }
 
 function open_sidebar() {
     $('#sidebar').toggleClass('false');
     $('#sidebar-collapse-icon').toggleClass('fa-chevron-left');
     $('#sidebar-collapse-icon').toggleClass('fa-chevron-right');
-    $('#sidebar-collapse button').toggleClass('btn-light');
-    $('#sidebar-collapse button').toggleClass('btn-primary');
 }
 
 $(function() {
