@@ -181,9 +181,9 @@ Inside of this file you will find a number of environment variables:
 * :code:`SECRET_KEY=` A secret key to protect you against XSS. Please change this.
 * :code:`WTF_CSRF_SECRET_KEY=` A secret key to protect forms against XSS. Please change this.
 * :code:`DOCUMENT_DIRECTORY=` Where you want your encrypted document store to be located. If you are using the :code:`docker-compose` file, then please ensure that you mount your location appropriately.
-* :code:`TEMPLATES_DIRECTORY=`Where you want your templates store to be located. If you are using the :code:`docker-compose` file, then please ensure that you mount your location appropriately.
-* :code:`DEBUG=`If you require debug information. In most deployments this should be set to False.
-* :code:`DOID_PATH=`Where you want your DOID file to be located. If you are using the :code:`docker-compose` file, then please ensure that you mount your location appropriately.
+* :code:`TEMPLATES_DIRECTORY=` Where you want your templates store to be located. If you are using the :code:`docker-compose` file, then please ensure that you mount your location appropriately.
+* :code:`DEBUG=` If you require debug information. In most deployments this should be set to False.
+* :code:`DOID_PATH=` Where you want your DOID file to be located. If you are using the :code:`docker-compose` file, then please ensure that you mount your location appropriately.
 
 
 .. note::
