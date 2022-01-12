@@ -175,9 +175,9 @@ Inside of this file you will find a number of environment variables:
 
 * :code:`FLASK_CONFIG=` A choice between :code:`deployment` and :code:`production`. :code:`production` disables debugging and stops SQLAlchemy spamming the console.
 * :code:`POSTGRES_USER=` The username of your PostgreSQL user. If you are using the :code:`docker-compose` file then this will be used within the :code:`db` container.
-* :code:`POSTGRES_PASSWORD=`The password of your PostgreSQL user. If you are using the :code:`docker-compose` file then this will be used within the :code:`db` container.
-* :code:`POSTGRES_HOST=`The database host address of your PostgreSQL server. If you are deploying the project through :code:`docker-compose` then ensure that the name matches what is found within the :code:`docker-compose.yml` file (this is usually :code:`db`).
-* :code:`POSTGRES_DB=`The database name for of your PostgreSQL server. If you are deploying the project through :code:`docker-compose` then ensure that the name matches what is found within the :code:`docker-compose.yml` file (this is usually :code:`limbus`).
+* :code:`POSTGRES_PASSWORD=` The password of your PostgreSQL user. If you are using the :code:`docker-compose` file then this will be used within the :code:`db` container.
+* :code:`POSTGRES_HOST=` The database host address of your PostgreSQL server. If you are deploying the project through :code:`docker-compose` then ensure that the name matches what is found within the :code:`docker-compose.yml` file (this is usually :code:`db`).
+* :code:`POSTGRES_DB=` The database name for of your PostgreSQL server. If you are deploying the project through :code:`docker-compose` then ensure that the name matches what is found within the :code:`docker-compose.yml` file (this is usually :code:`limbus`).
 * :code:`SECRET_KEY=` A secret key to protect you against XSS. Please change this.
 * :code:`WTF_CSRF_SECRET_KEY=` A secret key to protect forms against XSS. Please change this.
 * :code:`DOCUMENT_DIRECTORY=` Where you want your encrypted document store to be located. If you are using the :code:`docker-compose` file, then please ensure that you mount your location appropriately.
