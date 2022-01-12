@@ -6,7 +6,7 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/AberystwythSystemsBiology/LImBuS)
 ![GitHub issues](https://img.shields.io/github/issues/AberystwythSystemsBiology/LImBuS)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AberystwythSystemsBiology/LImBuS)
-![Build status](https://github.com/AberystwythSystemsBiology/limbus/actions/workflows/build.yml/badge.svg)
+![Test status](https://github.com/AberystwythSystemsBiology/limbus/actions/workflows/tests.yml/badge.svg)
 
 
 </p>
