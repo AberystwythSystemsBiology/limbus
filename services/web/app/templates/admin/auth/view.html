@@ -13,6 +13,7 @@
                 <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#lock-modal">
                     <i class="fa fa-lock"></i> {% if user.is_locked %}Unl{%else%}L{%endif%}ock Account
                 </button>
+
             </div>
             <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href={{ url_for("admin.admin_edit_account", id=user.id) }}>
@@ -20,6 +21,10 @@
                     <i class="fa fa-cog" aria-hidden="true"></i> Settings
                 </button></a>
             </div>
+
+            <button type="button" class="btn btn-outline-dark">
+                <i class="fa fa-key" aria-hidden="true"></i> Send Password Reset Email
+            </button>
 
             
         </div>
