@@ -23,6 +23,7 @@ from .enums import Title, AccountType, AccessControl
 from sqlalchemy.dialects.postgresql import JSONB
 
 
+
 class UserAccount(Base, UserMixin):
     __versioned__ = {}
 
@@ -89,6 +90,32 @@ class UserAccount(Base, UserMixin):
                 hashlib.md5(self.email.encode()).hexdigest(),
                 20,
             )
+
+class UserAccountPasswordResetToken(Base):
+    created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_on = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("useraccount.id", use_alter=True), nullable=False
+    )
+
+    token_hash = db.Column(db.String(256), nullable=False)
+
+    @property
+    def token(self) -> str:
+        return "*******"
+
+    @token.setter
+    def token(self, token: str):
+        self.token_hash = generate_password_hash(token)
+
+    def verify_token(self, token) -> bool:
+        return check_password_hash(self.token_hash, token)
 
 
 class UserAccountToken(Base):
