@@ -181,7 +181,19 @@ def admin_password_reset(id):
         form = AccountLockPasswordForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
-            pass
+            
+            token_email = requests.post(
+                url_for("api.auth_password_reset", _external=True),
+                headers=get_internal_api_header(),
+                json={"email": form.email.data}
+            )
+
+            if token_email.status_code == 200:
+                flash("Email has been sent")
+                
+
+            else:
+                flash(token_email["content"])
 
         return render_template("admin/auth/password_reset.html", user=response.json()["content"], form=form)
     else:
