@@ -19,7 +19,7 @@ from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
 from ..forms import AdminUserAccountEditForm
-from ..forms.auth import AccountLockForm
+from ..forms.auth import AccountLockPasswordForm
 
 from flask import render_template, url_for, redirect, abort, flash
 from flask_login import current_user, login_required
@@ -90,7 +90,7 @@ def auth_view_account(id):
     )
 
     if response.status_code == 200:
-        form = AccountLockForm(response.json()["content"]["email"])
+        form = AccountLockPasswordForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
 
@@ -103,10 +103,10 @@ def auth_view_account(id):
                 if lock_response.json()["content"]["is_locked"]:
                     flash("User Account locked!")
                 else:
-                    flash("User Account unLocked!")
+                    flash("User Account unlocked!")
                 return redirect(url_for("admin.auth_index"))
             else:
-                flash("We were unable to umllock the User Account.")
+                flash("We were unable to unlock the User Account.")
 
         return render_template(
             "admin/auth/view.html", user=response.json()["content"], form=form
@@ -168,6 +168,26 @@ def auth_data():
     return auth_response.content
 
 
+@admin.route("/auth/<id>/password/reset", methods=["GET", "POST"])
+@check_if_admin
+@login_required
+def admin_password_reset(id):
+    response = requests.get(
+        url_for("api.auth_view_user", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        form = AccountLockPasswordForm(response.json()["content"]["email"])
+
+        if form.validate_on_submit():
+            pass
+
+        return render_template("admin/auth/password_reset.html", user=response.json()["content"], form=form)
+    else:
+        return abort(response.status_code)
+
+    
 @admin.route("/auth/<id>/edit", methods=["GET", "POST"])
 @check_if_admin
 @login_required

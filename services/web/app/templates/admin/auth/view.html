@@ -22,9 +22,12 @@
                 </button></a>
             </div>
 
-            <button type="button" class="btn btn-outline-dark">
+            <a href="{{ url_for('admin.admin_password_reset', id=user.id) }}">
+
+            <div class="btn btn-outline-dark">
                 <i class="fa fa-key" aria-hidden="true"></i> Send Password Reset Email
-            </button>
+            </div>
+            </a>
 
             
         </div>
