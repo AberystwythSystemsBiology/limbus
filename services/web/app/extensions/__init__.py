@@ -7,6 +7,7 @@ from ..database import db, UserAccount
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin as apispec_FlaskPlugin
+from flask_mail import Mail
 
 
 spec = APISpec(
@@ -19,6 +20,9 @@ spec = APISpec(
 ma = Marshmallow()
 mde = Mde()
 login_manager = LoginManager()
+
+
+mail = Mail()
 
 
 def register_extensions(app):

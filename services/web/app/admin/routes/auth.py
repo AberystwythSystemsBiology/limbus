@@ -21,11 +21,14 @@ from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
 from ..forms import AdminUserAccountEditForm
 from ..forms.auth import AccountLockPasswordForm
 
-from flask import render_template, url_for, redirect, abort, flash
+from flask import render_template, url_for, redirect, abort, flash, current_app
 from flask_login import current_user, login_required
+
+from ...extensions import mail
 
 import requests
 
+from flask_mail import Message
 
 @admin.route("/auth/", methods=["GET"])
 @check_if_admin
@@ -189,8 +192,14 @@ def admin_password_reset(id):
             )
 
             if token_email.status_code == 200:
-                flash("Email has been sent")
-                
+                token = token_email.json()["content"]["token"]
+                confirm_url = "https://www.google.com"
+                template = render_template("admin/auth/email/password_reset.html", reset_url=confirm_url)
+                subject = "LIMBUS: Password Reset Email"
+                msg = Message(subject, recipients=[form.email.data], html=template, sender=current_app.config["MAIL_USERNAME"])
+                mail.send(msg)
+                flash("Password reset email has been sent!")
+                return redirect(url_for("admin.admin_edit_account", id=id))
 
             else:
                 flash(token_email["content"])
