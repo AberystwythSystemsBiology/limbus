@@ -91,6 +91,8 @@ class BasicDonorSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("donor.view", id="<id>", _external=True),
             "collection": ma.URLFor("donor.index", _external=True),
             "edit": ma.URLFor("donor.edit", id="<id>", _external=True),
+            #"remove": ma.URLFor("donor.remove", id="<id>", _external=True),
+            #"deep_remove": ma.URLFor("donor.deep_remove", id="<id>", _external=True),
             "new_sample": ma.URLFor(
                 "donor.add_sample_step_one", id="<id>", _external=True
             ),
@@ -149,6 +151,9 @@ class DonorSchema(masql.SQLAlchemySchema):
             "self": ma.URLFor("donor.view", id="<id>", _external=True),
             "collection": ma.URLFor("donor.index", _external=True),
             "edit": ma.URLFor("donor.edit", id="<id>", _external=True),
+            "remove": ma.URLFor("donor.remove", id="<id>", _external=True),
+            "deep_remove": ma.URLFor("donor.deep_remove", id="<id>", _external=True),
+
             "new_sample": ma.URLFor(
                 "donor.add_sample_step_one", id="<id>", _external=True
             ),

@@ -68,8 +68,8 @@ def audit_query(args, tokenuser: UserAccount):
         ]
 
     print("objects:", objects)
-    start_date = args.pop("start_date", datetime.today())
-    end_date = args.pop("end_date", datetime.today())
+    start_date = args.pop("start_date", datetime.now())
+    end_date = args.pop("end_date", datetime.now())
     audit_trails = []
     object_counts = {}
     for model in objects:
@@ -135,7 +135,7 @@ def audit_query(args, tokenuser: UserAccount):
     return success_with_content_response({"data": audit_trails, "title": title})
 
 
-@api.route("/audit/sample1/<uuid>", methods=["GET"])
+@api.route("/audit/sample/<uuid>", methods=["GET"])
 @token_required
 def audit_sample(uuid: str, tokenuser: UserAccount):
     if not tokenuser.is_admin:

@@ -17,9 +17,22 @@
         <div class="row">
             <div class="col-sm-8">
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-                    <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button type="button" id="edit-donor-btn" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit</button>
+                  <div class="btn-btn-group mr-2" role="group">
+                    <div class="dropdown">
+                      <button class="btn btn-delete float-right dropdown-toggle" type="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-edit"></i> Edit
+                      </button>
+                      <div class="dropdown-menu">
+                        <a id="edit-donor-btn" class="dropdown-item"><i class="fa fa-file"></i> Edit </a>
+{#                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>#}
+                        <a id="remove-donor-btn" class="dropdown-item"><i class="fa fa-trash-alt"></i> Remove </a>
+                    {% if current_user.is_admin == true  %}
+                        <a id="deep-remove-donor-btn" class="dropdown-item"><i class="fa fa-trash"></i> Deep Remove </a>
+                    {% endif %}
+                      </div>
                     </div>
+                  </div>
 
                     <div class="btn-group mr-2" role="group" aria-label="First group">
                         <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Diagnosis</button>
@@ -57,7 +70,6 @@
                    </div>
 
             </div>
-
 
         </div>
     </div>
@@ -130,12 +142,10 @@
 
     </div>
 
-
-
 </div>
 
 
-<!-- Delete Protocol Modal -->
+<!-- Delete Consent Modal (template for consent/diagnosis/donor deletion) -->
 <div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -160,6 +170,7 @@
     </div>
   </div>
 </div>
+
 
 
 <!--- Cart Confirmation -->

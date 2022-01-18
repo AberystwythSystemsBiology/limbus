@@ -131,10 +131,11 @@ def DonorSampleAssociationForm(samples: dict):
     return StaticForm()
 
 
-def DonorCreationForm(sites: dict, data={}):
-    site_choices = []
-    for site in sites:
-        site_choices.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
+def DonorCreationForm(sites: list, data={}):
+    # site_choices = []
+    # for site in sites:
+    #     site_choices.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
+    site_choices = sites
 
     class StaticForm(FlaskForm):
         id = StringField("id", default=None)
@@ -167,7 +168,7 @@ def DonorCreationForm(sites: dict, data={}):
 
         site = SelectField(
             "Site",
-            description="The site in which the sample was taken",
+            description="The site in which the donor was registered",
             coerce=int,
             validators=[Optional()],
             choices=site_choices,
