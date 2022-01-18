@@ -20,6 +20,8 @@ from .database import db
 
 from flask import Flask
 
+import os
+
 from .commands import cmd_setup as cmd_setup_blueprint
 from .api import api as api_blueprint
 from .labels import labels as label_blueprint
@@ -56,7 +58,7 @@ class ReverseProxied(object):
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_pyfile("config.py")
+    app.config.from_pyfile("%s/config.py" % (os.environ["INSTANCE_PATH"]))
     app.wsgi_app = ReverseProxied(app.wsgi_app)
     register_extensions(app)
     register_blueprints(app)

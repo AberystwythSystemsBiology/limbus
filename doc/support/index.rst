@@ -60,4 +60,4 @@ Priority Support
 ----------------
 
 If you would like to find out more about sponsoring the project for priority 
-support, feel free to drop us an email_ and we'll get back to you with more.
+support, feel free to drop us an email and we'll get back to you with more information.

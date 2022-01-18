@@ -7,8 +7,6 @@
 #sidebar {
     min-width: 20em;
     max-width: 20em;
-    height: 100%;
-    min-height: 100vh;
     overflow: auto;
     top: 30px;
     left: 0;
@@ -21,12 +19,10 @@
 }
 
 #sidebar-collapse {
-    float: right;
-    margin: 0;
     z-index: 998;
     position: relative;
-    margin-top: 50%;
-    right: -1em;
+    left: -1em;
+    width: 0;
 }
 
 #sidebar-collapse button {
@@ -36,6 +32,10 @@
 
 #sidebar.active #sidebar-collapse {
     right: -3em;
+}
+
+.storage .container {
+  margin-left: 3em;
 }
 
 /* The Modal (background) */

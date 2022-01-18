@@ -34,14 +34,14 @@ class AuthTests(unittest.TestCase):
         app.testing = True
         self.app = app.test_client()
 
-    def test_auth_home(self) -> None:
+    def test_01_auth_home(self) -> None:
         response = self.app.get(
             "api/auth", headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json["success"])
 
-    def test_auth_view_user(self) -> None:
+    def test_02_auth_view_user(self) -> None:
         response = self.app.get(
             "api/auth/user/1", headers=testing_headers, follow_redirects=True
         )
@@ -51,7 +51,7 @@ class AuthTests(unittest.TestCase):
             response.json["content"]["email"], "kryten@jupiterminingcorp.co.uk"
         )
 
-    def test_auth_edit_user(self) -> None:
+    def test_03_auth_edit_user(self) -> None:
         response = self.app.put(
             "api/auth/user/1/edit",
             headers=testing_headers,
@@ -62,7 +62,7 @@ class AuthTests(unittest.TestCase):
         self.assertTrue(response.json["success"])
         self.assertEqual(response.json["content"]["first_name"], "Kry-ton")
 
-    def test_auth_new_user(self) -> None:
+    def test_04_auth_new_user(self) -> None:
 
         self.__class__.test_user_email_address = "%s@gmail.com" % (
             uuid.uuid4().hex.upper()[0:6]

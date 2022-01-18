@@ -32,14 +32,14 @@ class DocumentTests(unittest.TestCase):
         app.testing = True
         self.app = app.test_client()
 
-    def test_document_home(self):
+    def test_01_document_home(self):
         response = self.app.get(
             "api/document", headers=testing_headers, follow_redirects=True
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json["success"])
 
-    def test_document_new_document(self):
+    def test_02_document_new_document(self):
         response = self.app.post(
             "api/document/new",
             headers=testing_headers,
@@ -56,17 +56,18 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(response.json["content"]["name"], "Testing Document")
         self.__class__.doc_id = response.json["content"]["id"]
 
-    def test_document_view_document(self):
+    def test_03_document_view_document(self):
         response = self.app.get(
             "api/document/LIMBDOC-%s" % (self.__class__.doc_id),
             headers=testing_headers,
             follow_redirects=True,
         )
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json["success"])
         self.assertEqual(response.json["content"]["name"], "Testing Document")
 
-    def test_document_query(self):
+    def test_04_document_query(self):
         response = self.app.get(
             "api/document/LIMBDOC-%s" % (self.__class__.doc_id),
             json={"name": "Testing Document"},
@@ -77,7 +78,7 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json["success"])
 
-    def test_document_edit_document(self):
+    def test_05_document_edit_document(self):
 
         edit_name: str = "Testing Document, Edited"
 
@@ -92,7 +93,7 @@ class DocumentTests(unittest.TestCase):
         self.assertTrue(response.json["success"])
         self.assertEqual(response.json["content"]["name"], edit_name)
 
-    def test_document_lock_document(self):
+    def test_06_document_lock_document(self):
 
         # Lock the document
         response = self.app.put(
