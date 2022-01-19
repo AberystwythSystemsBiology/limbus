@@ -1,2 +1,6 @@
 limbus/backend:
     - services/web/app/**/*.py
+
+limbus/frontend:
+    - services/web/app/**/*.html
+    - services/web/app/static/**/*.js
