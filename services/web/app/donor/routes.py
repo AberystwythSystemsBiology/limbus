@@ -509,7 +509,7 @@ def add():
         sites = sites_response.json()["content"]["choices"]
         # user_site_id = sites_response.json()["content"]["user_site_id"]
 
-        form = DonorCreationForm(sites) #sites_response.json()["content"])
+        form = DonorCreationForm(sites)  # sites_response.json()["content"])
         if form.validate_on_submit():
             death_date = None
 
@@ -593,7 +593,7 @@ def edit(id):
         if sites_response.status_code == 200:
             sites = sites_response.json()["content"]["choices"]
 
-            #form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
+            # form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
             form = DonorCreationForm(sites, data=donor_info)
 
             if form.validate_on_submit():

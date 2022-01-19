@@ -59,16 +59,22 @@ from ...donor.views import (
 
 from ...event.views import new_event_schema
 from ...sample.models import SampleConsent, SampleConsentAnswer, Sample
-from ...sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
-
-
+from ...sample.views import (
+    new_consent_schema,
+    new_consent_answer_schema,
+    consent_schema,
+)
 
 
 def func_remove_donorconsentwithdrawal(donor, tokenuser: UserAccount, msgs=[]):
     success = True
-    css = SampleConsentWithdrawal.query\
-        .join(SampleConsent, SampleConsent.id==SampleConsentWithdrawal.consent_id)\
-        .filter(SampleConsent.donor_id==donor.id).all()
+    css = (
+        SampleConsentWithdrawal.query.join(
+            SampleConsent, SampleConsent.id == SampleConsentWithdrawal.consent_id
+        )
+        .filter(SampleConsent.donor_id == donor.id)
+        .all()
+    )
     for cs in css:
         try:
             cs.update({"editor_id": tokenuser.id})
@@ -95,7 +101,7 @@ def func_remove_donorconsent(donor, tokenuser: UserAccount, msgs=[]):
             return (success, msgs)
 
         nw = SampleConsentWithdrawal.query.filter_by(consent_id=cs.id).count()
-        if nw >0:
+        if nw > 0:
             success = False
             msgs.append(in_use_response("sample consent withdrawal"))
             return (success, msgs)
@@ -125,7 +131,7 @@ def func_remove_donordiagnosis(donor, tokenuser, msgs=[]):
     if len(stas) > 0:
         try:
             for sta in stas:
-                sta.update({"editor_id":tokenuser.id})
+                sta.update({"editor_id": tokenuser.id})
                 db.session.delete(sta)
                 db.session.flush()
             msgs.append("Deleted %d diagnoses for donor" % len(stas))
@@ -141,7 +147,7 @@ def func_remove_donorprotocolevent(donor, tokenuser: UserAccount, msgs=[]):
     stas = DonorProtocolEvent.query.filter_by(donor_id=donor.id).all()
 
     for sta in stas:
-        if DonorProtocolEvent.query.filter_by(event_id=sta.event_id).count()>1:
+        if DonorProtocolEvent.query.filter_by(event_id=sta.event_id).count() > 1:
             sta.event_id = None
 
         sta.update({"editor_id": tokenuser.id})
@@ -155,6 +161,7 @@ def func_remove_donorprotocolevent(donor, tokenuser: UserAccount, msgs=[]):
             msgs.append(transaction_error_response(err))
 
     return (success, msgs)
+
 
 def func_remove_donortosample_bydonor(donor: Donor, tokenuser: UserAccount, msgs=[]):
     success = True
@@ -173,10 +180,11 @@ def func_remove_donortosample_bydonor(donor: Donor, tokenuser: UserAccount, msgs
             msgs.append(transaction_error_response(err))
             return (success, msgs)
 
-    msgs.append("Deleted %s sample links to the donor" %len(stas))
+    msgs.append("Deleted %s sample links to the donor" % len(stas))
     return (success, msgs)
 
-def func_remove_donor(donor, tokenuser:UserAccount, msgs=[]):
+
+def func_remove_donor(donor, tokenuser: UserAccount, msgs=[]):
     # Shallow removal without deleting the linked samples
     success = True
     if donor.is_locked:
@@ -219,11 +227,12 @@ def func_remove_donor(donor, tokenuser:UserAccount, msgs=[]):
 
 def func_deep_remove_donorsamples(donor, tokenuser: UserAccount, msgs=[]):
     success = True
-    samples = Sample.query\
-        .join(SampleConsent, SampleConsent.id==Sample.consent_id) \
-        .filter(SampleConsent.donor_id==donor.id)\
-        .filter(Sample.source=="NEW")\
+    samples = (
+        Sample.query.join(SampleConsent, SampleConsent.id == Sample.consent_id)
+        .filter(SampleConsent.donor_id == donor.id)
+        .filter(Sample.source == "NEW")
         .all()
+    )
 
     print("n sample:", len(samples))
     for sample in samples:
@@ -234,6 +243,7 @@ def func_deep_remove_donorsamples(donor, tokenuser: UserAccount, msgs=[]):
 
     msgs.append("Deep remove samples linked to the donors !")
     return (success, msgs)
+
 
 def func_deep_remove_donor(donor, tokenuser: UserAccount, msgs=[]):
     # Deep removal
@@ -285,10 +295,10 @@ def donor_remove_donor(id, tokenuser: UserAccount):
     donor = Donor.query.filter_by(id=id).first()
 
     if not donor:
-        return not_found("donor LIMBDON-%s" %id)
+        return not_found("donor LIMBDON-%s" % id)
 
     if donor.is_locked:
-        return locked_response("donor LIMBDON-%s" %id)
+        return locked_response("donor LIMBDON-%s" % id)
 
     (success, msgs) = func_remove_donor(donor, tokenuser, msgs=[])
 
@@ -300,7 +310,7 @@ def donor_remove_donor(id, tokenuser: UserAccount):
         db.session.commit()
         msgs.append("Committed successfully! ")
         message = " | ".join(msgs)
-        return success_with_content_message_response("LIMBDON-%s"%id, message)
+        return success_with_content_message_response("LIMBDON-%s" % id, message)
     except Exception as err:
         db.session.rollback()
         return transaction_error_response(err)
@@ -328,7 +338,7 @@ def donor_deep_remove_donor(id, tokenuser: UserAccount):
         db.session.commit()
         msgs.append("Committed successfully! ")
         message = " | ".join(msgs)
-        return success_with_content_message_response("LIMBDON-%s"%id, message)
+        return success_with_content_message_response("LIMBDON-%s" % id, message)
     except Exception as err:
         db.session.rollback()
         return transaction_error_response(err)

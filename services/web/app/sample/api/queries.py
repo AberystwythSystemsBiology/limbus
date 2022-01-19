@@ -214,8 +214,8 @@ def func_remove_samplereview(sample, tokenuser: UserAccount, msgs=[]):
 
                 sr.update({"editor_id": tokenuser.id})
 
-                if SampleReview.query.filter_by(event_id=sr.event_id).count()>1:
-                   sr.event_id = None
+                if SampleReview.query.filter_by(event_id=sr.event_id).count() > 1:
+                    sr.event_id = None
 
             db.session.delete(sr)
             db.session.flush()
@@ -250,10 +250,10 @@ def func_remove_sampleprotocolevent(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     pes = SampleProtocolEvent.query.filter_by(sample_id=sample.id).all()
     for pe in pes:
-        if SampleProtocolEvent.query.filter_by(event_id=pe.event_id).count()>1:
-           pe.event_id=None
-        elif SampleShipment.query.filter_by(event_id=pe.event_id).count()>0:
-            pe.event_id=None
+        if SampleProtocolEvent.query.filter_by(event_id=pe.event_id).count() > 1:
+            pe.event_id = None
+        elif SampleShipment.query.filter_by(event_id=pe.event_id).count() > 0:
+            pe.event_id = None
 
         try:
             pe.update({"editor_id": tokenuser.id})
@@ -266,7 +266,9 @@ def func_remove_sampleprotocolevent(sample, tokenuser: UserAccount, msgs=[]):
             msgs.append(transaction_error_response(err))
             return (success, msgs)
 
-    msgs.append("%s Sample protocol events (acquisition/processing/study) deleted!" %len(pes))
+    msgs.append(
+        "%s Sample protocol events (acquisition/processing/study) deleted!" % len(pes)
+    )
     return (success, msgs)
 
 
@@ -295,8 +297,10 @@ def func_remove_sampleconsent(sample, tokenuser: UserAccount, msgs=[]):
     if len(css) > 0:
         try:
             for cs in css:
-                if ( # Delete only if oo other samples attached to the consent
-                    Sample.query.filter(Sample.consent_id == cs.id, Sample.id != sample.id).count()
+                if (  # Delete only if oo other samples attached to the consent
+                    Sample.query.filter(
+                        Sample.consent_id == cs.id, Sample.id != sample.id
+                    ).count()
                     == 0
                 ):
                     cs.update({"editor_id": tokenuser.id})
@@ -440,7 +444,9 @@ def func_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_aliquot_subsampletosample_children(sample, protocol_event, tokenuser: UserAccount, msgs=[]):
+def func_remove_aliquot_subsampletosample_children(
+    sample, protocol_event, tokenuser: UserAccount, msgs=[]
+):
     success = True
     stss = SubSampleToSample.query.filter_by(
         parent_id=sample.id, protocol_event_id=protocol_event.id
@@ -472,7 +478,6 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, token
             else:
                 used_qty = used_qty + smpl.quantity
 
-
     if protocol_event and protocol_event.reduced_quantity > 0:
         sample.remaining_quantity = (
             sample.remaining_quantity + protocol_event.reduced_quantity
@@ -500,7 +505,9 @@ def func_remove_aliquot_subsampletosample_children(sample, protocol_event, token
     return (success, msgs)
 
 
-def func_deep_remove_subsampletosample_children(sample, protocol_event, tokenuser: UserAccount, msgs=[]):
+def func_deep_remove_subsampletosample_children(
+    sample, protocol_event, tokenuser: UserAccount, msgs=[]
+):
     success = True
     if protocol_event is not None:
         stss = SubSampleToSample.query.filter_by(
@@ -529,7 +536,7 @@ def func_deep_remove_subsampletosample_children(sample, protocol_event, tokenuse
             if not success:
                 return (success, msgs)
 
-    msgs.append("All %s sub-samples dis-associated and deleted! " %len(stss))
+    msgs.append("All %s sub-samples dis-associated and deleted! " % len(stss))
     return (success, msgs)
 
 
@@ -565,7 +572,9 @@ def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
             return False, msgs
 
     # - No protocol event linked (legacy cases)
-    (success, msgs) = func_deep_remove_subsampletosample_children(sample, None, tokenuser, msgs)
+    (success, msgs) = func_deep_remove_subsampletosample_children(
+        sample, None, tokenuser, msgs
+    )
     if not success:
         return False, msgs
 
@@ -635,8 +644,7 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
 
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count() > 0:
-        return(in_use_response("parent sample! Delete from the root sample instead!  "))
-
+        return in_use_response("parent sample! Delete from the root sample instead!  ")
 
     (success, msgs) = func_deep_remove_sample(sample, tokenuser, [])
     if not success:

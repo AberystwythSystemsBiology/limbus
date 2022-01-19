@@ -80,7 +80,7 @@ def audit_query(args, tokenuser: UserAccount):
 
         stmt = db.session.query(ModelVersion).filter(
             func.date(ModelVersion.updated_on) >= start_date,
-            func.date(ModelVersion.updated_on) <= end_date
+            func.date(ModelVersion.updated_on) <= end_date,
         )
 
         if user_id:

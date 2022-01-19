@@ -60,7 +60,11 @@ from ..views import (
 from ...event.views import new_event_schema
 
 from ...sample.models import SampleConsent, SampleConsentAnswer, Sample
-from ...sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
+from ...sample.views import (
+    new_consent_schema,
+    new_consent_answer_schema,
+    consent_schema,
+)
 
 
 @api.route("/donor")
