@@ -142,7 +142,7 @@ def shipment_update_status(uuid):
 
             if update_response.status_code == 200:
                 flash(update_response.json()["message"])
-                return redirect(url_for("sample.shipment_index", uuid=uuid))
+                return redirect(url_for("sample.shipment_index"))
 
             else:
                 flash("We have a problem: %s" % (update_response.json()["message"]))
