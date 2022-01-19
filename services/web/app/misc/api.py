@@ -37,6 +37,7 @@ import treepoem
 from io import BytesIO
 from random import choice
 import base64
+from datetime import datetime, timedelta
 
 
 @api.route("/misc/barcode", methods=["POST"])
@@ -151,6 +152,7 @@ def get_data(tokenuser: UserAccount):
                     for (date, count) in db.session.query(
                         func.date_trunc("day", Sample.created_on), func.count(Sample.id)
                     )
+                    .filter(func.date(Sample.created_on)>= datetime.today()-timedelta(days=90) )
                     .group_by(func.date_trunc("day", Sample.created_on))
                     .order_by(func.date_trunc("day", Sample.created_on))
                     .all()

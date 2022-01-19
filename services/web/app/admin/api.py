@@ -68,8 +68,8 @@ def audit_query(args, tokenuser: UserAccount):
         ]
 
     print("objects:", objects)
-    start_date = args.pop("start_date", datetime.now())
-    end_date = args.pop("end_date", datetime.now())
+    start_date = args.pop("start_date", datetime.today())
+    end_date = args.pop("end_date", datetime.today())
     audit_trails = []
     object_counts = {}
     for model in objects:
@@ -79,7 +79,8 @@ def audit_query(args, tokenuser: UserAccount):
             ModelVersion = version_class(eval(model))
 
         stmt = db.session.query(ModelVersion).filter(
-            ModelVersion.updated_on >= start_date, ModelVersion.updated_on <= end_date
+            func.date(ModelVersion.updated_on) >= start_date,
+            func.date(ModelVersion.updated_on) <= end_date
         )
 
         if user_id:
