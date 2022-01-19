@@ -199,10 +199,6 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         Sample.id == protocol_event.sample_id, SampleProtocolEvent.is_locked == True
     )
 
-    # if protocol_events_locked.count()>1:
-    #     err = {"messages": "Can't delete the protocol event as >1 events changed the remaining quantity!"}
-    #     return validation_error_response(err)
-
     msgs = []
     protocol_type = (
         ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
@@ -210,7 +206,7 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     if protocol_type == ProtocolType.ALD:
         # - remove protocol event and the sub-samples it generated
         (success, msgs) = func_remove_aliquot_subsampletosample_children(
-            sample, protocol_event, msgs
+            sample, protocol_event, tokenuser, msgs
         )
         print("msgs00", msgs)
         if not success:
@@ -219,7 +215,7 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     elif protocol_event.is_locked:
         # Sample creation event!
         # -- remove protocol event and the sample it generated
-        (success, msgs) = func_remove_sample(sample, msgs)
+        (success, msgs) = func_remove_sample(sample, tokenuser, msgs)
         if not success:
             return msgs[-1]
 

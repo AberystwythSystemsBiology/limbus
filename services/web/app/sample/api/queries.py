@@ -50,6 +50,7 @@ from ..views import (
     new_fluid_sample_schema,
     new_cell_sample_schema,
     new_molecular_sample_schema,
+    new_sample_protocol_event_schema,
 )
 from ..enums import SampleSource
 
@@ -160,13 +161,15 @@ def func_new_sample_protocol_event(values, tokenuser: UserAccount):
     return new_sample_protocol_event
 
 
-def func_remove_sampledisposal(sample, msgs=[]):
+def func_remove_sampledisposal(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     sds = SampleDisposal.query.filter_by(sample_id=sample.id).all()
     if len(sds) > 0:
         try:
             for sd in sds:
                 sample.disposal_id = None
+                sample.review_event_id = None
+                sd.update({"editor_id": tokenuser.id})
                 db.session.delete(sd)
                 db.session.flush()
             msgs.append("Sample disposal instructions deleted! ")
@@ -178,12 +181,15 @@ def func_remove_sampledisposal(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_sampledisposalevent(sample, msgs=[]):
+def func_remove_sampledisposalevent(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     sdes = SampleDisposalEvent.query.filter_by(sample_id=sample.id).all()
     if len(sdes) > 0:
         try:
             for sde in sdes:
+                # if SampleDisposalEvent.query.filter_by(protocol_event_id=sde.protocol_event_id).count()>1:
+                #    sde.protocol_event_id = None
+                sde.update({"editor_id": tokenuser.id})
                 db.session.delete(sde)
                 db.session.flush()
             msgs.append("Sample disposal event deleted! ")
@@ -194,15 +200,23 @@ def func_remove_sampledisposalevent(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_samplereview(sample, msgs=[]):
+def func_remove_samplereview(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     srs = SampleReview.query.filter_by(sample_id=sample.id).all()
     if len(srs) > 0:
         try:
             for sr in srs:
-                sd = SampleDisposal.query.filter_by(review_event_id=sr.id).first()
-                if sd:
+                sds = SampleDisposal.query.filter_by(review_event_id=sr.id).all()
+                for sd in sds:
                     sd.review_event_id = None
+                    sd.update({"editor_id": tokenuser.id})
+                    db.session.add(sd)
+
+                sr.update({"editor_id": tokenuser.id})
+
+                if SampleReview.query.filter_by(event_id=sr.event_id).count() > 1:
+                    sr.event_id = None
+
             db.session.delete(sr)
             db.session.flush()
             msgs.append("Sample reviews deleted!")
@@ -213,12 +227,14 @@ def func_remove_samplereview(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_sampleshipmenttosample(sample, msgs=[]):
+def func_remove_sampleshipmenttosample(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     sss = SampleShipmentToSample.query.filter_by(sample_id=sample.id).all()
+
     if len(sss) > 0:
         try:
             for ss in sss:
+                ss.update({"editor_id": tokenuser.id})
                 db.session.delete(ss)
                 db.session.flush()
             msgs.append("Sample shipment dis-associated")
@@ -226,31 +242,43 @@ def func_remove_sampleshipmenttosample(sample, msgs=[]):
             db.session.rollback()
             success = False
             msgs.append(transaction_error_response(err))
+
     return (success, msgs)
 
 
-def func_remove_sampleprotocolevent(sample, msgs=[]):
+def func_remove_sampleprotocolevent(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     pes = SampleProtocolEvent.query.filter_by(sample_id=sample.id).all()
-    if len(pes) > 0:
+    for pe in pes:
+        if SampleProtocolEvent.query.filter_by(event_id=pe.event_id).count() > 1:
+            pe.event_id = None
+        elif SampleShipment.query.filter_by(event_id=pe.event_id).count() > 0:
+            pe.event_id = None
+
         try:
-            for pe in pes:
-                db.session.add(pe)
-                db.session.flush()
-            msgs.append("Sample protocol events (acquisition/processing/study) deleted")
+            pe.update({"editor_id": tokenuser.id})
+            db.session.delete(pe)
+            db.session.flush()
+
         except Exception as err:
             db.session.rollback()
             success = False
             msgs.append(transaction_error_response(err))
+            return (success, msgs)
+
+    msgs.append(
+        "%s Sample protocol events (acquisition/processing/study) deleted!" % len(pes)
+    )
     return (success, msgs)
 
 
-def func_remove_donortosample(sample, msgs=[]):
+def func_remove_donortosample(sample: Sample, tokenuser: UserAccount, msgs=[]):
     success = True
     dtss = DonorToSample.query.filter_by(sample_id=sample.id).all()
     if len(dtss) > 0:
         try:
             for dts in dtss:
+                dts.update({"editor_id": tokenuser.id})
                 db.session.delete(dts)
                 db.session.flush()
             msgs.append("Sample dis-associated with donor")
@@ -261,7 +289,7 @@ def func_remove_donortosample(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_sampleconsent(sample, msgs=[]):
+def func_remove_sampleconsent(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     css = SampleConsent.query.filter(
         SampleConsent.id == sample.consent_id, SampleConsent.donor_id is None
@@ -269,11 +297,15 @@ def func_remove_sampleconsent(sample, msgs=[]):
     if len(css) > 0:
         try:
             for cs in css:
-                if (
-                    Sample.query.filter(consent_id == cs.id, id != sample.id).count()
+                if (  # Delete only if oo other samples attached to the consent
+                    Sample.query.filter(
+                        Sample.consent_id == cs.id, Sample.id != sample.id
+                    ).count()
                     == 0
                 ):
+                    cs.update({"editor_id": tokenuser.id})
                     db.session.delete(cs)
+
             db.session.flush()
             msgs.append("Orphan sample consent (not linked to any donor) deleted! ")
         except Exception as err:
@@ -283,12 +315,13 @@ def func_remove_sampleconsent(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_sampletocustomattributedata(sample, msgs=[]):
+def func_remove_sampletocustomattributedata(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     stas = SampleToCustomAttributeData.query.filter_by(sample_id=sample.id).all()
     if len(stas) > 0:
         try:
             for sta in stas:
+                sta.update({"editor_id": tokenuser.id})
                 db.session.delete(sta)
                 db.session.flush()
             msgs.append("Sample custom attribute data deleted")
@@ -299,14 +332,34 @@ def func_remove_sampletocustomattributedata(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_sampletusercart(sample, msgs=[]):
+def func_remove_entitytostorage(sample, tokenuser: UserAccount, msgs=[]):
+    success = True
+    stas = EntityToStorage.query.filter_by(sample_id=sample.id).all()
+    if len(stas) > 0:
+        try:
+            for sta in stas:
+                sta.update({"editor_id": tokenuser.id})
+                db.session.delete(sta)
+
+            db.session.flush()
+            msgs.append("Sample storage data deleted")
+        except ValidationError as err:
+            db.session.rollback()
+            success = False
+            msgs.append(validation_error_response(err))
+    return (success, msgs)
+
+
+def func_remove_sampletusercart(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     stas = UserCart.query.filter_by(sample_id=sample.id).all()
     if len(stas) > 0:
         try:
             for sta in stas:
+                sta.update({"editor_id": tokenuser.id})
                 db.session.delete(sta)
-                db.session.flush()
+
+            db.session.flush()
             msgs.append("Sample removed from user cart")
         except ValidationError as err:
             db.session.rollback()
@@ -315,7 +368,7 @@ def func_remove_sampletusercart(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_sample(sample, msgs=[]):
+def func_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     if sample.is_locked:
         msgs.append(locked_response("sample %s" % sample.uuid))
@@ -361,20 +414,27 @@ def func_remove_sample(sample, msgs=[]):
         msgs.append(in_use_response("protocol events not for initial sample creation!"))
         return False, msgs
 
-    (success, msgs) = func_remove_donortosample(sample, msgs)
+    (success, msgs) = func_remove_entitytostorage(sample, tokenuser, msgs)
     if not success:
         return (success, msgs)
-    (success, msgs) = func_remove_sampleconsent(sample, msgs)
+
+    (success, msgs) = func_remove_donortosample(sample, tokenuser, msgs)
     if not success:
         return (success, msgs)
-    (success, msgs) = func_remove_sampletocustomattributedata(sample, msgs)
+
+    (success, msgs) = func_remove_sampleconsent(sample, tokenuser, msgs)
+    if not success:
+        return (success, msgs)
+
+    (success, msgs) = func_remove_sampletocustomattributedata(sample, tokenuser, msgs)
     if not success:
         return (success, msgs)
 
     try:
-        print("remove sample ", sample.id)
+        # print("remove sample ", sample.id)
+        sample.update({"editor_id": tokenuser.id})
         db.session.delete(sample)
-        # db.session.flush()
+        db.session.flush()
         msgs.append("Sample(%s) deleted!" % sample.uuid)
 
     except Exception as err:
@@ -384,54 +444,70 @@ def func_remove_sample(sample, msgs=[]):
     return (success, msgs)
 
 
-def func_remove_aliquot_subsampletosample_children(sample, protocol_event, msgs=[]):
+def func_remove_aliquot_subsampletosample_children(
+    sample, protocol_event, tokenuser: UserAccount, msgs=[]
+):
     success = True
     stss = SubSampleToSample.query.filter_by(
         parent_id=sample.id, protocol_event_id=protocol_event.id
     ).all()
-    if len(stss) > 0:
+
+    flag_derive = False
+    used_qty = 0
+    for sts in stss:
+        smpl = Sample.query.filter_by(id=sts.subsample_id).first()
+        # print('sts id %d , p- %d,  sub- %d ' % (sts.id, sts.parent_id, sts.subsample_id ))
+        sts.update({"editor_id": tokenuser.id})
         try:
-            flag_derive = False
-            used_qty = 0
-            for sts in stss:
-                # print('sts id %d , p- %d,  sub- %d ' % (sts.id, sts.parent_id, sts.subsample_id ))
-                smpl = Sample.query.filter_by(id=sts.subsample_id).first()
-                db.session.add(sts)
-                db.session.delete(sts)
-                db.session.flush()
-                if smpl:
-                    if smpl.source in ["DER", SampleSource.DER]:
-                        flag_derive = True
-
-                    (success, msgs) = func_remove_sample(smpl, msgs)
-                    if not success:
-                        return (success, msgs)
-                    else:
-                        used_qty = used_qty + smpl.quantity
-
-            if protocol_event and protocol_event.reduced_quantity > 0:
-                sample.remaining_quantity = (
-                    sample.remaining_quantity + protocol_event.reduced_quantity
-                )
-            else:
-                # - in case of no reduced quantity recorded due to legacy data model
-                if flag_derive:
-                    sample.remaining_quantity = sample.quantity
-                else:
-                    sample.remaining_quantity = used_qty
-
-            db.session.add(sample)
+            db.session.delete(sts)
             db.session.flush()
-            msgs.append("All sub-samples dis-associated and deleted! ")
+
         except Exception as err:
             db.session.rollback()
             success = False
             msgs.append(transaction_error_response(err))
+            return (success, msgs)
+
+        if smpl:
+            if smpl.source in ["DER", SampleSource.DER]:
+                flag_derive = True
+
+            (success, msgs) = func_remove_sample(smpl, tokenuser, msgs)
+            if not success:
+                return (success, msgs)
+            else:
+                used_qty = used_qty + smpl.quantity
+
+    if protocol_event and protocol_event.reduced_quantity > 0:
+        sample.remaining_quantity = (
+            sample.remaining_quantity + protocol_event.reduced_quantity
+        )
+    else:
+        # - in case of no reduced quantity recorded due to legacy data model
+        if flag_derive:
+            sample.remaining_quantity = sample.quantity
+        else:
+            sample.remaining_quantity = used_qty
+
+    try:
+        sample.update({"editor_id": tokenuser.id})
+        db.session.add(sample)
+        db.session.flush()
+        msgs.append("All sub-samples dis-associated and deleted! ")
+
+    except Exception as err:
+        db.session.rollback()
+        success = False
+        msgs.append(transaction_error_response(err))
+        return (success, msgs)
+
     print("ali: ", msgs)
     return (success, msgs)
 
 
-def func_deep_remove_subsampletosample_children(sample, protocol_event=None, msgs=[]):
+def func_deep_remove_subsampletosample_children(
+    sample, protocol_event, tokenuser: UserAccount, msgs=[]
+):
     success = True
     if protocol_event is not None:
         stss = SubSampleToSample.query.filter_by(
@@ -442,23 +518,25 @@ def func_deep_remove_subsampletosample_children(sample, protocol_event=None, msg
             parent_id=sample.id, protocol_event_id=None
         ).all()
 
-    if len(stss) > 0:
+    for sts in stss:
+        smpl = Sample.query.filter_by(id=sts.subsample_id).first()
+        sts.update({"editor_id": tokenuser.id})
         try:
-            for sts in stss:
-                smpl = Sample.query.filter_by(id=sts.subsample_id).first()
-                db.session.delete(sts)
-                if smpl:
-                    (success, msgs) = func_deep_remove_sample(smpl, msgs)
-                    if not success:
-                        return (success, msgs)
+            db.session.delete(sts)
+            db.session.flush()
 
-                db.session.flush()
-            msgs.append("All sub-samples dis-associated and deleted! ")
         except ValidationError as err:
             db.session.rollback()
             success = False
             msgs.append(validation_error_response(err))
+            return (success, msgs)
 
+        if smpl:
+            (success, msgs) = func_deep_remove_sample(smpl, tokenuser, msgs)
+            if not success:
+                return (success, msgs)
+
+    msgs.append("All %s sub-samples dis-associated and deleted! " % len(stss))
     return (success, msgs)
 
 
@@ -469,7 +547,7 @@ def sample_remove_sample(uuid: str, tokenuser: UserAccount):
     if not sample:
         return not_found("sample %s " % uuid)
 
-    (success, msgs) = func_remove_sample(sample, [])
+    (success, msgs) = func_remove_sample(sample, tokenuser, [])
     if not success:
         return msgs[-1]
 
@@ -483,57 +561,65 @@ def sample_remove_sample(uuid: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-def func_deep_remove_sample(sample, msgs=[]):
-    subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
-    if subs.count() > 0:
-        msgs.append(
-            in_use_response("parent sample! Delete from the root sample instead!  ")
-        )
-        return False, msgs
-    (success, msgs) = func_remove_sampledisposal(sample, msgs)
-    if not success:
-        return False, msgs
-    (success, msgs) = func_remove_sampledisposalevent(sample, msgs)
-    if not success:
-        return False, msgs
-    (success, msgs) = func_remove_samplereview(sample, msgs)
-    if not success:
-        return False, msgs
-
+def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
+    print("smpl0: ", sample.id)
     protocol_events = SampleProtocolEvent.query.filter_by(sample_id=sample.id).all()
-    if len(protocol_events) > 0:
-        for protocol_event in protocol_events:
-            (success, msgs) = func_deep_remove_subsampletosample_children(
-                sample, protocol_event, msgs
-            )
-            if not success:
-                return False, msgs
+    for protocol_event in protocol_events:
+        (success, msgs) = func_deep_remove_subsampletosample_children(
+            sample, protocol_event, tokenuser, msgs
+        )
+        if not success:
+            return False, msgs
 
     # - No protocol event linked (legacy cases)
-    (success, msgs) = func_deep_remove_subsampletosample_children(sample, None, msgs)
+    (success, msgs) = func_deep_remove_subsampletosample_children(
+        sample, None, tokenuser, msgs
+    )
     if not success:
         return False, msgs
 
-    (success, msgs) = func_remove_sampleshipmenttosample(sample, msgs)
+    (success, msgs) = func_remove_sampledisposal(sample, tokenuser, msgs)
     if not success:
         return False, msgs
-    (success, msg) = func_remove_sampleprotocolevent(sample, msgs)
+
+    (success, msgs) = func_remove_samplereview(sample, tokenuser, msgs)
     if not success:
         return False, msgs
-    (success, msgs) = func_remove_donortosample(sample, msgs)
+
+    (success, msgs) = func_remove_sampledisposalevent(sample, tokenuser, msgs)
     if not success:
         return False, msgs
-    (success, msgs) = func_remove_sampleconsent(sample, msgs)
+
+    (success, msgs) = func_remove_sampleshipmenttosample(sample, tokenuser, msgs)
     if not success:
         return False, msgs
-    (success, msgs) = func_remove_sampletocustomattributedata(sample, msgs)
+
+    (success, msg) = func_remove_sampleprotocolevent(sample, tokenuser, msgs)
     if not success:
         return False, msgs
-    (success, msgs) = func_remove_sampletusercart(sample, msgs)
+
+    (success, msgs) = func_remove_donortosample(sample, tokenuser, msgs)
+    if not success:
+        return False, msgs
+
+    (success, msgs) = func_remove_sampleconsent(sample, tokenuser, msgs)
+    if not success:
+        return False, msgs
+
+    (success, msgs) = func_remove_sampletocustomattributedata(sample, tokenuser, msgs)
+    if not success:
+        return False, msgs
+
+    (success, msgs) = func_remove_entitytostorage(sample, tokenuser, msgs)
+    if not success:
+        return False, msgs
+
+    (success, msgs) = func_remove_sampletusercart(sample, tokenuser, msgs)
     if not success:
         return False, msgs
 
     try:
+        sample.update({"editor_id": tokenuser.id})
         db.session.delete(sample)
         db.session.flush()
         msgs.append("Sample(%s) deleted!" % sample.uuid)
@@ -542,6 +628,7 @@ def func_deep_remove_sample(sample, msgs=[]):
         db.session.rollback()
         success = False
         msgs.append(transaction_error_response(err))
+
     return (success, msgs)
 
 
@@ -555,7 +642,11 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
     if not sample:
         return not_found("sample %s " % uuid)
 
-    (success, msgs) = func_deep_remove_sample(sample, [])
+    subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
+    if subs.count() > 0:
+        return in_use_response("parent sample! Delete from the root sample instead!  ")
+
+    (success, msgs) = func_deep_remove_sample(sample, tokenuser, [])
     if not success:
         return msgs[-1]
 
@@ -701,10 +792,9 @@ def sample_lock_sample_creation_protocol_event(uuid, tokenuser: UserAccount):
                 msgs.append(msg["message"])
                 ids_bad.append(sample_id)
 
-        # message = "|".join(msgs)
         return success_with_content_message_response(
             {"ids_ok": ids_ok, "ids_bad": ids_bad}, message=msgs
-        )  # message)
+        )
 
     else:
         sample = Sample.query.filter_by(uuid=uuid).first()

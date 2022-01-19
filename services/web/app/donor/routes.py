@@ -99,6 +99,8 @@ def view_endpoint(id):
         return response.json()
 
 
+# TODO sample to donor association:
+#  should done by sample basic edit and change the consent form
 @donor.route("/LIMBDON-<id>/associate/sample", methods=["GET", "POST"])
 @login_required
 def associate_sample(id):
@@ -494,13 +496,20 @@ def api_filter():
 @login_required
 @donor.route("/new", methods=["GET", "POST"])
 def add():
+    # sites_response = requests.get(
+    #     url_for("api.site_home", _external=True), headers=get_internal_api_header()
+    # )
+
     sites_response = requests.get(
-        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
     )
 
     if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+        # user_site_id = sites_response.json()["content"]["user_site_id"]
 
-        form = DonorCreationForm(sites_response.json()["content"])
+        form = DonorCreationForm(sites)  # sites_response.json()["content"])
         if form.validate_on_submit():
             death_date = None
 
@@ -554,13 +563,13 @@ def add():
 @login_required
 @donor.route("/edit/LIMBDON-<id>", methods=["GET", "POST"])
 def edit(id):
+
     response = requests.get(
         url_for("api.donor_edit_view", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if response.status_code == 200:
-
         donor_info = response.json()["content"]
         # print(donor_info)
         donor_info["site"] = donor_info["enrollment_site_id"]
@@ -577,11 +586,15 @@ def edit(id):
             donor_info["death_date"] = None
 
         sites_response = requests.get(
-            url_for("api.site_home", _external=True), headers=get_internal_api_header()
+            url_for("api.site_home_tokenuser", _external=True),
+            headers=get_internal_api_header(),
         )
-
+        sites = []
         if sites_response.status_code == 200:
-            form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
+            sites = sites_response.json()["content"]["choices"]
+
+            # form = DonorCreationForm(sites_response.json()["content"], data=donor_info)
+            form = DonorCreationForm(sites, data=donor_info)
 
             if form.validate_on_submit():
                 death_date = None
@@ -1049,3 +1062,36 @@ def withdraw_consent(id):
             donor=data,
             form=form,
         )
+
+
+@donor.route("/LIMBDON-<id>/remove", methods=["GET", "POST"])
+@login_required
+def remove(id):
+
+    remove_response = requests.delete(
+        url_for("api.donor_remove_donor", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+        flash(remove_response.json()["message"])
+    else:
+        flash(remove_response.json()["message"])
+
+    return remove_response.json()
+
+
+@donor.route("/LIMBDON-<id>/deep_remove", methods=["GET", "POST"])
+@login_required
+def deep_remove(id):
+    remove_response = requests.delete(
+        url_for("api.donor_deep_remove_donor", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+        flash(remove_response.json()["message"])
+    else:
+        flash(remove_response.json()["message"])
+
+    return remove_response.json()

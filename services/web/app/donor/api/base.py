@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ..database import (
+from ...database import (
     db,
     UserAccount,
     DonorDiagnosisEvent,
@@ -28,22 +28,22 @@ from ..database import (
     DonorProtocolEvent,
 )
 
-from ..api import api
-from ..api.responses import *
-from ..api.filters import generate_base_query_filters, get_filters_and_joins
-
-from ..decorators import token_required
+from ...api import api
+from ...api.responses import *
+from ...api.filters import generate_base_query_filters, get_filters_and_joins
+from ...sample.api import func_validate_settings
+from ...decorators import token_required
 
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
 
 from sqlalchemy.sql import func
-from ..webarg_parser import use_args, use_kwargs, parser
+from ...webarg_parser import use_args, use_kwargs, parser
 
 
-from ..auth.models import UserAccount
+from ...auth.models import UserAccount
 
-from .views import (
+from ..views import (
     donor_schema,
     donors_schema,
     new_donor_schema,
@@ -57,10 +57,14 @@ from .views import (
     # donor_protocol_event_info_schema,
 )
 
-from ..event.views import new_event_schema
+from ...event.views import new_event_schema
 
-from ..sample.models import SampleConsent, SampleConsentAnswer, Sample
-from ..sample.views import new_consent_schema, new_consent_answer_schema, consent_schema
+from ...sample.models import SampleConsent, SampleConsentAnswer, Sample
+from ...sample.views import (
+    new_consent_schema,
+    new_consent_answer_schema,
+    consent_schema,
+)
 
 
 @api.route("/donor")

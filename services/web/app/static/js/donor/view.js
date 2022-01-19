@@ -664,6 +664,106 @@ $(document).ready(function () {
         window.location.href = donor_information["_links"]["edit"];
     });
 
+    $("#remove-donor-btn").on("click", function() {
+        //window.location.href = donor_information["_links"]["remove"];
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            warning_msg += "<br> <B>Shallow remove only removes a bare donor without any consents/diagnosis/samples associated. !!</B>" ;
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Donor Removal")
+            $("#delete-protocol-event-confirm").html("Please enter the Donor ID LIMBDON-XXX to confirm that you want to remove this donor!")
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = donor_information["_links"]["self"]+"/remove";
+                            var limbdon_id = "LIMBDON-"+ $("#donor-id").text();
+
+            $("#protocol-id-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+
+                if (user_entry == limbdon_id) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                //window.location.reload();
+                                window.location.assign(window.location.origin + "/donor");
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                return false
+                            }
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+    });
+
+
+    $("#deep-remove-donor-btn").on("click", function() {
+        //window.location.href = donor_information["_links"]["self"]+"/deep_remove";
+            var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+            warning_msg += "<br> <B>Deep remove removes the donor and all is associated samples and events (consents/diagnosis/samples/...).!!</B>" ;
+            $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-confirm-modal-title").html("Confirm Donor Deep Removal")
+            $("#delete-protocol-event-confirm").html("Please enter the Donor ID LIMBDON-XXX to confirm that you want to remove this donor and all associated samples and events!")
+            $("#delete-protocol-confirm-modal").modal({
+                show: true
+            });
+
+            var removal_link = donor_information["_links"]["self"]+"/deep_remove";
+            var limbdon_id = "LIMBDON-"+ $("#donor-id").text();
+
+            $("#protocol-id-remove-confirmation-input").on("change", function() {
+                var user_entry = $(this).val();
+
+                console.log("removal_link", removal_link)
+
+                if (user_entry == limbdon_id) {
+                    $("#protocol-remove-confirm-button").prop("disabled", false);
+                    $('#protocol-remove-confirm-button').click(function() {
+                        // window.location.href = removal_link;
+                        $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-confirm-modal").modal({
+                            show: false
+                            });
+                            if (data["success"]) {
+                                //window.location.reload();
+                                window.location.assign(window.location.origin + "/donor");
+                            } else {
+                                window.location.reload();
+                                //alert("We have a problem! "+data["message"]);
+                                return false
+                            }
+                            }
+                        });
+                    });
+                }
+                else {
+                    $("#protocol-remove-confirm-button").prop("disabled", true);
+
+                }
+            })
+
+    });
+
     $("#assign-diagnosis-btn").on("click", function() {
         window.location.href = donor_information["_links"]["assign_diagnosis"];
     });

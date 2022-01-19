@@ -39,6 +39,8 @@ from ..views import (
     sample_types_schema,
 )
 
+from ...storage.views import NewSampleRackToShelfSchema
+
 from ...database import (
     db,
     Sample,
@@ -69,29 +71,6 @@ from ...database import (
     ConsentFormTemplateQuestion,
 )
 
-
-# from ...database import (
-#     db,
-#     Sample,
-#     SampleToType,
-#     SubSampleToSample,
-#     UserAccount,
-#     Event,
-#     SampleProtocolEvent, DonorProtocolEvent,
-#     ProtocolTemplate,
-#     SampleDisposalEvent, SampleDisposal,
-#     SampleReview,
-#     SampleShipment,
-#     SampleShipmentToSample,
-#     SampleShipmentStatus,
-#     EntityToStorage,
-#     SiteInformation,
-#     Building,
-#     Room,
-#     ColdStorage,
-#     ColdStorageShelf,
-#     DonorToSample,
-# )
 
 from ..enums import *
 from ...protocol.enums import ProtocolType

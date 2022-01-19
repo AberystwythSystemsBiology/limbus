@@ -79,7 +79,8 @@ def audit_query(args, tokenuser: UserAccount):
             ModelVersion = version_class(eval(model))
 
         stmt = db.session.query(ModelVersion).filter(
-            ModelVersion.updated_on >= start_date, ModelVersion.updated_on <= end_date
+            func.date(ModelVersion.updated_on) >= start_date,
+            func.date(ModelVersion.updated_on) <= end_date,
         )
 
         if user_id:
@@ -135,7 +136,7 @@ def audit_query(args, tokenuser: UserAccount):
     return success_with_content_response({"data": audit_trails, "title": title})
 
 
-@api.route("/audit/sample1/<uuid>", methods=["GET"])
+@api.route("/audit/sample/<uuid>", methods=["GET"])
 @token_required
 def audit_sample(uuid: str, tokenuser: UserAccount):
     if not tokenuser.is_admin:
