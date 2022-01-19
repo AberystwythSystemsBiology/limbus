@@ -80,7 +80,7 @@ class UserAccountRegistrationForm(FlaskForm):
             raise ValidationError("Email address already in use.")
 
 
-def AccountLockForm(email):
+def AccountLockPasswordForm(email):
     class StaticForm(FlaskForm):
         submit = SubmitField("Submit")
 

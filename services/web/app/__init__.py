@@ -18,7 +18,7 @@ from __future__ import absolute_import
 
 from .database import db
 
-from flask import Flask
+from flask import Flask, g
 
 import os
 
@@ -42,7 +42,7 @@ from .event import event as event_blueprint
 
 from .errors import error_handlers
 
-from .extensions import register_extensions, register_apispec
+from .extensions import register_extensions, register_apispec, mail
 
 
 class ReverseProxied(object):
@@ -60,6 +60,9 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile("%s/config.py" % (os.environ["INSTANCE_PATH"]))
     app.wsgi_app = ReverseProxied(app.wsgi_app)
+
+    mail.init_app(app)
+
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)

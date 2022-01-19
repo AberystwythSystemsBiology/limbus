@@ -15,7 +15,6 @@
 
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 from .database import db
-import datetime
 
 
 @as_declarative()

@@ -146,6 +146,16 @@ class AdminEditUserAccountSchema(masql.SQLAlchemySchema):
 admin_edit_user_account_schema = AdminEditUserAccountSchema()
 
 
+class PasswordResetFormSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = UserAccount
+
+    email = masql.auto_field(required=True)
+
+
+password_reset_form_schema = PasswordResetFormSchema()
+
+
 class TokenSchema(masql.SQLAlchemySchema):
     class Meta:
         model = UserAccountToken

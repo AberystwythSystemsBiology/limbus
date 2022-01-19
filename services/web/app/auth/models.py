@@ -91,6 +91,22 @@ class UserAccount(Base, UserMixin):
             )
 
 
+class UserAccountPasswordResetToken(Base):
+    created_on = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_on = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        server_onupdate=db.func.now(),
+        nullable=False,
+    )
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("useraccount.id", use_alter=True), nullable=False
+    )
+
+    token = db.Column(db.String(256), nullable=False)
+
+
 class UserAccountToken(Base):
 
     user_id = db.Column(

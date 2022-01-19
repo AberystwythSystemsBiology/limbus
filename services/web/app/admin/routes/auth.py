@@ -19,12 +19,16 @@ from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
 from ..forms import AdminUserAccountEditForm
-from ..forms.auth import AccountLockForm
+from ..forms.auth import AccountLockPasswordForm
 
-from flask import render_template, url_for, redirect, abort, flash
+from flask import render_template, url_for, redirect, abort, flash, current_app
 from flask_login import current_user, login_required
 
+from ...extensions import mail
+
 import requests
+
+from flask_mail import Message
 
 
 @admin.route("/auth/", methods=["GET"])
@@ -90,7 +94,7 @@ def auth_view_account(id):
     )
 
     if response.status_code == 200:
-        form = AccountLockForm(response.json()["content"]["email"])
+        form = AccountLockPasswordForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
 
@@ -103,10 +107,10 @@ def auth_view_account(id):
                 if lock_response.json()["content"]["is_locked"]:
                     flash("User Account locked!")
                 else:
-                    flash("User Account unLocked!")
+                    flash("User Account unlocked!")
                 return redirect(url_for("admin.auth_index"))
             else:
-                flash("We were unable to umllock the User Account.")
+                flash("We were unable to unlock the User Account.")
 
         return render_template(
             "admin/auth/view.html", user=response.json()["content"], form=form
@@ -166,6 +170,54 @@ def auth_data():
         return {"content": auth_info, "success": True}
 
     return auth_response.content
+
+
+@admin.route("/auth/<id>/password/reset", methods=["GET", "POST"])
+@check_if_admin
+@login_required
+def admin_password_reset(id):
+    response = requests.get(
+        url_for("api.auth_view_user", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        form = AccountLockPasswordForm(response.json()["content"]["email"])
+
+        if form.validate_on_submit():
+
+            token_email = requests.post(
+                url_for("api.auth_password_reset", _external=True),
+                headers=get_internal_api_header(),
+                json={"email": form.email.data},
+            )
+
+            if token_email.status_code == 200:
+                token = token_email.json()["content"]["token"]
+                confirm_url = url_for(
+                    "auth.change_password_external", token=token, _external=True
+                )
+                template = render_template(
+                    "admin/auth/email/password_reset.html", reset_url=confirm_url
+                )
+                subject = "LIMBUS: Password Reset Email"
+                msg = Message(
+                    subject,
+                    recipients=[form.email.data],
+                    html=template,
+                    sender=current_app.config["MAIL_USERNAME"],
+                )
+                mail.send(msg)
+                flash("Password reset email has been sent!")
+                return redirect(url_for("admin.auth_view_account", id=id))
+            else:
+                flash(token_email["content"])
+
+        return render_template(
+            "admin/auth/password_reset.html", user=response.json()["content"], form=form
+        )
+    else:
+        return abort(response.status_code)
 
 
 @admin.route("/auth/<id>/edit", methods=["GET", "POST"])

@@ -30,10 +30,11 @@ from .views import (
     edit_user_account_schema,
     admin_edit_user_account_schema,
     user_account_setting_schema,
+    password_reset_form_schema,
 )
 
-from ..sample.enums import FluidSampleType
-from ..database import UserAccount, UserAccountToken
+from ..database import UserAccount, UserAccountToken, UserAccountPasswordResetToken
+from .enums import AccountType
 from uuid import uuid4
 
 
@@ -78,6 +79,45 @@ def auth_lock_user(id: int, tokenuser: UserAccount):
     db.session.flush()
 
     return success_with_content_response(full_user_account_schema.dump(user))
+
+
+@api.route("/auth/user/password/reset", methods=["POST"])
+@token_required
+def auth_password_reset(tokenuser: UserAccount):
+
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = password_reset_form_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    request_user = UserAccount.query.filter_by(id=tokenuser.id).first()
+
+    if request_user.account_type == AccountType.ADM:
+        user = UserAccount.query.filter_by(email=values["email"]).first()
+
+        uaprt = UserAccountPasswordResetToken.query.filter_by(user_id=user.id).first()
+
+        new_token = str(uuid4())
+
+        if uaprt == None:
+            uaprt = UserAccountPasswordResetToken(user_id=user.id)
+
+        uaprt.token = new_token
+
+        db.session.add(uaprt)
+        db.session.commit()
+        return {"success": True, "content": {"token": new_token}}
+
+    else:
+        return {
+            "success": False,
+            "content": {"message": "You need to be an administrator to do that!"},
+        }
 
 
 @api.route("/auth/user/new_token", methods=["GET"])

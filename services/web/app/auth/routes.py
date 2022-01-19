@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ast import Pass
 from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
 import requests
@@ -20,12 +21,13 @@ import requests
 from . import auth
 
 from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm
-from .models import UserAccount, UserAccountToken
+from .models import UserAccount, UserAccountToken, UserAccountPasswordResetToken
 
 from ..database import db
 from ..misc import get_internal_api_header
 
 from uuid import uuid4
+from datetime import datetime, timedelta
 
 
 @auth.route("/login", methods=["GET", "POST"])
@@ -119,25 +121,38 @@ def change_password():
     return render_template("auth/password.html", form=form)
 
 
-#
-# @auth.route("/user_settings", methods=["GET", "POST"])
-# def user_settings():
-#     # response = requests.get(
-#     #     url_for("api.auth_view_user", id=current_user.id, _external=True),
-#     #     headers=get_internal_api_header(),
-#     # )
-#     user_information = {}
-#     edit_response = requests.put(
-#         url_for("api.auth_user_settings", id=current_user.id, _external=True),
-#         headers=get_internal_api_header(),
-#         json=user_information,
-#     )
-#     if edit_response.status_code == 200:
-#         flash("User setting updated")
-#         return edit_response.json()
-#         #return redirect(url_for("auth.profile"))
-#     else:
-#         return edit_response.content
+@auth.route("/password/reset/<token>", methods=["GET", "POST"])
+def change_password_external(token: str):
+    form = PasswordChangeForm()
+
+    del form.current_password
+
+    if form.validate_on_submit():
+        uaprt = (
+            db.session.query(UserAccountPasswordResetToken)
+            .filter(UserAccountPasswordResetToken.token == token)
+            .first()
+        )
+
+        if uaprt == None:
+            flash("This token is invalid. Please contact your system administrator")
+        elif datetime.now() > (uaprt.updated_on + timedelta(hours=24)):
+            flash(
+                "This token is older than 24 hours old. Please contact your system administrator"
+            )
+        else:
+            user = (
+                db.session.query(UserAccount)
+                .filter(UserAccount.id == uaprt.user_id)
+                .first()
+            )
+            user.password = form.password.data
+            db.session.add(user)
+            db.session.delete(uaprt)
+            db.session.commit()
+            flash("Password successfully updated")
+            return redirect("auth.login")
+    return render_template("auth/password_reset.html", form=form, token=token)
 
 
 @auth.route("/token", methods=["GET"])

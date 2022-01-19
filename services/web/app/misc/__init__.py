@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Keiron O'Shea <keo7@aber.ac.uk>
+# Copyright (C) 2022  Keiron O'Shea <keo7@aber.ac.uk>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@ misc = Blueprint("misc", __name__)
 
 from flask import session, current_app
 from flask_login import current_user
+
+
+from flask import current_app
 
 
 def clear_session(hash: str) -> None:
