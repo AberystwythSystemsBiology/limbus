@@ -104,18 +104,7 @@ class UserAccountPasswordResetToken(Base):
         db.Integer, db.ForeignKey("useraccount.id", use_alter=True), nullable=False
     )
 
-    token_hash = db.Column(db.String(256), nullable=False)
-
-    @property
-    def token(self) -> str:
-        return "*******"
-
-    @token.setter
-    def token(self, token: str):
-        self.token_hash = generate_password_hash(token)
-
-    def verify_token(self, token) -> bool:
-        return check_password_hash(self.token_hash, token)
+    token = db.Column(db.String(256), nullable=False)
 
 
 class UserAccountToken(Base):

@@ -193,14 +193,13 @@ def admin_password_reset(id):
 
             if token_email.status_code == 200:
                 token = token_email.json()["content"]["token"]
-                confirm_url = "https://www.google.com"
+                confirm_url = url_for("auth.change_password_external", token=token, _external=True)
                 template = render_template("admin/auth/email/password_reset.html", reset_url=confirm_url)
                 subject = "LIMBUS: Password Reset Email"
                 msg = Message(subject, recipients=[form.email.data], html=template, sender=current_app.config["MAIL_USERNAME"])
                 mail.send(msg)
                 flash("Password reset email has been sent!")
-                return redirect(url_for("admin.admin_edit_account", id=id))
-
+                return redirect(url_for("admin.auth_view_account", id=id))
             else:
                 flash(token_email["content"])
 
