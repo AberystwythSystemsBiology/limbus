@@ -152,6 +152,7 @@ class PasswordResetFormSchema(masql.SQLAlchemySchema):
 
     email = masql.auto_field(required=True)
 
+
 password_reset_form_schema = PasswordResetFormSchema()
 
 

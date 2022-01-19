@@ -30,6 +30,7 @@ import requests
 
 from flask_mail import Message
 
+
 @admin.route("/auth/", methods=["GET"])
 @check_if_admin
 @login_required
@@ -184,30 +185,41 @@ def admin_password_reset(id):
         form = AccountLockPasswordForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
-            
+
             token_email = requests.post(
                 url_for("api.auth_password_reset", _external=True),
                 headers=get_internal_api_header(),
-                json={"email": form.email.data}
+                json={"email": form.email.data},
             )
 
             if token_email.status_code == 200:
                 token = token_email.json()["content"]["token"]
-                confirm_url = url_for("auth.change_password_external", token=token, _external=True)
-                template = render_template("admin/auth/email/password_reset.html", reset_url=confirm_url)
+                confirm_url = url_for(
+                    "auth.change_password_external", token=token, _external=True
+                )
+                template = render_template(
+                    "admin/auth/email/password_reset.html", reset_url=confirm_url
+                )
                 subject = "LIMBUS: Password Reset Email"
-                msg = Message(subject, recipients=[form.email.data], html=template, sender=current_app.config["MAIL_USERNAME"])
+                msg = Message(
+                    subject,
+                    recipients=[form.email.data],
+                    html=template,
+                    sender=current_app.config["MAIL_USERNAME"],
+                )
                 mail.send(msg)
                 flash("Password reset email has been sent!")
                 return redirect(url_for("admin.auth_view_account", id=id))
             else:
                 flash(token_email["content"])
 
-        return render_template("admin/auth/password_reset.html", user=response.json()["content"], form=form)
+        return render_template(
+            "admin/auth/password_reset.html", user=response.json()["content"], form=form
+        )
     else:
         return abort(response.status_code)
 
-    
+
 @admin.route("/auth/<id>/edit", methods=["GET", "POST"])
 @check_if_admin
 @login_required

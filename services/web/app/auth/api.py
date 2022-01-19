@@ -30,7 +30,7 @@ from .views import (
     edit_user_account_schema,
     admin_edit_user_account_schema,
     user_account_setting_schema,
-    password_reset_form_schema
+    password_reset_form_schema,
 )
 
 from ..database import UserAccount, UserAccountToken, UserAccountPasswordResetToken
@@ -95,7 +95,6 @@ def auth_password_reset(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-
     request_user = UserAccount.query.filter_by(id=tokenuser.id).first()
 
     if request_user.account_type == AccountType.ADM:
@@ -115,8 +114,10 @@ def auth_password_reset(tokenuser: UserAccount):
         return {"success": True, "content": {"token": new_token}}
 
     else:
-        return {"success": False, "content": {"message": "You need to be an administrator to do that!"}}
-
+        return {
+            "success": False,
+            "content": {"message": "You need to be an administrator to do that!"},
+        }
 
 
 @api.route("/auth/user/new_token", methods=["GET"])

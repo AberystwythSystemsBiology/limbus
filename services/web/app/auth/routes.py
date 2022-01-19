@@ -29,6 +29,7 @@ from ..misc import get_internal_api_header
 from uuid import uuid4
 from datetime import datetime, timedelta
 
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -119,6 +120,7 @@ def change_password():
 
     return render_template("auth/password.html", form=form)
 
+
 @auth.route("/password/reset/<token>", methods=["GET", "POST"])
 def change_password_external(token: str):
     form = PasswordChangeForm()
@@ -126,14 +128,24 @@ def change_password_external(token: str):
     del form.current_password
 
     if form.validate_on_submit():
-        uaprt = db.session.query(UserAccountPasswordResetToken).filter(UserAccountPasswordResetToken.token == token).first()
-        
+        uaprt = (
+            db.session.query(UserAccountPasswordResetToken)
+            .filter(UserAccountPasswordResetToken.token == token)
+            .first()
+        )
+
         if uaprt == None:
             flash("This token is invalid. Please contact your system administrator")
-        elif datetime.now() > (uaprt.updated_on + timedelta(hours=24)): 
-            flash("This token is older than 24 hours old. Please contact your system administrator")
+        elif datetime.now() > (uaprt.updated_on + timedelta(hours=24)):
+            flash(
+                "This token is older than 24 hours old. Please contact your system administrator"
+            )
         else:
-            user = db.session.query(UserAccount).filter(UserAccount.id == uaprt.user_id).first()
+            user = (
+                db.session.query(UserAccount)
+                .filter(UserAccount.id == uaprt.user_id)
+                .first()
+            )
             user.password = form.password.data
             db.session.add(user)
             db.session.delete(uaprt)
@@ -141,7 +153,6 @@ def change_password_external(token: str):
             flash("Password successfully updated")
             return redirect("auth.login")
     return render_template("auth/password_reset.html", form=form, token=token)
-
 
 
 @auth.route("/token", methods=["GET"])
@@ -169,5 +180,3 @@ def generate_token():
             )
 
     abort(response.status_code)
-
-

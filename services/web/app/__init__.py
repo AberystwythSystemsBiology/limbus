@@ -45,8 +45,6 @@ from .errors import error_handlers
 from .extensions import register_extensions, register_apispec, mail
 
 
-
-
 class ReverseProxied(object):
     def __init__(self, app):
         self.app = app
