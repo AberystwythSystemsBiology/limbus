@@ -17,6 +17,7 @@ from ast import Pass
 from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
 import requests
+from sqlalchemy import func
 
 from . import auth
 
@@ -36,7 +37,7 @@ def login():
     if form.validate_on_submit():
         user = (
             db.session.query(UserAccount)
-            .filter(UserAccount.email == form.email.data)
+            .filter(func.lower(UserAccount.email) == func.lower(form.email.data))
             .first()
         )
 
