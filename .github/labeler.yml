@@ -9,5 +9,5 @@ backend:
 - any: ['services/web/app/**/*.py']
 
 database:
--any: ['services/web/app/**/models.py']
--any: ['services/web/app/**/models/*.py']
+- any: ['services/web/app/**/models.py']
+- any: ['services/web/app/**/models/*.py']
