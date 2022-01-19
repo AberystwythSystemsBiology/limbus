@@ -1,0 +1,13 @@
+repo:
+- '*'
+
+frontend:
+- any: ['services/web/app/**/*.js']
+- any: ['services/web/app/**/*.html']
+
+backend:
+- any: ['services/web/app/**/*.py']
+
+database:
+-any: ['services/web/app/**/models.py']
+-any: ['services/web/app/**/models/*.py']
