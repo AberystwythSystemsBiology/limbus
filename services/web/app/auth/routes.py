@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from ast import Pass
 from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
 import requests
@@ -20,7 +21,7 @@ import requests
 from . import auth
 
 from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm
-from .models import UserAccount, UserAccountToken
+from .models import UserAccount, UserAccountToken, UserAccountPasswordResetToken
 
 from ..database import db
 from ..misc import get_internal_api_header
@@ -118,26 +119,17 @@ def change_password():
 
     return render_template("auth/password.html", form=form)
 
+@auth.route("/password/reset/<token>", methods=["GET", "POST"])
+def change_password_external(token: str):
+    form = PasswordChangeForm()
 
-#
-# @auth.route("/user_settings", methods=["GET", "POST"])
-# def user_settings():
-#     # response = requests.get(
-#     #     url_for("api.auth_view_user", id=current_user.id, _external=True),
-#     #     headers=get_internal_api_header(),
-#     # )
-#     user_information = {}
-#     edit_response = requests.put(
-#         url_for("api.auth_user_settings", id=current_user.id, _external=True),
-#         headers=get_internal_api_header(),
-#         json=user_information,
-#     )
-#     if edit_response.status_code == 200:
-#         flash("User setting updated")
-#         return edit_response.json()
-#         #return redirect(url_for("auth.profile"))
-#     else:
-#         return edit_response.content
+    del form.current_password
+
+    if form.validate_on_submit():
+        pass
+
+    return render_template("auth/password_reset.html", form=form, token=token)
+
 
 
 @auth.route("/token", methods=["GET"])
@@ -165,3 +157,5 @@ def generate_token():
             )
 
     abort(response.status_code)
+
+
