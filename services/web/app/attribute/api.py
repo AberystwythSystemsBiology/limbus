@@ -53,7 +53,8 @@ from ..webarg_parser import use_args, use_kwargs, parser
 @token_required
 def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
+        #basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
+        basic_attributes_schema.dump(Attribute.query.all())
     )
 
 
@@ -74,6 +75,10 @@ def attribute_query(args, tokenuser: UserAccount):
 @api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
 @token_required
 def attribute_view_attribute(id, tokenuser: UserAccount):
+    attr = Attribute.query.filter_by(id=id).first();
+    if not attr:
+        return not_found("Attribute id %d", id)
+
     return success_with_content_response(
         attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
     )

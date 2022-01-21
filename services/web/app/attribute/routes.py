@@ -47,16 +47,22 @@ import requests
 @attribute.route("/")
 @login_required
 def index():
+    return render_template(
+        "attribute/index.html"#, attributes=response.json()["content"]
+    )
+
+
+@attribute.route("/data")
+@login_required
+def data():
     response = requests.get(
         url_for("api.attribute_home", _external=True), headers=get_internal_api_header()
     )
 
     if response.status_code == 200:
-        return render_template(
-            "attribute/index.html", attributes=response.json()["content"]
-        )
+        return response.json()
     else:
-        return response.content
+        abort(response.status_code)
 
 
 @attribute.route("/new", methods=["GET", "POST"])

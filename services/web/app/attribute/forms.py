@@ -189,7 +189,7 @@ def CustomAttributeSelectionForm(element) -> FlaskForm:
     custom_attribute_response = requests.get(
         url_for("api.attribute_query", _external=True),
         headers=get_internal_api_header(),
-        json={"element_type": element},
+        json={"element_type": element, "is_locked": False},
     )
 
     if custom_attribute_response.status_code == 200:

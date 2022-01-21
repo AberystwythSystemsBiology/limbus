@@ -36,6 +36,7 @@ class AttributeSearchSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Attribute
 
+    is_locked = masql.auto_field()
     element_type = fields.List(EnumField(AttributeElementType, required=False))
     type = EnumField(AttributeType, required=False)
 
@@ -45,6 +46,7 @@ class BasicAttributeSchema(masql.SQLAlchemySchema):
         model = Attribute
 
     id = masql.auto_field()
+    is_locked = masql.auto_field()
     term = masql.auto_field()
     description = masql.auto_field()
     author = ma.Nested(BasicUserAccountSchema)
