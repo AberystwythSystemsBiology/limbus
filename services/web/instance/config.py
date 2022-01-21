@@ -20,19 +20,29 @@ BABEL_DEFAULT_LOCALE = "en"
 
 DEBUG = os.environ["DEBUG"]
 
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-SQLALCHEMY_ECHO = False
-
 MAIL_SERVER = os.environ["MAIL_SERVER"]
-MAIL_PORT = 587
-MAIL_USE_TLS = 1
 MAIL_USERNAME = os.environ["MAIL_USERNAME"]
 MAIL_PASSWORD = os.environ["MAIL_PASSWORD"]
 MAIL_SENDER = os.environ["MAIL_USERNAME"]
 
+MAIL_PORT = 587
+MAIL_USE_TLS = 1
+
+if "MAIL_PORT" in os.environ:
+    MAIL_PORT = os.environ["MAIL_PORT"]
+
+if "MAIL_USE_TLS" in os.environ:
+    MAIL_USE_TLS = os.environ["MAIL_USE_TLS"]
+
+if "MAIL_USE_SSL" in os.environ:
+    MAIL_USE_SSL = os.environ["MAIL_USE_SSL"]
+    MAIL_USE_TLS = 0
+
 if "SQLALCHEMY_ECHO" in os.environ:
     SQLALCHEMY_ECHO = os.environ["SQLALCHEMY_ECHO"]
 
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+SQLALCHEMY_ECHO = False
 
 SQLALCHEMY_DATABASE_URI = (
     "postgresql+psycopg2://{user}:{passwd}@{dbhost}:5432/{db}".format(
