@@ -77,10 +77,10 @@ def attribute_query(args, tokenuser: UserAccount):
 def attribute_view_attribute(id, tokenuser: UserAccount):
     attr = Attribute.query.filter_by(id=id).first();
     if not attr:
-        return not_found("Attribute id %d", id)
+        return not_found("Attribute LIMBATTR-%d", id)
 
     return success_with_content_response(
-        attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
+        attribute_schema.dump(attr)
     )
 
 
@@ -188,7 +188,7 @@ def attribute_lock_attribute(id, tokenuser: UserAccount):
     attribute = Attribute.query.filter_by(id=id).first()
 
     if not attribute:
-        return {"success": False, "messages": "There's an issue here"}, 417
+        return not_found("Attribute LIMBATTR-%d" % id)
 
     attribute.is_locked = not attribute.is_locked
     attribute.editor_id = tokenuser.id

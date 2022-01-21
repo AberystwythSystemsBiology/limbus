@@ -43,9 +43,6 @@
                         </button>
                     </div>
 
-
-
-
                 </div>
             </div>
             <div class="col-6 text-right">
@@ -98,8 +95,9 @@
                 <td>{{ option.created_on }}</td>
                 <td>
                     <a href="{{ url_for('attribute.lock_option', id=attribute.id, option_id=option.id) }}">
-                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}"><i
-                                class="fa fa-lock"></i> {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
+                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}">
+                            <i class="fa fa-lock"></i>
+                        {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
                     </a>
                 </td>
             </tr>
