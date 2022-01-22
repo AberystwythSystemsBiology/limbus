@@ -26,9 +26,9 @@ class Attribute(Base, RefAuthorMixin, RefEditorMixin):
     ref = db.Column(db.String(64))
     required = db.Column(db.Boolean(), default=False)
 
-    text_setting = db.relationship("AttributeTextSetting", uselist=False)
-    numeric_setting = db.relationship("AttributeNumericSetting", uselist=False)
-    options = db.relationship("AttributeOption")
+    text_setting = db.relationship("AttributeTextSetting", uselist=False, cascade="all, delete")
+    numeric_setting = db.relationship("AttributeNumericSetting", uselist=False, cascade="all, delete")
+    options = db.relationship("AttributeOption", cascade="all, delete")
 
     type = db.Column(db.Enum(AttributeType))
     element_type = db.Column(db.Enum(AttributeElementType))
@@ -57,13 +57,14 @@ class AttributeOption(Base, RefAuthorMixin, RefEditorMixin):
     attribute_id = db.Column(db.Integer, db.ForeignKey("attribute.id", use_alter=True))
 
 
+
 class AttributeData(Base, RefAuthorMixin, RefEditorMixin):
     attribute_id = db.Column(
         db.Integer, db.ForeignKey("attribute.id", use_alter=True), nullable=False
     )
-    attribute = db.relationship("Attribute", uselist=False)
+    attribute = db.relationship("Attribute", uselist=False, cascade="all, delete")
     option_id = db.Column(
         db.Integer, db.ForeignKey("attributeoption.id", use_alter=True)
     )
-    option = db.relationship("AttributeOption", uselist=False)
+    option = db.relationship("AttributeOption", uselist=False, cascade="all, delete")
     data = db.Column(db.Text)
