@@ -225,19 +225,21 @@ def attribute_remove_attribute(id, tokenuser: UserAccount):
     if attribute.is_locked:
         return locked_response("Attribute LIMBATTR-%s" % id)
 
-    stas = SampleToCustomAttributeData.query\
-        .filter_by(attribute_data_id=id)\
+    stas = db.session.query(SampleToCustomAttributeData)\
+        .join(AttributeData)\
+        .filter(AttributeData.attribute_id==id)\
         .distinct(SampleToCustomAttributeData.sample_id)
 
     ns = stas.count()
 
     if ns>0:
-        # Print out 5 sample uuid in message
-        stas = stas.with_entity(SampleToCustomAttributeData.sample_id).limit(5).all()
-        smpls = Sample.uuid.query\
+        # Print out max 5 sample uuid in message
+        stas = stas.with_entities(SampleToCustomAttributeData.sample_id).limit(5).all()
+        smpls = db.session.query(Sample.uuid)\
             .filter(Sample.id.in_(stas)).all()
         smpls = ", ".join([s[0] for s in smpls])
         return in_use_response("%d samples: %s ..." %(ns, smpls))
+
 
     attribute.update({"editor_id": tokenuser.id})
 

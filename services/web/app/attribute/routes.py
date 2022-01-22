@@ -191,10 +191,9 @@ def view(id):
             "attribute/view.html", attribute=response.json()["content"]
         )
     else:
-        return response.content
-
-    flash("Error in retrieving attribute info!")
-    return redirect(url_for("attribute.index"))
+        # return response.content
+        flash("Error in retrieving attribute info!")
+        return redirect(url_for("attribute.index"))
 
 @attribute.route("/LIMBATTR-<id>/lock", methods=["GET", "POST"])
 @login_required
@@ -208,7 +207,7 @@ def lock(id):
         flash(lock_response.json()["message"])
 
     else:
-        flash("We have a problem :( %s" % response.json())
+        flash("We have a problem :( %s" % lock_response.json())
 
     return lock_response.json()
 
@@ -226,7 +225,7 @@ def remove(id):
 
         flash("Attribute LIMBATTR-%s successfully removed!" %id)
     else:
-        flash("We have a problem :( %s)" % remove_response.json()["message"])
+        flash(remove_response.json()["message"])
 
     return remove_response.json()
 

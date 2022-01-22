@@ -64,6 +64,7 @@ function remove_attribute(id) {
     $("#confirm-modal-title").html("Confirm attribute removal");
     $("#confirm-modal-guide").html("To confirm, enter " + limbattr_id);
     $("#confirm-modal-input").html("");
+    $("#confirm-modal-input").show();
     $("#confirm-modal").modal({
         show: true
     });
