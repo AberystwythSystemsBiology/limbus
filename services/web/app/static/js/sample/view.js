@@ -237,9 +237,90 @@ function fill_consent_information(consent_information) {
     }
 }
 
-function fill_custom_attributes(custom_attributes) {
 
+function def_remove_attrdata(el) {
+    $("#"+el).click(function () {
+        var id = $(this).attr("id").split("-")[2];
+        var limbscad_id = "LIMBSCAD-" + id;
+        var warning_msg = "<B>Warning:</B> This action cannot be undone!";
+        $("#delete-protocol-warning").html(warning_msg)
+        $("#delete-protocol-event-confirm").html("To confirm, enter "+"<B>"+limbscad_id+"</B>");
+        $("#protocol-uuid-remove-confirmation-input").show();
+        $("#protocol-remove-confirm-button").show();
+        $("#delete-protocol-confirm-modal").modal({
+            show: true
+        });
+
+        var removal_link = window.location + "/attribute/" + limbscad_id + "/remove";
+
+        $("#protocol-uuid-remove-confirmation-input").on("change", function () {
+            var user_entry = $(this).val();
+            if (user_entry == limbscad_id) {
+                $("#protocol-remove-confirm-button").prop("disabled", false);
+                $('#protocol-remove-confirm-button').click(function () {
+                    $.ajax({
+                        type: "POST",
+                        url: removal_link,
+                        dataType: "json",
+                        success: function (data) {
+                            $("#delete-protocol-event-confirm").html(data["message"]);
+                            $("#protocol-uuid-remove-confirmation-input").html("").hide();
+                            $("#protocol-remove-confirm-button").hide();
+/*
+                            $("#delete-protocol-confirm-modal").modal({
+                                show: false
+                            });
+*/
+                            if (data["success"]) {
+                                $("#row-LIMBSCAD-"+id).hide();
+                                //window.location.reload()
+                            } else {
+                                //window.location.reload();
+                                //return false
+                            }
+                            return data["message"]
+                        }
+                    });
+                });
+            } else {
+                $("#protocol-remove-confirm-button").prop("disabled", true);
+            }
+        })
+    });
+
+}
+
+function render_attr_content(label, content, actions, item_id) {
+    if (content == undefined || content == "" || content == null) {
+        content = "Not Available."
+    }
+
+    var row = "<tr class='rowdisp' id='row-"+ item_id+"'>";
+    row += '<td width="30%" style="font-weight:bold">' + label + ':</td>'
+    row += '<td>' + content + '</td>';
+    row += '<td>';
+
+    for (const i in actions) {
+        var act = actions[i];
+        row += "<button type='button' id="+ act +'-'+ item_id + " class='btn btn-delete-icon'>";
+        //row += "<a href='#' id="+ act +'-'+ item_id + ">";
+        if (act == 'del') {
+            row += "<i class='fa fa-trash'></i>"
+        }
+        else {
+            row += "<i class='fa fa-edit'>" + act + "</i>";
+        }
+        row += "</button>";
+        //row +="</a>";
+    }
+    row += '</td></tr>';
+    return row;
+}
+
+function fill_custom_attributes(custom_attributes) {
     var html = "";
+    //html += "<thead><tr><th>Term</th><th>Value</th><th>Action</th></tr></thead>"
+    html += "<tbody>";
 
     for (i in custom_attributes) {
         var attribute = custom_attributes[i];
@@ -248,18 +329,25 @@ function fill_custom_attributes(custom_attributes) {
 
         if (attribute["option"] == null) {
             var content = attribute["data"];
-        }
-
-        else {
+        } else {
             var content = attribute["option"]["term"];
-
         }
 
-        html += render_content(label, content);
+        var item_id = "LIMBSCAD-" + attribute["id"];
+        html += render_attr_content(label, content, ["del"], item_id);
     }
 
+    html += "</tbody>";
     $("#custom-attributes-table").html(html);
+
+    // Define remove button click functions
+    for (i in custom_attributes){
+        var attribute = custom_attributes[i];
+        var el = 'del-'+ "LIMBSCAD-" + attribute["id"];
+        def_remove_attrdata(el);
+    }
 }
+
 
 function fill_basic_information(sample_information) {
     var html = "";
@@ -552,6 +640,9 @@ function fill_protocol_events(events) {
                 warning_msg += "<br> <B>!!! This protocol event created sample(s), removing it will delete the sample(s) it created as well!!!</B>" ;
             }
             $("#delete-protocol-warning").html(warning_msg)
+            $("#delete-protocol-event-confirm").html("Please enter the Protocol Event UUID to confirm that you want to remove this Event:")
+            $("#protocol-uuid-remove-confirmation-input").html("").show();
+            $("#protocol-remove-confirm-button").show();
             $("#delete-protocol-confirm-modal").modal({
                 show: true
             });

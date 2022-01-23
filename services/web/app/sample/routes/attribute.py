@@ -116,3 +116,19 @@ def new_custom_attribute_form(uuid: str, hash: str) -> str:
             form=form,
             hash=hash,
         )
+
+@sample.route("/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["GET", "POST"])
+@sample.route("/attribute/LIMBSCAD-<id>/remove", methods=["GET", "POST"])
+@login_required
+def remove_attribute_data(id, uuid=None):
+    remove_response = requests.post(
+        url_for("api.sample_remove_attribute_data", id=id, uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    # if remove_response.status_code == 200:
+    #     flash(remove_response.json()["message"])
+    # else:
+    #     flash("We have a problem: %s" % (remove_response.json()["message"]))
+
+    return remove_response.json()

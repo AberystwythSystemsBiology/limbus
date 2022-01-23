@@ -62,9 +62,9 @@ class AttributeData(Base, RefAuthorMixin, RefEditorMixin):
     attribute_id = db.Column(
         db.Integer, db.ForeignKey("attribute.id", use_alter=True), nullable=False
     )
-    attribute = db.relationship("Attribute", uselist=False, cascade="all, delete")
+    attribute = db.relationship("Attribute", uselist=False)#, cascade="all, delete")
     option_id = db.Column(
         db.Integer, db.ForeignKey("attributeoption.id", use_alter=True)
     )
-    option = db.relationship("AttributeOption", uselist=False, cascade="all, delete")
+    option = db.relationship("AttributeOption", uselist=False)#, cascade="all, delete")
     data = db.Column(db.Text)

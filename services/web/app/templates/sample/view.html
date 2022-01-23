@@ -190,7 +190,9 @@
     </div>
 
       <div id="custom-attributes-div" style="display: none">
+
           <table class="table table-striped" id="custom-attributes-table"></table>
+
       </div>
 
     <div id="protocol-event-info" style="display:none;">
@@ -217,8 +219,6 @@
 
     <div id="lineage-info" style="display:none;">
 
-{#    <form id="select_sample" method="POST"#}
-{#          action="{{ url_for('storage.auto_assign_sample_to_rack', id=1) }}">#}
       <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
           <tr>
@@ -281,7 +281,7 @@
   </div>
 </div>
 
-<!-- Delete Protocol Modal -->
+<!-- Delete Protocol Modal: template for protocol event removal and sample attribute data removal-->
 <div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
