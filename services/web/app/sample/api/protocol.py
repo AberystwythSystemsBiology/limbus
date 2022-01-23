@@ -225,7 +225,7 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
             }
             return validation_error_response(err)
 
-    elif protocol_event.reduced_quantity > 0:
+    elif protocol_event.reduced_quantity and protocol_event.reduced_quantity > 0:
         sample.remaining_quantity = (
             sample.remaining_quantity + protocol_event.reduced_quantity
         )

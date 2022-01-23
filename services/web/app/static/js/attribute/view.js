@@ -31,7 +31,6 @@ function lock_attribute(id) {
 
     $("#confirm-modal-button").prop("disabled", false);
     $('#confirm-modal-button').click(function () {
-        // window.location.href = removal_link;
         $("#confirm-modal-button").prop("disabled", true);
 
         $.ajax({
@@ -44,10 +43,9 @@ function lock_attribute(id) {
                 });
 
                 if (data["success"]) {
-                    window.location.reload();
+                    window.location.href = window.location.origin + "/attribute/";
                 } else {
                     window.location.reload();
-                    //alert("We have a problem! "+data["message"]);
                     return false;
                 }
             }
@@ -73,7 +71,6 @@ function remove_attribute(id) {
 
     $("#confirm-modal-input").on("change", function () {
         var user_entry = $(this).val();
-        // console.log("limbattr_id", limbattr_id);
         if (user_entry == limbattr_id) {
             $("#confirm-modal-button").prop("disabled", false);
             $('#confirm-modal-button').click(function () {
@@ -90,7 +87,6 @@ function remove_attribute(id) {
                         });
 
                         if (data["success"]) {
-                            //window.location.reload();
                             window.location.href = window.location.origin + "/attribute/";
                         } else {
                             window.location.reload();

@@ -245,8 +245,7 @@ function def_remove_attrdata(el) {
         var warning_msg = "<B>Warning:</B> This action cannot be undone!";
         $("#delete-protocol-warning").html(warning_msg)
         $("#delete-protocol-event-confirm").html("To confirm, enter "+"<B>"+limbscad_id+"</B>");
-        $("#protocol-uuid-remove-confirmation-input").show();
-        $("#protocol-remove-confirm-button").show();
+        $("#protocol-uuid-remove-confirmation-input").val("").attr("placeholder", "Type "+limbscad_id+" here").show();
         $("#delete-protocol-confirm-modal").modal({
             show: true
         });
@@ -264,7 +263,7 @@ function def_remove_attrdata(el) {
                         dataType: "json",
                         success: function (data) {
                             $("#delete-protocol-event-confirm").html(data["message"]);
-                            $("#protocol-uuid-remove-confirmation-input").html("").hide();
+                            $("#protocol-uuid-remove-confirmation-input").hide();
                             $("#protocol-remove-confirm-button").hide();
 /*
                             $("#delete-protocol-confirm-modal").modal({
@@ -641,7 +640,7 @@ function fill_protocol_events(events) {
             }
             $("#delete-protocol-warning").html(warning_msg)
             $("#delete-protocol-event-confirm").html("Please enter the Protocol Event UUID to confirm that you want to remove this Event:")
-            $("#protocol-uuid-remove-confirmation-input").html("").show();
+            $("#protocol-uuid-remove-confirmation-input").val("").attr("placeholder", "Type Protocol Event UUID here").show();
             $("#protocol-remove-confirm-button").show();
             $("#delete-protocol-confirm-modal").modal({
                 show: true

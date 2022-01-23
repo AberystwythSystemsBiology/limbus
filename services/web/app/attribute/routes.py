@@ -47,9 +47,7 @@ import requests
 @attribute.route("/")
 @login_required
 def index():
-    return render_template(
-        "attribute/index.html"#, attributes=response.json()["content"]
-    )
+    return render_template("attribute/index.html")
 
 
 @attribute.route("/data")
