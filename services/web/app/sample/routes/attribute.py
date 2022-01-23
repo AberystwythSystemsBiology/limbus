@@ -117,6 +117,7 @@ def new_custom_attribute_form(uuid: str, hash: str) -> str:
             hash=hash,
         )
 
+
 @sample.route("/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["GET", "POST"])
 @sample.route("/attribute/LIMBSCAD-<id>/remove", methods=["GET", "POST"])
 @login_required

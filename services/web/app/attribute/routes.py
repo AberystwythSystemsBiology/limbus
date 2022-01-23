@@ -193,6 +193,7 @@ def view(id):
         flash("Error in retrieving attribute info!")
         return redirect(url_for("attribute.index"))
 
+
 @attribute.route("/LIMBATTR-<id>/lock", methods=["GET", "POST"])
 @login_required
 def lock(id):
@@ -210,24 +211,21 @@ def lock(id):
     return lock_response.json()
 
 
-
 @attribute.route("/LIMBATTR-<id>/remove", methods=["GET", "POST"])
 @login_required
 def remove(id):
     remove_response = requests.post(
-       url_for("api.attribute_remove_attribute", id=id, _external=True),
+        url_for("api.attribute_remove_attribute", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if remove_response.status_code == 200:
 
-        flash("Attribute LIMBATTR-%s successfully removed!" %id)
+        flash("Attribute LIMBATTR-%s successfully removed!" % id)
     else:
         flash(remove_response.json()["message"])
 
     return remove_response.json()
-
-
 
 
 @attribute.route("/LIMBATTR-<id>/option/<option_id>/lock", methods=["GET", "POST"])
