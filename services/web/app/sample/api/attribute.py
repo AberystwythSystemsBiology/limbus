@@ -24,9 +24,13 @@ from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
 
-from ...database import db, UserAccount, SampleToCustomAttributeData
+from ...database import db, UserAccount, SampleToCustomAttributeData, Sample
 
-from ...attribute.views import new_attribute_data_schema, new_attribute_option_schema
+from ...attribute.views import (
+    new_attribute_data_schema,
+    new_attribute_option_schema,
+    attribute_data_schema,
+)
 
 import requests
 
@@ -85,3 +89,34 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 
         except Exception as err:
             return transaction_error_response(err)
+
+
+@api.route("/sample/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
+@api.route("/sample/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
+@token_required
+def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> str:
+
+    sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
+    if not sta:
+        return not_found("sample custom attribute data LIMBSCAD-%s " % id)
+
+    if uuid:
+        sample_uuid = db.session.query(Sample.uuid).filter_by(id=sta.sample_id).scalar()
+        if not sample_uuid:
+            return validation_error_response("Associated sample uuid not matched")
+        if sample_uuid != uuid:
+            return validation_error_response("Associated sample uuid not matched")
+
+    sta.update({"editor_id": tokenuser.id})
+    try:
+        db.session.delete(sta)
+        db.session.commit()
+
+    except ValidationError as err:
+        db.session.rollback()
+        return transaction_error_response(err)
+
+    return success_with_content_message_response(
+        attribute_data_schema.dump(sta),
+        "Sample associated attribute data LIMBSCAD-%s Successfully deleted!" % id,
+    )

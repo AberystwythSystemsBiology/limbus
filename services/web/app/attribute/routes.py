@@ -47,16 +47,20 @@ import requests
 @attribute.route("/")
 @login_required
 def index():
+    return render_template("attribute/index.html")
+
+
+@attribute.route("/data")
+@login_required
+def data():
     response = requests.get(
         url_for("api.attribute_home", _external=True), headers=get_internal_api_header()
     )
 
     if response.status_code == 200:
-        return render_template(
-            "attribute/index.html", attributes=response.json()["content"]
-        )
+        return response.json()
     else:
-        return response.content
+        abort(response.status_code)
 
 
 @attribute.route("/new", methods=["GET", "POST"])
@@ -172,7 +176,7 @@ def new_option(id):
     return render_template("attribute/new/option.html", form=form, attribute_id=id)
 
 
-@attribute.route("/LIMBATTR-<id>")
+@attribute.route("/LIMBATTR-<id>", methods=["GET", "POST"])
 @login_required
 def view(id):
     response = requests.get(
@@ -181,36 +185,47 @@ def view(id):
     )
     if response.status_code == 200:
 
-        form = AttributeLockForm(id)
-
         return render_template(
-            "attribute/view.html", attribute=response.json()["content"], form=form
+            "attribute/view.html", attribute=response.json()["content"]
         )
     else:
-        return response.content
+        # return response.content
+        flash("Error in retrieving attribute info!")
+        return redirect(url_for("attribute.index"))
 
 
 @attribute.route("/LIMBATTR-<id>/lock", methods=["GET", "POST"])
 @login_required
 def lock(id):
-    response = requests.get(
-        url_for("api.attribute_view_attribute", id=id, _external=True),
+    lock_response = requests.post(
+        url_for("api.attribute_lock_attribute", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
-    if response.status_code == 200:
-        form = AttributeLockForm(id)
-        if form.validate_on_submit():
-            lock_response = requests.post(
-                url_for("api.attribute_lock_attribute", id=id, _external=True),
-                headers=get_internal_api_header(),
-            )
+    if lock_response.status_code == 200:
+        flash(lock_response.json()["message"])
 
-            if lock_response.status_code == 200:
-                return redirect(url_for("attribute.index"))
-            else:
-                flash("We have a problem :( %s" % response.json())
-        return render_template(url_for("attribute.view", id=id))
+    else:
+        flash("We have a problem :( %s" % lock_response.json())
+
+    return lock_response.json()
+
+
+@attribute.route("/LIMBATTR-<id>/remove", methods=["GET", "POST"])
+@login_required
+def remove(id):
+    remove_response = requests.post(
+        url_for("api.attribute_remove_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if remove_response.status_code == 200:
+
+        flash("Attribute LIMBATTR-%s successfully removed!" % id)
+    else:
+        flash(remove_response.json()["message"])
+
+    return remove_response.json()
 
 
 @attribute.route("/LIMBATTR-<id>/option/<option_id>/lock", methods=["GET", "POST"])

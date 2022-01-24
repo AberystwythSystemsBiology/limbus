@@ -207,7 +207,7 @@ def edit_sample_basic_info(uuid):
         flash("Sample is locked!")
         return abort(sample_response.status_code)
 
-    print("sample", sample_response.text)
+    # print("sample", sample_response.text)
 
     data = sample_response.json()["content"]
     consent_id = data["consent_information"]["id"]

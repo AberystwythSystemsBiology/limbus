@@ -18,6 +18,7 @@ from ...mixins import RefAuthorMixin, RefEditorMixin
 
 
 class SampleToCustomAttributeData(Base, RefAuthorMixin, RefEditorMixin):
+    # __versioned__ = {}
     sample_id = db.Column(db.Integer, db.ForeignKey("sample.id"))
     attribute_data_id = db.Column(db.Integer, db.ForeignKey("attributedata.id"))
     attribute_data = db.relationship(

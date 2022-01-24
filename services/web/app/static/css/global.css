@@ -145,6 +145,23 @@ nav img {
     background: none;
 }
 
+
+.btn-delete-icon{
+    border:none;
+    outline: none;
+    background: none;
+    color: lightslategrey;
+    display: none;
+}
+
+.rowdisp{
+    cursor: pointer;
+}
+.rowdisp:hover .btn-delete-icon {
+   display:block
+}
+
+
 #wmd-preview {
     background-color: #f5f5f5;
     padding:1em;

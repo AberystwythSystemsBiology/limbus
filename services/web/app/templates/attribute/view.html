@@ -10,7 +10,8 @@
                 <a href="{{ url_for('attribute.index') }}">
                     <i class="fab fa-buffer"></i> Attribute Portal
                 </a>
-            </span>LIMBATTR-{{ attribute.id }}: {{ attribute.term }}
+            </span>
+            LIMBATTR-<span id="attribute-id">{{ attribute.id }}</span>: {{ attribute.term }}
         </h1>
 
 
@@ -36,18 +37,28 @@
 
                     {% endif %}
 
+                {% if current_user.is_admin == true %}
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                        <button id="lock-attribute" type="button"
                             class="btn btn-outline-dark">
-                            <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
+                            <i class="fa fa-lock"></i>
+                            {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
                         </button>
                     </div>
+                {% endif %}
 
-
-
-
+                {% if current_user.is_admin == true %}
+                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                        <button id="remove-attribute" type="button"
+                            class="btn btn-delete float-right">
+                            <i class="fa fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
+                {% endif %}
                 </div>
             </div>
+
             <div class="col-6 text-right">
                 <i class="fa fa-calendar"></i> Created On: {{ attribute.created_on }}
                 <div class="clearfix"></div>
@@ -60,6 +71,7 @@
 
 
 </div>
+
 <div class="container">
 
     <h2>Information</h2>
@@ -86,6 +98,7 @@
                 <th>Term</th>
                 <th>Uploader</th>
                 <th>Created On</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -97,8 +110,9 @@
                 <td>{{ option.created_on }}</td>
                 <td>
                     <a href="{{ url_for('attribute.lock_option', id=attribute.id, option_id=option.id) }}">
-                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}"><i
-                                class="fa fa-lock"></i> {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
+                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}">
+                            <i class="fa fa-lock"></i>
+                        {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
                     </a>
                 </td>
             </tr>
@@ -116,33 +130,38 @@
     {% endif %}
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">
-                    <i class="fa fa-lock"></i> {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock Attribute
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{{ url_for('attribute.lock', id=attribute.id) }}" method="POST">
-                {{ form.csrf_token() }}
-                <div class="modal-body">
-                    <div class="alert alert-warning">
-                        Warning: This is a potentially destructive action.
-                    </div>
-                    {{ form_field(form.name) }}
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-success full-width" type="submit">Submit</button>
-                </div>
-            </form>
 
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirm-modal-title">Confirm </h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="confirm-modal-warning" class="alert alert-danger" role="alert">
+          <B>Warning:</B> This action cannot be undone!
         </div>
+        <p id="confirm-modal-guide">Are you sure you want to proceed?</p>
+        <input type="text" class="form-control" id="confirm-modal-input">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+        <button type="button" id="confirm-modal-button" class="btn btn-success" disabled>Confirm</button>
+      </div>
     </div>
+  </div>
 </div>
+
+{% endblock %}
+
+
+{% block javascript %}
+
+<script src="{{ url_for('static', filename='js/attribute/view.js') }}"></script>
+
 {% endblock %}

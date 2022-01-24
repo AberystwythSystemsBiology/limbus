@@ -25,13 +25,14 @@
 
 
 
-    <p>This is the Attribute Portal. This is where your attributes can be found. </p>
+{#    <p>This is the Attribute Portal. This is where your attributes can be found. </p>#}
 
 
     <table id="attribute-table" class="table table-striped table-bordered" style="width:100%">
         <thead>
             <tr>
                 <th>Attribute</th>
+                <th>Status</th>
                 <th>Attribute Type</th>
                 <th>Element</th>
                 <th>Uploader</th>
@@ -39,7 +40,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for attribute in attributes %}
+{#            {% for attribute in attributes %}
             <tr>
                 <td>
                     <a href="{{ url_for('attribute.view', id=attribute.id) }}">
@@ -52,7 +53,7 @@
                 <td>{{ attribute.created_on }}</td>
 
             </tr>
-            {% endfor %}
+            {% endfor %}#}
 
         </tbody>
     </table>

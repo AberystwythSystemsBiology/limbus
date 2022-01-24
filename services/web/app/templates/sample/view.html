@@ -94,12 +94,12 @@
                     <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
                     <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
                         class="fas fa-vial"></i> Aliquot Sample</a>
-                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
-                      <i class="fa fa-trash"></i> Dispose Sample</a>
                     <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
                         class="fa fa-project-diagram"></i> Other Protocol Event</a>
                     <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
-                      class="fas fa-file"></i> New Review</a>
+                      class="fas fa-file"></i> New Review/Disposal Instruction</a>
+                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
+                      <i class="fa fa-trash"></i> Dispose Sample</a>
                       <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
                     <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
                       class="fas fa-file"></i> Associate Document</a>
@@ -190,7 +190,9 @@
     </div>
 
       <div id="custom-attributes-div" style="display: none">
+
           <table class="table table-striped" id="custom-attributes-table"></table>
+
       </div>
 
     <div id="protocol-event-info" style="display:none;">
@@ -217,8 +219,6 @@
 
     <div id="lineage-info" style="display:none;">
 
-{#    <form id="select_sample" method="POST"#}
-{#          action="{{ url_for('storage.auto_assign_sample_to_rack', id=1) }}">#}
       <table id="subSampleTable" class="table table-striped table-bordered" style="width:100%">
         <thead>
           <tr>
@@ -281,12 +281,12 @@
   </div>
 </div>
 
-<!-- Delete Protocol Modal -->
+<!-- Delete Protocol Modal: template for protocol event removal and sample attribute data removal-->
 <div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="delete-protocol-confirm-modal-title">Confirm Protocol Event Removal</h5>
+        <h5 class="modal-title" id="delete-protocol-confirm-modal-title">Confirm Data Removal</h5>
         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

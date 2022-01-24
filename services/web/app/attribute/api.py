@@ -30,6 +30,8 @@ from ..database import (
     AttributeTextSetting,
     AttributeNumericSetting,
     AttributeData,
+    SampleToCustomAttributeData,
+    Sample,
 )
 
 from .views import (
@@ -53,7 +55,8 @@ from ..webarg_parser import use_args, use_kwargs, parser
 @token_required
 def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
-        basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
+        # basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
+        basic_attributes_schema.dump(Attribute.query.all())
     )
 
 
@@ -74,9 +77,11 @@ def attribute_query(args, tokenuser: UserAccount):
 @api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
 @token_required
 def attribute_view_attribute(id, tokenuser: UserAccount):
-    return success_with_content_response(
-        attribute_schema.dump(Attribute.query.filter_by(id=id).first_or_404())
-    )
+    attr = Attribute.query.filter_by(id=id).first()
+    if not attr:
+        return not_found("Attribute LIMBATTR-%s" % id)
+
+    return success_with_content_response(attribute_schema.dump(attr))
 
 
 @api.route("/attribute/LIMBATTR-<id>/option/new", methods=["POST"])
@@ -180,16 +185,67 @@ def attribute_new_attribute(tokenuser: UserAccount):
 @api.route("/attribute/LIMBATTR-<id>/lock", methods=["POST"])
 @token_required
 def attribute_lock_attribute(id, tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+
     attribute = Attribute.query.filter_by(id=id).first()
 
     if not attribute:
-        return {"success": False, "messages": "There's an issue here"}, 417
+        return not_found("Attribute LIMBATTR-%s" % id)
 
     attribute.is_locked = not attribute.is_locked
-    attribute.editor_id = tokenuser.id
-    db.session.add(attribute)
-    db.session.commit()
-    db.session.flush()
+    attribute.update({"editor_id": tokenuser.id})
+    try:
+        db.session.add(attribute)
+        db.session.commit()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    if attribute.is_locked:
+        msg = "Successfully locked attribute!"
+    else:
+        msg = "Successfully unlocked attribute!"
+
+    return success_with_content_message_response(attribute_schema.dump(attribute), msg)
+
+
+@api.route("/attribute/LIMBATTR-<id>/remove", methods=["POST"])
+@token_required
+def attribute_remove_attribute(id, tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+
+    attribute = Attribute.query.filter_by(id=id).first()
+
+    if not attribute:
+        return not_found("Attribute LIMBATTR-%s" % id)
+
+    if attribute.is_locked:
+        return locked_response("Attribute LIMBATTR-%s" % id)
+
+    stas = (
+        db.session.query(SampleToCustomAttributeData)
+        .join(AttributeData)
+        .filter(AttributeData.attribute_id == id)
+        .distinct(SampleToCustomAttributeData.sample_id)
+    )
+
+    ns = stas.count()
+
+    if ns > 0:
+        # Print out max 5 sample uuid in message
+        stas = stas.with_entities(SampleToCustomAttributeData.sample_id).limit(5).all()
+        smpls = db.session.query(Sample.uuid).filter(Sample.id.in_(stas)).all()
+        smpls = ", ".join([s[0] for s in smpls])
+        return in_use_response("%d samples: %s ..." % (ns, smpls))
+
+    attribute.update({"editor_id": tokenuser.id})
+
+    try:
+        db.session.delete(attribute)
+        db.session.commit()
+    except Exception as err:
+        return transaction_error_response(err)
 
     return success_with_content_response(attribute_schema.dump(attribute))
 
