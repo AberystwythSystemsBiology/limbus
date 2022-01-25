@@ -3,7 +3,6 @@
 <p align="center">
 
 [![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/0.1.0/active.svg)](http://www.repostatus.org/#active)
-[![GitHub latest commit](https://badgen.net/github/last-commit/AberystwythSystemsBiology/limbus)](https://GitHub.com/AberystwythSystemsBiology/limbus/commit/)
 [![GitHub commits](https://badgen.net/github/commits/AberystwythSystemsBiology/limbus)](https://GitHub.com/AberystwythSystemsBiology/limbus/commit/)
 ![GitHub issues](https://img.shields.io/github/issues/AberystwythSystemsBiology/LImBuS)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AberystwythSystemsBiology/LImBuS)
