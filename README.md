@@ -38,6 +38,12 @@ Please report all bugs or feature suggestions to the [issues tracker](https://ww
 
 We welcome all sorts of contribution, so please be as candid as you want.
 
+## 💻 Code Contributors
+
+<a href="https://github.com/AberystwythSystemsBiology/limbus/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AberystwythSystemsBiology/limbus" />
+</a>
+
 ## 📜 License
 
 This project is proudly licensed under the [GNU General Public License v3.0](https://raw.githubusercontent.com/AberystwythSystemsBiology/limbus/dev/LICENSE).
