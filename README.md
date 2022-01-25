@@ -2,12 +2,15 @@
 
 <p align="center">
 
-
-![GitHub commit activity](https://img.shields.io/github/commit-activity/w/AberystwythSystemsBiology/LImBuS)
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/0.1.0/active.svg)](http://www.repostatus.org/#active)
+[![GitHub latest commit](https://badgen.net/github/last-commit/AberystwythSystemsBiology/limbus)](https://GitHub.com/AberystwythSystemsBiology/limbus/commit/)
+[![GitHub commits](https://badgen.net/github/commits/AberystwythSystemsBiology/limbus)](https://GitHub.com/AberystwythSystemsBiology/limbus/commit/)
 ![GitHub issues](https://img.shields.io/github/issues/AberystwythSystemsBiology/LImBuS)
 ![GitHub repo size](https://img.shields.io/github/repo-size/AberystwythSystemsBiology/LImBuS)
 ![Test status](https://github.com/AberystwythSystemsBiology/limbus/actions/workflows/tests.yml/badge.svg)
-
+[![Documentation Status](https://readthedocs.org/projects/limbus/badge/?version=dev)](https://limbus.readthedocs.io/en/latest/?badge=dev)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 </p>
 
