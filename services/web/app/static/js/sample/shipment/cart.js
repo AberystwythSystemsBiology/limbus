@@ -36,6 +36,149 @@ function get_cart() {
     return json["content"];
 }
 
+
+function get_user_cart(user_id=null) {
+    var api_url = encodeURI(window.location.origin);
+    //api_url += "/sample/shipment/new/data";
+    if (user_id==null || user_id=='')
+        api_url += "/sample/cart/data";
+    else
+        api_url += "/sample/cart/LIMBUSR-" + user_id + "/data";
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'dataType': "json",
+            'success': function (data) {
+                console.log("success", data);
+                json = data["content"];
+            },
+            'failure': function (data) {
+                console.log("failure", data);
+                json = data["message"];
+            }
+        });
+        return json;
+    })();
+
+    return json;
+}
+/*
+
+function reassign_user_cart(user_id, new_user_id){
+    var api_url = encodeURI(window.location.origin);
+    if (user_id==null || user_id=='')
+        api_url += "/sample/cart/data";
+    else
+        api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'json': {"new_user_id": new_user_id},
+            'dataType': "json",
+            'success': function (data) {
+                console.log("success", data);
+                json = data["content"];
+            },
+            'failure': function (data) {
+                console.log("failure", data);
+                json = data["message"];
+            }
+        });
+        return json;
+    })();
+
+    return json;
+
+}
+*/
+
+function reassign_samples_to_cart(api_url, samples) {
+    var msg = "Selected samples will be moved to a different user cart, select a user and press confirm to proceed!";
+    let aModal = $("#cart-confirmation-modal");
+    aModal.find(".modal-title").html("Sample to Cart Confirmation");
+    aModal.find("p.confirm-msg").html(msg);
+    aModal.find(".btn[type=submit]").show();
+    aModal.modal({
+        show: true
+    });
+
+    aModal.find(".btn[type=submit]").on("click", function () {
+        var new_user_id = parseInt($("#select_user_id").text());
+        aModal.find(".btn[type=submit]").hide();
+        aModal.modal({
+            show: true
+        });
+        var json = (function () {
+            var json = null;
+            $.ajax({
+                'async': false,
+                'global': false,
+                'url': api_url,
+                'type': 'POST',
+                'dataType': "json",
+                'data': JSON.stringify({"samples": samples, "new_user_id": new_user_id}),
+                'contentType': 'application/json; charset=utf-8',
+                'success': function (data) {
+                    json = data;
+                    aModal.find("p.confirm-msg").html(data["message"]);
+                    aModal.modal({
+                        show: true
+                    });
+                },
+                'failure': function (data) {
+                    json = data;
+                    aModal.find("p").html(data["message"]);
+                    aModal.modal({
+                        show: true
+                    });
+                }
+            });
+            return json;
+        })();
+
+        return json;
+    });
+    return false;
+}
+function tocart_btn_logic(aTable) {
+    $("#sample-to-cart-btn").click(function (event) {
+        let rows_selected = aTable.rows( { selected: true } ).data();
+        if (rows_selected.length>0) {
+            var formdata = [];
+            $.each(rows_selected, function (index, row) {
+                delete row['__proto__'];
+                formdata.push(row);
+            });
+
+           var api_url = window.location.origin;
+           api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
+           res = reassign_samples_to_cart(api_url, formdata);
+           if (res.success == true) {
+               //aTable.rows({selected: true}).deselect();
+               window.location.href = window.location.origin + "/sample/user/cart/LIMBUSR-"+new_user_id;
+           }
+        } else {
+            alert("No sample selected!");
+        }
+
+    });
+};
+
+
+function fill_titile(user_id) {
+    if ([null, undefined, ""].includes(user_id))
+        $('#div h1').html("My Sample Cart");
+
+}
+
 function fill_cart_table(cart) {
 
     var links_map = {};
@@ -292,13 +435,20 @@ function fill_cart_table(cart) {
 
 
 $(document).ready(function () {
-    var cart = get_cart();
-    //console.log("cart:", cart);
-    table = fill_cart_table(cart);
-    rows = table.rows();
+    //var cart = get_cart();
+    var user_id = $("#user_id").text();
+    console.log("user_id", user_id);
+    fill_titile(user_id);
+    var cart = get_user_cart(user_id);
+    console.log("cart:", cart);
+    aTable = fill_cart_table(cart);
+    rows = aTable.rows();
     rows.every(function () {
         if (this.data().selected) {
             this.select();
         }
     })
+
+    tocart_btn_logic(aTable, parseInt(user_id));
+
 });

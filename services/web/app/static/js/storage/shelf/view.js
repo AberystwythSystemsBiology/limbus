@@ -81,10 +81,11 @@ function render_rack_table(racks) {
                 {
                     "mData": {},
                     "mRender": function(data, type,row) {
-                        var render_html = "<a href='" + data["_links"]["self"] + "'>"
+                        var render_html = "";
+                        render_html +="<a href='" + data["_links"]["self"] + "'>";
                         render_html += render_colour(data["colour"]) + "LIMBRACK-" + data["id"];
-                        render_html += "</a>"
-                        return render_html
+                        render_html += "</a>";
+                        return render_html;
                     }
                 },
                 {

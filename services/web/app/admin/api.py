@@ -73,10 +73,7 @@ def audit_query(args, tokenuser: UserAccount):
     audit_trails = []
     object_counts = {}
     for model in objects:
-        if model == "EntityToStorage":
-            ModelVersion = eval(model)
-        else:
-            ModelVersion = version_class(eval(model))
+        ModelVersion = version_class(eval(model))
 
         stmt = db.session.query(ModelVersion).filter(
             func.date(ModelVersion.updated_on) >= start_date,

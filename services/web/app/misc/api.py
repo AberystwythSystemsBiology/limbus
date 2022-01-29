@@ -101,7 +101,6 @@ def get_data(tokenuser: UserAccount):
 
 
     """
-
     data = {
         "name": SiteInformation.query.filter_by(is_external=False)
         .order_by(SiteInformation.id)
@@ -266,17 +265,20 @@ def site_home(tokenuser: UserAccount):
 @token_required
 def site_home_tokenuser(tokenuser: UserAccount):
 
-    if tokenuser.is_admin:
-        sites = basic_sites_schema.dump(
-            SiteInformation.query.filter_by(is_external=False).all()
-        )
-
-    else:
-        sites = basic_sites_schema.dump(
-            SiteInformation.query.filter_by(
-                is_external=False, id=tokenuser.site_id
-            ).all()
-        )
+    # if tokenuser.is_admin:
+    #     sites = basic_sites_schema.dump(
+    #         SiteInformation.query.filter_by(is_external=False).all()
+    #     )
+    #
+    # else:
+    #     sites = basic_sites_schema.dump(
+    #         SiteInformation.query.filter_by(
+    #             is_external=False, id=tokenuser.site_id
+    #         ).all()
+    #     )
+    sites = basic_sites_schema.dump(
+        SiteInformation.query.filter_by(is_external=False).all()
+    )
 
     choices = []
     settings = tokenuser.settings
@@ -402,3 +404,85 @@ def misc_new_site(tokenuser: UserAccount):
         return success_with_content_response(basic_site_schema.dumps(new_site))
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/misc/reminders", methods=["GET"])
+@token_required
+def get_reminder_data(tokenuser: UserAccount):
+    # -- Sample disposal expected in less than 1 days.
+
+    to_dispose= (
+        db.session.query(SampleDisposal.sample_id)
+        .join(Sample, Sample.disposal_id == SampleDisposal.id)
+        .filter(SampleDisposal.instruction.in_([DisposalInstruction.DES, DisposalInstruction.TRA]))
+        .filter(SampleDisposal.disposal_event_id == None, SampleDisposal.disposal_date != None)
+        .filter(func.date(SampleDisposal.disposal_date) <= datetime.today() + timedelta(days=1))
+        .filter_by(is_closed=False, is_locked=False)
+        .filter(Sample.remaining_quantity > 0)
+        .distinct(Sample.id)
+    )
+
+    print("to_dispose (%d) : " %to_dispose.count())
+    print(to_dispose)
+
+    to_collect = db.session.query(Sample.id) \
+        .filter_by(is_closed=False, is_locked=False) \
+        .filter(Sample.status.in_([SampleStatus.NCO])) \
+        .except_(to_dispose)
+
+    print("to_collect (%d) : " %to_dispose.count())
+    #print(to_dispose)
+
+    to_review = db.session.query(Sample.id) \
+        .filter_by(is_closed=False, is_locked=False) \
+        .filter(Sample.status.in_([SampleStatus.NRE])) \
+        .except_(to_dispose)
+
+    #-- TODO add sample storage_id to sample?
+    #-- TODO EntityToStorage: allow sample_id, rack_id and shelf_id all non null
+
+    stored0 = db.session.query(EntityToStorage.sample_id)\
+        .filter(EntityToStorage.sample_id!=None)\
+        .filter(EntityToStorage.shelf_id!=None)\
+        .filter(EntityToStorage.removed is not True)
+        # .filter_by(storage_type="STS")
+    print("stored0 (%d) : " %stored0.count())
+    #print(stored0)
+
+    bts = db.session.query(EntityToStorage.rack_id)\
+        .filter(EntityToStorage.rack_id!=None)\
+        .filter(EntityToStorage.shelf_id!=None) \
+        .filter(EntityToStorage.removed is not True) \
+        #.filter_by(storage_type="BTS")
+
+    print("bts (%d) : " %bts.count())
+    #print(bts)
+
+    stored1 = db.session.query(EntityToStorage.sample_id)\
+        .filter(EntityToStorage.rack_id!=None) \
+        .filter(EntityToStorage.removed is not True) \
+        .filter(EntityToStorage.rack_id.in_(bts))
+        # .filter_by(storage_type="STB")
+
+    print("stored1 (%d) : " %stored1.distinct(EntityToStorage.sample_id).count())
+    #print(stored1)
+
+    #.filter(~Sample.id.in_(stored0.union(stored1))) \ doesn't work
+    to_store = db.session.query(Sample.id) \
+        .filter_by(is_closed=False, is_locked=False)\
+        .filter(Sample.remaining_quantity>0) \
+        .distinct(Sample.id) \
+        .except_(stored0.union(stored1).union(stored1))
+
+    in_cart = db.session.query(UserCart.sample_id)
+
+    stats ={
+        "to_collect": to_collect.count(),
+        "to_store": to_store.count(),
+        "to_dispose": to_dispose.count(),
+        "to_review": to_review.count(),
+        "in_cart": in_cart.count(),
+    }
+    print("stats: ", stats)
+    return success_with_content_response(stats)
+

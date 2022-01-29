@@ -18,7 +18,7 @@ from .. import sample
 from flask_login import login_required
 from flask import json, render_template, url_for, redirect, flash, request, jsonify
 from ...misc import get_internal_api_header
-from ..forms import SampleShipmentEventForm, SampleShipmentStatusUpdateform
+from ..forms import SampleShipmentEventForm, SampleShipmentStatusUpdateform, UserSelectForm
 from datetime import datetime
 from ..enums import SampleShipmentStatusStatus
 
@@ -30,7 +30,51 @@ def shipment_cart():
     return render_template("sample/shipment/cart.html")
 
 
-@sample.route("/cart/data")
+@sample.route("/cart/LIMBUSR-<user_id>")
+@login_required
+def admin_user_cart(user_id):
+
+    sites_response = requests.get(
+        url_for("api.site_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    sites = []
+    user_site_id = None
+    if sites_response.status_code == 200:
+        sites = sites_response.json()["content"]["choices"]
+        users_by_site = {s[0]: [] for s in sites}
+        sites_dict = {s[0]: s[1] for s in sites}
+
+    users = []
+    auth_response = requests.get(
+        url_for("api.auth_home_tokenuser", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if auth_response.status_code == 200:
+        auth_info = auth_response.json()["content"]
+
+        for user in auth_info:
+            if user["site_id"]:
+                site_id = user["site_id"]
+            else:
+                continue
+            print("uers", user)
+            user_label = "|".join(
+                [
+                    user["email"],
+                    user["account_type"],
+                    user["first_name"] + " " + user["last_name"],
+                ]
+            )
+            users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
+
+    form = UserSelectForm(users);
+    return render_template("sample/shipment/user_cart.html", user_id=user_id, form=form)
+
+
+#@sample.route("/cart/data")
 @sample.route("/shipment/cart/data")
 @sample.route("/shipment/new/data")
 @login_required
@@ -46,20 +90,20 @@ def shipment_cart_data():
         cart_response.headers.items(),
     )
 
+@sample.route("/cart/data", methods=["GET", "POST"])
+@sample.route("/cart/LIMBUSR-<user_id>/data", methods=["GET", "POST"])
+@login_required
+def user_cart_data(user_id=None):
+    cart_response = requests.get(
+        url_for("api.get_user_cart", user_id=user_id, _external=True),
+        headers=get_internal_api_header(),
+    )
 
-# @sample.route("/cart/data")
-# @login_required
-# def cart_data():
-#     cart_response = requests.get(
-#         url_for("api.get_cart_disposal", _external=True),
-#         headers=get_internal_api_header(),
-#     )
-#
-#     return (
-#         cart_response.text,
-#         cart_response.status_code,
-#         cart_response.headers.items(),
-#     )
+    return (
+        cart_response.text,
+        cart_response.status_code,
+        cart_response.headers.items(),
+    )
 
 
 @sample.route("/shipment")

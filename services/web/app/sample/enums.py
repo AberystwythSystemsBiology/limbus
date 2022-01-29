@@ -335,3 +335,10 @@ class SampleShipmentStatusStatus(FormEnum):
     PRO = "Problem"
     UND = "Undelivered"
     CAN = "Cancelled"
+
+class ReminderType(FormEnum):
+    COLLECT = "To Collect"
+    REVIEW = "To Review"
+    DISPOSE = "To Dispose"
+    STORE = "To Store"
+    CART = "In Cart"

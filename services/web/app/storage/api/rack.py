@@ -43,10 +43,10 @@ from ..enums import EntityToStorageType
 from sqlalchemy.sql import insert, func
 from sqlalchemy import or_, and_, not_, select, text
 from sqlalchemy.orm import aliased
-
 from marshmallow import ValidationError
 
 from ..views.rack import *
+from ..views import new_sample_rack_to_shelf_schema
 from ...sample.views import sample_schema
 
 from itertools import product
@@ -65,10 +65,20 @@ def storage_rack_home(tokenuser: UserAccount):
 @token_required
 def storage_rack_home_tokenuser(tokenuser: UserAccount):
     if tokenuser.is_admin:
+        stmt = SampleRack.query.filter_by(is_locked=False)
+        stmt2 = (
+            db.session.query(SampleRack)
+                .join(UserCart, SampleRack.id == UserCart.rack_id)
+                .filter(UserCart.storage_type=="RUC")
+        )
+
+        stmt = (
+            stmt.union(stmt2)
+                .distinct(SampleRack.id)
+                .all()
+        )
         return success_with_content_response(
-            basic_sample_racks_schema.dump(
-                SampleRack.query.filter_by(is_locked=False).all()
-            )
+            basic_sample_racks_schema.dump(stmt)
         )
 
     sites = [tokenuser.site_id]
@@ -138,6 +148,7 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
             and_(
                 SampleRack.id == EntityToStorage.rack_id,
                 EntityToStorage.storage_type == "STB",
+                EntityToStorage.removed.is_(False)
             ),
         )
         .join(
@@ -159,6 +170,7 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
             and_(
                 SampleRack.id == EntityToStorage.rack_id,
                 EntityToStorage.storage_type == "BTS",
+                EntityToStorage.removed.is_(False)
             ),
         )
         .join(ColdStorageShelf, EntityToStorage.shelf_id == ColdStorageShelf.id)
@@ -174,10 +186,23 @@ def storage_rack_home_tokenuser(tokenuser: UserAccount):
         )
     )
 
+    # -- Finally racks in user cart
     stmt = (
         stmt.union(stmt1)
         .distinct(SampleRack.id)
-        .filter(SampleRack.is_locked == False)
+        .filter(SampleRack.is_locked.is_(False))
+    )
+
+    stmt2 = (
+        db.session.query(SampleRack)
+        .join(UserCart, SampleRack.id==UserCart.rack_id)
+        .filter(UserCart.author_id == tokenuser.id)
+        .filter(UserCart.storage_type=="RUC")
+    )
+
+    stmt = (
+        stmt.union(stmt2)
+        .distinct(SampleRack.id)
         .all()
     )
 
@@ -270,7 +295,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             stbs = EntityToStorage.query.filter(
                 EntityToStorage.sample_id == sample_id,
                 EntityToStorage.storage_type != "BTS",
-                or_(EntityToStorage.removed.is_(None), EntityToStorage.removed != True),
+                EntityToStorage.removed.is_(False),
             )
             stbs2 = EntityToStorage.query.filter(
                 EntityToStorage.rack_id == rack_id,
@@ -292,6 +317,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             for stb in stbs:
 
                 try:
+                    db.session.update({"editor_id": tokenuser.id})
                     db.session.delete(stb)
                     # db.session.add(stb)
 
@@ -323,6 +349,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
 
             if usercart:
                 try:
+                    usercart.update({"editor_id": tokenuser.id})
                     db.session.delete(usercart)
                 except Exception as err:
                     return transaction_error_response(err)
@@ -428,6 +455,7 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
                     # go for next row
 
     else:
+        # TODO
         for row in range(1, num_rows + 1):
             channel_cnt = 0
             row_pos = [(row, j) for j in range(1, num_cols + 1)]
@@ -488,7 +516,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.filter(
             EntityToStorage.rack_id == rack_id,
             EntityToStorage.storage_type == "STB",
-            or_(EntityToStorage.removed.is_(None), EntityToStorage.removed != True),
+            EntityToStorage.removed.is_(False),
         ).all()
 
         occupancies = [(stb1.row, stb1.col) for stb1 in stbs]
@@ -505,7 +533,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.filter(
             EntityToStorage.sample_id.in_(sample_ids),
             EntityToStorage.storage_type == "STB",
-            or_(EntityToStorage.removed.is_(None), EntityToStorage.removed != True),
+            EntityToStorage.removed.is_(False),
         ).all()
 
         sample_ids_stored0 = [
@@ -672,7 +700,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         stbs = EntityToStorage.query.filter(
             EntityToStorage.sample_id.in_(sample_ids),
             EntityToStorage.storage_type == "STB",
-            or_(EntityToStorage.removed.is_(None), EntityToStorage.removed != True),
+            EntityToStorage.removed.is_(False),
         ).all()
 
         sample_ids_stored1 = [
@@ -719,7 +747,11 @@ def storage_rack_to_shelf_check(id, tokenuser: UserAccount):
     uc = UserCart.query.filter_by(rack_id=id).first()
     if uc is not None:
         return success_with_content_response("RCT")
-    ets = EntityToStorage.query.filter_by(rack_id=id, sample_id=None).first()
+    ets = (
+        EntityToStorage.query
+           .filter_by(rack_id=id, sample_id=None, removed=False)
+           .first()
+    )
     if ets is not None:
         return success_with_content_response("RST")
     return success_with_content_response("RIV")
@@ -731,7 +763,7 @@ def storage_sample_to_entity_check(id, tokenuser: UserAccount):
     uc = UserCart.query.filter_by(sample_id=id).first()
     if uc is not None:
         return success_with_content_response("SCT")
-    ets = EntityToStorage.query.filter_by(sample_id=id).first()
+    ets = EntityToStorage.query.filter_by(sample_id=id, removed=False).first()
     if ets is not None:
         return success_with_content_response("SRT")
     return success_with_content_response("SIV")
@@ -833,7 +865,7 @@ def storage_rack_delete(id, tokenuser: UserAccount):
     if rackTableRecord.is_locked:
         return locked_response()
 
-    rackTableRecord.editor_id = tokenuser.id
+    rackTableRecord.update({"editor_id": tokenuser.id})
     if not entityStorageTableRecord:
         try:
             db.session.delete(rackTableRecord)
@@ -904,7 +936,7 @@ def storage_rack_location(id, tokenuser: UserAccount):
             )
             .filter(
                 SampleRack.id == id,
-                or_(EntityToStorage.removed == None, EntityToStorage.removed == False),
+                EntityToStorage.removed.is_(False),
             )
             .with_entities(EntityToStorage.id, EntityToStorage.shelf_id)
         )
@@ -924,8 +956,8 @@ def func_rack_storage_location(rack_id):
     rack_storage = (
         EntityToStorage.query.filter(
             EntityToStorage.rack_id == rack_id,
-            EntityToStorage.removed is not True,
-            EntityToStorage.shelf_id != None,
+            EntityToStorage.removed.is_(False),
+            ~EntityToStorage.shelf_id.is_(None),
             EntityToStorage.storage_type == "BTS",
         )
         .order_by(EntityToStorage.entry_datetime.desc())
@@ -941,8 +973,8 @@ def func_rack_storage_location(rack_id):
             shelf_storage = (
                 EntityToStorage.query.filter(
                     EntityToStorage.rack_id == rack_storage.rack_id,
-                    EntityToStorage.shelf_id != None,
-                    EntityToStorage.removed is not True,
+                    ~EntityToStorage.shelf_id.is_(None),
+                    EntityToStorage.removed.is_(False),
                 )
                 .order_by(EntityToStorage.entry_datetime.desc())
                 .first()
@@ -950,11 +982,11 @@ def func_rack_storage_location(rack_id):
             if shelf_storage:
                 shelf_id = shelf_storage.shelf_id
 
-                sample_storage_info = NewSampleRackToShelfSchema.dump(shelf_storage)
-                sample_storage_info["sample_id"] = sample_id
+                sample_storage_info = new_sample_rack_to_shelf_schema.dump(shelf_storage)
+                sample_storage_info["shelf_id"] = shelf_id
         else:
-            sample_storage_info = NewSampleRackToShelfSchema.dump(sample_storage)
-            sample_storage_info["sample_id"] = sample_id
+            sample_storage_info = new_sample_rack_to_shelf_schema.dump(shelf_storage)
+            sample_storage_info["shelf_id"] = shelf_id
 
         msg = "No sample storage location info! "
         if shelf_id:
@@ -1023,7 +1055,7 @@ def storage_shelves_onsite(id, tokenuser: UserAccount):
             .join(ColdStorage)
             .join(ColdStorageShelf)
             .filter(
-                or_(SiteInformation.id == tokenuser.site_id, tokenuser.site_id == None),
+                or_(SiteInformation.id == tokenuser.site_id, tokenuser.site_id.is_(None)),
                 ~ColdStorageShelf.is_locked,
             )
             .with_entities(

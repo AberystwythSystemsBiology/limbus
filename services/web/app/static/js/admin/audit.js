@@ -37,7 +37,7 @@ function get_audit(query) {
 
 
 function render_audit_table(trails, div_id) {
-    $('#auditTable tfoot th').each(function() {
+    $('#' + div_id +' tfoot th').each(function() {
         var title = $(this).text();
         $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
@@ -46,10 +46,6 @@ function render_audit_table(trails, div_id) {
         data: trails,
         dom: 'Blfrtip',
         buttons: [ 'print', 'csv', 'colvis',
-             {
-                extend: 'excel',
-                messageTop: 'The information in this table is copyright to Sirius Cybernetics Corp.'
-            }
         ],
         lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
         //pageLength: 50,

@@ -15,7 +15,7 @@
 
 from .. import sample
 from flask import render_template, url_for, abort
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from ..forms import SampleFilterForm
 
@@ -35,6 +35,8 @@ def index() -> str:
     if sites_response.status_code == 200:
         sites = sites_response.json()["content"]["choices"]
         user_site_id = sites_response.json()["content"]["user_site_id"]
+        if current_user.is_admin:
+            sites.insert(0, (None, "None"))
 
     sampletype_response = requests.get(
         url_for("api.sampletype_data", _external=True),
@@ -51,6 +53,7 @@ def index() -> str:
             sampletypes.append(["molecular_type:" + opt[0], opt[1]])
         for opt in stypes["CEL"]:
             sampletypes.append(["cellular_type:" + opt[0], opt[1]])
+
 
     form = SampleFilterForm(sites, sampletypes, data={"current_site_id": user_site_id})
     return render_template(

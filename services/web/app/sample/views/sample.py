@@ -106,6 +106,8 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
     created_on = ma.Date()
+    site_id = masql.auto_field()
+    current_site_id = masql.auto_field()
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
     sample_type_information = ma.Nested(SampleTypeSchema)
