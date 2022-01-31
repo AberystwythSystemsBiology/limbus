@@ -6,12 +6,7 @@
 <div class="jumbotron">
     <div class="container">
 
-{#
-        <h1><i class="fa fa-shopping-cart"></i> User Sample Cart</h1>
-        <h5>LIMBUSR-<span id="user_id">{{ user_id }}</span></h5>
-#}
-
-            <h1>
+        <h1>
           <span class="secondary-heading">
               <a href="{{ url_for('sample.index') }}">
                 <i class="fas fa-vial"></i> Sample Portal
@@ -20,20 +15,16 @@
 
         <i class="fa fa-shopping-cart"></i>
 
-        {% if user_id == current_user.id %}
-                My User Sample Cart
-
-            <h5 hidden>LIMBUSR-<span id="user_id">{{ user_id }}</span></h5>
-            </h1>
+        {% if user_id == current_user.id|string %}
+             My Sample Cart
         {% else %}
-             User Sample Cart {{ current_user.id }} - {{ user_id }}
-            </h1>
-         <h5 hidden>LIMBUSR-<span id="user_id">{{ user_id }}</span></h5>
-{#</h1>          <h4 id="user-div" style="display: none; margin-top:-5px;" class="text-muted">#}
-{#          <h4 id="user-div" style="margin-top:-5px;" class="text-muted">#}
-         {{ current_user.first_name }} {{ current_user.last_name }} : {{ current_user.email }}
-          </h4>
+             User Sample Cart
         {% endif %}
+
+        </h1>
+        <h5> LIMBUSR-<span id="user_id">{{ user_id }}</span> :
+         {{ current_user.first_name }} {{ current_user.last_name }} ( {{ current_user.email }})
+        </h5>
 
     <div class="row text-muted">
     <div class="col-7">
@@ -62,13 +53,7 @@
 
         </div>
     </div>
-{#
-        <fieldset>
-            <legend> Select a user cart
-            </legend>
-            {{ form.select_user_id(size="1", class="selectpicker", tilte="select a new user",  style="border:none")}}
-        </fieldset>
-#}
+
     </div>
     </div>
 </div>
@@ -151,8 +136,10 @@
       </div>
       <div class="modal-body">
         <p class="confirm-msg"></p>
+          <div class="">
         {{ form.csrf_token }}
-        {{ form.select_user_id(size="1", class="selectpicker w-100", tilte="select a new user",  style="border:none")}}
+        {{ form.select_user_id(size="1", class="selectpicker w-100", tilte="select a user",  style="border:none")}}
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

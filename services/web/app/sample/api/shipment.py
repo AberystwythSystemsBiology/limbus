@@ -818,7 +818,6 @@ def add_samples_to_cart(tokenuser: UserAccount, user_id=None):
         return transaction_error_response(err)
 
 
-
 @api.route("/cart/add/samples_in_shipment", methods=["POST"])
 @token_required
 def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
@@ -914,6 +913,78 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
     try:
         db.session.commit()
         return success_with_content_message_response(id, message=msg)
+
+    except Exception as err:
+        db.session.rollback()
+        return transaction_error_response(err)
+
+
+@api.route("/cart/LIMBUSR-<user_id>/reassign", methods=["POST"])
+@token_required
+def sample_reassign_cart(tokenuser: UserAccount, user_id):
+    values = request.get_json()
+    if not values:
+        return no_values_response()
+
+    samples = values.pop("samples", [])
+    new_user_id = values.pop("new_user_id", None)
+
+    print("values", values)
+    if len(samples) == 0:
+        return no_values_response()
+
+    if not new_user_id:
+        return no_values_response
+
+    new_user = UserAccount.query.filter_by(id=new_user_id).first()
+    if not new_user:
+        return not_found("User LIMBURS-%s" %new_user_id)
+
+    #sample_ids = [smpl["id"] for smpl in samples]
+    sample_ids = samples
+
+    sample_ids_ruc = [
+        sid for (sid) in
+            db.session.query(UserCart.sample_id)
+            .filter_by(id=new_user_id, storage_type='RUC')
+            .filter(UserCart.sample_id.in_(sample_ids))
+            .filter(~UserCart.rack_id.is_(None))
+    ]
+
+    msg = ""
+    if (len(sample_ids_ruc)>0):
+        success, msg_rack = func_add_samples_to_cart(
+            tokenuser, user_id, sample_ids_ruc,
+            to_close_shipment=False, rack_to_cart=True, check=True
+        )
+        if not success:
+            return msg_rack
+        msg = "Rack to cart: %s" %msg_rack
+
+    sample_ids_smpl = [
+        sid for (sid) in
+            db.session.query(UserCart.sample_id)
+            .filter_by(id=new_user_id)
+            .filter(UserCart.sample_id.in_(sample_ids))
+            .filter(UserCart.rack_id.is_(None), UserCart.storage_type!='RUC')
+    ]
+    if (len(sample_ids_smpl) > 0):
+        success, msg_smpl = func_add_samples_to_cart(
+            tokenuser, user_id, sample_ids_smpl,
+            to_close_shipment=False, rack_to_cart=True, check=True
+        )
+
+        if not success:
+            return msg_smpl
+
+        if msg!="":
+            msg = msg + "| "
+
+        msg = msg + "Samples to cart: %s" % msg_rack
+
+    try:
+        db.session.commit()
+        return success_with_content_message_response(sample_ids, message=msg)
 
     except Exception as err:
         db.session.rollback()

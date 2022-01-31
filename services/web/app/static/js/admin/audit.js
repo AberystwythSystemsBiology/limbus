@@ -32,7 +32,7 @@ function get_audit(query) {
         return json;
     })();
 
-    return json["content"];
+    return json;
 }
 
 
@@ -159,16 +159,22 @@ function fill_title(title){
 
 
 function render_table(query) {
-
     var res = get_audit(query);
-    $("#table_view").delay(300).fadeOut();
-    $("#loading").fadeIn();
+    if (res["success"]==false) {
+        window.location.href=window.location.origin;
+    }
+    else {
+        res = res["content"]
 
-    fill_title(res["title"]);
-    render_audit_table(res["data"], "auditTable");
+        $("#table_view").delay(300).fadeOut();
+        $("#loading").fadeIn();
 
-    $("#loading").fadeOut();
-    $("#table_view").delay(300).fadeIn();
+        fill_title(res["title"]);
+        render_audit_table(res["data"], "auditTable");
+
+        $("#loading").fadeOut();
+        $("#table_view").delay(300).fadeIn();
+    }
 
 }
 

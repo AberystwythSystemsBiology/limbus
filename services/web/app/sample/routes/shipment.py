@@ -30,10 +30,11 @@ def shipment_cart():
     return render_template("sample/shipment/cart.html")
 
 
+
+
 @sample.route("/cart/LIMBUSR-<user_id>")
 @login_required
 def admin_user_cart(user_id):
-
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
@@ -56,6 +57,9 @@ def admin_user_cart(user_id):
         auth_info = auth_response.json()["content"]
 
         for user in auth_info:
+            if user["id"] == user_id:
+                continue
+
             if user["site_id"]:
                 site_id = user["site_id"]
             else:
@@ -68,10 +72,31 @@ def admin_user_cart(user_id):
                     user["first_name"] + " " + user["last_name"],
                 ]
             )
-            users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
+            try:
+                choices0 = user["settings"]["data_entry"]["site"]["choices"]
+                choices0 = list(set(choices0).union(set(site_id)))
+            except:
+                choices0 = [site_id]
 
-    form = UserSelectForm(users);
+            # users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
+            for site_id1 in choices0:
+                #users.append((user["id"], user_label + "[" + sites_dict[site_id1] + "]"))
+                #users.append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
+                users_by_site[site_id1].append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
+
+        users = []
+        for k in users_by_site:
+            users = users + users_by_site[k]
+        #users_sorted = users.sort(key=lambda x: x[1])
+
+        print("users_by_site", users_by_site)
+        print("users ", users)
+
+        form = UserSelectForm(users);
+    else:
+        form = {}
     return render_template("sample/shipment/user_cart.html", user_id=user_id, form=form)
+
 
 
 #@sample.route("/cart/data")
@@ -127,8 +152,6 @@ def shipment_index_data():
         shipment_response.headers.items(),
     )
 
-
-from flask import session
 
 
 @sample.route("/shipment/view/<uuid>")

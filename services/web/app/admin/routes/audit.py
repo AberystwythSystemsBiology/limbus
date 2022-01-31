@@ -38,18 +38,18 @@ def audit_index():
         # print("sites", sites)
 
     sites.append((99999, "Bots"))
-    users_by_site = {s[0]: [] for s in sites}
+    # users_by_site = {s[0]: [] for s in sites}
     sites_dict = {s[0]: s[1] for s in sites}
 
     auth_response = requests.get(
-        url_for("api.auth_home", _external=True),
+        url_for("api.auth_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
     )
 
     users = []
     if auth_response.status_code == 200:
         auth_info = auth_response.json()["content"]
-
+        print("auth_info", auth_info)
         for user in auth_info:
             if user["site_id"]:
                 site_id = user["site_id"]
@@ -63,8 +63,8 @@ def audit_index():
                     user["first_name"] + " " + user["last_name"],
                 ]
             )
-
-            users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
+            user_site_label = user_label + "[" + sites_dict[site_id] + "]"
+            users.append((user["id"], user_site_label))
             # users_by_site[site_id].append((user["id"], user_label))
 
     form = AuditFilterForm(sites, users)
@@ -82,7 +82,7 @@ def audit_query():
 
     args["start_date"] = start_date
     args["end_date"] = end_date
-    # print("args ", args)
+
     audit_response = requests.get(
         url_for("api.audit_query", _external=True),
         headers=get_internal_api_header(),
@@ -90,7 +90,8 @@ def audit_query():
     )
 
     if audit_response.status_code != 200:
-        abort(audit_response.status_code)
+        flash(audit_response.json()["message"])
+        # abort(audit_response.status_code)
 
     return audit_response.json()
 

@@ -66,39 +66,7 @@ function get_user_cart(user_id=null) {
 
     return json;
 }
-/*
 
-function reassign_user_cart(user_id, new_user_id){
-    var api_url = encodeURI(window.location.origin);
-    if (user_id==null || user_id=='')
-        api_url += "/sample/cart/data";
-    else
-        api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
-
-    var json = (function () {
-        var json = null;
-        $.ajax({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'json': {"new_user_id": new_user_id},
-            'dataType': "json",
-            'success': function (data) {
-                console.log("success", data);
-                json = data["content"];
-            },
-            'failure': function (data) {
-                console.log("failure", data);
-                json = data["message"];
-            }
-        });
-        return json;
-    })();
-
-    return json;
-
-}
-*/
 
 function reassign_samples_to_cart(api_url, samples) {
     var msg = "Selected samples will be moved to a different user cart, select a user and press confirm to proceed!";
@@ -111,13 +79,20 @@ function reassign_samples_to_cart(api_url, samples) {
     });
 
     aModal.find(".btn[type=submit]").on("click", function () {
-        var new_user_id = parseInt($("#select_user_id").text());
+        var new_user_id = $("#select_user_id").val();
+        console.log("new ..", new_user_id);
+        new_user_id = parseInt(new_user_id);
         aModal.find(".btn[type=submit]").hide();
+        $("#select_user_id").hide();
+        aModal.find("p.confirm-msg").html("Updating ...");
         aModal.modal({
             show: true
         });
+
         var json = (function () {
             var json = null;
+            console.log(" sss", JSON.stringify({"samples": samples, "new_user_id": new_user_id}));
+            console.log("api_url", api_url);
             $.ajax({
                 'async': false,
                 'global': false,
@@ -129,16 +104,18 @@ function reassign_samples_to_cart(api_url, samples) {
                 'success': function (data) {
                     json = data;
                     aModal.find("p.confirm-msg").html(data["message"]);
-                    aModal.modal({
+                    $('#select_user_id').hide();
+/*                    aModal.modal({
                         show: true
-                    });
+                    });*/
                 },
                 'failure': function (data) {
                     json = data;
+                    $('#select_user_id').hide();
                     aModal.find("p").html(data["message"]);
-                    aModal.modal({
+/*                    aModal.modal({
                         show: true
-                    });
+                    });*/
                 }
             });
             return json;
@@ -146,20 +123,24 @@ function reassign_samples_to_cart(api_url, samples) {
 
         return json;
     });
-    return false;
+    //return false;
 }
-function tocart_btn_logic(aTable) {
+
+function tocart_btn_logic(aTable, user_id) {
     $("#sample-to-cart-btn").click(function (event) {
         let rows_selected = aTable.rows( { selected: true } ).data();
         if (rows_selected.length>0) {
             var formdata = [];
             $.each(rows_selected, function (index, row) {
                 delete row['__proto__'];
-                formdata.push(row);
+                console.log("row", row)
+                formdata.push(row["sample"]["id"]);
             });
 
            var api_url = window.location.origin;
            api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
+           console.log("ap: ", api_url);
+           console.log("form", formdata);
            res = reassign_samples_to_cart(api_url, formdata);
            if (res.success == true) {
                //aTable.rows({selected: true}).deselect();
@@ -437,10 +418,9 @@ function fill_cart_table(cart) {
 $(document).ready(function () {
     //var cart = get_cart();
     var user_id = $("#user_id").text();
-    console.log("user_id", user_id);
     fill_titile(user_id);
     var cart = get_user_cart(user_id);
-    console.log("cart:", cart);
+    //console.log("cart:", cart);
     aTable = fill_cart_table(cart);
     rows = aTable.rows();
     rows.every(function () {

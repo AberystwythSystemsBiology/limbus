@@ -81,6 +81,37 @@ def add_samples_to_cart(user_id=None):
 
     return to_cart_response.json()
 
+
+@sample.route("/cart/LIMBUSR-<user_id>/reassign", methods=["GET", "POST"])
+@login_required
+def reassign_sample_cart(user_id):
+
+    if request.method == "POST":
+        values = request.json
+    else:
+        return {"messages": "Sample and use id info needed!", "success": False}
+
+    # # values = request.json
+    # print("ss Values", values)
+    # samples = values.pop("samples", [])
+    # new_user_id = values.pop("new_user_id", None)
+    #
+    # if len(samples) == 0:
+    #     return {"success": False, "messages": "No sample selected!"}
+    #
+    # if not new_user_id:
+    #     return {"success": False, "messages": "New user id not selected!"}
+
+    cart_response = requests.post(
+        url_for("api.sample_reassign_cart", user_id=user_id, _external=True),
+        headers=get_internal_api_header(),
+        json=values, #{"samples": samples, "new_user_id": new_user_id},
+        #json={"samples": [{"id": sample["id"]} for sample in samples], "new_user_id": new_user_id},
+    )
+
+    return cart_response.json()
+
+
 #
 # @sample.route("to_cart", methods=["POST"])
 # @login_required
