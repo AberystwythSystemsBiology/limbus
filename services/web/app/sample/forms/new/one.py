@@ -109,7 +109,6 @@ def CollectionConsentAndDisposalForm(
         collected_by = StringField(
             "Collected By",
             description="The initials of the individual who collected the sample.",
-            validators=[DataRequired()]
         )
 
         collection_site = SelectField(
@@ -202,7 +201,6 @@ def CollectionDonorConsentAndDisposalForm(
         collected_by = StringField(
             "Collected By",
             description="The initials of the individual who collected the sample.",
-            validators=[DataRequired()]
         )
 
         collection_site = SelectField(

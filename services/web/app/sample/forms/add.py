@@ -68,8 +68,7 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
         "processed_by",
         # SelectField("Processed By", choices=user_choices, coerce=int),
         # sample processor not necessarily in the system
-        StringField("Processed By", validators=[DataRequired()]),
-
+        StringField("Processed By"),
     )
 
     return StaticForm()
@@ -88,7 +87,6 @@ def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> Fl
         processed_by = StringField(
             "Processed By",
             description="The initials of the individual who processed the sample.",
-            validators=[DataRequired()]
         )
 
         derivation_date = DateField(
@@ -102,7 +100,6 @@ def SampleDerivationForm(processing_protocols=[], derivation_protocols=[]) -> Fl
         derived_by = StringField(
             "Derived By",
             description="The initials of the individual who processed the sample.",
-            validators=[DataRequired()]
         )
 
         submit = SubmitField("Submit")
