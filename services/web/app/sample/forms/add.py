@@ -54,6 +54,7 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
         processed_by = StringField(
             "Processed By",
             description="The initials of the individual who collected the sample.",
+            validators=[DataRequired()]
         )
         submit = SubmitField("Submit")
 
@@ -68,7 +69,7 @@ def SampleAliquotingForm(aliquot_protocols=[]) -> FlaskForm:
         "processed_by",
         # SelectField("Processed By", choices=user_choices, coerce=int),
         # sample processor not necessarily in the system
-        StringField("Processed By"),
+        StringField("Processed By", validators=[DataRequired()]),
     )
 
     return StaticForm()
