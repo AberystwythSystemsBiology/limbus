@@ -44,7 +44,6 @@ function get_samples(query) {
 
 function render_table(query) {
     var d = get_samples(query);
-    // console.log("samples", d)
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 
@@ -67,11 +66,6 @@ function get_filters() {
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
-        //console.log('f', filter);
-        // if (typeof(value) == 'string' && filter == "current_site_id") {
-        //         value = value.split(",");
-        //         filters[filter] = value;
-        // } else
         if (typeof(value) == 'object') {
             if (value.length>0) {
                 filters[filter] = value.join();
@@ -90,13 +84,10 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
-    //render_table({});
     render_table(filters);
     
     $("#reset").click(function() {
-
         $('#sampleTable').DataTable().destroy();
-        //render_table({});
         window.location.reload();
     });
 
