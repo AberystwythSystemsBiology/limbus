@@ -204,6 +204,7 @@ def document_file_remove(id, file_id, tokenuser: UserAccount):
         document_schema.dump(Document.query.filter_by(id=id).first())
     )
 
+
 @api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
 @token_required
 def document_file_view(id, file_id):
@@ -213,6 +214,7 @@ def document_file_view(id, file_id):
         return {"success": False, "messages": "There's an issue here"}, 417
 
     return success_with_content_response(document_file_schema.dump(file))
+
 
 @api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
 @token_required

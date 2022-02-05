@@ -44,10 +44,14 @@ def check_document_name(id):
 
     return _check_document_name
 
+
 def check_file_name(name):
     def _check_file_name(form, field):
         if field.data != name:
-            raise ValidationError("%s is not the name of the file. Please try again." % (field.data))
+            raise ValidationError(
+                "%s is not the name of the file. Please try again." % (field.data)
+            )
+
     return _check_file_name
 
 
@@ -60,11 +64,12 @@ def DocumentFileDeletionForm(name):
         "name",
         StringField(
             "Please enter %s to continue" % (name),
-            [DataRequired(), check_file_name(name=name)]
-        )
+            [DataRequired(), check_file_name(name=name)],
+        ),
     )
 
     return StaticForm()
+
 
 def DocumentLockForm(id):
     class StaticForm(FlaskForm):

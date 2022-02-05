@@ -28,7 +28,12 @@ from flask_login import login_required, current_user
 import io
 
 from . import document
-from .forms import DocumentCreationForm, DocumentLockForm, UploadFileForm, DocumentFileDeletionForm
+from .forms import (
+    DocumentCreationForm,
+    DocumentLockForm,
+    UploadFileForm,
+    DocumentFileDeletionForm,
+)
 
 from ..misc import get_internal_api_header
 import requests
@@ -249,8 +254,13 @@ def remove_file(id, file_id):
 
             if form.validate_on_submit():
                 remove_response = requests.delete(
-                    url_for("api.document_file_remove", id=id, file_id=file_id, _external=True),
-                    headers=get_internal_api_header()
+                    url_for(
+                        "api.document_file_remove",
+                        id=id,
+                        file_id=file_id,
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
                 )
 
                 if remove_response.status_code == 200:
@@ -262,8 +272,8 @@ def remove_file(id, file_id):
             return render_template(
                 "document/file/remove.html",
                 document=document_response.json()["content"],
-                file = response.json()["content"],
-                form = form
+                file=response.json()["content"],
+                form=form,
             )
         else:
             return response.content

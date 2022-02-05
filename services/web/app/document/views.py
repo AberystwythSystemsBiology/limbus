@@ -160,7 +160,6 @@ document_schema = DocumentSchema()
 documents_schema = DocumentSchema(many=True)
 
 
-
 class NewDocumentFileSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DocumentFile
