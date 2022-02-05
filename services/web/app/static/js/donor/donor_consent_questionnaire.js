@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2020 Keiron O'Shea <keo7@aber.ac.uk>
+Copyright (C) 2022 Keiron O'Shea <keo7@aber.ac.uk>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,18 +17,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
 function view_study_protocol() {
-   if ($("#study_select").val()>0){
-       $("#study-reference_id_div").show();
-       $("#study-date_div").show();
-
-
-       $("#study-comments_div").show();
-       $("#study-undertaken_by_div").show();
+   if ($("#study_select").val() > 0){
+       $("#study_reference_id_div").show();
+       $("#study_comments_div").show();
+       $("#study_date_div").show();
+       $("#study_undertaken_by_div").show();
    } else {
-       $("#study-reference_id_div").hide();
-       $("#study-date_div").hide();
-       $("#study-comments_div").hide();
-       $("#study-undertaken_by_div").hide();
+    $("#study_reference_id_div").hide();
+    $("#study_comments_div").hide();
+    $("#study_date_div").hide();
+    $("#study_undertaken_by_div").hide();
 
    }
 }
@@ -43,6 +41,7 @@ $(document).ready(function() {
 
 
     $("#study_select").on("change", function() {
+        console.log($("#study_select").val() );
         view_study_protocol();
         if ($("#study_select").val()>0) {
             $("#study-date").val($("#date").val());
