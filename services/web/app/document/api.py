@@ -190,6 +190,30 @@ def document_file_lock(id, file_id, tokenuser: UserAccount):
     return success_with_content_response(document_file_schema.dump(file))
 
 
+@api.route("/document/LIMBDOC-<id>/<file_id>/remove", methods=["DELETE"])
+@token_required
+def document_file_remove(id, file_id, tokenuser: UserAccount):
+    file = DocumentFile.query.filter_by(id=file_id, document_id=id).first()
+
+    if not file:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    db.session.delete(file)
+    db.session.commit()
+    return success_with_content_response(
+        document_schema.dump(Document.query.filter_by(id=id).first())
+    )
+
+@api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
+@token_required
+def document_file_view(id, file_id):
+    file = DocumentFile.query.filter_by(id=file_id, document_id=id).first()
+
+    if not file:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    return success_with_content_response(document_file_schema.dump(file))
+
 @api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
 @token_required
 def document_file_get(id, file_id):
