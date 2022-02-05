@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="jumbotron">
-    <div class="container-fluid">
+    <div class="container">
         <h1><i class="fas fa-vial"></i> Samples</h1>
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
@@ -17,7 +17,7 @@
         </div>
     </div>
 </div>
-<div class="container-fluid">
+<div class="container">
 
 
     <div class="row">
@@ -36,8 +36,7 @@
             <strong>{{ form.current_site_id.label }}</strong>
             {{ form.current_site_id(size="1", class="selectpicker w-100") }}
             </div>
-{#            {{ form_field(form.current_site_id) }}#}
-{#            {{ form.current_site_id }}#}
+
             {{ form_field(form.protocol_id) }}
             {{ form_field(form.source_study) }}
             {{ form_field(form.consent_status) }}
