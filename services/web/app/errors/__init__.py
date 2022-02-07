@@ -83,7 +83,11 @@ def handle_error(code, description, traceback, json=False):
         return {"message": description, "traceback": traceback}, code
     return (
         render_template(
-            "error.html", code=code, smiley=choice(sad), text=description, traceback=traceback
+            "error.html",
+            code=code,
+            smiley=choice(sad),
+            text=description,
+            traceback=traceback,
         ),
         code,
     )
@@ -91,28 +95,34 @@ def handle_error(code, description, traceback, json=False):
 
 @errorhandler(Unauthorized.code)
 def unauthorised(e="401: Unauthorised", json=False):
-    return handle_error(Unauthorized.code, Unauthorized.description, traceback.format_exc(), json)
+    return handle_error(
+        Unauthorized.code, Unauthorized.description, traceback.format_exc(), json
+    )
 
 
 @errorhandler(NotFound.code)
 def not_found(e="404: Page Not Found", json=False):
-    
+
     return handle_error(
-        NotFound.code,
-        NotFound.description,
-        traceback.format_exc(),
-        json
+        NotFound.code, NotFound.description, traceback.format_exc(), json
     )
 
 
 @errorhandler(Forbidden.code)
 def forbidden(e="403: Forbidden", json=False):
-    return handle_error(Forbidden.code, Forbidden.description, traceback.format_exc(), json)
+    return handle_error(
+        Forbidden.code, Forbidden.description, traceback.format_exc(), json
+    )
 
 
 @errorhandler(MethodNotAllowed.code)
 def method_not_allowed(e="405: Method Not Allowed", json=False):
-    return handle_error(MethodNotAllowed.code, MethodNotAllowed.description, traceback.format_exc(), json)
+    return handle_error(
+        MethodNotAllowed.code,
+        MethodNotAllowed.description,
+        traceback.format_exc(),
+        json,
+    )
 
 
 @errorhandler(Gone.code)
@@ -126,4 +136,9 @@ def internal_error(exce):
     if os.environ["FLASK_CONFIG"] == "development":
         raise exce
 
-    return handle_error(InternalServerError.code, InternalServerError.description, traceback.format_exc(), json)
+    return handle_error(
+        InternalServerError.code,
+        InternalServerError.description,
+        traceback.format_exc(),
+        json,
+    )
