@@ -1,15 +1,47 @@
 {%- extends "template.html" -%}
 
 
-{% block title %}{{text}}{% endblock %}
+{% block title %}{{ code }}{% endblock %}
 
 {% block body %}
 <div class="container">
     <div class="exception-error">
+        <h1>{{ code }}: {{ text }}</h1>
+
         <p class="exception-smiley">{{ smiley }}</p>
-        <h1>{{ text }}</h1>
-        <h2>Test {{ e }}</h2>
     </div>
+
+    <h2>🤓 Stuff For Our Geeks</h2>
+
+
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-body">
+            <code>
+                <pre id="exception">{{ traceback }}</pre>
+            </code>
+        </div>
+    </div>
+
+    
+    <div class='btn btn-primary float-right' id="copy-to-clipboard"><i class="fa fa-clipboard"></i> Copy Error To Clipboard</div>
+    
 </div>
 
 {%- endblock %}
+
+{% block javascript %}
+
+<script>
+
+    $("#copy-to-clipboard").click(function(e) {
+        var markdown = "'''" + $("#exception").html() + "'''"
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(markdown).select();
+        document.execCommand("copy");
+        $temp.remove();
+        alert("Error Copied");
+    });
+</script>
+
+{% endblock %}
