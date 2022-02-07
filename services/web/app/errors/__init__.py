@@ -132,10 +132,7 @@ def gone(e="410: Gone", json=False):
 
 @errorhandler(Exception)
 @errorhandler(InternalServerError.code)
-def internal_error(exce):
-    if os.environ["FLASK_CONFIG"] == "development":
-        raise exce
-
+def internal_error(e="500: Encountered a bigly error", json=False):
     return handle_error(
         InternalServerError.code,
         InternalServerError.description,
