@@ -45,6 +45,7 @@ def auth_home(tokenuser: UserAccount):
         basic_user_accounts_schema.dump(UserAccount.query.all())
     )
 
+
 @api.route("/auth/tokenuser")
 @token_required
 def auth_home_tokenuser(tokenuser: UserAccount):
@@ -54,8 +55,11 @@ def auth_home_tokenuser(tokenuser: UserAccount):
         )
 
     return success_with_content_response(
-        basic_user_accounts_schema.dump(UserAccount.query.filter_by(id=tokenuser.id).all())
+        basic_user_accounts_schema.dump(
+            UserAccount.query.filter_by(id=tokenuser.id).all()
+        )
     )
+
 
 @api.route("/auth/user/<id>", methods=["GET"])
 @token_required
