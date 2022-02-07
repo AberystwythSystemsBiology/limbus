@@ -266,17 +266,20 @@ def site_home(tokenuser: UserAccount):
 @token_required
 def site_home_tokenuser(tokenuser: UserAccount):
 
-    if tokenuser.is_admin:
-        sites = basic_sites_schema.dump(
-            SiteInformation.query.filter_by(is_external=False).all()
-        )
-
-    else:
-        sites = basic_sites_schema.dump(
-            SiteInformation.query.filter_by(
-                is_external=False, id=tokenuser.site_id
-            ).all()
-        )
+    # if tokenuser.is_admin:
+    #     sites = basic_sites_schema.dump(
+    #         SiteInformation.query.filter_by(is_external=False).all()
+    #     )
+    #
+    # else:
+    #     sites = basic_sites_schema.dump(
+    #         SiteInformation.query.filter_by(
+    #             is_external=False, id=tokenuser.site_id
+    #         ).all()
+    #     )
+    sites = basic_sites_schema.dump(
+        SiteInformation.query.filter_by(is_external=False).all()
+    )
 
     choices = []
     settings = tokenuser.settings
