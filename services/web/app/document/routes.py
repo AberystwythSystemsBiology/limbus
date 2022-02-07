@@ -209,7 +209,7 @@ def edit(id):
         return response.content
 
 
-@document.route("/LIMBDOC-<id>/file/<file_id>")
+@document.route("/LIMBDOC-<id>/file/<file_id>/get")
 @login_required
 def view_file(id, file_id):
     response = requests.get(

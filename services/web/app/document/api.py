@@ -216,7 +216,7 @@ def document_file_view(id, file_id):
     return success_with_content_response(document_file_schema.dump(file))
 
 
-@api.route("/document/LIMBDOC-<id>/<file_id>", methods=["GET"])
+@api.route("/document/LIMBDOC-<id>/<file_id>/get", methods=["GET"])
 @token_required
 def document_file_get(id, file_id):
     file = DocumentFile.query.filter_by(id=file_id, document_id=id).first()
