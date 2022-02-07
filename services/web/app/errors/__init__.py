@@ -15,7 +15,9 @@
 
 from binascii import hexlify
 from functools import wraps
+from http.client import INTERNAL_SERVER_ERROR
 from logging import error
+import traceback
 from os import urandom
 
 from flask import render_template
@@ -23,6 +25,7 @@ from werkzeug.exceptions import *
 import os
 from random import choice
 
+import sys
 
 error_handlers = []
 
@@ -75,12 +78,16 @@ def errorhandler(code_or_exception):
     return decorator
 
 
-def handle_error(e, code, json=False):
+def handle_error(code, description, traceback, json=False):
     if json:
-        return {"message": e}, code
+        return {"message": description, "traceback": traceback}, code
     return (
         render_template(
-            "error.html", e=code, smiley=choice(sad), text=e, title="{}".format(code)
+            "error.html",
+            code=code,
+            smiley=choice(sad),
+            text=description,
+            traceback=traceback,
         ),
         code,
     )
@@ -88,41 +95,47 @@ def handle_error(e, code, json=False):
 
 @errorhandler(Unauthorized.code)
 def unauthorised(e="401: Unauthorised", json=False):
-    return handle_error(e, Unauthorized.code, json)
+    return handle_error(
+        Unauthorized.code, Unauthorized.description, traceback.format_exc(), json
+    )
 
 
 @errorhandler(NotFound.code)
-def not_found(e="404: Not Found", json=False):
+def not_found(e="404: Page Not Found", json=False):
+
     return handle_error(
-        e if "check your spelling" not in "{}".format(e) else "404: Not Found",
-        NotFound.code,
-        json,
+        NotFound.code, NotFound.description, traceback.format_exc(), json
     )
 
 
 @errorhandler(Forbidden.code)
 def forbidden(e="403: Forbidden", json=False):
-    return handle_error(e, Forbidden.code, json)
+    return handle_error(
+        Forbidden.code, Forbidden.description, traceback.format_exc(), json
+    )
 
 
 @errorhandler(MethodNotAllowed.code)
 def method_not_allowed(e="405: Method Not Allowed", json=False):
-    return handle_error(e, MethodNotAllowed.code, json)
+    return handle_error(
+        MethodNotAllowed.code,
+        MethodNotAllowed.description,
+        traceback.format_exc(),
+        json,
+    )
 
 
 @errorhandler(Gone.code)
 def gone(e="410: Gone", json=False):
-    return handle_error(e, Gone.code, json)
+    return handle_error(Gone.code, Gone.descrition, traceback.format_exc(), json)
 
 
 @errorhandler(Exception)
 @errorhandler(InternalServerError.code)
-def internal_error(exce):
-    if os.environ["FLASK_CONFIG"] == "development":
-        raise exce
-
-    code = hexlify(urandom(4)).decode()
-    error(Exception("Code: {}".format(code), exce), exc_info=True)
-    text = "500: Something bad has happened\n{}".format(code)
-
-    return handle_error(text, InternalServerError.code)
+def internal_error(e="500: Encountered a bigly error", json=False):
+    return handle_error(
+        InternalServerError.code,
+        InternalServerError.description,
+        traceback.format_exc(),
+        json,
+    )
