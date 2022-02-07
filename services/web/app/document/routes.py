@@ -216,7 +216,7 @@ def view_file(id, file_id):
         url_for("api.document_file_get", id=id, file_id=file_id, _external=True),
         headers=get_internal_api_header(),
     )
-    
+
     if response.status_code == 200:
         d = response.headers["content-disposition"]
         fname = re.findall("filename=(.+)", d)[0]
