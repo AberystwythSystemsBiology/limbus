@@ -64,7 +64,10 @@ def audit_index():
                 ]
             )
 
-            users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
+            if site_id in sites_dict:
+                user_label = user_label + "[" + sites_dict[site_id] + "]"
+
+            users.append((user["id"], user_label))
             # users_by_site[site_id].append((user["id"], user_label))
 
     form = AuditFilterForm(sites, users)
