@@ -209,13 +209,16 @@ def edit(id):
         return response.content
 
 
-@document.route("/LIMBDOC-<id>/file/<file_id>")
+@document.route("/LIMBDOC-<id>/file/<file_id>/get")
 @login_required
 def view_file(id, file_id):
     response = requests.get(
         url_for("api.document_file_get", id=id, file_id=file_id, _external=True),
         headers=get_internal_api_header(),
     )
+    
+
+    print(response.headers)
 
     if response.status_code == 200:
         d = response.headers["content-disposition"]
