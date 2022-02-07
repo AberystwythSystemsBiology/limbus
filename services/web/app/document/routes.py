@@ -217,9 +217,6 @@ def view_file(id, file_id):
         headers=get_internal_api_header(),
     )
     
-
-    print(response.headers)
-
     if response.status_code == 200:
         d = response.headers["content-disposition"]
         fname = re.findall("filename=(.+)", d)[0]
