@@ -35,7 +35,6 @@ def audit_index():
     sites = []
     if sites_response.status_code == 200:
         sites = sites_response.json()["content"]["choices"]
-        # print("sites", sites)
 
     sites.append((99999, "Bots"))
     users_by_site = {s[0]: [] for s in sites}
@@ -64,13 +63,13 @@ def audit_index():
                 ]
             )
 
-            users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
-            # users_by_site[site_id].append((user["id"], user_label))
+            if site_id in sites_dict:
+                user_label = user_label + "[" + sites_dict[site_id] + "]"
+
+            users.append((user["id"], user_label))
 
     form = AuditFilterForm(sites, users)
-    return render_template(
-        "admin/audit/index.html", form=form
-    )  # , users_by_site=users_by_site)
+    return render_template("admin/audit/index.html", form=form)
 
 
 @admin.route("/audit/query", methods=["POST"])
@@ -82,7 +81,6 @@ def audit_query():
 
     args["start_date"] = start_date
     args["end_date"] = end_date
-    # print("args ", args)
     audit_response = requests.get(
         url_for("api.audit_query", _external=True),
         headers=get_internal_api_header(),
