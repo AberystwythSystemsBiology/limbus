@@ -69,9 +69,7 @@ def audit_index():
             users.append((user["id"], user_label))
 
     form = AuditFilterForm(sites, users)
-    return render_template(
-        "admin/audit/index.html", form=form
-    )
+    return render_template("admin/audit/index.html", form=form)
 
 
 @admin.route("/audit/query", methods=["POST"])
