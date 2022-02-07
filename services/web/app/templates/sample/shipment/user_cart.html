@@ -23,13 +23,14 @@
 
         </h1>
         <h5> LIMBUSR-<span id="user_id">{{ user_id }}</span> :
-         {{ current_user.first_name }} {{ current_user.last_name }} ( {{ current_user.email }})
+         {{ user_id_label }}
+{#         {{ current_user.first_name }} {{ current_user.last_name }} ( {{ current_user.email }})#}
         </h5>
 
     <div class="row text-muted">
-    <div class="col-7">
+{#    <div class="col-7">#}
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group mr-2" role="group" aria-label="First group">
+{#            <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href="{{ url_for('sample.shipment_new_step_one') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-shipping-fast"></i>
                         Ship Selected Samples</button></a>
@@ -43,7 +44,7 @@
                 <a href="{{ url_for('sample.batch_dispose') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i>
                         Dispose</button></a>
-            </div>
+            </div>#}
 
             <div class="btn-group mr-2" role="group" aria-label="First group">
                 <button type="button" class="btn btn-outline-dark" style="white-space: nowrap" id="sample-to-cart-btn">
@@ -127,24 +128,27 @@
 <!--- Cart Confirmation -->
 <div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="modal-confirmation-label" aria-hidden="true">
   <div class="modal-dialog" role="document">
-    <div class="modal-content">
+    <form class="modal-content" method="POST">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title" id="modal-confirmation-label">Cart Confirmation</h5>
         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+{#<form name="select-user" id="select-user-form" class="" method="post">#}
       <div class="modal-body">
         <p class="confirm-msg"></p>
-          <div class="">
+
+{#          <div class="">#}
         {{ form.csrf_token }}
         {{ form.select_user_id(size="1", class="selectpicker w-100", tilte="select a user",  style="border:none")}}
-        </div>
+{#        </div>#}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-success">Confirm</button>
-
+        <button id="select-user-form" type="submit" class="btn btn-success">Submit</button>
+      </div>
+</form>
       </div>
     </div>
   </div>

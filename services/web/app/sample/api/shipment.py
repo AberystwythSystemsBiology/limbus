@@ -403,8 +403,17 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
 
 @api.route("/cart/remove/<uuid>", methods=["DELETE"])
+@api.route("/cart/LIMBUSR-<user_id>/remove/<uuid>", methods=["DELETE"])
 @token_required
-def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
+def remove_sample_from_cart(uuid: str, tokenuser: UserAccount, user_id=None):
+    print("user id", tokenuser.id, user_id)
+    if user_id:
+        if tokenuser.is_admin is False:
+            print("toke id", tokenuser.id, user_id)
+            return not_allowed()
+    else:
+        user_id = tokenuser.id
+
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(tokenuser),
@@ -414,7 +423,7 @@ def remove_sample_from_cart(uuid: str, tokenuser: UserAccount):
         sample_id = sample_response.json()["content"]["id"]
 
         uc = UserCart.query.filter_by(
-            author_id=tokenuser.id, sample_id=sample_id
+            author_id=user_id, sample_id=sample_id
         ).first()
 
         if uc:
@@ -841,7 +850,7 @@ def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
         return not_found("the involved samples for shipment uuid: %s" %shipment_uuid)
 
     success, msg = func_add_samples_to_cart(
-        tokenuser, sample_ids, to_close_shipment=True
+        tokenuser=tokenuser, user_id=None, sample_ids=sample_ids, to_close_shipment=True
     )
     if not success:
         return msg
@@ -871,18 +880,19 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
     sample_ids = (
             db.session.query(EntityToStorage.sample_id)
             .filter_by(rack_id=id, storage_type="STB")
+            .filter_by(removed=False)
             .all()
     )
 
     if len(sample_ids) == 0:
         return not_found("for the rack with sample(s)")
 
-    sample_ids = [smpl[0] for smpl in sample_ids]
+    sample_ids = [int(smpl[0]) for smpl in sample_ids]
     print("sample_ids", sample_ids)
 
     # -- Remove rack from shelf
     ESRecords = (EntityToStorage.query
-                 .filter_by(rack_id=id, storage_type="BTS")
+                 .filter_by(rack_id=id, storage_type="BTS", removed=False)
                  .order_by(EntityToStorage.removed)
                  .all())
     nd = 0
@@ -904,7 +914,8 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
                 return transaction_error_response(err)
 
     success, msg = func_add_samples_to_cart(
-        tokenuser, sample_ids, to_close_shipment=False, check=True, rack_to_cart=True
+        tokenuser=tokenuser, user_id=None, sample_ids=sample_ids,
+        to_close_shipment=False, check=True, rack_to_cart=True
     )
 
     if not success:
@@ -921,7 +932,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
 
 @api.route("/cart/LIMBUSR-<user_id>/reassign", methods=["POST"])
 @token_required
-def sample_reassign_cart(tokenuser: UserAccount, user_id):
+def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
     values = request.get_json()
     if not values:
         return no_values_response()
@@ -929,7 +940,6 @@ def sample_reassign_cart(tokenuser: UserAccount, user_id):
     samples = values.pop("samples", [])
     new_user_id = values.pop("new_user_id", None)
 
-    print("values", values)
     if len(samples) == 0:
         return no_values_response()
 
@@ -943,35 +953,44 @@ def sample_reassign_cart(tokenuser: UserAccount, user_id):
     #sample_ids = [smpl["id"] for smpl in samples]
     sample_ids = samples
 
+    # -- Check if any rack in old user cart are present if yes, add rack to new user cart
+    print("sample_ids: ", sample_ids)
     sample_ids_ruc = [
         sid for (sid) in
             db.session.query(UserCart.sample_id)
-            .filter_by(id=new_user_id, storage_type='RUC')
+            .filter_by(author_id=user_id, storage_type='RUC')
             .filter(UserCart.sample_id.in_(sample_ids))
             .filter(~UserCart.rack_id.is_(None))
     ]
+    print("sample_ruc: ", sample_ids_ruc)
 
     msg = ""
     if (len(sample_ids_ruc)>0):
         success, msg_rack = func_add_samples_to_cart(
-            tokenuser, user_id, sample_ids_ruc,
+            tokenuser, new_user_id, sample_ids_ruc,
             to_close_shipment=False, rack_to_cart=True, check=True
         )
         if not success:
             return msg_rack
         msg = "Rack to cart: %s" %msg_rack
 
+    print("msg", msg)
+    # -- Check if any samples (without rack location) in old user cart are present
+    # -- if yes, add samples to new user cart
     sample_ids_smpl = [
         sid for (sid) in
             db.session.query(UserCart.sample_id)
-            .filter_by(id=new_user_id)
+            .filter_by(author_id=user_id)
             .filter(UserCart.sample_id.in_(sample_ids))
-            .filter(UserCart.rack_id.is_(None), UserCart.storage_type!='RUC')
+            .filter(UserCart.rack_id.is_(None))
+            .filter(or_(UserCart.storage_type.is_(None), UserCart.storage_type!='RUC'))
     ]
+    print("sample_ids_smpl: ", sample_ids_smpl)
+
     if (len(sample_ids_smpl) > 0):
         success, msg_smpl = func_add_samples_to_cart(
-            tokenuser, user_id, sample_ids_smpl,
-            to_close_shipment=False, rack_to_cart=True, check=True
+            tokenuser, new_user_id, sample_ids_smpl,
+            to_close_shipment=False, rack_to_cart=False, check=True
         )
 
         if not success:
@@ -980,7 +999,7 @@ def sample_reassign_cart(tokenuser: UserAccount, user_id):
         if msg!="":
             msg = msg + "| "
 
-        msg = msg + "Samples to cart: %s" % msg_rack
+        msg = msg + "Samples to cart: %s" % msg_smpl
 
     try:
         db.session.commit()
@@ -1111,6 +1130,40 @@ def select_record_cart_shipment(sample_id: int, tokenuser: UserAccount):
         )
         return success_with_content_response(cart_response.status_code)
 
+
+
+@api.route("/cart/LIMBUSR-<user_id>/update/samples", methods=["POST"])
+@token_required
+def user_cart_update_samples(user_id:int, tokenuser: UserAccount):
+    print("user_id", user_id)
+    values = request.get_json()
+    if not values:
+        return no_values_response()
+
+    samples = values.pop("samples", [])
+    if len(samples) == 0:
+        return no_values_response()
+
+    user_id = int(user_id)
+    if user_id is None or user_id == 0:
+        user_id = tokenuser.id
+
+    print("user_id", user_id)
+
+    for sample in samples:
+        print("sample", sample)
+        sample_id = sample["id"]
+        ucRecord = UserCart.query.filter_by(sample_id=sample_id, author_id=user_id).first()
+        ucRecord.selected = sample["selected"]
+        ucRecord.update({"editor_id": tokenuser.id})
+        db.session.add(ucRecord)
+
+    try:
+        db.session.commit()
+        return success_without_content_response()
+
+    except Exception as err:
+        return transaction_error_response(err)
 
 @api.route("/cart/select/LIMBSAMPLE-<sample_id>", methods=["POST"])
 @token_required

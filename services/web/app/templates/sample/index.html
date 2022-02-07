@@ -26,11 +26,10 @@
             <h3>Filters</h3>
             {{ form.csrf_token }}
 
-            <div class="btn btn-icon-filter">
-                <button type="button" id="filter-bell-btn" class="btn btn-icon-filter" style="white-space: nowrap">
-                <i class="fas fa-bell" aria-hidden="true"></i>
-                    {{ form.reminder_type(size="1", class="selectpicker w-100", title='Reminder')}}
-                </button>
+            <div class="btn-group">
+                <button type="button" id="filter-bell-btn" class="btn btn-icon-filter">
+                <i class="fas fa-bell" aria-hidden="true"></i></button>
+                {{ form.reminder_type(size="1", class="selectpicker w-100", title='Reminder')}}
             </div>
 
             <div class="form-group">

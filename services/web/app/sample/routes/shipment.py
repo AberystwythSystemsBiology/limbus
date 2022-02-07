@@ -34,7 +34,7 @@ def shipment_cart():
 
 @sample.route("/cart/LIMBUSR-<user_id>")
 @login_required
-def admin_user_cart(user_id):
+def admin_user_cart(user_id:int):
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
@@ -53,30 +53,34 @@ def admin_user_cart(user_id):
         headers=get_internal_api_header(),
     )
 
+    user_id_label = None
     if auth_response.status_code == 200:
         auth_info = auth_response.json()["content"]
 
         for user in auth_info:
-            if user["id"] == user_id:
-                continue
 
             if user["site_id"]:
                 site_id = user["site_id"]
             else:
                 continue
-            print("uers", user)
-            user_label = "|".join(
-                [
+
+            print("uer --s", user["id"], type(user["id"]))
+            user_label = "%s %s(%s) %s" %(
+                    user["first_name"], user["last_name"],
                     user["email"],
-                    user["account_type"],
-                    user["first_name"] + " " + user["last_name"],
-                ]
+                    user["account_type"]
             )
             try:
                 choices0 = user["settings"]["data_entry"]["site"]["choices"]
                 choices0 = list(set(choices0).union(set(site_id)))
             except:
                 choices0 = [site_id]
+
+
+            if int(user["id"]) == int(user_id):
+                site_choices0 = ", ".join([sites_dict[s1] for s1 in choices0])
+                user_id_label = user_label + " [" + site_choices0 + "]"
+                continue
 
             # users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
             for site_id1 in choices0:
@@ -86,6 +90,7 @@ def admin_user_cart(user_id):
 
         users = []
         for k in users_by_site:
+
             users = users + users_by_site[k]
         #users_sorted = users.sort(key=lambda x: x[1])
 
@@ -95,7 +100,8 @@ def admin_user_cart(user_id):
         form = UserSelectForm(users);
     else:
         form = {}
-    return render_template("sample/shipment/user_cart.html", user_id=user_id, form=form)
+    return render_template("sample/shipment/user_cart.html",
+                           user_id=user_id, user_id_label=user_id_label, form=form)
 
 
 
@@ -404,6 +410,19 @@ def shipment_cart_deselect_shipment():
         return jsonify(cart_response.status_code)
     return jsonify(sample_respose.status_code)
 
+@sample.route("/user/cart/update/samples", methods=["GET", "POST"])
+@sample.route("/cart/LIMBUSR-<user_id>/update/samples", methods=["GET", "POST"])
+def user_cart_update(user_id=0):
+    values = request.json
+
+    cart_response = requests.post(
+        url_for("api.user_cart_update_samples", user_id=user_id, _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+
+    return jsonify(cart_response.status_code)
+
 
 @sample.route("/shipment/cart/select", methods=["GET", "POST"])
 def shipment_cart_select():
@@ -412,6 +431,7 @@ def shipment_cart_select():
         url_for("api.select_record_cart", sample_id=sampleID, _external=True),
         headers=get_internal_api_header(),
     )
+
     return jsonify(cart_response.status_code)
 
 
@@ -422,4 +442,5 @@ def shipment_cart_deselect():
         url_for("api.deselect_record_cart", sample_id=sampleID, _external=True),
         headers=get_internal_api_header(),
     )
+
     return jsonify(cart_response.status_code)
