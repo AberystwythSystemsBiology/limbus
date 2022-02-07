@@ -4,12 +4,28 @@
 {% block title %}{{ code }}{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="exception-error">
-        <h1>{{ code }}: {{ text }}</h1>
 
-        <p class="exception-smiley">{{ smiley }}</p>
+<div class="jumbotron">
+    <div class="container">
+        <div class="row">
+            <div class="col-11">
+                <h1>
+                    {{ code }}</h1>
+            </div>
+            <div class="col-1">
+                <h1>{{ smiley }}</h1>
+            </div>
+        </div>
+        
+
     </div>
+</div>
+
+<div class="container">
+
+
+    <p>{{ text }}</p>
+
 
     <h2>🤓 Stuff For Our Geeks</h2>
 
