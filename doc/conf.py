@@ -18,11 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = "LImBuS"
-copyright = "2020, AberystwythSystemsBiology"
+copyright = "2022 AberystwythSystemsBiology"
 author = "AberystwythSystemsBiology"
 
 # The full version, including alpha/beta/rc tags
-release = "20.08"
+release = "dev"
 
 
 # Annoying sphinx bug.
