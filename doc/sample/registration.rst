@@ -33,4 +33,6 @@ Click 'New Sample'. You should now be greeted with the following form:
 
 This page allows you to enter information concerning the collection of the Sample:
 
-* **Sample Status:**  
+* **Sample Status:** The status of the Sample at the time of entry. One of Available, Unusable, Missing, Temporary Storage, Pending Collection, or Pending Review.
+* **Sample Biobank Barcode:** If the Sample already has a identifier, then enter it here.
+* **Colour:** 
