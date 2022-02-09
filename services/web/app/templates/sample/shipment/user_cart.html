@@ -135,18 +135,16 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-{#<form name="select-user" id="select-user-form" class="" method="post">#}
       <div class="modal-body">
         <p class="confirm-msg"></p>
 
-{#          <div class="">#}
-        {{ form.csrf_token }}
+{#        {{ form.csrf_token }}#}
         {{ form.select_user_id(size="1", class="selectpicker w-100", tilte="select a user",  style="border:none")}}
-{#        </div>#}
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button id="select-user-form" type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" class="btn btn-success">Submit</button>
       </div>
 </form>
       </div>

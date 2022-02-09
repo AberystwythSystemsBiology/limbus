@@ -149,8 +149,10 @@ function tocart_btn_logic(aTable, user_id) {
            console.log("form", formdata);
            res = reassign_samples_to_cart(api_url, formdata);
            if (res.success == true) {
-              // window.location.href = window.location.origin + "/sample/cart/LIMBUSR-"+new_user_id;
-           }
+              window.location.href = window.location.origin + "/sample/cart/LIMBUSR-"+new_user_id;
+           } /*else {
+              window.location.href = window.location.reload();
+           }*/
         } else {
             alert("No sample selected!");
         }

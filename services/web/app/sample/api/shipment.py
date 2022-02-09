@@ -524,7 +524,7 @@ def func_validate_samples_to_cart(
         sites_tokenuser = func_validate_settings(
             tokenuser, keys={"site_id"}, check=False
         )
-
+        print("Sample site: %s , sites_tokenuser: %s" %(Sample.current_site_id, sites_tokenuser))
         samples_other = db.session.query(Sample.id).filter(
             Sample.id.in_(sample_ids),
             Sample.is_locked.is_(False),
@@ -539,6 +539,7 @@ def func_validate_samples_to_cart(
                 + "| Data entry role required for the associated site for %d samples!"
                 % n_other
             )
+            
 
     if to_close_shipment is False:
         # Locked samples union with samples with rack that have been locked
@@ -623,9 +624,12 @@ def func_validate_samples_to_cart(
             + "=> In total: %d samples (cant be added to cart): " % n_locked
             + ", ".join(["LIMBSMP-%s" % ids_locked])
         )
+        return False, validation_error_response(msg_locked), sample_ids
+
     else:
         # ids_locked = []
         msg_locked = ""
+
 
     if len(sample_ids) == 0:
         return False, validation_error_response(msg_locked), sample_ids
@@ -641,7 +645,6 @@ def func_add_samples_to_cart(
 
     if not user_id:
         user_id = tokenuser.id
-        user = tokenuser
 
     if user_id != tokenuser.id:
         user = UserAccount.query.filter_by(id=user_id).first()
