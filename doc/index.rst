@@ -15,7 +15,7 @@ processed, distributed, and tracked by the biorepository at Hywel Dda University
 Health Board's Clinical Research Centre (CRC).
 
 Setting things up
----------------
+-----------------
 
 Learn more about configuring or deploying LImBuS.
 
