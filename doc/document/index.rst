@@ -18,3 +18,4 @@ Click 'Document Portal'. You should now be greeted with the following page:
    :caption: Document Portal Documentation
    
    new.rst
+   upload.rst
