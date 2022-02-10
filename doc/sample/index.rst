@@ -20,7 +20,7 @@ Here you will find all of your viewable Samples, as well as key information abou
   :alt: The Column Visibility drop down.
 
 How can I search this?
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 If you would like to do simplistic free text search, you can easily do so by using the Search area on the top right of the Sample Index Portal Table:
 
@@ -29,7 +29,7 @@ If you would like to do simplistic free text search, you can easily do so by usi
   :alt: Searching for a UUID using the basic text search functionality.
 
 How can I filter this?
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 On the left hand side of the Sample Index Portal, you should find the 'Filter' area. Here you can enter information in which to filter the result of the query that gets the Sample information that populates the Sample Index Portal. This includes:
 
