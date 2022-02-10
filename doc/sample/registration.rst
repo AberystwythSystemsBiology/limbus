@@ -27,7 +27,6 @@ Step One: Collection and Consent Information
 
 You should now be greeted with the following form:
 
-
 .. image:: img/registration/step_one.jpeg
   :width: 800
   :alt: Screenshot of theSample Collection and Consent Information form.
@@ -91,8 +90,7 @@ This allows you to provide Sample Type and Storage information.
 
 Once you're happy with what you've entered, click the green Save box at the bottom of the form to add the Sample to the Biobank.
 
-You should now see that the sample has been added!
-
+You should now see that the sample has been added.
 
 .. image:: img/registration/final_sample.jpeg
   :width: 800
