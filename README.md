@@ -15,14 +15,11 @@
 
 The goal of this project is to develop a Biobank Information Management System (BIMS) for the management of biospecimens and associated data that are accepted, processed, distributed, and tracked by the biorepository at Hywel Dda University Health Board's Clinical Research Centre (CRC).
 
-## 📷 Screenshots
-
-<img src="screenshot.png" align="center" max-width="800px">
 
 ## 🌟 Key Features
 
 - Sample Management
-- Sample Aliquoting
+- Sample Aliquot and Derivative Creation
 - Protocol Management
 - Donor Management
 - Consent Management
@@ -33,6 +30,7 @@ The goal of this project is to develop a Biobank Information Management System (
 - Barcode Generation
 - Barcode Label Creation
 - REST API
+
 
 ## 🤔 Bug reporting and feature suggestions
 
@@ -45,6 +43,28 @@ We welcome all sorts of contribution, so please be as candid as you want.
 <a href="https://github.com/AberystwythSystemsBiology/limbus/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=AberystwythSystemsBiology/limbus" />
 </a>
+
+
+## 📷 Screenshots
+
+### Overview Panel
+
+<img src="screenshot.jpeg" align="center" max-width="800px">
+
+### Sample View
+
+<img src="screenshot2.jpeg" align="center" max-width="800px">
+
+### Donor Diagnosis Information
+
+
+<img src="screenshot3.jpeg" align="center" max-width="800px">
+
+### Protocol View
+
+<img src="screenshot4.jpeg" align="center" max-width="800px">
+
+
 
 ## 📜 License
 
