@@ -31,7 +31,7 @@ User Guide
 Learn more about configuring or deploying LImBuS.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :hidden:
    :caption: User Guide
    
