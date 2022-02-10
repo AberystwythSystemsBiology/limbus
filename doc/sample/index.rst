@@ -22,6 +22,12 @@ Here you will find all of your viewable Samples, as well as key information abou
 How can I search this?
 ----------------------
 
+If you would like to do simplistic free text search, you can easily do so by using the Search area on the top right of the Sample Index Portal Table:
+
+.. image:: img/sample_table_search.PNG
+  :width: 600
+  :alt: Searching for a UUID using the basic text search functionality.
+
 How can I filter this?
 ----------------------
 
