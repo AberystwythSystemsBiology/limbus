@@ -17,11 +17,20 @@ The goal of this project is to develop a Biobank Information Management System (
 
 ## 📷 Screenshots
 
+### Overview Panel
+
 <img src="screenshot.jpeg" align="center" max-width="800px">
+
+### Sample View
 
 <img src="screenshot2.jpeg" align="center" max-width="800px">
 
+### Donor Diagnosis Information
+
+
 <img src="screenshot3.jpeg" align="center" max-width="800px">
+
+### Protocol View
 
 <img src="screenshot4.jpeg" align="center" max-width="800px">
 
