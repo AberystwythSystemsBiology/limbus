@@ -12,3 +12,9 @@ Click 'Document Portal'. You should now be greeted with the following page:
 .. image:: img/document_portal.PNG
   :width: 800
   :alt: Screenshot of the Document Portal.
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Document Portal Documentation
+   
+   new.rst
