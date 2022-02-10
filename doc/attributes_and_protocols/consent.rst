@@ -13,5 +13,6 @@ Click 'Consent Management'. You should now be greeted with the following page:
   :width: 800
   :alt: Screenshot of the  Patient Consent Form Panel.
 
-Adding a Patient Consent Form Template
---------------------------------------
+Create a new Patient Consent Form Template
+------------------------------------------
+
