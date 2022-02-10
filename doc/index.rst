@@ -17,7 +17,7 @@ Setting things up
 Learn more about configuring or deploying LImBuS.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :hidden:
    :caption: Setting things up
    
@@ -31,7 +31,7 @@ User Guide
 Learn more about configuring or deploying LImBuS.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :hidden:
    :caption: User Guide
    
@@ -48,7 +48,7 @@ Application Programming Interfaces
 LImBuS exposes a REStful API to allow for programmable access to common functions.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :hidden:
    :caption: API
    
@@ -60,7 +60,7 @@ Learn more about configuring LImBuS, and find information about some of the
 issues you may be struggling with.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :hidden:
    :caption: Support
 
