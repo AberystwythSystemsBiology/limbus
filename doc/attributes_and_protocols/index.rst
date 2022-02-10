@@ -13,3 +13,4 @@ Something here.
    :caption: Attributes and Protocols Documentation
    
    consent.rst
+   attributes.rst
