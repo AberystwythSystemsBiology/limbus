@@ -1,5 +1,5 @@
-Sample Portal
-=============
+Sample Portal Index
+===================
 
 How can I search the Sample Portal?
 -----------------------------------
