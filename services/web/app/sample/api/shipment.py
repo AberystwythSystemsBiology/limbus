@@ -509,7 +509,7 @@ def func_validate_samples_to_cart(
     # -- Sample_locked: samples that could not be added to cart for storage/shipment
     # -- Sample_locked + Rack_locked + Sample_in_transit
     msg_locked = ""
-    print("999", to_close_shipment, rack_to_cart)
+    print("999", to_close_shipment, rack_to_cart, tokenuser.email)
     samples_locked = db.session.query(Sample.id).filter(
         Sample.id.in_(sample_ids), Sample.is_locked == True
     )
@@ -539,6 +539,7 @@ def func_validate_samples_to_cart(
                 + "| Data entry role required for the associated site for %d samples!"
                 % n_other
             )
+            print("msg_locked : site ", msg_locked)
             
 
     if to_close_shipment is False:
@@ -1006,7 +1007,7 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        return success_with_content_message_response(sample_ids, message=msg)
+        return success_with_content_message_response({"user_id": user_id, "sample_ids": sample_ids}, message=msg)
 
     except Exception as err:
         db.session.rollback()
