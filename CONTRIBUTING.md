@@ -8,14 +8,18 @@ All new contributions are required to follow a standard naming convention for br
 - `fix/name-of-the-fix`
 
 
+If you're not part of the project, feel free to fork the project and create a new branch in your new fork. If you've been assigned read/write access to the project you can use the project repository to create a branch.
+
+Once you have done that, go to the project directory and run:
+
 ```
+git pull
 git checkout -b feature/name-of-the-feature
 ```
 
-Make a new branch and push to it
+Once you've made your changes make your push:
 
 ```
-git pull origin master
 git push -u origin feature/name-of-the-feature
 ```
 

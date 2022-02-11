@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+
+{% block title %}Remove File from LIMBDOC-{{ document.id }}{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ url_for('document.view', id=document.id) }}">
+                <i class="fas fa-file"></i> LIMBDOC-{{ document.id }}</span>
+            </a>
+            Remove File: {{ file.name }}
+        </h1>
+
+    </div>
+</div>
+<div class="container">
+
+    <div class="alert alert-danger text-center">
+        <b>Danger:</b> This action cannot be undone. This will permanently delete {{ file.name }}, and remove all associations. 
+    </div>
+
+    <form method="POST" action="{{ url_for('document.remove_file', id=document.id, file_id=file.id) }}">
+        {{ form.csrf_token }}
+        {{ form_field(form.name) }}
+        {{ form_field(form.submit) }}
+    </form>
+
+    
+
+</div>
+{% endblock %}

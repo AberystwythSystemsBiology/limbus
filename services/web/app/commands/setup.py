@@ -19,6 +19,9 @@ from ..database import db, UserAccount, UserAccountToken, Address, SiteInformati
 
 from uuid import uuid4
 
+import random
+import string
+
 
 @cmd_setup.cli.command("create-kryten")
 def create_kryten():
@@ -104,9 +107,11 @@ def create_testuser():
     db.session.commit()
     db.session.flush()
 
+    generated_password = "".join(random.choice(string.printable) for i in range(15))
+
     me = UserAccount(
         email="me@domain.com",
-        password="password",
+        password=generated_password,
         title="MR",
         first_name="Joe",
         last_name="Bloggs",
@@ -123,3 +128,7 @@ def create_testuser():
     db.session.commit()
 
     print("Created the testing/development user.")
+    print(
+        "You can log in using the following credentials:\nEmail: me@domain.com\nPassword: %s"
+        % (generated_password)
+    )

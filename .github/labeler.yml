@@ -1,0 +1,82 @@
+limbus/backend:
+    - services/web/app/**/*.py
+
+limbus/frontend:
+    - services/web/app/**/*.html
+    - services/web/app/static/**/*.js
+
+limbus/database:
+    - services/web/app/**/models.py
+    - services/web/app/**/models/*.py
+    - services/web/app/database.py
+
+limbus/modules/admin:
+    - services/web/app/admin/*
+    - services/web/app/templates/admin/*
+
+limbus/modules/api:
+    - services/web/app/api/*
+
+limbus/modules/attribute:
+    - services/web/attribute/*
+    - services/web/app/templates/attribute/*
+
+limbus/modules/auth:
+    - services/web/auth/*
+    - services/web/app/templates/auth/*
+
+limbus/modules/commands:
+    - services/web/commands/*
+
+limbus/modules/consent:
+    - services/web/consent/*
+    - services/web/app/templates/consent/*
+
+limbus/modules/disease:
+    - services/web/disease/*
+    - services/web/app/templates/disease/*
+
+limbus/modules/document:
+    - services/web/document/*
+    - services/web/app/templates/document/*
+
+limbus/modules/donor:
+    - services/web/donor/*
+    - services/web/app/templates/donor/*
+
+limbus/modules/errors:
+    - services/web/errors/*
+    - services/web/app/templates/errors/*
+
+limbus/modules/event:
+    - services/web/event/*
+
+
+limbus/modules/labels:
+    - services/web/labels/*
+
+limbus/modules/misc:
+    - services/web/misc/*
+    - services/web/app/templates/misc/*
+
+limbus/modules/procedure:
+    - services/web/procedure/*
+    - services/web/app/templates/procedure/*
+
+limbus/modules/protocol:
+    - services/web/protocol/*
+    - services/web/app/templates/protocol/*
+
+limbus/modules/sample:
+    - services/web/sample/*
+    - services/web/app/templates/sample/*
+
+limbus/modules/setup:
+    - services/web/setup/*
+    - services/web/app/templates/setup/*
+
+limbus/modules/storage:
+    - services/web/storage/*
+    - services/web/app/templates/storage/*
+
+

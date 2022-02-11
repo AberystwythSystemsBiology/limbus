@@ -86,6 +86,7 @@
                 </th>
                 <th>Uploader</th>
                 <th>Created On</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -100,11 +101,16 @@
                 <td><code>{{ file.checksum }}</code></td>
                 <td>{{ render_author_for_table(file.author) }}</td>
                 <td>{{ file.created_on }}</td>
+                <td>
+                    <a href="{{ url_for('document.remove_file', id=document.id, file_id=file.id) }}">
+                    <div class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></div>
+                </a>
+                </td>
             </tr>
             {% endfor %}
             {% else %}
             <tr>
-                <td class="full-width" style="text-align: center;" colspan="4">No Data Available.</td>
+                <td class="full-width" style="text-align: center;" colspan="5">No Data Available.</td>
             </tr>
             {% endif %}
         </tbody>

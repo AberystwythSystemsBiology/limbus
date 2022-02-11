@@ -28,7 +28,12 @@ from flask_login import login_required, current_user
 import io
 
 from . import document
-from .forms import DocumentCreationForm, DocumentLockForm, UploadFileForm
+from .forms import (
+    DocumentCreationForm,
+    DocumentLockForm,
+    UploadFileForm,
+    DocumentFileDeletionForm,
+)
 
 from ..misc import get_internal_api_header
 import requests
@@ -204,7 +209,7 @@ def edit(id):
         return response.content
 
 
-@document.route("/LIMBDOC-<id>/file/<file_id>")
+@document.route("/LIMBDOC-<id>/file/<file_id>/get")
 @login_required
 def view_file(id, file_id):
     response = requests.get(
@@ -225,3 +230,52 @@ def view_file(id, file_id):
         )
     else:
         return response.content
+
+
+@document.route("/LIMBDOC-<id>/file/<file_id>/remove", methods=["GET", "POST"])
+@login_required
+def remove_file(id, file_id):
+
+    document_response = requests.get(
+        url_for("api.document_view_document", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if document_response.status_code == 200:
+
+        response = requests.get(
+            url_for("api.document_file_view", id=id, file_id=file_id, _external=True),
+            headers=get_internal_api_header(),
+        )
+
+        if response.status_code == 200:
+
+            form = DocumentFileDeletionForm(response.json()["content"]["name"])
+
+            if form.validate_on_submit():
+                remove_response = requests.delete(
+                    url_for(
+                        "api.document_file_remove",
+                        id=id,
+                        file_id=file_id,
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
+                )
+
+                if remove_response.status_code == 200:
+                    flash("Document File Successfully Removed")
+                    return redirect(url_for("document.view", id=id))
+                else:
+                    flash(remove_response.json()["content"])
+
+            return render_template(
+                "document/file/remove.html",
+                document=document_response.json()["content"],
+                file=response.json()["content"],
+                form=form,
+            )
+        else:
+            return response.content
+    else:
+        return document_response.content

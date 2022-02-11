@@ -31,7 +31,7 @@ from ..database import (
     AttributeNumericSetting,
     AttributeData,
     SampleToCustomAttributeData,
-    Sample
+    Sample,
 )
 
 from .views import (
@@ -55,7 +55,7 @@ from ..webarg_parser import use_args, use_kwargs, parser
 @token_required
 def attribute_home(tokenuser: UserAccount):
     return success_with_content_response(
-        #basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
+        # basic_attributes_schema.dump(Attribute.query.filter_by(is_locked=False).all())
         basic_attributes_schema.dump(Attribute.query.all())
     )
 
@@ -77,13 +77,11 @@ def attribute_query(args, tokenuser: UserAccount):
 @api.route("/attribute/LIMBATTR-<id>", methods=["GET"])
 @token_required
 def attribute_view_attribute(id, tokenuser: UserAccount):
-    attr = Attribute.query.filter_by(id=id).first();
+    attr = Attribute.query.filter_by(id=id).first()
     if not attr:
-        return not_found("Attribute LIMBATTR-%s" %id)
+        return not_found("Attribute LIMBATTR-%s" % id)
 
-    return success_with_content_response(
-        attribute_schema.dump(attr)
-    )
+    return success_with_content_response(attribute_schema.dump(attr))
 
 
 @api.route("/attribute/LIMBATTR-<id>/option/new", methods=["POST"])
@@ -225,21 +223,21 @@ def attribute_remove_attribute(id, tokenuser: UserAccount):
     if attribute.is_locked:
         return locked_response("Attribute LIMBATTR-%s" % id)
 
-    stas = db.session.query(SampleToCustomAttributeData)\
-        .join(AttributeData)\
-        .filter(AttributeData.attribute_id==id)\
+    stas = (
+        db.session.query(SampleToCustomAttributeData)
+        .join(AttributeData)
+        .filter(AttributeData.attribute_id == id)
         .distinct(SampleToCustomAttributeData.sample_id)
+    )
 
     ns = stas.count()
 
-    if ns>0:
+    if ns > 0:
         # Print out max 5 sample uuid in message
         stas = stas.with_entities(SampleToCustomAttributeData.sample_id).limit(5).all()
-        smpls = db.session.query(Sample.uuid)\
-            .filter(Sample.id.in_(stas)).all()
+        smpls = db.session.query(Sample.uuid).filter(Sample.id.in_(stas)).all()
         smpls = ", ".join([s[0] for s in smpls])
-        return in_use_response("%d samples: %s ..." %(ns, smpls))
-
+        return in_use_response("%d samples: %s ..." % (ns, smpls))
 
     attribute.update({"editor_id": tokenuser.id})
 

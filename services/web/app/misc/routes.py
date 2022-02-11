@@ -31,7 +31,7 @@ import requests
 def index() -> str:
     if current_user.is_authenticated:
         return render_template("misc/panel.html")
-    return redirect(url_for("auth.login"))
+    return render_template("misc/index.html")
 
 
 @misc.route("/data")

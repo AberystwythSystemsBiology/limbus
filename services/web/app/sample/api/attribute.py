@@ -26,7 +26,11 @@ from ...webarg_parser import use_args, use_kwargs, parser
 
 from ...database import db, UserAccount, SampleToCustomAttributeData, Sample
 
-from ...attribute.views import new_attribute_data_schema, new_attribute_option_schema, attribute_data_schema
+from ...attribute.views import (
+    new_attribute_data_schema,
+    new_attribute_option_schema,
+    attribute_data_schema,
+)
 
 import requests
 
@@ -87,7 +91,6 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
             return transaction_error_response(err)
 
 
-
 @api.route("/sample/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
 @api.route("/sample/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
 @token_required
@@ -95,7 +98,7 @@ def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> 
 
     sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
     if not sta:
-        return not_found("sample custom attribute data LIMBSCAD-%s " %id)
+        return not_found("sample custom attribute data LIMBSCAD-%s " % id)
 
     if uuid:
         sample_uuid = db.session.query(Sample.uuid).filter_by(id=sta.sample_id).scalar()
@@ -114,6 +117,6 @@ def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> 
         return transaction_error_response(err)
 
     return success_with_content_message_response(
-            attribute_data_schema.dump(sta),
-            "Sample associated attribute data LIMBSCAD-%s Successfully deleted!"%id
-           )
+        attribute_data_schema.dump(sta),
+        "Sample associated attribute data LIMBSCAD-%s Successfully deleted!" % id,
+    )

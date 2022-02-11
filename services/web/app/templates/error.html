@@ -1,15 +1,68 @@
 {%- extends "template.html" -%}
 
 
-{% block title %}{{text}}{% endblock %}
+{% block title %}{{ code }}{% endblock %}
 
 {% block body %}
-<div class="container">
-    <div class="exception-error">
-        <p class="exception-smiley">{{ smiley }}</p>
-        <h1>{{ text }}</h1>
-        <h2>Test {{ e }}</h2>
+
+<div class="jumbotron">
+    <div class="container">
+                <h1>Error Code: {{ code }} {{ smiley }}</h1>
+                <h2>{{ text }}</h2>
+
+        </div>
+        
+
     </div>
 </div>
 
+<div class="container">
+
+
+    <p>Part of being free and open is our willingness to participate in public bug tracking. We make use of GitHub to help orchestrate development of LImBuS.</p>
+        
+    <p>If you would like to submit a bug report then you are required to sign up, but don't worry - it's completely free to use.</p>
+
+    <p>We understand that many of our users are going to be new to to this, and understand that it may be difficult to submit your first bug. We advise that you follow this simple step-by-step guide to get started:</p>
+
+    <ol>
+        <li>Visit the <a href="https://github.com/AberystwythSystemsBiology/limbus/issues" _target="blank">Issues</a> page on our GitHub.</li>
+        <li>Search the issue list to ensure that your report hasn't been filed already. If your report has already been filed by someone else, comment that you are experiencing the same problem - so we know that you're also affected.</li>
+        <li>If you believe your bug is a new one, then feel free to create a "New Issue". Type in a complete summary and description of your issue and submit it.</li>
+    </ol>
+
+    <h2>🤓 Stuff For Our Geeks</h2>
+
+    <p>We might ask you for this when trying to help. Just press the blue button on the bottom right and paste it into the Issue to let us help you quicker.</p>
+
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-body">
+            <code>
+                <pre id="exception">{{ traceback }}</pre>
+            </code>
+        </div>
+    </div>
+
+    
+    <div class='btn btn-primary float-right' id="copy-to-clipboard"><i class="fa fa-clipboard"></i> Copy Error To Clipboard</div>
+    
+</div>
+
 {%- endblock %}
+
+{% block javascript %}
+
+<script>
+
+    $("#copy-to-clipboard").click(function(e) {
+        var markdown = "'''" + $("#exception").html() + "'''"
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(markdown).select();
+        document.execCommand("copy");
+        $temp.remove();
+        alert("Error Copied");
+    });
+</script>
+
+{% endblock %}
