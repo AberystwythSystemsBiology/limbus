@@ -941,12 +941,15 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    samples = values.pop("samples", [])
-    new_user_id = values.pop("new_user_id", None)
+    # samples = values.pop("samples", [])
+    #if len(samples) == 0:
+    #    return no_values_response()
 
+    samples = db.session.query(UserCart.sample_id).filter_by(author_id=user_id, selected=True).all()
     if len(samples) == 0:
-        return no_values_response()
+        return validation_error_response("No sample selected!")
 
+    new_user_id = values.pop("new_user_id", None)
     if not new_user_id:
         return no_values_response
 
@@ -954,8 +957,9 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
     if not new_user:
         return not_found("User LIMBURS-%s" %new_user_id)
 
+    sample_ids = [sample.sample_id for sample in samples]
     #sample_ids = [smpl["id"] for smpl in samples]
-    sample_ids = samples
+    #sample_ids = samples
 
     # -- Check if any rack in old user cart are present if yes, add rack to new user cart
     print("sample_ids: ", sample_ids)
@@ -1007,7 +1011,10 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
 
     try:
         db.session.commit()
-        return success_with_content_message_response({"user_id": user_id, "sample_ids": sample_ids}, message=msg)
+        return success_with_content_message_response(
+            {"user_id": int(user_id), "new_user_id": int(new_user_id), "sample_ids": sample_ids},
+            message=msg
+        )
 
     except Exception as err:
         db.session.rollback()

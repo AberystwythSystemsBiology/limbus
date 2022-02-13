@@ -98,7 +98,8 @@ def reassign_sample_cart(user_id):
     to_cart_response = requests.post(
         url_for("api.sample_reassign_cart", user_id=user_id, _external=True),
         headers=get_internal_api_header(),
-        json={"samples": values["samples"], "new_user_id":  values["new_user_id"]},
+        json={"new_user_id": values["new_user_id"]},
+        #json={"samples": values["samples"], "new_user_id":  values["new_user_id"]},
     )
     #
     # if to_cart_response.status_code == 200:

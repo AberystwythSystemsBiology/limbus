@@ -67,7 +67,7 @@ function get_user_cart(user_id=null) {
 }
 
 
-function reassign_samples_to_cart(api_url, samples) {
+/*function reassign_samples_to_cart(api_url) {//}, samples) {
     var msg = "Selected samples will be moved to a different user cart, select a user and press confirm to proceed!";
     let aModal = $("#cart-confirmation-modal");
     aModal.find(".modal-title").html("Sample to Cart Confirmation");
@@ -77,23 +77,19 @@ function reassign_samples_to_cart(api_url, samples) {
         show: true
     });
 
-    //aModal.find(".btn[type=submit]").on("submit", function () {
     aModal.find(".btn[type=submit]").on("click", function () {
         var new_user_id = $("#select_user_id").val();
-        console.log("new ..", new_user_id);
         new_user_id = parseInt(new_user_id);
         aModal.find(".btn[type=submit]").hide();
         $("#select_user_id").hide();
-        alert("ok");
-/*        aModal.find("p.confirm-msg").html("Updating ...");
         aModal.modal({
-            show: true
-        });*/
+            show: false
+        });
 
         var json = (function () {
             var json = null;
-            console.log(" sss", JSON.stringify({"samples": samples, "new_user_id": new_user_id}));
-            console.log("api_url", api_url);
+            //console.log(" sss", JSON.stringify({"samples": samples, "new_user_id": new_user_id}));
+            //console.log("api_url", api_url);
 
             $.ajax({
                 'async': false,
@@ -101,63 +97,104 @@ function reassign_samples_to_cart(api_url, samples) {
                 'url': api_url,
                 'type': 'POST',
                 'dataType': "json",
-                'data': JSON.stringify({"samples": samples, "new_user_id": new_user_id}),
+                //'data': JSON.stringify({"samples": samples, "new_user_id": new_user_id}),
+                'data': JSON.stringify({"new_user_id": new_user_id}),
                 'contentType': 'application/json; charset=utf-8',
                 'success': function (data) {
                     json = data;
-                    console.log(data, 'goo', data);
                 },
                 'failure': function (data) {
                     json = data;
-                    console.log(data, 'bad', data);
                 }
             });
-
-
+            return json;
         })();
 
         console.log("json: ", json);
-        alert(json);
+        aModal.modal({
+            show: false
+        });
+
+        alert(json["message"]);
         aModal.find("p.confirm-msg").html(json["message"]);
         $('#select_user_id').hide();
         aModal.modal({
             show: true
         });
 
+        if (json.success) {
+              var new_user_id = json.content["user_id"];
+              console.log("res");
+              window.location.href = window.location.origin + "/sample/cart/LIMBUSR-"+new_user_id;
+        } else {
+            window.location.reload();
+        }
+
         return json;
     });
 
     //return false;
-}
+}*/
 
 function tocart_btn_logic(aTable, user_id) {
     $("#sample-to-cart-btn").click(function (event) {
-        let rows_selected = aTable.rows( { selected: true } ).data();
-        if (rows_selected.length>0) {
-            var formdata = [];
-            $.each(rows_selected, function (index, row) {
-                delete row['__proto__'];
-                console.log("row", row)
-                formdata.push(row["sample"]["id"]);
+        event.preventDefault();
+        var api_url = window.location.origin;
+        api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
+
+        var msg = "Selected samples will be moved to a different user cart, select a user and press confirm to proceed!";
+        let aModal = $("#cart-confirmation-modal");
+        aModal.find(".modal-title").html("Sample to Cart Confirmation");
+        aModal.find("p.confirm-msg").html(msg);
+        aModal.find(".btn[type=submit]").show();
+        aModal.find("div.dropdown").show();
+        aModal.modal({
+            show: true
+        });
+
+        aModal.find(".btn[type=submit]").on("click", function (e) {
+            e.preventDefault();
+            let new_user_id = $("#select_user_id").val();
+            let url = window.location.origin + "/sample/cart/LIMBUSR-" + new_user_id;
+            //console.log("url", url);
+            new_user_id = parseInt(new_user_id);
+            aModal.find(".btn[type=submit]").hide();
+            aModal.find("div.dropdown").hide(); // hide dropdown select_user_id
+            aModal.find("p.confirm-msg").html("Updating ...");
+
+            var json = (function () {
+                var json = null;
+                $.ajax({
+                    'async': false,
+                    'global': false,
+                    'url': api_url,
+                    'type': 'POST',
+                    'dataType': "json",
+                    //'data': JSON.stringify({"samples": samples, "new_user_id": new_user_id}),
+                    'data': JSON.stringify({"new_user_id": new_user_id}),
+                    'contentType': 'application/json; charset=utf-8',
+                    'success': function (data) {
+                        json = data;
+                    },
+                    'failure': function (data) {
+                        json = data;
+                    },
+                });
+                return json;
+            })();
+
+            aModal.find("p.confirm-msg").html(json.message);
+
+            aModal.find(".btn.btn-secondary", ".btn-close").on("click", function (e1) {
+                e1.preventDefault();
+                console.log("secondary");
+                if (json!=null && json.success) {
+                    window.location.href = url;
+                } else {
+                    window.location.reload();
+                }
             });
-
-           var api_url = window.location.origin;
-           api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
-           console.log("ap: ", api_url);
-           console.log("form", formdata);
-
-           res = reassign_samples_to_cart(api_url, formdata);
-           if (res != undefined) {
-           if (res.success == true) {
-              var new_user_id = res.content["user_id"];
-              console.log("res");
-              window.location.href = window.location.origin + "/sample/cart/LIMBUSR-"+new_user_id;
-           } else if (res.success == false) {
-              window.location.reload();
-           }}
-        } else {
-            alert("No sample selected!");
-        }
+        });
 
     });
 };
