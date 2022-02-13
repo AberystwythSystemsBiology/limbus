@@ -15,8 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-function get_panel_info() {
-    var api_url = encodeURI(window.location+'/data');
+function get_panel_info(api_url="") {
+    if (api_url == "") {
+        api_url = encodeURI(window.location + '/data');
+    }
 
     var json = (function () {
         var json = null;
@@ -75,8 +77,16 @@ function fill_basic_statistics(basic_statistics) {
     $("#site-count").html(basic_statistics["site_count"]);
 }
 
+function fill_reminder_statistics(reminder_statistics) {
+    make_bar("reminder", reminder_statistics["data"], reminder_statistics["labels"], "Reminders");
+}
+
 function fill_panel() {
-    var panel_info = get_panel_info();
+    var api_url = encodeURI(window.location + '/data');
+    var panel_info = get_panel_info(api_url);
+    var api_url = encodeURI(window.location.origin + '/reminder/data');
+    var reminder_info = get_panel_info(api_url);
+
     $("#biobank-name").html(panel_info["name"]);
     fill_basic_statistics(panel_info["basic_statistics"]);
     fill_sample_statistics(panel_info["sample_statistics"]);
@@ -84,6 +94,7 @@ function fill_panel() {
     fill_document_statistics(panel_info["document_statistics"]);
     fill_attribute_statistics(panel_info["attribute_statistics"]);
     fill_protocol_statistics(panel_info["protocol_statistics"]);
+    fill_reminder_statistics(reminder_info);
 }
 
 $(document).ready(function() {

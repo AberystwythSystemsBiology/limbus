@@ -64,7 +64,7 @@ def admin_user_cart(user_id:int):
             else:
                 continue
 
-            print("uer --s", user["id"], type(user["id"]))
+            # print("uer --s", user["id"], type(user["id"]))
             user_label = "%s %s(%s) %s" %(
                     user["first_name"], user["last_name"],
                     user["email"],
@@ -86,7 +86,9 @@ def admin_user_cart(user_id:int):
             for site_id1 in choices0:
                 #users.append((user["id"], user_label + "[" + sites_dict[site_id1] + "]"))
                 #users.append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
-                users_by_site[site_id1].append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
+                if site_id1 in sites_dict:
+                    users_by_site[site_id1].append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
+
 
         users = []
         for k in users_by_site:
@@ -94,8 +96,8 @@ def admin_user_cart(user_id:int):
             users = users + users_by_site[k]
         #users_sorted = users.sort(key=lambda x: x[1])
 
-        print("users_by_site", users_by_site)
-        print("users ", users)
+        # print("users_by_site", users_by_site)
+        # print("users ", users)
 
         form = UserSelectForm(users);
     else:
@@ -130,11 +132,12 @@ def user_cart_data(user_id=None):
         headers=get_internal_api_header(),
     )
 
-    return (
-        cart_response.text,
-        cart_response.status_code,
-        cart_response.headers.items(),
-    )
+    return cart_response.json()
+    # return (
+    #     cart_response.text,
+    #     cart_response.status_code,
+    #     cart_response.headers.items(),
+    # )
 
 
 @sample.route("/shipment")

@@ -397,7 +397,7 @@ def misc_new_site(tokenuser: UserAccount):
 @api.route("/misc/reminders", methods=["GET"])
 @token_required
 def get_reminder_data(tokenuser: UserAccount):
-    # -- Sample disposal expected in less than 1 days.
+    # -- Sample disposal expected within next 1 days or in the past.
 
     to_dispose= (
         db.session.query(SampleDisposal.sample_id)
@@ -410,15 +410,15 @@ def get_reminder_data(tokenuser: UserAccount):
         .distinct(Sample.id)
     )
 
-    print("to_dispose (%d) : " %to_dispose.count())
-    print(to_dispose)
+    #print("to_dispose (%d) : " %to_dispose.count())
+    #print(to_dispose)
 
     to_collect = db.session.query(Sample.id) \
         .filter_by(is_closed=False, is_locked=False) \
         .filter(Sample.status.in_([SampleStatus.NCO])) \
         .except_(to_dispose)
 
-    print("to_collect (%d) : " %to_dispose.count())
+    #print("to_collect (%d) : " %to_dispose.count())
     #print(to_dispose)
 
     to_review = db.session.query(Sample.id) \
@@ -426,16 +426,13 @@ def get_reminder_data(tokenuser: UserAccount):
         .filter(Sample.status.in_([SampleStatus.NRE])) \
         .except_(to_dispose)
 
-    #-- TODO add sample storage_id to sample?
-    #-- TODO EntityToStorage: allow sample_id, rack_id and shelf_id all non null
-
     stored0 = db.session.query(EntityToStorage.sample_id)\
         .filter(EntityToStorage.sample_id!=None)\
         .filter(EntityToStorage.shelf_id!=None)\
         .filter(EntityToStorage.removed is not True)
         # .filter_by(storage_type="STS")
-    print("stored0 (%d) : " %stored0.count())
-    #print(stored0)
+    # print("stored0 (%d) : " %stored0.count())
+    # print(stored0)
 
     bts = db.session.query(EntityToStorage.rack_id)\
         .filter(EntityToStorage.rack_id!=None)\
@@ -443,8 +440,8 @@ def get_reminder_data(tokenuser: UserAccount):
         .filter(EntityToStorage.removed is not True) \
         #.filter_by(storage_type="BTS")
 
-    print("bts (%d) : " %bts.count())
-    #print(bts)
+    # print("bts (%d) : " %bts.count())
+    # print(bts)
 
     stored1 = db.session.query(EntityToStorage.sample_id)\
         .filter(EntityToStorage.rack_id!=None) \
@@ -453,7 +450,7 @@ def get_reminder_data(tokenuser: UserAccount):
         # .filter_by(storage_type="STB")
 
     print("stored1 (%d) : " %stored1.distinct(EntityToStorage.sample_id).count())
-    #print(stored1)
+    # print(stored1)
 
     #.filter(~Sample.id.in_(stored0.union(stored1))) \ doesn't work
     to_store = db.session.query(Sample.id) \
@@ -464,13 +461,14 @@ def get_reminder_data(tokenuser: UserAccount):
 
     in_cart = db.session.query(UserCart.sample_id)
 
-    stats ={
-        "to_collect": to_collect.count(),
-        "to_store": to_store.count(),
-        "to_dispose": to_dispose.count(),
-        "to_review": to_review.count(),
-        "in_cart": in_cart.count(),
-    }
-    print("stats: ", stats)
-    return success_with_content_response(stats)
+
+    reminder_stats =prepare_for_chart_js([
+        ("to_collect", to_collect.count()),
+        ("to_store", to_store.count()),
+        ("to_dispose", to_dispose.count()),
+        ("to_review", to_review.count()),
+        ("in_cart", in_cart.count()),
+    ])
+    # print("reminder_stats: ", reminder_stats)
+    return success_with_content_response(reminder_stats)
 

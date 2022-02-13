@@ -848,7 +848,7 @@ def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
         return locked_response("Shipment uuid %s" % shipment_uuid)
 
     sample_ids = [smpl["sample_id"] for smpl in values["involved_samples"]]
-    print("sample_ids", sample_ids)
+    # print("sample_ids", sample_ids)
 
     if len(sample_ids) == 0:
         return not_found("the involved samples for shipment uuid: %s" %shipment_uuid)
@@ -941,10 +941,6 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    # samples = values.pop("samples", [])
-    #if len(samples) == 0:
-    #    return no_values_response()
-
     samples = db.session.query(UserCart.sample_id).filter_by(author_id=user_id, selected=True).all()
     if len(samples) == 0:
         return validation_error_response("No sample selected!")
@@ -958,8 +954,6 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
         return not_found("User LIMBURS-%s" %new_user_id)
 
     sample_ids = [sample.sample_id for sample in samples]
-    #sample_ids = [smpl["id"] for smpl in samples]
-    #sample_ids = samples
 
     # -- Check if any rack in old user cart are present if yes, add rack to new user cart
     print("sample_ids: ", sample_ids)
@@ -970,7 +964,7 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
             .filter(UserCart.sample_id.in_(sample_ids))
             .filter(~UserCart.rack_id.is_(None))
     ]
-    print("sample_ruc: ", sample_ids_ruc)
+    # print("sample_ruc: ", sample_ids_ruc)
 
     msg = ""
     if (len(sample_ids_ruc)>0):
@@ -982,7 +976,7 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
             return msg_rack
         msg = "Rack to cart: %s" %msg_rack
 
-    print("msg", msg)
+    # print("msg", msg)
     # -- Check if any samples (without rack location) in old user cart are present
     # -- if yes, add samples to new user cart
     sample_ids_smpl = [
@@ -993,7 +987,6 @@ def sample_reassign_cart(user_id:int, tokenuser: UserAccount):
             .filter(UserCart.rack_id.is_(None))
             .filter(or_(UserCart.storage_type.is_(None), UserCart.storage_type!='RUC'))
     ]
-    print("sample_ids_smpl: ", sample_ids_smpl)
 
     if (len(sample_ids_smpl) > 0):
         success, msg_smpl = func_add_samples_to_cart(

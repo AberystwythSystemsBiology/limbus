@@ -40,10 +40,11 @@ function get_cart() {
 function get_user_cart(user_id=null) {
     var api_url = encodeURI(window.location.origin);
     //api_url += "/sample/shipment/new/data";
-    if (user_id==null || user_id=='')
+    if (user_id==null || user_id=='') {
         api_url += "/sample/cart/data";
-    else
+    } else {
         api_url += "/sample/cart/LIMBUSR-" + user_id + "/data";
+    }
 
     var json = (function () {
         var json = null;
@@ -53,11 +54,10 @@ function get_user_cart(user_id=null) {
             'url': api_url,
             'dataType': "json",
             'success': function (data) {
-                json = data["content"];
+                json = data; //data["content"];
             },
             'failure': function (data) {
-                console.log("failure", data);
-                json = data["message"];
+                json = data; //data["message"];
             }
         });
         return json;
@@ -67,74 +67,6 @@ function get_user_cart(user_id=null) {
 }
 
 
-/*function reassign_samples_to_cart(api_url) {//}, samples) {
-    var msg = "Selected samples will be moved to a different user cart, select a user and press confirm to proceed!";
-    let aModal = $("#cart-confirmation-modal");
-    aModal.find(".modal-title").html("Sample to Cart Confirmation");
-    aModal.find("p.confirm-msg").html(msg);
-    aModal.find(".btn[type=submit]").show();
-    aModal.modal({
-        show: true
-    });
-
-    aModal.find(".btn[type=submit]").on("click", function () {
-        var new_user_id = $("#select_user_id").val();
-        new_user_id = parseInt(new_user_id);
-        aModal.find(".btn[type=submit]").hide();
-        $("#select_user_id").hide();
-        aModal.modal({
-            show: false
-        });
-
-        var json = (function () {
-            var json = null;
-            //console.log(" sss", JSON.stringify({"samples": samples, "new_user_id": new_user_id}));
-            //console.log("api_url", api_url);
-
-            $.ajax({
-                'async': false,
-                'global': false,
-                'url': api_url,
-                'type': 'POST',
-                'dataType': "json",
-                //'data': JSON.stringify({"samples": samples, "new_user_id": new_user_id}),
-                'data': JSON.stringify({"new_user_id": new_user_id}),
-                'contentType': 'application/json; charset=utf-8',
-                'success': function (data) {
-                    json = data;
-                },
-                'failure': function (data) {
-                    json = data;
-                }
-            });
-            return json;
-        })();
-
-        console.log("json: ", json);
-        aModal.modal({
-            show: false
-        });
-
-        alert(json["message"]);
-        aModal.find("p.confirm-msg").html(json["message"]);
-        $('#select_user_id').hide();
-        aModal.modal({
-            show: true
-        });
-
-        if (json.success) {
-              var new_user_id = json.content["user_id"];
-              console.log("res");
-              window.location.href = window.location.origin + "/sample/cart/LIMBUSR-"+new_user_id;
-        } else {
-            window.location.reload();
-        }
-
-        return json;
-    });
-
-    //return false;
-}*/
 
 function tocart_btn_logic(aTable, user_id) {
     $("#sample-to-cart-btn").click(function (event) {
@@ -452,8 +384,6 @@ function fill_cart_table(cart) {
                             $('#delete-confirmation').modal('show')
                             document.getElementById("delete-confirmation-modal-title").innerHTML = "Remove LIMBRACK-" + data["rack"]["id"] + " From Cart?";
                             document.getElementById("delete-confirmation-modal-submit").href = api_url;
-                            console.log("api_url", api_url);
-                            alert("ok")
                         });
                     } else {
 
@@ -466,8 +396,6 @@ function fill_cart_table(cart) {
                             else {
                                 api_url += "/" + data["sample"]["uuid"] + "/remove";
                             }
-                            console.log("api_url", api_url);
-                            alert("ok11")
                             $.ajax({
                                 url: api_url,
                                 type: 'DELETE',
@@ -505,7 +433,14 @@ $(document).ready(function () {
     var user_id = $("#user_id").text();
     fill_titile(user_id);
     var cart = get_user_cart(user_id);
+    if (cart.success) {
+        cart=cart.content;
+    } else {
+        alert(cart.message);
+        cart=[];
+    }
     //console.log("cart:", cart);
+
     aTable = fill_cart_table(cart);
     rows = aTable.rows();
     rows.every(function () {
