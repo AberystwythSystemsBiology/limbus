@@ -107,10 +107,16 @@ def get_data(tokenuser: UserAccount):
         .first()
         .name,
         "basic_statistics": {
-            "sample_count": Sample.query.filter(Sample.remaining_quantity > 0, Sample.site_id == tokenuser.site_id).count(),
-            "user_count": UserAccount.query.filter_by(site_id = tokenuser.site_id).count(),
+            "sample_count": Sample.query.filter(
+                Sample.remaining_quantity > 0, Sample.site_id == tokenuser.site_id
+            ).count(),
+            "user_count": UserAccount.query.filter_by(
+                site_id=tokenuser.site_id
+            ).count(),
             "site_count": SiteInformation.query.filter_by(is_external=False).count(),
-            "donor_count": Donor.query.filter_by(enrollment_site_id=tokenuser.site_id).count(),
+            "donor_count": Donor.query.filter_by(
+                enrollment_site_id=tokenuser.site_id
+            ).count(),
         },
         "donor_statistics": {
             "donor_status": prepare_for_chart_js(
@@ -157,7 +163,7 @@ def get_data(tokenuser: UserAccount):
                     .filter(
                         func.date(Sample.created_on)
                         >= datetime.today() - timedelta(days=90),
-                        Sample.site_id == tokenuser.site_id
+                        Sample.site_id == tokenuser.site_id,
                     )
                     .group_by(func.date_trunc("day", Sample.created_on))
                     .order_by(func.date_trunc("day", Sample.created_on))
@@ -169,7 +175,8 @@ def get_data(tokenuser: UserAccount):
                     (type.value, count)
                     for (type, count) in db.session.query(
                         Sample.base_type, func.count(Sample.base_type)
-                    ).filter(Sample.site_id == tokenuser.site_id)
+                    )
+                    .filter(Sample.site_id == tokenuser.site_id)
                     .group_by(Sample.base_type)
                     .all()
                 ]
@@ -179,7 +186,8 @@ def get_data(tokenuser: UserAccount):
                     (type.value, count)
                     for (type, count) in db.session.query(
                         Sample.biohazard_level, func.count(Sample.biohazard_level)
-                    ).filter(Sample.site_id == tokenuser.site_id)
+                    )
+                    .filter(Sample.site_id == tokenuser.site_id)
                     .group_by(Sample.biohazard_level)
                     .all()
                 ]
@@ -189,7 +197,8 @@ def get_data(tokenuser: UserAccount):
                     (type.value, count)
                     for (type, count) in db.session.query(
                         Sample.source, func.count(Sample.source)
-                    ).filter(Sample.site_id == tokenuser.site_id)
+                    )
+                    .filter(Sample.site_id == tokenuser.site_id)
                     .group_by(Sample.source)
                     .all()
                 ]
@@ -199,7 +208,8 @@ def get_data(tokenuser: UserAccount):
                     (type.value, count)
                     for (type, count) in db.session.query(
                         Sample.status, func.count(Sample.status)
-                    ).filter(Sample.site_id == tokenuser.site_id)
+                    )
+                    .filter(Sample.site_id == tokenuser.site_id)
                     .group_by(Sample.status)
                     .all()
                 ]
