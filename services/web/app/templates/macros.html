@@ -96,7 +96,7 @@
                 {% if with_view %}
             </div>
             <div class="col-2">
-                <a href="{{ view_endpoint }}" id="{{ field.id }}_href" target="_blank">
+                <a href="{{ view_endpoint }}" id="{{ field.id }}_href">
                     <div class="btn btn-primary full-width">
                         <i class="fa fa-info-circle"></i> View
                     </div>
@@ -189,7 +189,7 @@
             {% for line in description %}
             <p>{{ line }}</p>
             {% endfor %}
-            <a href="{{ url_for( button_url ) }}" {% if refresh %}target="_blank" {% endif %}>
+            <a href="{{ url_for( button_url ) }}" {% if refresh %} {% endif %}>
                 <div class="btn btn-primary">
                     {% if add %}<i class="fa fa-plus"></i>{% endif %} {{ button_text }}
                 </div>
@@ -252,7 +252,7 @@
             {% if field.type == "BooleanField" %}
             <tr>
                 <td>
-                    <a href="{{ url_for('attribute.view', id=field.id) }}" target='_blank'>
+                    <a href="{{ url_for('attribute.view', id=field.id) }}">
                         <i class="fab fa-buffer"></i> LIMBATTR-{{field.id}}: {{ field.label }}
                     </a>
                 </td>

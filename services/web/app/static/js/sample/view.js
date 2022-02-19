@@ -595,7 +595,7 @@ function fill_protocol_events(events) {
         html += "</a>"
         if (event_info["parent"] != null) {
             var parent_html = "<h6 > On parent sample :";
-            parent_html += '<a href="' + event_info["parent"]["_links"]["self"] + '" target="_blank">'
+            parent_html += '<a href="' + event_info["parent"]["_links"]["self"] + '">'
             parent_html += '<i class="fas fa-vial"></i> ';
             parent_html += event_info["parent"]["uuid"]
             parent_html += '</a></h6>'
@@ -740,7 +740,7 @@ function fill_lineage_table(subsamples) {
                     if (data["source"] != "New") {
 
                         col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                        col_data += '<a href="' + data["parent"]["_links"]["self"] + '" target="_blank">'
+                        col_data += '<a href="' + data["parent"]["_links"]["self"] + '">'
                         col_data += '<i class="fas fa-vial"></i> ';
                         col_data += data["parent"]["uuid"],
                             col_data += "</a></small>";

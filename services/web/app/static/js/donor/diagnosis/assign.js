@@ -45,7 +45,7 @@ function fill_content(disease_info, uri) {
     $("#synonym-btns").html('');
 
     $("#doid-label").on("click", function() {
-        window.open(uri, '_blank');
+        window.open(uri);
     });
 
     $.each(disease_info["synonyms"], function(a, b) {
@@ -54,7 +54,7 @@ function fill_content(disease_info, uri) {
 
 
     $.each(disease_info["references"], function(a, b) {
-        var html = "<a href='" + b["self"] + "' target='_blank'>"
+        var html = "<a href='" + b["self"] + "'>"
         html += "<div class='btn btn-sm' style='margin-right:10px; margin-bottom: 10px;'>"+a+"</div>";
         html += "</a>"
         $("#disease-references").append(html);

@@ -76,7 +76,7 @@ function fill_cart_table(cart) {
                     if (data["sample"]["source"] != "New") {
 
                         col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                        col_data += '<a href="' + data["sample"]["parent"]["_links"]["self"] + '" target="_blank">'
+                        col_data += '<a href="' + data["sample"]["parent"]["_links"]["self"] + '" >'
                         col_data += '<i class="fas fa-vial"></i> ';
                         col_data += data["sample"]["parent"]["uuid"],
                             col_data += "</a></small>";
