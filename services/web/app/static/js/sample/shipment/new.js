@@ -61,7 +61,7 @@ function fill_cart(cart) {
 
 
             var li_data = "";
-            li_data += "<a class='list-group-item selected_cart_item' style='text-decoration: none'>";//href='" + href + "' target='_blank'
+            li_data += "<a class='list-group-item selected_cart_item' style='text-decoration: none'>";
             li_data += "<i class='fas fa-vial'></i>"
             li_data += sample["sample"]["uuid"];
             li_data += "</a>"
@@ -73,7 +73,7 @@ function fill_cart(cart) {
 
 
             var li_data = "";
-            li_data += "<a class='list-group-item unselected_cart_item' style='text-decoration: line-through'>";//href='" + href + "' target='_blank'
+            li_data += "<a class='list-group-item unselected_cart_item' style='text-decoration: line-through'>";
             li_data += "<i class='fas fa-vial'></i>"
             li_data += sample["sample"]["uuid"];
             li_data += "</a>"

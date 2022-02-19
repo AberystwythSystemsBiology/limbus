@@ -53,7 +53,7 @@ function render_sample_table(samples, div_id) {
                     if (data["source"] != "New") {
 
                     col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                    col_data += '<a href="'+data["parent"]["_links"]["self"]+'" target="_blank">'
+                    col_data += '<a href="'+data["parent"]["_links"]["self"]+'">'
                     col_data += '<i class="fas fa-vial"></i> ';
                     col_data += data["parent"]["uuid"],
                     col_data += "</a></small>";
@@ -73,7 +73,7 @@ function render_sample_table(samples, div_id) {
                     col_data = "";
                     if (consent['donor_id']!=null) {
                         var donor_link = window.location.origin+'/donor/LIMBDON-'+consent['donor_id'];
-                        col_data += '<a href="'+donor_link+'" target="_blank">';
+                        col_data += '<a href="'+donor_link+'">';
                         col_data += '<i class="fa fa-user-circle"></i>'+ 'LIMBDON-'+consent['donor_id'];
                         col_data += '</a>';
                     }
@@ -116,7 +116,7 @@ function render_sample_table(samples, div_id) {
                             protocol_name = "";
 
                         col_data += '<i class="fas fa-users"></i>'+ protocol_name;
-                        col_data += ',  <a href="'+doi2url(doi)+'" target="_blank">';
+                        col_data += ',  <a href="'+doi2url(doi)+'">';
                         col_data += doi;
                         col_data += '</a>';
 

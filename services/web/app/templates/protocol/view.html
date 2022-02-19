@@ -62,7 +62,7 @@
             </div>
             <div class="col-5 text-right">
                 <i class="fa fa-link"></i> {% if protocol.doi != "" %}
-                <a href="{{ protocol.doi_url }}" target="_blank">{{ protocol.doi }}</a>{% else %}None Available{% endif %}
+                <a href="{{ protocol.doi_url }}">{{ protocol.doi }}</a>{% else %}None Available{% endif %}
                 <div class="clearfix"></div>
                 <i class="fa fa-calendar"></i> Created On: {{ protocol.created_on }}
                 <div class="clearfix"></div>

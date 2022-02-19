@@ -111,7 +111,7 @@ function fill_sample_table(samples) {
                     if (data["source"] != "New") {
 
                         col_data += '</br><small class="text-muted"><i class="fa fa-directions"></i> ';
-                        col_data += '<a href="' + data["parent"]["_links"]["self"] + '" target="_blank">'
+                        col_data += '<a href="' + data["parent"]["_links"]["self"] + '">'
                         col_data += '<i class="fas fa-vial"></i> ';
                         col_data += data["parent"]["uuid"],
                             col_data += "</a></small>";
@@ -232,9 +232,6 @@ function fill_sample_table(samples) {
 
            var api_url = window.location.origin+ "/sample/to_cart";
            res = add_samples_to_cart(api_url, formdata);
-           //var api_url = window.location.origin+ "/sample/shipment/cart"
-           //window.open(api_url, "_blank");
-           //window.open(api_url"_self");
            if (res.success == true) {
                table.rows({selected: true}).deselect();
            }
@@ -770,7 +767,6 @@ $(document).ready(function () {
 
     $("#new-sample-btn").on("click", function() {
         window.location.href = donor_information["_links"]["new_sample"]
-        //window.open(donor_information["_links"]["new_sample"], "_blank");
     });
 
     $("#assign-sample-btn").on("click", function() {
