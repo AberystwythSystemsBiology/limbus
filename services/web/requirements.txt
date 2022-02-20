@@ -50,7 +50,7 @@ psycopg2-binary==2.8.5
 pycountry==19.8.18
 pycparser==2.20
 pycrypto==2.6.1
-pygobject==3.26.1
+pygobject==3.42.0
 Pyphen==0.10.0
 pyStrich==0.8
 python-barcode==0.13.1
