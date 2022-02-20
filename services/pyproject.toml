@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "limbus"
+name = "web"
 version = "22.03"
 description = "LImBuS is an open source, standards compliant Biobank Information Management System developed by researchers from Aberystwyth University."
 authors = ["KeironO <keiron.oshea@gmail.com>"]
@@ -7,6 +7,20 @@ license = "GNU General Public License v3.0"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+Flask = "^2.0.3"
+Flask-SQLAlchemy = "^2.5.1"
+SQLAlchemy-Continuum = "^1.3.12"
+Flask-Login = "^0.5.0"
+requests = "^2.27.1"
+Flask-WTF = "^1.0.0"
+email-validator = "^1.1.3"
+pronto = "^2.4.4"
+Flask-MDE = "^1.2.1"
+pycountry = "^22.1.10"
+uk-postcode-utils = "^1.1"
+
+[tool.poetry.scripts]
+limbus_run = "web.run:run_app"
 
 [tool.poetry.dev-dependencies]
 

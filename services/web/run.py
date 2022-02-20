@@ -13,9 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from app import create_app
+from .app import create_app
 
-app = create_app()
+
+def run_app():
+    app = create_app()
+    app.run(host="0.0.0.0")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    run_app()
