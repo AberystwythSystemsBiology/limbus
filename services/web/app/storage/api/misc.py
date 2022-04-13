@@ -440,12 +440,13 @@ def storage_view_panel(tokenuser: UserAccount):
 def storage_shelf_overview(tokenuser: UserAccount):
 
     sites = [tokenuser.site_id]
-    try:
-        choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
-        if len(choices0) > 0:
-            sites = list(set([sites + choices0]))
-    except:
-        pass
+    if not tokenuser.is_admin:
+        try:
+            choices0 = tokenuser.settings["data_entry"]["site"]["choices"]
+            if len(choices0) > 0:
+                sites = list(set([sites + choices0]))
+        except:
+            pass
 
     locations = (
         db.session.query(SiteInformation)
