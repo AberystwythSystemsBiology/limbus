@@ -295,13 +295,14 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
             stbs = EntityToStorage.query.filter(
                 EntityToStorage.sample_id == sample_id,
                 EntityToStorage.storage_type != "BTS",
-                EntityToStorage.removed.is_(False),
+                # EntityToStorage.removed.is_(False),
             )
             stbs2 = EntityToStorage.query.filter(
                 EntityToStorage.rack_id == rack_id,
                 EntityToStorage.col == sample["col"],
                 EntityToStorage.row == sample["row"],
                 EntityToStorage.storage_type == "STB",
+                # EntityToStorage.removed.is_(False),
             )
             stbs = stbs.union(stbs2).all()
         else:
@@ -318,8 +319,8 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
 
                 try:
                     db.session.update({"editor_id": tokenuser.id})
-                    db.session.delete(stb)
-                    # db.session.add(stb)
+                    # db.session.delete(stb)
+                    db.session.add(stb)
 
                 except Exception as err:
                     print(err)
