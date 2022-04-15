@@ -175,9 +175,8 @@ $(document).ready(function(){
 
   $('#history').DataTable( {} );
 
-
   $("#nav-sample-search").keypress(function(e) {
-    if(e.which == 13) {
+    if(e.key == "Enter") {
         jQuery(this).blur();
         var result = uuid_search({"uuid": this.value});
         if (result.length > 0) {

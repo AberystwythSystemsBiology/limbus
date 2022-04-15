@@ -615,6 +615,7 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
+    print("filters", filters)
     # -- To exclude empty samples in the index list
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
 
@@ -731,9 +732,11 @@ def sample_query(args, tokenuser: UserAccount):
         )
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
+    stmt = stmt.filter_by(**filters).filter(*joins) # Filter on table sample
     stmt = stmt.distinct(Sample.id).order_by(Sample.id.desc())
+    # print("stmt", stmt)
     results = basic_samples_schema.dump(stmt.all())
-
+    # print("results", len(results), "--", results)
     # -- retrieve user cart info
     if flag_reminder_type:
         scs = (
