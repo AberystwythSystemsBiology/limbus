@@ -288,37 +288,40 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
         except:
             sample_id = sample["id"]
 
-        # Step 1 Delete existing entity to storage record for given sample
-        # TODO: Could consider setting removed to True instead of delete the whole record in the future
+        # Step 1 Update existing entity to storage record for given sample
         #
         if sample_id:
+            # record for sample to rack or sample to shelf given the sample id
             stbs = EntityToStorage.query.filter(
                 EntityToStorage.sample_id == sample_id,
                 EntityToStorage.storage_type != "BTS",
                 # EntityToStorage.removed.is_(False),
             )
+            # record for existing sample to rack info given rack id
             stbs2 = EntityToStorage.query.filter(
                 EntityToStorage.rack_id == rack_id,
+                EntityToStorage.sample_id != sample_id,
                 EntityToStorage.col == sample["col"],
                 EntityToStorage.row == sample["row"],
                 EntityToStorage.storage_type == "STB",
                 # EntityToStorage.removed.is_(False),
             )
-            stbs = stbs.union(stbs2).all()
+            # stbs = stbs.union(stbs2).all()
         else:
-            # delete the storage record given the position of the sample on the rack
-            stbs = EntityToStorage.query.filter(
+            # get storage record given the position of the sample on the rack
+            stbs2 = EntityToStorage.query.filter(
                 EntityToStorage.rack_id == rack_id,
                 EntityToStorage.col == sample["col"],
                 EntityToStorage.row == sample["row"],
                 EntityToStorage.storage_type == "STB",
             )
 
-        if stbs is not None:
-            for stb in stbs:
-
+        if stbs2 is not None:
+            # Remove the existing sample (of different sample_id) from current position of rack
+            for stb in stbs2:
                 try:
-                    db.session.update({"editor_id": tokenuser.id})
+                    stb.removed = True
+                    stb.update({"editor_id": tokenuser.id})
                     # db.session.delete(stb)
                     db.session.add(stb)
 
@@ -326,28 +329,57 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     print(err)
                     return transaction_error_response(err)
 
-        # Step 2. Add new sample to rack record
-        # stb_values = {'sample_id': sample['sample_id'], 'row': sample['row'], 'col': sample['col'],
-        #               'rack_id': rack_id, 'storage_type': 'STB'}
+        if stbs is not None:
+            for stb in stbs:
+
+                try:
+                    stb.col = sample["col"]
+                    stb.row = sample["row"]
+                    stb.storage_type = "STB"
+                    stb.removed = False
+                    if "entry_datetime" not in sample:
+                        stb.entry_datetime = func.now()
+                    else:
+                        stb.entry_datetime = sample["entry_datetime"]
+
+                    stb.update({"editor_id": tokenuser.id})
+                    # db.session.delete(stb)
+                    db.session.add(stb)
+
+                except Exception as err:
+                    print(err)
+                    return transaction_error_response(err)
 
         if sample_id:
-            stb_values = new_sample_to_sample_rack_schema.load(
-                sample, unknown="EXCLUDE"
-            )
+            if stbs is None:
+                # Step 2. Add new sample to rack record
+                # stb_values = {'sample_id': sample['sample_id'], 'row': sample['row'], 'col': sample['col'],
+                #               'rack_id': rack_id, 'storage_type': 'STB'}
 
-            new_stb = EntityToStorage(**stb_values)
-            new_stb.storage_type = "STB"
-            new_stb.author_id = tokenuser.id
-            new_stb.rack_id = rack_id
-            if "entry_datetime" not in sample:
-                new_stb.entry_datetime = func.now()
-            # if 'entry' not in sample:
-            #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
-            stb_batch.append(new_stb)
+                stb_values = new_sample_to_sample_rack_schema.load(
+                    sample, unknown="EXCLUDE"
+                )
 
+                new_stb = EntityToStorage(**stb_values)
+                new_stb.storage_type = "STB"
+                new_stb.author_id = tokenuser.id
+                new_stb.removed = False
+                new_stb.rack_id = rack_id
+                if "entry_datetime" not in sample:
+                    new_stb.entry_datetime = func.now()
+                # if 'entry' not in sample:
+                #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
+                #stb_batch.append(new_stb)
+
+                try:
+                    db.session.add(new_stb)
+                except Exception as err:
+                    print(err)
+                    return transaction_error_response(err)
+
+            # Remove samples from usercart
             # usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
             usercart = UserCart.query.filter_by(sample_id=sample_id).first()
-
             if usercart:
                 try:
                     usercart.update({"editor_id": tokenuser.id})
@@ -356,19 +388,19 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     return transaction_error_response(err)
 
     # Postgres dialect, prefetch the id for batch insert
-    identities = [
-        val
-        for val, in db.session.execute(
-            "select nextval('entitytostorage_id_seq') from "
-            "generate_series(1,%s)" % len(stb_batch)
-        )
-    ]
-    print("identities: ", identities)
-    for stb_id, new_stb in zip(identities, stb_batch):
-        new_stb.id = stb_id
+    # identities = [
+    #     val
+    #     for val, in db.session.execute(
+    #         "select nextval('entitytostorage_id_seq') from "
+    #         "generate_series(1,%s)" % len(stb_batch)
+    #     )
+    # ]
+    # print("identities: ", identities)
+    # for stb_id, new_stb in zip(identities, stb_batch):
+    #     new_stb.id = stb_id
 
     try:
-        db.session.add_all(stb_batch)
+        #db.session.add_all(stb_batch) # batch insert
         db.session.commit()
         flash("Sample stored to rack Successfully!")
         msg = "Sample(s) stored to rack Successfully! "

@@ -787,7 +787,7 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
         rack_to_cart=False, check=True
     )
 
-    success=False
+    #success=False
     if not success:
         return msg
 

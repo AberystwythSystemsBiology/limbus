@@ -537,6 +537,7 @@ class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
 
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
+    sample_id = masql.auto_field()
     # rack_id = masql.auto_field()
     # shelf_id = masql.auto_field()
     row = masql.auto_field()
@@ -565,6 +566,7 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     # rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf_id = masql.auto_field()
     # shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
+    sample_id = masql.auto_field()
     row = masql.auto_field()
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
