@@ -290,6 +290,9 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
                 for ets in etss:
                     n = n + 1
                     if n==1:
+                        ets.rack_id = None
+                        ets.col = None
+                        ets.row = None
                         ets.shelf_id = values["shelf_id"]
                         ets.storage_type = "STS"
                         ets.entry = values["entry"]
