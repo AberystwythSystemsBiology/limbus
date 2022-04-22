@@ -855,7 +855,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
         storage.updated_on = func.now()
 
     else:
-        # New EntityToStoarage
+        # New EntityToStorage
         storage_values = {
             "shelf_id": shelf_id,
             "rack_id": rack.id,

@@ -39,6 +39,9 @@ from ...storage.enums import FixedColdStorageType, FixedColdStorageTemps
 @api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
+    """Only add new entitytostorage record for rack to shelf,
+    update/delete is done by transfer rack to cart or editing rack info"""
+
     values = request.get_json()
 
     if not values:
@@ -76,6 +79,8 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
 @api.route("/storage/transfer/racks_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
+    """Only add new entitytostorage record for rack to shelf,
+    update/delete is done by transfer rack to cart or editing rack info"""
     values = request.get_json()
 
     if not values:
@@ -271,37 +276,50 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
         except ValidationError as err:
             return validation_error_response(err)
 
-        # etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STB').all()
-        etss = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).all()
-        # TODO: instead of deleting exisint etss add new ets instance and set the existing ets to: removed=True
+        etss = (EntityToStorage.query
+                .filter_by(sample_id=values["sample_id"])
+                .order_by(EntityToStorage.removed.asc())
+                .all()
+                )
+
         if len(etss) > 0:
-            # warning, confirmation
+            # Update existing entitytostorage(ets) record for the given sample
+            # Only keep one ets record for one sample
             try:
+                n=0
                 for ets in etss:
-                    db.session.delete(ets)
+                    n = n + 1
+                    if n==1:
+                        ets.shelf_id = values["shelf_id"]
+                        ets.storage_type = "STS"
+                        ets.entry = values["entry"]
+                        ets.entry_datetime = values["entry_datetime"]
+                        ets.removed = False
+                        ets.update({"editor_id":tokenuser.id})
+                        db.session.add(ets)
+                    else:
+                        db.session.delete(ets)
+                        continue
+
+                db.session.flush()
             except Exception as err:
                 return transaction_error_response(err)
-        # ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"], storage_type='STS').first()
-        # if ets != None:
-        #     ets.box_id = None
-        #     ets.shelf_id = values["shelf_id"]
-        #     ets.editor_id = tokenuser.id
-        #     ets.updated_on = func.now()
-        #     ets.storage_type = "STS"
 
-        ets = EntityToStorage(
-            sample_id=values["sample_id"],
-            shelf_id=values["shelf_id"],
-            storage_type="STS",
-            entry=values["entry"],
-            entry_datetime=values["entry_datetime"],
-            author_id=tokenuser.id,
-        )
-        try:
-            db.session.add(ets)
-            db.session.flush()
-        except Exception as err:
-            return transaction_error_response(err)
+        else:
+            # Add new ets record for the given sample
+            ets = EntityToStorage(
+                sample_id=values["sample_id"],
+                shelf_id=values["shelf_id"],
+                storage_type="STS",
+                entry=values["entry"],
+                entry_datetime=values["entry_datetime"],
+                author_id=tokenuser.id,
+            )
+            try:
+                db.session.add(ets)
+                db.session.flush()
+            except Exception as err:
+                return transaction_error_response(err)
 
         usercart = UserCart.query.filter_by(
             sample_id=values["sample_id"], author_id=tokenuser.id

@@ -451,7 +451,7 @@ def remove_rack_from_cart(id: int, tokenuser: UserAccount):
     )
 
     if rack_response.status_code == 200:
-        esRecord = EntityToStorage.query.filter_by(rack_id=id, shelf_id=None).all()
+        esRecord = EntityToStorage.query.filter_by(rack_id=id, storage_type="STB", removed=False).all()
         for es in esRecord:
             uc = UserCart.query.filter_by(
                 author_id=tokenuser.id, sample_id=es.sample_id
@@ -892,7 +892,7 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
         return not_found("for the rack with sample(s)")
 
     sample_ids = [int(smpl[0]) for smpl in sample_ids]
-    print("sample_ids", sample_ids)
+    # print("sample_ids", sample_ids)
 
     # -- Remove rack from shelf
     ESRecords = (EntityToStorage.query
