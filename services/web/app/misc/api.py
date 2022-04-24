@@ -107,7 +107,7 @@ def get_data(tokenuser: UserAccount):
         .name,
         "basic_statistics": {
             "sample_count": Sample.query.filter(
-                Sample.remaining_quantity > 0, Sample.site_id == tokenuser.site_id
+                Sample.remaining_quantity > 0, Sample.current_site_id == tokenuser.site_id
             ).count(),
             "user_count": UserAccount.query.filter_by(
                 site_id=tokenuser.site_id
@@ -160,9 +160,10 @@ def get_data(tokenuser: UserAccount):
                         func.date_trunc("day", Sample.created_on), func.count(Sample.id)
                     )
                     .filter(
+                        Sample.remaining_quantity > 0,
                         func.date(Sample.created_on)
                         >= datetime.today() - timedelta(days=90),
-                        Sample.site_id == tokenuser.site_id,
+                        Sample.current_site_id == tokenuser.site_id,
                     )
                     .group_by(func.date_trunc("day", Sample.created_on))
                     .order_by(func.date_trunc("day", Sample.created_on))
@@ -175,7 +176,8 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         Sample.base_type, func.count(Sample.base_type)
                     )
-                    .filter(Sample.site_id == tokenuser.site_id)
+                    .filter(Sample.current_site_id == tokenuser.site_id)
+                    .filter(Sample.remaining_quantity > 0)
                     .group_by(Sample.base_type)
                     .all()
                 ]
@@ -186,7 +188,8 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         Sample.biohazard_level, func.count(Sample.biohazard_level)
                     )
-                    .filter(Sample.site_id == tokenuser.site_id)
+                    .filter(Sample.current_site_id == tokenuser.site_id)
+                    .filter(Sample.remaining_quantity > 0)
                     .group_by(Sample.biohazard_level)
                     .all()
                 ]
@@ -197,7 +200,8 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         Sample.source, func.count(Sample.source)
                     )
-                    .filter(Sample.site_id == tokenuser.site_id)
+                    .filter(Sample.current_site_id == tokenuser.site_id)
+                    .filter(Sample.remaining_quantity > 0)
                     .group_by(Sample.source)
                     .all()
                 ]
@@ -208,7 +212,8 @@ def get_data(tokenuser: UserAccount):
                     for (type, count) in db.session.query(
                         Sample.status, func.count(Sample.status)
                     )
-                    .filter(Sample.site_id == tokenuser.site_id)
+                    .filter(Sample.current_site_id == tokenuser.site_id)
+                    .filter(Sample.remaining_quantity > 0)
                     .group_by(Sample.status)
                     .all()
                 ]
@@ -414,6 +419,7 @@ def misc_new_site(tokenuser: UserAccount):
 @api.route("/misc/reminders", methods=["GET"])
 @token_required
 def get_reminder_data(tokenuser: UserAccount):
+    """ Get reminder data for tokenuser's affiliated site"""
     # -- Sample disposal expected within next 1 days or in the past.
 
     to_dispose= (
@@ -423,6 +429,7 @@ def get_reminder_data(tokenuser: UserAccount):
         .filter(SampleDisposal.disposal_event_id == None, SampleDisposal.disposal_date != None)
         .filter(func.date(SampleDisposal.disposal_date) <= datetime.today() + timedelta(days=1))
         .filter_by(is_closed=False, is_locked=False)
+        .filter(Sample.current_site_id == tokenuser.site_id)
         .filter(Sample.remaining_quantity > 0)
         .distinct(Sample.id)
     )
@@ -430,54 +437,72 @@ def get_reminder_data(tokenuser: UserAccount):
     #print("to_dispose (%d) : " %to_dispose.count())
     #print(to_dispose)
 
-    to_collect = db.session.query(Sample.id) \
-        .filter_by(is_closed=False, is_locked=False) \
-        .filter(Sample.status.in_([SampleStatus.NCO])) \
+    to_collect = (
+        db.session.query(Sample.id)
+        .filter_by(is_closed=False, is_locked=False)
+        .filter(Sample.status.in_([SampleStatus.NCO]))
+        .filter(Sample.site_id == tokenuser.site_id)
         .except_(to_dispose)
+    )
 
     #print("to_collect (%d) : " %to_dispose.count())
     #print(to_dispose)
 
-    to_review = db.session.query(Sample.id) \
-        .filter_by(is_closed=False, is_locked=False) \
-        .filter(Sample.status.in_([SampleStatus.NRE])) \
+    to_review = (
+        db.session.query(Sample.id)
+        .filter_by(is_closed=False, is_locked=False)
+        .filter(Sample.status.in_([SampleStatus.NRE]))
+        .filter(Sample.current_site_id == tokenuser.site_id)
         .except_(to_dispose)
+        )
 
-    stored0 = db.session.query(EntityToStorage.sample_id)\
-        .filter(EntityToStorage.sample_id!=None)\
-        .filter(EntityToStorage.shelf_id!=None)\
+    stored0 = (
+        db.session.query(EntityToStorage.sample_id)
+        .filter(EntityToStorage.sample_id!=None)
+        .filter(EntityToStorage.shelf_id!=None)
         .filter(EntityToStorage.removed is not True)
         # .filter_by(storage_type="STS")
+        )
     # print("stored0 (%d) : " %stored0.count())
     # print(stored0)
 
-    bts = db.session.query(EntityToStorage.rack_id)\
-        .filter(EntityToStorage.rack_id!=None)\
-        .filter(EntityToStorage.shelf_id!=None) \
-        .filter(EntityToStorage.removed is not True) \
+    bts = (
+        db.session.query(EntityToStorage.rack_id)
+        .filter(EntityToStorage.rack_id!=None)
+        .filter(EntityToStorage.shelf_id!=None)
+        .filter(EntityToStorage.removed is not True)
         #.filter_by(storage_type="BTS")
-
+        )
     # print("bts (%d) : " %bts.count())
     # print(bts)
 
-    stored1 = db.session.query(EntityToStorage.sample_id)\
-        .filter(EntityToStorage.rack_id!=None) \
-        .filter(EntityToStorage.removed is not True) \
+    stored1 = (
+        db.session.query(EntityToStorage.sample_id)
+        .filter(EntityToStorage.rack_id!=None)
+        .filter(EntityToStorage.removed is not True)
         .filter(EntityToStorage.rack_id.in_(bts))
+        # .filter(Sample.current_site_id == tokenuser.site_id)
         # .filter_by(storage_type="STB")
+        )
 
     print("stored1 (%d) : " %stored1.distinct(EntityToStorage.sample_id).count())
     # print(stored1)
 
     #.filter(~Sample.id.in_(stored0.union(stored1))) \ doesn't work
-    to_store = db.session.query(Sample.id) \
-        .filter_by(is_closed=False, is_locked=False)\
-        .filter(Sample.remaining_quantity>0) \
-        .distinct(Sample.id) \
+    to_store = (
+        db.session.query(Sample.id)
+        .filter_by(is_closed=False, is_locked=False)
+        .filter(Sample.remaining_quantity>0)
+        .filter(Sample.current_site_id == tokenuser.site_id)
+        .distinct(Sample.id)
         .except_(stored0.union(stored1).union(stored1))
+        )
 
-    in_cart = db.session.query(UserCart.sample_id)
-
+    in_cart = (
+        db.session.query(UserCart.sample_id)
+        .join(UserAccount, UserAccount.id==UserCart.author_id)
+        .filter(UserAccount.site_id == tokenuser.site_id)
+        )
 
     reminder_stats =prepare_for_chart_js([
         ("to_collect", to_collect.count()),
@@ -488,4 +513,3 @@ def get_reminder_data(tokenuser: UserAccount):
     ])
     # print("reminder_stats: ", reminder_stats)
     return success_with_content_response(reminder_stats)
-
