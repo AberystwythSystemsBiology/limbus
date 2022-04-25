@@ -326,7 +326,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     db.session.add(stb)
 
                 except Exception as err:
-                    print(err)
                     return transaction_error_response(err)
 
         if stbs is not None:
@@ -901,6 +900,7 @@ def storage_rack_delete(id, tokenuser: UserAccount):
     rackTableRecord.update({"editor_id": tokenuser.id})
     if not entityStorageTableRecord:
         try:
+            entityStorageTableRecord.update({"editor_id": tokenuser.id})
             db.session.delete(rackTableRecord)
             db.session.commit()
             return success_with_content_response(None)
@@ -918,6 +918,8 @@ def func_rack_delete(record, entityStorageTableRecord):
     for ESRecord in entityStorageTableRecord:
         if not ESRecord.sample_id is None:
             return "has sample"
+
+        ESRecord.update({"editor_id": tokenuser.id})
         db.session.delete(ESRecord)
 
     try:
@@ -1219,17 +1221,41 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
         return validation_error_response(err)
 
     # check if Sample exists.
-    ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
+    #ets = EntityToStorage.query.filter_by(sample_id=values["sample_id"]).first()
+    etss = (
+        EntityToStorage.query.filter_by(sample_id=values["sample_id"])
+            .order_by(EntityToStorage.removed.asc())
+            .all()
+    )
 
-    if not ets:
+    if len(etss)>0:
+        n=0
+        for ets in etss:
+            n=n+1
+            if n>1:
+                ets.update({"editor_id": tokenuser.id})
+                db.session.delete(ets)
+                continue
+            else:
+                ets.shelf_id = None
+                ets.rack_id = None
+                ets.storage_type = "STB"
+                ets.update(values)
+                ets.removed = False
+                ets.update({"editor_id": tokenuser.id})
+                db.session.add(ets)
+    else:
         ets = EntityToStorage(**values)
         ets.author_id = tokenuser.id
         ets.storage_type = "STB"
-    else:
-        ets.shelf_id = None
-        ets.rack_id = None
-        ets.storage_type = "STB"
-        ets.update(values)
+        ets.removed = False
+        db.session.add(ets)
+
+    try:
+        db.session.flush()
+    except Exception as err:
+        db.session.rollback()
+        return transaction_error_response(err)
 
     usercart = UserCart.query.filter_by(
         sample_id=values["sample_id"], author_id=tokenuser.id
@@ -1241,7 +1267,6 @@ def storage_transfer_sample_to_rack(tokenuser: UserAccount):
             pass
 
     try:
-        db.session.add(ets)
         db.session.commit()
         msg = "Sample successfully assigned to rack! "
         # return success_with_content_response(view_sample_to_sample_rack_schema.dump(ets))

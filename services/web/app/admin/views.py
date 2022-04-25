@@ -544,6 +544,7 @@ class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
+    removed = masql.auto_field()
 
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
@@ -571,6 +572,7 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
+    removed = masql.auto_field()
 
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)

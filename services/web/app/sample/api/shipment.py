@@ -727,7 +727,6 @@ def func_add_samples_to_cart(
             if nd>1:
                 ets.update({"editor_id": tokenuser.id})
                 db.session.delete(ets)
-                nd = nd+1
                 continue
 
             if to_close_shipment is True or rack_to_cart is True:
@@ -750,7 +749,6 @@ def func_add_samples_to_cart(
                 ets.removed = True
                 db.session.add(ets)
                 # db.session.delete(ets)
-
 
         db.session.add(new_uc)
 
@@ -896,26 +894,30 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
 
     # -- Remove rack from shelf
     ESRecords = (EntityToStorage.query
-                 .filter_by(rack_id=id, storage_type="BTS", removed=False)
+                 .filter_by(rack_id=id, storage_type="BTS")
                  .order_by(EntityToStorage.removed)
                  .all())
-    nd = 0
-    for es in ESRecords:
-        nd = nd+1
-        if nd > 1:
-            es.update({"editor_id": tokenuser.id})
-            db.session.delete(es)
-            continue
 
-        if es.sample_id is None and es.shelf_id is not None:
-            try:
+    if len(ESRecords)>0:
+        nd = 0
+        # Only one BTS record will be stored for a given rack id
+        for es in ESRecords:
+            nd = nd+1
+            if nd > 1:
+                es.update({"editor_id": tokenuser.id})
+                db.session.delete(es)
+
+            else:
+                # Remove the rack from shelf
                 es.removed = True
                 es.update({"editor_id": tokenuser.id})
                 db.session.add(es)
-                db.session.flush()
-            except Exception as err:
-                db.session.rollback()
-                return transaction_error_response(err)
+
+        try:
+            db.session.flush()
+        except Exception as err:
+            db.session.rollback()
+            return transaction_error_response(err)
 
     success, msg = func_add_samples_to_cart(
         tokenuser=tokenuser, user_id=None, sample_ids=sample_ids,
