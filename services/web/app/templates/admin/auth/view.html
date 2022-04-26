@@ -6,7 +6,7 @@
 {% block body %}
 <div class="jumbotron">
     <div class="container">
-        <h1><span class="secondary-heading"><i class="fa fa-cog"></i> Administrator Panel</span><i class="fa fa-user"></i> {{ user.email }} </h1>
+        <h1><span class="secondary-heading"><i class="fa fa-cog"></i> <a href={{ url_for('admin.auth_index') }}> User Accounts</a></span><i class="fa fa-user"></i> {{ user.email }} </h1>
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
