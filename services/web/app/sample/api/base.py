@@ -673,6 +673,7 @@ def sample_query(args, tokenuser: UserAccount):
         filters_source_study = {"protocol_id": filters["source_study"]}
         filters.pop("source_study")
 
+    time0 = datetime.now()
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
     # print("stmt 0 - ", stmt.count())
     # -- adding samples in the user cart ready for storage or shipping
@@ -734,8 +735,18 @@ def sample_query(args, tokenuser: UserAccount):
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     stmt = stmt.filter_by(**filters).filter(*joins) # Filter on table sample
     stmt = stmt.distinct(Sample.id).order_by(Sample.id.desc())
+
+    time1 = datetime.now()
+    td1 = time1 - time0
+    print('db query took %0.3f ms' % (td1.microseconds/1000))
     # print("stmt", stmt)
+
+    time1 = datetime.now()
     results = basic_samples_schema.dump(stmt.all())
+    time2 = datetime.now()
+    td1=time2 - time1
+    print('db dump took %0.3f ms' % (td1.microseconds/1000))
+
     # print("results", len(results), "--", results)
     # -- retrieve user cart info
     if flag_reminder_type:
@@ -1185,7 +1196,7 @@ def func_update_sample_status(
     if sample.is_locked is True or sample.is_closed is True:
         return {"sample": None, "message": "Sample locked/closed! ", "success": True}
 
-    if events is None or len(events) is 0:
+    if events is None or len(events) == 0:
         auto_query = True
         for e in [
             "sample_review",

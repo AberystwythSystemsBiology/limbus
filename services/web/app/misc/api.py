@@ -162,7 +162,7 @@ def get_data(tokenuser: UserAccount):
                     .filter(
                         Sample.remaining_quantity > 0,
                         func.date(Sample.created_on)
-                        >= datetime.today() - timedelta(days=90),
+                        >= datetime.today() - timedelta(days=365),
                         Sample.current_site_id == tokenuser.site_id,
                     )
                     .group_by(func.date_trunc("day", Sample.created_on))

@@ -21,6 +21,16 @@ from ..forms import SampleFilterForm
 
 import requests
 
+from flask import make_response, json
+import gzip
+
+def compress(data):
+    content = gzip.compress(json.dumps(data).encode('utf8'), 5)
+    response = make_response(content)
+    # print("response: ", response)
+    response.headers['Content-length'] = len(content)
+    response.headers['Content-Encoding'] = 'gzip'
+    return response
 
 @sample.route("/")
 @login_required
@@ -66,14 +76,20 @@ def index() -> str:
 @sample.route("/query", methods=["POST"])
 @login_required
 def query_index():
+    time1 = datetime.now()
     response = requests.get(
         url_for("api.sample_query", _external=True),
         headers=get_internal_api_header(),
         json=request.json,
     )
+    time2 = datetime.now()
+    td1=time2 - time1
+    print('api call sampl_query took %0.3f ms' % (td1.microseconds/1000))
 
     if response.status_code == 200:
-        return response.json()
+        # compress json data
+        return compress(response.json())
+        #return response.json()
     else:
         abort(response.status_code)
 

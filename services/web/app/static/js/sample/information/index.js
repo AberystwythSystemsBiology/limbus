@@ -30,7 +30,12 @@ function get_samples(query) {
             'contentType': 'application/json',
             'data': JSON.stringify(query),
             'success': function (data) {
-                json = data;
+                //console.log(data);
+                if (data instanceof String || typeof data === "string") {
+                    json = JSON.parse(data);
+                } else {
+                    json = data;
+                }
             }
         });
         return json;
@@ -129,6 +134,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
 
     let aTable = $('#' + div_id).DataTable({
         data: samples,
+        deferRender: true,
         dom: 'Bfrtlip',
         fixedHeader: true,
         language: {
@@ -194,7 +200,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
                 //searchable: false,
             },
         ],
-        order: [[2, 'desc']],
+        order: [[3, 'desc']],
         select: {
             'style': 'multi',
             'selector': 'td:first-child'
@@ -405,8 +411,12 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
 
 };
 
+
 function render_table(filters) {
+    var startTime = performance.now()
     let d = get_samples(filters);
+    var endTime = performance.now()
+    console.log(`Call to get_samples took ${endTime - startTime} milliseconds`)
     // console.log("samples", d)
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
@@ -416,7 +426,10 @@ function render_table(filters) {
         hide_cols=[];
     }
 
+    var startTime = performance.now()
     render_sample_table(d, "sampleTable", hide_cols);
+    var endTime = performance.now()
+    console.log(`Call to rendertable took ${endTime - startTime} milliseconds`)
 
     $("#loading").fadeOut();
     $("#table_view").delay(300).fadeIn();
