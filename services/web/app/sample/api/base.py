@@ -368,6 +368,7 @@ def sample_reminder_query_stmt(
         stmt = (
             stmt.filter_by(is_closed=False, is_locked=False)
             .filter(Sample.remaining_quantity>0)
+            .filter(Sample.status.in_([SampleStatus.AVA]))
             .except_(stored0.union(stored1))
         )
 

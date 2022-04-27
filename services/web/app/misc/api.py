@@ -494,7 +494,8 @@ def get_reminder_data(tokenuser: UserAccount):
         db.session.query(Sample.id)
         .filter_by(is_closed=False, is_locked=False)
         .filter(Sample.remaining_quantity>0)
-        .filter(Sample.current_site_id == tokenuser.site_id, Sample.remaining_quantity>0)
+        .filter(Sample.status.in_([SampleStatus.AVA]))
+        .filter(Sample.current_site_id == tokenuser.site_id)
         .distinct(Sample.id)
         .except_(stored0.union(stored1).union(stored1))
         )
@@ -504,7 +505,8 @@ def get_reminder_data(tokenuser: UserAccount):
         .join(UserAccount, UserAccount.id==UserCart.author_id)
         .join(Sample, Sample.id==UserCart.sample_id)
         .filter(UserAccount.site_id == tokenuser.site_id)
-        .filter(Sample.current_site_id == tokenuser.site_id, Sample.remaining_quantity>0)
+        .filter(Sample.current_site_id == tokenuser.site_id,
+                Sample.remaining_quantity>0)
         )
 
     reminder_stats =prepare_for_chart_js([
