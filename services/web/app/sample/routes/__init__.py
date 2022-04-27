@@ -46,7 +46,8 @@ def index() -> str:
         sites = sites_response.json()["content"]["choices"]
         user_site_id = sites_response.json()["content"]["user_site_id"]
         if current_user.is_admin:
-            sites.insert(0, (None, "None"))
+            #sites.insert(0, (None, "None"))
+            sites.append((None, "None"))
 
     sampletype_response = requests.get(
         url_for("api.sampletype_data", _external=True),

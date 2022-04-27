@@ -292,7 +292,8 @@ def site_home_tokenuser(tokenuser: UserAccount):
     site_key = "data_entry"
     choices0 = None
     nm0 = None
-    id0 = None
+    #id0 = None
+    id0 = tokenuser.site_id
     if not tokenuser.is_admin:
         try:
             if "view_only" in settings and "data_entry" not in settings:
@@ -452,7 +453,7 @@ def get_reminder_data(tokenuser: UserAccount):
         db.session.query(Sample.id)
         .filter_by(is_closed=False, is_locked=False)
         .filter(Sample.status.in_([SampleStatus.NRE]))
-        .filter(Sample.current_site_id == tokenuser.site_id)
+        .filter(Sample.current_site_id == tokenuser.site_id, Sample.remaining_quantity>0)
         .except_(to_dispose)
         )
 
@@ -493,7 +494,7 @@ def get_reminder_data(tokenuser: UserAccount):
         db.session.query(Sample.id)
         .filter_by(is_closed=False, is_locked=False)
         .filter(Sample.remaining_quantity>0)
-        .filter(Sample.current_site_id == tokenuser.site_id)
+        .filter(Sample.current_site_id == tokenuser.site_id, Sample.remaining_quantity>0)
         .distinct(Sample.id)
         .except_(stored0.union(stored1).union(stored1))
         )
@@ -501,7 +502,9 @@ def get_reminder_data(tokenuser: UserAccount):
     in_cart = (
         db.session.query(UserCart.sample_id)
         .join(UserAccount, UserAccount.id==UserCart.author_id)
+        .join(Sample, Sample.id==UserCart.sample_id)
         .filter(UserAccount.site_id == tokenuser.site_id)
+        .filter(Sample.current_site_id == tokenuser.site_id, Sample.remaining_quantity>0)
         )
 
     reminder_stats =prepare_for_chart_js([
