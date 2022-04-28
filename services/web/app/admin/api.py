@@ -141,7 +141,7 @@ def audit_sample(uuid: str, tokenuser: UserAccount):
 
     SampleVersion = version_class(Sample)
     sample_trails = db.session.query(SampleVersion).filter_by(uuid=uuid).all()
-
+    samples = db.session.query(Sample).filter_by(uuid=uuid).first()
     column_keys = SampleVersion.__table__.columns.keys()
     print(column_keys)
     audit_trails = audit_samples_schema.dump(sample_trails)

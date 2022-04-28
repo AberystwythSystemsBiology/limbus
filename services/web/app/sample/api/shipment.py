@@ -710,7 +710,6 @@ def func_add_samples_to_cart(
         #     .first()
         # )
 
-        # -- dealing with legacy cases where we have multiple records for each sample
         etss = (
             EntityToStorage.query.filter(
                 EntityToStorage.sample_id == sample_id)
@@ -731,18 +730,21 @@ def func_add_samples_to_cart(
 
             if to_close_shipment is True or rack_to_cart is True:
                 # - from transit to cart
-                new_uc.rack_id = ets.rack_id
-                new_uc.storage_type = "RUC"
-                if rack_to_cart:
-                    ets.shelf = None
-                    ets.update({"editor_id": tokenuser.id})
-
                 rack = SampleRack.query.filter_by(id=ets.rack_id).first()
 
                 if rack:
+                    new_uc.rack_id = ets.rack_id
+                    new_uc.storage_type = "RUC"
+
+                if rack_to_cart:
+                    ets.shelf = None
+                    ets.update({"editor_id": tokenuser.id})
+                    db.session.add(ets)
+
                     rack.is_locked = True
                     rack.update({"editor_id": tokenuser.id})
                     db.session.add(rack)
+
 
             else:
                 ets.update({"editor_id": tokenuser.id})
