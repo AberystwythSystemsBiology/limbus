@@ -296,7 +296,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 EntityToStorage.sample_id == sample_id,
                 EntityToStorage.storage_type != "BTS",
                 # EntityToStorage.removed.is_(False),
-            )
+            ).all()
             # record for existing sample to rack info given rack id
             stbs2 = EntityToStorage.query.filter(
                 EntityToStorage.rack_id == rack_id,
@@ -305,16 +305,17 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 EntityToStorage.row == sample["row"],
                 EntityToStorage.storage_type == "STB",
                 # EntityToStorage.removed.is_(False),
-            )
-            # stbs = stbs.union(stbs2).all()
+            ).all()
+
         else:
+            stbs = [];
             # get storage record given the position of the sample on the rack
             stbs2 = EntityToStorage.query.filter(
                 EntityToStorage.rack_id == rack_id,
                 EntityToStorage.col == sample["col"],
                 EntityToStorage.row == sample["row"],
                 EntityToStorage.storage_type == "STB",
-            )
+            ).all()
 
         if stbs2 is not None:
             # Remove the existing sample (of different sample_id) from current position of rack
@@ -328,13 +329,15 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except Exception as err:
                     return transaction_error_response(err)
 
-        if stbs is not None:
+        if len(stbs)>0: # is not None:
             for stb in stbs:
 
                 try:
                     stb.col = sample["col"]
                     stb.row = sample["row"]
                     stb.storage_type = "STB"
+                    stb.rack_id = rack_id
+                    stb.shelf_id = None
                     stb.removed = False
                     if "entry_datetime" not in sample:
                         stb.entry_datetime = func.now()
@@ -350,7 +353,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     return transaction_error_response(err)
 
         if sample_id:
-            if stbs is None:
+            if len(stbs) == 0:
                 # Step 2. Add new sample to rack record
                 # stb_values = {'sample_id': sample['sample_id'], 'row': sample['row'], 'col': sample['col'],
                 #               'rack_id': rack_id, 'storage_type': 'STB'}
@@ -377,8 +380,8 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     return transaction_error_response(err)
 
             # Remove samples from usercart
-            # usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
-            usercart = UserCart.query.filter_by(sample_id=sample_id).first()
+            usercart = UserCart.query.filter_by(sample_id=sample_id, author_id=tokenuser.id).first()
+            # usercart = UserCart.query.filter_by(sample_id=sample_id).first()
             if usercart:
                 try:
                     usercart.update({"editor_id": tokenuser.id})
@@ -401,7 +404,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     try:
         #db.session.add_all(stb_batch) # batch insert
         db.session.commit()
-        flash("Sample stored to rack Successfully!")
+        # flash("Sample stored to rack Successfully!")
         msg = "Sample(s) stored to rack Successfully! "
     except Exception as err:
         return transaction_error_response(err)
@@ -887,9 +890,6 @@ def storage_rack_edit_basic(id, tokenuser: UserAccount):
 @token_required
 def storage_rack_delete(id, tokenuser: UserAccount):
     rackTableRecord = SampleRack.query.filter_by(id=id).first()
-    entityStorageTableRecord = EntityToStorage.query.filter(
-        EntityToStorage.rack_id == id
-    ).all()
 
     if not rackTableRecord:
         return not_found()
@@ -897,36 +897,35 @@ def storage_rack_delete(id, tokenuser: UserAccount):
     if rackTableRecord.is_locked:
         return locked_response()
 
-    rackTableRecord.update({"editor_id": tokenuser.id})
-    if not entityStorageTableRecord:
-        try:
-            entityStorageTableRecord.update({"editor_id": tokenuser.id})
-            db.session.delete(rackTableRecord)
-            db.session.commit()
-            return success_with_content_response(None)
-        except Exception as err:
-            return transaction_error_response(err)
-    shelfID = entityStorageTableRecord[0].shelf_id
+    # Check samples stored in the rack
+    entityStorageTableRecord = EntityToStorage.query.filter(
+        EntityToStorage.rack_id == id
+    ).all()
 
-    response = func_rack_delete(rackTableRecord, entityStorageTableRecord)
-    if response == "success":
-        return success_with_content_response(shelfID)
-    return sample_assigned_delete_response()
+    shelfID = None
+    for ets in entityStorageTableRecord:
+        print(ets.storage_type)
+        if ets.storage_type == EntityToStorageType.STB and ets.removed is False:
+            return validation_error_response("Can't delete rack with assigned samples")
 
-
-def func_rack_delete(record, entityStorageTableRecord):
-    for ESRecord in entityStorageTableRecord:
-        if not ESRecord.sample_id is None:
-            return "has sample"
-
-        ESRecord.update({"editor_id": tokenuser.id})
-        db.session.delete(ESRecord)
+        elif ets.storage_type == EntityToStorageType.BTS and ets.removed is False:
+            shelfID = ets.shelf_id
+            ets.update({"editor_id": tokenuser.id})
+            db.session.delete(ets)
+            #return validation_error_response("Can't delete rack stored in a shelf %s" % shelfID)
+        else:
+            # Disassociate the other entitytostorage record with rack to deleted
+            ets.rack_id = None
+            ets.update({"editor_id": tokenuser.id})
+            db.session.add(ets)
 
     try:
         db.session.flush()
-        db.session.delete(record)
+
+        rackTableRecord.update({"editor_id": tokenuser.id})
+        db.session.delete(rackTableRecord)
         db.session.commit()
-        return "success"
+        return success_with_content_response(shelfID)
     except Exception as err:
         return transaction_error_response(err)
 

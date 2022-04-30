@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from ..database import *
 
 from ..api import api
@@ -293,6 +293,7 @@ def site_home_tokenuser(tokenuser: UserAccount):
     choices0 = None
     nm0 = None
     #id0 = None
+    # Initialise default site to user affiliated site
     id0 = tokenuser.site_id
     if not tokenuser.is_admin:
         try:
@@ -305,7 +306,8 @@ def site_home_tokenuser(tokenuser: UserAccount):
             id0 = settings[site_key]["site"]["default"]
             nm0 = None
         except:
-            id0 = None
+            #id0 = None
+            pass
 
         try:
             choices0 = settings[site_key]["site"]["choices"]
@@ -482,8 +484,6 @@ def get_reminder_data(tokenuser: UserAccount):
         .filter(EntityToStorage.rack_id!=None)
         .filter(EntityToStorage.removed is not True)
         .filter(EntityToStorage.rack_id.in_(bts))
-        # .filter(Sample.current_site_id == tokenuser.site_id)
-        # .filter_by(storage_type="STB")
         )
 
     print("stored1 (%d) : " %stored1.distinct(EntityToStorage.sample_id).count())
@@ -492,21 +492,30 @@ def get_reminder_data(tokenuser: UserAccount):
     #.filter(~Sample.id.in_(stored0.union(stored1))) \ doesn't work
     to_store = (
         db.session.query(Sample.id)
-        .filter_by(is_closed=False, is_locked=False)
+        .join(UserAccount, UserAccount.id==Sample.author_id)
+        .filter(Sample.is_closed==False, Sample.is_locked==False)
         .filter(Sample.remaining_quantity>0)
         .filter(Sample.status.in_([SampleStatus.AVA]))
-        .filter(Sample.current_site_id == tokenuser.site_id)
+        .filter(or_(Sample.current_site_id == tokenuser.site_id,
+                    and_(Sample.current_site_id.is_(None),
+                         UserAccount.site_id==tokenuser.site_id)
+                    )
+                )
         .distinct(Sample.id)
         .except_(stored0.union(stored1).union(stored1))
         )
 
     in_cart = (
         db.session.query(UserCart.sample_id)
-        .join(UserAccount, UserAccount.id==UserCart.author_id)
         .join(Sample, Sample.id==UserCart.sample_id)
-        .filter(UserAccount.site_id == tokenuser.site_id)
-        .filter(Sample.current_site_id == tokenuser.site_id,
-                Sample.remaining_quantity>0)
+        .join(UserAccount, UserAccount.id == Sample.author_id)
+        .filter(Sample.is_closed==False, Sample.is_locked==False)
+        .filter(Sample.remaining_quantity>0)
+        .filter(or_(Sample.current_site_id == tokenuser.site_id,
+                and_(Sample.current_site_id.is_(None),
+                     UserAccount.site_id == tokenuser.site_id)
+                )
+            )
         )
 
     reminder_stats =prepare_for_chart_js([

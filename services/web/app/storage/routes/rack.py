@@ -1148,6 +1148,7 @@ def edit_rack(id):
                     [int(shelf["shelf_id"]), shelf["name"]]
                 )
                 shelves.append([int(shelf["shelf_id"]), shelf["name"]])
+
             # shelf_required = len(shelves) > 0
 
         form = EditSampleRackForm(
@@ -1229,14 +1230,15 @@ def delete_rack(id):
                     _external=True,
                 )
             )
-        elif (
-            edit_response.status_code == 400
-            and edit_response.json()["message"] == "Can't delete assigned samples"
-        ):
-            flash("Cannot delete rack with assigned samples")
+
         else:
-            flash("We have a problem: %s" % edit_response.status_code)
+            flash(
+                "We have a problem. %s "
+                % edit_response.json()["message"]
+            )
+
         return redirect(url_for("storage.view_rack", id=id, _external=True))
+
     abort(response.status_code)
 
 

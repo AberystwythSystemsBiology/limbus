@@ -271,9 +271,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
         if ets:
             try:
                 for et in ets:
+                    et.update({"editor_id": tokenuser.id})
                     db.session.delete(et)
                     # et.removed=True
-                    # et.update({"editor_id": tokenuser.id})
                     # db.session.add(et)
             except Exception as err:
                 db.session.rollback()
@@ -535,9 +535,9 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
         if ets:
             try:
                 for et in ets:
+                    et.update({"editor_id": tokenuser.id})
                     db.session.delete(et)
                     # et.removed=True
-                    # et.update({"editor_id": tokenuser.id})
                     # db.session.add(et)
             except Exception as err:
                 db.session.rollback()

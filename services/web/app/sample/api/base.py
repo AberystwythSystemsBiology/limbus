@@ -16,6 +16,7 @@
 from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
 from sqlalchemy.sql import func
+from sqlalchemy import or_, and_
 from ...extensions import ma
 from datetime import datetime, timedelta
 
@@ -365,6 +366,7 @@ def sample_reminder_query_stmt(
 
         # print("stored1 (%d) : " %stored1.count())
         # print(stored1)
+
         stmt = (
             stmt.filter_by(is_closed=False, is_locked=False)
             .filter(Sample.remaining_quantity>0)
@@ -616,16 +618,17 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    print("filters", filters)
+    # print("filters", filters)
     # -- To exclude empty samples in the index list
+    joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
 
-    if not tokenuser.is_admin:
-        sites_tokenuser = func_validate_settings(
-            tokenuser, keys={"site_id"}, check=False
-        )
-        if "current_site_id" not in filters:
-            joins.append(getattr(Sample, "current_site_id").in_(sites_tokenuser))
+    # if not tokenuser.is_admin:
+    #     sites_tokenuser = func_validate_settings(
+    #         tokenuser, keys={"site_id"}, check=False
+    #     )
+    #     if "current_site_id" not in filters:
+    #         joins.append(getattr(Sample, "current_site_id").in_(sites_tokenuser))
 
     flag_reminder_type = False
     flag_sample_type = False
@@ -675,33 +678,81 @@ def sample_query(args, tokenuser: UserAccount):
         filters.pop("source_study")
 
     time0 = datetime.now()
+
+    filter_site_id = filters.pop("current_site_id", None)
+
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
-    # print("stmt 0 - ", stmt.count())
-    # -- adding samples in the user cart ready for storage or shipping
-    if tokenuser.is_admin:
-        stmt = stmt.union(
-            db.session.query(UserCart.sample_id)
+    if filter_site_id:
+        stmt = (
+                stmt.join(UserAccount, UserAccount.id==Sample.author_id)
+                .filter(
+                    or_(Sample.current_site_id == filter_site_id,
+                        and_(Sample.current_site_id.is_(None),
+                             UserAccount.site_id == filter_site_id)
+                        )
+                )
         )
+        # stmt1 = stmt.filter(Sample.current_site_id == filter_site_id)
+        # stmt2 = (
+        #          stmt.join(UserAccount, UserAccount.id==Sample.author_id)
+        #         .filter(Sample.current_site_id.is_(None),
+        #                 UserAccount.site_id == filter_site_id)
+        #         )
+
+        #print("stmt 0 - ", stmt.count())
+
+        # -- adding samples in the user cart ready for storage or shipping
+        #if filter_site_id:
+        stmt_cart = (
+            db.session.query(UserCart.sample_id)
+            .join(Sample, Sample.id == UserCart.sample_id)
+            .join(UserAccount, UserAccount.id == Sample.author_id)
+            .filter_by( ** filters).filter(*joins)
+            .filter(or_(Sample.current_site_id == tokenuser.site_id,
+                and_(Sample.current_site_id.is_(None),
+                     UserAccount.site_id == tokenuser.site_id)
+                )
+            )
+
+            .distinct(Sample.id)
+        )
+
     else:
-        stmt = stmt.union(
-        db.session.query(UserCart.sample_id)
-        .filter(UserCart.author_id == tokenuser.id)
-    )
-    # print("stmt 1 - ", stmt.count())
+        stmt_cart = (
+            db.session.query(UserCart.sample_id)
+            .join(Sample, Sample.id==UserCart.sample_id)
+            .filter_by(**filters).filter(*joins)
+        )
+
+    #print("stmt cart - ", stmt_cart.count())
+    if stmt_cart.count()>0:
+        if filter_site_id:
+            stmt_cart = (
+                stmt_cart
+                .filter(or_(Sample.current_site_id==filter_site_id, Sample.current_site_id.is_(None)))
+                .distinct(Sample.id)
+            )
+
+    #print("stmt cart - ", stmt_cart.count())
+    stmt = stmt.union(stmt_cart)
+    #print("stmt 1 - ", stmt.count())
 
     # -- adding sample of 0 quantity but stay in storage
     stmt_zeros = (
         db.session.query(EntityToStorage.sample_id)
         .join(Sample, Sample.id==EntityToStorage.sample_id)
+        .filter(EntityToStorage.removed is False)
         .filter(Sample.is_closed is False)
         .filter(Sample.remaining_quantity==0)
         .distinct(Sample.id)
     )
-    if not tokenuser.is_admin:
-        stmt_zeros = stmt_zeros.filter(Sample.current_site_id.in_(sites_tokenuser))
-    # print("stmt_zeros", stmt_zeros.count())
+    stmt_zeros = stmt_zeros.filter_by(**filters).filter(*joins0)
+
+    if filter_site_id:
+        stmt_zeros = stmt_zeros.filter(Sample.current_site_id == filter_site_id)
 
     stmt = stmt.union(stmt_zeros)
+    # stmt = stmt.filter_by(**filters).filter(*joins)
 
     if flag_consent_status:
         stmt = sample_consent_status_query_stmt(
@@ -734,7 +785,6 @@ def sample_query(args, tokenuser: UserAccount):
         )
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
-    stmt = stmt.filter_by(**filters).filter(*joins) # Filter on table sample
     stmt = stmt.distinct(Sample.id).order_by(Sample.id.desc())
 
     time1 = datetime.now()
@@ -744,9 +794,6 @@ def sample_query(args, tokenuser: UserAccount):
 
     time1 = datetime.now()
     results = basic_samples_schema.dump(stmt.all())
-    time2 = datetime.now()
-    td1=time2 - time1
-    print('db dump took %0.3f ms' % (td1.microseconds/1000))
 
     # print("results", len(results), "--", results)
     # -- retrieve user cart info
@@ -773,6 +820,10 @@ def sample_query(args, tokenuser: UserAccount):
                     info = {"user_cart_info": None}
 
                 results[i].update(info)
+
+    time2 = datetime.now()
+    td1=time2 - time1
+    print('db dump took %0.3f ms' % (td1.microseconds/1000))
 
     return success_with_content_response(results)
 
@@ -898,8 +949,13 @@ def sample_new_sample(tokenuser: UserAccount):
 
     try:
         db.session.add(new_sample)
-        db.session.commit()
         db.session.flush()
+        # -- Add to user sample cart
+        new_uc = UserCart(
+            sample_id=new_sample.id, selected=True, author_id=tokenuser.id
+        )
+        db.session.add(new_uc)
+        db.session.commit()
     except Exception as err:
         return transaction_error_response(err)
 
@@ -1078,7 +1134,7 @@ def func_sample_storage_location(sample_id):
         return {"sample_storage_info": sample_storage_info, "message": msg}
 
 
-def func_validate_settings(tokenuser, keys={}, check=True):
+def func_validate_settings(tokenuser: object, keys: object = {}, check: object = True) -> object:
     success = True
     msg = "Setting ok!"
     sites_tokenuser = None
