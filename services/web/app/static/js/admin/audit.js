@@ -44,16 +44,64 @@ function render_audit_table(trails, div_id) {
 
     var aTable = $('#' + div_id).DataTable({
         data: trails,
-        dom: 'Blfrtip',
-        buttons: [ 'print', 'csv', 'colvis',
+        dom: 'Bfrtlip',//'Blfrtip',
+        language: {
+
+            buttons: {
+                //selectNone: '<i class="far fa-circle"></i> None',
+                colvis: 'Column',
+
+            },
+            searchPanes: {
+                preSelect: [{rows:['Summary'], column: 5}],
+                clearMessage: 'Clear Selections',
+                collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
+                preSelect: [{rows:['Summary'], column: 5 }]
+            }
+        },
+
+        searchPanes: {
+            clearMessage: 'Clear Selections',
+            collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
+            preSelect: [{rows:['Summary'], column: 5 }]
+        },
+
+        buttons: [
+
+            {
+                extend: 'searchPanes',
+                config: {
+                    cascadePanes: true
+                },
+            },
+            'print', 'csv', 'colvis',
+            // {text: 'summary', action: function () {
+            //     table.rows('.summary').select();
+            // }},
+
         ],
+
         lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, "All"] ],
         //pageLength: 50,
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            { targets: [6], visible: false, "defaultContent": ""},
+            {targets: [2, 4, 6, -1], visible: false, "defaultContent": ""},
+             {
+                searchPanes: {
+                    preSelect: ['Summary']
+                },
+                targets: [5]
+            }
         ],
         order: [[1, 'desc']],
+
+/*
+       'createdRow': function( row, data, dataIndex ) {
+            if ( data["object"] === "Summary" ) {
+              $(row).addClass( 'summary' );
+            }
+        },*/
+
         columns: [
 
             {data: "updated_on"},
@@ -63,7 +111,7 @@ function render_audit_table(trails, div_id) {
             { // operator
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    if (data["operation_type"] == 0) {
+                    if (data["operation_type"] === 0) {
                         try {
                             var name = [data["author"]["first_name"], data["author"]["last_name"]].join(" ");
                             return "["+data["author"]["id"]+"] " + data["author"]["email"] + ": " + name;
@@ -75,7 +123,7 @@ function render_audit_table(trails, div_id) {
                             var name = [data["editor"]["first_name"], data["editor"]["last_name"]].join(" ");
                             return "["+data["editor"]["id"]+"] " + data["editor"]["email"] + ": " + name;
                         } catch {
-                            if (data["operation_type"] == undefined) {
+                            if (data["operation_type"] === undefined) {
                                 try {
                                     var name = [data["author"]["first_name"], data["author"]["last_name"]].join(" ");
                                     return "["+data["author"]["id"]+"] " + data["author"]["email"] + ": " + name;
@@ -110,15 +158,55 @@ function render_audit_table(trails, div_id) {
             },
 
             {data: "object"},
-            {data: "id"},
-            {data: "uuid"},
-            // {data: "content"},
+
+            //{data: "id"},
+            { // dbid
+                "mData": {},
+                "mRender": function(data, type, row) {
+                   if (data["id"]===null | data["id"]===undefined | data["id"].length==0) {
+                       return "";
+                   }
+                   tmp = JSON.parse(JSON.stringify(data["id"]));
+                   const res = JSON.stringify(tmp);
+                   return res;
+                }
+            },
+
+            //{data: "uuid"},
+            { // uuid
+                "mData": {},
+                "mRender": function(data, type, row) {
+                   if (data["uuid"]===null | data["uuid"]===undefined)  {
+                       return "";
+                   } else if (Object.keys(data["uuid"]).length===0) {
+                       return "";
+                   }
+
+                   tmp = JSON.parse(JSON.stringify(data["uuid"]));
+                   const res = JSON.stringify(tmp);
+                   return res;
+                }
+            },
+
             { // content
                 "mData": {},
                 "mRender": function(data, type, row) {
+                   tmp = JSON.parse(JSON.stringify(data["change_set"]));
+                   const res = JSON.stringify(tmp);
+                   return res;
+                }
+            },
+
+            { // changed to
+                "mData": {},
+                "mRender": function(data, type, row) {
                    const tranCols =["created_on", "author", "author_id", "updated_on", "editor", "editor_id",
-                       "operation_type", "transaction_id", "end_transaction_id", "object", "uuid", "id"];
-                   tmp = JSON.parse(JSON.stringify(data));
+                       "operation_type", "transaction_id", "end_transaction_id", "object", "uuid", "id", "change_set"];
+
+                   if (data["changed_to"]===null | data["changed_to"]===undefined)
+                       return "";
+
+                   tmp = JSON.parse(JSON.stringify(data["changed_to"]));
                    for (k in tmp) {
                        if (tranCols.includes(k))
                            delete tmp[k];

@@ -48,7 +48,7 @@ def audit_index():
     users = []
     if auth_response.status_code == 200:
         auth_info = auth_response.json()["content"]
-        print("auth_info", auth_info)
+        # print("auth_info", auth_info)
         for user in auth_info:
             if user["site_id"]:
                 site_id = user["site_id"]
@@ -92,6 +92,7 @@ def audit_query():
         # abort(audit_response.status_code)
 
     return audit_response.json()
+
 
 
 @admin.route("/audit/sample/<uuid>", methods=["GET"])

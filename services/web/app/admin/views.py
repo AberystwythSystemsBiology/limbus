@@ -287,7 +287,7 @@ class AuditBasicDonorProtocolEventSchema(masql.SQLAlchemySchema):
     reference_id = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
     protocol_id = masql.auto_field()
-    # protocol = ma.Nested(BasicProtocolTemplateSchema)
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
@@ -451,14 +451,14 @@ class AuditBasicSampleProtocolEventSchema(masql.SQLAlchemySchema):
     reduced_quantity = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
     protocol_id = masql.auto_field()
-    # protocol = ma.Nested(BasicProtocolTemplateSchema)
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
 
     created_on = masql.auto_field()
-    author_id = masql.auto_field
-    # author = ma.Nested(UserAccountSearchSchema, many=False)
+    # author_id = masql.auto_field
+    author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
-    editor_id = masql.auto_field
-    # editor = ma.Nested(UserAccountSearchSchema, many=False)
+    # editor_id = masql.auto_field
+    editor = ma.Nested(UserAccountSearchSchema, many=False)
     operation_type = masql.auto_field()
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
@@ -582,7 +582,6 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
-
 
 audit_basic_entitytostorage_schema = AuditBasicEntityToStorageSchema()
 audit_basic_entitytostorages_schema = AuditBasicEntityToStorageSchema(many=True)
@@ -774,8 +773,8 @@ class AuditBasicSampleSchema(masql.SQLAlchemySchema):
     remaining_quantity = masql.auto_field()
     comments = masql.auto_field()
     barcode = masql.auto_field()
-    sample_to_type_id = masql.auto_field()
-    # sample_type_information = ma.Nested(SampleTypeSchema)
+    # sample_to_type_id = masql.auto_field()
+    sample_type_information = ma.Nested(SampleTypeSchema)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
