@@ -26,13 +26,16 @@ function get_audit(query) {
             'contentType': 'application/json',
             'data':  JSON.stringify(query),
             'success': function (data) {
-                // console.log(data);
+                //console.log(data);
                 if (data instanceof String || typeof data === "string") {
                     json = JSON.parse(data);
                 } else {
                     json = data;
                 }
                 //json = data;
+            },
+            'error': function(request, status, message) {
+                json={"success": false, "message": [status, message].join(":")};
             }
         });
         return json;
@@ -102,7 +105,7 @@ function render_audit_table(trails, div_id) {
         //pageLength: 50,
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [1, 2, 4, 5, 6, -1], visible: false, "defaultContent": ""},
+            {targets: [1, 2, 4, 5, 6], visible: false, "defaultContent": ""},
              {
                 searchPanes: {
                     preSelect: ['Summary']
@@ -119,7 +122,7 @@ function render_audit_table(trails, div_id) {
                 searchPanes: {
                     show: false
                 },
-                targets: [0, 1, 2, 6, 7, 8, 9]
+                targets: [0, 1, 2, 6, 7, 8]
             },
 
         ],
@@ -192,7 +195,7 @@ function render_audit_table(trails, div_id) {
             { // dbid
                 "mData": {},
                 "mRender": function(data, type, row) {
-                   if (data["id"]===null | data["id"]===undefined | data["id"].length==0) {
+                   if (data["id"]===null || data["id"]===undefined || data["id"].length==0) {
                        return "";
                    }
                    tmp = JSON.parse(JSON.stringify(data["id"]));
@@ -205,7 +208,7 @@ function render_audit_table(trails, div_id) {
             { // uuid
                 "mData": {},
                 "mRender": function(data, type, row) {
-                   if (data["uuid"]===null | data["uuid"]===undefined)  {
+                   if (data["uuid"]===null || data["uuid"]===undefined)  {
                        return "";
                    } else if (Object.keys(data["uuid"]).length===0) {
                        return "";
@@ -226,13 +229,13 @@ function render_audit_table(trails, div_id) {
                 }
             },
 
-            { // changed to
+/*            { // changed to
                 "mData": {},
                 "mRender": function(data, type, row) {
                    const tranCols =["created_on", "author", "author_id", "updated_on", "editor", "editor_id",
                        "operation_type", "transaction_id", "end_transaction_id", "object", "uuid", "id", "change_set"];
 
-                   if (data["changed_to"]===null | data["changed_to"]===undefined)
+                   if (data["changed_to"]===null || data["changed_to"]===undefined)
                        return "";
 
                    tmp = JSON.parse(JSON.stringify(data["changed_to"]));
@@ -243,7 +246,7 @@ function render_audit_table(trails, div_id) {
                    const res = JSON.stringify(tmp);
                    return res;
                 }
-            },
+            },*/
 
         ],
 
@@ -280,9 +283,13 @@ function render_table(query) {
     var res = get_audit(query);
     var endTime = performance.now()
     console.log(`Call to get_audit took ${endTime - startTime} milliseconds`)
-
-    if (res["success"]==false) {
-        window.location.href=window.location.origin;
+    if (res==null || res["success"]==false) {
+        try {
+            alert(res["message"]);
+        } catch {
+            alert("Error in data retrieval!");
+        }
+        //window.location.href=window.location.origin;
     }
     else {
         res = res["content"]
@@ -388,7 +395,7 @@ $(document).ready(function() {
         $("#table_view").fadeOut();
         $('#auditTable').DataTable().destroy();
         var filters = get_filters();
-        //console.log("filters: ", filters);
+        // console.log("filters: ", filters);
         render_table(filters);
     });
 

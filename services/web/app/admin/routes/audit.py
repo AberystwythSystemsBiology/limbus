@@ -98,21 +98,9 @@ def audit_query():
     print('api call audit_query took %0.3f ms' % (td1.microseconds/1000))
 
     if audit_response.status_code == 200:
-        # return compressed json data
         return compress_response(audit_response.json())
 
     return audit_response.json()
-
-    # if audit_response.status_code != 200:
-    #     flash(audit_response.json()["message"])
-    #     #return audit_response.json()
-
-    # compress json data
-    # print("okdk")
-    # compressed_response = compress(audit_response.json())
-    # print("compressed_response", compressed_response)
-    # return compressed_response
-    # #return audit_response.json()
 
 
 

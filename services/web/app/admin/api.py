@@ -128,7 +128,6 @@ def func_transaction_summary(audit_tr):
             updates[object] = ops
             storage_types = [d["changed_to"]["storage_type"] for d in audit_tr if d["object"] == object]
             storage_types = list(set(storage_types))
-            # print("storage_types: ", storage_types)
             updates[object] = updates[object] + storage_types
 
         elif object in  ["SampleProtocolEvent", "DonorProtocolEvent"]:
@@ -190,6 +189,93 @@ def func_transactions_summary(audit_trail):
     print("%d End!" % len(desc_tr))
     return desc_tr
 
+
+def func_audit_trail(objects, start_date=None, end_date=None, user_id=None, transaction_ids=[]):
+    """
+    Get the audit_trail given the filter conditions on
+    Input:
+        objects: list of models
+        start_date, end_date
+        transaction_ids: a list of transaction id
+    Return:
+        audit_trail for all the matched transaction records
+    """
+    audit_trail = []
+    object_counts = {}
+    audit_keys = ["created_on", "author", "updated_on", "editor", "operation_type", "transaction_id",
+                  "end_transaction_id", "id", "uuid", "object"]
+
+    print("objects", objects)
+    for model in objects:
+        ModelVersion = version_class(eval(model))
+        if len(transaction_ids) > 0:
+            stmt = (db.session.query(ModelVersion)
+                .filter(ModelVersion.transaction_id.in_(transaction_ids))
+                .filter(
+                func.date(ModelVersion.updated_on) >= start_date,
+                func.date(ModelVersion.updated_on) <= end_date,
+            )
+            )
+            print("stmt0 ", stmt.count())
+        else:
+            stmt = db.session.query(ModelVersion).filter(
+                func.date(ModelVersion.updated_on) >= start_date,
+                func.date(ModelVersion.updated_on) <= end_date,
+            )
+            print("stmt1 ", stmt.count())
+        if user_id:
+            stmt = stmt.filter(
+                or_(
+                    ModelVersion.editor_id == user_id, ModelVersion.author_id == user_id
+                )
+            )
+
+        res = stmt.all()
+        object_counts[model] = len(res)
+
+        # try:
+        #     schema = eval("AuditBasic%sSchema(many=True)" % model)
+        # except:
+        #     schema = eval("Audit%sSchema(many=True)" % model)
+        # audit_trail = audit_trail + schema.dump(res)
+        try:
+            schema = eval("AuditBasic%sSchema(many=False)" % model)
+        except:
+            schema = eval("Audit%sSchema(many=False)" % model)
+
+        for obj in res:
+            # a bit slow to dump objects sequentially if num of obj is large
+            chgset = obj.changeset
+
+            chgset.pop("created_on", None)
+            chgset.pop("updated_on", None)
+            chgset.pop("author_id", None)
+            chgset.pop("editor_id", None)
+            if len(chgset) == 0:
+                continue
+
+            chgset = {key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset}
+
+            # -- Get transaction and updated object data
+            obj_dump0 = schema.dump(obj)
+            chgto = {}
+            obj_dump = {}
+            for key in obj_dump0:
+                if key in audit_keys:
+                    obj_dump[key] = obj_dump0[key]
+                else:
+                    chgto[key] = obj_dump0[key]
+            # obj_dump = {key: obj_dump0[key] for key in audit_keys if key in obj_dump0}
+            obj_dump["change_set"] = chgset
+            obj_dump["changed_to"] = chgto
+            # obj_dump["object"] = model
+            audit_trail.append(obj_dump)
+
+        print("len trails %s %s" % (model, len(res)))
+
+    return audit_trail, object_counts
+
+
 @api.route("/audit/query", methods=["GET"])
 @use_args(AuditFilterSchema(), location="json")
 @token_required
@@ -232,91 +318,61 @@ def audit_query(args, tokenuser: UserAccount):
 
     start_date = args.pop("start_date", datetime.today())
     end_date = args.pop("end_date", datetime.today())
-    audit_trail = []
-    object_counts = {}
-    audit_keys = ["created_on", "author", "updated_on", "editor", "operation_type", "transaction_id",
-                  "end_transaction_id", "id", "uuid", "object"]
-
-    # -- Object uuid: currently only support sample uuid
-    # if uuid and False:
-    #     SampleVersion = version_class(Sample)
-    #     sample_trail = db.session.query(SampleVersion).filter_by(uuid=uuid).all()
-    #     audit_trail = []
-    #     for ver in sample_trail:
-    #         print("ver ver.changeset: ", ver.changeset)
-    #
-    #     #column_keys = SampleVersion.__table__.columns.keys()
-    #     #print(column_keys)
-    #     audit_trail = audit_basic_samples_schema.dump(sample_trail)
-
-    for model in objects:
-        ModelVersion = version_class(eval(model))
-
-        stmt = db.session.query(ModelVersion).filter(
-            func.date(ModelVersion.updated_on) >= start_date,
-            func.date(ModelVersion.updated_on) <= end_date,
-        )
-
-        if user_id:
-            stmt = stmt.filter(
-                or_(
-                    ModelVersion.editor_id == user_id, ModelVersion.author_id == user_id
-                )
-            )
-
-        # if uuid:
-        #     try:
-        #         stmt = stmt.filter_by(uuid=uuid)
-        #     except:
-        #         pass
-
-        res = stmt.all()
-        object_counts[model] = len(res)
-        try:
-            schema = eval("AuditBasic%sSchema(many=False)" % model)
-        except:
-            schema = eval("Audit%sSchema(many=False)" % model)
-
-        for obj in res:
-            chgset = obj.changeset
-
-            if True:
-                chgset.pop("created_on", None)
-                chgset.pop("updated_on", None)
-                chgset.pop("author_id", None)
-                chgset.pop("editor_id", None)
-                if len(chgset)==0:
-                    continue
-
-                chgset = {key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset}
-
-                #-- Get transaction and updated object data
-                obj_dump0 = schema.dump(obj)
-                chgto = {}
-                obj_dump = {}
-                for key in obj_dump0:
-                    if key in audit_keys:
-                        obj_dump[key] = obj_dump0[key]
-                    else:
-                        chgto[key] = obj_dump0[key]
-                # obj_dump = {key: obj_dump0[key] for key in audit_keys if key in obj_dump0}
-                obj_dump["change_set"] = chgset
-                obj_dump["changed_to"] = chgto
-                # obj_dump["object"] = model
-                audit_trail.append(obj_dump)
-
-        print("len trails %s %s" % (model, len(res)))
-        # try:
-        #     schema = eval("AuditBasic%sSchema(many=True)" % model)
-        # except:
-        #     schema = eval("Audit%sSchema(many=True)" % model)
-        #
-        # audit_trail = audit_trail + schema.dump(res)
-
     report_type = AuditTypes[audit_type].value
 
+    transaction_ids = []
+    audit_trail = []
+
+    uuid_model = None
+    sample_id = None
     if uuid:
-        report_type = "%s: %s" % (report_type, uuid)
+        # -- Get all transaction ids involving uuid
+        for model in objects:
+            ModelVersion = version_class(eval(model))
+
+            try:
+                transactions = (db.session.query(ModelVersion)
+                                .filter_by(uuid=uuid)
+                                .with_entities(ModelVersion.transaction_id, ModelVersion.id)
+                                .all())
+
+                if len(transactions) > 0:
+                    transaction_ids = [d[0] for d in transactions]
+                    uuid_model = model
+                    if model == "Sample":
+                        sample_id = transactions[0][1]
+
+                    break
+            except:
+                pass
+
+        if sample_id:
+            # get transactions involving samples given sample_id
+            for model in objects:
+                if model==uuid_model:
+                    continue
+                try:
+                    transactions = (db.session.query(ModelVersion)
+                                    .filter_by(sample_id=sample_id)
+                                    .with_entities(ModelVersion.transaction_id, ModelVersion.id)
+                                    .all()
+                                    )
+                    if len(transactions) > 0:
+                        transaction_ids1 = [d[0] for d in transactions]
+                        transaction_ids = list(set(transaction_ids + transaction_ids1))
+                except:
+                    pass
+
+
+        if uuid_model:
+            report_type = "%s (involving %s %s)" % (report_type, uuid_model, uuid)
+            audit_trail, object_counts = func_audit_trail(objects, start_date, end_date, user_id, transaction_ids)
+        else:
+            report_type = "%s (%s !!not found!!)" % (report_type, uuid)
+            object_counts = {}
+
+    else:
+        audit_trail, object_counts = func_audit_trail(objects, start_date, end_date, user_id)
 
     if user_id == 0:
         report_user = "Not Specified"
@@ -363,14 +419,14 @@ def audit_sample(uuid: str, tokenuser: UserAccount):
         return not_allowed()
 
     SampleVersion = version_class(Sample)
-    sample_trails = db.session.query(SampleVersion).filter_by(uuid=uuid).all()
-    audit_trail = []
-    for ver in sample_trails:
-        print("ver ver.changeset: ", ver.changeset)
+    sample_trail = db.session.query(SampleVersion).filter_by(uuid=uuid).all()
+    # n=1
+    # for ver in sample_trails:
+    #     print("ver ver.changeset: ", ver.changeset)
+    #     n=n+1
 
-    #column_keys = SampleVersion.__table__.columns.keys()
-    #print(column_keys)
-    audit_trail = audit_samples_schema.dump(sample_trails)
+    print("version count: ", n)
+    audit_trail = audit_samples_schema.dump(sample_trail)
     # -- Need to get relevant objects involved in the same transaction:
     # protocol events: review, disposal, consent etc.
     #
