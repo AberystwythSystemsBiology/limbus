@@ -24,15 +24,21 @@ function get_audit(query) {
             'global': false,
             'url': api_url,
             'contentType': 'application/json',
-            'data': JSON.stringify(query),
+            'data':  JSON.stringify(query),
             'success': function (data) {
-                json = data;
+                // console.log(data);
+                if (data instanceof String || typeof data === "string") {
+                    json = JSON.parse(data);
+                } else {
+                    json = data;
+                }
+                //json = data;
             }
         });
         return json;
     })();
 
-    return json;
+    return json;//["content"];
 }
 
 
@@ -44,7 +50,7 @@ function render_audit_table(trails, div_id) {
 
     var aTable = $('#' + div_id).DataTable({
         data: trails,
-        dom: 'Bfrtlip',//'Blfrtip',
+        dom: 'Bfrtlip',
         language: {
 
             buttons: {
@@ -53,17 +59,30 @@ function render_audit_table(trails, div_id) {
 
             },
             searchPanes: {
-                preSelect: [{rows:['Summary'], column: 5}],
                 clearMessage: 'Clear Selections',
                 collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
-                preSelect: [{rows:['Summary'], column: 5 }]
+                //preSelect: [{rows:['Summary'], column: 5 }]
             }
         },
 
         searchPanes: {
+            columns: [3,4,5],
             clearMessage: 'Clear Selections',
             collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
-            preSelect: [{rows:['Summary'], column: 5 }]
+            preSelect: [{rows:['Summary'], column: 5 }],
+            panes: [
+                {
+                    options: [
+                        {
+                            label: 'summary',
+                            value: function(rowData, rowIdx) {
+                                return rowData[5] === 'Summary';
+                            },
+                            className: 'summary'
+                        }
+                    ]
+                }
+            ]
         },
 
         buttons: [
@@ -74,10 +93,8 @@ function render_audit_table(trails, div_id) {
                     cascadePanes: true
                 },
             },
+
             'print', 'csv', 'colvis',
-            // {text: 'summary', action: function () {
-            //     table.rows('.summary').select();
-            // }},
 
         ],
 
@@ -85,22 +102,36 @@ function render_audit_table(trails, div_id) {
         //pageLength: 50,
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [2, 4, 6, -1], visible: false, "defaultContent": ""},
+            {targets: [1, 2, 4, 5, 6, -1], visible: false, "defaultContent": ""},
              {
                 searchPanes: {
                     preSelect: ['Summary']
                 },
                 targets: [5]
-            }
+            },
+            {
+                searchPanes: {
+                    show: true
+                },
+                targets: [3, 4, 5]
+            },
+            {
+                searchPanes: {
+                    show: false
+                },
+                targets: [0, 1, 2, 6, 7, 8, 9]
+            },
+
         ],
         order: [[1, 'desc']],
 
-/*
        'createdRow': function( row, data, dataIndex ) {
             if ( data["object"] === "Summary" ) {
               $(row).addClass( 'summary' );
+            } else {
+              $(row).addClass( 'details' );
             }
-        },*/
+        },
 
         columns: [
 
@@ -123,15 +154,13 @@ function render_audit_table(trails, div_id) {
                             var name = [data["editor"]["first_name"], data["editor"]["last_name"]].join(" ");
                             return "["+data["editor"]["id"]+"] " + data["editor"]["email"] + ": " + name;
                         } catch {
-                            if (data["operation_type"] === undefined) {
-                                try {
-                                    var name = [data["author"]["first_name"], data["author"]["last_name"]].join(" ");
-                                    return "["+data["author"]["id"]+"] " + data["author"]["email"] + ": " + name;
-                                } catch {
-                                    return "";
-                                }
+
+                            try {
+                                var name = [data["author"]["first_name"], data["author"]["last_name"]].join(" ");
+                                return "["+data["author"]["id"]+"] " + data["author"]["email"] + ": " + name;
+                            } catch {
+                                return "";
                             }
-                            return "";
                         }
                     };
                 }
@@ -247,19 +276,23 @@ function fill_title(title){
 
 
 function render_table(query) {
+    var startTime = performance.now()
     var res = get_audit(query);
+    var endTime = performance.now()
+    console.log(`Call to get_audit took ${endTime - startTime} milliseconds`)
+
     if (res["success"]==false) {
         window.location.href=window.location.origin;
     }
     else {
         res = res["content"]
-
         $("#table_view").delay(300).fadeOut();
         $("#loading").fadeIn();
-
+        var startTime = performance.now()
         fill_title(res["title"]);
         render_audit_table(res["data"], "auditTable");
-
+        var endTime = performance.now()
+        console.log(`Call to rendertable took ${endTime - startTime} milliseconds`)
         $("#loading").fadeOut();
         $("#table_view").delay(300).fadeIn();
     }
@@ -358,6 +391,5 @@ $(document).ready(function() {
         //console.log("filters: ", filters);
         render_table(filters);
     });
-
 
 });

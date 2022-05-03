@@ -35,6 +35,7 @@ def func_transaction_summary(audit_tr):
     Return: the summary description in dictionary
     with keys same as the audit trail data
     """
+    # print("audit_tr", audit_tr)
     # Initialise desc1 - transaction summary
     desc1 = audit_tr[0].copy()
     desc1["object"] = "Summary"
@@ -47,6 +48,29 @@ def func_transaction_summary(audit_tr):
     operations = {}
     chgkeys = {}
     updates = {}
+
+    # -- filling missing author/editor info
+    if desc1["author"] is None:
+        for d in audit_tr:
+            try:
+                author_id = d["author"]["id"]
+            except:
+                author_id = None
+
+            if author_id is not None:
+                desc1["author"] = d["author"].copy()
+                break
+
+    if desc1["editor"] is None:
+        for d in audit_tr:
+            try:
+                editor_id = d["editor"]["id"]
+            except:
+                editor_id = None
+
+            if editor_id is not None:
+                desc1["editor"] = d["editor"].copy()
+                break
 
     for object in objs:
         ds = [d["id"] for d in audit_tr if d["object"] == object]
@@ -87,19 +111,21 @@ def func_transaction_summary(audit_tr):
                 updates[object].append("Sample removal")
 
             else:
-                chgks = chgkeys[object]
-                if "current_site_id" in chgks:
-                    if "status" not in chgks:
-                        updates[object].append("storage")
-                    else:
-                        updates[object].append("shipment")
-                else:
-                    updates[object].append("basic edit")
+                # chgks = chgkeys[object]
+                # if "current_site_id" in chgks:
+                #     if "status" not in chgks:
+                #         updates[object].append("storage")
+                #     else:
+                #         updates[object].append("shipment")
+                smpls = [d["change_set"] for d in audit_tr if d["object"] == object]
+                if len(smpls)>3:
+                    smpls = smpls[0:3]
+                    smpls.append("...")
+                updates[object].append("update %s" %smpls)
 
         elif object == 'EntityToStorage':
             ops = [OperationType[d] for d in operations[object]]
             updates[object] = ops
-            # print("ops", ops)
             storage_types = [d["changed_to"]["storage_type"] for d in audit_tr if d["object"] == object]
             storage_types = list(set(storage_types))
             # print("storage_types: ", storage_types)
@@ -138,6 +164,8 @@ def func_transactions_summary(audit_trail):
     desc_tr = []
     tr_ids = []
 
+    print("Generating summary ...")
+    ntr = 0
     for tr in sorted_trail + [None]:
         if tr is not None:
             tr_id_cur = tr["transaction_id"]
@@ -149,6 +177,9 @@ def func_transactions_summary(audit_trail):
                 # -- Get summary description
                 desc1 = func_transaction_summary(audit_tr)
                 desc_tr.append(desc1)
+                ntr = ntr+1
+                if ntr % 100 == 0:
+                    print("%d*" % ntr, end=' ')
 
             tr_id = tr_id_cur
             tr_ids.append(tr_id)
@@ -156,14 +187,14 @@ def func_transactions_summary(audit_trail):
         else:
             audit_tr.append(tr)
 
+    print("%d End!" % len(desc_tr))
     return desc_tr
 
 @api.route("/audit/query", methods=["GET"])
 @use_args(AuditFilterSchema(), location="json")
 @token_required
 def audit_query(args, tokenuser: UserAccount):
-
-    print("args", args)
+    # print("args", args)
     if not tokenuser.is_admin:
         return not_allowed()
 
@@ -206,6 +237,18 @@ def audit_query(args, tokenuser: UserAccount):
     audit_keys = ["created_on", "author", "updated_on", "editor", "operation_type", "transaction_id",
                   "end_transaction_id", "id", "uuid", "object"]
 
+    # -- Object uuid: currently only support sample uuid
+    # if uuid and False:
+    #     SampleVersion = version_class(Sample)
+    #     sample_trail = db.session.query(SampleVersion).filter_by(uuid=uuid).all()
+    #     audit_trail = []
+    #     for ver in sample_trail:
+    #         print("ver ver.changeset: ", ver.changeset)
+    #
+    #     #column_keys = SampleVersion.__table__.columns.keys()
+    #     #print(column_keys)
+    #     audit_trail = audit_basic_samples_schema.dump(sample_trail)
+
     for model in objects:
         ModelVersion = version_class(eval(model))
 
@@ -220,15 +263,15 @@ def audit_query(args, tokenuser: UserAccount):
                     ModelVersion.editor_id == user_id, ModelVersion.author_id == user_id
                 )
             )
-        if uuid:
-            try:
-                stmt = stmt.filter_by(uuid=uuid)
-            except:
-                pass
+
+        # if uuid:
+        #     try:
+        #         stmt = stmt.filter_by(uuid=uuid)
+        #     except:
+        #         pass
 
         res = stmt.all()
         object_counts[model] = len(res)
-
         try:
             schema = eval("AuditBasic%sSchema(many=False)" % model)
         except:
@@ -299,8 +342,15 @@ def audit_query(args, tokenuser: UserAccount):
 
     # -- Get summary description of transactions
     if len(audit_trail)>0:
-        desc_trails = func_transactions_summary(audit_trail)
-        audit_trail = audit_trail + desc_trails
+        try:
+            desc_trail = func_transactions_summary(audit_trail)
+            for d in audit_trail:
+                d.pop("changed_to", None)
+
+            audit_trail = audit_trail + desc_trail
+        except:
+            for d in audit_trail:
+                d.pop("changed_to", None)
 
     return success_with_content_response({"data": audit_trail, "title": title})
 

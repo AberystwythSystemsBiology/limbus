@@ -447,6 +447,7 @@ function get_filters() {
         var value = $("#"+filter).val();
         //console.log('f', filter);
         // if (typeof(value) == 'string' && filter == "current_site_id") {
+        // // Multiple site selection
         //         value = value.split(",");
         //         filters[filter] = value;
         // } else

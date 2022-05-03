@@ -24,7 +24,7 @@ import requests
 from flask import make_response, json
 import gzip
 
-def compress(data):
+def compress_response(data):
     content = gzip.compress(json.dumps(data).encode('utf8'), 5)
     response = make_response(content)
     # print("response: ", response)
@@ -89,7 +89,7 @@ def query_index():
 
     if response.status_code == 200:
         # compress json data
-        return compress(response.json())
+        return compress_response(response.json())
         #return response.json()
     else:
         abort(response.status_code)

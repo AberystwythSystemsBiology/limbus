@@ -22,6 +22,10 @@ from ..forms import AuditFilterForm
 from datetime import datetime
 from ..enums import *
 
+from flask import make_response, json
+import gzip
+from ...sample.routes import compress_response
+
 
 @admin.route("/audit/index", methods=["GET", "POST"])
 @login_required
@@ -81,17 +85,34 @@ def audit_query():
 
     args["start_date"] = start_date
     args["end_date"] = end_date
+    time1 = datetime.now()
+
     audit_response = requests.get(
         url_for("api.audit_query", _external=True),
         headers=get_internal_api_header(),
         json=args,
     )
 
-    if audit_response.status_code != 200:
-        flash(audit_response.json()["message"])
-        # abort(audit_response.status_code)
+    time2 = datetime.now()
+    td1=time2 - time1
+    print('api call audit_query took %0.3f ms' % (td1.microseconds/1000))
+
+    if audit_response.status_code == 200:
+        # return compressed json data
+        return compress_response(audit_response.json())
 
     return audit_response.json()
+
+    # if audit_response.status_code != 200:
+    #     flash(audit_response.json()["message"])
+    #     #return audit_response.json()
+
+    # compress json data
+    # print("okdk")
+    # compressed_response = compress(audit_response.json())
+    # print("compressed_response", compressed_response)
+    # return compressed_response
+    # #return audit_response.json()
 
 
 
