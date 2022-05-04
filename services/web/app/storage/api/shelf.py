@@ -21,7 +21,8 @@ from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, UserAccount, EntityToStorage, SampleRack
-#from ..api.rack import func_rack_delete
+
+# from ..api.rack import func_rack_delete
 from ...sample.api.base import func_shelf_location
 
 from marshmallow import ValidationError
@@ -82,13 +83,21 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
     ).all()
 
     for ESRecord in entityStorageRecords:
-        if ESRecord.storage_type == EntityToStorageType.STS and ESRecord.removed is False:
-            return validation_error_response("Can't delete shelf with associated samples")
+        if (
+            ESRecord.storage_type == EntityToStorageType.STS
+            and ESRecord.removed is False
+        ):
+            return validation_error_response(
+                "Can't delete shelf with associated samples"
+            )
 
-        elif ESRecord.storage_type == EntityToStorageType.BTS and ESRecord.removed is False:
+        elif (
+            ESRecord.storage_type == EntityToStorageType.BTS
+            and ESRecord.removed is False
+        ):
             return validation_error_response("Can't delete shelf with associated racks")
 
-        #-- Disassociate shelf_id in entitytostorage
+        # -- Disassociate shelf_id in entitytostorage
         ESRecord.shelf_id = None
         ESRecord.update({"editor_id": tokenuser.id})
         db.session.add(ESRecord)

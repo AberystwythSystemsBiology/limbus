@@ -173,7 +173,7 @@ class FullUserAccountSchema(masql.SQLAlchemySchema):
 
     id = masql.auto_field()
 
-    title = EnumField(Title)  #, by_value=True)
+    title = EnumField(Title)  # , by_value=True)
 
     email = masql.auto_field()
     first_name = masql.auto_field()

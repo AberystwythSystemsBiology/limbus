@@ -18,7 +18,11 @@ from .. import sample
 from flask_login import login_required
 from flask import json, render_template, url_for, redirect, flash, request, jsonify
 from ...misc import get_internal_api_header
-from ..forms import SampleShipmentEventForm, SampleShipmentStatusUpdateform, UserSelectForm
+from ..forms import (
+    SampleShipmentEventForm,
+    SampleShipmentStatusUpdateform,
+    UserSelectForm,
+)
 from datetime import datetime
 from ..enums import SampleShipmentStatusStatus
 
@@ -30,11 +34,9 @@ def shipment_cart():
     return render_template("sample/shipment/cart.html")
 
 
-
-
 @sample.route("/cart/LIMBUSR-<user_id>")
 @login_required
-def admin_user_cart(user_id:int):
+def admin_user_cart(user_id: int):
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
@@ -65,17 +67,17 @@ def admin_user_cart(user_id:int):
                 continue
 
             # print("uer --s", user["id"], type(user["id"]))
-            user_label = "%s %s(%s) %s" %(
-                    user["first_name"], user["last_name"],
-                    user["email"],
-                    user["account_type"]
+            user_label = "%s %s(%s) %s" % (
+                user["first_name"],
+                user["last_name"],
+                user["email"],
+                user["account_type"],
             )
             try:
                 choices0 = user["settings"]["data_entry"]["site"]["choices"]
                 choices0 = list(set(choices0).union(set(site_id)))
             except:
                 choices0 = [site_id]
-
 
             if int(user["id"]) == int(user_id):
                 site_choices0 = ", ".join([sites_dict[s1] for s1 in choices0])
@@ -84,30 +86,34 @@ def admin_user_cart(user_id:int):
 
             # users.append((user["id"], user_label + "[" + sites_dict[site_id] + "]"))
             for site_id1 in choices0:
-                #users.append((user["id"], user_label + "[" + sites_dict[site_id1] + "]"))
-                #users.append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
+                # users.append((user["id"], user_label + "[" + sites_dict[site_id1] + "]"))
+                # users.append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
                 if site_id1 in sites_dict:
-                    users_by_site[site_id1].append((user["id"], "[" + sites_dict[site_id1] + "]" +user_label))
-
+                    users_by_site[site_id1].append(
+                        (user["id"], "[" + sites_dict[site_id1] + "]" + user_label)
+                    )
 
         users = []
         for k in users_by_site:
 
             users = users + users_by_site[k]
-        #users_sorted = users.sort(key=lambda x: x[1])
+        # users_sorted = users.sort(key=lambda x: x[1])
 
         # print("users_by_site", users_by_site)
         # print("users ", users)
 
-        form = UserSelectForm(users);
+        form = UserSelectForm(users)
     else:
         form = {}
-    return render_template("sample/shipment/user_cart.html",
-                           user_id=user_id, user_id_label=user_id_label, form=form)
+    return render_template(
+        "sample/shipment/user_cart.html",
+        user_id=user_id,
+        user_id_label=user_id_label,
+        form=form,
+    )
 
 
-
-#@sample.route("/cart/data")
+# @sample.route("/cart/data")
 @sample.route("/shipment/cart/data")
 @sample.route("/shipment/new/data")
 @login_required
@@ -122,6 +128,7 @@ def shipment_cart_data():
         cart_response.status_code,
         cart_response.headers.items(),
     )
+
 
 @sample.route("/cart/data", methods=["GET", "POST"])
 @sample.route("/cart/LIMBUSR-<user_id>/data", methods=["GET", "POST"])
@@ -160,7 +167,6 @@ def shipment_index_data():
         shipment_response.status_code,
         shipment_response.headers.items(),
     )
-
 
 
 @sample.route("/shipment/view/<uuid>")
@@ -412,6 +418,7 @@ def shipment_cart_deselect_shipment():
         )
         return jsonify(cart_response.status_code)
     return jsonify(sample_respose.status_code)
+
 
 @sample.route("/user/cart/update/samples", methods=["GET", "POST"])
 @sample.route("/cart/LIMBUSR-<user_id>/update/samples", methods=["GET", "POST"])

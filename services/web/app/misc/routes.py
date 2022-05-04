@@ -51,7 +51,8 @@ def panel_data():
 @login_required
 def reminder_data():
     panel_response = requests.get(
-        url_for("api.get_reminder_data", _external=True), headers=get_internal_api_header()
+        url_for("api.get_reminder_data", _external=True),
+        headers=get_internal_api_header(),
     )
 
     if panel_response.status_code == 200:

@@ -24,13 +24,15 @@ import requests
 from flask import make_response, json
 import gzip
 
+
 def compress_response(data):
-    content = gzip.compress(json.dumps(data).encode('utf8'), 5)
+    content = gzip.compress(json.dumps(data).encode("utf8"), 5)
     response = make_response(content)
     # print("response: ", response)
-    response.headers['Content-length'] = len(content)
-    response.headers['Content-Encoding'] = 'gzip'
+    response.headers["Content-length"] = len(content)
+    response.headers["Content-Encoding"] = "gzip"
     return response
+
 
 @sample.route("/")
 @login_required
@@ -46,7 +48,7 @@ def index() -> str:
         sites = sites_response.json()["content"]["choices"]
         user_site_id = sites_response.json()["content"]["user_site_id"]
         if current_user.is_admin:
-            #sites.insert(0, (None, "None"))
+            # sites.insert(0, (None, "None"))
             sites.append((None, "None"))
 
     sampletype_response = requests.get(
@@ -64,7 +66,6 @@ def index() -> str:
             sampletypes.append(["molecular_type:" + opt[0], opt[1]])
         for opt in stypes["CEL"]:
             sampletypes.append(["cellular_type:" + opt[0], opt[1]])
-
 
     form = SampleFilterForm(sites, sampletypes, data={"current_site_id": user_site_id})
     return render_template(
@@ -84,15 +85,16 @@ def query_index():
         json=request.json,
     )
     time2 = datetime.now()
-    td1=time2 - time1
-    print('api call sampl_query took %0.3f ms' % (td1.microseconds/1000))
+    td1 = time2 - time1
+    print("api call sampl_query took %0.3f ms" % (td1.microseconds / 1000))
 
     if response.status_code == 200:
         # compress json data
         return compress_response(response.json())
-        #return response.json()
+        # return response.json()
     else:
         abort(response.status_code)
+
 
 @sample.route("/query_basic", methods=["POST"])
 @login_required
@@ -104,8 +106,8 @@ def query_basic():
         json=request.json,
     )
     time2 = datetime.now()
-    td1=time2 - time1
-    print('api call sampl_query_basic took %0.3f ms' % (td1.microseconds/1000))
+    td1 = time2 - time1
+    print("api call sampl_query_basic took %0.3f ms" % (td1.microseconds / 1000))
 
     if response.status_code == 200:
         # compress json data
@@ -113,6 +115,7 @@ def query_basic():
         return response.json()
     else:
         abort(response.status_code)
+
 
 @sample.route("/biohazard_information")
 @login_required

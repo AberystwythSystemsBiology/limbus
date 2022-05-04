@@ -94,14 +94,13 @@ def audit_query():
     )
 
     time2 = datetime.now()
-    td1=time2 - time1
-    print('api call audit_query took %0.3f ms' % (td1.microseconds/1000))
+    td1 = time2 - time1
+    print("api call audit_query took %0.3f ms" % (td1.microseconds / 1000))
 
     if audit_response.status_code == 200:
         return compress_response(audit_response.json())
 
     return audit_response.json()
-
 
 
 @admin.route("/audit/sample/<uuid>", methods=["GET"])

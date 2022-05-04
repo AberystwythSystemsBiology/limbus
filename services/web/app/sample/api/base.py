@@ -185,10 +185,7 @@ def sample_sampletype_query_stmt(
     filters_sampletype=None, filter_sample_id=None, filters=None, joins=None
 ):
     if filter_sample_id is None:
-        stmt = (
-            db.session.query(Sample.id)
-            .join(SampleToType)
-        )
+        stmt = db.session.query(Sample.id).join(SampleToType)
         if filters:
             stmt = stmt.filter_by(**filters)
         if joins:
@@ -285,15 +282,13 @@ def sample_consent_type_query_stmt(
 
     return stmt
 
+
 def sample_reminder_query_stmt(
-        filters_reminder=None, filter_sample_id=None, filters=None, joins=None
+    filters_reminder=None, filter_sample_id=None, filters=None, joins=None
 ):
 
     if filter_sample_id:
-        stmt = (
-            db.session.query(Sample.id)
-            .filter(Sample.id.in_(filter_sample_id))
-            )
+        stmt = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id))
     else:
         stmt = db.session.query(Sample.id)
         if filters:
@@ -305,60 +300,67 @@ def sample_reminder_query_stmt(
     # to_dispose = db.session.query(Sample.id) \
     to_dispose = (
         stmt.filter_by(is_closed=False, is_locked=False)
-        .join(SampleDisposal, Sample.disposal_id==SampleDisposal.id)
-        .filter(SampleDisposal.instruction.in_([DisposalInstruction.DES, DisposalInstruction.TRA]))
-        .filter(SampleDisposal.disposal_event_id == None, SampleDisposal.disposal_date!=None)
-        .filter(func.date(SampleDisposal.disposal_date) <= datetime.today() + timedelta(days=1))
+        .join(SampleDisposal, Sample.disposal_id == SampleDisposal.id)
+        .filter(
+            SampleDisposal.instruction.in_(
+                [DisposalInstruction.DES, DisposalInstruction.TRA]
+            )
+        )
+        .filter(
+            SampleDisposal.disposal_event_id == None,
+            SampleDisposal.disposal_date != None,
+        )
+        .filter(
+            func.date(SampleDisposal.disposal_date)
+            <= datetime.today() + timedelta(days=1)
+        )
         .filter(Sample.remaining_quantity > 0)
         .distinct(Sample.id)
-        )
+    )
     # print("to_dispose (%d) : " %to_dispose.count())
     # print(to_dispose)
 
-    if filters_reminder["type"]=="DISPOSE":
+    if filters_reminder["type"] == "DISPOSE":
         stmt = to_dispose
 
-    if filters_reminder["type"]=="COLLECT":
-        stmt = (
-            stmt.filter_by(is_closed=False, is_locked=False)
-            .filter(Sample.status.in_([SampleStatus.NCO]))
-            )
-
-        print("COLLECT (%d) : " %stmt.count())
-
-
-    if filters_reminder["type"]=="REVIEW":
-        stmt = (
-            stmt.filter_by(is_closed=False, is_locked=False)
-            .filter(Sample.status.in_([SampleStatus.NRE]))
+    if filters_reminder["type"] == "COLLECT":
+        stmt = stmt.filter_by(is_closed=False, is_locked=False).filter(
+            Sample.status.in_([SampleStatus.NCO])
         )
 
-    #-- TODO add sample storage_id to sample? or
-    #-- TODO: ?update shelf_id for sample in STB entitytostorage object in case of associated BTS event
-    if filters_reminder["type"]=="STORE":
+        print("COLLECT (%d) : " % stmt.count())
+
+    if filters_reminder["type"] == "REVIEW":
+        stmt = stmt.filter_by(is_closed=False, is_locked=False).filter(
+            Sample.status.in_([SampleStatus.NRE])
+        )
+
+    # -- TODO add sample storage_id to sample? or
+    # -- TODO: ?update shelf_id for sample in STB entitytostorage object in case of associated BTS event
+    if filters_reminder["type"] == "STORE":
         stored0 = (
             db.session.query(EntityToStorage.sample_id)
-            .filter(EntityToStorage.sample_id!=None)
-            .filter(EntityToStorage.shelf_id!=None)
+            .filter(EntityToStorage.sample_id != None)
+            .filter(EntityToStorage.shelf_id != None)
             .filter(EntityToStorage.removed is not True)
         )
         # .filter_by(storage_type="STS")
-        print("stored0 (%d) : " %stored0.count())
+        print("stored0 (%d) : " % stored0.count())
         print(stored0)
 
         bts = (
             db.session.query(EntityToStorage.rack_id)
-            .filter(EntityToStorage.rack_id!=None)
-            .filter(EntityToStorage.shelf_id!=None)
+            .filter(EntityToStorage.rack_id != None)
+            .filter(EntityToStorage.shelf_id != None)
             .filter(EntityToStorage.removed is not True)
-            #.filter_by(storage_type="BTS")
+            # .filter_by(storage_type="BTS")
         )
         # print("bts (%d) : " %bts.count())
         # print(bts)
 
         stored1 = (
             db.session.query(EntityToStorage.sample_id)
-            .filter(EntityToStorage.rack_id!=None)
+            .filter(EntityToStorage.rack_id != None)
             .filter(EntityToStorage.removed is not True)
             .filter(EntityToStorage.rack_id.in_(bts))
             # .filter_by(storage_type="STB")
@@ -369,15 +371,14 @@ def sample_reminder_query_stmt(
 
         stmt = (
             stmt.filter_by(is_closed=False, is_locked=False)
-            .filter(Sample.remaining_quantity>0)
+            .filter(Sample.remaining_quantity > 0)
             .filter(Sample.status.in_([SampleStatus.AVA]))
             .except_(stored0.union(stored1))
         )
 
-    if filters_reminder["type"]=="CART":
-        stmt = (
-            stmt#.filter_by(is_closed=False, is_locked=False)
-            .join(UserCart, UserCart.sample_id == Sample.id)
+    if filters_reminder["type"] == "CART":
+        stmt = stmt.join(  # .filter_by(is_closed=False, is_locked=False)
+            UserCart, UserCart.sample_id == Sample.id
         )
 
     # print("stmt: ", stmt.count())
@@ -683,14 +684,14 @@ def sample_query(args, tokenuser: UserAccount):
 
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
     if filter_site_id:
-        stmt = (
-                stmt.join(UserAccount, UserAccount.id==Sample.author_id)
-                .filter(
-                    or_(Sample.current_site_id == filter_site_id,
-                        and_(Sample.current_site_id.is_(None),
-                             UserAccount.site_id == filter_site_id)
-                        )
-                )
+        stmt = stmt.join(UserAccount, UserAccount.id == Sample.author_id).filter(
+            or_(
+                Sample.current_site_id == filter_site_id,
+                and_(
+                    Sample.current_site_id.is_(None),
+                    UserAccount.site_id == filter_site_id,
+                ),
+            )
         )
         # stmt1 = stmt.filter(Sample.current_site_id == filter_site_id)
         # stmt2 = (
@@ -699,51 +700,57 @@ def sample_query(args, tokenuser: UserAccount):
         #                 UserAccount.site_id == filter_site_id)
         #         )
 
-        #print("stmt 0 - ", stmt.count())
+        # print("stmt 0 - ", stmt.count())
 
         # -- adding samples in the user cart ready for storage or shipping
-        #if filter_site_id:
+        # if filter_site_id:
         stmt_cart = (
             db.session.query(UserCart.sample_id)
             .join(Sample, Sample.id == UserCart.sample_id)
             .join(UserAccount, UserAccount.id == Sample.author_id)
-            .filter_by( ** filters).filter(*joins)
-            .filter(or_(Sample.current_site_id == tokenuser.site_id,
-                and_(Sample.current_site_id.is_(None),
-                     UserAccount.site_id == tokenuser.site_id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter(
+                or_(
+                    Sample.current_site_id == tokenuser.site_id,
+                    and_(
+                        Sample.current_site_id.is_(None),
+                        UserAccount.site_id == tokenuser.site_id,
+                    ),
                 )
             )
-
             .distinct(Sample.id)
         )
 
     else:
         stmt_cart = (
             db.session.query(UserCart.sample_id)
-            .join(Sample, Sample.id==UserCart.sample_id)
-            .filter_by(**filters).filter(*joins)
+            .join(Sample, Sample.id == UserCart.sample_id)
+            .filter_by(**filters)
+            .filter(*joins)
         )
 
-    #print("stmt cart - ", stmt_cart.count())
-    if stmt_cart.count()>0:
+    # print("stmt cart - ", stmt_cart.count())
+    if stmt_cart.count() > 0:
         if filter_site_id:
-            stmt_cart = (
-                stmt_cart
-                .filter(or_(Sample.current_site_id==filter_site_id, Sample.current_site_id.is_(None)))
-                .distinct(Sample.id)
-            )
+            stmt_cart = stmt_cart.filter(
+                or_(
+                    Sample.current_site_id == filter_site_id,
+                    Sample.current_site_id.is_(None),
+                )
+            ).distinct(Sample.id)
 
-    #print("stmt cart - ", stmt_cart.count())
+    # print("stmt cart - ", stmt_cart.count())
     stmt = stmt.union(stmt_cart)
-    #print("stmt 1 - ", stmt.count())
+    # print("stmt 1 - ", stmt.count())
 
     # -- adding sample of 0 quantity but stay in storage
     stmt_zeros = (
         db.session.query(EntityToStorage.sample_id)
-        .join(Sample, Sample.id==EntityToStorage.sample_id)
+        .join(Sample, Sample.id == EntityToStorage.sample_id)
         .filter(EntityToStorage.removed is False)
         .filter(Sample.is_closed is False)
-        .filter(Sample.remaining_quantity==0)
+        .filter(Sample.remaining_quantity == 0)
         .distinct(Sample.id)
     )
     stmt_zeros = stmt_zeros.filter_by(**filters).filter(*joins0)
@@ -789,7 +796,7 @@ def sample_query(args, tokenuser: UserAccount):
 
     time1 = datetime.now()
     td1 = time1 - time0
-    print('db query took %0.3f ms' % (td1.microseconds/1000))
+    print("db query took %0.3f ms" % (td1.microseconds / 1000))
     # print("stmt", stmt)
 
     time1 = datetime.now()
@@ -799,10 +806,14 @@ def sample_query(args, tokenuser: UserAccount):
     # -- retrieve user cart info
     if flag_reminder_type:
         scs = (
-            stmt
-            .outerjoin(UserCart, UserCart.sample_id==Sample.id)
-            .outerjoin(UserAccount, UserAccount.id==UserCart.author_id)
-            .with_entities(Sample.id, UserCart.author_id, UserAccount.first_name, UserAccount.last_name)
+            stmt.outerjoin(UserCart, UserCart.sample_id == Sample.id)
+            .outerjoin(UserAccount, UserAccount.id == UserCart.author_id)
+            .with_entities(
+                Sample.id,
+                UserCart.author_id,
+                UserAccount.first_name,
+                UserAccount.last_name,
+            )
             .order_by(Sample.id.desc())
         )
 
@@ -810,20 +821,22 @@ def sample_query(args, tokenuser: UserAccount):
         for i in range(len(results)):
             sc = scs[i]
             # print(sc, '-', results[i]["id"])
-            if sc[0]==results[i]["id"]:
+            if sc[0] == results[i]["id"]:
                 if sc[1]:
-                    info = {"user_cart_info": {
+                    info = {
+                        "user_cart_info": {
                             "user_id": sc[1],
                             "user_name": " ".join([sc[2], sc[3]]),
-                        }}
+                        }
+                    }
                 else:
                     info = {"user_cart_info": None}
 
                 results[i].update(info)
 
     time2 = datetime.now()
-    td1=time2 - time1
-    print('db dump took %0.3f ms' % (td1.microseconds/1000))
+    td1 = time2 - time1
+    print("db dump took %0.3f ms" % (td1.microseconds / 1000))
 
     return success_with_content_response(results)
 
@@ -1137,7 +1150,9 @@ def func_sample_storage_location(sample_id):
         return {"sample_storage_info": sample_storage_info, "message": msg}
 
 
-def func_validate_settings(tokenuser: object, keys: object = {}, check: object = True) -> object:
+def func_validate_settings(
+    tokenuser: object, keys: object = {}, check: object = True
+) -> object:
     success = True
     msg = "Setting ok!"
     sites_tokenuser = None

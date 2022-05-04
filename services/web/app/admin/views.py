@@ -530,7 +530,7 @@ class AuditBasicSampleDisposalSchema(masql.SQLAlchemySchema):
 class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = version_class(EntityToStorage)
-        #model = EntityToStorage
+        # model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
@@ -550,7 +550,7 @@ class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
@@ -582,6 +582,7 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
+
 
 audit_basic_entitytostorage_schema = AuditBasicEntityToStorageSchema()
 audit_basic_entitytostorages_schema = AuditBasicEntityToStorageSchema(many=True)

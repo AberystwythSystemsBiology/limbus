@@ -52,20 +52,21 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    #ets = EntityToStorage.query.filter_by(
+    # ets = EntityToStorage.query.filter_by(
     #    rack_id=values["rack_id"], storage_type="BTS"
-    #).first()
-    etss = EntityToStorage.query.filter_by(
-        rack_id=values["rack_id"], storage_type="BTS"
-    ).order_by(EntityToStorage.removed.asc()).all()
+    # ).first()
+    etss = (
+        EntityToStorage.query.filter_by(rack_id=values["rack_id"], storage_type="BTS")
+        .order_by(EntityToStorage.removed.asc())
+        .all()
+    )
 
-
-    if len(etss)>0:
-        n=0
+    if len(etss) > 0:
+        n = 0
         for ets in etss:
-            n = n+1
-            if n==1:
-                #ets.rack_id = values["rack_id"]
+            n = n + 1
+            if n == 1:
+                # ets.rack_id = values["rack_id"]
                 ets.shelf_id = values["shelf_id"]
                 ets.storage_type = "BTS"
                 ets.removed = False
@@ -114,15 +115,20 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
         except ValidationError as err:
             return validation_error_response(err)
 
-        etss = EntityToStorage.query.filter_by(rack_id=values["rack_id"],
-                    storage_type='BTS').order_by(EntityToStorage.removed).all()
-        if len(etss)>0:
+        etss = (
+            EntityToStorage.query.filter_by(
+                rack_id=values["rack_id"], storage_type="BTS"
+            )
+            .order_by(EntityToStorage.removed)
+            .all()
+        )
+        if len(etss) > 0:
 
             try:
                 n = 0
                 for ets in etss:
-                    n=n+1
-                    if n>1:
+                    n = n + 1
+                    if n > 1:
                         ets.update({"editor_id": tokenuser.id})
                         db.session.delete(ets)
                     else:
@@ -229,14 +235,18 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
     except ValidationError as err:
         return validation_error_response(err)
 
-    etss = EntityToStorage.query.filter(sample_id=values["sample_id"]).order_by(EntityToStorage.removed).all()
+    etss = (
+        EntityToStorage.query.filter(sample_id=values["sample_id"])
+        .order_by(EntityToStorage.removed)
+        .all()
+    )
     if len(etss) > 0:
         # warning, confirmation
         try:
-            n=0
+            n = 0
             for ets in etss:
-                n=n+1
-                if n>1:
+                n = n + 1
+                if n > 1:
                     ets.update({"editor_i": tokenuser.id})
                     db.session.delete(ets)
                     continue
@@ -245,7 +255,7 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
                     ets.shelf_id = values["shelf_id"]
                     ets.storage_type = "STS"
                     ets.removed = False
-                    ets.update({'editor_id': tokenuser.id})
+                    ets.update({"editor_id": tokenuser.id})
                     db.session.add(ets)
 
             db.session.flush()
@@ -304,20 +314,20 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
         except ValidationError as err:
             return validation_error_response(err)
 
-        etss = (EntityToStorage.query
-                .filter_by(sample_id=values["sample_id"])
-                .order_by(EntityToStorage.removed)
-                .all()
-                )
+        etss = (
+            EntityToStorage.query.filter_by(sample_id=values["sample_id"])
+            .order_by(EntityToStorage.removed)
+            .all()
+        )
 
         if len(etss) > 0:
             # Update existing entitytostorage(ets) record for the given sample
             # Only keep one ets record for one sample
             try:
-                n=0
+                n = 0
                 for ets in etss:
                     n = n + 1
-                    if n==1:
+                    if n == 1:
                         ets.rack_id = None
                         ets.col = None
                         ets.row = None
@@ -326,7 +336,7 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
                         ets.entry = values["entry"]
                         ets.entry_datetime = values["entry_datetime"]
                         ets.removed = False
-                        ets.update({"editor_id":tokenuser.id})
+                        ets.update({"editor_id": tokenuser.id})
                         db.session.add(ets)
                     else:
                         ets.update({"editor_id": tokenuser.id})

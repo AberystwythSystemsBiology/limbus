@@ -30,16 +30,16 @@ class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMix
         "SampleRack",
         secondary="entitytostorage",
         primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='BTS', "
-                    "EntityToStorage.removed==False)",
-        uselist=True, #backref="shelf",
-        viewonly=True
+        "EntityToStorage.removed==False)",
+        uselist=True,  # backref="shelf",
+        viewonly=True,
     )
 
     samples = db.relationship(
         "Sample",
         secondary="entitytostorage",
         primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='STS', "
-                    "EntityToStorage.removed==False)",
-        uselist=True, #backref="storage",
-        viewonly=True
+        "EntityToStorage.removed==False)",
+        uselist=True,  # backref="storage",
+        viewonly=True,
     )

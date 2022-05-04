@@ -1232,10 +1232,7 @@ def delete_rack(id):
             )
 
         else:
-            flash(
-                "We have a problem. %s "
-                % edit_response.json()["message"]
-            )
+            flash("We have a problem. %s " % edit_response.json()["message"])
 
         return redirect(url_for("storage.view_rack", id=id, _external=True))
 

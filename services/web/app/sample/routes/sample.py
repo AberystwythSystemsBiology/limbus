@@ -94,7 +94,7 @@ def reassign_sample_cart(user_id):
         url_for("api.sample_reassign_cart", user_id=user_id, _external=True),
         headers=get_internal_api_header(),
         json={"new_user_id": values["new_user_id"]},
-        #json={"samples": values["samples"], "new_user_id":  values["new_user_id"]},
+        # json={"samples": values["samples"], "new_user_id":  values["new_user_id"]},
     )
 
     return to_cart_response.json()
@@ -158,7 +158,12 @@ def remove_sample_from_cart(uuid: str, user_id=None):
 
     if sample_response.status_code == 200:
         remove_response = requests.delete(
-            url_for("api.remove_sample_from_cart", uuid=uuid, user_id=user_id, _external=True),
+            url_for(
+                "api.remove_sample_from_cart",
+                uuid=uuid,
+                user_id=user_id,
+                _external=True,
+            ),
             headers=get_internal_api_header(),
         )
 
@@ -177,7 +182,9 @@ def remove_rack_from_cart(id: int, user_id=None):
     )
     if sample_response.status_code == 200:
         remove_response = requests.delete(
-            url_for("api.remove_rack_from_cart", id=id, user_id=user_id, _external=True),
+            url_for(
+                "api.remove_rack_from_cart", id=id, user_id=user_id, _external=True
+            ),
             headers=get_internal_api_header(),
         )
 
@@ -360,7 +367,9 @@ def remove_sample(uuid: str, user_id=None):
 
     if sample_response.status_code == 200:
         remove_response = requests.delete(
-            url_for("api.sample_remove_sample", uuid=uuid, user_id=user_id, _external=True),
+            url_for(
+                "api.sample_remove_sample", uuid=uuid, user_id=user_id, _external=True
+            ),
             headers=get_internal_api_header(),
         )
 

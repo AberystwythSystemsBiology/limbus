@@ -20,14 +20,25 @@ from ..database import db, Sample, SubSampleToSample, UserAccount, SampleProtoco
 from ..admin.views import *  # audit_samples_schema, audit_sample_protocol_events_schema
 from ..admin.enums import *
 
-from sqlalchemy_continuum import version_class, changeset, transaction_class, count_versions
+from sqlalchemy_continuum import (
+    version_class,
+    changeset,
+    transaction_class,
+    count_versions,
+)
 from sqlalchemy.sql import or_, func
 
 from datetime import datetime
 
+
 def func_sample_type_info(info):
-    types = [info[key] for key in info if (key not in ["id", "author"] and info[key] is not None) ]
+    types = [
+        info[key]
+        for key in info
+        if (key not in ["id", "author"] and info[key] is not None)
+    ]
     return types
+
 
 def func_transaction_summary(audit_tr):
     """
@@ -75,16 +86,26 @@ def func_transaction_summary(audit_tr):
     for object in objs:
         ds = [d["id"] for d in audit_tr if d["object"] == object]
         dbids[object] = {"count": len(ds), "DBid": ds}
-        operations[object] = list(set(
-            [d["operation_type"] for d in audit_tr if d["object"] == object]
-        ))
+        operations[object] = list(
+            set([d["operation_type"] for d in audit_tr if d["object"] == object])
+        )
         # print("operation ", operations)
-        chgks = [list(d["change_set"].keys()) for d in audit_tr if d["object"] == object]
+        chgks = [
+            list(d["change_set"].keys()) for d in audit_tr if d["object"] == object
+        ]
         # Flatten list of list
-        chgks = [i for b in map(lambda x: [x] if not isinstance(x, list) else x, chgks) for i in b]
+        chgks = [
+            i
+            for b in map(lambda x: [x] if not isinstance(x, list) else x, chgks)
+            for i in b
+        ]
         chgkeys[object] = list(set(chgks))
 
-        uuids1 = [d["uuid"] for d in audit_tr if d["object"] == object and "uuid" in d and d["uuid"] is not None]
+        uuids1 = [
+            d["uuid"]
+            for d in audit_tr
+            if d["object"] == object and "uuid" in d and d["uuid"] is not None
+        ]
 
         if len(uuids1) > 0:
             uuids[object] = uuids1
@@ -98,15 +119,22 @@ def func_transaction_summary(audit_tr):
             updates[object] = []
             if 0 in operations[object]:  # "Insert"
                 if 1 not in operations[object]:
-                    smpls = [(
-                              func_sample_type_info(d["changed_to"]["sample_type_information"])
-                              +[d["changed_to"]["quantity"]]
-                              )
-                             for d in audit_tr if d["object"] == object
-                            ]
-                    updates[object].append("New sample %s" %smpls)
+                    smpls = [
+                        (
+                            func_sample_type_info(
+                                d["changed_to"]["sample_type_information"]
+                            )
+                            + [d["changed_to"]["quantity"]]
+                        )
+                        for d in audit_tr
+                        if d["object"] == object
+                    ]
+                    updates[object].append("New sample %s" % smpls)
                 else:
-                    updates[object].append("aliquot/derive =>(%s) subsamples"% (dbids[object]['count']-1))
+                    updates[object].append(
+                        "aliquot/derive =>(%s) subsamples"
+                        % (dbids[object]["count"] - 1)
+                    )
             elif 2 in operations[object]:  # "Delete"
                 updates[object].append("Sample removal")
 
@@ -118,24 +146,35 @@ def func_transaction_summary(audit_tr):
                 #     else:
                 #         updates[object].append("shipment")
                 smpls = [d["change_set"] for d in audit_tr if d["object"] == object]
-                if len(smpls)>3:
+                if len(smpls) > 3:
                     smpls = smpls[0:3]
                     smpls.append("...")
-                updates[object].append("update %s" %smpls)
+                updates[object].append("update %s" % smpls)
 
-        elif object == 'EntityToStorage':
+        elif object == "EntityToStorage":
             ops = [OperationType[d] for d in operations[object]]
             updates[object] = ops
-            storage_types = [d["changed_to"]["storage_type"] for d in audit_tr if d["object"] == object]
+            storage_types = [
+                d["changed_to"]["storage_type"]
+                for d in audit_tr
+                if d["object"] == object
+            ]
             storage_types = list(set(storage_types))
             updates[object] = updates[object] + storage_types
 
-        elif object in  ["SampleProtocolEvent", "DonorProtocolEvent"]:
+        elif object in ["SampleProtocolEvent", "DonorProtocolEvent"]:
             ops = [OperationType[d] for d in operations[object]]
             updates[object] = ops
-            protocols = [ ": ".join((d["changed_to"]["protocol"]["type"], d["changed_to"]["protocol"]["name"]))
-                      for d in audit_tr if d["object"] == object
-                    ]
+            protocols = [
+                ": ".join(
+                    (
+                        d["changed_to"]["protocol"]["type"],
+                        d["changed_to"]["protocol"]["name"],
+                    )
+                )
+                for d in audit_tr
+                if d["object"] == object
+            ]
             protocols = list(set(protocols))  # Remove repeated protocols
             updates[object].append(protocols)
 
@@ -158,7 +197,9 @@ def func_transactions_summary(audit_trail):
     Return: a list of summary description for each transactions in dictionary
     with keys same as the audit trail data
     """
-    sorted_trail = sorted(audit_trail, key=lambda el: el["transaction_id"], reverse=True)
+    sorted_trail = sorted(
+        audit_trail, key=lambda el: el["transaction_id"], reverse=True
+    )
     tr_id = None
     desc_tr = []
     tr_ids = []
@@ -176,9 +217,9 @@ def func_transactions_summary(audit_trail):
                 # -- Get summary description
                 desc1 = func_transaction_summary(audit_tr)
                 desc_tr.append(desc1)
-                ntr = ntr+1
+                ntr = ntr + 1
                 if ntr % 100 == 0:
-                    print("%d*" % ntr, end=' ')
+                    print("%d*" % ntr, end=" ")
 
             tr_id = tr_id_cur
             tr_ids.append(tr_id)
@@ -190,7 +231,9 @@ def func_transactions_summary(audit_trail):
     return desc_tr
 
 
-def func_audit_trail(objects, start_date=None, end_date=None, user_id=None, transaction_ids=[]):
+def func_audit_trail(
+    objects, start_date=None, end_date=None, user_id=None, transaction_ids=[]
+):
     """
     Get the audit_trail given the filter conditions on
     Input:
@@ -202,19 +245,30 @@ def func_audit_trail(objects, start_date=None, end_date=None, user_id=None, tran
     """
     audit_trail = []
     object_counts = {}
-    audit_keys = ["created_on", "author", "updated_on", "editor", "operation_type", "transaction_id",
-                  "end_transaction_id", "id", "uuid", "object"]
+    audit_keys = [
+        "created_on",
+        "author",
+        "updated_on",
+        "editor",
+        "operation_type",
+        "transaction_id",
+        "end_transaction_id",
+        "id",
+        "uuid",
+        "object",
+    ]
 
     print("objects", objects)
     for model in objects:
         ModelVersion = version_class(eval(model))
         if len(transaction_ids) > 0:
-            stmt = (db.session.query(ModelVersion)
+            stmt = (
+                db.session.query(ModelVersion)
                 .filter(ModelVersion.transaction_id.in_(transaction_ids))
                 .filter(
-                func.date(ModelVersion.updated_on) >= start_date,
-                func.date(ModelVersion.updated_on) <= end_date,
-            )
+                    func.date(ModelVersion.updated_on) >= start_date,
+                    func.date(ModelVersion.updated_on) <= end_date,
+                )
             )
             print("stmt0 ", stmt.count())
         else:
@@ -254,7 +308,9 @@ def func_audit_trail(objects, start_date=None, end_date=None, user_id=None, tran
             if len(chgset) == 0:
                 continue
 
-            chgset = {key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset}
+            chgset = {
+                key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset
+            }
 
             # -- Get transaction and updated object data
             obj_dump0 = schema.dump(obj)
@@ -331,10 +387,12 @@ def audit_query(args, tokenuser: UserAccount):
             ModelVersion = version_class(eval(model))
 
             try:
-                transactions = (db.session.query(ModelVersion)
-                                .filter_by(uuid=uuid)
-                                .with_entities(ModelVersion.transaction_id, ModelVersion.id)
-                                .all())
+                transactions = (
+                    db.session.query(ModelVersion)
+                    .filter_by(uuid=uuid)
+                    .with_entities(ModelVersion.transaction_id, ModelVersion.id)
+                    .all()
+                )
 
                 if len(transactions) > 0:
                     transaction_ids = [d[0] for d in transactions]
@@ -349,30 +407,34 @@ def audit_query(args, tokenuser: UserAccount):
         if sample_id:
             # get transactions involving samples given sample_id
             for model in objects:
-                if model==uuid_model:
+                if model == uuid_model:
                     continue
                 try:
-                    transactions = (db.session.query(ModelVersion)
-                                    .filter_by(sample_id=sample_id)
-                                    .with_entities(ModelVersion.transaction_id, ModelVersion.id)
-                                    .all()
-                                    )
+                    transactions = (
+                        db.session.query(ModelVersion)
+                        .filter_by(sample_id=sample_id)
+                        .with_entities(ModelVersion.transaction_id, ModelVersion.id)
+                        .all()
+                    )
                     if len(transactions) > 0:
                         transaction_ids1 = [d[0] for d in transactions]
                         transaction_ids = list(set(transaction_ids + transaction_ids1))
                 except:
                     pass
 
-
         if uuid_model:
             report_type = "%s (involving %s %s)" % (report_type, uuid_model, uuid)
-            audit_trail, object_counts = func_audit_trail(objects, start_date, end_date, user_id, transaction_ids)
+            audit_trail, object_counts = func_audit_trail(
+                objects, start_date, end_date, user_id, transaction_ids
+            )
         else:
             report_type = "%s (%s !!not found!!)" % (report_type, uuid)
             object_counts = {}
 
     else:
-        audit_trail, object_counts = func_audit_trail(objects, start_date, end_date, user_id)
+        audit_trail, object_counts = func_audit_trail(
+            objects, start_date, end_date, user_id
+        )
 
     if user_id == 0:
         report_user = "Not Specified"
@@ -397,7 +459,7 @@ def audit_query(args, tokenuser: UserAccount):
     }
 
     # -- Get summary description of transactions
-    if len(audit_trail)>0:
+    if len(audit_trail) > 0:
         try:
             desc_trail = func_transactions_summary(audit_trail)
             for d in audit_trail:
@@ -409,7 +471,6 @@ def audit_query(args, tokenuser: UserAccount):
                 d.pop("changed_to", None)
 
     return success_with_content_response({"data": audit_trail, "title": title})
-
 
 
 @api.route("/audit/sample/<uuid>", methods=["GET"])

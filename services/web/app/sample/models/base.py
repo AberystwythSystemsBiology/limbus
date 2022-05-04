@@ -109,10 +109,12 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     )
 
     # storage = db.relationship("EntityToStorage", uselist=False, cascade="all, delete")
-    storage = db.relationship("EntityToStorage",
-        primaryjoin = "and_(EntityToStorage.sample_id == Sample.id, "
-                      "EntityToStorage.removed == False)",
-        uselist=False)  #, cascade="all, delete")
+    storage = db.relationship(
+        "EntityToStorage",
+        primaryjoin="and_(EntityToStorage.sample_id == Sample.id, "
+        "EntityToStorage.removed == False)",
+        uselist=False,
+    )  # , cascade="all, delete")
 
     donor = db.relationship("Donor", uselist=False, secondary="donortosample")
 
