@@ -828,6 +828,9 @@ def sample_query(args, tokenuser: UserAccount):
     return success_with_content_response(results)
 
 
+@api.route("/sample/query_basic", methods=["GET"])
+@use_args(SampleFilterSchema(), location="json")
+@token_required
 def sample_query_basic(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
     # print("filters: ", filters)

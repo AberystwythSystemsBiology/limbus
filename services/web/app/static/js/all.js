@@ -343,7 +343,7 @@ function get_greeting() {
 }
 
 function uuid_search(query) {
-  var api_url = window.location.origin + "/sample/query";
+  var api_url = window.location.origin + "/sample/query_basic";
 
   var json = (function () {
     var json = null;

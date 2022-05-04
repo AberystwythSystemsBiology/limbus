@@ -94,6 +94,25 @@ def query_index():
     else:
         abort(response.status_code)
 
+@sample.route("/query_basic", methods=["POST"])
+@login_required
+def query_basic():
+    time1 = datetime.now()
+    response = requests.get(
+        url_for("api.sample_query_basic", _external=True),
+        headers=get_internal_api_header(),
+        json=request.json,
+    )
+    time2 = datetime.now()
+    td1=time2 - time1
+    print('api call sampl_query_basic took %0.3f ms' % (td1.microseconds/1000))
+
+    if response.status_code == 200:
+        # compress json data
+        # return compress_response(response.json())
+        return response.json()
+    else:
+        abort(response.status_code)
 
 @sample.route("/biohazard_information")
 @login_required
