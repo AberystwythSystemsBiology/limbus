@@ -176,7 +176,7 @@ def add_step_one():
 
     if protocols_response.status_code == 200:
         collection_protocols = protocols_response.json()["content"]["choices"]
-        print("sss", collection_protocols)
+        # print("sss", collection_protocols)
         # - Set default protocol and protocol choices
         # for protocol in protocols_response.json()["content"]:
         #     if protocol["type"] == "Sample Acquisition":
@@ -192,7 +192,7 @@ def add_step_one():
         url_for("api.site_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
     )
-    print("site", sites_response.json())
+    # print("site", sites_response.json())
     if sites_response.status_code == 200:
         if "choices" in sites_response.json()["content"]:
             collection_sites = sites_response.json()["content"]["choices"]
@@ -202,7 +202,7 @@ def add_step_one():
     else:
         flash("No site information!")
 
-    print("collection_sites", collection_sites)
+    # print("collection_sites", collection_sites)
     form = CollectionConsentAndDisposalForm(
         consent_templates, collection_protocols, collection_sites
     )

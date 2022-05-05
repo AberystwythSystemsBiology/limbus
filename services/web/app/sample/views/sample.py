@@ -242,7 +242,7 @@ class SampleSchema(masql.SQLAlchemySchema):
                 "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
             ),
             "collection": ma.URLFor("sample.index", _external=True),
-            "webapp_query": ma.URLFor("sample.query", _external=True),
+            "webapp_query": ma.URLFor("sample.query_basic", _external=True),
             "webapp_aliquot": ma.URLFor(
                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
             ),

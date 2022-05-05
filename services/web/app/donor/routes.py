@@ -99,6 +99,20 @@ def view_endpoint(id):
         return response.json()
 
 
+@donor.route("/get_study_reference", methods=["POST"])
+@login_required
+def get_study_reference():
+    response = requests.get(
+        url_for("api.donor_study_reference", _external=True),
+        headers=get_internal_api_header(),
+        json=request.json,
+    )
+    if response.status_code == 200:
+        return response.json()
+    else:
+        abort(response.status_code)
+
+
 # TODO sample to donor association:
 #  should done by sample basic edit and change the consent form
 @donor.route("/LIMBDON-<id>/associate/sample", methods=["GET", "POST"])
