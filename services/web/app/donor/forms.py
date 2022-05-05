@@ -230,7 +230,6 @@ class DonorStudyRegistrationForm(FlaskForm):
 
 
 def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
-
     class StaticForm(FlaskForm):
 
         template_name = TextAreaField("template_name")
@@ -277,7 +276,7 @@ def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
                     )
                     return False
 
-            if len(data["questions"])==0:
+            if len(data["questions"]) == 0:
                 validate_answers = True
             else:
                 validate_answers = False
