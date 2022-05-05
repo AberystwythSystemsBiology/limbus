@@ -30,7 +30,7 @@ def get_filters_and_joins(args: object, model: object) -> object:
 
 def generate_base_query_filters(tokenuser: UserAccount, type: str):
 
-    if tokenuser.account_type.value is "Administrator":
+    if tokenuser.account_type.value == "Administrator":
         return {}, True
 
     else:

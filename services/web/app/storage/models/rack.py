@@ -32,12 +32,23 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         "EntityToStorage",
         primaryjoin="and_(SampleRack.id==EntityToStorage.rack_id, EntityToStorage.storage_type=='STB', "
         "EntityToStorage.removed==False)",
+        viewonly=True,
     )
 
     shelf = db.relationship(
         "ColdStorageShelf",
         secondary="entitytostorage",
-        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.rack_id==SampleRack.id,"
-        "EntityToStorage.removed==False)",
+        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='BTS', "
+        "EntityToStorage.removed==False, EntityToStorage.rack_id==SampleRack.id)",
         uselist=False,
+        viewonly=True,
     )
+
+    # samples = db.relationship(
+    #     "Sample",
+    #     secondary="entitytostorage",
+    #     primaryjoin="and_(Sample.id==EntityToStorage.sample_id, EntityToStorage.storage_type=='STB', "
+    #                 "EntityToStorage.removed==False, SampleRack.id==EntityToStorage.rack_id)",
+    #     uselist=True, #backref="storage"
+    #     viewonly=True
+    # )

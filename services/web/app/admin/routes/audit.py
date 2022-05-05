@@ -22,6 +22,10 @@ from ..forms import AuditFilterForm
 from datetime import datetime
 from ..enums import *
 
+from flask import make_response, json
+import gzip
+from ...sample.routes import compress_response
+
 
 @admin.route("/audit/index", methods=["GET", "POST"])
 @login_required
@@ -37,18 +41,18 @@ def audit_index():
         sites = sites_response.json()["content"]["choices"]
 
     sites.append((99999, "Bots"))
-    users_by_site = {s[0]: [] for s in sites}
+    # users_by_site = {s[0]: [] for s in sites}
     sites_dict = {s[0]: s[1] for s in sites}
 
     auth_response = requests.get(
-        url_for("api.auth_home", _external=True),
+        url_for("api.auth_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
     )
 
     users = []
     if auth_response.status_code == 200:
         auth_info = auth_response.json()["content"]
-
+        # print("auth_info", auth_info)
         for user in auth_info:
             if user["site_id"]:
                 site_id = user["site_id"]
@@ -81,14 +85,20 @@ def audit_query():
 
     args["start_date"] = start_date
     args["end_date"] = end_date
+    time1 = datetime.now()
+
     audit_response = requests.get(
         url_for("api.audit_query", _external=True),
         headers=get_internal_api_header(),
         json=args,
     )
 
-    if audit_response.status_code != 200:
-        abort(audit_response.status_code)
+    time2 = datetime.now()
+    td1 = time2 - time1
+    print("api call audit_query took %0.3f ms" % (td1.microseconds / 1000))
+
+    if audit_response.status_code == 200:
+        return compress_response(audit_response.json())
 
     return audit_response.json()
 

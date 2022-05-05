@@ -276,12 +276,28 @@ def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
                     )
                     return False
 
+            if len(data["questions"]) == 0:
+                validate_answers = True
+            else:
+                validate_answers = False
+                for question in data["questions"]:
+                    if self[str(question["id"])].data:
+                        validate_answers = True
+                        break
+
+            if not validate_answers:
+                self.submit.errors.append(
+                    "None of the questions has been checked for consent!!"
+                )
+                return False
+
             return True
 
     for question in data["questions"]:
         checked = ""
         if "checked" in question:
             checked = question["checked"]
+
         setattr(
             StaticForm,
             str(question["id"]),

@@ -129,6 +129,13 @@ nav img {
 }
 
 
+.btn-icon-filter{
+   font-size:20px;
+   color:dodgerblue;
+   white-space: nowrap;
+   text-align: center;
+}
+
 
 .btn-form{
     background-color: #007bff;

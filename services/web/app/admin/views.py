@@ -287,7 +287,7 @@ class AuditBasicDonorProtocolEventSchema(masql.SQLAlchemySchema):
     reference_id = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
     protocol_id = masql.auto_field()
-    # protocol = ma.Nested(BasicProtocolTemplateSchema)
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
@@ -451,14 +451,14 @@ class AuditBasicSampleProtocolEventSchema(masql.SQLAlchemySchema):
     reduced_quantity = masql.auto_field()
     event = ma.Nested(AuditInfoEventSchema)
     protocol_id = masql.auto_field()
-    # protocol = ma.Nested(BasicProtocolTemplateSchema)
+    protocol = ma.Nested(BasicProtocolTemplateSchema)
 
     created_on = masql.auto_field()
-    author_id = masql.auto_field
-    # author = ma.Nested(UserAccountSearchSchema, many=False)
+    # author_id = masql.auto_field
+    author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
-    editor_id = masql.auto_field
-    # editor = ma.Nested(UserAccountSearchSchema, many=False)
+    # editor_id = masql.auto_field
+    editor = ma.Nested(UserAccountSearchSchema, many=False)
     operation_type = masql.auto_field()
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
@@ -529,35 +529,37 @@ class AuditBasicSampleDisposalSchema(masql.SQLAlchemySchema):
 
 class AuditEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        # model = version_class(EntityToStorage)
-        model = EntityToStorage
+        model = version_class(EntityToStorage)
+        # model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
 
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
+    sample_id = masql.auto_field()
     # rack_id = masql.auto_field()
     # shelf_id = masql.auto_field()
     row = masql.auto_field()
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
+    removed = masql.auto_field()
 
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    # operation_type = masql.auto_field() #masql.Enum(Operation, by_value=True)
-    # transaction_id = masql.auto_field()
-    # end_transaction_id = masql.auto_field()
+    operation_type = masql.auto_field()  # masql.Enum(Operation, by_value=True)
+    transaction_id = masql.auto_field()
+    end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
 
 
 class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
-        # model = version_class(EntityToStorage)
-        model = EntityToStorage
+        model = version_class(EntityToStorage)
+        # model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
@@ -565,18 +567,20 @@ class AuditBasicEntityToStorageSchema(masql.SQLAlchemySchema):
     # rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf_id = masql.auto_field()
     # shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
+    sample_id = masql.auto_field()
     row = masql.auto_field()
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
+    removed = masql.auto_field()
 
     created_on = masql.auto_field()
     author = ma.Nested(UserAccountSearchSchema, many=False)
     updated_on = masql.auto_field()
     editor = ma.Nested(UserAccountSearchSchema, many=False)
-    # operation_type = masql.auto_field()
-    # transaction_id = masql.auto_field()
-    # end_transaction_id = masql.auto_field()
+    operation_type = masql.auto_field()
+    transaction_id = masql.auto_field()
+    end_transaction_id = masql.auto_field()
     object = fields.Constant("EntityToStorage")
 
 
@@ -770,8 +774,8 @@ class AuditBasicSampleSchema(masql.SQLAlchemySchema):
     remaining_quantity = masql.auto_field()
     comments = masql.auto_field()
     barcode = masql.auto_field()
-    sample_to_type_id = masql.auto_field()
-    # sample_type_information = ma.Nested(SampleTypeSchema)
+    # sample_to_type_id = masql.auto_field()
+    sample_type_information = ma.Nested(SampleTypeSchema)
 
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)

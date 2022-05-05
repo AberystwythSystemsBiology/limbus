@@ -21,11 +21,13 @@ from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, UserAccount, EntityToStorage, SampleRack
-from ..api.rack import func_rack_delete
+
+# from ..api.rack import func_rack_delete
 from ...sample.api.base import func_shelf_location
 
 from marshmallow import ValidationError
 from ..views.shelf import *
+from ..enums import EntityToStorageType
 
 
 @api.route("/storage/shelf", methods=["GET"])
@@ -74,36 +76,38 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
     if existing.is_locked:
         return locked_response()
 
-    existing.editor_id = tokenuser.id
     storageID = existing.storage_id
 
-    code = func_shelf_delete(existing)
-
-    if code == "success":
-        return success_with_content_response(storageID)
-    elif code == "has sample":
-        return sample_assigned_delete_response()
-    else:
-        return no_values_response()
-
-
-def func_shelf_delete(record):
     entityStorageRecords = EntityToStorage.query.filter(
-        EntityToStorage.shelf_id == record.id
+        EntityToStorage.shelf_id == existing.id
     ).all()
 
     for ESRecord in entityStorageRecords:
-        rackRecord = SampleRack.query.filter(SampleRack.id == ESRecord.rack_id).first()
-        entityStorageRackRecords = EntityToStorage.query.filter(
-            EntityToStorage.rack_id == rackRecord.id
-        ).all()
-        if func_rack_delete(rackRecord, entityStorageRackRecords) == "has sample":
-            return "has sample"
+        if (
+            ESRecord.storage_type == EntityToStorageType.STS
+            and ESRecord.removed is False
+        ):
+            return validation_error_response(
+                "Can't delete shelf with associated samples"
+            )
+
+        elif (
+            ESRecord.storage_type == EntityToStorageType.BTS
+            and ESRecord.removed is False
+        ):
+            return validation_error_response("Can't delete shelf with associated racks")
+
+        # -- Disassociate shelf_id in entitytostorage
+        ESRecord.shelf_id = None
+        ESRecord.update({"editor_id": tokenuser.id})
+        db.session.add(ESRecord)
 
     try:
-        db.session.delete(record)
+        db.session.flush()
+        existing.update({"editor_id": tokenuser.id})
+        db.session.delete(existing)
         db.session.commit()
-        return "success"
+        return success_with_content_response(storageID)
     except Exception as err:
         return transaction_error_response(err)
 

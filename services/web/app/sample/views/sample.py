@@ -106,6 +106,8 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour, by_value=True)
     source = EnumField(SampleSource, by_value=True)
     created_on = ma.Date()
+    site_id = masql.auto_field()
+    current_site_id = masql.auto_field()
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
     sample_type_information = ma.Nested(SampleTypeSchema)
@@ -240,7 +242,7 @@ class SampleSchema(masql.SQLAlchemySchema):
                 "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
             ),
             "collection": ma.URLFor("sample.index", _external=True),
-            "webapp_query": ma.URLFor("sample.query", _external=True),
+            "webapp_query": ma.URLFor("sample.query_basic", _external=True),
             "webapp_aliquot": ma.URLFor(
                 "sample.aliquot_endpoint", uuid="<uuid>", _external=True
             ),

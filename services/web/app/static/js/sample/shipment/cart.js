@@ -36,10 +36,185 @@ function get_cart() {
     return json["content"];
 }
 
+
+function get_user_cart(user_id=null) {
+    var api_url = encodeURI(window.location.origin);
+    //api_url += "/sample/shipment/new/data";
+    if (user_id==null || user_id=='') {
+        api_url += "/sample/cart/data";
+    } else {
+        api_url += "/sample/cart/LIMBUSR-" + user_id + "/data";
+    }
+
+    var json = (function () {
+        var json = null;
+        $.ajax({
+            'async': false,
+            'global': false,
+            'url': api_url,
+            'dataType': "json",
+            'success': function (data) {
+                json = data; //data["content"];
+            },
+            'failure': function (data) {
+                json = data; //data["message"];
+            }
+        });
+        return json;
+    })();
+
+    return json;
+}
+
+
+
+function tocart_btn_logic(aTable, user_id) {
+    $("#sample-to-cart-btn").click(function (event) {
+        event.preventDefault();
+        var api_url = window.location.origin;
+        api_url += "/sample/cart/LIMBUSR-" + user_id + "/reassign";
+
+        var msg = "Selected samples will be moved to a different user cart, select a user and press confirm to proceed!";
+        let aModal = $("#cart-confirmation-modal");
+        aModal.find(".modal-title").html("Sample to Cart Confirmation");
+        aModal.find("p.confirm-msg").html(msg);
+        aModal.find(".btn[type=submit]").show();
+        aModal.find("div.dropdown").show();
+        aModal.modal({
+            show: true
+        });
+
+        aModal.find(".btn[type=submit]").on("click", function (e) {
+            e.preventDefault();
+            let new_user_id = $("#select_user_id").val();
+            let url = window.location.origin + "/sample/cart/LIMBUSR-" + new_user_id;
+            //console.log("url", url);
+            new_user_id = parseInt(new_user_id);
+            aModal.find(".btn[type=submit]").hide();
+            aModal.find("div.dropdown").hide(); // hide dropdown select_user_id
+            aModal.find("p.confirm-msg").html("Updating ...");
+
+            var json = (function () {
+                var json = null;
+                $.ajax({
+                    'async': false,
+                    'global': false,
+                    'url': api_url,
+                    'type': 'POST',
+                    'dataType': "json",
+                    //'data': JSON.stringify({"samples": samples, "new_user_id": new_user_id}),
+                    'data': JSON.stringify({"new_user_id": new_user_id}),
+                    'contentType': 'application/json; charset=utf-8',
+                    'success': function (data) {
+                        json = data;
+                    },
+                    'failure': function (data) {
+                        json = data;
+                    },
+                });
+                return json;
+            })();
+
+            aModal.find("p.confirm-msg").html(json.message);
+
+            aModal.find(".btn.btn-secondary", ".btn-close").on("click", function (e1) {
+                e1.preventDefault();
+                console.log("secondary");
+                if (json!=null && json.success) {
+                    window.location.href = url;
+                } else {
+                    window.location.reload();
+                }
+            });
+        });
+
+    });
+};
+
+
+function fill_titile(user_id) {
+    if ([null, undefined, ""].includes(user_id))
+        $('#div h1').html("My Sample Cart");
+
+}
+
+
+function cart_select_update(table, indexes, selected) {
+        var rowData = table.rows(indexes).data().toArray();
+        //console.log("rowData: ", rowData);
+
+        var rows = [];
+        let ids = new Set();
+        let rack_ids = new Set();
+
+        for (let rid in rowData) {
+            var rowd = rowData[rid];
+            if (rowd.selected !== selected) {
+                rowd.selected = selected;
+                ids.add(rowd["sample"]["id"]);
+                if (rowd["storage_type"] === "RUC") {
+                    rack_ids.add(rowd["rack"]["id"]);
+                };
+            };
+        };
+
+        //console.log("rack_id", rack_ids);
+        let to_upd_rows = table.rows({selected: !selected, storage_type: "RUC"});
+        to_upd_rows.every(function () {
+            for(let rack_id of rack_ids) {
+                if (this.data() !== undefined && this.data().storage_type === "RUC" && this.data().rack.id === rack_id) {
+                    // only trigger the select/deselect event update database first in batch first and
+                    this.data()["selected"] = selected;
+                    ids.add(this.data()["sample"]["id"]);
+                }
+            }
+        });
+
+        for(let sample_id of ids) {
+            rows.push({"id": sample_id, "selected": selected});
+        };
+
+        if (rows.length>0) {
+            var json = null;
+            var api_url = window.location + "/update/samples";
+            console.log("api_url", api_url);
+
+            $.post({
+                'async': false,
+                'global': false,
+                'url': api_url,
+                'contentType': 'application/json',
+                'data': JSON.stringify({"samples": rows}),
+                'success': function (data) {
+                    json = data;
+                },
+                'failure': function (data) {
+                    json = data;
+                }
+            });
+
+            to_upd_rows.every(function () {
+                for(let rack_id of rack_ids) {
+                    if (this.data() !== undefined && this.data().storage_type === "RUC" && this.data().rack.id === rack_id) {
+                        if (selected) {
+                            this.select();
+                        }
+                        else {
+                            this.deselect();
+                        }
+                    }
+                }
+            });
+
+
+            return json;
+        };
+
+};
+
 function fill_cart_table(cart) {
 
     var links_map = {};
-
     let table = $('#cart-table').DataTable({
         data: cart,
         dom: 'Blfrtip',
@@ -55,7 +230,6 @@ function fill_cart_table(cart) {
                 orderable: false,
                 className: 'select-checkbox',
             }
-
         ],
         order: [[1, 'desc']],
         select: {
@@ -192,22 +366,38 @@ function fill_cart_table(cart) {
                     links_map[data["sample"]["id"]] = data["sample"]["_links"]
 
                     var remove_id = "remove-cart-" + data["sample"]["id"];
+                    var api_url = window.location.href;
 
                     var actions = ""
                     actions += "<div id='" + remove_id + "' class='btn btn-sm btn-danger'>";
                     actions += "<i class='fa fa-trash'></i>"
                     actions += "</div>"
                     if (data["storage_type"] === "RUC") {
+                        if (api_url.indexOf("LIMBUSR-")==-1) {
+                            api_url = links_map[data["sample"]["id"]]["remove_rack_from_cart"];
+                        }
+                        else {
+                            api_url += "/remove/LIMBRACK-" + data["rack"]["id"];
+                        }
+
                         $("#" + remove_id).on("click", function () {
                             $('#delete-confirmation').modal('show')
                             document.getElementById("delete-confirmation-modal-title").innerHTML = "Remove LIMBRACK-" + data["rack"]["id"] + " From Cart?";
-                            document.getElementById("delete-confirmation-modal-submit").href = links_map[data["sample"]["id"]]["remove_rack_from_cart"];
+                            document.getElementById("delete-confirmation-modal-submit").href = api_url;
                         });
                     } else {
+
+
                         $("#" + remove_id).on("click", function () {
                             var id = $(this).attr("id").split("-")[2];
+                            if (api_url.indexOf("LIMBUSR-")==-1) {
+                                api_url = links_map[id]["remove_sample_from_cart"];
+                            }
+                            else {
+                                api_url += "/" + data["sample"]["uuid"] + "/remove";
+                            }
                             $.ajax({
-                                url: links_map[id]["remove_sample_from_cart"],
+                                url: api_url,
                                 type: 'DELETE',
                                 success: function (response) {
                                     json = response;
@@ -223,82 +413,42 @@ function fill_cart_table(cart) {
         ],
 
     });
+
     //Event for selecting a row
     //Selects all records which are in the same rack
     table.on('select', function (e, dt, type, indexes) {
-        var rowData = table.rows(indexes).data().toArray();
-
-        //Change state of selected attribute
-        rowData[0]['selected'] = true;
-        var res;
-        var api_url = window.location.origin + "/sample/shipment/cart/select";
-        $.post({
-            'async': false,
-            'global': false,
-            'url': api_url,
-            'contentType': 'application/json',
-            'data': JSON.stringify(rowData[0]),
-            'success': function (data) {
-                res = data;
-            }
-        });
-
-
-        if (rowData[0]["storage_type"] === "RUC") {
-            serial_num = rowData[0]["sample"]["storage"]["rack"]["serial_number"];
-            unselected_rows = table.rows({selected: false});
-            unselected_rows.every(
-                function () {
-                    if (this.data() !== undefined && this.data().storage_type === "RUC" && this.data().sample.storage.rack.serial_number === serial_num) {
-                        this.select()
-                    }
-                }
-            );
-        }
-    })  //Event for deselecting a row
-        //Deselects all records which are in the same rack
-        .on('deselect', function (e, dt, type, indexes) {
-            var rowData = table.rows(indexes).data().toArray();
-
-            //Change state of selected attribute
-            rowData[0]['selected'] = false;
-            var res;
-            var api_url = window.location.origin + "/sample/shipment/cart/deselect";
-            $.post({
-                'async': false,
-                'global': false,
-                'url': api_url,
-                'contentType': 'application/json',
-                'data': JSON.stringify(rowData[0]),
-                'success': function (data) {
-                    res = data;
-                }
-            });
-
-            if (rowData[0]["storage_type"] === "RUC") {
-                serial_num = rowData[0]["sample"]["storage"]["rack"]["serial_number"];
-                selected_rows = table.rows({selected: true});
-                selected_rows.every(
-                    function () {
-                        if (this.data() !== undefined && this.data().storage_type === "RUC" && this.data().sample.storage.rack.serial_number === serial_num) {
-                            this.deselect()
-                        }
-                    }
-                );
-            }
-        });
+        //console.log("select");
+        cart_select_update(table, indexes, true);
+    })
+    .on('deselect', function (e, dt, type, indexes) {
+        //console.log("deselect");
+        cart_select_update(table, indexes, false);
+    });
     return table;
 }
 
 
 $(document).ready(function () {
-    var cart = get_cart();
+    //var cart = get_cart();
+    var user_id = $("#user_id").text();
+    fill_titile(user_id);
+    var cart = get_user_cart(user_id);
+    if (cart.success) {
+        cart=cart.content;
+    } else {
+        alert(cart.message);
+        cart=[];
+    }
     //console.log("cart:", cart);
-    table = fill_cart_table(cart);
-    rows = table.rows();
+
+    aTable = fill_cart_table(cart);
+    rows = aTable.rows();
     rows.every(function () {
         if (this.data().selected) {
             this.select();
         }
     })
+
+    tocart_btn_logic(aTable, parseInt(user_id));
+
 });

@@ -54,7 +54,8 @@ from ..views import (
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,
     new_donor_protocol_event_schema,
-    # donor_protocol_event_info_schema,
+    # donor_protocol_events_info_schema,
+    NewDonorProtocolEventSchema,
 )
 
 from ...event.views import new_event_schema
@@ -65,6 +66,22 @@ from ...sample.views import (
     new_consent_answer_schema,
     consent_schema,
 )
+
+
+@api.route("/donor/get_study_reference", methods=["GET"])
+@use_args(NewDonorProtocolEventSchema(), location="json")
+@token_required
+def donor_study_reference(args, tokenuser: UserAccount):
+    study_id = args.pop("protocol_id", None)
+    reference_id = args.pop("reference_id", None)
+    refs = (
+        db.session.query(DonorProtocolEvent)
+        .filter_by(protocol_id=study_id, reference_id=reference_id)
+        .all()
+    )
+    donor_study_references_schema = NewDonorProtocolEventSchema(many=True)
+
+    return success_with_content_response(donor_study_references_schema.dump(refs))
 
 
 @api.route("/donor")

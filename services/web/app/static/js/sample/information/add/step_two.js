@@ -57,8 +57,8 @@ function style_item(item) {
 $(document).ready(function() {
     $("#questionnaire-list").find(".form-check-input")
                             .change(function(e) {
-        style_item(this)
-    })
+        style_item(this);
+    });
 
     $("#questionnaire-list").find(".form-check-input")
                             .each( (i, item) => {style_item(item)});

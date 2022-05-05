@@ -20,7 +20,8 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...decorators import token_required
 from ...webarg_parser import use_args, use_kwargs, parser
-from ..api.shelf import func_shelf_delete
+
+# from ..api.shelf import func_shelf_delete
 
 import requests
 

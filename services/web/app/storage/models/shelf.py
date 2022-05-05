@@ -29,13 +29,17 @@ class ColdStorageShelf(Base, RefAuthorMixin, RefEditorMixin, UniqueIdentifierMix
     racks = db.relationship(
         "SampleRack",
         secondary="entitytostorage",
-        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='BTS' )",
-        uselist=True,
+        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='BTS', "
+        "EntityToStorage.removed==False)",
+        uselist=True,  # backref="shelf",
+        viewonly=True,
     )
 
     samples = db.relationship(
         "Sample",
         secondary="entitytostorage",
-        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='STS')",
-        uselist=True,
+        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='STS', "
+        "EntityToStorage.removed==False)",
+        uselist=True,  # backref="storage",
+        viewonly=True,
     )

@@ -1,15 +1,36 @@
 {% extends "template.html" %}
 
-{% block title %}My Samples Cart : Sample Shipments {% endblock %}
+{% block title %}User Sample Cart: Sample Portal {% endblock %}
 
 {% block body %}
 <div class="jumbotron">
     <div class="container">
-        <h1><i class="fa fa-shopping-cart"></i> My Samples Cart</h1>
+
+        <h1>
+          <span class="secondary-heading">
+              <a href="{{ url_for('sample.index') }}">
+                <i class="fas fa-vial"></i> Sample Portal
+              </a>
+          </span>
+
+        <i class="fa fa-shopping-cart"></i>
+
+        {% if user_id == current_user.id|string %}
+             My Sample Cart
+        {% else %}
+             User Sample Cart
+        {% endif %}
+
+        </h1>
+        <h5> LIMBUSR-<span id="user_id">{{ user_id }}</span> :
+         {{ user_id_label }}
+{#         {{ current_user.first_name }} {{ current_user.last_name }} ( {{ current_user.email }})#}
+        </h5>
+
     <div class="row text-muted">
-    <div class="col-7">
+{#    <div class="col-7">#}
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group mr-2" role="group" aria-label="First group">
+{#            <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href="{{ url_for('sample.shipment_new_step_one') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-shipping-fast"></i>
                         Ship Selected Samples</button></a>
@@ -17,20 +38,23 @@
             <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href="{{ url_for('sample.batch_review') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="far fa-eye"></i>
-                        Review Samples</button></a>
+                        Review</button></a>
             </div>
             <div class="btn-group mr-2" role="group" aria-label="First group">
                 <a href="{{ url_for('sample.batch_dispose') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i>
-                        Dispose Samples</button></a>
+                        Dispose</button></a>
+            </div>#}
+
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button type="button" class="btn btn-outline-dark" style="white-space: nowrap" id="sample-to-cart-btn">
+                    <i class="fa fa-cart-plus"></i> Reassign User
+                </button>
             </div>
-{#            <div class="btn-group mr-2" role="group" aria-label="First group">#}
-{#                <a href="{{ url_for('sample.batch_restore') }}">#}
-{#                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-trash"></i>#}
-{#                        Dispose Samples</button></a>#}
-{#            </div>#}
+
         </div>
     </div>
+
     </div>
     </div>
 </div>
@@ -99,6 +123,35 @@
     </div>
     
 </div>
+
+
+<!--- Cart Confirmation -->
+<div class="modal fade" id="cart-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="modal-confirmation-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form class="modal-content" method="POST">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modal-confirmation-label">Cart Confirmation</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="confirm-msg"></p>
+
+        {{ form.csrf_token }}
+        {{ form.select_user_id(size="1", class="selectpicker w-100", tilte="select a user",  style="border:none")}}
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-success">Submit</button>
+      </div>
+    </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 {% endblock %}
 

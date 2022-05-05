@@ -174,14 +174,18 @@ def delete_shelf(id):
                     _external=True,
                 )
             )
-        elif (
-            edit_response.status_code == 400
-            and edit_response.json()["message"] == "Can't delete assigned samples"
-        ):
-            flash("Cannot delete a shelf associated with a rack with assigned samples")
+
         else:
-            flash("We have a problem: %s" % edit_response.status_code)
+            flash(edit_response.json()["message"])
+        # elif (
+        #     edit_response.status_code == 400
+        #     and edit_response.json()["message"] == "Can't delete assigned samples"
+        # ):
+        #     flash("Cannot delete a shelf associated with a rack with assigned samples")
+        # else:
+        #     flash("We have a problem: %s" % edit_response.status_code)
         return redirect(url_for("storage.view_shelf", id=id, _external=True))
+
     return abort(response.status_code)
 
 

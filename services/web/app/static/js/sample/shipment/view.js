@@ -468,7 +468,7 @@ $(document).ready(function() {
 
        var api_url = window.location.origin+ "/sample/samples_shipment_to_cart";
        res = shipment_to_cart(api_url, formdata);
-
+       window.location.href = window.location.origin+ "/sample/shipment";
     });
 
     shipment_status_update_logic(shipment_data['shipment']['new_site'])

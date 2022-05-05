@@ -15,11 +15,23 @@
 
 from .. import sample
 from flask import render_template, url_for, abort
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from ..forms import SampleFilterForm
 
 import requests
+
+from flask import make_response, json
+import gzip
+
+
+def compress_response(data):
+    content = gzip.compress(json.dumps(data).encode("utf8"), 5)
+    response = make_response(content)
+    # print("response: ", response)
+    response.headers["Content-length"] = len(content)
+    response.headers["Content-Encoding"] = "gzip"
+    return response
 
 
 @sample.route("/")
@@ -35,6 +47,9 @@ def index() -> str:
     if sites_response.status_code == 200:
         sites = sites_response.json()["content"]["choices"]
         user_site_id = sites_response.json()["content"]["user_site_id"]
+        if current_user.is_admin:
+            # sites.insert(0, (None, "None"))
+            sites.append((None, "None"))
 
     sampletype_response = requests.get(
         url_for("api.sampletype_data", _external=True),
@@ -63,13 +78,40 @@ def index() -> str:
 @sample.route("/query", methods=["POST"])
 @login_required
 def query_index():
+    time1 = datetime.now()
     response = requests.get(
         url_for("api.sample_query", _external=True),
         headers=get_internal_api_header(),
         json=request.json,
     )
+    time2 = datetime.now()
+    td1 = time2 - time1
+    print("api call sampl_query took %0.3f ms" % (td1.microseconds / 1000))
 
     if response.status_code == 200:
+        # compress json data
+        return compress_response(response.json())
+        # return response.json()
+    else:
+        abort(response.status_code)
+
+
+@sample.route("/query_basic", methods=["POST"])
+@login_required
+def query_basic():
+    time1 = datetime.now()
+    response = requests.get(
+        url_for("api.sample_query_basic", _external=True),
+        headers=get_internal_api_header(),
+        json=request.json,
+    )
+    time2 = datetime.now()
+    td1 = time2 - time1
+    print("api call sampl_query_basic took %0.3f ms" % (td1.microseconds / 1000))
+
+    if response.status_code == 200:
+        # compress json data
+        # return compress_response(response.json())
         return response.json()
     else:
         abort(response.status_code)

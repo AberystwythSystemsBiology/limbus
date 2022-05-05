@@ -156,6 +156,7 @@
         <button type="submit" class="btn btn-success float-right top10" id="{{ field.id }}">
             <i class="fa fa-check"></i> {{ field.label.text }}
         </button>
+        {{ render_form_error(field) }}
         {% endif %}
     </div>
 

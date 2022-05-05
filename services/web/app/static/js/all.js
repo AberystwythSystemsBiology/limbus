@@ -29,7 +29,8 @@ function get_metric(type) {
   return metric
 }
 
-function render_sample_table(samples, div_id) {
+// Not in use
+function render_sample_table0(samples, div_id) {
 
     $('#' + div_id).DataTable( {
         data: samples,
@@ -227,6 +228,7 @@ function render_sample_table(samples, div_id) {
     });
 }
 
+
 function render_author(author) {
   return author["first_name"] + " " + author["last_name"];
 }
@@ -341,7 +343,7 @@ function get_greeting() {
 }
 
 function uuid_search(query) {
-  var api_url = window.location.origin + "/sample/query";
+  var api_url = window.location.origin + "/sample/query_basic";
 
   var json = (function () {
     var json = null;
@@ -372,9 +374,8 @@ $(document).ready(function(){
 
   $('#history').DataTable( {} );
 
-
   $("#nav-sample-search").keypress(function(e) {
-    if(e.which == 13) {
+    if(e.key == "Enter") {
         jQuery(this).blur();
         var result = uuid_search({"uuid": this.value});
         if (result.length > 0) {
@@ -397,4 +398,4 @@ $(function () {
   $('[data-toggle="tooltip"]').tooltip()
 })
 
-});
+})

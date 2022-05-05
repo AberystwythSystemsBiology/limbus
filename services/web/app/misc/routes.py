@@ -47,6 +47,20 @@ def panel_data():
         return abort(panel_response.status_code)
 
 
+@misc.route("/reminder/data", methods=["GET"])
+@login_required
+def reminder_data():
+    panel_response = requests.get(
+        url_for("api.get_reminder_data", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if panel_response.status_code == 200:
+        return panel_response.json()
+    else:
+        return abort(panel_response.status_code)
+
+
 @misc.route("/license")
 def license() -> str:
     return render_template("misc/license.html")

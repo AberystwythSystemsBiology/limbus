@@ -143,8 +143,10 @@ function make_bar(dom_id, data, labels) {
 
             },
             options: {
-                legend: {
-                    display: false
+                plugins: {
+                    legend: {
+                        display: false
+                    },
                 },
                 title: {
                     display: false

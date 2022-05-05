@@ -16,6 +16,9 @@
 from flask import request, abort, url_for, flash
 from marshmallow import ValidationError
 from sqlalchemy.sql import func
+from sqlalchemy import or_, and_
+from ...extensions import ma
+from datetime import datetime, timedelta
 
 from ...api import api, generics
 from ...api.responses import *
@@ -112,10 +115,12 @@ def sample_source_study_query_stmt(
             db.session.query(Sample.id)
             .join(SampleConsent)
             .join(DonorProtocolEvent)
-            .filter_by(**filters)
-            .filter(*joins)
             .filter_by(**filters_protocol)
         )
+        if filters:
+            s1 = s1.filter_by(**filters)
+        if joins:
+            s1 = s1.filter(*joins)
     else:
         s1 = (
             db.session.query(Sample.id)
@@ -129,11 +134,13 @@ def sample_source_study_query_stmt(
     if filter_sample_id is None:
         subq = (
             db.session.query(Sample.id)
-            .filter_by(**filters)
-            .filter(*joins)
             .join(SampleProtocolEvent)
             .filter_by(**filters_protocol)
         )
+        if filters:
+            subq = subq.filter_by(**filters)
+        if joins:
+            subq = subq.filter(*joins)
     else:
         subq = (
             db.session.query(Sample.id)
@@ -149,11 +156,13 @@ def sample_source_study_query_stmt(
         if filter_sample_id is None:
             s2 = (
                 db.session.query(Sample.id)
-                .filter_by(**filters)
-                .filter(*joins)
                 .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
                 .join(subq, subq.c.id == SubSampleToSample.parent_id)
             )
+            if filters:
+                s2 = s2.filter_by(**filters)
+            if joins:
+                s2 = s2.filter(*joins)
         else:
             s2 = (
                 db.session.query(Sample.id)
@@ -176,12 +185,11 @@ def sample_sampletype_query_stmt(
     filters_sampletype=None, filter_sample_id=None, filters=None, joins=None
 ):
     if filter_sample_id is None:
-        stmt = (
-            db.session.query(Sample.id)
-            .join(SampleToType)
-            .filter_by(**filters)
-            .filter(*joins)
-        )
+        stmt = db.session.query(Sample.id).join(SampleToType)
+        if filters:
+            stmt = stmt.filter_by(**filters)
+        if joins:
+            stmt = stmt.filter(*joins)
     else:
         stmt = (
             db.session.query(Sample.id)
@@ -205,11 +213,14 @@ def sample_consent_status_query_stmt(
     if filter_sample_id is None:
         stmt = (
             db.session.query(Sample.id)
-            .filter_by(**filters)
-            .filter(*joins)
             .join(SampleConsent)
             .filter(SampleConsent.withdrawn == withdrawn)
         )
+        if filters:
+            stmt = stmt.filter_by(**filters)
+        if joins:
+            stmt = stmt.filter(*joins)
+
     else:
         stmt = (
             db.session.query(Sample.id)
@@ -237,14 +248,16 @@ def sample_consent_type_query_stmt(
                 Sample.id.label("sample_id"),
                 ConsentFormTemplateQuestion.type.label("consent_type"),
             )
-            .filter_by(**filters)
-            .filter(*joins)
             .join(SampleConsent)
             .join(SampleConsentAnswer)
             .join(ConsentFormTemplateQuestion)
             .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
             .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
+        if filters:
+            stmt = stmt.filter_by(**filters)
+        if joins:
+            stmt = stmt.filter(*joins)
 
     else:
         stmt = (
@@ -267,6 +280,109 @@ def sample_consent_type_query_stmt(
         .having(func.count(subq.c.sample_id) == num_types)
     )
 
+    return stmt
+
+
+def sample_reminder_query_stmt(
+    filters_reminder=None, filter_sample_id=None, filters=None, joins=None
+):
+
+    if filter_sample_id:
+        stmt = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id))
+    else:
+        stmt = db.session.query(Sample.id)
+        if filters:
+            stmt = stmt.filter_by(**filters)
+        if joins:
+            stmt = stmt.filter(*joins)
+
+    # -- Sample disposal expected in <= 1 days.
+    # to_dispose = db.session.query(Sample.id) \
+    to_dispose = (
+        stmt.filter_by(is_closed=False, is_locked=False)
+        .join(SampleDisposal, Sample.disposal_id == SampleDisposal.id)
+        .filter(
+            SampleDisposal.instruction.in_(
+                [DisposalInstruction.DES, DisposalInstruction.TRA]
+            )
+        )
+        .filter(
+            SampleDisposal.disposal_event_id == None,
+            SampleDisposal.disposal_date != None,
+        )
+        .filter(
+            func.date(SampleDisposal.disposal_date)
+            <= datetime.today() + timedelta(days=1)
+        )
+        .filter(Sample.remaining_quantity > 0)
+        .distinct(Sample.id)
+    )
+    # print("to_dispose (%d) : " %to_dispose.count())
+    # print(to_dispose)
+
+    if filters_reminder["type"] == "DISPOSE":
+        stmt = to_dispose
+
+    if filters_reminder["type"] == "COLLECT":
+        stmt = stmt.filter_by(is_closed=False, is_locked=False).filter(
+            Sample.status.in_([SampleStatus.NCO])
+        )
+
+        print("COLLECT (%d) : " % stmt.count())
+
+    if filters_reminder["type"] == "REVIEW":
+        stmt = stmt.filter_by(is_closed=False, is_locked=False).filter(
+            Sample.status.in_([SampleStatus.NRE])
+        )
+
+    # -- TODO add sample storage_id to sample? or
+    # -- TODO: ?update shelf_id for sample in STB entitytostorage object in case of associated BTS event
+    if filters_reminder["type"] == "STORE":
+        stored0 = (
+            db.session.query(EntityToStorage.sample_id)
+            .filter(EntityToStorage.sample_id != None)
+            .filter(EntityToStorage.shelf_id != None)
+            .filter(EntityToStorage.removed is not True)
+        )
+        # .filter_by(storage_type="STS")
+        print("stored0 (%d) : " % stored0.count())
+        print(stored0)
+
+        bts = (
+            db.session.query(EntityToStorage.rack_id)
+            .filter(EntityToStorage.rack_id != None)
+            .filter(EntityToStorage.shelf_id != None)
+            .filter(EntityToStorage.removed is not True)
+            # .filter_by(storage_type="BTS")
+        )
+        # print("bts (%d) : " %bts.count())
+        # print(bts)
+
+        stored1 = (
+            db.session.query(EntityToStorage.sample_id)
+            .filter(EntityToStorage.rack_id != None)
+            .filter(EntityToStorage.removed is not True)
+            .filter(EntityToStorage.rack_id.in_(bts))
+            # .filter_by(storage_type="STB")
+        )
+
+        # print("stored1 (%d) : " %stored1.count())
+        # print(stored1)
+
+        stmt = (
+            stmt.filter_by(is_closed=False, is_locked=False)
+            .filter(Sample.remaining_quantity > 0)
+            .filter(Sample.status.in_([SampleStatus.AVA]))
+            .except_(stored0.union(stored1))
+        )
+
+    if filters_reminder["type"] == "CART":
+        stmt = stmt.join(  # .filter_by(is_closed=False, is_locked=False)
+            UserCart, UserCart.sample_id == Sample.id
+        )
+
+    # print("stmt: ", stmt.count())
+    # print(stmt)
     return stmt
 
 
@@ -503,32 +619,41 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
+    # print("filters", filters)
     # -- To exclude empty samples in the index list
+    joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
 
-    if not tokenuser.is_admin:
-        sites_tokenuser = func_validate_settings(
-            tokenuser, keys={"site_id"}, check=False
-        )
-        if "current_site_id" not in filters:
-            joins.append(getattr(Sample, "current_site_id").in_(sites_tokenuser))
-    # print("filter", filters)
-    # print("joins", joins)
+    # if not tokenuser.is_admin:
+    #     sites_tokenuser = func_validate_settings(
+    #         tokenuser, keys={"site_id"}, check=False
+    #     )
+    #     if "current_site_id" not in filters:
+    #         joins.append(getattr(Sample, "current_site_id").in_(sites_tokenuser))
 
+    flag_reminder_type = False
     flag_sample_type = False
     flag_consent_status = False
     flag_consent_type = False
     flag_protocol = False
     flag_source_study = False
 
-    filters_consent = {}
-    filters_sampletype = {}
+    if "reminder_type" in filters:
+        # Single choice
+        flag_reminder_type = True
+        filters_reminder = {}
+        filters_reminder["type"] = filters.pop("reminder_type")
+
     if "sample_type" in filters:
+        # Single choice
         flag_sample_type = True
+        filters_sampletype = {}
         tmp = filters.pop("sample_type").split(":")
         filters_sampletype[tmp[0]] = tmp[1]
 
+    filters_consent = {}
     if "consent_status" in filters:
+        # Single choice
         flag_consent_status = True
         if filters["consent_status"] == "active":
             filters_consent["withdrawn"] = False
@@ -537,20 +662,104 @@ def sample_query(args, tokenuser: UserAccount):
         filters.pop("consent_status")
 
     if "consent_type" in filters:
+        # Multi choice
         flag_consent_type = True
         filters_consent["type"] = filters.pop("consent_type").split(",")
 
     if "protocol_id" in filters:
+        # Single choice
         flag_protocol = True
         filters_protocol = {"protocol_id": filters["protocol_id"]}
         filters.pop("protocol_id")
 
     if "source_study" in filters:
+        # Single choice
         flag_source_study = True
         filters_source_study = {"protocol_id": filters["source_study"]}
         filters.pop("source_study")
 
+    time0 = datetime.now()
+
+    filter_site_id = filters.pop("current_site_id", None)
+
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
+    if filter_site_id:
+        stmt = stmt.join(UserAccount, UserAccount.id == Sample.author_id).filter(
+            or_(
+                Sample.current_site_id == filter_site_id,
+                and_(
+                    Sample.current_site_id.is_(None),
+                    UserAccount.site_id == filter_site_id,
+                ),
+            )
+        )
+        # stmt1 = stmt.filter(Sample.current_site_id == filter_site_id)
+        # stmt2 = (
+        #          stmt.join(UserAccount, UserAccount.id==Sample.author_id)
+        #         .filter(Sample.current_site_id.is_(None),
+        #                 UserAccount.site_id == filter_site_id)
+        #         )
+
+        # print("stmt 0 - ", stmt.count())
+
+        # -- adding samples in the user cart ready for storage or shipping
+        # if filter_site_id:
+        stmt_cart = (
+            db.session.query(UserCart.sample_id)
+            .join(Sample, Sample.id == UserCart.sample_id)
+            .join(UserAccount, UserAccount.id == Sample.author_id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter(
+                or_(
+                    Sample.current_site_id == tokenuser.site_id,
+                    and_(
+                        Sample.current_site_id.is_(None),
+                        UserAccount.site_id == tokenuser.site_id,
+                    ),
+                )
+            )
+            .distinct(Sample.id)
+        )
+
+    else:
+        stmt_cart = (
+            db.session.query(UserCart.sample_id)
+            .join(Sample, Sample.id == UserCart.sample_id)
+            .filter_by(**filters)
+            .filter(*joins)
+        )
+
+    # print("stmt cart - ", stmt_cart.count())
+    if stmt_cart.count() > 0:
+        if filter_site_id:
+            stmt_cart = stmt_cart.filter(
+                or_(
+                    Sample.current_site_id == filter_site_id,
+                    Sample.current_site_id.is_(None),
+                )
+            ).distinct(Sample.id)
+
+    # print("stmt cart - ", stmt_cart.count())
+    stmt = stmt.union(stmt_cart)
+    # print("stmt 1 - ", stmt.count())
+
+    # -- adding sample of 0 quantity but stay in storage
+    stmt_zeros = (
+        db.session.query(EntityToStorage.sample_id)
+        .join(Sample, Sample.id == EntityToStorage.sample_id)
+        .filter(EntityToStorage.removed is False)
+        .filter(Sample.is_closed is False)
+        .filter(Sample.remaining_quantity == 0)
+        .distinct(Sample.id)
+    )
+    stmt_zeros = stmt_zeros.filter_by(**filters).filter(*joins0)
+
+    if filter_site_id:
+        stmt_zeros = stmt_zeros.filter(Sample.current_site_id == filter_site_id)
+
+    stmt = stmt.union(stmt_zeros)
+    # stmt = stmt.filter_by(**filters).filter(*joins)
 
     if flag_consent_status:
         stmt = sample_consent_status_query_stmt(
@@ -577,11 +786,64 @@ def sample_query(args, tokenuser: UserAccount):
             filters_sampletype=filters_sampletype, filter_sample_id=stmt
         )
 
+    if flag_reminder_type:
+        stmt = sample_reminder_query_stmt(
+            filters_reminder=filters_reminder, filter_sample_id=stmt
+        )
+
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
+    stmt = stmt.distinct(Sample.id).order_by(Sample.id.desc())
+
+    time1 = datetime.now()
+    td1 = time1 - time0
+    print("db query took %0.3f ms" % (td1.microseconds / 1000))
+    # print("stmt", stmt)
+
+    time1 = datetime.now()
     results = basic_samples_schema.dump(stmt.all())
+
+    # print("results", len(results), "--", results)
+    # -- retrieve user cart info
+    if flag_reminder_type:
+        scs = (
+            stmt.outerjoin(UserCart, UserCart.sample_id == Sample.id)
+            .outerjoin(UserAccount, UserAccount.id == UserCart.author_id)
+            .with_entities(
+                Sample.id,
+                UserCart.author_id,
+                UserAccount.first_name,
+                UserAccount.last_name,
+            )
+            .order_by(Sample.id.desc())
+        )
+
+        scs = scs.all()
+        for i in range(len(results)):
+            sc = scs[i]
+            # print(sc, '-', results[i]["id"])
+            if sc[0] == results[i]["id"]:
+                if sc[1]:
+                    info = {
+                        "user_cart_info": {
+                            "user_id": sc[1],
+                            "user_name": " ".join([sc[2], sc[3]]),
+                        }
+                    }
+                else:
+                    info = {"user_cart_info": None}
+
+                results[i].update(info)
+
+    time2 = datetime.now()
+    td1 = time2 - time1
+    print("db dump took %0.3f ms" % (td1.microseconds / 1000))
+
     return success_with_content_response(results)
 
 
+@api.route("/sample/query_basic", methods=["GET"])
+@use_args(SampleFilterSchema(), location="json")
+@token_required
 def sample_query_basic(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
     # print("filters: ", filters)
@@ -703,8 +965,13 @@ def sample_new_sample(tokenuser: UserAccount):
 
     try:
         db.session.add(new_sample)
-        db.session.commit()
         db.session.flush()
+        # -- Add to user sample cart
+        new_uc = UserCart(
+            sample_id=new_sample.id, selected=True, author_id=tokenuser.id
+        )
+        db.session.add(new_uc)
+        db.session.commit()
     except Exception as err:
         return transaction_error_response(err)
 
@@ -883,7 +1150,9 @@ def func_sample_storage_location(sample_id):
         return {"sample_storage_info": sample_storage_info, "message": msg}
 
 
-def func_validate_settings(tokenuser, keys={}, check=True):
+def func_validate_settings(
+    tokenuser: object, keys: object = {}, check: object = True
+) -> object:
     success = True
     msg = "Setting ok!"
     sites_tokenuser = None
@@ -1002,7 +1271,7 @@ def func_update_sample_status(
     if sample.is_locked is True or sample.is_closed is True:
         return {"sample": None, "message": "Sample locked/closed! ", "success": True}
 
-    if events is None or len(events) is 0:
+    if events is None or len(events) == 0:
         auto_query = True
         for e in [
             "sample_review",

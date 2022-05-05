@@ -25,13 +25,20 @@ from wtforms import (
     BooleanField,
     SelectMultipleField,
 )
-from ..enums import Colour, BiohazardLevel, SampleSource, SampleStatus, SampleBaseType
+from ..enums import (
+    Colour,
+    BiohazardLevel,
+    SampleSource,
+    SampleStatus,
+    SampleBaseType,
+    ReminderType,
+)
 from ...consent.enums import QuestionType
 
 
 def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
     sampletypes.insert(0, (None, "None"))
-    sites.insert(0, (None, "None"))
+    # sites.insert(0, (None, "None"))
 
     class StaticForm(FlaskForm):
         biohazard_level = SelectField(
@@ -66,7 +73,7 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
             # SelectMultipleField(
             "Site",
             choices=sites,
-            default=None,
+            # default=None,
         ),
     )
 
@@ -139,4 +146,30 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
             choices=study_protocols,
         ),
     )
+
+    setattr(
+        StaticForm,
+        "reminder_type",
+        SelectField(
+            "Action Reminder",
+            choices=ReminderType.choices(with_none=True),
+        ),
+    )
+
+    # setattr(
+    #     StaticForm,
+    #     "user_id",
+    #     SelectField(
+    #         "User",
+    #         choices=users,
+    #     ),
+    # )
+    return StaticForm()
+
+
+def UserSelectForm(users: list, data={}) -> FlaskForm:
+    class StaticForm(FlaskForm):
+        select_user_id = SelectField("user", choices=users)
+        submit = SubmitField("Submit")
+
     return StaticForm()

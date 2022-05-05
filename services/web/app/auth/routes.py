@@ -38,6 +38,7 @@ def login():
         user = (
             db.session.query(UserAccount)
             .filter(func.lower(UserAccount.email) == func.lower(form.email.data))
+            .filter_by(is_locked=False)
             .first()
         )
 
