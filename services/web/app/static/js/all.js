@@ -355,12 +355,15 @@ function uuid_search(query) {
         'data': JSON.stringify(query),
         'success': function (data) {
             json = data;
+        },
+        'error': function (r, m, err) {
+            json={"success": false, "message": "Error in query, e.g. invalid input or server error. "};
         }
     });
     return json;
   })();
 
-  return json["content"];
+  return json;
 }
 
 
@@ -378,12 +381,19 @@ $(document).ready(function(){
     if(e.key == "Enter") {
         jQuery(this).blur();
         var result = uuid_search({"uuid": this.value});
-        if (result.length > 0) {
-          window.location.href = result[0]["_links"]["self"]
-        }
-        else {
-          $("#sample-uuid-search-not-found-placeholder").html(this.value);
-          $("#uuid-search-modal-not-found").modal('show');
+
+        if (result["success"]===false) {
+            $("#sample-uuid-search-not-found-placeholder").html(result["message"] + this.value);
+            $("#uuid-search-modal-not-found").modal('show');
+
+        } else {
+            result = result["content"];
+            if (result.length > 0) {
+                window.location.href = result[0]["_links"]["self"]
+            } else {
+                $("#sample-uuid-search-not-found-placeholder").html(this.value);
+                $("#uuid-search-modal-not-found").modal('show');
+            }
         }
     }
   });
