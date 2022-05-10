@@ -239,7 +239,6 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
     entry_datetime = values.pop("entry_datetime")
     entry = values.pop("entry")
 
-    print("dbvalues", values)
     rack_values = values.pop("rack")
     # Step 1. Validate and add new sample rack
     try:
@@ -269,10 +268,8 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
 
 def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     # Update entitytostorage with storage_type 'STB'
-    stb_batch = []
     for sample in samples_pos:
         # print("sample", sample)
-
         try:
             sample_id = sample["sample_id"]
         except:
@@ -361,13 +358,25 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     new_stb.entry_datetime = func.now()
                 # if 'entry' not in sample:
                 #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
-                # stb_batch.append(new_stb)
 
                 try:
                     db.session.add(new_stb)
                 except Exception as err:
                     print(err)
                     return transaction_error_response(err)
+
+            if len(sample["changeset"])>0:
+                # -- Update sample info
+                smpl = Sample.query.filter_by(id=sample_id).first()
+                updset = {k:sample["changeset"][k][1] for k in sample["changeset"]}
+
+                if smpl:
+                    smpl.update(updset)
+                    smpl.update({"editor_id": tokenuser.id})
+                    try:
+                        db.session.add(smpl)
+                    except Exception as err:
+                        return transaction_error_response(err)
 
             # Remove samples from usercart
             usercart = UserCart.query.filter_by(
@@ -381,22 +390,10 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except Exception as err:
                     return transaction_error_response(err)
 
-    # Postgres dialect, prefetch the id for batch insert
-    # identities = [
-    #     val
-    #     for val, in db.session.execute(
-    #         "select nextval('entitytostorage_id_seq') from "
-    #         "generate_series(1,%s)" % len(stb_batch)
-    #     )
-    # ]
-    # print("identities: ", identities)
-    # for stb_id, new_stb in zip(identities, stb_batch):
-    #     new_stb.id = stb_id
 
     try:
-        # db.session.add_all(stb_batch) # batch insert
-        db.session.commit()
-        # flash("Sample stored to rack Successfully!")
+        #db.session.commit()
+        db.session.flush()
         msg = "Sample(s) stored to rack Successfully! "
     except Exception as err:
         return transaction_error_response(err)
@@ -662,9 +659,39 @@ def storage_rack_edit_samples_pos(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+def func_dict_update(d0, d1, keys = []):
+    """ Check the changeset when update d0 with d1
+    Input:
+        d0: original dictionary
+        d1: dictionary containing updates
+        keys - restricted the list of keys considered for update if not empty
+    Return:
+        [updated d0, dictionary of changes in tuple (pairs of values)]
+    """
+    changeset = {}
+    du = d0.copy()
+    du.update(d1)
+
+    if len(keys) > 0:
+        du = {k: du[k] for k in keys if k in du}
+
+    for k in du:
+        # print("du K", k, du[k], d0[k])
+        if k not in d0:
+            changeset[k] = (None, du[k])
+        else:
+            if du[k]!= d0[k]:
+                changeset[k] = (d0[k], du[k])
+
+        d0[k] = du[k]
+
+    d0["changeset"] = changeset
+    return d0
+
 def func_get_samples(barcode_type, samples):
     n_found = 0
     for sample in samples:
+        # print("sample: ", sample)
         filter = {barcode_type: sample["sample_code"]}
         sample["id"] = None
         sample["sample_id"] = None
@@ -673,8 +700,11 @@ def func_get_samples(barcode_type, samples):
         sample[barcode_type] = sample.pop("sample_code")
         smpl = db.session.query(Sample).filter_by(**filter).first()
         if smpl:
-            # sample["id"] = smpl.id
-            sample.update(sample_schema.dump(smpl))
+            # sample.update(sample_schema.dump(smpl))
+            sample0 = sample_schema.dump(smpl)
+            sample0 = func_dict_update(sample0, sample, keys=["barcode"])
+            # print("Upd sample: ", sample0["changeset"])
+            sample.update(sample0)
             sample["sample_id"] = smpl.id
             n_found = n_found + 1
 
@@ -687,7 +717,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
-        # print("values", values)
+        print("values", values)
         if "samples" in values:
             samples = values["samples"]
     else:

@@ -287,7 +287,7 @@ def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
 
             if not validate_answers:
                 self.submit.errors.append(
-                    "None of the questions has been checked for consent!!"
+                    "None of the questions have been checked for consent!!"
                 )
                 return False
 
