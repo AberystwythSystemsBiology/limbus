@@ -44,27 +44,27 @@ function render_sample_table(samples) {
                 "mRender": function (data) {
                     var html = "";
                     if (data["sample"]["id"] == null) {
-
                         try {
                             if (data['sample']['barcode'] != null && data['sample']['barcode'] != "")
                                 html+= '<p style="text-decoration:line-through">' + data['sample']['barcode'] + '</p>';
                         } catch {
                             html += "";
                         }
-                    } else {
-                        //html += data['sample']['barcode'];
-                        try {
-                            var change = data["sample"]["changeset"]["barcode"];
-                        } catch {
-                            var change = undefined;
-                        }
-                        if (change !== undefined && change.length==2) {
-                            html += '<del>' + change[0] + '</del>';
-                            html += '<p style="color:red">'+ data['sample']['barcode'] +'</p>';
-                        } else {
-                            html += data['sample']['barcode'];
-                        }
+                        return html;
                     }
+
+                    try {
+                        var change = data["sample"]["changeset"]["barcode"];
+                    } catch {
+                        var change = undefined;
+                    }
+                    if (change !== undefined && change.length==2) {
+                        html += '<del>' + change[0] + '</del>';
+                        html += '<p style="color:red">'+ data['sample']['barcode'] +'</p>';
+                        return html;
+                    }
+
+                    html += data['sample']['barcode'];
                     return html;
             }},
 

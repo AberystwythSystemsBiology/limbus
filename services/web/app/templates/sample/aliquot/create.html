@@ -109,7 +109,7 @@
             <tr>
                 <th>Container</th>
                 <th id="fixation_type_th" style="display:none;">Fixation Type</th>
-                <th width="20%">Volume</th>
+                <th width="20%">Volume (<span id="aliquot_metric">mL</span>)</th>
                 <th width="25%">Barcode</th>
                 <th width="10%">Actions</th>
         </thead>
@@ -125,7 +125,10 @@
                 </botton>
             </div>
           <div class="col-3">
-            <button id="submit" class="btn btn-primary float-right">Submit</button>
+            <div name="new" id="add-bottom" class="btn btn-primary float-left">
+                <i class="fa fa-plus"></i> Add
+            </div>
+            <button id="submit" class="btn btn-success float-right">Submit</button>
           </div>
       </div>
     {% else %}

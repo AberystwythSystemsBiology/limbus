@@ -106,7 +106,7 @@ function check_barcode_database(entered_barcode) {
     
 
     if (json["content"].length > 0) {
-        return true
+        return true;
     }
     return false;
     
@@ -120,6 +120,7 @@ var samplebasetypes = get_types("samplebasetypes");
 var containerbasetypes = get_types("containerbasetypes");
 var sampletypes = get_types("sampletypes");
 var containertypes = get_types("containertypes");
+
 process_sample_container_type();
 
 function process_sample_container_type() {
@@ -211,10 +212,12 @@ function subtract_quantity() {
 
     $("#remove_zero_switch").hide();
     $("#submit").hide();
+    $("#new-bottom").hide();
 
     if (derived_sample_counts>0) {
         var quantities = remaining_quantity;
         $("#submit").show();
+        $("#new-bottom").show();
         $("#remove_zero_switch").show();
     } else {
         var quantities = 0;
@@ -267,17 +270,30 @@ function generate_samplebasetype_select(indx) {
 
 function generate_sampletype_select(indx) {
     var sbt = samplebasetypes[0][0];
-    //var sampletype_list = sampletypes[sbt]["sample_type"];
     var sampletype_list = get_sampletype_list(sbt);
-    var lastsel = sampletype_list[0][0] // Container code for last selection
+    var lastsel = sampletype_list[0][0] // basetype for last selection
     if (derived_sample_counts>0 && indx > 1) {
         sbt = lastvals["sample_basetype"];
-        sampletype_list = sampletypes[sbt]["sample_type"];
+        //sampletype_list = sampletypes[sbt]["sample_type"];
+        sampletype_list = get_sampletype_list(sbt);
+
         lastsel = lastvals["sample_type"];
     }
     select_html = ""; // "Sample Type"
     select_html += select_html_type(indx, "sampletype", type_list=sampletype_list, select_val=lastsel);
     return select_html;
+}
+
+function generate_unit_indx(indx) {
+    var samplebasetype_list = samplebasetypes;
+    var lastsel = samplebasetype_list[0][0] // basetype for last selection
+    if (derived_sample_counts>0 && indx > 1) {
+        lastsel = lastvals["sample_basetype"];
+    }
+    var html = '<span id="unit_'+indx+'">';
+    html += get_metric(lastsel)
+    html += '</span>';
+    return html;
 }
 
 function generate_containerbasetype_select(indx) {
@@ -308,7 +324,6 @@ function generate_container_select(indx) {
     return select_html;
 }
 
-
 function generate_fixation_select(indx) {
     var cbt = containerbasetypes[0][0]; //"PRM"
     var fixation_list = containertypes[cbt]["fixation_type"];
@@ -327,12 +342,22 @@ function generate_fixation_select(indx) {
 function get_sampletype_list(sbt){
     var sampletype_list = sampletypes[sbt]["sample_type"];
     if (sbt == 'FLU') {
-        if (sample["sample_type_information"]["fluid_type"] == "Blood (whole)") {
+        var blood_subtypes = sampletypes[sbt]["blood_subtype"]
+        let subtypes = [];
+        for (e in blood_subtypes) {
+            subtypes = subtypes.concat(blood_subtypes[e]);
+        }
+        // subtypes = ['SER', 'Serum', 'PLA', 'Plasma', 'BUF', 'Unficolled buffy coat,
+        // viable', 'BFF', 'Unficolled buffy coat, non-viable', 'CEL',
+        // 'Ficoll mononuclear cells, viable', 'RNA', 'RNALater', 'BLD', 'Blood (whole)']
+
+        if (subtypes.includes(sample["sample_type_information"]["fluid_type"])) {
             sampletype_list = sampletypes[sbt]["blood_subtype"];
         }
     }
     return sampletype_list;
 }
+
 
 function make_new_form(indx) {
     var row_form_html = '';
@@ -348,7 +373,7 @@ function make_new_form(indx) {
     row_form_html += '<div class="row" id="row_'+indx+'" >';
         row_form_html += '<div class="col-3">'+generate_samplebasetype_select(indx)+'</div>'
         row_form_html += '<div class="col-4">'+generate_containerbasetype_select(indx)+'</div>'
-        row_form_html += '<div class="col-2"> Volume'
+        row_form_html += '<div class="col-2"> Volume ('+generate_unit_indx(indx) +')'
             row_form_html += '<input id="volume_'+indx+'" type="number" class="form-control derived-quantity" step="0.05" min="0.01" value="'+lastval+'">'
         row_form_html += '</div>'
         row_form_html += '<div class="col-2"> Barcode'
@@ -361,7 +386,7 @@ function make_new_form(indx) {
         row_form_html += '<div class="col-3" id="sampletype_div_'+indx+'">'+generate_sampletype_select(indx)+'</div>';
         row_form_html += '<div class="col-4" id="container_div_'+indx+'">'+generate_container_select(indx)+'</div>';
         row_form_html += '<div class="col-3" id="fixationtype_div_'+indx+'" '+'>'+generate_fixation_select(indx)+'</div>';
-        row_form_html += '<div class="col-2"></div>';
+        row_form_html += '<div class="col-2"></div>'
     row_form_html += '</div>';
     // End Card
     row_form_html += '</div>';
@@ -377,10 +402,12 @@ function make_new_form(indx) {
     subtract_quantity();
     indexes.push(indx);
 
+
     $("#samplebasetype_select_"+indx).change(function(){
         var sbt = $("#samplebasetype_select_"+indx).val();
-        //var sampletype_list = sampletypes[sbt]["sample_type"];
+        $("#unit_"+indx).html(get_metric(sbt));
         var sampletype_list = get_sampletype_list(sbt);
+
         var options = ""; //<option>--Select--</option>";
         $("#sampletype_select_"+indx).empty();
         $(sampletype_list).each(function(index, value){
@@ -390,10 +417,12 @@ function make_new_form(indx) {
 
         if (sbt=='CEL') {
             $("#fixationtype_div_"+indx).show();
+
         } else {
             $("#fixationtype_div_"+indx).hide();
         }
         lastvals["sample_basetype"] = $("#samplebasetype_select_"+indx).val();
+
     });
 
     $("#sampletype_select_"+indx).change(function() {
@@ -497,12 +526,7 @@ function make_new_form(indx) {
 function prepare_data() {
 
     var derivatives = [];
-
-/*    $("tr.item").each(function() {
-        var quantity1 = $(this).find("input.name").val(),
-            quantity2 = $(this).find("input.id").val();
-    });*/
-
+    const errkeys = new Set();
     indexes.forEach(function(i) {
         if ($("#sampletype_select_"+i).length && $("#containertype_select_"+i).length) {
             var derivative = {
@@ -512,15 +536,22 @@ function prepare_data() {
                 container_type: $("#containertype_select_" + i).val(),
                 volume: $("#volume_" + i).val(),
                 barcode: $("#barcode_" + i).val()
-
             }
             //if ($("samplebasetype_select_"+ i).val() == "Cell") {
-            if ($("samplebasetype_select_"+ i).val() == "CEL") {
-                derivative["fixation_type"] = $("#fixationtype_select_" + i).val()
+            if ($("#samplebasetype_select_"+ i).val() == "CEL") {
+                derivative["fixation_type"] = $("#fixationtype_select_" + i).val();
             }
+
+            for (const k in derivative) {
+                if (derivative[k]==null||derivative[k]=='null') {
+                    errkeys.add(k);
+                }
+            };
 
             if (derivative["volume"] > 0) {
                 derivatives.push(derivative);
+            } else {
+                errkeys.add("volume");
             }
         }
 
@@ -543,8 +574,7 @@ function prepare_data() {
 
     }
 
-    return data
-
+    return [data, errkeys];
     
 }
 
@@ -559,16 +589,20 @@ function post_data(data) {
             'data': JSON.stringify(data),
             'success': function (data) {
                 json = data;
-                window.location.href = json["content"]["_links"]["self"];
+                if (json["success"]) {
+                    window.location.href = json["content"]["_links"]["self"];
+                }
                 
             },
-            'error': function (data) {
-                $("#error_code").html(data.status);
+            'error': function (r, e, m) {
+                $("#error_code").html(r.status);
                 $("#derivative_error").show();
+                json={"success": false, "message": e}
             }
         });
         return json;
     })();
+    return json;
 }
 
 $(document).ready(function () {
@@ -617,15 +651,25 @@ $(document).ready(function () {
 
 
     $("#submit").click(function() {
-        var data = prepare_data();
+        const [data, errkeys] = prepare_data();
+        if (errkeys.size>0) {
+            var msg = "NULL values  not allowed for: " + Array.from(errkeys).join(", ") + "!!"
+            alert(msg);
+            return;
+        }
+        var msg = "If successful, you will be returned to " +
+            "the Sample view page of the Parent Sample. " +
+            "Scroll down to see newly derived samples.";
+        $('#confirm-message').html(msg)
+        $('#modalSubmit').show();
         $('#confirmationModal').modal("toggle");
-
         $("#modalSubmit").click(function() {
-            post_data(data);
+            var res = post_data(data);
+            if (res["success"]!==true) {
+                $('#confirm-message').html(JSON.stringify(res["message"]));
+                $('#modalSubmit').hide();
+            }
         });
 
     });
-
-
-
 });

@@ -331,7 +331,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
                     if (data["base_type"] == "Fluid") {
                         return sample_type_information["fluid_type"];
                     } else if (data["base_type"] == "Cell") {
-                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+                        return sample_type_information["cellular_type"] + " > " + sample_type_information["fixation_type"];
                     } else if (data["base_type"] == "Molecular") {
                         return sample_type_information["molecular_type"];
                     }
@@ -469,6 +469,7 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
+    //console.log("filter: ", filters)
     //render_table({});
     render_table(filters);
     
@@ -483,6 +484,7 @@ $(document).ready(function() {
         $("#table_view").fadeOut();
         $('#sampleTable').DataTable().destroy();
         var filters = get_filters();
+        //console.log("filter: ", filters)
         render_table(filters);
     });
 

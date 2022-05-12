@@ -774,7 +774,7 @@ else {
     var rack_information = get_rack_information();
 }
 
-console.log("rack_information", rack_information);
+// console.log("rack_information", rack_information);
 
 $(document).ready(function () {
     collapse_sidebar();
@@ -871,7 +871,6 @@ $(document).ready(function () {
             var api_url = window.location.origin + "/storage/rack/edit_samples_pos"
 
         res = fill_sample_pos(api_url, sampletostore,commit=true);
-
         if (commit && res['success']){
             alert(res['message'])
             sessionStorage.removeItem("sampletostore")

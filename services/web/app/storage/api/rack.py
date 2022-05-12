@@ -365,7 +365,7 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     print(err)
                     return transaction_error_response(err)
 
-            if len(sample["changeset"])>0:
+            if "changeset" in sample and len(sample["changeset"])>0:
                 # -- Update sample info
                 smpl = Sample.query.filter_by(id=sample_id).first()
                 updset = {k:sample["changeset"][k][1] for k in sample["changeset"]}

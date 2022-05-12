@@ -165,17 +165,20 @@ class ConsentWithdrawalRequester(FormEnum):
     REP = "Legal Representative"
     UNK = "Unknown"
 
-
+# Solid Sample Type (SPREC-3)
 class CellSampleType(FormEnum):
+    # BON = "Bone"
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"
     FNA = "Cells from fine needle aspirate"
     HAR = "Hair"
     LCM = "Cells from laser capture microdissected tissue"
+    # NAL = "Neils"
     PEN = "Cells from non-blood specimen type (e.g. dissociated tissue), non viable"
     PLC = "Placenta"
     TIS = "Solid tissue"
     TCM = "Disrupted tissue, non-viable"
+    # TTH = "Teeth"
     ZZZ = "Other"
 
 

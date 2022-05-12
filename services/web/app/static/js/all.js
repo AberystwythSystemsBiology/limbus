@@ -16,17 +16,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_metric(type) {
-  if (type == "Fluid") {
+  if (type === "Fluid" || type === "FLU") {
       var metric = "mL";
   }
-  else if (type == "Molecular") {
+  else if (type === "Molecular" || type === "MOL") {
       var metric = "μg/mL";
   }
   else {
-      var metric = "Cell(s)"
+      var metric = "Cell(s)";
   }
 
-  return metric
+  return metric;
 }
 
 // Not in use

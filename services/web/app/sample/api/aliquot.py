@@ -468,8 +468,10 @@ def sample_new_derivative(uuid: str, tokenuser: UserAccount):
     # T2. New sampletotypes for subsamples/derivatives, linked to the parent sample protocol event
     for derivative in values["derivatives"]:
         der_sampletotype = func_new_sample_type(derivative, tokenuser)
-        if isinstance(der_sampletotype, dict):
-            if not der_sampletotype["success"]:
+
+        if type(der_sampletotype) is tuple and "success" in der_sampletotype[0]:
+            print("der_sampletotype: ", der_sampletotype)
+            if not der_sampletotype[0]["success"]:
                 return der_sampletotype
 
         # T3.0. New sample_disposal instruction
