@@ -34,6 +34,8 @@ class GeneralObject(FormEnum):
     SampleShipmentStatus = "ShipmentStatus"
     ProtocolTemplate = "ProtocolTemplate"
     ConsentFormTemplate = "ConsentFormTemplate"
+    SampleRack = "SampleRack"
+    Event = "Event"
 
 
 class SampleObject(FormEnum):
@@ -45,7 +47,7 @@ class SampleObject(FormEnum):
     SampleDisposal = "DisposalInstruction"
     SampleShipment = "SampleShipment"
     SampleShipmentStatus = "ShipmentStatus"
-    # Event = "Event"
+    Event = "Event"
 
 
 class DonorObject(FormEnum):
@@ -55,7 +57,7 @@ class DonorObject(FormEnum):
     SampleConsentWithdrawal = "ConsentWithdrawal"
     DonorProtocolEvent = "Study"
     DonorDiagnosisEvent = "DonorDiagnosisEvent"
-    # Event = "Event"
+    Event = "Event"
 
 
 class TemplateObject(FormEnum):
@@ -72,6 +74,8 @@ class AuthObject(FormEnum):
 class StorageObject(FormEnum):
     ColdStorage = "ColdStorage"
     ColdStorageService = "ColdStorageService"
+    ColdStorageShelf = "ColdStorageShelf"
+    SampleRack = "SampleRack"
 
 
 #

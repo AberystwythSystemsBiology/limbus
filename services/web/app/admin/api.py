@@ -23,8 +23,8 @@ from ..admin.enums import *
 from sqlalchemy_continuum import (
     version_class,
     changeset,
-    transaction_class,
-    count_versions,
+    #transaction_class,
+    #count_versions,
 )
 from sqlalchemy.sql import or_, func
 
@@ -178,6 +178,10 @@ def func_transaction_summary(audit_tr):
             protocols = list(set(protocols))  # Remove repeated protocols
             updates[object].append(protocols)
 
+        elif object in ["Event"]:
+            events = [d["change_set"] for d in audit_tr if d["object"]==object]
+            updates[object] = events
+
         else:
             ops = [OperationType[d] for d in operations[object]]
             updates[object] = ops
@@ -305,8 +309,8 @@ def func_audit_trail(
             chgset.pop("updated_on", None)
             chgset.pop("author_id", None)
             chgset.pop("editor_id", None)
-            if len(chgset) == 0:
-                continue
+            #if len(chgset) == 0:
+            #    continue
 
             chgset = {
                 key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset
@@ -336,7 +340,7 @@ def func_audit_trail(
 @use_args(AuditFilterSchema(), location="json")
 @token_required
 def audit_query(args, tokenuser: UserAccount):
-    # print("args", args)
+    print("args", args)
     if not tokenuser.is_admin:
         return not_allowed()
 
@@ -359,19 +363,23 @@ def audit_query(args, tokenuser: UserAccount):
     else:
         objects = None
 
+    print("objects : ", type(objects), objects)
     if type(objects) == str:
         objects = objects.split(",")
     elif objects is None:
-        objects = [
-            "Sample",
-            "SampleProtocolEvent",
-            "EntityToStorage",
-            "SampleReview",
-            "SampleDisposal",
-            "Donor",
-            "DonorProtocolEvent",
-        ]
+        # objects = [
+        #     "Sample",
+        #     "SampleProtocolEvent",
+        #     "EntityToStorage",
+        #     "SampleReview",
+        #     "SampleDisposal",
+        #     "Donor",
+        #     "DonorProtocolEvent",
+        #     "Event",
+        # ]
+        objects = [d[0] for d in GeneralObject.choices()]
 
+    print("objects : ", objects)
     start_date = args.pop("start_date", datetime.today())
     end_date = args.pop("end_date", datetime.today())
     report_type = AuditTypes[audit_type].value
