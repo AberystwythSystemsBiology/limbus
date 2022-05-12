@@ -59,8 +59,8 @@ function fill_sample_statistics(sample_statistics) {
 }
 
 function fill_protocol_statistics(protocol_statistics) {
-    make_pie("protocol-type", protocol_statistics["protocol_type"]["data"], protocol_statistics["protocol_type"]["labels"], "");
-
+    //make_pie("protocol-type", protocol_statistics["protocol_type"]["data"], protocol_statistics["protocol_type"]["labels"], "");
+    make_bar("protocol-type",  protocol_statistics["protocol_type"]["data"], protocol_statistics["protocol_type"]["labels"], "");
 }
 
 function fill_donor_statistics(donor_statistics) {
