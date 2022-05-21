@@ -296,9 +296,14 @@ function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
 
 function render_full_file_noimg(info, row, col, count, assign_sample_url, dispopt) {
     var sample_info = info["sample"]
+    try {
+        var change = sample_info["changeset"]["barcode"];
+    } catch {
+        var change = undefined;
+    }
 
     if (info["status"]=='fill')
-        console.log("info", info)
+        //console.log("info", info)
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
 
     if (info['status']=='empty') {
@@ -337,7 +342,15 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
 
         if (dispopt=="id") {
-            content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+            //content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+            content += '<small>[' + sample_info['id'] + '] ';
+            if (change !== undefined && change.length>1) {
+                content += '<del>' + change[0] + '</del>';
+                content += '<samll style="color:red">'+ sample_info['barcode'] +'</samll>';
+            } else {
+                content += sample_info['barcode'];
+            }
+            content += '</small>';
 
         } else if (dispopt=="donor") {
 
@@ -357,7 +370,12 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
             content += render_sample_label(sample_info) + '</small>';
 
         }
+
         content += '<i class="fas fa-plus " style="color:blue;"></i>';
+        if (change !== undefined && change.length>1) {
+            content += '<i class="fa fa-pen" style="color:red;"></i>';
+        }
+
 
     } else if (info['status']=='fill2empty')  {
         content += '<div class="square tube" style="background-color: white;">' +

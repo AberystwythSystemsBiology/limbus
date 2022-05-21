@@ -23,6 +23,7 @@ from flask import (
     jsonify,
     Response,
     flash,
+    current_app
 )
 from flask_login import current_user, login_required
 
@@ -30,7 +31,7 @@ from .. import storage
 
 from string import ascii_uppercase
 import itertools
-import re, csv
+import re, csv, os
 from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
@@ -163,73 +164,135 @@ def alpha2num(s):
         num = num + (ord(s[-(i + 1)]) - 96) * (26 * i + 1)
     return num
 
-
 def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     data = {}
-    try:
-        reads = request.files[csvfile.name].read()#.decode().strip()
-    except:
-        try:
-            reads = request.files[csvfile].read()#.decode().strip()
-        except:
-            return {
-                "success": False,
-                "message": "File reading error! Make sure the file is in csv format!",
-            }
-
-    try:
-        reads = reads.decode()
-    except:
-        try:
-            reads = reads.decode("latin-1")
-        except:
-            return{
-                "success": False,
-                "message": "File reading decoding error!",
-            }
-
-
-    if reads.startswith("'") and reads.endswith("'"):
-        reads = reads[1:-1]
-
     csv_data = []
 
     expected_barcode = ["tube barcode", "barcode"]
     expected_uuid = ["identifier", "uuid"]
     expected_pos = ["tube position", "position", "pos"]
-    resplit = re.compile(",")
-    for linesep in ["\n", "\r\n", "\r"]:
-        csvdata = reads.split(linesep)
-        # print("csvdata", csvdata)
-        # - check header
-        if len(csvdata) < 2:
-            continue
 
-        header = [
-            nm.lower().replace('"', "").replace("'", "")
-            for nm in resplit.split(csvdata[0])
-        ]
+    if False:
+        try:
+            reads = request.files[csvfile.name].read()#.decode().strip()
+        except:
+            try:
+                reads = request.files[csvfile].read()#.decode().strip()
+            except:
+                return {
+                    "success": False,
+                    "message": "File reading error! Make sure the file is in csv format!",
+                }
 
-        res = list(set.intersection(*map(set, [header, expected_pos])))
-        if len(res) == 0:
-            continue
+        try:
+            reads = reads.decode('utf-8')
+            print("default")
+        except:
+            try:
+                print("ut")
+                reads = reads.decode('unicode_escape')
+            except:
+                try:
+                    print("latin")
+                    reads = reads.decode("latin-1")
+                except:
+                    return{
+                        "success": False,
+                        "message": "File reading decoding error!",
+                    }
 
-        res = list(
-            set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
-        )
-        if len(res) == 0:
-            continue
+        if reads.startswith("'") and reads.endswith("'"):
+            reads = reads[1:-1]
 
-        # if len(csvdata) != nrow * ncol + 1:
-        #    continue
-        csv_data = []
-        for row in csvdata:
-            row = row.split(",")
-            row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
-            csv_data.append(row)
+        resplit = re.compile(",")
 
-        if len(csv_data) >= 2:
+        for linesep in ["\n", "\r\n", "\r"]:
+            csvdata = reads.split(linesep)
+            # print("csvdata", csvdata)
+            # - check header
+            if len(csvdata) < 2:
+                continue
+
+            header = [
+                nm.lower().replace('"', "").replace("'", "")
+                for nm in resplit.split(csvdata[0])
+            ]
+
+            res = list(set.intersection(*map(set, [header, expected_pos])))
+            if len(res) == 0:
+                continue
+
+            res = list(
+                set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
+            )
+            if len(res) == 0:
+                continue
+
+            # if len(csvdata) != nrow * ncol + 1:
+            #    continue
+            csv_data = []
+            for row in csvdata:
+                row = row.split(",")
+                row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
+                csv_data.append(row)
+
+            if len(csv_data) >= 2:
+                break
+
+
+    try:
+        csvf = request.files[csvfile.name]
+    except:
+        try:
+            csvf = request.files[csvfile]
+        except:
+            return {
+                "success": False,
+                "message": "File uploading error!",
+            }
+
+    csvpath = os.path.join(current_app.config["UPLOAD_PATH"], "tmp") #csvf.filename)
+    csvf.save(csvpath)
+
+    header = None
+    for code in ["utf-8", "unicode_escape"]:
+        error = None
+        try:
+            with open(csvpath, newline='', encoding = code) as file:
+                # print("dialect: ", csv.list_dialects())
+                # dialect: ['excel', 'excel-tab', 'unix']
+                dialect = csv.Sniffer().sniff(file.read())
+                file.seek(0)
+                try:
+                    csv_file = csv.reader(file, dialect)
+                    for row in csv_file:
+                        print("row", row)
+                        if header is None:
+                            header =  row
+                        else:
+                            csv_data.append(row)
+                except:
+                    error = "csv"
+
             break
+
+        except:
+            error = "encode"
+            continue
+
+    if error:
+        if error == "encode":
+            return {
+                "success": False,
+                "message": "File decoding error!",
+            }
+
+        if error == "csv":
+            return {
+                "success": False,
+                "message": "File reading error! Make sure the file is in csv format!",
+            }
+
 
     if len(csv_data) < 2:
         return {
@@ -237,6 +300,10 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             "message": "File reading error! Check if the file format is comma separated, with headers",
         }
 
+    header = [
+        nm.lower().replace('"', "").replace("'", "")
+        for nm in header
+    ]
     # print("nrows, Header", len(csv_data[0]), csv_data[0])
     print("header", header)
     indexes = {}
@@ -278,6 +345,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     positions = {
         # -- note: to ignore the second code in the same field separated by space.
         x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+        # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
         for x in csv_data[1:]
     }
     print("positions", positions)

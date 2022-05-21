@@ -28,7 +28,7 @@ from . import (
     BasicSampleDisposalSchema,
     BasicConsentSchema,
     ConsentSchema,
-    EntityToStorageSchema,
+    BasicEntityToStorageSchema,
     BasicSampleDiposalEventSchema,
     SampleShipmentToSampleInfoSchema,
 )
@@ -111,7 +111,7 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
     sample_type_information = ma.Nested(SampleTypeSchema)
-    storage = ma.Nested(EntityToStorageSchema, many=False)
+    storage = ma.Nested(BasicEntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
     disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
@@ -158,7 +158,7 @@ class BasicDisposalSampleSchema(masql.SQLAlchemySchema):
     parent = ma.Nested(SampleUUIDSchema, many=False)
 
     sample_type_information = ma.Nested(SampleTypeSchema)
-    storage = ma.Nested(EntityToStorageSchema, many=False)
+    storage = ma.Nested(BasicEntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
     disposal_information = ma.Nested(SampleDisposalSchema, many=False)
@@ -217,7 +217,7 @@ class SampleSchema(masql.SQLAlchemySchema):
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
 
-    storage = ma.Nested(EntityToStorageSchema, many=False)
+    storage = ma.Nested(BasicEntityToStorageSchema, many=False)
 
     attributes = ma.Nested(AttributeDataSchema, many=True)
     documents = ma.Nested(BasicDocumentSchema, many=True)

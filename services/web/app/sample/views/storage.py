@@ -53,12 +53,32 @@ class BasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     )
 
 
+class BasicEntityToStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    id = masql.auto_field()
+    storage_type = EnumField(EntityToStorageType)
+
+    rack = ma.Nested(BasicSampleRackSchema, many=False)
+    shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
+
+
+
+
 class EntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = EntityToStorage
 
     id = masql.auto_field()
     storage_type = EnumField(EntityToStorageType)
+
+    row = masql.auto_field()
+    col = masql.auto_field()
+    entry_datetime = masql.auto_field()
+    entry = masql.auto_field()
+    #comments = masql.auto_field()
+    removed = masql.auto_field()
 
     rack = ma.Nested(BasicSampleRackSchema, many=False)
     shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
