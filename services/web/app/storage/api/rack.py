@@ -689,9 +689,21 @@ def func_dict_update(d0, d1, keys = []):
     return d0
 
 def func_get_samples(barcode_type, samples):
+    """
+    Query existing sample info from database and compare that with new info
+    Update 'changeset' in sample in case of any difference in existing info
+    Input
+        barcode_type: column for identifying sample eg. uuid or barcode
+        samples: list of samples with relevant info
+    Return
+        two variables (in tuple)
+            1. samples: list of samples with update info in changeset
+            2. n_found: number of samples found in database
+    """
     n_found = 0
+    err = None
+    bcodes = []
     for sample in samples:
-        # print("sample: ", sample)
         filter = {barcode_type: sample["sample_code"]}
         sample["id"] = None
         sample["sample_id"] = None
@@ -703,12 +715,25 @@ def func_get_samples(barcode_type, samples):
             # sample.update(sample_schema.dump(smpl))
             sample0 = sample_schema.dump(smpl)
             sample0 = func_dict_update(sample0, sample, keys=["barcode"])
+            if "barcode" in sample0["changeset"]:
+                bcode1 = sample0["changeset"]["barcode"][1]
+                if bcode1 in bcodes:
+                    err = {"messages": "Sample (%s) info error: duplicate barcode (%s) in the update file" %(smpl.uuid, bcode1)}
+                    return samples, n_found, err
+
+                bcodes.append(bcode1)
+                bcode = db.session.query(Sample.barcode).filter_by(barcode=bcode1).first()
+                if bcode is not None:
+                    bcode = bcode[0]
+                    err = {"messages": "Sample (%s) info error: duplicate barcode (%s) in the database" %(smpl.uuid, bcode)}
+                    return samples, n_found, err
+
             # print("Upd sample: ", sample0["changeset"])
             sample.update(sample0)
             sample["sample_id"] = smpl.id
             n_found = n_found + 1
 
-    return samples, n_found
+    return samples, n_found, err
 
 
 @api.route("/storage/rack/refill_with_samples", methods=["POST", "GET"])
@@ -717,7 +742,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
-        print("values", values)
+        # print("values", values)
         if "samples" in values:
             samples = values["samples"]
     else:
@@ -738,7 +763,10 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     if "commit" in values and values["commit"]:
         commit = True
     else:
-        samples, n_found = func_get_samples(values["barcode_type"], samples)
+        samples, n_found, err = func_get_samples(values["barcode_type"], samples)
+        print("error", err)
+        if err is not None:
+            return validation_error_response(err)
         # print("samples_ids", samples)
 
     if rack_id:
