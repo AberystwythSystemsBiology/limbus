@@ -48,6 +48,7 @@ from ..forms import (
     UpdateRackFileUploadForm,
 )
 from datetime import datetime
+import tempfile
 
 # def iter_all_strings():
 #     for size in itertools.count(1):
@@ -172,73 +173,73 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     expected_uuid = ["identifier", "uuid"]
     expected_pos = ["tube position", "position", "pos"]
 
-    if False:
-        try:
-            reads = request.files[csvfile.name].read()#.decode().strip()
-        except:
-            try:
-                reads = request.files[csvfile].read()#.decode().strip()
-            except:
-                return {
-                    "success": False,
-                    "message": "File reading error! Make sure the file is in csv format!",
-                }
-
-        try:
-            reads = reads.decode('utf-8')
-            print("default")
-        except:
-            try:
-                print("ut")
-                reads = reads.decode('unicode_escape')
-            except:
-                try:
-                    print("latin")
-                    reads = reads.decode("latin-1")
-                except:
-                    return{
-                        "success": False,
-                        "message": "File reading decoding error!",
-                    }
-
-        if reads.startswith("'") and reads.endswith("'"):
-            reads = reads[1:-1]
-
-        resplit = re.compile(",")
-
-        for linesep in ["\n", "\r\n", "\r"]:
-            csvdata = reads.split(linesep)
-            # print("csvdata", csvdata)
-            # - check header
-            if len(csvdata) < 2:
-                continue
-
-            header = [
-                nm.lower().replace('"', "").replace("'", "")
-                for nm in resplit.split(csvdata[0])
-            ]
-
-            res = list(set.intersection(*map(set, [header, expected_pos])))
-            if len(res) == 0:
-                continue
-
-            res = list(
-                set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
-            )
-            if len(res) == 0:
-                continue
-
-            # if len(csvdata) != nrow * ncol + 1:
-            #    continue
-            csv_data = []
-            for row in csvdata:
-                row = row.split(",")
-                row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
-                csv_data.append(row)
-
-            if len(csv_data) >= 2:
-                break
-
+    # if False:
+    #     try:
+    #         reads = request.files[csvfile.name].read()#.decode().strip()
+    #     except:
+    #         try:
+    #             reads = request.files[csvfile].read()#.decode().strip()
+    #         except:
+    #             return {
+    #                 "success": False,
+    #                 "message": "File reading error! Make sure the file is in csv format!",
+    #             }
+    #
+    #     try:
+    #         reads = reads.decode('utf-8')
+    #         print("default")
+    #     except:
+    #         try:
+    #             print("ut")
+    #             reads = reads.decode('unicode_escape')
+    #         except:
+    #             try:
+    #                 print("latin")
+    #                 reads = reads.decode("latin-1")
+    #             except:
+    #                 return{
+    #                     "success": False,
+    #                     "message": "File reading decoding error!",
+    #                 }
+    #
+    #     if reads.startswith("'") and reads.endswith("'"):
+    #         reads = reads[1:-1]
+    #
+    #     resplit = re.compile(",")
+    #
+    #     for linesep in ["\n", "\r\n", "\r"]:
+    #         csvdata = reads.split(linesep)
+    #         # print("csvdata", csvdata)
+    #         # - check header
+    #         if len(csvdata) < 2:
+    #             continue
+    #
+    #         header = [
+    #             nm.lower().replace('"', "").replace("'", "")
+    #             for nm in resplit.split(csvdata[0])
+    #         ]
+    #
+    #         res = list(set.intersection(*map(set, [header, expected_pos])))
+    #         if len(res) == 0:
+    #             continue
+    #
+    #         res = list(
+    #             set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
+    #         )
+    #         if len(res) == 0:
+    #             continue
+    #
+    #         # if len(csvdata) != nrow * ncol + 1:
+    #         #    continue
+    #         csv_data = []
+    #         for row in csvdata:
+    #             row = row.split(",")
+    #             row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
+    #             csv_data.append(row)
+    #
+    #         if len(csv_data) >= 2:
+    #             break
+    #
 
     try:
         csvf = request.files[csvfile.name]
@@ -251,14 +252,15 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 "message": "File uploading error!",
             }
 
-    csvpath = os.path.join(current_app.config["UPLOAD_PATH"], "tmp") #csvf.filename)
-    csvf.save(csvpath)
+    csvpath = tempfile.NamedTemporaryFile(dir = os.path.join(current_app.config["TMP_DIRECTORY"]), delete=False)
+    csvf.save(csvpath.name)
 
     header = None
-    for code in ["utf-8", "unicode_escape"]:
+    for code in ["utf-8", "unicode-escape"]:
         error = None
         try:
-            with open(csvpath, newline='', encoding = code) as file:
+            print("code: ", code)
+            with open(csvpath.name, newline='', encoding = code) as file:
                 # print("dialect: ", csv.list_dialects())
                 # dialect: ['excel', 'excel-tab', 'unix']
                 dialect = csv.Sniffer().sniff(file.read())
@@ -279,6 +281,10 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         except:
             error = "encode"
             continue
+
+    if os.path.exists(csvpath.name):
+        os.remove(csvpath.name)
+
 
     if error:
         if error == "encode":
@@ -346,7 +352,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         # -- note: to ignore the second code in the same field separated by space.
         x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
         # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
-        for x in csv_data[1:]
+        for x in csv_data[0:]
     }
     print("positions", positions)
 

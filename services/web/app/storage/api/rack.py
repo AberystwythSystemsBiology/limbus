@@ -722,7 +722,7 @@ def func_get_samples(barcode_type, samples):
                     return samples, n_found, err
 
                 bcodes.append(bcode1)
-                bcode = db.session.query(Sample.barcode).filter_by(barcode=bcode1).first()
+                bcode = db.session.query(Sample.barcode).filter(func.upper(Sample.barcode)==bcode1.upper()).first()
                 if bcode is not None:
                     bcode = bcode[0]
                     err = {"messages": "Sample (%s) info error: duplicate barcode (%s) in the database" %(smpl.uuid, bcode)}
