@@ -53,7 +53,8 @@ function fill_sample_statistics(sample_statistics) {
     make_doughnut("sample-status", sample_statistics["sample_status"]["data"], sample_statistics["sample_status"]["labels"], "");
     make_bar("sample-source", sample_statistics["sample_source"]["data"], sample_statistics["sample_source"]["labels"], "");
     make_pie("sample-biohazard", sample_statistics["sample_biohazard"]["data"], sample_statistics["sample_biohazard"]["labels"], "");
-    make_doughnut("sample-type", sample_statistics["sample_type"]["data"], sample_statistics["sample_type"]["labels"], "");
+    //make_doughnut("sample-type", sample_statistics["sample_type"]["data"], sample_statistics["sample_type"]["labels"], "");
+    make_bar("sample-type", sample_statistics["sample_type"]["data"], sample_statistics["sample_type"]["labels"], "");
 
 
 }

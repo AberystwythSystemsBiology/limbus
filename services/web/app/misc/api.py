@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from sqlalchemy import func, or_, and_
+from sqlalchemy import func, or_, and_, select
 from ..database import *
 
 from ..api import api
@@ -101,6 +101,31 @@ def get_data(tokenuser: UserAccount):
 
 
     """
+    sample_type_q = (db.session.query(Sample)
+            .join(SampleToType)
+            .with_entities(
+                func.concat(SampleToType.fluid_type,
+                    SampleToType.cellular_type,
+                    SampleToType.molecular_type)
+                    .label('type'))
+            .filter(Sample.current_site_id == tokenuser.site_id)
+            .filter(Sample.remaining_quantity > 0)
+            .distinct(Sample.id)
+            .subquery()
+    )
+
+    ST = {st.name: st.value for st in FluidSampleType}
+    ST1 = {st.name: st.value for st in CellSampleType}
+    ST2 = {st.name: st.value for st in MolecularSampleType}
+    ST.update(ST1)
+    ST.update(ST2)
+    sample_type = [(ST[type], count)
+        for (type, count) in
+            db.session.query(sample_type_q.c.type, func.count(sample_type_q.c.type))
+            .group_by(sample_type_q.c.type)
+            .all()
+        ]
+
     data = {
         "name": SiteInformation.query.filter_by(is_external=False, id=tokenuser.site_id)
         .first()
@@ -172,16 +197,17 @@ def get_data(tokenuser: UserAccount):
                 ]
             ),
             "sample_type": prepare_for_chart_js(
-                [
-                    (type.value, count)
-                    for (type, count) in db.session.query(
-                        Sample.base_type, func.count(Sample.base_type)
-                    )
-                    .filter(Sample.current_site_id == tokenuser.site_id)
-                    .filter(Sample.remaining_quantity > 0)
-                    .group_by(Sample.base_type)
-                    .all()
-                ]
+                sample_type
+                # [
+                #     (type.value, count)
+                #     for (type.value, count) in db.session.query(
+                #         Sample.base_type, func.count(Sample.base_type)
+                #     )
+                #     .filter(Sample.current_site_id == tokenuser.site_id)
+                #     .filter(Sample.remaining_quantity > 0)
+                #     .group_by(Sample.base_type)
+                #     .all()
+                # ]
             ),
             "sample_biohazard": prepare_for_chart_js(
                 [
@@ -206,7 +232,7 @@ def get_data(tokenuser: UserAccount):
                     .group_by(Sample.source)
                     .all()
                 ]
-            ),  # SampleSource
+            ),
             "sample_status": prepare_for_chart_js(
                 [
                     (type.value, count)
@@ -218,7 +244,7 @@ def get_data(tokenuser: UserAccount):
                     .group_by(Sample.status)
                     .all()
                 ]
-            ),  # SampleSource
+            ),
         },
         "storage_statistics": {},
         "attribute_statistics": {
