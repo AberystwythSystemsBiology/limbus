@@ -253,6 +253,9 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                 coerce=int,
                 render_kw={"_custom_val": True},
             )
+        # else:
+        #     element = IntegerField(attr.term, render_kw={"_custom_val": True})
+
 
         element.render_kw = {"_custom_val": True}
 

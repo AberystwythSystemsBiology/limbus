@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from sqlalchemy import func, or_, and_, select
+from sqlalchemy import func, or_, and_
 from ..database import *
 
 from ..api import api
@@ -110,6 +110,7 @@ def get_data(tokenuser: UserAccount):
                     .label('type'))
             .filter(Sample.current_site_id == tokenuser.site_id)
             .filter(Sample.remaining_quantity > 0)
+            .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
             .distinct(Sample.id)
             .subquery()
     )
@@ -133,6 +134,7 @@ def get_data(tokenuser: UserAccount):
         "basic_statistics": {
             "sample_count": Sample.query.filter(
                 Sample.remaining_quantity > 0,
+                Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]),
                 Sample.current_site_id == tokenuser.site_id,
             ).count(),
             "user_count": UserAccount.query.filter_by(
@@ -187,6 +189,7 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(
                         Sample.remaining_quantity > 0,
+                        Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]),
                         func.date(Sample.created_on)
                         >= datetime.today() - timedelta(days=365),
                         Sample.current_site_id == tokenuser.site_id,
@@ -217,6 +220,7 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(Sample.current_site_id == tokenuser.site_id)
                     .filter(Sample.remaining_quantity > 0)
+                    .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
                     .group_by(Sample.biohazard_level)
                     .all()
                 ]
@@ -229,6 +233,7 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(Sample.current_site_id == tokenuser.site_id)
                     .filter(Sample.remaining_quantity > 0)
+                    .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
                     .group_by(Sample.source)
                     .all()
                 ]
@@ -241,6 +246,7 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(Sample.current_site_id == tokenuser.site_id)
                     .filter(Sample.remaining_quantity > 0)
+                    .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
                     .group_by(Sample.status)
                     .all()
                 ]
