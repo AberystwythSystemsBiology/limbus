@@ -105,6 +105,7 @@ def attribute_new_option(id, tokenuser: UserAccount):
         )
 
     values = request.get_json()
+    values["attribute_id"] = int(id)
 
     if not values:
         return no_values_response()

@@ -24,6 +24,7 @@ from wtforms import (
     DateField,
     BooleanField,
     IntegerField,
+    FloatField,
     TextAreaField,
 )
 
@@ -219,6 +220,7 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
             attributes.append(attr_response.json()["content"])
 
     for attr in attributes:
+        print("attr: ", attr)
         if attr["type"] == "Text":
             if attr["text_setting"]["type"] == "SF":
                 element = StringField(
@@ -253,9 +255,8 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                 coerce=int,
                 render_kw={"_custom_val": True},
             )
-        # else:
-        #     element = IntegerField(attr.term, render_kw={"_custom_val": True})
-
+        elif attr["type"] == "Numeric":
+            element = FloatField(attr["term"], render_kw={"_custom_val": True})
 
         element.render_kw = {"_custom_val": True}
 

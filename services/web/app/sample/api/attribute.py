@@ -24,11 +24,11 @@ from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
 
-from ...database import db, UserAccount, SampleToCustomAttributeData, Sample
+from ...database import db, UserAccount, SampleToCustomAttributeData, Sample, AttributeData
 
 from ...attribute.views import (
     new_attribute_data_schema,
-    new_attribute_option_schema,
+    new_attribute_option_data_schema,
     attribute_data_schema,
 )
 
@@ -47,13 +47,12 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
     if sample_response.status_code != 200:
         return sample_response.content
 
-    if type not in ["text", "option"]:
+    if type not in ["text", "option", "numeric"]:
         return validation_error_response(
-            {"Error": "type must be one of text or option"}
+            {"messages": "type must be one of text or option or numeric"}
         )
 
     values = request.get_json()
-
     if not values:
         return no_values_response()
 
@@ -61,34 +60,39 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
         if type == "text":
             json = new_attribute_data_schema.load(values)
         elif type == "option":
-            json = new_attribute_option_schema.load(values)
+            json = new_attribute_option_data_schema.load(values)
+        else:
+            json = new_attribute_data_schema.load(values)
+
     except ValidationError as err:
         return validation_error_response(err)
 
-    new_attribute_data_response = requests.post(
-        url_for("api.attribute_new_data", type=type, _external=True),
-        headers=get_internal_api_header(tokenuser),
-        json=json,
+
+    attribute_data = AttributeData(**json)
+    attribute_data.author_id = tokenuser.id
+
+    try:
+        db.session.add(attribute_data)
+        db.session.flush()
+        attribute_data_id = attribute_data.id
+    except Exception as err:
+        return transaction_error_response(err)
+
+    stcad = SampleToCustomAttributeData(
+        sample_id=sample_response.json()["content"]["id"],
+        attribute_data_id=attribute_data_id
     )
 
-    if new_attribute_data_response.status_code == 200:
+    stcad.author_id = tokenuser.id
 
-        stcad = SampleToCustomAttributeData(
-            sample_id=sample_response.json()["content"]["id"],
-            attribute_data_id=new_attribute_data_response.json()["content"]["id"],
-        )
+    try:
+        db.session.add(stcad)
+        db.session.commit()
+        return success_with_content_response(json)
 
-        stcad.author_id = tokenuser.id
+    except Exception as err:
+        return transaction_error_response(err)
 
-        try:
-            db.session.add(stcad)
-            db.session.commit()
-            db.session.flush()
-
-            return success_with_content_response({"msg": "custom_attr_data_added"})
-
-        except Exception as err:
-            return transaction_error_response(err)
 
 
 @api.route("/sample/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
