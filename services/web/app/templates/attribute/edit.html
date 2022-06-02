@@ -19,9 +19,6 @@
 </div>
 <div class="container">
 
-
-
-
     <form action="{{ url_for('attribute.edit', id=attribute_id) }}" method="POST">
         {{ form.csrf_token() }}
 
@@ -63,6 +60,7 @@
         </div>
 
     </div>
+
         {{ form_field(form.ref) }}
         {{ form_field(form.description) }}
         {{ form_field(form.type) }}

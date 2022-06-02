@@ -98,6 +98,24 @@ def retrieve_by_label(label: str, subclass_of=None):
 
     return results_dict
 
+def retrieve_by_iri(iri: str, subclass_of=None):
+    if subclass_of in [None, ""]:
+        results = DOID.search(
+            iri=iri, _case_sensitive=False
+        )
+    else:
+        subclass_of = DOID.search_one(iri=subclass_of)
+        results = DOID.search(
+            iri=iri, subclass_of=subclass_of, _case_sensitive=False
+        )
+
+    results_dict = {}
+
+    for thing in results:
+        results_dict[thing.iri] = prepare_instance(thing)
+
+    return results_dict
+
 
 @api.route("/disease/query/validate_label", methods=["GET"])
 @token_required
@@ -130,4 +148,9 @@ def doid_query_by_label(tokenuser: UserAccount):
     if "subclass" not in values:
         values["subclass"] = None
 
-    return success_with_content_response(retrieve_by_label(values["label"], subclass_of=values["subclass"]))
+    if "iri" in values and values["iri"]!="":
+        results = retrieve_by_iri(values["iri"], subclass_of=values["subclass"])
+    else:
+        results = retrieve_by_label(values["label"], subclass_of=values["subclass"])
+
+    return success_with_content_response(results)

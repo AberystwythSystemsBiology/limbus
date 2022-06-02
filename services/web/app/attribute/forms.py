@@ -97,27 +97,34 @@ class DoidValidatingSelectField(SelectField):
             if self.data is not None:
                 raise ValidationError("%s is not a valid DOID iri" % (self.data))
 
+# def AttributeEditForm(data={}, subclasses=[("", "None")]):
+#     class StaticForm(FlaskForm):
+#     #class AttributeEditForm(FlaskForm):
+#         term = StringField(
+#             "Attribute Term",
+#             validators=[DataRequired()],
+#             description="A word or phrase used to describe a thing or to express a concept.",
+#         )
+#         accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+#         ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+#         description = TextAreaField(
+#             "Attribute Description",
+#             description="An optional description of the custom attribute.",
+#         )
+#
+#         submit = SubmitField("Submit")
+#
+#     return StaticForm(data=data)
 
 def AttributeEditForm(data={}, subclasses=[("", "None")]):
-    class StaticForm(FlaskForm):
-    #class AttributeEditForm(FlaskForm):
-        term = StringField(
-            "Attribute Term",
-            validators=[DataRequired()],
-            description="A word or phrase used to describe a thing or to express a concept.",
-        )
-        accession = StringField("Ontology Accession", render_kw={"disabled": ""})
-        ref = StringField("Ontology Reference", render_kw={"disabled": ""})
-        description = TextAreaField(
-            "Attribute Description",
-            description="An optional description of the custom attribute.",
-        )
 
-        submit = SubmitField("Submit")
+    if "accession" in data:
+        onto_terms = [(data["accession"], data["accession"])]
+    else:
+        onto_terms = []
 
-    return StaticForm(data=data)
+    onto_terms.append(["", "None"])
 
-def AttributeEditForm(data={}, subclasses=[("", "None")]):
     class StaticForm(FlaskForm):
         term = StringField(
             "Attribute Term",
@@ -129,7 +136,7 @@ def AttributeEditForm(data={}, subclasses=[("", "None")]):
         subclass = SelectField("Subclasses of DOID", choices=subclasses, default="")
 
         #accession = StringField("Ontology Accession")
-        accession = DoidValidatingSelectField("DOID term", validators=[Optional()])
+        accession = DoidValidatingSelectField("DOID term", choices=onto_terms, validators=[Optional()])
         ref = StringField("Ontology References")
 
         description = TextAreaField(

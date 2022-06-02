@@ -15,8 +15,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-function query_diod(query, subclass=null) {
+function query_diod(query=null, subclass=null, iri=null) {
     var api_url = window.location.origin+ "/donor/disease/api/label_filter";
+    if (iri === null) {
+        var json_query = JSON.stringify({"label": query, "subclass": subclass});
+    }
+    else {
+        var json_query = JSON.stringify({"iri": iri});
+    }
+    console.log("json_query: ", json_query);
 
     var json = (function () {
         var json = null;
@@ -25,15 +32,13 @@ function query_diod(query, subclass=null) {
             'global': false,
             'url': api_url,
             'contentType': 'application/json',
-            'data': JSON.stringify({"label": query, "subclass": subclass}),
+            'data': json_query, //JSON.stringify({"label": query, "subclass": subclass}),
             'success': function (data) {
                 json = data;
             }
         });
         return json;
     })();
-
-
 
     return json;
 }
@@ -54,7 +59,7 @@ function fill_content(disease_info, uri) {
 
 
     $.each(disease_info["references"], function(a, b) {
-        var html = "<a href='" + b["self"] + "'>"
+        var html = "<a href='" + b["self"] + "'>";
         html += "<div class='btn btn-sm' style='margin-right:10px; margin-bottom: 10px;'>"+a+"</div>";
         html += "</a>"
         $("#disease-references").append(html);
@@ -66,9 +71,9 @@ function fill_content(disease_info, uri) {
 function update_accession(diseases) {
     $("#accession").html('');
 
-    $.each(diseases, function(uri, info){
+    $.each(diseases, function(uri, info) {
         $("#accession").append($("<option />").text(info.label).val(uri));
-    })
+    });
 
     $('.selectpicker').selectpicker('refresh');
 
@@ -91,18 +96,24 @@ function validate_form() {
 
 $(document).ready(function () {
 
-    var options = [];
+    var iri = $("#accession").val();
+    if (iri !== null && iri !== "") {
+        var diseases = query_diod(query = null, null, iri)["content"];
+        if (diseases.length > 0) {
+            update_accession(diseases);
+            $("#disease-result").show();
+        }
+    }
 
     $("#disease-search").on("click", function() {
         $("#disease-result").fadeOut();
         var search_query = $("#term").val();
         var subclass = $("#subclass").val();
 
-        console.log("search_query", search_query);
         if (search_query.length > 2) {
             $("#disease-result").fadeOut();
 
-            var diseases = query_diod(search_query, subclass)["content"];
+            var diseases = query_diod(search_query, subclass, null)["content"];
             update_accession(diseases);
 
             $("#disease-result").fadeIn();
