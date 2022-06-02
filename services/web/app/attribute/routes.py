@@ -66,14 +66,18 @@ def data():
 @attribute.route("/new", methods=["GET", "POST"])
 @login_required
 def new():
-    form = AttributeCreationForm()
+    subclasses = [('', "None")]
+    for cls in classes:
+        subclasses.append((cls.iri, '; '.join(cls.label)))
+
+    form = AttributeCreationForm(subclasses=subclasses)
 
     if form.validate_on_submit():
         hash = uuid.uuid4().hex
 
         session["%s attribute_information" % (hash)] = {
             "term": form.term.data,
-            "accession": form.term.data,
+            "accession": form.accession.data,
             "ref": form.ref.data,
             "description": form.description.data,
             "type": form.type.data,
@@ -141,6 +145,9 @@ def new_step_two(hash):
         attribute_type=attribute_type,
     )
 
+from ..disease.owl import load_doid
+
+DOID, obo, doid, classes = load_doid()
 
 @attribute.route("/LIMBATTR-<id>/option/new", methods=["GET", "POST"])
 @login_required
@@ -153,11 +160,16 @@ def new_option(id):
     if response.status_code != 200:
         return response.content
 
-    form = AttributeOptionCreationForm()
+    subclasses = [('', "None")]
+    for cls in classes:
+        subclasses.append((cls.iri, '; '.join(cls.label)))
+
+    form = AttributeOptionCreationForm(subclasses=subclasses)
 
     if form.validate_on_submit():
         option_values = {
             "ref": form.ref.data,
+            # "subclass": form.subclass.data,
             "accession": form.accession.data,
             "term": form.term.data,
         }
@@ -270,6 +282,49 @@ def lock_option(id, option_id):
         return abort(response.status_code)
 
 
+
+@attribute.route("/LIMBATTR-<id>/option/<option_id>/remove", methods=["GET", "POST"])
+@login_required
+def remove_option(id, option_id):
+    response = requests.get(
+        url_for("api.attribute_view_attribute", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if response.status_code == 200:
+        options = [str(c["id"]) for c in response.json()["content"]["options"]]
+        if option_id in options:
+            form = AttributeLockForm(id)
+
+            if form.validate_on_submit():
+                lock_response = requests.post(
+                    url_for(
+                        "api.attribute_remove_option",
+                        id=id,
+                        option_id=option_id,
+                        _external=True,
+                    ),
+                    headers=get_internal_api_header(),
+                )
+
+                if lock_response.status_code == 200:
+                    return redirect(url_for("attribute.view", id=id))
+                else:
+
+                    flash("We have a problem :( %s" % lock_response.json()["message"])
+
+            return render_template(
+                "attribute/remove_option.html",
+                option=response.json()["content"],
+                form=form,
+                attribute_id=id,
+                option_id=option_id,
+            )
+        else:
+            abort(404)
+    else:
+        return abort(response.status_code)
+
 @attribute.route("/LIMBATTR-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(id):
@@ -279,24 +334,28 @@ def edit(id):
     )
 
     if response.status_code == 200:
-        form = AttributeEditForm()
+        subclasses = [('', "None")]
+        for cls in classes:
+            subclasses.append((cls.iri, '; '.join(cls.label)))
+
+        form = AttributeEditForm(data=response.json()["content"], subclasses=subclasses)
         if form.validate_on_submit():
             edit_response = requests.put(
                 url_for("api.attribute_edit_attribute", id=id, _external=True),
                 headers=get_internal_api_header(),
                 json={
-                    "ref": form.ref.data,
                     "term": form.term.data,
-                    "accession": form.accession.data,
                     "description": form.description.data,
+                    "accession": form.accession.data,
+                    "ref": form.ref.data,
                 },
             )
 
             if edit_response.status_code == 200:
                 return redirect(url_for("attribute.view", id=id))
             else:
-                flash("We have encountered an error :( %s" % response.json())
-        form = AttributeEditForm(data=response.json()["content"])
+                flash("We have encountered an error :( %s" % edit_response.json()["message"])
+
         return render_template("attribute/edit.html", attribute_id=id, form=form)
     else:
         return response.content

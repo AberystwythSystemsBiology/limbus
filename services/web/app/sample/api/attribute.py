@@ -100,9 +100,15 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 @token_required
 def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> str:
 
-    sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
+    #sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
+    stad = AttributeData.query.filter_by(id=id).first()
+
+    if not stad:
+        return not_found("attribute data LIMBAD-%s " % id)
+
+    sta = SampleToCustomAttributeData.query.filter_by(attribute_data_id=stad.id).first()
     if not sta:
-        return not_found("sample custom attribute data LIMBSCAD-%s " % id)
+        return not_found("sample custom attribute for LIMBAD-%s " % id)
 
     if uuid:
         sample_uuid = db.session.query(Sample.uuid).filter_by(id=sta.sample_id).scalar()
@@ -111,9 +117,12 @@ def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> 
         if sample_uuid != uuid:
             return validation_error_response("Associated sample uuid not matched")
 
+    stad.update({"editor_id": tokenuser.id})
     sta.update({"editor_id": tokenuser.id})
     try:
         db.session.delete(sta)
+        db.session.flush()
+        db.session.delete(stad)
         db.session.commit()
 
     except ValidationError as err:

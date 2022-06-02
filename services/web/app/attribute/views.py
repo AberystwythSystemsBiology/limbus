@@ -82,6 +82,7 @@ class EditAttributeSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     accession = masql.auto_field()
     ref = masql.auto_field()
+    element_type = EnumField(AttributeElementType)
 
 
 edit_attribute_schema = EditAttributeSchema()
@@ -148,6 +149,9 @@ class AttributeSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     term = masql.auto_field()
     description = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field
+
     author = ma.Nested(UserAccountSearchSchema)
     created_on = fields.Date()
     type = EnumField(AttributeType, by_value=True)
