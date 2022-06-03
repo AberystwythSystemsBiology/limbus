@@ -23,7 +23,6 @@ function query_diod(query=null, subclass=null, iri=null) {
     else {
         var json_query = JSON.stringify({"iri": iri});
     }
-    console.log("json_query: ", json_query);
 
     var json = (function () {
         var json = null;

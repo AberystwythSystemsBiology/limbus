@@ -98,7 +98,7 @@ def retrieve_by_label(label: str, subclass_of=None):
 
     return results_dict
 
-def retrieve_by_iri(iri: str, subclass_of=None):
+def retrieve_by_iri_subclass(iri: str, subclass_of=None):
     if subclass_of in [None, ""]:
         results = DOID.search(
             iri=iri, _case_sensitive=False
@@ -149,7 +149,7 @@ def doid_query_by_label(tokenuser: UserAccount):
         values["subclass"] = None
 
     if "iri" in values and values["iri"]!="":
-        results = retrieve_by_iri(values["iri"], subclass_of=values["subclass"])
+        results = retrieve_by_iri_subclass(values["iri"], subclass_of=values["subclass"])
     else:
         results = retrieve_by_label(values["label"], subclass_of=values["subclass"])
 

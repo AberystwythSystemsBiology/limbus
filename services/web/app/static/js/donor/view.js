@@ -325,7 +325,6 @@ function fill_diagnosis_information(diagnoses, date) {
     //html = ""
     let diag = new Map();
     $.each(diagnoses, function(index, value){
-        console.log('value', value)
         html = ""
         html += "<div class='card' style='border: 2px solid darkgrey ;'>"
         // Start card body
