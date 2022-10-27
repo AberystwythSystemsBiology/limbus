@@ -59,7 +59,7 @@ def func_transaction_summary(audit_tr):
     operations = {}
     chgkeys = {}
     updates = {}
-
+    print("objs: ", len(objs))
     # -- filling missing author/editor info
     if desc1["author"] is None:
         for d in audit_tr:
@@ -89,7 +89,7 @@ def func_transaction_summary(audit_tr):
         operations[object] = list(
             set([d["operation_type"] for d in audit_tr if d["object"] == object])
         )
-        # print("operation ", operations)
+        print("operation ", operations)
         chgks = [
             list(d["change_set"].keys()) for d in audit_tr if d["object"] == object
         ]
@@ -136,7 +136,9 @@ def func_transaction_summary(audit_tr):
                         % (dbids[object]["count"] - 1)
                     )
             elif 2 in operations[object]:  # "Delete"
-                updates[object].append("Sample removal")
+                #smpls=[]
+                smpls = [d["change_set"] for d in audit_tr if d["object"] == object]
+                updates[object].append("Remove sample %s" % smpls)
 
             else:
                 # chgks = chgkeys[object]
@@ -185,13 +187,80 @@ def func_transaction_summary(audit_tr):
         else:
             ops = [OperationType[d] for d in operations[object]]
             updates[object] = ops
+            try:
+                obs = [d["change_set"] for d in audit_tr if d["object"] == object]
+                updates[object].append(list(set(obs)))
+            except:
+                pass
+
+    # -- Sample --
+    # new sample, new sample given donor consent, new sample given study reference
+    # update sample basic info
+    # remove sample (shallow) (deep)
+    # STB: sample storage to rack
+    # STS: sample storage to shelf
+    # BTS: rack storage
+    # Batch storage (STB):
+    # Remove from storage
+    # Batch Remove fromm storage
+    # New sample shipment
+    # Update sample shipment
+    # Update sample shipment status
+    # Close sample shipment
+    # Update sample status
+    # -- sample protocol event
+    # new/update/delete sample acquisition/processing/derivation/aliquot
+    # new/update/delete sample review/disposal instruction
+    # batch new/update/delete sample review/disposal instruction
+    #
+    # -- Donor --
+    # New donor
+    # New donor consent
+    # New donor diagnosis
+    # Remove/Update donor diagnosis
+    # Remove donor
+    #
+    # {"Sample":["New sample [['Urine', 'Other', 15.0]]"]}
+
+    print("updates: ", updates)
+    # pretty = {"call": "", "details": ""}
+    # if True:
+    #     keys = set(updates.keys())
+    #     print(keys)
+    #     if keys == {"Sample"}:
+    #         info = updates["Sample"]
+    #         print("info: ", info)
+    #         if "new sample" in str(info).lower():
+    #             pretty["call"] = "New sample"
+    #             pretty["details"] = str(info).replace("[", "").replace("]", "")
+    #         elif "remove" in str(info):
+    #             pretty["call"] = "Remove sample"
+    #             pretty["details"] = str(info).replace("[", "").replace("]", "")
+    #         elif "update" in str(info):
+    #             pretty["call"] = "Update sample info"
+    #             pretty["details"] = str(info).replace("[", "").replace("]", "")
+
+
+        # elif keys == {"Sample", "DonorProtocolEvent"}:
+        #     info = updates["Sample"]
+        #     pretty["call"] = ""
+        #     pretty["details"] = info
+        # elif keys == {"DonorProtocolEvent", "Event", "SampleConsent"}:
+        #     info = updates["SampleConsent"]
+        #     if "insert" in str(info).lower():
+        #         pretty["call"] = "New sample consent with study reference"
+        #     elif "update" in str(info).lower():
+        #         pretty["call"] = "Update sample consent with study reference"
+        #
+        #     pretty["details"] = "Sample"
 
     desc1["operation_type"] = operations
     desc1["id"] = dbids
     desc1["uuid"] = uuids
     desc1["change_set"] = updates
+    #desc1["details"] = pretty
     desc1.pop("changed_to", None)
-    # print("desc1,", desc1)
+    print("desc1,", desc1)
     return desc1
 
 
@@ -211,6 +280,7 @@ def func_transactions_summary(audit_trail):
     print("Generating summary ...")
     ntr = 0
     for tr in sorted_trail + [None]:
+        # print("tr:   ", tr)
         if tr is not None:
             tr_id_cur = tr["transaction_id"]
         else:
