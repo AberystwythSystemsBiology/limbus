@@ -440,10 +440,11 @@ def func_rack_vacancies(num_rows, num_cols, occupancies=None):
     return vacancies
 
 
-def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
+def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupancies=None):
     # TODO: allow change of fillopt
-    fillopt = {"column_first": True, "num_channels": 0}
-
+    fillopt = {"column_first": True, "num_channels": 0, "skip_holes": True}
+    # fillopt["column_first"] = False
+    print(fillopt)
     n_samples = len(samples)
     try:
         pos = [(samples[k]["row"], samples[k]["col"]) for k in range(n_samples)]
@@ -453,16 +454,43 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
 
     k = 0
 
+    col_ini = 1
+    row_ini = 1
+    print("occupancies ", occupancies)
+    if occupancies is not None and len(occupancies)>0:
+        if fillopt["skip_holes"] is True:
+            if fillopt["column_first"] is True:
+                col_ids = [op[1] for op in occupancies]
+                col_max = max(col_ids)
+                row_ids = [op[0] for op in occupancies if op[1] == col_max]
+                row_max = max(row_ids)
+
+            else:
+                row_ids = [op[0] for op in occupancies]
+                row_max = max(row_ids)
+                col_ids = [op[1] for op in occupancies if op[0] == row_max]
+                col_max = max(col_ids)
+
+            col_ini = col_max
+            row_ini = row_max
+
+    print("col i: ", col_ini)
+    print("row i: ", row_ini)
+    n_assigned = 0
     if fillopt["column_first"]:
-        for col in range(1, num_cols + 1):
+        for col in range(col_ini, num_cols + 1):
             channel_cnt = 0
-            col_pos = [(j, col) for j in range(1, num_rows + 1)]
+            if col==col_ini:
+                col_pos = [(j, col) for j in range(row_ini, num_rows + 1)]
+            else:
+                col_pos = [(j, col) for j in range(1, num_rows + 1)]
+
             if fillopt["num_channels"] > 0:
                 # If the row is not fully empty, skip this row
                 if len(set(col_pos).intersect(set(vacancies))) > 0:
                     continue
 
-            for row in range(1, num_rows + 1):
+            for row in range(row_ini, num_rows + 1):
                 if k == n_samples:
                     col = num_cols
                     break
@@ -479,31 +507,37 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
                     # go for next row
 
     else:
-        # TODO
-        for row in range(1, num_rows + 1):
+        # ROW FIRST
+        for row in range(row_ini, num_rows + 1):
             channel_cnt = 0
-            row_pos = [(row, j) for j in range(1, num_cols + 1)]
+            if row == row_ini:
+                row_pos = [(row, j) for j in range(num_cols + 1, col_ini)]
+            else:
+                row_pos = [(row, j) for j in range(1, num_cols + 1)]
+
+            #row_pos = [(row, j) for j in range(1, num_cols + 1)]
             if fillopt["num_channels"] > 0:
                 # If the row is not fully empty, skip this row
                 if len(set(row_pos).intersect(set(vacancies))) > 0:
                     continue
 
-            for col in range(1, num_cols + 1):
+            for col in range(col_ini, num_cols + 1):
                 if k == n_samples:
                     row = num_rows
                     break
 
                 if (row, col) in vacancies:
                     sample_id = samples[k]["id"]
-                    samples[k].update({"row": row, "col": col})
+                    samples[k].update({"row": row, "col": col, "pos": (row, col)})
                     k = k + 1
                     channel_cnt = channel_cnt + 1
                     if channel_cnt == fillopt["num_channels"]:
-                        col = num_cols  # go for next row
-                elif fillopt["num_channels"] > 0:
-                    col = num_cols  # go for next row
+                        col = num_cols  # go for next col
 
-    return samples
+                elif fillopt["num_channels"] > 0:
+                    col = num_cols  # go for next col
+
+    return samples, k
 
 
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
@@ -581,9 +615,13 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
             )
 
         try:
-            samples = func_rack_fill_with_samples(
-                samples, num_rows, num_cols, vacancies
+            samples, n_assigned = func_rack_fill_with_samples(
+                samples, num_rows, num_cols, vacancies, occupancies
             )
+            if n_assigned < len(samples):
+                err = {"messages": "Current fill option can assign only %d samples!"% n_assigned}
+                return validation_error_response(err)
+
         except:
             err = {"messages": "Errors in assigning a rack position to samples!"}
             return validation_error_response(err)
