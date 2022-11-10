@@ -17,6 +17,7 @@ from flask import url_for
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
+    IntegerField,
     SubmitField,
     TextAreaField,
     DateField,
@@ -49,6 +50,8 @@ class NewShelfForm(FlaskForm):
 
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
+        compartment_row = IntegerField("Compartment (row_id)", default=0)
+        compartment_col = IntegerField("Compartment (col_id)", default=0)
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )
@@ -96,6 +99,8 @@ def RackToShelfForm(racks: list) -> FlaskForm:
 
 def RacksToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
+        compartment_row = IntegerField("Compartment (row_id)", default=0)
+        compartment_col = IntegerField("Compartment (col_id)", default=0)
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )

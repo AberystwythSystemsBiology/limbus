@@ -97,6 +97,9 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
             render_kw={"class": "form-control"},  # bd-light"}
         )
 
+        compartment_row = IntegerField("Compartment (row/A-Z)", default=0)
+        compartment_col = IntegerField("Compartment (col/number)", default=0)
+
         submit = SubmitField("Register")
 
     # print(str(StaticForm(data=data).data))
@@ -105,6 +108,8 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
 
 def EditRackToShelfForm(shelves: list) -> FlaskForm:
     class StaticForm(FlaskForm):
+        compartment_row = IntegerField("Compartment (row_id)", default=None)
+        compartment_col = IntegerField("Compartment (col_id)", blank=True, null=True, default=None)
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )

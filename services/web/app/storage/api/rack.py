@@ -440,10 +440,10 @@ def func_rack_vacancies(num_rows, num_cols, occupancies=None):
     return vacancies
 
 
-def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupancies=None):
-    # TODO: allow change of fillopt
-    fillopt = {"column_first": True, "num_channels": 0, "skip_holes": True}
-    # fillopt["column_first"] = False
+def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupancies=None, fillopt=None):
+    if fillopt is None:
+        fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
+
     print(fillopt)
     n_samples = len(samples)
     try:
@@ -458,7 +458,7 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupanc
     row_ini = 1
     print("occupancies ", occupancies)
     if occupancies is not None and len(occupancies)>0:
-        if fillopt["skip_holes"] is True:
+        if fillopt["skip_gaps"] is True:
             if fillopt["column_first"] is True:
                 col_ids = [op[1] for op in occupancies]
                 col_max = max(col_ids)
@@ -489,7 +489,8 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupanc
                 # If the row is not fully empty, skip this row
                 if len(set(col_pos).intersect(set(vacancies))) > 0:
                     continue
-
+            if col > col_ini:
+                row_ini = 1
             for row in range(row_ini, num_rows + 1):
                 if k == n_samples:
                     col = num_cols
@@ -521,6 +522,8 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupanc
                 if len(set(row_pos).intersect(set(vacancies))) > 0:
                     continue
 
+            if row > row_ini:
+                col_ini = 1
             for col in range(col_ini, num_cols + 1):
                 if k == n_samples:
                     row = num_rows
@@ -560,6 +563,11 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     rack_id = int(values["rack_id"])
 
     samples = values["samples"]
+    print("values: ", values)
+    fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
+    fillopt["column_first"] = values.pop("fillopt_column_first", True)
+    fillopt["skip_gaps"] = values.pop("fillopt_skip_gaps", True)
+
     commit = False
     if "commit" in values and values["commit"]:
         commit = True
@@ -616,7 +624,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
 
         try:
             samples, n_assigned = func_rack_fill_with_samples(
-                samples, num_rows, num_cols, vacancies, occupancies
+                samples, num_rows, num_cols, vacancies, occupancies, fillopt
             )
             if n_assigned < len(samples):
                 err = {"messages": "Current fill option can assign only %d samples!"% n_assigned}

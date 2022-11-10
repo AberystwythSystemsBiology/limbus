@@ -614,10 +614,12 @@ function fill_sample_pos(api_url, sampletostore, commit) {
 
 function dragndrop_rack_view() {
        $("#confirm_position").hide();
-       $("#cancel_change").hide();
+       //$("#cancel_change").hide();
+       $("#cancel_change").show();
 
        $("#submit_sampletorack").fadeTo(1000, 0.3, function() { $(this).fadeTo(500, 1.0); });
        $("#submit_sampletorack").show();
+
 
 
         var dispopt = $("input[name='dispopt']:checked").val();
@@ -658,7 +660,7 @@ function dragndrop_rack_view() {
                 tmp.replaceWith(drag_target);
 
                 $("#confirm_position").show();
-                $("#cancel_change").hide();
+                $("#cancel_change").show();
                 $("#submit_sampletorack").hide();
 
                 if (dispopt == 'id') {
@@ -856,7 +858,7 @@ $(document).ready(function () {
     if (from_file==true)
         $("#cancel_change").show();
     else {
-        $("#cancel_change").hide();
+        $("#cancel_change").show();
         dragndrop_rack_view();
         $("#submit_sampletorack").show()
 

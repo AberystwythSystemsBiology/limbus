@@ -37,6 +37,15 @@
                 </div>
             </div>
             {{ form_field(form.entered_by) }}
+            <div class="row-md" style="background-color:lightgrey">
+                <legend class="col-form-label">Layout Options</legend>
+                <div class="col-md">
+                {{ form_field(form.fillopt_column_first) }}
+                {{ form_field(form.fillopt_skip_gaps) }}
+                </div>
+
+            </div>
+
 
             <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="Second group">

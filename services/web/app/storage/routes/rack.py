@@ -712,6 +712,8 @@ def assign_rack_samples(id):
                             )
                         ),
                         "entry": form.entered_by.data,
+                        "fillopt_column_first": form.fillopt_column_first.data,
+                        "fillopt_skip_gaps": form.fillopt_skip_gaps.data,
                     },
                 )
 
