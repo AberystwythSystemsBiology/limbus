@@ -28,7 +28,7 @@ from wtforms import (
     DateField,
     TimeField,
 )
-from wtforms.validators import DataRequired, NumberRange
+from wtforms.validators import DataRequired, NumberRange, Optional
 from datetime import datetime
 from ...sample.enums import Colour
 
@@ -97,8 +97,9 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
             render_kw={"class": "form-control"},  # bd-light"}
         )
 
-        compartment_row = IntegerField("Compartment (row/A-Z)", default=0)
-        compartment_col = IntegerField("Compartment (col/number)", default=0)
+        letters = [(0, "None")]+[(i, chr(ord('A') + (i-1))) for i in range(1,27)]
+        compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
+        compartment_col = IntegerField("Compartment (>1)", validators=[Optional(), NumberRange(min=1)])
 
         submit = SubmitField("Register")
 
@@ -133,6 +134,18 @@ def EditRackToShelfForm(shelves: list) -> FlaskForm:
         StaticForm,
         "shelf_id",
         SelectField("Cold Storage Shelf", choices=shelf_choices, coerce=int),
+    )
+
+    letters = [(0, "None")] + [(i, chr(ord('A') + (i - 1))) for i in range(1, 27)]
+    setattr(
+        StaticForm,
+        "compartment_row",
+        SelectField("Compartment (A-Z)", choices=letters, coerce=int),
+    )
+    setattr(
+        StaticForm,
+        "compartment_col",
+        SelectField("Compartment (>1)", validators=[Optional(), NumberRange(min=1)]),
     )
 
     return StaticForm()

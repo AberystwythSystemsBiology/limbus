@@ -910,7 +910,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     # Step 1: SampleRack update
     # Step 2: If shelf_id exist, EntityToStorage update.
     values = request.get_json()
-    # print('values: ', values)
+    print('values: ', values)
     if not values:
         return no_values_response()
 
@@ -923,6 +923,9 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     shelf_id = values["shelf_id"]
     values.pop("storage_id")
     values.pop("shelf_id")
+    row = values.pop("compartment_row", None)
+    col = values.pop("compartment_col", None)
+
     try:
         result = new_sample_rack_schema.load(values)
     except ValidationError as err:
@@ -947,6 +950,8 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 
     if stored:
         storage.shelf_id = shelf_id
+        storage.row = row
+        storage.col = col
         storage.editor_id = tokenuser.id
         storage.updated_on = func.now()
 
@@ -955,6 +960,8 @@ def storage_rack_edit(id, tokenuser: UserAccount):
         storage_values = {
             "shelf_id": shelf_id,
             "rack_id": rack.id,
+            "row": row,
+            "col": col,
             "storage_type": "BTS",
         }
         storage = EntityToStorage(**storage_values)
@@ -1048,6 +1055,8 @@ def storage_rack_location(id, tokenuser: UserAccount):
                 "uuid": uuid,
                 "storage_id": None,
                 "shelf_id": None,
+                "compartment_row": None,
+                "compartment_col": None,
             }
             for (rackid, serial_number, description, uuid) in [stmt.first()]
         ][0]
@@ -1066,13 +1075,13 @@ def storage_rack_location(id, tokenuser: UserAccount):
                 SampleRack.id == id,
                 EntityToStorage.removed.is_(False),
             )
-            .with_entities(EntityToStorage.id, EntityToStorage.shelf_id)
+            .with_entities(EntityToStorage.id, EntityToStorage.shelf_id, EntityToStorage.row, EntityToStorage.col)
         )
 
         if stmt1.count() > 0:
             result1 = [
-                {"storage_id": storage_id, "shelf_id": shelf_id}
-                for (storage_id, shelf_id) in [stmt1.first()]
+                {"storage_id": storage_id, "shelf_id": shelf_id, "compartment_row": row, "compartment_col": col}
+                for (storage_id, shelf_id, row, col) in [stmt1.first()]
             ][0]
             result.update(result1)
 

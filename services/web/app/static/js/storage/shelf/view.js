@@ -74,7 +74,7 @@ function render_rack_table(racks) {
             dom: 'Bfrtip',
             buttons: [ 'print', 'csv', 'colvis' ],
             columnDefs: [
-                { targets: -3,
+                { targets: -4,
                 visible:false}, { targets: -2, visible: false}
             ],
             columns: [
@@ -106,7 +106,35 @@ function render_rack_table(racks) {
                         return data["uuid"];
                     }
                 },
-                
+
+                { // compartment
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        var compartment = "";
+                        if (data["rack_to_shelf"]!=null) {
+                            try {
+                                if (data["rack_to_shelf"]["row"] != null) {
+                                    compartment = data["rack_to_shelf"]["row"];
+                                    compartment = num2alpha(parseInt(compartment));
+                                }
+                            } catch (err) {
+                                console.log(err);
+                            }
+
+                            try {
+                                if (data["rack_to_shelf"]["col"] != null) {
+/*                                    if (compartment != "") {
+                                        compartment += ".";
+                                    }*/
+                                    compartment += data["rack_to_shelf"]["col"].toString();
+                                }
+                            } catch (err) {
+                                console.log(err);
+                            }
+                        }
+                        return compartment;
+                    }
+                },
                 {
                     "mData" : {},
                     "mRender": function (data, type, row) {

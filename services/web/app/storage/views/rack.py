@@ -125,6 +125,34 @@ class SampleRackSchema(masql.SQLAlchemySchema):
 
 rack_schema = SampleRackSchema()
 
+class EntityToStorageSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    sample_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    shelf_id = masql.auto_field()
+    storage_type = masql.auto_field()
+    row = masql.auto_field()
+    col = masql.auto_field()
+    entry_datetime = ma.Date()
+    entry = masql.auto_field()
+    removed = masql.auto_field()
+
+
+class RackToShelfSearchSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = EntityToStorage
+
+    #sample_id = masql.auto_field()
+    rack_id = masql.auto_field()
+    shelf_id = masql.auto_field()
+    #storage_type = masql.auto_field()
+    row = masql.auto_field()
+    col = masql.auto_field()
+    # entry_datetime = ma.Date()
+    # entry = masql.auto_field()
+    removed = masql.auto_field()
 
 class BasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:
@@ -139,6 +167,7 @@ class BasicSampleRackSchema(masql.SQLAlchemySchema):
     author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
     shelf = ma.Nested(ShelfViewSchema)
+    rack_to_shelf = ma.Nested(RackToShelfSearchSchema)
 
     # entity_to_storage_instances = ma.Method(deserialize="_sample_count")
 

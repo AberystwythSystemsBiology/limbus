@@ -105,6 +105,9 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
     if len(rack_ids) == 0:
         return no_values_response()
 
+    compartment_row = values.pop("compartment_row", None)
+    compartment_col = values.pop("compartment_col", None)
+
     for rack_id in rack_ids:
         rack_values = values
         rack_values["rack_id"] = rack_id
@@ -117,7 +120,7 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
 
         etss = (
             EntityToStorage.query.filter_by(
-                rack_id=values["rack_id"], storage_type="BTS"
+                rack_id=values["rack_id"], storage_type="BTS",
             )
             .order_by(EntityToStorage.removed)
             .all()
@@ -134,6 +137,8 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
                     else:
                         ets.removed = False
                         ets.shelf_id = rack_values["shelf_id"]
+                        ets.row = compartment_row
+                        ets.col = compartment_col
                         ets.update({"editor_id": tokenuser.id})
                         db.session.add(ets)
 
@@ -144,6 +149,8 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
             ets = EntityToStorage(**rack_to_shelf_result)
             ets.author_id = tokenuser.id
             ets.storage_type = "BTS"
+            ets.row = compartment_row
+            ets.col = compartment_col
             db.session.add(ets)
 
             try:

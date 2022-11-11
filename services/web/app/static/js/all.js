@@ -320,6 +320,14 @@ function doi2url(code="") {
         return code
 }
 
+function num2alpha(num) {
+   if(num < 1 || num > 26 || typeof num !== 'number'){
+      return num;
+   }
+   const leveller = 64;
+   //since actually A is represented by 65 and we want to represent it with one
+   return String.fromCharCode(num + leveller);
+};
 
 function get_greeting() {
   var api_url = encodeURI(window.location.origin+'/api/misc/greeting');

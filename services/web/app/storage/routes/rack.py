@@ -1017,6 +1017,7 @@ def edit_rack(id):
 
             # shelf_required = len(shelves) > 0
 
+        print("rack: ", rack)
         form = EditSampleRackForm(
             sites=sites,
             shelves=shelves,
@@ -1025,6 +1026,8 @@ def edit_rack(id):
                 "description": rack["description"],
                 "storage_id": rack["storage_id"],
                 "shelf_id": rack["shelf_id"],
+                "compartment_row": rack["compartment_row"],
+                "compartment_col": rack["compartment_col"],
             },
         )
 
@@ -1039,11 +1042,21 @@ def edit_rack(id):
             if shelf_id == 0:
                 shelf_id = None
 
+            compartment_row = form.compartment_row.data
+            compartment_col = form.compartment_col.data
+
+            if compartment_row == 0:
+                compartment_row = None
+            if compartment_col == 0:
+                compartment_col = None
+
             form_information = {
                 "serial_number": form.serial.data,
                 "description": form.description.data,
                 "storage_id": form.storage_id.data,
                 "shelf_id": shelf_id,
+                "compartment_row": compartment_row,
+                "compartment_col": compartment_col,
             }
 
             edit_response = requests.put(
