@@ -101,18 +101,21 @@ def get_data(tokenuser: UserAccount):
 
 
     """
-    sample_type_q = (db.session.query(Sample)
-            .join(SampleToType)
-            .with_entities(
-                func.concat(SampleToType.fluid_type,
-                    SampleToType.cellular_type,
-                    SampleToType.molecular_type)
-                    .label('type'))
-            .filter(Sample.current_site_id == tokenuser.site_id)
-            .filter(Sample.remaining_quantity > 0)
-            .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
-            .distinct(Sample.id)
-            .subquery()
+    sample_type_q = (
+        db.session.query(Sample)
+        .join(SampleToType)
+        .with_entities(
+            func.concat(
+                SampleToType.fluid_type,
+                SampleToType.cellular_type,
+                SampleToType.molecular_type,
+            ).label("type")
+        )
+        .filter(Sample.current_site_id == tokenuser.site_id)
+        .filter(Sample.remaining_quantity > 0)
+        .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
+        .distinct(Sample.id)
+        .subquery()
     )
 
     ST = {st.name: st.value for st in FluidSampleType}
@@ -120,12 +123,14 @@ def get_data(tokenuser: UserAccount):
     ST2 = {st.name: st.value for st in MolecularSampleType}
     ST.update(ST1)
     ST.update(ST2)
-    sample_type = [(ST[type], count)
-        for (type, count) in
-            db.session.query(sample_type_q.c.type, func.count(sample_type_q.c.type))
-            .group_by(sample_type_q.c.type)
-            .all()
-        ]
+    sample_type = [
+        (ST[type], count)
+        for (type, count) in db.session.query(
+            sample_type_q.c.type, func.count(sample_type_q.c.type)
+        )
+        .group_by(sample_type_q.c.type)
+        .all()
+    ]
 
     data = {
         "name": SiteInformation.query.filter_by(is_external=False, id=tokenuser.site_id)

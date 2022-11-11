@@ -289,7 +289,9 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
             validators=[DataRequired()],
         )
         checked = "checked"
-        fillopt_column_first = BooleanField("Column first (uncheck for row first)", render_kw={"checked": checked})
+        fillopt_column_first = BooleanField(
+            "Column first (uncheck for row first)", render_kw={"checked": checked}
+        )
         fillopt_skip_gaps = BooleanField("Skip gaps", render_kw={"checked": checked})
 
         submit = SubmitField("Submit")

@@ -24,7 +24,13 @@ from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
 
-from ...database import db, UserAccount, SampleToCustomAttributeData, Sample, AttributeData
+from ...database import (
+    db,
+    UserAccount,
+    SampleToCustomAttributeData,
+    Sample,
+    AttributeData,
+)
 
 from ...attribute.views import (
     new_attribute_data_schema,
@@ -67,7 +73,6 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
     except ValidationError as err:
         return validation_error_response(err)
 
-
     attribute_data = AttributeData(**json)
     attribute_data.author_id = tokenuser.id
 
@@ -80,7 +85,7 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 
     stcad = SampleToCustomAttributeData(
         sample_id=sample_response.json()["content"]["id"],
-        attribute_data_id=attribute_data_id
+        attribute_data_id=attribute_data_id,
     )
 
     stcad.author_id = tokenuser.id
@@ -94,13 +99,12 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
         return transaction_error_response(err)
 
 
-
 @api.route("/sample/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
 @api.route("/sample/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
 @token_required
 def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> str:
 
-    #sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
+    # sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
     stad = AttributeData.query.filter_by(id=id).first()
 
     if not stad:

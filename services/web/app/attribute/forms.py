@@ -84,6 +84,7 @@ class EnumFromOntology:
     def choices(self):
         return [(term.id, term.name) for term in self.ontology_list]
 
+
 class DoidValidatingSelectField(SelectField):
     def pre_validate(self, form):
         print("self data", self.data)
@@ -96,6 +97,7 @@ class DoidValidatingSelectField(SelectField):
         if iri_repsonse.status_code != 200:
             if self.data is not None:
                 raise ValidationError("%s is not a valid DOID iri" % (self.data))
+
 
 # def AttributeEditForm(data={}, subclasses=[("", "None")]):
 #     class StaticForm(FlaskForm):
@@ -116,6 +118,7 @@ class DoidValidatingSelectField(SelectField):
 #
 #     return StaticForm(data=data)
 
+
 def AttributeEditForm(data={}, subclasses=[("", "None")]):
 
     if "accession" in data:
@@ -135,8 +138,10 @@ def AttributeEditForm(data={}, subclasses=[("", "None")]):
         # ref = StringField("Ontology Reference", render_kw={"disabled": ""})
         subclass = SelectField("Subclasses of DOID", choices=subclasses, default="")
 
-        #accession = StringField("Ontology Accession")
-        accession = DoidValidatingSelectField("DOID term", choices=onto_terms, validators=[Optional()])
+        # accession = StringField("Ontology Accession")
+        accession = DoidValidatingSelectField(
+            "DOID term", choices=onto_terms, validators=[Optional()]
+        )
         ref = StringField("Ontology References")
 
         description = TextAreaField(
@@ -146,7 +151,7 @@ def AttributeEditForm(data={}, subclasses=[("", "None")]):
         type = StringField(
             "Attribute Type",
             description="The 'type' of data this attribute should represent.",
-            render_kw={'readonly': True}
+            render_kw={"readonly": True},
         )
 
         element_type = SelectField(
@@ -157,6 +162,7 @@ def AttributeEditForm(data={}, subclasses=[("", "None")]):
         submit = SubmitField("Submit")
 
     return StaticForm(data=data)
+
 
 def AttributeCreationForm(data={}, subclasses=[("", "None")]):
     class StaticForm(FlaskForm):
@@ -169,7 +175,7 @@ def AttributeCreationForm(data={}, subclasses=[("", "None")]):
         # ref = StringField("Ontology Reference", render_kw={"disabled": ""})
         subclass = SelectField("Subclasses of DOID", choices=subclasses, default="")
 
-        #accession = StringField("Ontology Accession")
+        # accession = StringField("Ontology Accession")
         accession = DoidValidatingSelectField("DOID term", validators=[Optional()])
         ref = StringField("Ontology References")
 
@@ -233,11 +239,10 @@ def AttributeOptionCreationForm(subclasses=[("", "None")]):
         accession = DoidValidatingSelectField("DOID term", validators=[Optional()])
 
         # accession = StringField("Ontology Accession", render_kw={"disabled": ""})
-        ref = StringField("Ontology References") #, render_kw={"disabled": ""})
+        ref = StringField("Ontology References")  # , render_kw={"disabled": ""})
         submit = SubmitField("Submit")
 
     return StaticForm()
-
 
 
 def AttributeLockForm(id):

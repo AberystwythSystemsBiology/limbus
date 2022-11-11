@@ -120,7 +120,8 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
 
         etss = (
             EntityToStorage.query.filter_by(
-                rack_id=values["rack_id"], storage_type="BTS",
+                rack_id=values["rack_id"],
+                storage_type="BTS",
             )
             .order_by(EntityToStorage.removed)
             .all()

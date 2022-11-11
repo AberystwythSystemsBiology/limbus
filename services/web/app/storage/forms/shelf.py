@@ -50,9 +50,11 @@ class NewShelfForm(FlaskForm):
 
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        letters = [(0, "None")]+[(i, chr(ord('A') + (i-1))) for i in range(1,27)]
+        letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
         compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
-        compartment_col = IntegerField("Compartment (>1)", validators=[Optional(), NumberRange(min=1)])
+        compartment_col = IntegerField(
+            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+        )
 
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
@@ -102,9 +104,11 @@ def RackToShelfForm(racks: list) -> FlaskForm:
 
 def RacksToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-        letters = [(0, "None")]+[(i, chr(ord('A') + (i-1))) for i in range(1,27)]
+        letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
         compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
-        compartment_col = IntegerField("Compartment (>1)", validators=[Optional(), NumberRange(min=1)])
+        compartment_col = IntegerField(
+            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+        )
 
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()

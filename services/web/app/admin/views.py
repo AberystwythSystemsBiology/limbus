@@ -40,7 +40,7 @@ from ..database import (
     ColdStorage,
     ColdStorageService,
     ColdStorageShelf,
-    SampleRack
+    SampleRack,
 )
 
 from ..protocol.views import BasicProtocolTemplateSchema
@@ -969,8 +969,8 @@ class AuditBasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     uuid = masql.auto_field()
     description = masql.auto_field()
     z = masql.auto_field()
-    #samples = ma.Nested(BasicSampleSchema, many=True)
-    #racks = ma.Nested(BasicSampleRackSchema, many=True)
+    # samples = ma.Nested(BasicSampleSchema, many=True)
+    # racks = ma.Nested(BasicSampleRackSchema, many=True)
     is_locked = masql.auto_field()
     storage_id = masql.auto_field()
 
@@ -982,6 +982,7 @@ class AuditBasicColdStorageShelfSchema(masql.SQLAlchemySchema):
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("ColdStorageShelf")
+
 
 class AuditBasicSampleRackSchema(masql.SQLAlchemySchema):
     class Meta:

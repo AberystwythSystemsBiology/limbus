@@ -23,7 +23,7 @@ from flask import (
     jsonify,
     Response,
     flash,
-    current_app
+    current_app,
 )
 from flask_login import current_user, login_required
 
@@ -165,6 +165,7 @@ def alpha2num(s):
         num = num + (ord(s[-(i + 1)]) - 96) * (26 * i + 1)
     return num
 
+
 def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     data = {}
     csv_data = []
@@ -252,7 +253,9 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 "message": "File uploading error!",
             }
 
-    csvpath = tempfile.NamedTemporaryFile(dir = os.path.join(current_app.config["TMP_DIRECTORY"]), delete=False)
+    csvpath = tempfile.NamedTemporaryFile(
+        dir=os.path.join(current_app.config["TMP_DIRECTORY"]), delete=False
+    )
     csvf.save(csvpath.name)
 
     header = None
@@ -260,7 +263,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         error = None
         try:
             print("code: ", code)
-            with open(csvpath.name, newline='', encoding = code) as file:
+            with open(csvpath.name, newline="", encoding=code) as file:
                 # print("dialect: ", csv.list_dialects())
                 # dialect: ['excel', 'excel-tab', 'unix']
                 dialect = csv.Sniffer().sniff(file.read())
@@ -270,7 +273,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                     for row in csv_file:
                         print("row", row)
                         if header is None:
-                            header =  row
+                            header = row
                         else:
                             csv_data.append(row)
                 except:
@@ -285,7 +288,6 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     if os.path.exists(csvpath.name):
         os.remove(csvpath.name)
 
-
     if error:
         if error == "encode":
             return {
@@ -299,17 +301,13 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 "message": "File reading error! Make sure the file is in csv format!",
             }
 
-
     if len(csv_data) < 2:
         return {
             "success": False,
             "message": "File reading error! Check if the file format is comma separated, with headers",
         }
 
-    header = [
-        nm.lower().replace('"', "").replace("'", "")
-        for nm in header
-    ]
+    header = [nm.lower().replace('"', "").replace("'", "") for nm in header]
     # print("nrows, Header", len(csv_data[0]), csv_data[0])
     print("header", header)
     indexes = {}
@@ -424,11 +422,13 @@ def rack_create_from_file():
         samples = []
         for s in _samples["positions"].items():
             smpl = s[1]
-            smpl.update({
+            smpl.update(
+                {
                     "sample_code": s[1][barcode_type],
                     "row": alpha2num(s[0][0]),
                     "col": int(s[0][1 : len(s[0])]),
-                })
+                }
+            )
             samples.append(smpl)
 
         rack_entry = {
@@ -867,11 +867,13 @@ def update_rack_samples(id):
             for s in _samples["positions"].items():
                 # e.g. s=['B1', {'position': 'B1', 'barcode': '12345', 'uuid': 'edf77b31-ba28-4b3a-98d2-f9c058c3a865'}]
                 smpl = s[1]
-                smpl.update({
-                    "sample_code": s[1][barcode_type],
-                    "row": alpha2num(s[0][0]),
-                    "col": int(s[0][1: len(s[0])]),
-                })
+                smpl.update(
+                    {
+                        "sample_code": s[1][barcode_type],
+                        "row": alpha2num(s[0][0]),
+                        "col": int(s[0][1 : len(s[0])]),
+                    }
+                )
                 samples.append(smpl)
 
             rack_data = {

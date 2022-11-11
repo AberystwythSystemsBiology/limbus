@@ -175,6 +175,7 @@ class NewAttributeDataSchema(masql.SQLAlchemySchema):
 
 new_attribute_data_schema = NewAttributeDataSchema()
 
+
 class NewAttributeOptionDataSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeData
@@ -184,6 +185,7 @@ class NewAttributeOptionDataSchema(masql.SQLAlchemySchema):
 
 
 new_attribute_option_data_schema = NewAttributeOptionDataSchema()
+
 
 class AttributeDataSchema(masql.SQLAlchemySchema):
     class Meta:
