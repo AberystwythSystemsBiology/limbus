@@ -22,8 +22,9 @@ from ..api.responses import *
 from ..auth.models import UserAccount
 
 from owlready2.entity import ThingClass
+from owlready2 import Thing
 
-DOID, obo = load_doid()
+DOID, obo, doid, subclasses = load_doid()
 
 
 def prepare_instance(thing: ThingClass):
@@ -80,11 +81,29 @@ def retrieve_by_iri(iri: str) -> dict:
     return thing
 
 
-def retrieve_by_label(label: str):
-    # results = DOID.search(label="*%s" % (label), subclass_of=obo.DOID_4)
-    results = DOID.search(
-        label="*%s*" % (label), subclass_of=obo.DOID_4, _case_sensitive=False
-    )
+def retrieve_by_label(label: str, subclass_of=None):
+    if subclass_of in [None, ""]:
+        results = DOID.search(label="*%s*" % (label), _case_sensitive=False)
+    else:
+        subclass_of = DOID.search_one(iri=subclass_of)
+        results = DOID.search(
+            label="*%s*" % (label), subclass_of=subclass_of, _case_sensitive=False
+        )
+
+    results_dict = {}
+
+    for thing in results:
+        results_dict[thing.iri] = prepare_instance(thing)
+
+    return results_dict
+
+
+def retrieve_by_iri_subclass(iri: str, subclass_of=None):
+    if subclass_of in [None, ""]:
+        results = DOID.search(iri=iri, _case_sensitive=False)
+    else:
+        subclass_of = DOID.search_one(iri=subclass_of)
+        results = DOID.search(iri=iri, subclass_of=subclass_of, _case_sensitive=False)
 
     results_dict = {}
 
@@ -122,4 +141,14 @@ def doid_query_by_label(tokenuser: UserAccount):
     if not values:
         return no_values_response()
 
-    return success_with_content_response(retrieve_by_label(values["label"]))
+    if "subclass" not in values:
+        values["subclass"] = None
+
+    if "iri" in values and values["iri"] != "":
+        results = retrieve_by_iri_subclass(
+            values["iri"], subclass_of=values["subclass"]
+        )
+    else:
+        results = retrieve_by_label(values["label"], subclass_of=values["subclass"])
+
+    return success_with_content_response(results)

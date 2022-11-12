@@ -35,7 +35,6 @@ function get_rack_information() {
 }
 
 
-
 function render_rack_table(racks) {
     if (racks.length > 0) {
 
@@ -96,6 +95,35 @@ function render_rack_table(racks) {
                             render_html += "  " + data["shelf"]["name"];
                         }
                         return render_html;
+                    }
+                },
+
+                { // compartment
+                    "mData": {},
+                    "mRender": function(data, type,row) {
+                        var compartment = "";
+                        if (data["rack_to_shelf"]!=null) {
+                            try {
+                                if (data["rack_to_shelf"]["row"] != null) {
+                                    compartment = data["rack_to_shelf"]["row"];
+                                    compartment = num2alpha(parseInt(compartment));
+                                }
+                            } catch (err) {
+                                console.log(err);
+                            }
+
+                            try {
+                                if (data["rack_to_shelf"]["col"] != null) {
+/*                                    if (compartment != "") {
+                                        compartment += ".";
+                                    }*/
+                                    compartment += data["rack_to_shelf"]["col"].toString();
+                                }
+                            } catch (err) {
+                                console.log(err);
+                            }
+                        }
+                        return compartment;
                     }
                 },
 

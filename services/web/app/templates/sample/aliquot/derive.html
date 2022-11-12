@@ -138,12 +138,19 @@
     </table>
 
     <div class="row">
-        <div class="col-9">
+        <div class="col-6">
             <botton class="btn btn-secondary" id="remove_zero_switch" type="hidden">
                 <input id="remove_zero_on" type="checkbox" checked>
                 <span style="color:red ; " type="hidden"> Uncheck to keep the parent sample of zero quantity in the storage.</span>
             </botton>
         </div>
+        <div class="col-3">
+        <div name="new" id="new-bottom" class="btn btn-primary float-left">
+            <i class="fa fa-plus"></i> Add
+        </div>
+      </div>
+
+
       <div class="col-3">
         <button id="submit" class="btn btn-primary float-right">Submit</button>
       </div>
@@ -177,7 +184,7 @@
             <div class="modal-body">
                 <p>Please ensure that the following are correct.</p>
 
-                <p>If successful, you will be returned to the Sample view page of the Parent Sample. Scroll down to see
+                <p id="confirm-message">If successful, you will be returned to the Sample view page of the Parent Sample. Scroll down to see
                     newly derived samples.</p>
             </div>
             <div class="modal-footer">

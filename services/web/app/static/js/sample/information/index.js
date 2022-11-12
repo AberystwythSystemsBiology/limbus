@@ -124,7 +124,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
         return [0, 1].indexOf(x) < 0; //exclude select/user_cart columns
     });
 
-    let inv_cols = [3, 6, 7, 11, 16, 17, 18]; //[1, 2, 5, 6, 10, -1]; ;
+    let inv_cols = [3, 6, 7, 11, 15, 16, 17, 18]; //[1, 2, 5, 6, 10, -1]; ;
     if (hide_cols.length > 0) {
         inv_cols = inv_cols.concat(hide_cols);
     }
@@ -331,7 +331,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
                     if (data["base_type"] == "Fluid") {
                         return sample_type_information["fluid_type"];
                     } else if (data["base_type"] == "Cell") {
-                        return sample_type_information["cellular_type"] + " > " + sample_type_information["tissue_type"];
+                        return sample_type_information["cellular_type"] + " > " + sample_type_information["fixation_type"];
                     } else if (data["base_type"] == "Molecular") {
                         return sample_type_information["molecular_type"];
                     }
@@ -360,6 +360,29 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
                     col_data += data["remaining_quantity"] + "/" + data["quantity"] + get_metric(data["base_type"]);
                     col_data += '</span>';
                     return col_data
+                }
+            },
+
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var col_data = "";
+                    if (data["attributes"] != undefined && data["attributes"].length > 0) {
+                        data["attributes"].forEach( function(att) {
+                            if (col_data != "") {
+                                col_data +=" | ";
+                            }
+                            col_data += att["attribute"]["term"] + ": ";
+                            if (att["data"] != undefined && att["data"] != null) {
+                                col_data += att["data"];
+                            }
+                            if (att["option"] != undefined && att["option"] != null) {
+                                col_data += att["option"]["term"];
+                            }
+
+                        })
+                    }
+                    return col_data;
                 }
             },
 
@@ -396,6 +419,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
             },
 
         ],
+
 
     });
 
@@ -469,6 +493,7 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
+    //console.log("filter: ", filters)
     //render_table({});
     render_table(filters);
     
@@ -483,6 +508,7 @@ $(document).ready(function() {
         $("#table_view").fadeOut();
         $('#sampleTable').DataTable().destroy();
         var filters = get_filters();
+        //console.log("filter: ", filters)
         render_table(filters);
     });
 

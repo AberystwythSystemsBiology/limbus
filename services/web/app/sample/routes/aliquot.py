@@ -150,4 +150,5 @@ def derive_endpoint(uuid: str):
     if derive_response.status_code == 200:
         return derive_response.json(), derive_response.status_code
 
-    return derive_response.content, derive_response.status_code
+    print("json", derive_response.json())
+    return derive_response.json()  # , derive_response.status_code

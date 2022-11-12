@@ -24,10 +24,11 @@ from wtforms import (
     DateField,
     BooleanField,
     IntegerField,
+    FloatField,
     TextAreaField,
 )
 
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 from ..validators import validate_against_text
 
 from ..misc import get_internal_api_header
@@ -84,47 +85,117 @@ class EnumFromOntology:
         return [(term.id, term.name) for term in self.ontology_list]
 
 
-class AttributeEditForm(FlaskForm):
-    term = StringField(
-        "Attribute Term",
-        validators=[DataRequired()],
-        description="A word or phrase used to describe a thing or to express a concept.",
-    )
-    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
-    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
-    description = TextAreaField(
-        "Attribute Description",
-        description="An optional description of the custom attribute.",
-    )
+class DoidValidatingSelectField(SelectField):
+    def pre_validate(self, form):
+        print("self data", self.data)
+        iri_repsonse = requests.get(
+            url_for("api.doid_validate_by_iri", _external=True),
+            headers=get_internal_api_header(),
+            json={"iri": self.data},
+        )
 
-    submit = SubmitField("Submit")
+        if iri_repsonse.status_code != 200:
+            if self.data is not None:
+                raise ValidationError("%s is not a valid DOID iri" % (self.data))
 
 
-class AttributeCreationForm(FlaskForm):
+# def AttributeEditForm(data={}, subclasses=[("", "None")]):
+#     class StaticForm(FlaskForm):
+#     #class AttributeEditForm(FlaskForm):
+#         term = StringField(
+#             "Attribute Term",
+#             validators=[DataRequired()],
+#             description="A word or phrase used to describe a thing or to express a concept.",
+#         )
+#         accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+#         ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+#         description = TextAreaField(
+#             "Attribute Description",
+#             description="An optional description of the custom attribute.",
+#         )
+#
+#         submit = SubmitField("Submit")
+#
+#     return StaticForm(data=data)
 
-    term = StringField(
-        "Attribute Term",
-        validators=[DataRequired()],
-        description="A word or phrase used to describe a thing or to express a concept.",
-    )
-    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
-    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
-    description = TextAreaField(
-        "Attribute Description",
-        description="An optional description of the custom attribute.",
-    )
-    type = SelectField(
-        "Attribute Type",
-        choices=AttributeType.choices(),
-        description="The 'type' of data this attribute should represent.",
-    )
-    element_type = SelectField(
-        "Element Type",
-        choices=AttributeElementType.choices(),
-        description="If required, you can limit what can use this attribute.",
-    )
 
-    submit = SubmitField("Submit")
+def AttributeEditForm(data={}, subclasses=[("", "None")]):
+
+    if "accession" in data:
+        onto_terms = [(data["accession"], data["accession"])]
+    else:
+        onto_terms = []
+
+    onto_terms.append(["", "None"])
+
+    class StaticForm(FlaskForm):
+        term = StringField(
+            "Attribute Term",
+            validators=[DataRequired()],
+            description="A word or phrase used to describe a thing or to express a concept.",
+        )
+        # accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+        # ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+        subclass = SelectField("Subclasses of DOID", choices=subclasses, default="")
+
+        # accession = StringField("Ontology Accession")
+        accession = DoidValidatingSelectField(
+            "DOID term", choices=onto_terms, validators=[Optional()]
+        )
+        ref = StringField("Ontology References")
+
+        description = TextAreaField(
+            "Attribute Description",
+            description="An optional description of the custom attribute.",
+        )
+        type = StringField(
+            "Attribute Type",
+            description="The 'type' of data this attribute should represent.",
+            render_kw={"readonly": True},
+        )
+
+        element_type = SelectField(
+            "Element Type",
+            choices=AttributeElementType.choices(),
+            description="If required, you can limit what can use this attribute.",
+        )
+        submit = SubmitField("Submit")
+
+    return StaticForm(data=data)
+
+
+def AttributeCreationForm(data={}, subclasses=[("", "None")]):
+    class StaticForm(FlaskForm):
+        term = StringField(
+            "Attribute Term",
+            validators=[DataRequired()],
+            description="A word or phrase used to describe a thing or to express a concept.",
+        )
+        # accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+        # ref = StringField("Ontology Reference", render_kw={"disabled": ""})
+        subclass = SelectField("Subclasses of DOID", choices=subclasses, default="")
+
+        # accession = StringField("Ontology Accession")
+        accession = DoidValidatingSelectField("DOID term", validators=[Optional()])
+        ref = StringField("Ontology References")
+
+        description = TextAreaField(
+            "Attribute Description",
+            description="An optional description of the custom attribute.",
+        )
+        type = SelectField(
+            "Attribute Type",
+            choices=AttributeType.choices(),
+            description="The 'type' of data this attribute should represent.",
+        )
+        element_type = SelectField(
+            "Element Type",
+            choices=AttributeElementType.choices(),
+            description="If required, you can limit what can use this attribute.",
+        )
+        submit = SubmitField("Submit")
+
+    return StaticForm(data=data)
 
 
 class AttributeTextSetting(FlaskForm):
@@ -155,15 +226,23 @@ class CustomNumericAttributionCreationForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
-class AttributeOptionCreationForm(FlaskForm):
-    term = StringField(
-        "Option Term",
-        validators=[DataRequired()],
-        description="A word or phrase used to describe a thing or to express a concept.",
-    )
-    accession = StringField("Ontology Accession", render_kw={"disabled": ""})
-    ref = StringField("Ontology Reference", render_kw={"disabled": ""})
-    submit = SubmitField("Submit")
+def AttributeOptionCreationForm(subclasses=[("", "None")]):
+    class StaticForm(FlaskForm):
+        # class AttributeOptionCreationForm(FlaskForm, subclasses=[(0, "None")]):
+        term = StringField(
+            "Option Term",
+            validators=[DataRequired()],
+            description="A word or phrase used to describe a thing or to express a concept.",
+        )
+
+        subclass = SelectField("Subclasses of DOID", choices=subclasses)
+        accession = DoidValidatingSelectField("DOID term", validators=[Optional()])
+
+        # accession = StringField("Ontology Accession", render_kw={"disabled": ""})
+        ref = StringField("Ontology References")  # , render_kw={"disabled": ""})
+        submit = SubmitField("Submit")
+
+    return StaticForm()
 
 
 def AttributeLockForm(id):
@@ -219,6 +298,7 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
             attributes.append(attr_response.json()["content"])
 
     for attr in attributes:
+        print("attr: ", attr)
         if attr["type"] == "Text":
             if attr["text_setting"]["type"] == "SF":
                 element = StringField(
@@ -230,6 +310,7 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                     ],
                     render_kw={"_custom_val": True},
                 )
+
             else:
                 element = TextAreaField(
                     attr["term"],
@@ -253,6 +334,9 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
                 coerce=int,
                 render_kw={"_custom_val": True},
             )
+        elif attr["type"] == "Numeric":
+            element = FloatField(attr["term"], render_kw={"_custom_val": True})
+            ontology
 
         element.render_kw = {"_custom_val": True}
 

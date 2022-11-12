@@ -77,6 +77,8 @@
     <h2>Information</h2>
     <table class="table table-striped">
         {{ show_value(attribute.description, "Description", "textarea") }}
+        {{ show_value(attribute.accession, "DOID term", "textarea") }}
+        {{ show_value(attribute.ref, "Ontology references", "textarea") }}
         {{ show_value(attribute.type, "Type", "textarea") }}
         {{ show_value(attribute.element_type, "Elements", "textarea") }}
     </table>
@@ -96,9 +98,11 @@
         <thead>
             <tr>
                 <th>Term</th>
+                <th>DOID term</th>
+                <th>References</th>
                 <th>Uploader</th>
                 <th>Created On</th>
-                <th>Status</th>
+{#                <th>Status</th>#}
                 <th>Actions</th>
             </tr>
         </thead>
@@ -106,14 +110,25 @@
             {% for option in attribute.options %}
             <tr {% if option.is_locked %}style="color:red;" {% endif %}>
                 <td>{{ option.term }}</td>
+                <td>{{ option.accession }}</td>
+                <td>{{ option.ref }}</td>
                 <td>{{ render_author_for_table(option.author) }}</td>
                 <td>{{ option.created_on }}</td>
                 <td>
                     <a href="{{ url_for('attribute.lock_option', id=attribute.id, option_id=option.id) }}">
-                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}btn-danger{% endif %}">
+                        <div class="btn btn-sm {% if option.is_locked %}btn-success{% else %}alert-warning{% endif %}">
                             <i class="fa fa-lock"></i>
                         {% if option.is_locked %}Unl{% else %}L{% endif %}ock</div>
                     </a>
+                    {% if not option.is_locked %}
+                    <a href="{{ url_for('attribute.remove_option', id=attribute.id, option_id=option.id) }}">
+                        <div class="btn btn-sm btn-danger">
+                            <i class="fa fa-trash"></i> Remove
+                        </div>
+                    </a>
+
+                    {% endif %}
+
                 </td>
             </tr>
             {% endfor %}

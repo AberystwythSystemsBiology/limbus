@@ -288,6 +288,12 @@ def SamplesToEntityForm(samples: list) -> FlaskForm:
             description="The initials of the person that entered the sample.",
             validators=[DataRequired()],
         )
+        checked = "checked"
+        fillopt_column_first = BooleanField(
+            "Column first (uncheck for row first)", render_kw={"checked": checked}
+        )
+        fillopt_skip_gaps = BooleanField("Skip gaps", render_kw={"checked": checked})
+
         submit = SubmitField("Submit")
 
     default_choices = [int(s[0]) for s in samples_choices if int(s[0]) > 0]

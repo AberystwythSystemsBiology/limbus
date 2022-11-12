@@ -311,7 +311,7 @@ function get_filters() {
     var filters = {};
 
     var f = ["start_date", "end_date",
-        "audit_type", "sample_object", "donor_object", "template_object",
+        "audit_type", "general_object", "sample_object", "donor_object", "template_object",
         "auth_object", "storage_object", //"site_id",
         "user_id", "uuid"];
 
@@ -395,7 +395,7 @@ $(document).ready(function() {
         $("#table_view").fadeOut();
         $('#auditTable').DataTable().destroy();
         var filters = get_filters();
-        // console.log("filters: ", filters);
+        //console.log("filters: ", filters);
         render_table(filters);
     });
 

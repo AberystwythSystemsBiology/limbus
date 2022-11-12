@@ -289,12 +289,22 @@ def assign_racks_to_shelf(id):
             form = RacksToShelfForm(racks)
 
             if form.validate_on_submit():
+                compartment_row = form.compartment_row.data
+                compartment_col = form.compartment_col.data
+
+                if compartment_row == 0:
+                    compartment_row = None
+                if compartment_col == 0:
+                    compartment_col = None
+
                 rack_move_response = requests.post(
                     url_for("api.storage_transfer_racks_to_shelf", _external=True),
                     headers=get_internal_api_header(),
                     json={
                         "rack_id": form.racks.data,
                         "shelf_id": id,
+                        "compartment_row": compartment_row,
+                        "compartment_col": compartment_col,
                         "entry_datetime": str(
                             datetime.strptime(
                                 "%s %s" % (form.date.data, form.time.data),

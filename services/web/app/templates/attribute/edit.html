@@ -19,18 +19,59 @@
 </div>
 <div class="container">
 
-
-
-
     <form action="{{ url_for('attribute.edit', id=attribute_id) }}" method="POST">
         {{ form.csrf_token() }}
 
         {{ form_field(form.term) }}
-        {{ form_field(form.description) }}
-        {{ form_field(form.ref) }}
+        <div class="row">
+        <div class="col-10">
+            {{ form_field(form.subclass) }}
+        </div>
+
+        <div class="col-2">
+                <div style="padding-bottom:2rem; display:block;"></div>
+                <div id="disease-search" class="btn btn-primary full-width">
+                    <i class="fa fa-search"></i> Search
+                </div>
+        </div>
+        </div>
+
         {{ form_field(form.accession) }}
+    <div id="disease-result" class="jumbotron disease-view" style="display:none;">
+        <div class="container">
+            <h2>
+                <span id="disease-name"></span>
+                <span id="doid-label" class="btn-sm btn-danger label label-default pull-right">
+                    <span id="doid-id"></span>
+                </h2>
+
+
+            <h3>Description</h3>
+            <div id="disease-description"></div>
+
+            <h3>Synonyms</h3>
+
+            <div id="synonym-btns" class="btn-toolbar"></div>
+
+            <h3>References</h3>
+
+            <div id="disease-references" class="btn-toolbar"></div>
+
+        </div>
+
+    </div>
+
+        {{ form_field(form.ref) }}
+        {{ form_field(form.description) }}
+        {{ form_field(form.type) }}
+
+        {{ form_field(form.element_type) }}
         {{ form_field(form.submit) }}
     </form>
 
 </div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/attribute/add/option.js') }}"></script>
 {% endblock %}

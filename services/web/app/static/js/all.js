@@ -16,17 +16,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 function get_metric(type) {
-  if (type == "Fluid") {
+  if (type === "Fluid" || type === "FLU") {
       var metric = "mL";
   }
-  else if (type == "Molecular") {
+  else if (type === "Molecular" || type === "MOL") {
       var metric = "μg/mL";
   }
   else {
-      var metric = "Cell(s)"
+      var metric = "Cell(s)";
   }
 
-  return metric
+  return metric;
 }
 
 // Not in use
@@ -320,6 +320,14 @@ function doi2url(code="") {
         return code
 }
 
+function num2alpha(num) {
+   if(num < 1 || num > 26 || typeof num !== 'number'){
+      return num;
+   }
+   const leveller = 64;
+   //since actually A is represented by 65 and we want to represent it with one
+   return String.fromCharCode(num + leveller);
+};
 
 function get_greeting() {
   var api_url = encodeURI(window.location.origin+'/api/misc/greeting');
@@ -355,12 +363,15 @@ function uuid_search(query) {
         'data': JSON.stringify(query),
         'success': function (data) {
             json = data;
+        },
+        'error': function (r, m, err) {
+            json={"success": false, "message": "Error in query, e.g. invalid input or server error. "};
         }
     });
     return json;
   })();
 
-  return json["content"];
+  return json;
 }
 
 
@@ -378,12 +389,19 @@ $(document).ready(function(){
     if(e.key == "Enter") {
         jQuery(this).blur();
         var result = uuid_search({"uuid": this.value});
-        if (result.length > 0) {
-          window.location.href = result[0]["_links"]["self"]
-        }
-        else {
-          $("#sample-uuid-search-not-found-placeholder").html(this.value);
-          $("#uuid-search-modal-not-found").modal('show');
+
+        if (result["success"]===false) {
+            $("#sample-uuid-search-not-found-placeholder").html(result["message"] + this.value);
+            $("#uuid-search-modal-not-found").modal('show');
+
+        } else {
+            result = result["content"];
+            if (result.length > 0) {
+                window.location.href = result[0]["_links"]["self"]
+            } else {
+                $("#sample-uuid-search-not-found-placeholder").html(this.value);
+                $("#uuid-search-modal-not-found").modal('show');
+            }
         }
     }
   });

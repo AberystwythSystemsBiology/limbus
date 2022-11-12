@@ -101,6 +101,37 @@ def get_data(tokenuser: UserAccount):
 
 
     """
+    sample_type_q = (
+        db.session.query(Sample)
+        .join(SampleToType)
+        .with_entities(
+            func.concat(
+                SampleToType.fluid_type,
+                SampleToType.cellular_type,
+                SampleToType.molecular_type,
+            ).label("type")
+        )
+        .filter(Sample.current_site_id == tokenuser.site_id)
+        .filter(Sample.remaining_quantity > 0)
+        .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
+        .distinct(Sample.id)
+        .subquery()
+    )
+
+    ST = {st.name: st.value for st in FluidSampleType}
+    ST1 = {st.name: st.value for st in CellSampleType}
+    ST2 = {st.name: st.value for st in MolecularSampleType}
+    ST.update(ST1)
+    ST.update(ST2)
+    sample_type = [
+        (ST[type], count)
+        for (type, count) in db.session.query(
+            sample_type_q.c.type, func.count(sample_type_q.c.type)
+        )
+        .group_by(sample_type_q.c.type)
+        .all()
+    ]
+
     data = {
         "name": SiteInformation.query.filter_by(is_external=False, id=tokenuser.site_id)
         .first()
@@ -108,6 +139,7 @@ def get_data(tokenuser: UserAccount):
         "basic_statistics": {
             "sample_count": Sample.query.filter(
                 Sample.remaining_quantity > 0,
+                Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]),
                 Sample.current_site_id == tokenuser.site_id,
             ).count(),
             "user_count": UserAccount.query.filter_by(
@@ -162,6 +194,7 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(
                         Sample.remaining_quantity > 0,
+                        Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]),
                         func.date(Sample.created_on)
                         >= datetime.today() - timedelta(days=365),
                         Sample.current_site_id == tokenuser.site_id,
@@ -172,16 +205,17 @@ def get_data(tokenuser: UserAccount):
                 ]
             ),
             "sample_type": prepare_for_chart_js(
-                [
-                    (type.value, count)
-                    for (type, count) in db.session.query(
-                        Sample.base_type, func.count(Sample.base_type)
-                    )
-                    .filter(Sample.current_site_id == tokenuser.site_id)
-                    .filter(Sample.remaining_quantity > 0)
-                    .group_by(Sample.base_type)
-                    .all()
-                ]
+                sample_type
+                # [
+                #     (type.value, count)
+                #     for (type.value, count) in db.session.query(
+                #         Sample.base_type, func.count(Sample.base_type)
+                #     )
+                #     .filter(Sample.current_site_id == tokenuser.site_id)
+                #     .filter(Sample.remaining_quantity > 0)
+                #     .group_by(Sample.base_type)
+                #     .all()
+                # ]
             ),
             "sample_biohazard": prepare_for_chart_js(
                 [
@@ -191,6 +225,7 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(Sample.current_site_id == tokenuser.site_id)
                     .filter(Sample.remaining_quantity > 0)
+                    .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
                     .group_by(Sample.biohazard_level)
                     .all()
                 ]
@@ -203,10 +238,11 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(Sample.current_site_id == tokenuser.site_id)
                     .filter(Sample.remaining_quantity > 0)
+                    .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
                     .group_by(Sample.source)
                     .all()
                 ]
-            ),  # SampleSource
+            ),
             "sample_status": prepare_for_chart_js(
                 [
                     (type.value, count)
@@ -215,10 +251,11 @@ def get_data(tokenuser: UserAccount):
                     )
                     .filter(Sample.current_site_id == tokenuser.site_id)
                     .filter(Sample.remaining_quantity > 0)
+                    .filter(Sample.status.in_([SampleStatus.AVA, SampleStatus.TMP]))
                     .group_by(Sample.status)
                     .all()
                 ]
-            ),  # SampleSource
+            ),
         },
         "storage_statistics": {},
         "attribute_statistics": {

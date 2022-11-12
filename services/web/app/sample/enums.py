@@ -166,16 +166,20 @@ class ConsentWithdrawalRequester(FormEnum):
     UNK = "Unknown"
 
 
+# Solid Sample Type (SPREC-3)
 class CellSampleType(FormEnum):
+    # BON = "Bone"
     CEN = "Fresh cells from non-blood specimen type"
     CLN = "Cells from non-blood specimen type, viable"
     FNA = "Cells from fine needle aspirate"
     HAR = "Hair"
     LCM = "Cells from laser capture microdissected tissue"
+    # NAL = "Neils"
     PEN = "Cells from non-blood specimen type (e.g. dissociated tissue), non viable"
     PLC = "Placenta"
     TIS = "Solid tissue"
     TCM = "Disrupted tissue, non-viable"
+    # TTH = "Teeth"
     ZZZ = "Other"
 
 
@@ -257,9 +261,15 @@ class CellContainer(FormEnum):
     Y = "Original Container @ -85 to -18°C"
     X = "Not specified"
     Z = "Other"
-    Z1 = "falcon tube 50 mL"
-    Z2 = "biobank tube 300 uL"
-    Z3 = "biobank tube 600 uL"
+    # Z1 = "falcon tube 50 mL"
+    # Z2 = "biobank tube 300 uL"
+    # Z3 = "biobank tube 600 uL"
+    # Code specific to HDUHB
+    Z5 = "Falcon tube 15 ml @ -85 to -60°C"
+    Z1 = "Falcon tube 50 ml @ -85 to -60°C"
+    Z2 = "Greiner Cryo.s Biobank tube 300 μL @ -85 to -60°C"
+    Z3 = "Greiner Cryo.s Biobank tube 600 μL @ -85 to -60°C"
+    Z4 = "Greiner Cryo.s Biobank tube 1000 μL @ -85 to -60°C"
 
 
 class ContainerBaseType(FormEnum):
@@ -302,9 +312,15 @@ class LongTermStorage(FormEnum):
     Y = "Original Container @ -85 to -18°C"
     X = "Unknown"
     Z = "Other"
-    Z1 = "falcon tube 50 mL"
-    Z2 = "biobank tube 300 uL"
-    Z3 = "biobank tube 600 uL"
+    # Z1 = "falcon tube 50 mL"
+    # Z2 = "biobank tube 300 uL"
+    # Z3 = "biobank tube 600 uL"
+    # Code specific to HDUHB
+    Z5 = "Falcon tube 15 ml @ -85 to -60°C"
+    Z1 = "Falcon tube 50 ml @ -85 to -60°C"
+    Z2 = "Greiner Cryo.s Biobank tube 300 μL @ -85 to -60°C"
+    Z3 = "Greiner Cryo.s Biobank tube 600 μL @ -85 to -60°C"
+    Z4 = "Greiner Cryo.s Biobank tube 1000 μL @ -85 to -60°C"
 
 
 class AccessStatus(FormEnum):

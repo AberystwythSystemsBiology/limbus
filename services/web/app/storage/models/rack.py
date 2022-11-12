@@ -44,6 +44,14 @@ class SampleRack(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         viewonly=True,
     )
 
+    rack_to_shelf = db.relationship(
+        "EntityToStorage",
+        secondary="coldstorageshelf",
+        primaryjoin="and_(ColdStorageShelf.id==EntityToStorage.shelf_id, EntityToStorage.storage_type=='BTS', "
+        "EntityToStorage.removed==False, EntityToStorage.rack_id==SampleRack.id)",
+        uselist=False,
+        viewonly=True,
+    )
     # samples = db.relationship(
     #     "Sample",
     #     secondary="entitytostorage",

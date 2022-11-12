@@ -110,8 +110,6 @@ def query_basic():
     print("api call sampl_query_basic took %0.3f ms" % (td1.microseconds / 1000))
 
     if response.status_code == 200:
-        # compress json data
-        # return compress_response(response.json())
         return response.json()
     else:
         abort(response.status_code)

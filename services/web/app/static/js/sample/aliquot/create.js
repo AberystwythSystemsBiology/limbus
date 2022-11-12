@@ -185,6 +185,7 @@ function fill_sample_info() {
     $("#original_quantity").attr("value", parseFloat(sample["quantity"]));
     $("#remaining_metric").html(get_metric(sample["base_type"]));
     $("#original_metric").html(get_metric(sample["base_type"]));
+    $("#aliquot_metric").html(get_metric(sample["base_type"]));
 
 
     if (sample["base_type"] == "Cell") {
@@ -209,6 +210,7 @@ function subtract_quantity() {
     update_graph();
 
     $("#submit").hide();
+    $("#add-bottom").hide();
     $("#remove_zero_switch").hide();
     if (remaining_qty_cur < 0) {
         $("#quantityalert").show();
@@ -219,6 +221,7 @@ function subtract_quantity() {
         $("#quantityalert").hide();
         //$("#submit").attr("disabled", false);
         $("#submit").show();
+        $("#add-bottom").show();
         if (remaining_qty_cur == 0)
             $("#remove_zero_switch").show();
     }

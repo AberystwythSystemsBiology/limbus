@@ -105,6 +105,8 @@ def attribute_new_option(id, tokenuser: UserAccount):
         )
 
     values = request.get_json()
+    values["attribute_id"] = int(id)
+    print("values: ", values)
 
     if not values:
         return no_values_response()
@@ -265,6 +267,32 @@ def attribute_lock_option(id, option_id, tokenuser: UserAccount):
     db.session.flush()
 
     # TODO: Replace with an actual attribute option schema.
+    return success_with_content_response(new_attribute_option_schema.dump(option))
+
+
+@api.route("/attribute/LIMBATTR-<id>/option/<option_id>/remove", methods=["POST"])
+@token_required
+def attribute_remove_option(id, option_id, tokenuser: UserAccount):
+    option = AttributeOption.query.filter_by(id=option_id, attribute_id=id).first()
+
+    if not option:
+        return {"success": False, "messages": "There's an issue here"}, 417
+
+    # option.is_locked = not option.is_locked
+    option_data = AttributeData.query.filter_by(option_id=option_id)
+
+    if option_data.count() > 0:
+        return in_use_response("attribute option")
+
+    option.editor_id = tokenuser.id
+
+    try:
+        db.session.delete(option)
+        db.session.commit()
+
+    except Exception as err:
+        return transaction_error_response(err)
+
     return success_with_content_response(new_attribute_option_schema.dump(option))
 
 

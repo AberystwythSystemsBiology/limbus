@@ -619,7 +619,7 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    # print("filters", filters)
+    print("filters", filters)
     # -- To exclude empty samples in the index list
     joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
@@ -683,6 +683,7 @@ def sample_query(args, tokenuser: UserAccount):
     filter_site_id = filters.pop("current_site_id", None)
 
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
+    print("stmt1 count: ", stmt.count())
     if filter_site_id:
         stmt = stmt.join(UserAccount, UserAccount.id == Sample.author_id).filter(
             or_(
@@ -700,7 +701,8 @@ def sample_query(args, tokenuser: UserAccount):
         #                 UserAccount.site_id == filter_site_id)
         #         )
 
-        # print("stmt 0 - ", stmt.count())
+        print("stmt 0 - ", stmt.count())
+        print("filters: ", filters)
 
         # -- adding samples in the user cart ready for storage or shipping
         # if filter_site_id:
@@ -708,8 +710,6 @@ def sample_query(args, tokenuser: UserAccount):
             db.session.query(UserCart.sample_id)
             .join(Sample, Sample.id == UserCart.sample_id)
             .join(UserAccount, UserAccount.id == Sample.author_id)
-            .filter_by(**filters)
-            .filter(*joins)
             .filter(
                 or_(
                     Sample.current_site_id == tokenuser.site_id,
@@ -721,6 +721,12 @@ def sample_query(args, tokenuser: UserAccount):
             )
             .distinct(Sample.id)
         )
+        stmt_cart = (
+            db.session.query(Sample.id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter(Sample.id.in_(stmt_cart))
+        )
 
     else:
         stmt_cart = (
@@ -729,8 +735,14 @@ def sample_query(args, tokenuser: UserAccount):
             .filter_by(**filters)
             .filter(*joins)
         )
+        stmt_cart = (
+            db.session.query(Sample.id)
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter(Sample.id.in_(stmt_cart))
+        )
 
-    # print("stmt cart - ", stmt_cart.count())
+    print("stmt cart - ", stmt_cart.count())
     if stmt_cart.count() > 0:
         if filter_site_id:
             stmt_cart = stmt_cart.filter(
@@ -740,9 +752,9 @@ def sample_query(args, tokenuser: UserAccount):
                 )
             ).distinct(Sample.id)
 
-    # print("stmt cart - ", stmt_cart.count())
+    print("stmt cart 1- ", stmt_cart.count())
     stmt = stmt.union(stmt_cart)
-    # print("stmt 1 - ", stmt.count())
+    print("stmt +cart - ", stmt.count())
 
     # -- adding sample of 0 quantity but stay in storage
     stmt_zeros = (
@@ -753,12 +765,19 @@ def sample_query(args, tokenuser: UserAccount):
         .filter(Sample.remaining_quantity == 0)
         .distinct(Sample.id)
     )
-    stmt_zeros = stmt_zeros.filter_by(**filters).filter(*joins0)
+    # stmt_zeros.filter_by(**filters).filter(*joins0)
+    stmt_zeros = (
+        db.session.query(Sample.id)
+        .filter(Sample.id.in_(stmt_zeros))
+        .filter_by(**filters)
+        .filter(*joins0)
+    )
 
     if filter_site_id:
         stmt_zeros = stmt_zeros.filter(Sample.current_site_id == filter_site_id)
 
     stmt = stmt.union(stmt_zeros)
+    print("stmt zeos2", stmt.count())
     # stmt = stmt.filter_by(**filters).filter(*joins)
 
     if flag_consent_status:
@@ -793,7 +812,7 @@ def sample_query(args, tokenuser: UserAccount):
 
     stmt = db.session.query(Sample).filter(Sample.id.in_(stmt))
     stmt = stmt.distinct(Sample.id).order_by(Sample.id.desc())
-
+    # print("stmt 11", stmt.count())
     time1 = datetime.now()
     td1 = time1 - time0
     print("db query took %0.3f ms" % (td1.microseconds / 1000))

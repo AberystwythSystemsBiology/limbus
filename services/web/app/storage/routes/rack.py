@@ -23,6 +23,7 @@ from flask import (
     jsonify,
     Response,
     flash,
+    current_app,
 )
 from flask_login import current_user, login_required
 
@@ -30,7 +31,7 @@ from .. import storage
 
 from string import ascii_uppercase
 import itertools
-import re, csv
+import re, csv, os
 from datetime import datetime
 import requests
 from ...misc import get_internal_api_header
@@ -47,6 +48,7 @@ from ..forms import (
     UpdateRackFileUploadForm,
 )
 from datetime import datetime
+import tempfile
 
 # def iter_all_strings():
 #     for size in itertools.count(1):
@@ -165,60 +167,139 @@ def alpha2num(s):
 
 
 def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
-
     data = {}
-    try:
-        reads = request.files[csvfile.name].read().decode().strip()
-    except:
-        try:
-            reads = request.files[csvfile].read().decode().strip()
-        except:
-            return {
-                "success": False,
-                "message": "File reading error! Make sure the file is in csv format!",
-            }
-
-    if reads.startswith("'") and reads.endswith("'"):
-        reads = reads[1:-1]
-
     csv_data = []
 
     expected_barcode = ["tube barcode", "barcode"]
     expected_uuid = ["identifier", "uuid"]
     expected_pos = ["tube position", "position", "pos"]
-    resplit = re.compile(",")
-    for linesep in ["\n", "\r\n", "\r"]:
-        csvdata = reads.split(linesep)
-        # print("csvdata", csvdata)
-        # - check header
-        if len(csvdata) < 2:
-            continue
 
-        header = [
-            nm.lower().replace('"', "").replace("'", "")
-            for nm in resplit.split(csvdata[0])
-        ]
+    # if False:
+    #     try:
+    #         reads = request.files[csvfile.name].read()#.decode().strip()
+    #     except:
+    #         try:
+    #             reads = request.files[csvfile].read()#.decode().strip()
+    #         except:
+    #             return {
+    #                 "success": False,
+    #                 "message": "File reading error! Make sure the file is in csv format!",
+    #             }
+    #
+    #     try:
+    #         reads = reads.decode('utf-8')
+    #         print("default")
+    #     except:
+    #         try:
+    #             print("ut")
+    #             reads = reads.decode('unicode_escape')
+    #         except:
+    #             try:
+    #                 print("latin")
+    #                 reads = reads.decode("latin-1")
+    #             except:
+    #                 return{
+    #                     "success": False,
+    #                     "message": "File reading decoding error!",
+    #                 }
+    #
+    #     if reads.startswith("'") and reads.endswith("'"):
+    #         reads = reads[1:-1]
+    #
+    #     resplit = re.compile(",")
+    #
+    #     for linesep in ["\n", "\r\n", "\r"]:
+    #         csvdata = reads.split(linesep)
+    #         # print("csvdata", csvdata)
+    #         # - check header
+    #         if len(csvdata) < 2:
+    #             continue
+    #
+    #         header = [
+    #             nm.lower().replace('"', "").replace("'", "")
+    #             for nm in resplit.split(csvdata[0])
+    #         ]
+    #
+    #         res = list(set.intersection(*map(set, [header, expected_pos])))
+    #         if len(res) == 0:
+    #             continue
+    #
+    #         res = list(
+    #             set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
+    #         )
+    #         if len(res) == 0:
+    #             continue
+    #
+    #         # if len(csvdata) != nrow * ncol + 1:
+    #         #    continue
+    #         csv_data = []
+    #         for row in csvdata:
+    #             row = row.split(",")
+    #             row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
+    #             csv_data.append(row)
+    #
+    #         if len(csv_data) >= 2:
+    #             break
+    #
 
-        res = list(set.intersection(*map(set, [header, expected_pos])))
-        if len(res) == 0:
-            continue
+    try:
+        csvf = request.files[csvfile.name]
+    except:
+        try:
+            csvf = request.files[csvfile]
+        except:
+            return {
+                "success": False,
+                "message": "File uploading error!",
+            }
 
-        res = list(
-            set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
-        )
-        if len(res) == 0:
-            continue
+    csvpath = tempfile.NamedTemporaryFile(
+        dir=os.path.join(current_app.config["TMP_DIRECTORY"]), delete=False
+    )
+    csvf.save(csvpath.name)
 
-        # if len(csvdata) != nrow * ncol + 1:
-        #    continue
-        csv_data = []
-        for row in csvdata:
-            row = row.split(",")
-            row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
-            csv_data.append(row)
+    header = None
+    for code in ["utf-8", "unicode-escape"]:
+        error = None
+        try:
+            print("code: ", code)
+            with open(csvpath.name, newline="", encoding=code) as file:
+                # print("dialect: ", csv.list_dialects())
+                # dialect: ['excel', 'excel-tab', 'unix']
+                dialect = csv.Sniffer().sniff(file.read())
+                file.seek(0)
+                try:
+                    csv_file = csv.reader(file, dialect)
+                    for row in csv_file:
+                        print("row", row)
+                        if header is None:
+                            header = row
+                        else:
+                            csv_data.append(row)
+                except:
+                    error = "csv"
 
-        if len(csv_data) >= 2:
             break
+
+        except:
+            error = "encode"
+            continue
+
+    if os.path.exists(csvpath.name):
+        os.remove(csvpath.name)
+
+    if error:
+        if error == "encode":
+            return {
+                "success": False,
+                "message": "File decoding error!",
+            }
+
+        if error == "csv":
+            return {
+                "success": False,
+                "message": "File reading error! Make sure the file is in csv format!",
+            }
 
     if len(csv_data) < 2:
         return {
@@ -226,6 +307,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             "message": "File reading error! Check if the file format is comma separated, with headers",
         }
 
+    header = [nm.lower().replace('"', "").replace("'", "") for nm in header]
     # print("nrows, Header", len(csv_data[0]), csv_data[0])
     print("header", header)
     indexes = {}
@@ -267,7 +349,8 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     positions = {
         # -- note: to ignore the second code in the same field separated by space.
         x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
-        for x in csv_data[1:]
+        # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
+        for x in csv_data[0:]
     }
     print("positions", positions)
 
@@ -338,13 +421,15 @@ def rack_create_from_file():
 
         samples = []
         for s in _samples["positions"].items():
-            samples.append(
+            smpl = s[1]
+            smpl.update(
                 {
                     "sample_code": s[1][barcode_type],
                     "row": alpha2num(s[0][0]),
                     "col": int(s[0][1 : len(s[0])]),
                 }
             )
+            samples.append(smpl)
 
         rack_entry = {
             "serial_number": form.serial.data,
@@ -391,228 +476,6 @@ def rack_create_from_file():
     return render_template(
         "storage/rack/new/from_file/step_one.html", form=form, session_data={}
     )
-
-
-# @storage.route("rack/new/automatic", methods=["GET", "POST"])
-# @login_required
-# def rack_automatic_entry():
-#
-#     form = NewCryovialBoxFileUploadForm()
-#
-#     if form.validate_on_submit():
-#         _hash = str(uuid4())
-#         replace with tempstore
-#         session[_hash] = {
-#             "serial_number": form.serial.data,
-#             "num_rows": form.num_rows.data,
-#             "num_cols": form.num_cols.data,
-#             "barcode_type": form.barcode_type.data,
-#             "colour": form.colour.data,
-#             "description": form.description.data,
-#             "entry": form.entry.data,
-#             "entry_date": str(form.entry_date.data),
-#             "entry_time": str(form.entry_time.data),
-#             "json": func_csvfile_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
-#
-#         }
-#         err = None
-#
-#         barcode_type = form.barcode_type.data
-#
-#         _samples = func_csvfile_to_json(form.file.data, form.num_rows.data, form.num_cols.data)
-#         if _samples["success"]:
-#             print("barcode type", barcode_type, _samples["code_types"])
-#             if barcode_type not in _samples["code_types"]:
-#                 err = "The provided sample code doesn't matched with the chosen type %s! " %barcode_type
-#         else:
-#
-#             err = _samples["message"]
-#
-#         if err is None:
-#             rack_entry = {
-#                 "serial_number": form.serial.data,
-#                 "num_rows": form.num_rows.data,
-#                 "num_cols": form.num_cols.data,
-#                 "barcode_type": form.barcode_type.data,
-#                 "colour": form.colour.data,
-#                 "description": form.description.data,
-#                 "entry": form.entry.data,
-#                 "entry_date": str(form.entry_date.data),
-#                 "entry_time": str(form.entry_time.data),
-#                 "json": _samples
-#             }
-#
-#             return render_template("storage/rack/new/from_file/step_two.html", form=form, session_data=rack_entry)
-#
-#     if err:
-#         flash(err)
-#     else:
-#         flash("Errors in reading the file! ")
-#     return render_template("storage/rack/new/from_file/step_one.html", form=form, session_data={})
-#
-#
-# #- Not in use
-# @storage.route("/rack/new/automatic/validation", methods=["GET", "POST"])
-# @login_required
-# def rack_automatic_entry_validation():
-#     # def rack_automatic_entry_validation(_hash: str):
-#     session_data = session[_hash]
-#     if "json" not in values or "positions" not in values["json"]:
-#        return {'messages': 'No sample and storage info for the rack!', 'success': False}
-#
-#     sample_data = {}
-#
-#     for position, identifier in values["json"]["positions"].items():
-#         if identifier != "":
-#             sample_response = requests.get(
-#                 url_for("api.sample_query", _external=True),
-#                 headers=get_internal_api_header(),
-#                 json={session_data["barcode_type"]: identifier},
-#             )
-#
-#             if sample_response.status_code == 200:
-#                 sample = sample_response.json()["content"]
-#                 sample_data[position] = sample
-#
-#     form = CryoBoxFileUploadSelectForm(sample_data, data=session_data["json"])
-#
-#     if form.validate_on_submit():
-#
-#         json = {
-#             "serial_number": values["serial_number"],
-#             "num_rows": values["json"]["num_rows"],
-#             "num_cols": values["json"]["num_cols"],
-#             "colour": values["colour"],
-#             "description": values["description"],
-#             "entry_datetime": str(
-#                 datetime.strptime(
-#                     "%s %s" % (values["entry_date"], values["entry_time"]),
-#                     "%Y-%m-%d %H:%M:%S",
-#                 )
-#             ),
-#             "entry": values["entry"],
-#         }
-#
-#         _samples = []
-#
-#         for element in form:
-#             if element.type == "BooleanField":
-#                 if element.data:
-#                     regex = re.compile(r"(\d+|\s+)")
-#                     row, col, _ = regex.split(element.id)
-#                     sample_code = element.render_kw["_sample"][0]["id"]
-#                     _samples.append([row, col, sample_code])
-#
-#         samples_pos = []
-#         for s in _samples:
-#             samples_pos.append({
-#                        "sample_code": s[2][barcode_type],
-#                         "row": alpha2num(s[0]),
-#                         "col": s[1],
-#             }
-#             ),
-#
-#         json["samples_pos"] = samples_pos
-#         response = requests.post(
-#             url_for("api.storage_rack_new_with_samples", _external=True),
-#             headers=get_internal_api_header(),
-#             json=json,
-#         )
-#
-#         if response.status_code == 200:
-#             response.json()["redirect"] = url_for("storage.view_rack", id=response.json()["content"]["id"])
-#             # return redirect(
-#             #     url_for("storage.view_rack", id=response.json()["content"]["id"])
-#             # )
-#
-#         #flash("We have an issue!")
-#         flash(response.json()["message"])
-#         return response.json
-#
-#     return render_template(
-#         "storage/rack/new/from_file/step_two.html",
-#         session_data=session_data,
-#         form=form,
-#         hash=_hash,
-#     )
-#
-#
-# # @storage.route("/rack/new/automatic/validation/<_hash>", methods=["GET", "POST"])
-# # @login_required
-# def rack_automatic_entry_validation_div(_hash: str):
-#     session_data = session[_hash]
-#     sample_data = {}
-#     # print("session_data: ", session_data)
-#     for position, identifier in session_data["json"]["positions"].items():
-#         sample = None
-#         if "identifier" != "":
-#             sample_response = requests.get(
-#                 url_for("api.sample_query", _external=True),
-#                 headers=get_internal_api_header(),
-#                 json={session_data["barcode_type"]: identifier},
-#             )
-#
-#             if sample_response.status_code == 200:
-#                 sample = sample_response.json()["content"]
-#                 sample_data[position] = sample
-#
-#     form = CryoBoxFileUploadSelectForm(sample_data, data=session_data["json"])
-#
-#     if form.validate_on_submit():
-#         response = requests.post(
-#             url_for("api.storage_rack_new", _external=True),
-#             headers=get_internal_api_header(),
-#             json={
-#                 "serial_number": session_data["serial_number"],
-#                 "num_rows": session_data["json"]["num_rows"],
-#                 "num_cols": session_data["json"]["num_cols"],
-#                 "colour": session_data["colour"],
-#                 "description": session_data["description"],
-#             },
-#         )
-#
-#         if response.status_code == 200:
-#
-#             _samples = []
-#
-#             for element in form:
-#                 if element.type == "BooleanField":
-#                     if element.data:
-#                         regex = re.compile(r"(\d+|\s+)")
-#                         row, col, _ = regex.split(element.id)
-#                         sample_id = element.render_kw["_sample"][0]["id"]
-#                         _samples.append([sample_id, row, col])
-#
-#             responses = []
-#
-#             for s in _samples:
-#
-#                 sample_move_response = requests.post(
-#                     url_for("api.storage_transfer_sample_to_rack", _external=True),
-#                     headers=get_internal_api_header(),
-#                     json={
-#                         "sample_id": s[0],
-#                         "rack_id": response.json()["content"]["id"],
-#                         "row": s[1],  # s[2],
-#                         "col": s[2],  # s[1],
-#                         "entry_datetime": str(datetime.now()),
-#                     },
-#                 )
-#
-#                 responses.append([sample_move_response, s[0]])
-#
-#             return redirect(
-#                 url_for("storage.view_rack", id=response.json()["content"]["id"])
-#             )
-#
-#         flash("We have an issue!")
-#
-#     return render_template(
-#         "storage/rack/new/from_file/step_two.html",
-#         session_data=session_data,
-#         form=form,
-#         hash=_hash,
-#     )
 
 
 @storage.route("/rack/query/rack", methods=["GET", "POST"])
@@ -849,6 +712,8 @@ def assign_rack_samples(id):
                             )
                         ),
                         "entry": form.entered_by.data,
+                        "fillopt_column_first": form.fillopt_column_first.data,
+                        "fillopt_skip_gaps": form.fillopt_skip_gaps.data,
                     },
                 )
 
@@ -1000,13 +865,16 @@ def update_rack_samples(id):
 
             samples = []
             for s in _samples["positions"].items():
-                samples.append(
+                # e.g. s=['B1', {'position': 'B1', 'barcode': '12345', 'uuid': 'edf77b31-ba28-4b3a-98d2-f9c058c3a865'}]
+                smpl = s[1]
+                smpl.update(
                     {
                         "sample_code": s[1][barcode_type],
                         "row": alpha2num(s[0][0]),
                         "col": int(s[0][1 : len(s[0])]),
                     }
                 )
+                samples.append(smpl)
 
             rack_data = {
                 # "samples": [{"id": id1} for id1 in form.samples.data],
@@ -1151,6 +1019,7 @@ def edit_rack(id):
 
             # shelf_required = len(shelves) > 0
 
+        print("rack: ", rack)
         form = EditSampleRackForm(
             sites=sites,
             shelves=shelves,
@@ -1159,6 +1028,8 @@ def edit_rack(id):
                 "description": rack["description"],
                 "storage_id": rack["storage_id"],
                 "shelf_id": rack["shelf_id"],
+                "compartment_row": rack["compartment_row"],
+                "compartment_col": rack["compartment_col"],
             },
         )
 
@@ -1173,11 +1044,21 @@ def edit_rack(id):
             if shelf_id == 0:
                 shelf_id = None
 
+            compartment_row = form.compartment_row.data
+            compartment_col = form.compartment_col.data
+
+            if compartment_row == 0:
+                compartment_row = None
+            if compartment_col == 0:
+                compartment_col = None
+
             form_information = {
                 "serial_number": form.serial.data,
                 "description": form.description.data,
                 "storage_id": form.storage_id.data,
                 "shelf_id": shelf_id,
+                "compartment_row": compartment_row,
+                "compartment_col": compartment_col,
             }
 
             edit_response = requests.put(

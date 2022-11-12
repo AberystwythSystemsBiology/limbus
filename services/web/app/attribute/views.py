@@ -82,6 +82,7 @@ class EditAttributeSchema(masql.SQLAlchemySchema):
     description = masql.auto_field()
     accession = masql.auto_field()
     ref = masql.auto_field()
+    element_type = EnumField(AttributeElementType)
 
 
 edit_attribute_schema = EditAttributeSchema()
@@ -113,6 +114,7 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeOption
 
+    attribute_id = masql.auto_field(allow_none=False)
     term = masql.auto_field(allow_none=False)
     accession = masql.auto_field(allow_none=True)
     ref = masql.auto_field(allow_none=True)
@@ -147,6 +149,9 @@ class AttributeSchema(masql.SQLAlchemySchema):
     is_locked = masql.auto_field()
     term = masql.auto_field()
     description = masql.auto_field()
+    accession = masql.auto_field()
+    ref = masql.auto_field
+
     author = ma.Nested(UserAccountSearchSchema)
     created_on = fields.Date()
     type = EnumField(AttributeType, by_value=True)
@@ -171,7 +176,7 @@ class NewAttributeDataSchema(masql.SQLAlchemySchema):
 new_attribute_data_schema = NewAttributeDataSchema()
 
 
-class NewAttributeOptionSchema(masql.SQLAlchemySchema):
+class NewAttributeOptionDataSchema(masql.SQLAlchemySchema):
     class Meta:
         model = AttributeData
 
@@ -179,7 +184,7 @@ class NewAttributeOptionSchema(masql.SQLAlchemySchema):
     option_id = masql.auto_field()
 
 
-new_attribute_option_schema = NewAttributeOptionSchema()
+new_attribute_option_data_schema = NewAttributeOptionDataSchema()
 
 
 class AttributeDataSchema(masql.SQLAlchemySchema):

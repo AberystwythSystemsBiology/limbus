@@ -239,7 +239,6 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
     entry_datetime = values.pop("entry_datetime")
     entry = values.pop("entry")
 
-    print("dbvalues", values)
     rack_values = values.pop("rack")
     # Step 1. Validate and add new sample rack
     try:
@@ -269,10 +268,8 @@ def storage_rack_new_with_samples(tokenuser: UserAccount):
 
 def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
     # Update entitytostorage with storage_type 'STB'
-    stb_batch = []
     for sample in samples_pos:
         # print("sample", sample)
-
         try:
             sample_id = sample["sample_id"]
         except:
@@ -361,13 +358,25 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     new_stb.entry_datetime = func.now()
                 # if 'entry' not in sample:
                 #     sample.entry = tokenuser.first_name[0]+tokenuser.last_name[0]
-                # stb_batch.append(new_stb)
 
                 try:
                     db.session.add(new_stb)
                 except Exception as err:
                     print(err)
                     return transaction_error_response(err)
+
+            if "changeset" in sample and len(sample["changeset"]) > 0:
+                # -- Update sample info
+                smpl = Sample.query.filter_by(id=sample_id).first()
+                updset = {k: sample["changeset"][k][1] for k in sample["changeset"]}
+
+                if smpl:
+                    smpl.update(updset)
+                    smpl.update({"editor_id": tokenuser.id})
+                    try:
+                        db.session.add(smpl)
+                    except Exception as err:
+                        return transaction_error_response(err)
 
             # Remove samples from usercart
             usercart = UserCart.query.filter_by(
@@ -381,22 +390,9 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except Exception as err:
                     return transaction_error_response(err)
 
-    # Postgres dialect, prefetch the id for batch insert
-    # identities = [
-    #     val
-    #     for val, in db.session.execute(
-    #         "select nextval('entitytostorage_id_seq') from "
-    #         "generate_series(1,%s)" % len(stb_batch)
-    #     )
-    # ]
-    # print("identities: ", identities)
-    # for stb_id, new_stb in zip(identities, stb_batch):
-    #     new_stb.id = stb_id
-
     try:
-        # db.session.add_all(stb_batch) # batch insert
-        db.session.commit()
-        # flash("Sample stored to rack Successfully!")
+        # db.session.commit()
+        db.session.flush()
         msg = "Sample(s) stored to rack Successfully! "
     except Exception as err:
         return transaction_error_response(err)
@@ -443,10 +439,13 @@ def func_rack_vacancies(num_rows, num_cols, occupancies=None):
     return vacancies
 
 
-def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
-    # TODO: allow change of fillopt
-    fillopt = {"column_first": True, "num_channels": 0}
+def func_rack_fill_with_samples(
+    samples, num_rows, num_cols, vacancies, occupancies=None, fillopt=None
+):
+    if fillopt is None:
+        fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
 
+    print(fillopt)
     n_samples = len(samples)
     try:
         pos = [(samples[k]["row"], samples[k]["col"]) for k in range(n_samples)]
@@ -456,16 +455,44 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
 
     k = 0
 
+    col_ini = 1
+    row_ini = 1
+    print("occupancies ", occupancies)
+    if occupancies is not None and len(occupancies) > 0:
+        if fillopt["skip_gaps"] is True:
+            if fillopt["column_first"] is True:
+                col_ids = [op[1] for op in occupancies]
+                col_max = max(col_ids)
+                row_ids = [op[0] for op in occupancies if op[1] == col_max]
+                row_max = max(row_ids)
+
+            else:
+                row_ids = [op[0] for op in occupancies]
+                row_max = max(row_ids)
+                col_ids = [op[1] for op in occupancies if op[0] == row_max]
+                col_max = max(col_ids)
+
+            col_ini = col_max
+            row_ini = row_max
+
+    print("col i: ", col_ini)
+    print("row i: ", row_ini)
+    n_assigned = 0
     if fillopt["column_first"]:
-        for col in range(1, num_cols + 1):
+        for col in range(col_ini, num_cols + 1):
             channel_cnt = 0
-            col_pos = [(j, col) for j in range(1, num_rows + 1)]
+            if col == col_ini:
+                col_pos = [(j, col) for j in range(row_ini, num_rows + 1)]
+            else:
+                col_pos = [(j, col) for j in range(1, num_rows + 1)]
+
             if fillopt["num_channels"] > 0:
                 # If the row is not fully empty, skip this row
                 if len(set(col_pos).intersect(set(vacancies))) > 0:
                     continue
-
-            for row in range(1, num_rows + 1):
+            if col > col_ini:
+                row_ini = 1
+            for row in range(row_ini, num_rows + 1):
                 if k == n_samples:
                     col = num_cols
                     break
@@ -482,31 +509,39 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies):
                     # go for next row
 
     else:
-        # TODO
-        for row in range(1, num_rows + 1):
+        # ROW FIRST
+        for row in range(row_ini, num_rows + 1):
             channel_cnt = 0
-            row_pos = [(row, j) for j in range(1, num_cols + 1)]
+            if row == row_ini:
+                row_pos = [(row, j) for j in range(num_cols + 1, col_ini)]
+            else:
+                row_pos = [(row, j) for j in range(1, num_cols + 1)]
+
+            # row_pos = [(row, j) for j in range(1, num_cols + 1)]
             if fillopt["num_channels"] > 0:
                 # If the row is not fully empty, skip this row
                 if len(set(row_pos).intersect(set(vacancies))) > 0:
                     continue
 
-            for col in range(1, num_cols + 1):
+            if row > row_ini:
+                col_ini = 1
+            for col in range(col_ini, num_cols + 1):
                 if k == n_samples:
                     row = num_rows
                     break
 
                 if (row, col) in vacancies:
                     sample_id = samples[k]["id"]
-                    samples[k].update({"row": row, "col": col})
+                    samples[k].update({"row": row, "col": col, "pos": (row, col)})
                     k = k + 1
                     channel_cnt = channel_cnt + 1
                     if channel_cnt == fillopt["num_channels"]:
-                        col = num_cols  # go for next row
-                elif fillopt["num_channels"] > 0:
-                    col = num_cols  # go for next row
+                        col = num_cols  # go for next col
 
-    return samples
+                elif fillopt["num_channels"] > 0:
+                    col = num_cols  # go for next col
+
+    return samples, k
 
 
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
@@ -529,6 +564,11 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     rack_id = int(values["rack_id"])
 
     samples = values["samples"]
+    print("values: ", values)
+    fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
+    fillopt["column_first"] = values.pop("fillopt_column_first", True)
+    fillopt["skip_gaps"] = values.pop("fillopt_skip_gaps", True)
+
     commit = False
     if "commit" in values and values["commit"]:
         commit = True
@@ -584,9 +624,16 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
             )
 
         try:
-            samples = func_rack_fill_with_samples(
-                samples, num_rows, num_cols, vacancies
+            samples, n_assigned = func_rack_fill_with_samples(
+                samples, num_rows, num_cols, vacancies, occupancies, fillopt
             )
+            if n_assigned < len(samples):
+                err = {
+                    "messages": "Current fill option can assign only %d samples!"
+                    % n_assigned
+                }
+                return validation_error_response(err)
+
         except:
             err = {"messages": "Errors in assigning a rack position to samples!"}
             return validation_error_response(err)
@@ -662,8 +709,51 @@ def storage_rack_edit_samples_pos(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+def func_dict_update(d0, d1, keys=[]):
+    """Check the changeset when update d0 with d1
+    Input:
+        d0: original dictionary
+        d1: dictionary containing updates
+        keys - restricted the list of keys considered for update if not empty
+    Return:
+        [updated d0, dictionary of changes in tuple (pairs of values)]
+    """
+    changeset = {}
+    du = d0.copy()
+    du.update(d1)
+
+    if len(keys) > 0:
+        du = {k: du[k] for k in keys if k in du}
+
+    for k in du:
+        # print("du K", k, du[k], d0[k])
+        if k not in d0:
+            changeset[k] = (None, du[k])
+        else:
+            if du[k] != d0[k]:
+                changeset[k] = (d0[k], du[k])
+
+        d0[k] = du[k]
+
+    d0["changeset"] = changeset
+    return d0
+
+
 def func_get_samples(barcode_type, samples):
+    """
+    Query existing sample info from database and compare that with new info
+    Update 'changeset' in sample in case of any difference in existing info
+    Input
+        barcode_type: column for identifying sample eg. uuid or barcode
+        samples: list of samples with relevant info
+    Return
+        two variables (in tuple)
+            1. samples: list of samples with update info in changeset
+            2. n_found: number of samples found in database
+    """
     n_found = 0
+    err = None
+    bcodes = []
     for sample in samples:
         filter = {barcode_type: sample["sample_code"]}
         sample["id"] = None
@@ -673,12 +763,38 @@ def func_get_samples(barcode_type, samples):
         sample[barcode_type] = sample.pop("sample_code")
         smpl = db.session.query(Sample).filter_by(**filter).first()
         if smpl:
-            # sample["id"] = smpl.id
-            sample.update(sample_schema.dump(smpl))
+            # sample.update(sample_schema.dump(smpl))
+            sample0 = sample_schema.dump(smpl)
+            sample0 = func_dict_update(sample0, sample, keys=["barcode"])
+            if "barcode" in sample0["changeset"]:
+                bcode1 = sample0["changeset"]["barcode"][1]
+                if bcode1 in bcodes:
+                    err = {
+                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
+                        % (smpl.uuid, bcode1)
+                    }
+                    return samples, n_found, err
+
+                bcodes.append(bcode1)
+                bcode = (
+                    db.session.query(Sample.barcode)
+                    .filter(func.upper(Sample.barcode) == bcode1.upper())
+                    .first()
+                )
+                if bcode is not None:
+                    bcode = bcode[0]
+                    err = {
+                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
+                        % (smpl.uuid, bcode)
+                    }
+                    return samples, n_found, err
+
+            # print("Upd sample: ", sample0["changeset"])
+            sample.update(sample0)
             sample["sample_id"] = smpl.id
             n_found = n_found + 1
 
-    return samples, n_found
+    return samples, n_found, err
 
 
 @api.route("/storage/rack/refill_with_samples", methods=["POST", "GET"])
@@ -708,7 +824,10 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     if "commit" in values and values["commit"]:
         commit = True
     else:
-        samples, n_found = func_get_samples(values["barcode_type"], samples)
+        samples, n_found, err = func_get_samples(values["barcode_type"], samples)
+        print("error", err)
+        if err is not None:
+            return validation_error_response(err)
         # print("samples_ids", samples)
 
     if rack_id:
@@ -806,7 +925,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     # Step 1: SampleRack update
     # Step 2: If shelf_id exist, EntityToStorage update.
     values = request.get_json()
-    # print('values: ', values)
+    print("values: ", values)
     if not values:
         return no_values_response()
 
@@ -819,6 +938,9 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     shelf_id = values["shelf_id"]
     values.pop("storage_id")
     values.pop("shelf_id")
+    row = values.pop("compartment_row", None)
+    col = values.pop("compartment_col", None)
+
     try:
         result = new_sample_rack_schema.load(values)
     except ValidationError as err:
@@ -843,6 +965,8 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 
     if stored:
         storage.shelf_id = shelf_id
+        storage.row = row
+        storage.col = col
         storage.editor_id = tokenuser.id
         storage.updated_on = func.now()
 
@@ -851,6 +975,8 @@ def storage_rack_edit(id, tokenuser: UserAccount):
         storage_values = {
             "shelf_id": shelf_id,
             "rack_id": rack.id,
+            "row": row,
+            "col": col,
             "storage_type": "BTS",
         }
         storage = EntityToStorage(**storage_values)
@@ -944,6 +1070,8 @@ def storage_rack_location(id, tokenuser: UserAccount):
                 "uuid": uuid,
                 "storage_id": None,
                 "shelf_id": None,
+                "compartment_row": None,
+                "compartment_col": None,
             }
             for (rackid, serial_number, description, uuid) in [stmt.first()]
         ][0]
@@ -962,13 +1090,23 @@ def storage_rack_location(id, tokenuser: UserAccount):
                 SampleRack.id == id,
                 EntityToStorage.removed.is_(False),
             )
-            .with_entities(EntityToStorage.id, EntityToStorage.shelf_id)
+            .with_entities(
+                EntityToStorage.id,
+                EntityToStorage.shelf_id,
+                EntityToStorage.row,
+                EntityToStorage.col,
+            )
         )
 
         if stmt1.count() > 0:
             result1 = [
-                {"storage_id": storage_id, "shelf_id": shelf_id}
-                for (storage_id, shelf_id) in [stmt1.first()]
+                {
+                    "storage_id": storage_id,
+                    "shelf_id": shelf_id,
+                    "compartment_row": row,
+                    "compartment_col": col,
+                }
+                for (storage_id, shelf_id, row, col) in [stmt1.first()]
             ][0]
             result.update(result1)
 

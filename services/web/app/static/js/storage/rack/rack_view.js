@@ -39,17 +39,33 @@ function render_sample_table(samples) {
                     "width": "3%"
                 },
 
-            {"mData": {}, "mRender": function (data) {
-                if (data["sample"]["id"]==null) {
+            {  // barcode
+                "mData": {},
+                "mRender": function (data) {
+                    var html = "";
+                    if (data["sample"]["id"] == null) {
+                        try {
+                            if (data['sample']['barcode'] != null && data['sample']['barcode'] != "")
+                                html+= '<p style="text-decoration:line-through">' + data['sample']['barcode'] + '</p>';
+                        } catch {
+                            html += "";
+                        }
+                        return html;
+                    }
 
                     try {
-                        if (data['sample']['barcode'] != null && data['sample']['barcode']!="")
-                            return '<p style="text-decoration:line-through">' + data['sample']['barcode'] + '</p>';
+                        var change = data["sample"]["changeset"]["barcode"];
                     } catch {
-                        return "";
+                        var change = undefined;
                     }
-                } else
-                    return data['sample']['barcode'];
+                    if (change !== undefined && change.length==2) {
+                        html += '<del>' + change[0] + '</del>';
+                        html += '<p style="color:red">'+ data['sample']['barcode'] +'</p>';
+                        return html;
+                    }
+
+                    html += data['sample']['barcode'];
+                    return html;
             }},
 
             { // Donor ID

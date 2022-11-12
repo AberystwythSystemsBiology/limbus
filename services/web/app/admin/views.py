@@ -39,6 +39,8 @@ from ..database import (
     EntityToStorage,
     ColdStorage,
     ColdStorageService,
+    ColdStorageShelf,
+    SampleRack,
 )
 
 from ..protocol.views import BasicProtocolTemplateSchema
@@ -82,6 +84,7 @@ class AuditFilterSchema(Schema):
     audit_type = fields.String()
     audit_objects = fields.String()
 
+    general_object = fields.String()
     sample_object = fields.String()
     donor_object = fields.String()
     template_object = fields.String()
@@ -955,3 +958,52 @@ class AuditColdStorageServiceSchema(masql.SQLAlchemySchema):
     transaction_id = masql.auto_field()
     end_transaction_id = masql.auto_field()
     object = fields.Constant("ColdStorageService")
+
+
+class AuditBasicColdStorageShelfSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = version_class(ColdStorageShelf)
+
+    id = masql.auto_field()
+    name = masql.auto_field()
+    uuid = masql.auto_field()
+    description = masql.auto_field()
+    z = masql.auto_field()
+    # samples = ma.Nested(BasicSampleSchema, many=True)
+    # racks = ma.Nested(BasicSampleRackSchema, many=True)
+    is_locked = masql.auto_field()
+    storage_id = masql.auto_field()
+
+    created_on = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema, many=False)
+    updated_on = masql.auto_field()
+    editor = ma.Nested(UserAccountSearchSchema, many=False)
+    operation_type = masql.auto_field()
+    transaction_id = masql.auto_field()
+    end_transaction_id = masql.auto_field()
+    object = fields.Constant("ColdStorageShelf")
+
+
+class AuditBasicSampleRackSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = version_class(SampleRack)
+
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    description = masql.auto_field()
+    serial_number = masql.auto_field()
+    num_rows = masql.auto_field()
+    num_cols = masql.auto_field()
+    colour = EnumField(Colour, by_value=True)
+    # entity_to_storage_instances = ma.Nested(ViewSampleToSampleRackSchema, many=True)
+    # shelf = ma.Nested(ShelfViewSchema)
+    is_locked = masql.auto_field()
+
+    created_on = masql.auto_field()
+    author = ma.Nested(UserAccountSearchSchema, many=False)
+    updated_on = masql.auto_field()
+    editor = ma.Nested(UserAccountSearchSchema, many=False)
+    operation_type = masql.auto_field()
+    transaction_id = masql.auto_field()
+    end_transaction_id = masql.auto_field()
+    object = fields.Constant("SampleRack")

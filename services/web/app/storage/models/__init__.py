@@ -37,6 +37,7 @@ class EntityToStorage(Base, RefAuthorMixin, RefEditorMixin):
     col = db.Column(db.Integer)
     entry_datetime = db.Column(db.DateTime)
     entry = db.Column(db.String(5))
+    # comments = db.Column(db.Text())
     removed = db.Column(db.Boolean, default=False)
 
     sample = db.relationship("Sample")

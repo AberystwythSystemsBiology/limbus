@@ -30,6 +30,7 @@ function query_disease(query) {
                 json = data;
             }
         });
+        console.log("json", json);
         return json;
     })();
 
@@ -93,7 +94,7 @@ $(document).ready(function(){
     $("#disease-search").on("click", function() {
         $("#disease-result").fadeOut();
         var search_query = $("#disease_query").val();
-        
+
         if (search_query.length > 2) {
             $("#disease-result").fadeOut();
 

@@ -296,9 +296,14 @@ function render_full_noimg(info, row, col, count, assign_sample_url, dispopt) {
 
 function render_full_file_noimg(info, row, col, count, assign_sample_url, dispopt) {
     var sample_info = info["sample"]
+    try {
+        var change = sample_info["changeset"]["barcode"];
+    } catch {
+        var change = undefined;
+    }
 
     if (info["status"]=='fill')
-        console.log("info", info)
+        //console.log("info", info)
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
 
     if (info['status']=='empty') {
@@ -337,7 +342,15 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
             '<div class="align_middle present-tube" style="font-size:0.8em;word-wrap:break-word;">'
 
         if (dispopt=="id") {
-            content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+            //content += '<small>[' + sample_info['id'] + '] ' + sample_info['barcode'] + '</small>';
+            content += '<small>[' + sample_info['id'] + '] ';
+            if (change !== undefined && change.length>1) {
+                content += '<del>' + change[0] + '</del>';
+                content += '<samll style="color:red">'+ sample_info['barcode'] +'</samll>';
+            } else {
+                content += sample_info['barcode'];
+            }
+            content += '</small>';
 
         } else if (dispopt=="donor") {
 
@@ -357,7 +370,12 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
             content += render_sample_label(sample_info) + '</small>';
 
         }
+
         content += '<i class="fas fa-plus " style="color:blue;"></i>';
+        if (change !== undefined && change.length>1) {
+            content += '<i class="fa fa-pen" style="color:red;"></i>';
+        }
+
 
     } else if (info['status']=='fill2empty')  {
         content += '<div class="square tube" style="background-color: white;">' +
@@ -596,10 +614,12 @@ function fill_sample_pos(api_url, sampletostore, commit) {
 
 function dragndrop_rack_view() {
        $("#confirm_position").hide();
-       $("#cancel_change").hide();
+       //$("#cancel_change").hide();
+       $("#cancel_change").show();
 
        $("#submit_sampletorack").fadeTo(1000, 0.3, function() { $(this).fadeTo(500, 1.0); });
        $("#submit_sampletorack").show();
+
 
 
         var dispopt = $("input[name='dispopt']:checked").val();
@@ -640,7 +660,7 @@ function dragndrop_rack_view() {
                 tmp.replaceWith(drag_target);
 
                 $("#confirm_position").show();
-                $("#cancel_change").hide();
+                $("#cancel_change").show();
                 $("#submit_sampletorack").hide();
 
                 if (dispopt == 'id') {
@@ -774,7 +794,7 @@ else {
     var rack_information = get_rack_information();
 }
 
-console.log("rack_information", rack_information);
+// console.log("rack_information", rack_information);
 
 $(document).ready(function () {
     collapse_sidebar();
@@ -838,7 +858,7 @@ $(document).ready(function () {
     if (from_file==true)
         $("#cancel_change").show();
     else {
-        $("#cancel_change").hide();
+        $("#cancel_change").show();
         dragndrop_rack_view();
         $("#submit_sampletorack").show()
 
@@ -871,7 +891,6 @@ $(document).ready(function () {
             var api_url = window.location.origin + "/storage/rack/edit_samples_pos"
 
         res = fill_sample_pos(api_url, sampletostore,commit=true);
-
         if (commit && res['success']){
             alert(res['message'])
             sessionStorage.removeItem("sampletostore")

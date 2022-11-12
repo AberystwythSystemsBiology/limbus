@@ -17,6 +17,7 @@ from flask import url_for
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField,
+    IntegerField,
     SubmitField,
     TextAreaField,
     DateField,
@@ -28,7 +29,7 @@ from wtforms import (
 import requests
 from ...misc import get_internal_api_header
 
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Optional, NumberRange
 
 from datetime import datetime
 
@@ -49,6 +50,12 @@ class NewShelfForm(FlaskForm):
 
 def RackToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
+        letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
+        compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
+        compartment_col = IntegerField(
+            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+        )
+
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )
@@ -60,6 +67,7 @@ def RackToShelfForm(racks: list) -> FlaskForm:
             description="The initials of the person that entered the sample.",
             validators=[DataRequired()],
         )
+
         submit = SubmitField("Submit")
 
     choices = []
@@ -96,6 +104,12 @@ def RackToShelfForm(racks: list) -> FlaskForm:
 
 def RacksToShelfForm(racks: list) -> FlaskForm:
     class StaticForm(FlaskForm):
+        letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
+        compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
+        compartment_col = IntegerField(
+            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+        )
+
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )
