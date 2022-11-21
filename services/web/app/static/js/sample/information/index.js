@@ -136,7 +136,9 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
         data: samples,
         deferRender: true,
         dom: 'Bfrtlip',
+        pageLength: 100,
         fixedHeader: true,
+
         language: {
 
         buttons: {

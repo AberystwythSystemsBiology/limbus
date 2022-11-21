@@ -1,0 +1,16 @@
+  998  npm install -g nodemon # or using yarn: yarn global add nodemon
+  999  npm install -g nodemon
+ 1000  docker-compose up
+ 1001  printenv > /var/folders/fm/54slwkqd5gl8dgb8r5j2wr9c0000gn/T/tmp-2266bo7mxM5jZvn7txt
+ 1002  ls
+ 1003  docker ps
+ 1004  docker exec
+ 1005  docker exec -it 5d477156b26f /bin/bash
+ 1006  docker ps
+ 1007  docker ps -a
+ 1008  docker restart limbus-web-1
+ 1009  docker ps -a
+ 1010  curl localhost:5000/apps/static/js/donor/index.js
+ 1011  curl localhost:5000/apps/static/js/donor/index.js | head -65
+ 1012  docker ps -a
+ 1013  docker exec -it 5d477156b26f /bin/bash
