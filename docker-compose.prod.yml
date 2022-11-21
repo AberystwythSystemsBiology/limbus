@@ -13,6 +13,7 @@ services:
       - letsencrypt-challenges:/usr/share/nginx/html
       - letsencrypt-certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./services/web/:/limbus/
     networks:
       - nginx
     labels:
@@ -28,6 +29,7 @@ services:
       - letsencrypt-challenges:/usr/share/nginx/html
       - letsencrypt-certs:/etc/nginx/certs:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./services/web/:/limbus/
     networks:
       - nginx
 

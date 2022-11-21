@@ -50,21 +50,88 @@ function calc_age(date0, date1) {
     return age;
 }
 
-function render_table(query) {
+function render_table(query, hide_cols=[]) {
+
+    let exp_cols = Array.from({length: 18}, (v, k) => k);
+    exp_cols = exp_cols.filter(function (x) {
+        return [0, 1].indexOf(x) < 0; //exclude select/user_cart columns
+    });
+    let inv_cols = [3, 6, 7, 11, 16, ]; //[1, 2, 5, 6, 10, -1]; ;
+    if (hide_cols.length > 0) {
+        inv_cols = inv_cols.concat(hide_cols);
+    }
+
     var d = get_donors(query);
     console.log("donor_info", d);
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 
-    $('#donor-table').DataTable({
+    let aTable = $('#donor-table').DataTable({
         data: d,
         dom: 'Blfrtip',
-        buttons: [ 'print', 'csv', 'colvis' ],
+        pageLength: 100,
+        language: {
+            buttons: {
+                selectNone: '<i class="far fa-circle"></i> None',
+                colvis: 'Column visibility',
+    
+            },
+            searchPanes: {
+                clearMessage: 'Clear Selections',
+                collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'}
+            }
+
+        },
+        //buttons: [ 'filter','print', 'csv', 'colvis' ],
+        buttons: [
+            //'selectAll',
+            { // select all applied to filtered rows only
+                text: '<i class="far fa-check-circle"></i> All', action: function () {
+                    aTable.rows({search: 'applied'}).select();
+                }
+            },
+            'selectNone',
+ /*               searchPanes: {
+                    show: false
+                },
+                targets: [1,2,3,4,14,16],*/
+            {
+                extend: 'searchPanes',
+                config: {
+                    cascadePanes: true
+                },
+
+            },
+
+            {
+                extend: 'print',
+                
+            },
+
+            {
+                extend: 'csv',
+                footer: false,
+            
+            },
+            'colvis',
+        ],
+
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+            {targets: [ 1, 2 ,3, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+
+           
+            {targets: inv_cols, visible: false, "defaultContent": ""},
+            {
+                targets: 0,
+                orderable: false,
+                className: 'select-checkbox',
+                //searchable: false,
+            },
             //{width: 200, targets: 6 }
+            
         ],
+       
         //fixedColumns: true,
         order: [[0, 'desc']],
 
@@ -73,6 +140,7 @@ function render_table(query) {
             { // id, 1
                 "mData": {},
                 "mRender": function (data, type, row) {
+                  //  console.log("come ");
                     var col_data = '';
                     col_data += render_colour(data["colour"])
                     col_data += "<a href='" + data["_links"]["self"] + "'>";
