@@ -46,7 +46,7 @@ function render_rack_table(racks) {
             lengthMenu: [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
             columnDefs: [
                 {targets: '_all', defaultContent: ''},
-                {targets: [3], visible:false},
+                {targets: [0, 3], visible:false},
             ],
             order: [[0, "desc"]],
             columns: [
