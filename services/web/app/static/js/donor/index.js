@@ -83,7 +83,7 @@ function render_table(query, hide_cols=[]) {
             searchPanes: {
                 clearMessage: 'Clear Selections',
                 collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
-                viewTotal: true,
+                viewTotal: false,
                 columns: [0, 3, 4,9,15,16,17]
             }
 
@@ -196,28 +196,28 @@ function render_table(query, hide_cols=[]) {
                 searchPanes: {
                     options: [
                         {
-                            label: 'Underweight',
+                            label: 'Underweight < 18.5',
                             value: function (data, type, row) {
                                 bmi = calc_BMI(data['weight'], data['height'])
                                 return bmi < 18.5;
                             }
                         },
                         {
-                            label: 'Normal',
+                            label: 'Normal < 25 ',
                             value: function (data, type, row) {
                                 bmi = calc_BMI(data['weight'], data['height'])
                                 return bmi < 25 && bmi >=  18.5 ;
                             }
                         },
                          {
-                            label: 'Overweight',
+                            label: 'Overweight < 30',
                             value: function (data, type, row) {
                                 bmi = calc_BMI(data['weight'], data['height'])
                                 return bmi < 30 && bmi >=  25 ;
                             }
                         },
                          {
-                            label: 'Obese',
+                            label: 'Obese >= 30',
                             value: function (data, type, row) {
                                 bmi = calc_BMI(data['weight'], data['height'])
                                 return bmi >= 30 ;
