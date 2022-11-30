@@ -173,74 +173,8 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     expected_barcode = ["tube barcode", "barcode"]
     expected_uuid = ["identifier", "uuid"]
     expected_pos = ["tube position", "position", "pos"]
-
-    # if False:
-    #     try:
-    #         reads = request.files[csvfile.name].read()#.decode().strip()
-    #     except:
-    #         try:
-    #             reads = request.files[csvfile].read()#.decode().strip()
-    #         except:
-    #             return {
-    #                 "success": False,
-    #                 "message": "File reading error! Make sure the file is in csv format!",
-    #             }
-    #
-    #     try:
-    #         reads = reads.decode('utf-8')
-    #         print("default")
-    #     except:
-    #         try:
-    #             print("ut")
-    #             reads = reads.decode('unicode_escape')
-    #         except:
-    #             try:
-    #                 print("latin")
-    #                 reads = reads.decode("latin-1")
-    #             except:
-    #                 return{
-    #                     "success": False,
-    #                     "message": "File reading decoding error!",
-    #                 }
-    #
-    #     if reads.startswith("'") and reads.endswith("'"):
-    #         reads = reads[1:-1]
-    #
-    #     resplit = re.compile(",")
-    #
-    #     for linesep in ["\n", "\r\n", "\r"]:
-    #         csvdata = reads.split(linesep)
-    #         # print("csvdata", csvdata)
-    #         # - check header
-    #         if len(csvdata) < 2:
-    #             continue
-    #
-    #         header = [
-    #             nm.lower().replace('"', "").replace("'", "")
-    #             for nm in resplit.split(csvdata[0])
-    #         ]
-    #
-    #         res = list(set.intersection(*map(set, [header, expected_pos])))
-    #         if len(res) == 0:
-    #             continue
-    #
-    #         res = list(
-    #             set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
-    #         )
-    #         if len(res) == 0:
-    #             continue
-    #
-    #         # if len(csvdata) != nrow * ncol + 1:
-    #         #    continue
-    #         csv_data = []
-    #         for row in csvdata:
-    #             row = row.split(",")
-    #             row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
-    #             csv_data.append(row)
-    #
-    #         if len(csv_data) >= 2:
-    #             break
-    #
+    expected_row = ["tube row", "row"]
+    expected_col = ["tube column", "column", "col"]
 
     try:
         csvf = request.files[csvfile.name]
@@ -312,18 +246,6 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     print("header", header)
     indexes = {}
 
-    for key in expected_pos:
-        if key in header:
-            indexes["position"] = header.index(key)
-
-    if "position" not in indexes:
-        return {
-            "success": False,
-            "message": "Missing column for tube position; "
-            "should be one of the following in header (case insensitive): "
-            "'Tube position', 'Position', 'Pos'",
-        }
-
     for key in expected_barcode:
         if key in header:
             indexes["barcode"] = header.index(key)
@@ -340,44 +262,117 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             "'Tube barcode', 'Barcode', 'identifier', 'uuid'",
         }
 
+    for key in expected_pos:
+        if key in header:
+            indexes["position"] = header.index(key)
+
+
+    if "position" not in indexes:
+        for key in expected_row:
+            if key in header:
+                indexes["row"] = header.index(key)
+
+
+        for key in expected_col:
+            if key in header:
+                indexes["col"] = header.index(key)
+
+        if "row" not in indexes and "col" in indexes:
+            return {
+                "success": False,
+                "message": "Missing column for tube row position; "
+                           "should be one of the following in header (case insensitive): "
+                           "'Tube Row', 'Row'",
+            }
+
+        if "col" not in indexes and "row" in indexes:
+            return {
+                "success": False,
+                "message": "Missing column for tube col position; "
+                           "should be one of the following in header (case insensitive): "
+                           "'Tube Column', 'Col', 'Column'",
+            }
+
+        if "row" not in indexes and "col" not in indexes:
+            return {
+                "success": False,
+                "message": "Missing column for tube position; "
+                "should be one of the following in header (case insensitive): "
+                "'Tube position', 'Position', 'Pos'",
+            }
+
+
     code_types = [key for key in indexes]
 
-    indexes.update({"row": [], "column": []})
+    indexes.update({"rows": [], "columns": []})
 
     print("codetype", code_types, indexes)
 
-    positions = {
-        # -- note: to ignore the second code in the same field separated by space.
-        x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
-        # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
-        for x in csv_data[0:]
-    }
-    print("positions", positions)
 
-    data["positions"] = positions
+    if "position" in indexes:
+        positions = {
+            # -- note: to ignore the second code in the same field separated by space.
+            x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+            # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
+            for x in csv_data[0:]
+        }
+        print("positions", positions)
 
-    # Going to use plain old regex to do the splits
-    regex = re.compile(r"(\d+|\s+)")
+        data["positions"] = positions
 
-    for position in data["positions"].keys():
-        splitted = regex.split(position)
-        pos = []
-        try:
-            for s in splitted[0:2]:
-                # print("s: ", s)
-                if s.isdigit():
-                    pos.append(int(s))
-                else:
-                    pos.append(ord(s.lower()) - 96)
+        # Going to use plain old regex to do the splits
+        regex = re.compile(r"(\d+|\s+)")
 
-            indexes["row"].append(pos[0])  # Letter e.g. A2: => Row 1
-            indexes["column"].append(pos[1])  # Number A2 => Column 2
-        except:
-            return {"success": False, "message": "Error in reading positions"}
+        for position in data["positions"].keys():
+            splitted = regex.split(position)
+            pos = []
+            try:
+                for s in splitted[0:2]:
+                    # print("s: ", s)
+                    if s.isdigit():
+                        pos.append(int(s))
+                    else:
+                        pos.append(ord(s.lower()) - 96)
 
-    if max(indexes["row"]) > nrow or min(indexes["row"]) < 1:
+                indexes["rows"].append(pos[0])  # Letter e.g. A2: => Row 1
+                indexes["columns"].append(pos[1])  # Number A2 => Column 2
+            except:
+                return {"success": False, "message": "Error in reading positions"}
+
+    else:
+
+        for x in csv_data[0:]:
+            if not x[indexes["row"]].isalpha():
+                return {"success": False, "message": "Tube row value not alphabet!!"}
+            if not x[indexes["col"]].isdigit():
+                return {"success": False, "message": "Tube column value not digit!!"}
+
+        positions = {
+            x[indexes["row"]]+x[indexes["col"]]:
+                {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+            for x in csv_data[0:]
+        }
+        data["positions"] = positions
+
+        for position in data["positions"]:
+            dpos = data["positions"][position]
+            print("dpos: ", dpos)
+            try:
+                row_id = ord(dpos["row"].lower()) - 96
+                col_id = int(dpos["col"])
+                dpos["row"] = row_id
+                dpos["col"] = col_id
+                indexes["rows"].append(row_id)  # Letter e.g. A2: => Row 1
+                indexes["columns"].append(col_id)  # Number A2 => Column 2
+            except:
+                return {"success": False, "message": "Error in reading positions"}
+
+        print("positions", positions)
+        data["positions"] = positions
+
+    if max(indexes["rows"]) > nrow or min(indexes["rows"]) < 1:
         return {"success": False, "message": "Position (row number) out of range!"}
-    if max(indexes["column"]) > ncol or min(indexes["column"]) < 1:
+    if max(indexes["columns"]) > ncol or min(indexes["columns"]) < 1:
         return {"success": False, "message": "Position (column number) out of range!"}
 
     data["num_rows"] = nrow  # max(indexes["row"])
