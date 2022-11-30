@@ -324,6 +324,7 @@ function generate_container_select(indx) {
     return select_html;
 }
 
+
 function generate_fixation_select(indx) {
     var cbt = containerbasetypes[0][0]; //"PRM"
     var fixation_list = containertypes[cbt]["fixation_type"];
@@ -463,7 +464,7 @@ function make_new_form(indx) {
     lastvals = {sample_basetype: $("#samplebasetype_select_"+ indx).val(),
                 sample_type: $("#sampletype_select_"+ indx).val(),
                 container_basetype: $("#containerbasetype_select_"+indx).val(),
-                container_type: $("#containertye_select_" + indx).val(),
+                container_type: $("#containertype_select_" + indx).val(),
                 volume: $("#volume_" + indx).val()
     }
 
