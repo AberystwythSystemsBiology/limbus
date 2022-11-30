@@ -97,9 +97,11 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
             render_kw={"class": "form-control"},  # bd-light"}
         )
 
-        letters = [(0, "None")]+[(i, chr(ord('A') + (i-1))) for i in range(1,27)]
+        letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
         compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
-        compartment_col = IntegerField("Compartment (>1)", validators=[Optional(), NumberRange(min=1)])
+        compartment_col = IntegerField(
+            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+        )
 
         submit = SubmitField("Register")
 
@@ -110,7 +112,9 @@ def EditSampleRackForm(sites: list, shelves: list, data={}):
 def EditRackToShelfForm(shelves: list) -> FlaskForm:
     class StaticForm(FlaskForm):
         compartment_row = IntegerField("Compartment (row_id)", default=None)
-        compartment_col = IntegerField("Compartment (col_id)", blank=True, null=True, default=None)
+        compartment_col = IntegerField(
+            "Compartment (col_id)", blank=True, null=True, default=None
+        )
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )
@@ -136,7 +140,7 @@ def EditRackToShelfForm(shelves: list) -> FlaskForm:
         SelectField("Cold Storage Shelf", choices=shelf_choices, coerce=int),
     )
 
-    letters = [(0, "None")] + [(i, chr(ord('A') + (i - 1))) for i in range(1, 27)]
+    letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
     setattr(
         StaticForm,
         "compartment_row",

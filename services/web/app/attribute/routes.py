@@ -66,9 +66,9 @@ def data():
 @attribute.route("/new", methods=["GET", "POST"])
 @login_required
 def new():
-    subclasses = [('', "None")]
+    subclasses = [("", "None")]
     for cls in classes:
-        subclasses.append((cls.iri, '; '.join(cls.label)))
+        subclasses.append((cls.iri, "; ".join(cls.label)))
 
     form = AttributeCreationForm(subclasses=subclasses)
 
@@ -145,9 +145,11 @@ def new_step_two(hash):
         attribute_type=attribute_type,
     )
 
+
 from ..disease.owl import load_doid
 
 DOID, obo, doid, classes = load_doid()
+
 
 @attribute.route("/LIMBATTR-<id>/option/new", methods=["GET", "POST"])
 @login_required
@@ -160,9 +162,9 @@ def new_option(id):
     if response.status_code != 200:
         return response.content
 
-    subclasses = [('', "None")]
+    subclasses = [("", "None")]
     for cls in classes:
-        subclasses.append((cls.iri, '; '.join(cls.label)))
+        subclasses.append((cls.iri, "; ".join(cls.label)))
 
     form = AttributeOptionCreationForm(subclasses=subclasses)
 
@@ -282,7 +284,6 @@ def lock_option(id, option_id):
         return abort(response.status_code)
 
 
-
 @attribute.route("/LIMBATTR-<id>/option/<option_id>/remove", methods=["GET", "POST"])
 @login_required
 def remove_option(id, option_id):
@@ -325,6 +326,7 @@ def remove_option(id, option_id):
     else:
         return abort(response.status_code)
 
+
 @attribute.route("/LIMBATTR-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(id):
@@ -334,9 +336,9 @@ def edit(id):
     )
 
     if response.status_code == 200:
-        subclasses = [('', "None")]
+        subclasses = [("", "None")]
         for cls in classes:
-            subclasses.append((cls.iri, '; '.join(cls.label)))
+            subclasses.append((cls.iri, "; ".join(cls.label)))
 
         form = AttributeEditForm(data=response.json()["content"], subclasses=subclasses)
         if form.validate_on_submit():
@@ -354,7 +356,10 @@ def edit(id):
             if edit_response.status_code == 200:
                 return redirect(url_for("attribute.view", id=id))
             else:
-                flash("We have encountered an error :( %s" % edit_response.json()["message"])
+                flash(
+                    "We have encountered an error :( %s"
+                    % edit_response.json()["message"]
+                )
 
         return render_template("attribute/edit.html", attribute_id=id, form=form)
     else:

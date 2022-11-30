@@ -269,6 +269,7 @@ def attribute_lock_option(id, option_id, tokenuser: UserAccount):
     # TODO: Replace with an actual attribute option schema.
     return success_with_content_response(new_attribute_option_schema.dump(option))
 
+
 @api.route("/attribute/LIMBATTR-<id>/option/<option_id>/remove", methods=["POST"])
 @token_required
 def attribute_remove_option(id, option_id, tokenuser: UserAccount):
@@ -293,6 +294,7 @@ def attribute_remove_option(id, option_id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
     return success_with_content_response(new_attribute_option_schema.dump(option))
+
 
 @api.route("/attribute/LIMBATTR-<id>/edit", methods=["PUT"])
 @token_required

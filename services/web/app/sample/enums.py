@@ -165,6 +165,7 @@ class ConsentWithdrawalRequester(FormEnum):
     REP = "Legal Representative"
     UNK = "Unknown"
 
+
 # Solid Sample Type (SPREC-3)
 class CellSampleType(FormEnum):
     # BON = "Bone"
@@ -320,6 +321,7 @@ class LongTermStorage(FormEnum):
     Z2 = "Greiner Cryo.s Biobank tube 300 μL @ -85 to -60°C"
     Z3 = "Greiner Cryo.s Biobank tube 600 μL @ -85 to -60°C"
     Z4 = "Greiner Cryo.s Biobank tube 1000 μL @ -85 to -60°C"
+
 
 class AccessStatus(FormEnum):
     TMP = "Temporary"

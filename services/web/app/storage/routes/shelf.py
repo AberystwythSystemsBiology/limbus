@@ -312,7 +312,6 @@ def assign_racks_to_shelf(id):
                             )
                         ),
                         "entry": form.entered_by.data,
-
                     },
                 )
 

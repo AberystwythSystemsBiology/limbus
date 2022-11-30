@@ -22,3 +22,8 @@ class QuestionType(FormEnum):
     GENE = "Genetic Tests"
     FUTU = "Future Samples"
     EXTE = "Available for External Sources"
+    COMM = "Commercial Restriction"
+    ANIM = "Animal Work"
+    OEUR = "Outside EU Access Restriction"
+    XENO = "Xenograph Restriction"
+    FUTR = "Future Research"

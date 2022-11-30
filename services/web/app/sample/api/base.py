@@ -723,9 +723,9 @@ def sample_query(args, tokenuser: UserAccount):
         )
         stmt_cart = (
             db.session.query(Sample.id)
-                .filter_by(**filters)
-                .filter(*joins)
-                .filter(Sample.id.in_(stmt_cart))
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter(Sample.id.in_(stmt_cart))
         )
 
     else:
@@ -737,9 +737,9 @@ def sample_query(args, tokenuser: UserAccount):
         )
         stmt_cart = (
             db.session.query(Sample.id)
-                .filter_by(**filters)
-                .filter(*joins)
-                .filter(Sample.id.in_(stmt_cart))
+            .filter_by(**filters)
+            .filter(*joins)
+            .filter(Sample.id.in_(stmt_cart))
         )
 
     print("stmt cart - ", stmt_cart.count())

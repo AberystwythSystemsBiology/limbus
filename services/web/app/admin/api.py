@@ -23,8 +23,8 @@ from ..admin.enums import *
 from sqlalchemy_continuum import (
     version_class,
     changeset,
-    #transaction_class,
-    #count_versions,
+    # transaction_class,
+    # count_versions,
 )
 from sqlalchemy.sql import or_, func
 
@@ -136,7 +136,7 @@ def func_transaction_summary(audit_tr):
                         % (dbids[object]["count"] - 1)
                     )
             elif 2 in operations[object]:  # "Delete"
-                #smpls=[]
+                # smpls=[]
                 smpls = [d["change_set"] for d in audit_tr if d["object"] == object]
                 updates[object].append("Remove sample %s" % smpls)
 
@@ -181,7 +181,7 @@ def func_transaction_summary(audit_tr):
             updates[object].append(protocols)
 
         elif object in ["Event"]:
-            events = [d["change_set"] for d in audit_tr if d["object"]==object]
+            events = [d["change_set"] for d in audit_tr if d["object"] == object]
             updates[object] = events
 
         else:
@@ -240,25 +240,24 @@ def func_transaction_summary(audit_tr):
     #             pretty["call"] = "Update sample info"
     #             pretty["details"] = str(info).replace("[", "").replace("]", "")
 
-
-        # elif keys == {"Sample", "DonorProtocolEvent"}:
-        #     info = updates["Sample"]
-        #     pretty["call"] = ""
-        #     pretty["details"] = info
-        # elif keys == {"DonorProtocolEvent", "Event", "SampleConsent"}:
-        #     info = updates["SampleConsent"]
-        #     if "insert" in str(info).lower():
-        #         pretty["call"] = "New sample consent with study reference"
-        #     elif "update" in str(info).lower():
-        #         pretty["call"] = "Update sample consent with study reference"
-        #
-        #     pretty["details"] = "Sample"
+    # elif keys == {"Sample", "DonorProtocolEvent"}:
+    #     info = updates["Sample"]
+    #     pretty["call"] = ""
+    #     pretty["details"] = info
+    # elif keys == {"DonorProtocolEvent", "Event", "SampleConsent"}:
+    #     info = updates["SampleConsent"]
+    #     if "insert" in str(info).lower():
+    #         pretty["call"] = "New sample consent with study reference"
+    #     elif "update" in str(info).lower():
+    #         pretty["call"] = "Update sample consent with study reference"
+    #
+    #     pretty["details"] = "Sample"
 
     desc1["operation_type"] = operations
     desc1["id"] = dbids
     desc1["uuid"] = uuids
     desc1["change_set"] = updates
-    #desc1["details"] = pretty
+    # desc1["details"] = pretty
     desc1.pop("changed_to", None)
     print("desc1,", desc1)
     return desc1
@@ -379,7 +378,7 @@ def func_audit_trail(
             chgset.pop("updated_on", None)
             chgset.pop("author_id", None)
             chgset.pop("editor_id", None)
-            #if len(chgset) == 0:
+            # if len(chgset) == 0:
             #    continue
 
             chgset = {

@@ -64,8 +64,6 @@ class BasicEntityToStorageSchema(masql.SQLAlchemySchema):
     shelf = ma.Nested(BasicColdStorageShelfSchema, many=False)
 
 
-
-
 class EntityToStorageSchema(masql.SQLAlchemySchema):
     class Meta:
         model = EntityToStorage
@@ -77,7 +75,7 @@ class EntityToStorageSchema(masql.SQLAlchemySchema):
     col = masql.auto_field()
     entry_datetime = masql.auto_field()
     entry = masql.auto_field()
-    #comments = masql.auto_field()
+    # comments = masql.auto_field()
     removed = masql.auto_field()
 
     rack = ma.Nested(BasicSampleRackSchema, many=False)

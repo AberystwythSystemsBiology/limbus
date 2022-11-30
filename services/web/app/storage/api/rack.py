@@ -365,10 +365,10 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                     print(err)
                     return transaction_error_response(err)
 
-            if "changeset" in sample and len(sample["changeset"])>0:
+            if "changeset" in sample and len(sample["changeset"]) > 0:
                 # -- Update sample info
                 smpl = Sample.query.filter_by(id=sample_id).first()
-                updset = {k:sample["changeset"][k][1] for k in sample["changeset"]}
+                updset = {k: sample["changeset"][k][1] for k in sample["changeset"]}
 
                 if smpl:
                     smpl.update(updset)
@@ -390,9 +390,8 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 except Exception as err:
                     return transaction_error_response(err)
 
-
     try:
-        #db.session.commit()
+        # db.session.commit()
         db.session.flush()
         msg = "Sample(s) stored to rack Successfully! "
     except Exception as err:
@@ -440,7 +439,9 @@ def func_rack_vacancies(num_rows, num_cols, occupancies=None):
     return vacancies
 
 
-def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupancies=None, fillopt=None):
+def func_rack_fill_with_samples(
+    samples, num_rows, num_cols, vacancies, occupancies=None, fillopt=None
+):
     if fillopt is None:
         fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
 
@@ -457,7 +458,7 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupanc
     col_ini = 1
     row_ini = 1
     print("occupancies ", occupancies)
-    if occupancies is not None and len(occupancies)>0:
+    if occupancies is not None and len(occupancies) > 0:
         if fillopt["skip_gaps"] is True:
             if fillopt["column_first"] is True:
                 col_ids = [op[1] for op in occupancies]
@@ -480,7 +481,7 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupanc
     if fillopt["column_first"]:
         for col in range(col_ini, num_cols + 1):
             channel_cnt = 0
-            if col==col_ini:
+            if col == col_ini:
                 col_pos = [(j, col) for j in range(row_ini, num_rows + 1)]
             else:
                 col_pos = [(j, col) for j in range(1, num_rows + 1)]
@@ -516,7 +517,7 @@ def func_rack_fill_with_samples(samples, num_rows, num_cols, vacancies, occupanc
             else:
                 row_pos = [(row, j) for j in range(1, num_cols + 1)]
 
-            #row_pos = [(row, j) for j in range(1, num_cols + 1)]
+            # row_pos = [(row, j) for j in range(1, num_cols + 1)]
             if fillopt["num_channels"] > 0:
                 # If the row is not fully empty, skip this row
                 if len(set(row_pos).intersect(set(vacancies))) > 0:
@@ -627,7 +628,10 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
                 samples, num_rows, num_cols, vacancies, occupancies, fillopt
             )
             if n_assigned < len(samples):
-                err = {"messages": "Current fill option can assign only %d samples!"% n_assigned}
+                err = {
+                    "messages": "Current fill option can assign only %d samples!"
+                    % n_assigned
+                }
                 return validation_error_response(err)
 
         except:
@@ -705,8 +709,8 @@ def storage_rack_edit_samples_pos(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-def func_dict_update(d0, d1, keys = []):
-    """ Check the changeset when update d0 with d1
+def func_dict_update(d0, d1, keys=[]):
+    """Check the changeset when update d0 with d1
     Input:
         d0: original dictionary
         d1: dictionary containing updates
@@ -726,13 +730,14 @@ def func_dict_update(d0, d1, keys = []):
         if k not in d0:
             changeset[k] = (None, du[k])
         else:
-            if du[k]!= d0[k]:
+            if du[k] != d0[k]:
                 changeset[k] = (d0[k], du[k])
 
         d0[k] = du[k]
 
     d0["changeset"] = changeset
     return d0
+
 
 def func_get_samples(barcode_type, samples):
     """
@@ -764,14 +769,24 @@ def func_get_samples(barcode_type, samples):
             if "barcode" in sample0["changeset"]:
                 bcode1 = sample0["changeset"]["barcode"][1]
                 if bcode1 in bcodes:
-                    err = {"messages": "Sample (%s) info error: duplicate barcode (%s) in the update file" %(smpl.uuid, bcode1)}
+                    err = {
+                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
+                        % (smpl.uuid, bcode1)
+                    }
                     return samples, n_found, err
 
                 bcodes.append(bcode1)
-                bcode = db.session.query(Sample.barcode).filter(func.upper(Sample.barcode)==bcode1.upper()).first()
+                bcode = (
+                    db.session.query(Sample.barcode)
+                    .filter(func.upper(Sample.barcode) == bcode1.upper())
+                    .first()
+                )
                 if bcode is not None:
                     bcode = bcode[0]
-                    err = {"messages": "Sample (%s) info error: duplicate barcode (%s) in the database" %(smpl.uuid, bcode)}
+                    err = {
+                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
+                        % (smpl.uuid, bcode)
+                    }
                     return samples, n_found, err
 
             # print("Upd sample: ", sample0["changeset"])
@@ -910,7 +925,7 @@ def storage_rack_edit(id, tokenuser: UserAccount):
     # Step 1: SampleRack update
     # Step 2: If shelf_id exist, EntityToStorage update.
     values = request.get_json()
-    print('values: ', values)
+    print("values: ", values)
     if not values:
         return no_values_response()
 
@@ -1075,12 +1090,22 @@ def storage_rack_location(id, tokenuser: UserAccount):
                 SampleRack.id == id,
                 EntityToStorage.removed.is_(False),
             )
-            .with_entities(EntityToStorage.id, EntityToStorage.shelf_id, EntityToStorage.row, EntityToStorage.col)
+            .with_entities(
+                EntityToStorage.id,
+                EntityToStorage.shelf_id,
+                EntityToStorage.row,
+                EntityToStorage.col,
+            )
         )
 
         if stmt1.count() > 0:
             result1 = [
-                {"storage_id": storage_id, "shelf_id": shelf_id, "compartment_row": row, "compartment_col": col}
+                {
+                    "storage_id": storage_id,
+                    "shelf_id": shelf_id,
+                    "compartment_row": row,
+                    "compartment_col": col,
+                }
                 for (storage_id, shelf_id, row, col) in [stmt1.first()]
             ][0]
             result.update(result1)

@@ -26,6 +26,7 @@ from owlready2 import Thing
 
 DOID, obo, doid, subclasses = load_doid()
 
+
 def prepare_instance(thing: ThingClass):
     def _get_parents(thing, ret):
         if len(ret) == 0:
@@ -82,9 +83,7 @@ def retrieve_by_iri(iri: str) -> dict:
 
 def retrieve_by_label(label: str, subclass_of=None):
     if subclass_of in [None, ""]:
-        results = DOID.search(
-            label="*%s*" % (label), _case_sensitive=False
-        )
+        results = DOID.search(label="*%s*" % (label), _case_sensitive=False)
     else:
         subclass_of = DOID.search_one(iri=subclass_of)
         results = DOID.search(
@@ -98,16 +97,13 @@ def retrieve_by_label(label: str, subclass_of=None):
 
     return results_dict
 
+
 def retrieve_by_iri_subclass(iri: str, subclass_of=None):
     if subclass_of in [None, ""]:
-        results = DOID.search(
-            iri=iri, _case_sensitive=False
-        )
+        results = DOID.search(iri=iri, _case_sensitive=False)
     else:
         subclass_of = DOID.search_one(iri=subclass_of)
-        results = DOID.search(
-            iri=iri, subclass_of=subclass_of, _case_sensitive=False
-        )
+        results = DOID.search(iri=iri, subclass_of=subclass_of, _case_sensitive=False)
 
     results_dict = {}
 
@@ -148,8 +144,10 @@ def doid_query_by_label(tokenuser: UserAccount):
     if "subclass" not in values:
         values["subclass"] = None
 
-    if "iri" in values and values["iri"]!="":
-        results = retrieve_by_iri_subclass(values["iri"], subclass_of=values["subclass"])
+    if "iri" in values and values["iri"] != "":
+        results = retrieve_by_iri_subclass(
+            values["iri"], subclass_of=values["subclass"]
+        )
     else:
         results = retrieve_by_label(values["label"], subclass_of=values["subclass"])
 

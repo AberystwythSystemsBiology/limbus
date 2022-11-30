@@ -107,7 +107,7 @@ def new_custom_attribute_form(uuid: str, hash: str) -> str:
                     print("attribute_response.json(): ", attribute_response.json())
                     errors[id] = attribute_response.json()
 
-            if len(errors)>0 and len(errors.keys()) > 0:
+            if len(errors) > 0 and len(errors.keys()) > 0:
                 for _id, error in errors.items():
                     flash(error)
             else:
