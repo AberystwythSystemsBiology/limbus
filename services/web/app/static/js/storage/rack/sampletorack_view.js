@@ -620,10 +620,9 @@ function dragndrop_rack_view() {
        $("#submit_sampletorack").fadeTo(1000, 0.3, function() { $(this).fadeTo(500, 1.0); });
        $("#submit_sampletorack").show();
 
-
-
         var dispopt = $("input[name='dispopt']:checked").val();
         var changed = [];
+
         document.ondragstart = function (event) {
             //event.dataTransfer.setData("text/plain", event.target.id);
             event.dataTransfer.setData('target_id', event.target.id);

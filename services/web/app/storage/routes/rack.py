@@ -641,7 +641,7 @@ def assign_rack_sample(id, row, column):
                     flash(sample_move_response.json())
 
             return render_template(
-                "storage/rack/sample_to_rack.html",
+                "storage/rack/sample_to_rack_pos.html",
                 rack=view_response.json()["content"],
                 row=row,
                 column=column,
