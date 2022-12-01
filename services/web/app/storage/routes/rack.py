@@ -46,6 +46,7 @@ from ..forms import (
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
     UpdateRackFileUploadForm,
+    UpdateRackSampleInfoFileUploadForm
 )
 from datetime import datetime
 import tempfile
@@ -242,7 +243,6 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         }
 
     header = [nm.lower().replace('"', "").replace("'", "") for nm in header]
-    # print("nrows, Header", len(csv_data[0]), csv_data[0])
     print("header", header)
     indexes = {}
 
@@ -316,7 +316,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
             for x in csv_data[0:]
         }
-        print("positions", positions)
+        # print("positions", positions)
 
         data["positions"] = positions
 
@@ -812,7 +812,7 @@ def storage_rack_edit_samples_pos():
 
 @storage.route("/rack/LIMBRACK-<id>/assign_samples_in_file", methods=["GET", "POST"])
 @login_required
-def update_rack_samples(id):
+def update_rack_samples_from_file(id):
     # ------
     # Update the whole rack occupancy using csv file (often from the rack saner).
     # -----
@@ -912,6 +912,101 @@ def update_rack_samples(id):
     return abort(view_response.status_code)
 
 
+
+@storage.route("/rack/LIMBRACK-<id>/update_sample_info_in_file", methods=["GET", "POST"])
+@login_required
+def update_rack_sample_info_from_file(id):
+    # ------
+    # Update the whole rack occupancy using csv file (often from the rack saner).
+    # -----
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if view_response.json()["content"]["is_locked"]:
+        flash("The rack is locked!")
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
+        return redirect(url_for("storage.edit_rack", id=id))
+
+    if view_response.status_code == 200:
+        num_rows = view_response.json()["content"]["num_rows"]
+        num_cols = view_response.json()["content"]["num_cols"]
+
+        form = UpdateRackSampleInfoFileUploadForm()
+
+        if form.validate_on_submit():
+
+            err = None
+
+            _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
+            if _samples["success"]:
+                barcode_type = "barcode"
+                if barcode_type not in _samples["code_types"]:
+                    err = (
+                        "Missing barcode column! "
+                    )
+            else:
+                # err = "Errors in reading the file! "
+                err = _samples["message"]
+
+            if err:
+                flash(err)
+                return redirect(url_for("storage.view_rack", id=id))
+
+            samples = []
+            for s in _samples["positions"].items():
+                # e.g. s=['B1', {'position': 'B1', 'barcode': '12345', 'uuid': 'edf77b31-ba28-4b3a-98d2-f9c058c3a865'}]
+                smpl = s[1]
+                smpl.update(
+                    {
+                        "sample_code": s[1][barcode_type],
+                        "row": alpha2num(s[0][0]),
+                        "col": int(s[0][1 : len(s[0])]),
+                    }
+                )
+                samples.append(smpl)
+
+            rack_data = {
+                "rack_id": id,
+                "barcode_type": barcode_type,
+                "samples": samples,
+            }
+
+            sample_update_response = requests.post(
+                url_for("api.storage_rack_update_sample_barcode", _external=True),
+                headers=get_internal_api_header(),
+                json=rack_data,
+            )
+
+            if sample_update_response.status_code == 200:
+                sampletostore = sample_update_response.json()["content"]
+
+                return render_template(
+                    "storage/rack/view_sample_to_rack.html",
+                    id=id,
+                    sampletostore=sampletostore,
+                )
+
+            else:
+
+                flash(sample_update_response.json())
+                return redirect(url_for("storage.view_rack", id=id))
+
+        return render_template(
+            "storage/rack/update_rack_sample_info_from_file.html",
+            rack=view_response.json()["content"],
+            form=form,
+        )
+    return abort(view_response.status_code)
+
+
+
 @storage.route("/rack/new_with_samples", methods=["GET", "POST"])
 @login_required
 def storage_rack_create_with_samples():
@@ -943,6 +1038,20 @@ def storage_rack_refill_with_samples():
     )
     return response.json()
 
+@storage.route("/rack/update_sample_info", methods=["GET", "POST"])
+@login_required
+def storage_rack_update_sample_info():
+    if request.method == "POST":
+        values = request.json
+    else:
+        return {"messages": "Sample and storage info needed!", "success": False}
+
+    response = requests.post(
+        url_for("api.storage_rack_update_sample_barcode", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
 
 @storage.route("rack/LIMBRACK-<id>/to_cart", methods=["GET", "POST"])
 @login_required

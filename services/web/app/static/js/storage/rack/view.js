@@ -423,6 +423,11 @@ $(document).ready(function () {
     var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
     })
 
+    $("#update-sample-from-file-btn").click(function() {
+    var api_url = window.location.href = rack_information["_links"]["update_sample_info"];
+    var sampletostore = fill_sample_pos(api_url, rack_id, {}, commit=false)
+    })
+
     $("#loading-screen").fadeOut();
     $("#content").delay(500).fadeIn();
 

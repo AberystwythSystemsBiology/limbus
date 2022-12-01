@@ -297,7 +297,8 @@ def shipment_new_step_one():
     sites_ext = [[0, "None"]]
 
     sites_response = requests.get(
-        url_for("api.site_home", _external=True), headers=get_internal_api_header()
+        url_for("api.site_home", _external=True),
+        headers=get_internal_api_header(),
     )
     external_sites_response = requests.get(
         url_for("api.site_external_home", _external=True),
@@ -313,6 +314,8 @@ def shipment_new_step_one():
     addresses = {}
     if external_sites_response.status_code == 200:
         for site in external_sites_response.json()["content"]:
+            if site["is_locked"]:
+                continue
             sites_ext.append(
                 [site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])]
             )
@@ -322,6 +325,8 @@ def shipment_new_step_one():
 
     if sites_response.status_code == 200:
         for site in sites_response.json()["content"]:
+            if site["is_locked"]:
+                continue
             sites.append([site["id"], "LIMBSIT-%i: %s" % (site["id"], site["name"])])
             address = site["address"]
             addresses[site["id"]] = [[address["id"], address_label(address)]]
