@@ -558,14 +558,16 @@ def func_root_sample_acquision_protocol_event(sample_id):
             msg = "Root sample (id=%d) not found" % sample_id
             return pe_acq, msg
 
-    pe_acq = SampleProtocolEvent.query.filter_by(sample_id=sample.id)\
-        .join(ProtocolTemplate, ProtocolTemplate.type == 'ACQ')
+    pe_acq = SampleProtocolEvent.query.filter_by(sample_id=sample.id).join(
+        ProtocolTemplate, ProtocolTemplate.type == "ACQ"
+    )
 
     if pe_acq is None:
         msg = "Root sample (id=%d) acquisition event found!" % sample.id
     else:
         msg = "Root sample acquisition event found!"
     return pe_acq, msg
+
 
 # def func_update_sample_tmpstore_info(uuid=None, sample=None, tokenuser: UserAccount):
 #     # Update temporarystore
@@ -637,7 +639,6 @@ def func_root_sample_acquision_protocol_event(sample_id):
 #     except Exception as err:
 #         db.session.rollback()
 #         return transaction_error_response(err)
-
 
 
 @api.route("/sample/<uuid>/remove", methods=["DELETE", "GET", "POST"])
@@ -829,9 +830,6 @@ def func_lock_sample_creation_protocolevent(sample_id, tokenuser: UserAccount):
     else:
         msg = "Sample-%s: No protocol event for update" % sample_id
         return True, msg
-
-
-
 
 
 # -- Super Admin functions: TODO

@@ -124,7 +124,6 @@ class SampleRackSchema(masql.SQLAlchemySchema):
                 id="<id>",
                 _external=True,
             ),
-
         }
     )
 

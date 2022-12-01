@@ -46,7 +46,7 @@ from ..forms import (
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
     UpdateRackFileUploadForm,
-    UpdateRackSampleInfoFileUploadForm
+    UpdateRackSampleInfoFileUploadForm,
 )
 from datetime import datetime
 import tempfile
@@ -266,12 +266,10 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         if key in header:
             indexes["position"] = header.index(key)
 
-
     if "position" not in indexes:
         for key in expected_row:
             if key in header:
                 indexes["row"] = header.index(key)
-
 
         for key in expected_col:
             if key in header:
@@ -281,16 +279,16 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             return {
                 "success": False,
                 "message": "Missing column for tube row position; "
-                           "should be one of the following in header (case insensitive): "
-                           "'Tube Row', 'Row'",
+                "should be one of the following in header (case insensitive): "
+                "'Tube Row', 'Row'",
             }
 
         if "col" not in indexes and "row" in indexes:
             return {
                 "success": False,
                 "message": "Missing column for tube col position; "
-                           "should be one of the following in header (case insensitive): "
-                           "'Tube Column', 'Col', 'Column'",
+                "should be one of the following in header (case insensitive): "
+                "'Tube Column', 'Col', 'Column'",
             }
 
         if "row" not in indexes and "col" not in indexes:
@@ -301,18 +299,18 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 "'Tube position', 'Position', 'Pos'",
             }
 
-
     code_types = [key for key in indexes]
 
     indexes.update({"rows": [], "columns": []})
 
     print("codetype", code_types, indexes)
 
-
     if "position" in indexes:
         positions = {
             # -- note: to ignore the second code in the same field separated by space.
-            x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+            x[indexes["position"]]: {
+                ct: x[indexes[ct]].split(" ")[0] for ct in code_types
+            }
             # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
             for x in csv_data[0:]
         }
@@ -348,8 +346,8 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 return {"success": False, "message": "Tube column value not digit!!"}
 
         positions = {
-            x[indexes["row"]]+x[indexes["col"]]:
-                {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+            x[indexes["row"]]
+            + x[indexes["col"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
             for x in csv_data[0:]
         }
         data["positions"] = positions
@@ -912,8 +910,9 @@ def update_rack_samples_from_file(id):
     return abort(view_response.status_code)
 
 
-
-@storage.route("/rack/LIMBRACK-<id>/update_sample_info_in_file", methods=["GET", "POST"])
+@storage.route(
+    "/rack/LIMBRACK-<id>/update_sample_info_in_file", methods=["GET", "POST"]
+)
 @login_required
 def update_rack_sample_info_from_file(id):
     # ------
@@ -948,9 +947,7 @@ def update_rack_sample_info_from_file(id):
             if _samples["success"]:
                 barcode_type = "barcode"
                 if barcode_type not in _samples["code_types"]:
-                    err = (
-                        "Missing barcode column! "
-                    )
+                    err = "Missing barcode column! "
             else:
                 # err = "Errors in reading the file! "
                 err = _samples["message"]
@@ -1006,7 +1003,6 @@ def update_rack_sample_info_from_file(id):
     return abort(view_response.status_code)
 
 
-
 @storage.route("/rack/new_with_samples", methods=["GET", "POST"])
 @login_required
 def storage_rack_create_with_samples():
@@ -1038,6 +1034,7 @@ def storage_rack_refill_with_samples():
     )
     return response.json()
 
+
 @storage.route("/rack/update_sample_info", methods=["GET", "POST"])
 @login_required
 def storage_rack_update_sample_info():
@@ -1052,6 +1049,7 @@ def storage_rack_update_sample_info():
         json=values,
     )
     return response.json()
+
 
 @storage.route("rack/LIMBRACK-<id>/to_cart", methods=["GET", "POST"])
 @login_required

@@ -564,12 +564,10 @@ def func_update_samples(samples, tokenuser):
 
     try:
         db.session.commit()
-        msg = "Info for %d sample(s) updated successfully! " %n_upd
+        msg = "Info for %d sample(s) updated successfully! " % n_upd
         return {"success": True, "message": msg}
     except Exception as err:
         return transaction_error_response(err)
-
-
 
 
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
@@ -796,16 +794,18 @@ def func_check_rack_samples(rack_id, samples):
         sample["id"] = None
         sample["sample_id"] = None
 
-        smpl = db.session.query(Sample) \
-            .join(EntityToStorage,
-                  Sample.id == EntityToStorage.sample_id) \
+        smpl = (
+            db.session.query(Sample)
+            .join(EntityToStorage, Sample.id == EntityToStorage.sample_id)
             .filter(
-            EntityToStorage.rack_id == rack_id,
-            EntityToStorage.storage_type == 'STB',
-            EntityToStorage.removed.is_(False),
-            EntityToStorage.row == sample["row"],
-            EntityToStorage.col == sample["col"]
-        ).first()
+                EntityToStorage.rack_id == rack_id,
+                EntityToStorage.storage_type == "STB",
+                EntityToStorage.removed.is_(False),
+                EntityToStorage.row == sample["row"],
+                EntityToStorage.col == sample["col"],
+            )
+            .first()
+        )
 
         if smpl:
             sample0 = sample_schema.dump(smpl)
@@ -838,6 +838,7 @@ def func_check_rack_samples(rack_id, samples):
             n_found = n_found + 1
 
     return samples, n_found, err
+
 
 def func_get_samples(barcode_type, samples):
     """
@@ -920,7 +921,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     except:
         rack_id = None
 
-
     if rack_id:
         # Step 1. Validate and add new sample rack
         rack = SampleRack.query.filter_by(id=rack_id).first()
@@ -940,7 +940,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         if err is not None:
             return validation_error_response(err)
         # print("samples_ids", samples)
-
 
     if not commit:
 
@@ -989,7 +988,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     return func_transfer_samples_to_rack(samples, rack_id, tokenuser)
 
 
-
 @api.route("/storage/rack/update_sample_barcode", methods=["POST", "GET"])
 @token_required
 def storage_rack_update_sample_barcode(tokenuser: UserAccount):
@@ -1019,7 +1017,6 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
             err = {"messages": "Rack not found!"}
             return validation_error_response(err)
 
-
     commit = False
     if "commit" in values and values["commit"]:
         commit = True
@@ -1030,7 +1027,7 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
         print("rack_id! ", rack_id)
         samples, n_found, err = func_check_rack_samples(rack_id, samples)
 
-        print('n_found', n_found)
+        print("n_found", n_found)
         print("error", err)
         if err is not None:
             return validation_error_response(err)
@@ -1038,11 +1035,15 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
         if n_found < 1:
             return validation_error_response("No samples or barcode to update!")
 
-
     # -- Return info for update
     if not commit:
         message = "%d samples found in the rack to be updated! " % n_found
-        samplestore = {"rack_id": rack_id, "samples": samples, "from_file": True, "update_storage": False}
+        samplestore = {
+            "rack_id": rack_id,
+            "samples": samples,
+            "from_file": True,
+            "update_storage": False,
+        }
 
         if "num_cols" in values:
             samplestore["num_cols"] = values["num_cols"]
