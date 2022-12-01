@@ -816,7 +816,7 @@ $(document).ready(function () {
     if ("update_storage" in sampletostore) {
         var update_storage = sampletostore["update_storage"];
     } else {
-        var update_storage = false;
+        var update_storage = true;
     }
 
     if (update_storage == false) {

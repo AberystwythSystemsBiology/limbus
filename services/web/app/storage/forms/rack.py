@@ -190,7 +190,7 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
 
     barcode_type = SelectField(
         "Barcode Type",
-        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
+        choices=[("uuid", "LImBuS UUID"), ("barcode", "Biobank Barcode")],
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])
@@ -220,7 +220,7 @@ class UpdateRackFileUploadForm(FlaskForm):
 
     barcode_type = SelectField(
         "Barcode Type",
-        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
+        choices=[("uuid", "LImBuS UUID"), ("barcode", "Biobank Barcode")],
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])
