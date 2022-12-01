@@ -928,8 +928,9 @@ $(document).ready(function () {
     else {
         var sample_info = sample_info["content"];
         $("#loading-screen").fadeOut();
-        get_barcode(sample_info, "qrcode");
-    
+        //Remove default Loading of QR Code
+        //get_barcode(sample_info, "qrcode");
+        
         fill_title(sample_info);
         fill_basic_information(sample_info);
         fill_custom_attributes(sample_info["attributes"]);
@@ -954,15 +955,30 @@ $(document).ready(function () {
 
         $("#content").delay(500).fadeIn();
     
-    
+    function showQR(){
+        var elems = $('#barcode');
+        for (var i=0; i<elems.length; i++)
+        {
+            if (elems[i].style.visibility == 'visible')
+            {
+                elems[i].style.visibility = 'visible' 
+            }
+            else
+            {
+                elems[i].style.visibility = 'visible'
+            }
+        }
+    }
         $("#qrcode").click(function () {
             get_barcode(sample_info, "qrcode");
+            showQR();
+          
     
         });
     
         $("#datamatrix").click(function () {
             get_barcode(sample_info, "datamatrix");
-    
+            showQR();
         });
     
         $("#print-label-btn").click(function () {
