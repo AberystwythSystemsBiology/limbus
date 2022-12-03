@@ -39,4 +39,5 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
 
     consent_status = fields.String()
     consent_type = fields.String()
+    not_consent_type = fields.String()
     reminder_type = fields.String()

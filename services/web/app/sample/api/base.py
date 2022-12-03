@@ -71,6 +71,7 @@ from ...database import (
     DonorToSample,
     SampleToCustomAttributeData,
     SampleConsentAnswer,
+    ConsentFormTemplate,
     ConsentFormTemplateQuestion,
 )
 
@@ -235,12 +236,19 @@ def sample_consent_status_query_stmt(
 def sample_consent_type_query_stmt(
     filters_consent=None, filter_sample_id=None, filters=None, joins=None
 ):
+    # - Return samples that are consent for all of the types in the filter
     if "type" not in filters_consent:
         return filter_sample_id
 
     # Filter to get samples with consent to given question types
     num_types = len(filters_consent["type"])
     filter_types = filters_consent["type"]
+
+    if filter_sample_id is None:
+        if filters:
+            filter_sample_id = db.session.query(Sample.id).filter_by(**filters)
+        if joins:
+            filter_sample_id = db.session.query(Sample.id).filter(*joins)
 
     if filter_sample_id is None:
         stmt = (
@@ -254,10 +262,6 @@ def sample_consent_type_query_stmt(
             .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
             .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
-        if filters:
-            stmt = stmt.filter_by(**filters)
-        if joins:
-            stmt = stmt.filter(*joins)
 
     else:
         stmt = (
@@ -281,6 +285,93 @@ def sample_consent_type_query_stmt(
     )
 
     return stmt
+
+def sample_not_consent_type_query_stmt(
+    filters_not_consent=None, filter_sample_id=None, filters=None, joins=None
+):
+    # - Return samples that are not consent for any of the types in the filter
+    if "type" not in filters_not_consent:
+        return filter_sample_id
+
+    # Filter to get samples are not consent to at least one of the given question types
+    num_types = len(filters_not_consent["type"])
+    filter_types = filters_not_consent["type"]
+
+    print("NOT CONSET filter_Type", filter_types)
+
+    if filter_sample_id is None:
+        if filters:
+            filter_sample_id = db.session.query(Sample.id).filter_by(**filters)
+        if joins:
+            filter_sample_id = db.session.query(Sample.id).filter(*joins)
+
+    # get (sample, questionType) with positive answers with given question types
+    if filter_sample_id is None:
+        stmt0 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+                .join(SampleConsent)
+                .join(SampleConsentAnswer)
+                .join(ConsentFormTemplateQuestion)
+                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt00: ", stmt0)
+        # get (sample, questionType) for consent with given question types
+        stmt1 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+                .join(SampleConsent)
+                .join(ConsentFormTemplate)
+                .join(ConsentFormTemplateQuestion)
+                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        #print("stmt10: ", stmt1)
+
+    else:
+        stmt0 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+                .filter(Sample.id.in_(filter_sample_id))
+                .join(SampleConsent)
+                .join(SampleConsentAnswer)
+                .join(ConsentFormTemplateQuestion)
+                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt0: ", stmt0.count())
+        # get (sample, questionType) for consent with given question types
+        stmt1 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+                .filter(Sample.id.in_(filter_sample_id))
+                .join(SampleConsent)
+                .join(ConsentFormTemplate)
+                .join(ConsentFormTemplateQuestion)
+                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt1: ", stmt1.count())
+
+    # Get (sample, questionType) for consents with negative answers for given question types
+    stmt2 = stmt1.except_(stmt0)
+    subq = stmt2.subquery()
+    stmt = (
+        db.session.query(subq.c.sample_id)
+        .distinct(subq.c.sample_id)
+    )
+
+    return stmt
+
 
 
 def sample_reminder_query_stmt(
@@ -635,6 +726,7 @@ def sample_query(args, tokenuser: UserAccount):
     flag_sample_type = False
     flag_consent_status = False
     flag_consent_type = False
+    flag_not_consent_type = False
     flag_protocol = False
     flag_source_study = False
 
@@ -652,6 +744,7 @@ def sample_query(args, tokenuser: UserAccount):
         filters_sampletype[tmp[0]] = tmp[1]
 
     filters_consent = {}
+    filters_not_consent = {}
     if "consent_status" in filters:
         # Single choice
         flag_consent_status = True
@@ -665,6 +758,12 @@ def sample_query(args, tokenuser: UserAccount):
         # Multi choice
         flag_consent_type = True
         filters_consent["type"] = filters.pop("consent_type").split(",")
+
+    if "not_consent_type" in filters:
+        # Multi choice
+        flag_not_consent_type = True
+        filters_not_consent["type"] = filters.pop("not_consent_type").split(",")
+
 
     if "protocol_id" in filters:
         # Single choice
@@ -788,6 +887,12 @@ def sample_query(args, tokenuser: UserAccount):
     if flag_consent_type:
         stmt = sample_consent_type_query_stmt(
             filters_consent=filters_consent, filter_sample_id=stmt
+        )
+
+    if flag_not_consent_type:
+        print("ok")
+        stmt = sample_not_consent_type_query_stmt(
+            filters_not_consent=filters_not_consent, filter_sample_id=stmt
         )
 
     if flag_protocol:
