@@ -213,6 +213,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
+                    console.log("data: ", data);
                     var col_data = "";
                     if (data["user_cart_info"] != undefined && data["user_cart_info"] != null) {
                         var cart_url = window.location.origin;
@@ -467,7 +468,9 @@ function get_filters() {
 
     var f = ["reminder_type", "barcode", "biohazard_level", "base_type", "sample_type", "colour", "source",
             "status", "current_site_id", "consent_status", "consent_type", "not_consent_type",
-            "protocol_id", "source_study"];
+            "protocol_id", "source_study",
+            "sex", "race", "diagnosis",
+        "age_min", "age_max", "bmi_min", "bmi_max"];
 
     $.each(f, function(_, filter) {
         var value = $("#"+filter).val();
@@ -495,7 +498,7 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
-    //console.log("filter: ", filters)
+    console.log("filter: ", filters)
     //render_table({});
     render_table(filters);
     

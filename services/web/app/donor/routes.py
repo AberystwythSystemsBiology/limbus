@@ -62,7 +62,17 @@ def index() -> str:
         sites = sites_response.json()["content"]["choices"]
         user_site_id = sites_response.json()["content"]["user_site_id"]
 
-    form = DonorFilterForm(sites, data={"enrollment_site_id": user_site_id})
+    diagnoses = []
+    diag_response = requests.get(
+        url_for("api.donor_diagnosis_data", _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if diag_response.status_code == 200:
+        diagnoses = diag_response.json()["content"]["choices"]
+        # diagnosis_info = sites_response.json()["content"]["info"]
+
+    form = DonorFilterForm(sites=sites, diagnoses=diagnoses, data={"enrollment_site_id": user_site_id})
     return render_template("donor/index.html", form=form)
 
 
@@ -111,6 +121,20 @@ def get_study_reference():
         return response.json()
     else:
         abort(response.status_code)
+
+
+
+@donor.route("/diagnoses")
+@login_required
+def get_diagnoses():
+    diagnosis_response = requests.get(
+        url_for("api.donor_diagnosis_data", _external=True),
+        headers=get_internal_api_header(),
+    )
+    if diagnosis_response.status_code == 200:
+        return diagnosis_response.json()
+
+    return {"content": None, "success": False}
 
 
 # TODO sample to donor association:

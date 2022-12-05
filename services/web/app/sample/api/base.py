@@ -73,6 +73,8 @@ from ...database import (
     SampleConsentAnswer,
     ConsentFormTemplate,
     ConsentFormTemplateQuestion,
+    Donor,
+    DonorDiagnosisEvent,
 )
 
 
@@ -103,7 +105,6 @@ def sample_protocol_query_stmt(
         )  # .subquery()
 
     return stmt
-
 
 def sample_source_study_query_stmt(
     filters_protocol=None, filter_sample_id=None, filters=None, joins=None
@@ -477,6 +478,52 @@ def sample_reminder_query_stmt(
     return stmt
 
 
+def donor_query_stmt(filters_donor=None):
+    # if filters_donor is None:
+    #     filters_donor = {}
+    stmt = db.session.query(Donor.id).filter_by(**filters_donor)
+    print("stmt0: ", stmt.count())
+
+    if diag_refs:
+        diag_refs = diag_refs.split(",")
+        # print("diag_refs", diag_refs)
+        stmt = (stmt
+                .join(DonorDiagnosisEvent)
+                .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
+                .distinct(Donor.id)
+                )
+
+    if age_min:
+        age_min = int(age_min)
+        stmt = stmt.filter(Donor.age_at_registration >= age_min)
+
+    if age_max:
+        age_max = int(age_max)
+        stmt = stmt.filter(Donor.age_at_registration < age_max)
+
+    if bmi_min:
+        bmi_min = float(bmi_min)
+        stmt = stmt.filter(Donor.bmi >= bmi_min)
+
+    if bmi_max:
+        bmi_max = float(bmi_max)
+        stmt = stmt.filter(Donor.bmi < bmi_max)
+
+    print("stmt ok 000 ", stmt.count())
+    # stmt = stmt.with_entities(Donor.id.label("donor_id"))
+
+    print("stmt ok 001 ", stmt.count())
+    donor_subq = stmt.subquery()
+    # print("subquery ok 000 ", donor_subq.count())
+    stmt0 = (db.session.query(Sample.id)
+             .join(SampleConsent)
+             .join(donor_subq, SampleConsent.donor_id == donor_subq.c.id)
+             )
+    print("stmt000 ", stmt0.count())
+
+    return stmt0
+
+
 # @storage.route("/shelf/LIMBSHF-<id>/location", methods=["GET"])
 def func_shelf_location(id):
     location = (
@@ -714,7 +761,7 @@ def sample_query(args, tokenuser: UserAccount):
     # -- To exclude empty samples in the index list
     joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
-
+    time0 = datetime.now()
     # if not tokenuser.is_admin:
     #     sites_tokenuser = func_validate_settings(
     #         tokenuser, keys={"site_id"}, check=False
@@ -729,6 +776,7 @@ def sample_query(args, tokenuser: UserAccount):
     flag_not_consent_type = False
     flag_protocol = False
     flag_source_study = False
+    flag_donor = False
 
     if "reminder_type" in filters:
         # Single choice
@@ -777,12 +825,37 @@ def sample_query(args, tokenuser: UserAccount):
         filters_source_study = {"protocol_id": filters["source_study"]}
         filters.pop("source_study")
 
-    time0 = datetime.now()
+    #donor_keys = ["sex", "status", "race", "enrollment_site_id", "diagnosis",
+    # "age_min", "age_max", "bmi_min", "bmi_max"]
+    filters_donor = {}
+    for key in ["sex", "race"]: #, "enrollment_site_id"]:
+        fk = filters.pop(key, None)
+        if fk is not None:
+            filters_donor[key] = fk
+            flag_donor = True
+
+    diag_refs = filters.pop("diagnosis", None)
+    age_min = filters.pop("age_min", None)
+    age_max = filters.pop("age_max", None)
+    bmi_min = filters.pop("bmi_min", None)
+    bmi_max = filters.pop("bmi_max", None)
+
+    if diag_refs or age_min or age_max or bmi_min or bmi_max:
+        flag_donor = True
+
+    # print("flag_donor", flag_donor, filters_donor)
+    donor_filtered = None
+    if flag_donor:
+        donor_filtered = donor_query_stmt(filters_donor)
 
     filter_site_id = filters.pop("current_site_id", None)
 
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
-    print("stmt1 count: ", stmt.count())
+
+    if donor_filtered:
+        stmt = stmt.filter(Sample.id.in_(donor_filtered))
+
+    print("donor filtered count: ", stmt.count())
     if filter_site_id:
         stmt = stmt.join(UserAccount, UserAccount.id == Sample.author_id).filter(
             or_(
@@ -793,12 +866,6 @@ def sample_query(args, tokenuser: UserAccount):
                 ),
             )
         )
-        # stmt1 = stmt.filter(Sample.current_site_id == filter_site_id)
-        # stmt2 = (
-        #          stmt.join(UserAccount, UserAccount.id==Sample.author_id)
-        #         .filter(Sample.current_site_id.is_(None),
-        #                 UserAccount.site_id == filter_site_id)
-        #         )
 
         print("stmt 0 - ", stmt.count())
         print("filters: ", filters)
@@ -833,6 +900,7 @@ def sample_query(args, tokenuser: UserAccount):
             .join(Sample, Sample.id == UserCart.sample_id)
             .filter_by(**filters)
             .filter(*joins)
+            .filter(Sample.id.in_(donor_filtered))
         )
         stmt_cart = (
             db.session.query(Sample.id)
@@ -841,8 +909,12 @@ def sample_query(args, tokenuser: UserAccount):
             .filter(Sample.id.in_(stmt_cart))
         )
 
+
     print("stmt cart - ", stmt_cart.count())
     if stmt_cart.count() > 0:
+        if donor_filtered:
+            stmt_cart = stmt_cart.filter(Sample.id.in_(donor_filtered))
+
         if filter_site_id:
             stmt_cart = stmt_cart.filter(
                 or_(
@@ -875,6 +947,9 @@ def sample_query(args, tokenuser: UserAccount):
     if filter_site_id:
         stmt_zeros = stmt_zeros.filter(Sample.current_site_id == filter_site_id)
 
+    if donor_filtered:
+        stmt_zeros = stmt_zeros.filter(Sample.id.in_(donor_filtered))
+
     stmt = stmt.union(stmt_zeros)
     print("stmt zeos2", stmt.count())
     # stmt = stmt.filter_by(**filters).filter(*joins)
@@ -890,7 +965,6 @@ def sample_query(args, tokenuser: UserAccount):
         )
 
     if flag_not_consent_type:
-        print("ok")
         stmt = sample_not_consent_type_query_stmt(
             filters_not_consent=filters_not_consent, filter_sample_id=stmt
         )

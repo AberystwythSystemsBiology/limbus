@@ -64,6 +64,24 @@
                     <input type="hidden" name="sampletypes" value="{{ sampletotype }}">
                 </div>
 
+            <div class="Box" title="-- Donor filter --">
+            {{ form_field(form.sex) }}
+            {{ form_field(form.race) }}
+{#            {{ form_field(form.enrollment_site_id) }}#}
+                <div class="form-group">
+                <b>{{ form.diagnosis.label }}</b>
+                {{ form.diagnosis(size="1", class="selectpicker w-100") }}
+                </div>
+
+                {{ form.age_min(size="1", class="selectpicker w-30", title='min age')}}<=Age<
+                {{ form.age_max(size="1", class="selectpicker w-45", title='max age')}}<br>
+
+                {{ form.bmi_min(size="1", class="selectpicker w-30") }}<=BMI<
+                {{ form.bmi_max(size="1", class="selectpicker w-45")}}<br>
+
+            </div>
+
+
             <div class="row">
                 <div class="col-6">
                     <button id="reset" class="btn btn-outline-dark full-width">Reset Table</button>

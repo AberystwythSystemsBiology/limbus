@@ -52,7 +52,7 @@ function calc_age(date0, date1) {
 
 
 function calc_BMI(weight, height) {
-   height_meter = height/100; 
+   height_meter = height/100;
    bmi = weight / (height_meter * height_meter);
    return Math.floor(bmi);
 }
@@ -70,7 +70,7 @@ function render_table(query, hide_cols=[]) {
     }
 
     var d = get_donors(query);
-    console.log("donor_info", d);
+    //console.log("donor_info", d);
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 
@@ -130,7 +130,7 @@ function render_table(query, hide_cols=[]) {
             {targets: '_all', defaultContent: '-'},
 
             // {targets: [0, 2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
-            {targets: [0,  2 , 4, 6, 7, 12, 13, 16, 18], visible: false, "defaultContent": ""},
+            {targets: [0,  2 , 4, 6, 7, 13, 14, 17, 18], visible: false, "defaultContent": "-"},
 
            
           //  {targets: inv_cols, visible: false, "defaultContent": "-"},
@@ -234,8 +234,7 @@ function render_table(query, hide_cols=[]) {
                        
                     ]
                 },
-                targets: [17]
-
+                targets: [12]
             }
         ],
        
@@ -346,15 +345,26 @@ function render_table(query, hide_cols=[]) {
                 }
             },
             {data: 'race'}, //11
-            {data: 'weight'}, //12
-            {data: 'height'},   //13
-            {  // Status 14
+            { // BMI 12
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    bmi = calc_BMI(data['weight'], data['height'])
+                    if (isNaN(bmi)) {
+                        bmi = null;
+                    }
+                    return bmi;
+
+                }
+            },
+            {data: 'weight'}, //13
+            {data: 'height'},   //14
+            {  // Status 15
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["status"]
                 }
             },
-            { // Diagnoses 15
+            { // Diagnoses 16
                 "mData": {},
                 "mRender": function (data, type, row) {
                     diagnoses = data["diagnoses"];
@@ -375,19 +385,11 @@ function render_table(query, hide_cols=[]) {
                     return col_data;
                 }
             },
-            { // Created_on 16
+            { // Created_on 17
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["created_on"]
                 },
-            },
-            { // BMI 17
-                "mData": {},
-                "mRender": function (data, type, row) {
-                    bmi = calc_BMI(data['weight'], data['height'])
-                    return bmi;
-
-                }
             },
             // Disease Diagnosis 18
             //hidden column, Date deleted to ensure that each piece of data is not unique
@@ -428,15 +430,30 @@ function get_filters() {
 
     }
 
-    var f = ["sex", "status", "race", "enrollment_site_id", "BMI"];
 
-    $.each(f, function (_, filter) {
+    var f = ["sex", "status", "race", "enrollment_site_id", "diagnosis",
+        "age_min", "age_max", "bmi_min", "bmi_max"];
+
+/*    $.each(f, function (_, filter) {
         var value = $("#" + filter).val();
         if (value && value != "None") {
             filters[filter] = value;
         }
+    });*/
+    $.each(f, function(_, filter) {
+        var value = $("#"+filter).val();
+        if (typeof(value) == 'object') {
+            if (value.length>0) {
+                filters[filter] = value.join();
+            }
+        } else {
+            if (value && value != "None") {
+                filters[filter] = value;
+            }
+        }
     });
 
+    console.log("filters:", filters);
     return filters;
 
 

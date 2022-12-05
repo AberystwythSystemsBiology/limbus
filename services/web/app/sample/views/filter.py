@@ -41,3 +41,12 @@ class SampleFilterSchema(masql.SQLAlchemySchema):
     consent_type = fields.String()
     not_consent_type = fields.String()
     reminder_type = fields.String()
+
+    # - Donor filter
+    diagnosis = fields.String()
+    sex = fields.String()
+    race = fields.String()
+    age_min = fields.Int()
+    age_max = fields.Int()
+    bmi_min = fields.Int()
+    bmi_max = fields.Int()

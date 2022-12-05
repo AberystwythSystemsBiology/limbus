@@ -24,6 +24,7 @@ from wtforms import (
     SubmitField,
     BooleanField,
     SelectMultipleField,
+    IntegerField
 )
 from ..enums import (
     Colour,
@@ -33,10 +34,17 @@ from ..enums import (
     SampleBaseType,
     ReminderType,
 )
+
+from ...donor.enums import (
+    RaceTypes,
+    BiologicalSexTypes,
+    DonorStatusTypes,
+)
+
 from ...consent.enums import QuestionType
 
 
-def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
+def SampleFilterForm(sites: list, sampletypes: list, diagnoses: list, data: {}) -> FlaskForm:
     sampletypes.insert(0, (None, "None"))
     # sites.insert(0, (None, "None"))
 
@@ -57,6 +65,22 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         status = SelectField(
             "Sample Status", choices=SampleStatus.choices(with_none=True)
         )
+
+        # -- Donor filter --
+        sex = SelectField(
+            "Biological Sex",
+            choices=BiologicalSexTypes.choices(with_none=True),
+        )
+        race = SelectField(
+            "Race",
+            choices=RaceTypes.choices(with_none=True),
+        )
+        age_min = IntegerField("Age min")
+        age_max = IntegerField("Age max")
+        bmi_min = IntegerField("BMI min")
+        bmi_max = IntegerField("BMI max")
+        diagnosis = SelectMultipleField("Diagnosis (any selected)", choices=diagnoses)
+        # -- End of Donor filter
 
         submit = SubmitField("Filter")
 
@@ -165,14 +189,6 @@ def SampleFilterForm(sites: list, sampletypes: list, data: {}) -> FlaskForm:
         ),
     )
 
-    # setattr(
-    #     StaticForm,
-    #     "user_id",
-    #     SelectField(
-    #         "User",
-    #         choices=users,
-    #     ),
-    # )
     return StaticForm()
 
 

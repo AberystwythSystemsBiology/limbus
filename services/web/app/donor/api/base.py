@@ -32,12 +32,13 @@ from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...sample.api import func_validate_settings
+from ...disease.api import *
 from ...decorators import token_required
 
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
 
-from sqlalchemy.sql import func
+from sqlalchemy.sql import extract, func
 from ...webarg_parser import use_args, use_kwargs, parser
 
 
@@ -53,6 +54,7 @@ from ..views import (
     DonorSearchSchema,
     new_donor_diagnosis_event_schema,
     donor_diagnosis_event_schema,
+    donor_diagnoses_schema,
     new_donor_protocol_event_schema,
     # donor_protocol_events_info_schema,
     NewDonorProtocolEventSchema,
@@ -67,6 +69,7 @@ from ...sample.views import (
     consent_schema,
 )
 
+from datetime import date
 
 @api.route("/donor/get_study_reference", methods=["GET"])
 @use_args(NewDonorProtocolEventSchema(), location="json")
@@ -95,13 +98,87 @@ def donor_home(tokenuser: UserAccount):
     return success_with_content_response(donors_schema.dump(Donor.query.all()))
 
 
+@api.route("/donor/diagnoses", methods=["GET"])
+@token_required
+def donor_diagnosis_data(tokenuser: UserAccount):
+    dde = DonorDiagnosisEvent.query.distinct(DonorDiagnosisEvent.doid_ref).all()
+    diagnosis_info = donor_diagnoses_schema.dump(dde)
+    # print("diagnosis_info: ", diagnosis_info)
+    diagnosis_choices = []
+    for diagd in diagnosis_info:
+        diag = diagd["doid_ref"]
+        # diag_ref = [k for k in diag["references"]]
+        # diag_ref = [diag["name"]] + diag_ref
+        # diag_ref = ",".join(diag_ref)
+        diag_ref = diag["name"]
+        diagnosis_choices.append(
+            (diag["iri"], "||".join([diag["label"], diag_ref]))
+        )
+
+    # print("diagnosis_choices: ", diagnosis_choices)
+    return success_with_content_response(
+        {"info": diagnosis_info,
+         "choices": diagnosis_choices,
+        }
+    )
+
+
+@api.route("/donor/query_basic", methods=["GET"])
+@use_args(DonorSearchSchema(), location="json")
+@token_required
+def donor_query_basic(args, tokenuser: UserAccount):
+    filters, joins = get_filters_and_joins(args, Donor)
+    print("filters ", filters)
+    print("joins ", joins)
+    return success_with_content_response(
+        basic_donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
+    )
+
 @api.route("/donor/query", methods=["GET"])
 @use_args(DonorSearchSchema(), location="json")
 @token_required
 def donor_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Donor)
+    print("filters", filters)
+    print("joins", joins)
+
+
+    diag_refs = filters.pop("diagnosis", None)
+    age_min = filters.pop("age_min", None)
+    age_max = filters.pop("age_max", None)
+    bmi_min = filters.pop("bmi_min", None)
+    bmi_max = filters.pop("bmi_max", None)
+
+    stmt = db.session.query(Donor).filter_by(**filters).filter(*joins)
+    # print("stmt0: ", stmt.count())
+
+    if diag_refs:
+        diag_refs = diag_refs.split(",")
+        # print("diag_refs", diag_refs)
+        stmt = (stmt
+             .join(DonorDiagnosisEvent)
+             .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
+             .distinct(Donor.id)
+        )
+
+    if age_min:
+        age_min = int(age_min)
+        stmt = stmt.filter(Donor.age_at_registration>=age_min)
+
+    if age_max:
+        age_max = int(age_max)
+        stmt = stmt.filter(Donor.age_at_registration<age_max)
+
+    if bmi_min:
+        bmi_min = float(bmi_min)
+        stmt = stmt.filter(Donor.bmi >= bmi_min)
+
+    if bmi_max:
+        bmi_max = float(bmi_max)
+        stmt = stmt.filter(Donor.bmi < bmi_max )
+
     return success_with_content_response(
-        basic_donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
+        basic_donors_schema.dump(stmt.all())
     )
 
 

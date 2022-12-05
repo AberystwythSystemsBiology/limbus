@@ -50,6 +50,15 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
     colour = EnumField(Colour)  # , by_value=True)
     enrollment_site_id = masql.auto_field()
 
+    consent_type = fields.String()
+    not_consent_type = fields.String()
+    diagnosis = fields.String()
+    age_min = fields.Int()
+    age_max = fields.Int()
+    bmi_min = fields.Int()
+    bmi_max = fields.Int()
+
+
 
 class BasicDonorSchema(masql.SQLAlchemySchema):
     class Meta:

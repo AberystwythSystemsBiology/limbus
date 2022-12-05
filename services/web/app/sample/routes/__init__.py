@@ -67,7 +67,14 @@ def index() -> str:
         for opt in stypes["CEL"]:
             sampletypes.append(["cellular_type:" + opt[0], opt[1]])
 
-    form = SampleFilterForm(sites, sampletypes, data={"current_site_id": user_site_id})
+    diag_response = requests.get(
+        url_for("api.donor_diagnosis_data", _external=True),
+        headers=get_internal_api_header(),
+    )
+    if diag_response.status_code == 200:
+        diagnoses = diag_response.json()["content"]["choices"]
+
+    form = SampleFilterForm(sites, sampletypes, diagnoses, data={"current_site_id": user_site_id})
     return render_template(
         "sample/index.html",
         form=form,
