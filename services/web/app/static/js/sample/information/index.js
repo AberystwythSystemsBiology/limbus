@@ -14,20 +14,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-function calc_age(date0, date1) {
-    date0 = new Date(date0 + "Z");
-    date1 = new Date(date1 + "Z");
-    var timeDiff = Math.abs(date0.getTime() - date1.getTime());
-    var age = Math.floor(timeDiff / (1000 * 3600 * 24)/ 365.25);
-    return age;
-}
-
-
-function calc_BMI(weight, height) {
-   height_meter = height/100;
-   bmi = weight / (height_meter * height_meter);
-   return Math.floor(bmi);
-}
 
 function get_samples(query) {
     var current_url = encodeURI(window.location);
@@ -480,7 +466,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
                 "mRender": function (data, type, row) {
                     var donor = data['donor'];
                     if (donor != null) {
-                        var bmi = calc_BMI(donor['weight'], donor['height']);
+                        var bmi = calc_bmi(donor['weight'], donor['height']);
                         if (isNaN(bmi)) {
                             bmi = null;
                         }

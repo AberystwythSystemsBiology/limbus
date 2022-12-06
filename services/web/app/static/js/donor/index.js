@@ -42,22 +42,6 @@ function get_donors(query) {
 }
 
 
-function calc_age(date0, date1) {
-    date0 = new Date(date0 + "Z");
-    date1 = new Date(date1 + "Z");
-    var timeDiff = Math.abs(date0.getTime() - date1.getTime());
-    var age = Math.floor(timeDiff / (1000 * 3600 * 24)/ 365.25);
-    return age;
-}
-
-
-function calc_BMI(weight, height) {
-   height_meter = height/100;
-   bmi = weight / (height_meter * height_meter);
-   return Math.floor(bmi);
-}
-
-
 function render_table(query, hide_cols=[]) {
 
     let exp_cols = Array.from({length: 19}, (v, k) => k);
@@ -205,28 +189,28 @@ function render_table(query, hide_cols=[]) {
                         {
                             label: 'Underweight < 18.5',
                             value: function (data, type, row) {
-                                bmi = calc_BMI(data['weight'], data['height'])
+                                bmi = calc_bmi(data['weight'], data['height'])
                                 return bmi < 18.5;
                             }
                         },
                         {
                             label: 'Normal < 25 ',
                             value: function (data, type, row) {
-                                bmi = calc_BMI(data['weight'], data['height'])
+                                bmi = calc_bmi(data['weight'], data['height'])
                                 return bmi < 25 && bmi >=  18.5 ;
                             }
                         },
                          {
                             label: 'Overweight < 30',
                             value: function (data, type, row) {
-                                bmi = calc_BMI(data['weight'], data['height'])
+                                bmi = calc_bmi(data['weight'], data['height'])
                                 return bmi < 30 && bmi >=  25 ;
                             }
                         },
                          {
                             label: 'Obese >= 30',
                             value: function (data, type, row) {
-                                bmi = calc_BMI(data['weight'], data['height'])
+                                bmi = calc_bmi(data['weight'], data['height'])
                                 return bmi >= 30 ;
                             }
                         }
@@ -348,7 +332,7 @@ function render_table(query, hide_cols=[]) {
             { // BMI 12
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    bmi = calc_BMI(data['weight'], data['height'])
+                    bmi = calc_bmi(data['weight'], data['height'])
                     if (isNaN(bmi)) {
                         bmi = null;
                     }
