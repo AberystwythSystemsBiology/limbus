@@ -40,6 +40,7 @@ from ..views import (
     new_sample_schema,
     edit_sample_schema,
     sample_types_schema,
+    samples_index_schema
 )
 
 from ...storage.views import NewSampleRackToShelfSchema
@@ -478,7 +479,8 @@ def sample_reminder_query_stmt(
     return stmt
 
 
-def donor_query_stmt(filters_donor=None):
+def donor_query_stmt(filters_donor=None, diag_refs=None,
+                     age_min=None, age_max=None, bmi_min=None, bmi_max=None):
     # if filters_donor is None:
     #     filters_donor = {}
     stmt = db.session.query(Donor.id).filter_by(**filters_donor)
@@ -846,7 +848,7 @@ def sample_query(args, tokenuser: UserAccount):
     # print("flag_donor", flag_donor, filters_donor)
     donor_filtered = None
     if flag_donor:
-        donor_filtered = donor_query_stmt(filters_donor)
+        donor_filtered = donor_query_stmt(filters_donor, diag_refs, age_min, age_max, bmi_min, bmi_max)
 
     filter_site_id = filters.pop("current_site_id", None)
 
@@ -995,10 +997,10 @@ def sample_query(args, tokenuser: UserAccount):
     time1 = datetime.now()
     td1 = time1 - time0
     print("db query took %0.3f ms" % (td1.microseconds / 1000))
-    # print("stmt", stmt)
 
     time1 = datetime.now()
-    results = basic_samples_schema.dump(stmt.all())
+    #results = basic_samples_schema.dump(stmt.all())
+    results = samples_index_schema.dump(stmt.all())
 
     # print("results", len(results), "--", results)
     # -- retrieve user cart info

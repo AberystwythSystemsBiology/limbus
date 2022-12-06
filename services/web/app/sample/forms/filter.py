@@ -115,7 +115,7 @@ def SampleFilterForm(sites: list, sampletypes: list, diagnoses: list, data: {}) 
         StaticForm,
         "consent_type",
         SelectMultipleField(
-            "Consent for (all selected types)",
+            "Consent for (all selected)",
             choices=QuestionType.choices(with_none=False),
         ),
     )
@@ -124,7 +124,7 @@ def SampleFilterForm(sites: list, sampletypes: list, diagnoses: list, data: {}) 
         StaticForm,
         "not_consent_type",
         SelectMultipleField(
-            "Not consent for (>0 selected types)",
+            "Not consent for (>0 selected)",
             choices=QuestionType.choices(with_none=False),
         ),
     )

@@ -19,14 +19,21 @@ from ...database import (
     SampleShipmentStatus,
     SampleShipment,
     SampleShipmentToSample,
+    Donor
 )
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
-
+from marshmallow import fields
 from ...auth.views import UserAccountSearchSchema
 from ...misc.views import SiteNameSchema
 from ...event.views import NewEventSchema
 from ..enums import SampleShipmentStatusStatus
+
+from ...donor.enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
+# from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
+from ...database import DonorDiagnosisEvent
+from ...donor.enums import CancerStage
+from ...disease.api import retrieve_by_iri
 
 
 class SampleUUIDSchema(masql.SQLAlchemySchema):
@@ -86,6 +93,36 @@ class SampleShipmentToSampleInfoSchema(masql.SQLAlchemySchema):
 
     shipment = ma.Nested(BasicSampleShipmentSchema, many=False)
     old_site = ma.Nested(SiteNameSchema, many=False)
+
+
+class DoidInstance(fields.Field):
+    def _serialize(self, value, attr, obj, **kwargs):
+        return retrieve_by_iri(value)
+
+
+class BasicDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DonorDiagnosisEvent
+    diagnosis_date = ma.Date()
+    comments = masql.auto_field()
+    doid_ref = DoidInstance()
+    stage = EnumField(CancerStage)
+
+class DonorIndexSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Donor
+
+    id = masql.auto_field()
+    uuid = masql.auto_field()
+    mpn = masql.auto_field()
+    enrollment_site_id = masql.auto_field()
+    dob = ma.Date()
+    registration_date = ma.Date()
+    sex = EnumField(BiologicalSexTypes, by_value=True)
+    status = EnumField(DonorStatusTypes, by_value=True)
+    weight = masql.auto_field()
+    height = masql.auto_field()
+    diagnoses = ma.Nested(BasicDonorDiagnosisEventSchema, many=True)
 
 
 from .filter import *

@@ -14,6 +14,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+function calc_age(date0, date1) {
+    date0 = new Date(date0 + "Z");
+    date1 = new Date(date1 + "Z");
+    var timeDiff = Math.abs(date0.getTime() - date1.getTime());
+    var age = Math.floor(timeDiff / (1000 * 3600 * 24)/ 365.25);
+    return age;
+}
+
+
+function calc_BMI(weight, height) {
+   height_meter = height/100;
+   bmi = weight / (height_meter * height_meter);
+   return Math.floor(bmi);
+}
 
 function get_samples(query) {
     var current_url = encodeURI(window.location);
@@ -119,12 +133,13 @@ function tocart_btn_logic(aTable) {
 }
 
 function render_sample_table(samples, div_id, hide_cols=[]) {
-    let exp_cols = Array.from({length: 18}, (v, k) => k);
+    //let exp_cols = Array.from({length: 18}, (v, k) => k);
+    let exp_cols = Array.from({length: 25}, (v, k) => k);
     exp_cols = exp_cols.filter(function (x) {
         return [0, 1].indexOf(x) < 0; //exclude select/user_cart columns
     });
 
-    let inv_cols = [3, 6, 7, 11, 15, 16, 17, 18]; //[1, 2, 5, 6, 10, -1]; ;
+    let inv_cols = [3, 6, 7, 11, 15, 16, 17, 18];// , 19, 20, 21,22,23];
     if (hide_cols.length > 0) {
         inv_cols = inv_cols.concat(hide_cols);
     }
@@ -213,7 +228,7 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    console.log("data: ", data);
+                    //console.log("data: ", data);
                     var col_data = "";
                     if (data["user_cart_info"] != undefined && data["user_cart_info"] != null) {
                         var cart_url = window.location.origin;
@@ -421,6 +436,88 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
                 }
             },
 
+            // -- Donor info
+            { // Age at registration
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var donor = data['donor'];
+                    if (donor!=null) {
+                        var age_at_registration = calc_age(donor['dob'], donor['registration_date']);
+                    } else {
+                        var age_at_registration = null;
+                    }
+                    return age_at_registration;
+                }
+            },
+
+            { // Sex
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var donor = data['donor'];
+                    if (donor!=null) {
+                        return donor["sex"];
+                    }
+                    else {
+                        return null;
+                    }
+                }
+            },
+            { // Race
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var donor = data["donor"];
+                    if (donor!=null) {
+                        return donor["race"];
+                    }
+                    else {
+                        return null
+                    }
+                }
+            },
+
+            { // BMI
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var donor = data['donor'];
+                    if (donor != null) {
+                        var bmi = calc_BMI(donor['weight'], donor['height']);
+                        if (isNaN(bmi)) {
+                            bmi = null;
+                        }
+                    } else {
+                        bmi = null;
+                    }
+                    return bmi;
+                }
+            },
+
+            { // Diagnoses
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var donor = data['donor']
+                    var diagnoses=[];
+                    if (donor != null) {
+                        diagnoses = donor['diagnoses'];
+                    }
+                    if (diagnoses == null)
+                        diagnoses = []
+
+                    var col_data = '';
+                    $.each(diagnoses, function (index, diagnosis) {
+                        //var col_data = '';
+                        col_data += "<a href='" + diagnosis['doid_ref']["iri"] + "'>";
+                        col_data += '<i class="fa fa-stethoscope"></i> '
+                        col_data += diagnosis['doid_ref']["label"];
+                        col_data += "</a>";
+
+                        if (index < (diagnoses.length-1))
+                             col_data += ', <br>';
+                    });
+                    return col_data;
+                }
+            },
+
+
         ],
 
 
@@ -498,7 +595,7 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
-    console.log("filter: ", filters)
+    //console.log("filter: ", filters)
     //render_table({});
     render_table(filters);
     

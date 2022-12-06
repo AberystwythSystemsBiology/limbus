@@ -88,7 +88,7 @@ function render_table(query, hide_cols=[]) {
                 clearMessage: 'Clear Selections',
                 collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
                 viewTotal: false,
-                columns: [0, 3, 4,9,15,16,17]
+                columns: [3, 4, 9, 10, 15,18]
             }
 
         },
@@ -136,9 +136,9 @@ function render_table(query, hide_cols=[]) {
           //  {targets: inv_cols, visible: false, "defaultContent": "-"},
             {
                 targets: 0,
-                orderable: false,
-                className: 'select-checkbox',
-                //searchable: false,
+                orderable: true,
+                //className: 'select-checkbox',
+                searchable: false,
             },
 
             //{width: 200, targets: 6 }
@@ -453,7 +453,7 @@ function get_filters() {
         }
     });
 
-    console.log("filters:", filters);
+    //console.log("filters:", filters);
     return filters;
 
 
