@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
-function get_rack_information() {
+ 
+function get_rack_information(){
     var api_url = encodeURI(window.location + '/endpoint');
 
     var json = (function () {
@@ -377,6 +377,78 @@ $("#add-rack-cart-btn").click(function() {
         }
     });
 })
+
+function printCard(view, assign_sample_url, dispopt) {
+   
+    // var dispopt = $("input[name='dispopt']:checked").val();
+     //window.location.href = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+     //var samples = render_view(rack_information["view"], rack_information["_links"]["assign_sample"], dispopt);
+    // render_sample_table(samples);
+    // console.log(samples); <h5>'+ header +'</h5><br>
+    //  var divContents = $("#view_area").html();
+    //  var doc = window.open('', '','height=500, width=500');
+    //  doc.document.write('<html>');
+    // doc.document.write('<body >');
+
+   // var samples = [];
+
+    // for (r in view) {
+    //     var row_id = "row_" + r
+    //     divContents.append('<div id="' + row_id + '" class="row no-gutters"></div>');
+    //     var row = view[r]
+    //     for (c in row) {
+    //         if (c==0 || r==0) {
+    //             render_axis(r, c);
+    //         } else {
+    //             count += 1
+    //             var column = row[c];
+    //             if (column["empty"]) {
+    //                 render_empty(r, c, count, assign_sample_url);
+    //             } else {
+
+    //                 if (dispopt=='qr') {
+    //                     render_full(column, r, c, count, assign_sample_url);
+    //                 } else {
+    //                     render_full_noimg(column, r, c, count, assign_sample_url, dispopt);
+    //                 }
+    //                 column["pos"] = [r, c]
+    //                 samples.push(column)
+
+    //             }
+    //         }
+    //     }
+    // }
+
+    // var e = document.createElement('div');
+    // e.id = 'view_area';
+    // e.innerHTML = $('#view_area').html();
+    // doc.document.getElementById('t').appendChild(e);
+
+    // var strHtml = "<html>\n<head>\n <link rel=\"stylesheet\" type=\"text/css\"  href=\"css/global.css\">\n</head><body><div style=\"testStyle\">\n"
+	// 	+ divContents + "\n</div>\n</body>\n</html>";
+
+    // doc.document.write(strHtml);
+    // doc.document.write('</body></html>');
+    //  doc.document.close();
+    print();
+}
+function PrintContent()
+{
+    var e = document.createElement('div');
+    e.id = 'view_area';
+    e.innerHTML = $('#view_area').html();
+    document.getElementById('t').appendChild(e);
+}
+$("#print-rack-btn").click(function () {
+    //var rack_information = get_rack_information();
+   // var header = "Rack Information UUID: " + rack_information["uuid"];
+      //console.log('header', header)
+     printCard();
+     //PrintContent()
+ 
+
+});
+
 
 $('#cart-confirmation-modal').on('hidden.bs.modal', function () {
     location.reload();

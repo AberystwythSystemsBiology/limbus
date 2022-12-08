@@ -8,6 +8,49 @@
 
 
 {% block body %}
+<style>
+    @media print{
+       #sample-table-div, .container *, .jumbotron, .navbar *, #sample-table-div * {
+        display: none;
+       }
+
+        #view_area, #view_area * {
+            margin:0 auto 0;
+        }
+        #view_area {
+    margin:0 auto 0;
+
+}
+
+#view_area .col {
+    max-width: 8%;
+}
+.box {
+    text-align: center;
+}
+
+.square {
+    background-color: #fff;
+    margin:0.1em;
+    padding-bottom: 100%;
+    position: relative;
+    height: 0;
+
+}
+
+.tube {
+    border: #9ecae1 solid 1px;
+}
+
+.box-heading {
+    max-height: 3em;
+}
+
+
+    }
+
+    
+</style>
 
 <div id="sidebar-wrapper">
     {{ storage_navbar() }}
@@ -69,6 +112,9 @@
 
                                 </div>
 
+                                
+
+
                                 {% if not rack.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="Second group">
                                     <button id="delete-rack" type="button" class="btn btn-delete float-right" data-toggle="modal"
@@ -126,6 +172,11 @@
                     <div class="col">
                     <h2><i class="fa fa-grip-vertical"></i> Rack View (<span id="row"></span> x <span id="col"></span>)
                     </h2>
+                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                        <button type="button" class="btn btn-outline-dark" id="print-rack-btn"><i class="fa fa-print"></i>
+                          Print
+                          Rack</button>
+                      </div>
                     </div>
 
                     <div class="col float-center" style="background-color: white; margin-right: 50px  ">
@@ -142,6 +193,7 @@
                 </div>
 
                     <div id="view_area"></div>
+                   
                 </div>
 
 
