@@ -4,7 +4,7 @@
 <link href="{{ url_for('static', filename='css/storage/navbar.css') }}" rel="stylesheet">
 {% endblock %}
 
-{% block title %}LIMBRACK-{{rack.id}}: Assign Rack Samples {% endblock %}
+{% block title %}LIMBRACK-{{rack.id}}: Update Rack Sample Info from File {% endblock %}
 
 {% block body %}
 
@@ -22,34 +22,38 @@
                 <a href="{{url_for('storage.view_rack', id=rack.id) }}">
                     <i class="fa fa-grip-vertical"></i> LIMBRACK-{{rack.id}}</a>
             </span>
-            Update Rack Samples from File</h1>
+            Update Sample Info in Rack from File</h1>
 
         <div class="container">
-            <p> Ensure that the file is in the comma-separated-value (csv) file format. In order for the file to be read, the CSV file must have the following column headings on the first row:
+            <p> Ensure that the file is in the comma-separated-value (csv) file format. In order for the file to be read, the CSV file must have the following column headings on the first row (Case insensitive):
             </p>
             <ul>
                 <li>Tube Barcode: The reference string of characters used to interrogate LImBuS for existing samples.
                 </li>
-                <li>Tube Position: The position of the vial in the form of A1, B2, F42.</li>
+                <li>Tube Position: The position of the vial in the form of A1, B2, F42. </li>
+                <li>Or Tube Position can be provide with two columns 'row' and 'column' separately with heading of<br>
+                    Tube Row /Row: column in alphabet (A-Z)<br>
+                    Tube Column /Column /Col: row in digit
+                </li>
             </ul>
 
             <p>
                 If the file contains additional attribute information, it will be <b>disregarded entirely</b>.
             </p>
 </div>
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.update_rack_samples_from_file', id=rack.id) }}">
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('storage.update_rack_sample_info_from_file', id=rack.id) }}">
 
                 {{ form.csrf_token() }}
-                <div class="row">
-                    <div class="col-6">
-                        {{ form_field(form.entry_date) }}
-                    </div>
-                    <div class="col-6">
-                        {{ form_field(form.entry_time) }}
-                    </div>
-                </div>
-                {{ form_field(form.entry) }}
-                {{ form_field(form.barcode_type) }}
+{#                <div class="row">#}
+{#                    <div class="col-6">#}
+{#                        {{ form_field(form.entry_date) }}#}
+{#                    </div>#}
+{#                    <div class="col-6">#}
+{#                        {{ form_field(form.entry_time) }}#}
+{#                    </div>#}
+{#                </div>#}
+{#                {{ form_field(form.entry) }}#}
+{#                {{ form_field(form.barcode_type) }}#}
 
                 {{ form_field(form.file) }}
                 <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
@@ -66,7 +70,8 @@
             </form>
 
             <div id="rack-warning" class="alert alert-warning" style="display:none;" role="alert">
-                <b>Warning:</b> This will update the whole rack occupancy. Samples absent in the file will be removed from the rack!
+                <b>Warning:</b> This will not update the rack occupancy.
+                Info (barcode only at the moment) for the samples in the file matched with those in the rack would be updated!
             </div>
 {#            <div class="row">
                 <div class="col-sm-6">

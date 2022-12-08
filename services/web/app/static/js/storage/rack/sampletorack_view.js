@@ -620,10 +620,9 @@ function dragndrop_rack_view() {
        $("#submit_sampletorack").fadeTo(1000, 0.3, function() { $(this).fadeTo(500, 1.0); });
        $("#submit_sampletorack").show();
 
-
-
         var dispopt = $("input[name='dispopt']:checked").val();
         var changed = [];
+
         document.ondragstart = function (event) {
             //event.dataTransfer.setData("text/plain", event.target.id);
             event.dataTransfer.setData('target_id', event.target.id);
@@ -814,6 +813,15 @@ $(document).ready(function () {
         var new_rack = false;
     }
 
+    if ("update_storage" in sampletostore) {
+        var update_storage = sampletostore["update_storage"];
+    } else {
+        var update_storage = true;
+    }
+
+    if (update_storage == false) {
+        $("#submit_sampletorack").text("Update Sample in Rack");
+    }
 
     $("input[id='qr_on']").attr('hidden', true);
 
@@ -829,16 +837,20 @@ $(document).ready(function () {
         render_subtitle(rack_information);
         render_information(rack_information);
     }
+
+
     var dispopt = $("input[name='dispopt']:checked").val();
 
     if (from_file==true) {
         //console.log("rack_information[view]", rack_information["view"]);
         var samples = render_view_from_file(rack_information["view"],
             rack_information["_links"]["assign_sample"], dispopt);
+
     } else {
         var samples = render_view(rack_information["view"],
             rack_information["_links"]["assign_sample"], dispopt);
     }
+
 
     $("input[name='dispopt']").change(function(){
         var dispopt = $("input[name='dispopt']:checked").val();
@@ -855,8 +867,9 @@ $(document).ready(function () {
     render_sample_table(samples);
 
 
-    if (from_file==true)
+    if (from_file == true) {
         $("#cancel_change").show();
+    }
     else {
         $("#cancel_change").show();
         dragndrop_rack_view();
@@ -874,8 +887,12 @@ $(document).ready(function () {
 
     });
 
+    if (update_storage) {
+        alert("Note: Please check the storage info before pressing STORE-SAMPLE-TO-RACK button to confirm!!")
+    } else {
+        alert("Note: Please check the storage info before pressing UPDATE-SAMPLE-IN-RACK button to confirm!!")
+    }
 
-    alert("Note: Please check the storage info before pressing STORE-SAMPLE-TO-RACK button to confirm!!")
 
     $("#submit_sampletorack").click(function (event) {
         if (from_file) {
@@ -884,6 +901,13 @@ $(document).ready(function () {
 
             else
                 var api_url = window.location.origin + "/storage/rack/refill_with_samples";
+
+                if (update_storage) {
+                        var api_url = window.location.origin + "/storage/rack/refill_with_samples";
+                } else {
+                        var api_url = window.location.origin + "/storage/rack/update_sample_info";
+                }
+
         }
         else if (!update_only)
             var api_url = window.location.origin + "/storage/rack/fill_with_samples"

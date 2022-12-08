@@ -46,6 +46,7 @@ from ..forms import (
     NewCryovialBoxFileUploadForm,
     CryoBoxFileUploadSelectForm,
     UpdateRackFileUploadForm,
+    UpdateRackSampleInfoFileUploadForm,
 )
 from datetime import datetime
 import tempfile
@@ -173,74 +174,8 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
     expected_barcode = ["tube barcode", "barcode"]
     expected_uuid = ["identifier", "uuid"]
     expected_pos = ["tube position", "position", "pos"]
-
-    # if False:
-    #     try:
-    #         reads = request.files[csvfile.name].read()#.decode().strip()
-    #     except:
-    #         try:
-    #             reads = request.files[csvfile].read()#.decode().strip()
-    #         except:
-    #             return {
-    #                 "success": False,
-    #                 "message": "File reading error! Make sure the file is in csv format!",
-    #             }
-    #
-    #     try:
-    #         reads = reads.decode('utf-8')
-    #         print("default")
-    #     except:
-    #         try:
-    #             print("ut")
-    #             reads = reads.decode('unicode_escape')
-    #         except:
-    #             try:
-    #                 print("latin")
-    #                 reads = reads.decode("latin-1")
-    #             except:
-    #                 return{
-    #                     "success": False,
-    #                     "message": "File reading decoding error!",
-    #                 }
-    #
-    #     if reads.startswith("'") and reads.endswith("'"):
-    #         reads = reads[1:-1]
-    #
-    #     resplit = re.compile(",")
-    #
-    #     for linesep in ["\n", "\r\n", "\r"]:
-    #         csvdata = reads.split(linesep)
-    #         # print("csvdata", csvdata)
-    #         # - check header
-    #         if len(csvdata) < 2:
-    #             continue
-    #
-    #         header = [
-    #             nm.lower().replace('"', "").replace("'", "")
-    #             for nm in resplit.split(csvdata[0])
-    #         ]
-    #
-    #         res = list(set.intersection(*map(set, [header, expected_pos])))
-    #         if len(res) == 0:
-    #             continue
-    #
-    #         res = list(
-    #             set.intersection(*map(set, [header, (expected_barcode + expected_uuid)]))
-    #         )
-    #         if len(res) == 0:
-    #             continue
-    #
-    #         # if len(csvdata) != nrow * ncol + 1:
-    #         #    continue
-    #         csv_data = []
-    #         for row in csvdata:
-    #             row = row.split(",")
-    #             row = [r.replace('"', "").replace("'", "").replace(",", "") for r in row]
-    #             csv_data.append(row)
-    #
-    #         if len(csv_data) >= 2:
-    #             break
-    #
+    expected_row = ["tube row", "row"]
+    expected_col = ["tube column", "column", "col"]
 
     try:
         csvf = request.files[csvfile.name]
@@ -308,21 +243,8 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
         }
 
     header = [nm.lower().replace('"', "").replace("'", "") for nm in header]
-    # print("nrows, Header", len(csv_data[0]), csv_data[0])
     print("header", header)
     indexes = {}
-
-    for key in expected_pos:
-        if key in header:
-            indexes["position"] = header.index(key)
-
-    if "position" not in indexes:
-        return {
-            "success": False,
-            "message": "Missing column for tube position; "
-            "should be one of the following in header (case insensitive): "
-            "'Tube position', 'Position', 'Pos'",
-        }
 
     for key in expected_barcode:
         if key in header:
@@ -340,44 +262,115 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             "'Tube barcode', 'Barcode', 'identifier', 'uuid'",
         }
 
+    for key in expected_pos:
+        if key in header:
+            indexes["position"] = header.index(key)
+
+    if "position" not in indexes:
+        for key in expected_row:
+            if key in header:
+                indexes["row"] = header.index(key)
+
+        for key in expected_col:
+            if key in header:
+                indexes["col"] = header.index(key)
+
+        if "row" not in indexes and "col" in indexes:
+            return {
+                "success": False,
+                "message": "Missing column for tube row position; "
+                "should be one of the following in header (case insensitive): "
+                "'Tube Row', 'Row'",
+            }
+
+        if "col" not in indexes and "row" in indexes:
+            return {
+                "success": False,
+                "message": "Missing column for tube col position; "
+                "should be one of the following in header (case insensitive): "
+                "'Tube Column', 'Col', 'Column'",
+            }
+
+        if "row" not in indexes and "col" not in indexes:
+            return {
+                "success": False,
+                "message": "Missing column for tube position; "
+                "should be one of the following in header (case insensitive): "
+                "'Tube position', 'Position', 'Pos'",
+            }
+
     code_types = [key for key in indexes]
 
-    indexes.update({"row": [], "column": []})
+    indexes.update({"rows": [], "columns": []})
 
     print("codetype", code_types, indexes)
 
-    positions = {
-        # -- note: to ignore the second code in the same field separated by space.
-        x[indexes["position"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
-        # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
-        for x in csv_data[0:]
-    }
-    print("positions", positions)
+    if "position" in indexes:
+        positions = {
+            # -- note: to ignore the second code in the same field separated by space.
+            x[indexes["position"]]: {
+                ct: x[indexes[ct]].split(" ")[0] for ct in code_types
+            }
+            # x[indexes["position"]]: {ct: x[indexes[ct]] for ct in code_types}
+            for x in csv_data[0:]
+        }
+        # print("positions", positions)
 
-    data["positions"] = positions
+        data["positions"] = positions
 
-    # Going to use plain old regex to do the splits
-    regex = re.compile(r"(\d+|\s+)")
+        # Going to use plain old regex to do the splits
+        regex = re.compile(r"(\d+|\s+)")
 
-    for position in data["positions"].keys():
-        splitted = regex.split(position)
-        pos = []
-        try:
-            for s in splitted[0:2]:
-                # print("s: ", s)
-                if s.isdigit():
-                    pos.append(int(s))
-                else:
-                    pos.append(ord(s.lower()) - 96)
+        for position in data["positions"].keys():
+            splitted = regex.split(position)
+            pos = []
+            try:
+                for s in splitted[0:2]:
+                    # print("s: ", s)
+                    if s.isdigit():
+                        pos.append(int(s))
+                    else:
+                        pos.append(ord(s.lower()) - 96)
 
-            indexes["row"].append(pos[0])  # Letter e.g. A2: => Row 1
-            indexes["column"].append(pos[1])  # Number A2 => Column 2
-        except:
-            return {"success": False, "message": "Error in reading positions"}
+                indexes["rows"].append(pos[0])  # Letter e.g. A2: => Row 1
+                indexes["columns"].append(pos[1])  # Number A2 => Column 2
+            except:
+                return {"success": False, "message": "Error in reading positions"}
 
-    if max(indexes["row"]) > nrow or min(indexes["row"]) < 1:
+    else:
+
+        for x in csv_data[0:]:
+            if not x[indexes["row"]].isalpha():
+                return {"success": False, "message": "Tube row value not alphabet!!"}
+            if not x[indexes["col"]].isdigit():
+                return {"success": False, "message": "Tube column value not digit!!"}
+
+        positions = {
+            x[indexes["row"]]
+            + x[indexes["col"]]: {ct: x[indexes[ct]].split(" ")[0] for ct in code_types}
+            for x in csv_data[0:]
+        }
+        data["positions"] = positions
+
+        for position in data["positions"]:
+            dpos = data["positions"][position]
+            print("dpos: ", dpos)
+            try:
+                row_id = ord(dpos["row"].lower()) - 96
+                col_id = int(dpos["col"])
+                dpos["row"] = row_id
+                dpos["col"] = col_id
+                indexes["rows"].append(row_id)  # Letter e.g. A2: => Row 1
+                indexes["columns"].append(col_id)  # Number A2 => Column 2
+            except:
+                return {"success": False, "message": "Error in reading positions"}
+
+        print("positions", positions)
+        data["positions"] = positions
+
+    if max(indexes["rows"]) > nrow or min(indexes["rows"]) < 1:
         return {"success": False, "message": "Position (row number) out of range!"}
-    if max(indexes["column"]) > ncol or min(indexes["column"]) < 1:
+    if max(indexes["columns"]) > ncol or min(indexes["columns"]) < 1:
         return {"success": False, "message": "Position (column number) out of range!"}
 
     data["num_rows"] = nrow  # max(indexes["row"])
@@ -646,7 +639,7 @@ def assign_rack_sample(id, row, column):
                     flash(sample_move_response.json())
 
             return render_template(
-                "storage/rack/sample_to_rack.html",
+                "storage/rack/sample_to_rack_pos.html",
                 rack=view_response.json()["content"],
                 row=row,
                 column=column,
@@ -817,7 +810,7 @@ def storage_rack_edit_samples_pos():
 
 @storage.route("/rack/LIMBRACK-<id>/assign_samples_in_file", methods=["GET", "POST"])
 @login_required
-def update_rack_samples(id):
+def update_rack_samples_from_file(id):
     # ------
     # Update the whole rack occupancy using csv file (often from the rack saner).
     # -----
@@ -917,6 +910,99 @@ def update_rack_samples(id):
     return abort(view_response.status_code)
 
 
+@storage.route(
+    "/rack/LIMBRACK-<id>/update_sample_info_in_file", methods=["GET", "POST"]
+)
+@login_required
+def update_rack_sample_info_from_file(id):
+    # ------
+    # Update the whole rack occupancy using csv file (often from the rack saner).
+    # -----
+    view_response = requests.get(
+        url_for("api.storage_rack_view", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if view_response.json()["content"]["is_locked"]:
+        flash("The rack is locked!")
+        return redirect(url_for("storage.view_rack", id=id))
+
+    if view_response.json()["content"]["shelf"] is None:
+        flash(
+            "The rack has not been assigned to a shelf! Edit the rack location first!"
+        )
+        return redirect(url_for("storage.edit_rack", id=id))
+
+    if view_response.status_code == 200:
+        num_rows = view_response.json()["content"]["num_rows"]
+        num_cols = view_response.json()["content"]["num_cols"]
+
+        form = UpdateRackSampleInfoFileUploadForm()
+
+        if form.validate_on_submit():
+
+            err = None
+
+            _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
+            if _samples["success"]:
+                barcode_type = "barcode"
+                if barcode_type not in _samples["code_types"]:
+                    err = "Missing barcode column! "
+            else:
+                # err = "Errors in reading the file! "
+                err = _samples["message"]
+
+            if err:
+                flash(err)
+                return redirect(url_for("storage.view_rack", id=id))
+
+            samples = []
+            for s in _samples["positions"].items():
+                # e.g. s=['B1', {'position': 'B1', 'barcode': '12345', 'uuid': 'edf77b31-ba28-4b3a-98d2-f9c058c3a865'}]
+                smpl = s[1]
+                smpl.update(
+                    {
+                        "sample_code": s[1][barcode_type],
+                        "row": alpha2num(s[0][0]),
+                        "col": int(s[0][1 : len(s[0])]),
+                    }
+                )
+                samples.append(smpl)
+
+            rack_data = {
+                "rack_id": id,
+                "barcode_type": barcode_type,
+                "samples": samples,
+            }
+
+            sample_update_response = requests.post(
+                url_for("api.storage_rack_update_sample_barcode", _external=True),
+                headers=get_internal_api_header(),
+                json=rack_data,
+            )
+
+            if sample_update_response.status_code == 200:
+                sampletostore = sample_update_response.json()["content"]
+
+                return render_template(
+                    "storage/rack/view_sample_to_rack.html",
+                    id=id,
+                    sampletostore=sampletostore,
+                )
+
+            else:
+
+                flash(sample_update_response.json())
+                return redirect(url_for("storage.view_rack", id=id))
+
+        return render_template(
+            "storage/rack/update_rack_sample_info_from_file.html",
+            rack=view_response.json()["content"],
+            form=form,
+        )
+    return abort(view_response.status_code)
+
+
 @storage.route("/rack/new_with_samples", methods=["GET", "POST"])
 @login_required
 def storage_rack_create_with_samples():
@@ -943,6 +1029,22 @@ def storage_rack_refill_with_samples():
 
     response = requests.post(
         url_for("api.storage_rack_refill_with_samples", _external=True),
+        headers=get_internal_api_header(),
+        json=values,
+    )
+    return response.json()
+
+
+@storage.route("/rack/update_sample_info", methods=["GET", "POST"])
+@login_required
+def storage_rack_update_sample_info():
+    if request.method == "POST":
+        values = request.json
+    else:
+        return {"messages": "Sample and storage info needed!", "success": False}
+
+    response = requests.post(
+        url_for("api.storage_rack_update_sample_barcode", _external=True),
         headers=get_internal_api_header(),
         json=values,
     )

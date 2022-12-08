@@ -190,7 +190,7 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
 
     barcode_type = SelectField(
         "Barcode Type",
-        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
+        choices=[("uuid", "LImBuS UUID"), ("barcode", "Biobank Barcode")],
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])
@@ -217,15 +217,10 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
 
 
 class UpdateRackFileUploadForm(FlaskForm):
-    # serial = StringField("Serial Number", validators=[DataRequired()])
-    # description = TextAreaField("Description")
-    # colour = SelectField("Colour", choices=Colour.choices())
-    # num_rows = IntegerField("Number of Rows", default=8, validators=[DataRequired()])
-    # num_cols = IntegerField("Number of Columns", default=12, validators=[DataRequired()])
 
     barcode_type = SelectField(
         "Barcode Type",
-        choices=[("barcode", "Biobank Barcode"), ("uuid", "LImBuS UUID")],
+        choices=[("uuid", "LImBuS UUID"), ("barcode", "Biobank Barcode")],
         description="The barcode attribute to cross reference against.",
     )
     file = FileField("File", validators=[DataRequired()])
@@ -248,5 +243,11 @@ class UpdateRackFileUploadForm(FlaskForm):
         description="The initials of the individual who created the sample rack",
         validators=[DataRequired()],
     )
+
+    submit = SubmitField("Upload File")
+
+
+class UpdateRackSampleInfoFileUploadForm(FlaskForm):
+    file = FileField("File", validators=[DataRequired()])
 
     submit = SubmitField("Upload File")

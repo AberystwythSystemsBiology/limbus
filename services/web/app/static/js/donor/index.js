@@ -46,7 +46,7 @@ function calc_age(date0, date1) {
     date0 = new Date(date0 + "Z");
     date1 = new Date(date1 + "Z");
     var timeDiff = Math.abs(date0.getTime() - date1.getTime());
-    var age = Math.ceil(timeDiff / (1000 * 3600 * 24)/ 365);
+    var age = Math.floor(timeDiff / (1000 * 3600 * 24)/ 365.25);
     return age;
 }
 
@@ -62,7 +62,7 @@ function render_table(query) {
         buttons: [ 'print', 'csv', 'colvis' ],
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+            {targets: [0, 2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
             //{width: 200, targets: 6 }
         ],
         //fixedColumns: true,

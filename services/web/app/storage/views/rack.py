@@ -110,12 +110,17 @@ class SampleRackSchema(masql.SQLAlchemySchema):
                 _external=True,
             ),
             "update_samples": ma.URLFor(
-                "storage.update_rack_samples",
+                "storage.update_rack_samples_from_file",
                 id="<id>",
                 _external=True,
             ),
             "edit_samples_pos": ma.URLFor(
                 "storage.edit_rack_samples_pos",
+                id="<id>",
+                _external=True,
+            ),
+            "update_sample_info": ma.URLFor(
+                "storage.update_rack_sample_info_from_file",
                 id="<id>",
                 _external=True,
             ),

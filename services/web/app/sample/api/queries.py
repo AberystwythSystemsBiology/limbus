@@ -44,6 +44,7 @@ from ...database import (
     SampleConsent,
     DonorToSample,
     SampleToCustomAttributeData,
+    TemporaryStore,
 )
 
 from ..views import (
@@ -51,7 +52,9 @@ from ..views import (
     new_cell_sample_schema,
     new_molecular_sample_schema,
     new_sample_protocol_event_schema,
+    sample_protocol_event_schema,
 )
+from ...tmpstore.views import new_store_schema
 from ..enums import SampleSource
 
 
@@ -538,6 +541,104 @@ def func_deep_remove_subsampletosample_children(
 
     msgs.append("All %s sub-samples dis-associated and deleted! " % len(stss))
     return (success, msgs)
+
+
+def func_root_sample_acquision_protocol_event(sample_id):
+    sample = Sample.query.filter_by(id=sample_id).first()
+    pe_acq = None
+    if sample is None:
+        success = False
+        msg = "Sample (id=%d) not found" % sample_id
+        return pe_acq, msg
+
+    while sample.source != "NEW":
+        sample = SubSampleToSample.query.filter_by(subsample_id=sample.id).first()
+        if sample is None:
+            success = False
+            msg = "Root sample (id=%d) not found" % sample_id
+            return pe_acq, msg
+
+    pe_acq = SampleProtocolEvent.query.filter_by(sample_id=sample.id).join(
+        ProtocolTemplate, ProtocolTemplate.type == "ACQ"
+    )
+
+    if pe_acq is None:
+        msg = "Root sample (id=%d) acquisition event found!" % sample.id
+    else:
+        msg = "Root sample acquisition event found!"
+    return pe_acq, msg
+
+
+# def func_update_sample_tmpstore_info(uuid=None, sample=None, tokenuser: UserAccount):
+#     # Update temporarystore
+#     if uuid:
+#         if sample is None:
+#             sample = Sample.query.filter_by(uuid=uuid).first()
+#         elif sample.uuid != uuid:
+#             return {"success": False, "message": "sample and uuid not matched!"}
+#     elif not sample:
+#         return not_found("Sample object or uuid!")
+#     else:
+#         uuid = sample.uuid
+#
+#     # Update sample collection date
+#     pe_acq, msg = func_root_sample_acquision_protocol_event(sample.id)
+#     if not pe_acq:
+#         return not_found("Sample acquisition event for sample %s" %uuid)
+#
+#     info = sample_protocol_event_schema.dump(pe_acq)
+#     return info
+
+# @api.route("/sample/<uuid>/extra", methods=["DELETE", "GET", "POST"])
+# @token_required
+# def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
+#     # if uuid:
+#     #     if sample is None:
+#     #         sample = Sample.query.filter_by(uuid=uuid).first()
+#     #     elif sample.uuid != uuid:
+#     #         return {"success": False, "message": "sample and uuid not matched!"}
+#     # elif not sample:
+#     #     return not_found("Sample object or uuid!")
+#     # else:
+#     #     uuid = sample.uuid
+#     if uuid:
+#         sample = Sample.query.filter_by(uuid=uuid).first()
+#         if not sample:
+#             return not_found("sample %s " % uuid)
+#
+#     tmpstore = temporarystore.query.filter_by(uuid=uuid, type='smp').first()
+#     if tmpstore:
+#         # Update entry
+#         tmpstore.data["root_sample_collection_date"] = info
+#         tmpstore.update({"editor_id": tokenuser.id})
+#     else:
+#         # new entry
+#         values = {}
+#         values["uuid"] = uuid
+#         values["type"] = 'smp'
+#
+#         try:
+#             result = new_store_schema.load(values)
+#         except ValidationError as err:
+#             return validation_error_response(err)
+#
+#         tmpstore = TemporaryStore(**result)
+#         tmpstore.author_id = tokenuser.id
+#
+#     return {"success": True, "tempstore": tmpstore}
+#
+#     (success, msgs) = func_remove_sample(sample, tokenuser, [])
+#     if not success:
+#         return msgs[-1]
+#
+#     try:
+#         db.session.commit()
+#         msgs.append("Committed successfully!")
+#         message = " | ".join(msgs)
+#         return success_with_content_message_response(uuid, message)
+#     except Exception as err:
+#         db.session.rollback()
+#         return transaction_error_response(err)
 
 
 @api.route("/sample/<uuid>/remove", methods=["DELETE", "GET", "POST"])

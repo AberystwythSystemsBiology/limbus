@@ -475,8 +475,8 @@ def func_rack_fill_with_samples(
             col_ini = col_max
             row_ini = row_max
 
-    print("col i: ", col_ini)
-    print("row i: ", row_ini)
+    # print("col i: ", col_ini)
+    # print("row i: ", row_ini)
     n_assigned = 0
     if fillopt["column_first"]:
         for col in range(col_ini, num_cols + 1):
@@ -542,6 +542,32 @@ def func_rack_fill_with_samples(
                     col = num_cols  # go for next col
 
     return samples, k
+
+
+def func_update_samples(samples, tokenuser):
+    n_upd = 0
+    for sample in samples:
+        if "changeset" in sample and len(sample["changeset"]) > 0:
+            # -- Update sample info
+            sample_id = sample["id"]
+            smpl = Sample.query.filter_by(id=sample_id).first()
+            updset = {k: sample["changeset"][k][1] for k in sample["changeset"]}
+
+            if smpl:
+                smpl.update(updset)
+                smpl.update({"editor_id": tokenuser.id})
+                try:
+                    db.session.add(smpl)
+                    n_upd = n_upd + 1
+                except Exception as err:
+                    return transaction_error_response(err)
+
+    try:
+        db.session.commit()
+        msg = "Info for %d sample(s) updated successfully! " % n_upd
+        return {"success": True, "message": msg}
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
@@ -739,6 +765,81 @@ def func_dict_update(d0, d1, keys=[]):
     return d0
 
 
+def func_check_rack_samples(rack_id, samples):
+    """
+    Query existing sample info from database given the rack_id, and
+    match the barcode provided based on sample position in the rack.
+    Update 'changeset' in sample in case of any difference in the existing info
+
+    Input
+        rack_id: id for the rack where the sample info to be updated
+        samples: list of samples with rack position (row, col) and barcode provided
+    Return
+        variables (in tuple)
+            1. samples: list of samples with update info in changeset
+            2. n_found: number of samples found in database
+            3. err
+
+    usage:
+        samples, n_found, err = func_check_rack_samples(rack_id, samples)
+    """
+    n_found = 0
+    err = None
+    bcodes = []
+
+    for sample in samples:
+        if sample["barcode"] in [None, "", "empty", "EMPTY", "-"]:
+            continue
+
+        sample["id"] = None
+        sample["sample_id"] = None
+
+        smpl = (
+            db.session.query(Sample)
+            .join(EntityToStorage, Sample.id == EntityToStorage.sample_id)
+            .filter(
+                EntityToStorage.rack_id == rack_id,
+                EntityToStorage.storage_type == "STB",
+                EntityToStorage.removed.is_(False),
+                EntityToStorage.row == sample["row"],
+                EntityToStorage.col == sample["col"],
+            )
+            .first()
+        )
+
+        if smpl:
+            sample0 = sample_schema.dump(smpl)
+            sample0 = func_dict_update(sample0, sample, keys=["barcode"])
+            if "barcode" in sample0["changeset"]:
+                bcode1 = sample0["changeset"]["barcode"][1]
+                if bcode1 in bcodes:
+                    err = {
+                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
+                        % (smpl.uuid, bcode1)
+                    }
+                    return samples, n_found, err
+
+                bcodes.append(bcode1)
+                bcode = (
+                    db.session.query(Sample.barcode)
+                    .filter(func.upper(Sample.barcode) == bcode1.upper())
+                    .first()
+                )
+                if bcode is not None:
+                    bcode = bcode[0]
+                    err = {
+                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
+                        % (smpl.uuid, bcode)
+                    }
+                    return samples, n_found, err
+
+            sample.update(sample0)
+            sample["sample_id"] = smpl.id
+            n_found = n_found + 1
+
+    return samples, n_found, err
+
+
 def func_get_samples(barcode_type, samples):
     """
     Query existing sample info from database and compare that with new info
@@ -747,9 +848,10 @@ def func_get_samples(barcode_type, samples):
         barcode_type: column for identifying sample eg. uuid or barcode
         samples: list of samples with relevant info
     Return
-        two variables (in tuple)
+        variables (in tuple)
             1. samples: list of samples with update info in changeset
             2. n_found: number of samples found in database
+            3. err
     """
     n_found = 0
     err = None
@@ -803,7 +905,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
-        # print("values", values)
         if "samples" in values:
             samples = values["samples"]
     else:
@@ -820,16 +921,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     except:
         rack_id = None
 
-    commit = False
-    if "commit" in values and values["commit"]:
-        commit = True
-    else:
-        samples, n_found, err = func_get_samples(values["barcode_type"], samples)
-        print("error", err)
-        if err is not None:
-            return validation_error_response(err)
-        # print("samples_ids", samples)
-
     if rack_id:
         # Step 1. Validate and add new sample rack
         rack = SampleRack.query.filter_by(id=rack_id).first()
@@ -839,6 +930,16 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     # else:
     #     err = {'messages': 'Rack not found!'}
     #     return validation_error_response(err)
+
+    commit = False
+    if "commit" in values and values["commit"]:
+        commit = True
+    else:
+        samples, n_found, err = func_get_samples(values["barcode_type"], samples)
+        # print("error", err)
+        if err is not None:
+            return validation_error_response(err)
+        # print("samples_ids", samples)
 
     if not commit:
 
@@ -866,9 +967,9 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
             )
 
         samplestore = {"rack_id": rack_id, "samples": samples, "from_file": True}
-        if entry_datetime:
-            samplestore["entry_datetime"] = entry_datetime
-            samplestore["entry"] = entry
+        # if entry_datetime:
+        #     samplestore["entry_datetime"] = entry_datetime
+        #     samplestore["entry"] = entry
 
         if "num_cols" in values:
             samplestore["num_cols"] = values["num_cols"]
@@ -878,13 +979,81 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         return success_with_content_message_response(samplestore, message)
 
     # samples_pos = samples
-    if entry_datetime:
-        for sample in samples:
-            if sample["id"]:
-                sample.update({"entry_datetime": entry_datetime, "entry": entry})
+    # if entry_datetime:
+    #     for sample in samples:
+    #         if sample["id"]:
+    #             sample.update({"entry_datetime": entry_datetime, "entry": entry})
 
     # insert confirmed data to database
     return func_transfer_samples_to_rack(samples, rack_id, tokenuser)
+
+
+@api.route("/storage/rack/update_sample_barcode", methods=["POST", "GET"])
+@token_required
+def storage_rack_update_sample_barcode(tokenuser: UserAccount):
+    # - Update barcode based on rack position
+    samples = []
+    if request.method == "POST":
+        values = request.get_json()
+        print("valuesoooo", values)
+        if "samples" in values:
+            samples = values["samples"]
+    else:
+        values = None
+
+    if len(samples) == 0:
+        return no_values_response()
+
+    # -- Get all samples in the rack
+    try:
+        rack_id = int(values["rack_id"])
+    except:
+        rack_id = None
+
+    if rack_id:
+        # Step 1. Validate and add new sample rack
+        rack = SampleRack.query.filter_by(id=rack_id).first()
+        if rack is None:
+            err = {"messages": "Rack not found!"}
+            return validation_error_response(err)
+
+    commit = False
+    if "commit" in values and values["commit"]:
+        commit = True
+    else:
+
+        # -- Check changes in barcode, check duplication
+        print("ready!")
+        print("rack_id! ", rack_id)
+        samples, n_found, err = func_check_rack_samples(rack_id, samples)
+
+        print("n_found", n_found)
+        print("error", err)
+        if err is not None:
+            return validation_error_response(err)
+
+        if n_found < 1:
+            return validation_error_response("No samples or barcode to update!")
+
+    # -- Return info for update
+    if not commit:
+        message = "%d samples found in the rack to be updated! " % n_found
+        samplestore = {
+            "rack_id": rack_id,
+            "samples": samples,
+            "from_file": True,
+            "update_storage": False,
+        }
+
+        if "num_cols" in values:
+            samplestore["num_cols"] = values["num_cols"]
+        if "num_rows" in values:
+            samplestore["num_rows"] = values["num_rows"]
+
+        return success_with_content_message_response(samplestore, message)
+
+    # -- Update confirmed sample info (barcode only for the moment)
+    return func_update_samples(samples, tokenuser)
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/query/rack", methods=["GET"])
