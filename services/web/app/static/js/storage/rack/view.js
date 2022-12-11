@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
-function get_rack_information() {
+ 
+function get_rack_information(){
     var api_url = encodeURI(window.location + '/endpoint');
 
     var json = (function () {
@@ -377,6 +377,26 @@ $("#add-rack-cart-btn").click(function() {
         }
     });
 })
+
+function printCard(view, assign_sample_url, dispopt) {
+   
+    print();
+}
+function PrintContent()
+{
+    var e = document.createElement('div');
+    e.id = 'view_area';
+    e.innerHTML = $('#view_area').html();
+    document.getElementById('t').appendChild(e);
+}
+$("#print-rack-btn").click(function () {
+    
+     printCard();
+     
+ 
+
+});
+
 
 $('#cart-confirmation-modal').on('hidden.bs.modal', function () {
     location.reload();
