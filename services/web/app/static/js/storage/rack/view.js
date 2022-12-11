@@ -378,22 +378,20 @@ $("#add-rack-cart-btn").click(function() {
     });
 })
 
-function printCard(view, assign_sample_url, dispopt) {
-   
-    print();
-}
-function PrintContent()
+
+
+
+/*    function printContent()
 {
     var e = document.createElement('div');
     e.id = 'view_area';
     e.innerHTML = $('#view_area').html();
+    e.print();
     document.getElementById('t').appendChild(e);
-}
+}*/
+
 $("#print-rack-btn").click(function () {
-    
-     printCard();
-     
- 
+     print();
 
 });
 

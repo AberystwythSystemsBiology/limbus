@@ -47,12 +47,6 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         "Sample", uselist=True, secondary="sampleconsent", viewonly=True
     )
 
-    def __init__(self, registration_date, dob, weight, height):
-        self.registration_date = registration_date
-        self.dob = dob
-        self.weight = weight
-        self.height = height
-
     @hybrid_property
     def age_at_registration(self):
         return extract('year', func.age(self.registration_date, self.dob))
