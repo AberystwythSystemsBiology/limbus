@@ -459,6 +459,9 @@ def donor_new_consent(tokenuser: UserAccount):
         new_consent.study_event_id = study_event.id
 
     try:
+        # ids = [val for val, in db.session.execute("select nextval('sampleconsent_id_seq')")]
+        # nextid=ids[0]
+        # new_consent.id = nextid
         db.session.add(new_consent)
         db.session.flush()
 
