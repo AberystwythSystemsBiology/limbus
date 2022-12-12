@@ -59,7 +59,6 @@ class DonorSearchSchema(masql.SQLAlchemySchema):
     bmi_max = fields.Int()
 
 
-
 class BasicDonorSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Donor

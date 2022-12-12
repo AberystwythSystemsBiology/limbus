@@ -74,7 +74,9 @@ def index() -> str:
     if diag_response.status_code == 200:
         diagnoses = diag_response.json()["content"]["choices"]
 
-    form = SampleFilterForm(sites, sampletypes, diagnoses, data={"current_site_id": user_site_id})
+    form = SampleFilterForm(
+        sites, sampletypes, diagnoses, data={"current_site_id": user_site_id}
+    )
     return render_template(
         "sample/index.html",
         form=form,

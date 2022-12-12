@@ -24,7 +24,7 @@ from wtforms import (
     SubmitField,
     BooleanField,
     SelectMultipleField,
-    IntegerField
+    IntegerField,
 )
 from ..enums import (
     Colour,
@@ -44,7 +44,9 @@ from ...donor.enums import (
 from ...consent.enums import QuestionType
 
 
-def SampleFilterForm(sites: list, sampletypes: list, diagnoses: list, data: {}) -> FlaskForm:
+def SampleFilterForm(
+    sites: list, sampletypes: list, diagnoses: list, data: {}
+) -> FlaskForm:
     sampletypes.insert(0, (None, "None"))
     # sites.insert(0, (None, "None"))
 

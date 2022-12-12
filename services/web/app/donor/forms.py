@@ -61,7 +61,6 @@ from ..misc import get_internal_api_header
 
 
 def DonorFilterForm(sites: list, diagnoses: list, data: {}) -> FlaskForm:
-
     class StaticForm(FlaskForm):
         sex = SelectField(
             "Biological Sex",

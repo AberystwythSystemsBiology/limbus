@@ -40,7 +40,7 @@ from ..views import (
     new_sample_schema,
     edit_sample_schema,
     sample_types_schema,
-    samples_index_schema
+    samples_index_schema,
 )
 
 from ...storage.views import NewSampleRackToShelfSchema
@@ -106,6 +106,7 @@ def sample_protocol_query_stmt(
         )  # .subquery()
 
     return stmt
+
 
 def sample_source_study_query_stmt(
     filters_protocol=None, filter_sample_id=None, filters=None, joins=None
@@ -288,6 +289,7 @@ def sample_consent_type_query_stmt(
 
     return stmt
 
+
 def sample_not_consent_type_query_stmt(
     filters_not_consent=None, filter_sample_id=None, filters=None, joins=None
 ):
@@ -314,11 +316,11 @@ def sample_not_consent_type_query_stmt(
                 Sample.id.label("sample_id"),
                 ConsentFormTemplateQuestion.type.label("consent_type"),
             )
-                .join(SampleConsent)
-                .join(SampleConsentAnswer)
-                .join(ConsentFormTemplateQuestion)
-                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
-                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+            .join(SampleConsent)
+            .join(SampleConsentAnswer)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
         # print("stmt00: ", stmt0)
         # get (sample, questionType) for consent with given question types
@@ -327,13 +329,13 @@ def sample_not_consent_type_query_stmt(
                 Sample.id.label("sample_id"),
                 ConsentFormTemplateQuestion.type.label("consent_type"),
             )
-                .join(SampleConsent)
-                .join(ConsentFormTemplate)
-                .join(ConsentFormTemplateQuestion)
-                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
-                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+            .join(SampleConsent)
+            .join(ConsentFormTemplate)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
-        #print("stmt10: ", stmt1)
+        # print("stmt10: ", stmt1)
 
     else:
         stmt0 = (
@@ -341,12 +343,12 @@ def sample_not_consent_type_query_stmt(
                 Sample.id.label("sample_id"),
                 ConsentFormTemplateQuestion.type.label("consent_type"),
             )
-                .filter(Sample.id.in_(filter_sample_id))
-                .join(SampleConsent)
-                .join(SampleConsentAnswer)
-                .join(ConsentFormTemplateQuestion)
-                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
-                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleConsent)
+            .join(SampleConsentAnswer)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
         # print("stmt0: ", stmt0.count())
         # get (sample, questionType) for consent with given question types
@@ -355,25 +357,21 @@ def sample_not_consent_type_query_stmt(
                 Sample.id.label("sample_id"),
                 ConsentFormTemplateQuestion.type.label("consent_type"),
             )
-                .filter(Sample.id.in_(filter_sample_id))
-                .join(SampleConsent)
-                .join(ConsentFormTemplate)
-                .join(ConsentFormTemplateQuestion)
-                .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
-                .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleConsent)
+            .join(ConsentFormTemplate)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
         # print("stmt1: ", stmt1.count())
 
     # Get (sample, questionType) for consents with negative answers for given question types
     stmt2 = stmt1.except_(stmt0)
     subq = stmt2.subquery()
-    stmt = (
-        db.session.query(subq.c.sample_id)
-        .distinct(subq.c.sample_id)
-    )
+    stmt = db.session.query(subq.c.sample_id).distinct(subq.c.sample_id)
 
     return stmt
-
 
 
 def sample_reminder_query_stmt(
@@ -479,8 +477,14 @@ def sample_reminder_query_stmt(
     return stmt
 
 
-def donor_query_stmt(filters_donor=None, diag_refs=None,
-                     age_min=None, age_max=None, bmi_min=None, bmi_max=None):
+def donor_query_stmt(
+    filters_donor=None,
+    diag_refs=None,
+    age_min=None,
+    age_max=None,
+    bmi_min=None,
+    bmi_max=None,
+):
     # if filters_donor is None:
     #     filters_donor = {}
     stmt = db.session.query(Donor.id).filter_by(**filters_donor)
@@ -489,11 +493,11 @@ def donor_query_stmt(filters_donor=None, diag_refs=None,
     if diag_refs:
         diag_refs = diag_refs.split(",")
         # print("diag_refs", diag_refs)
-        stmt = (stmt
-                .join(DonorDiagnosisEvent)
-                .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
-                .distinct(Donor.id)
-                )
+        stmt = (
+            stmt.join(DonorDiagnosisEvent)
+            .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
+            .distinct(Donor.id)
+        )
 
     if age_min:
         age_min = int(age_min)
@@ -517,10 +521,11 @@ def donor_query_stmt(filters_donor=None, diag_refs=None,
     print("stmt ok 001 ", stmt.count())
     donor_subq = stmt.subquery()
     # print("subquery ok 000 ", donor_subq.count())
-    stmt0 = (db.session.query(Sample.id)
-             .join(SampleConsent)
-             .join(donor_subq, SampleConsent.donor_id == donor_subq.c.id)
-             )
+    stmt0 = (
+        db.session.query(Sample.id)
+        .join(SampleConsent)
+        .join(donor_subq, SampleConsent.donor_id == donor_subq.c.id)
+    )
     print("stmt000 ", stmt0.count())
 
     return stmt0
@@ -814,7 +819,6 @@ def sample_query(args, tokenuser: UserAccount):
         flag_not_consent_type = True
         filters_not_consent["type"] = filters.pop("not_consent_type").split(",")
 
-
     if "protocol_id" in filters:
         # Single choice
         flag_protocol = True
@@ -827,10 +831,10 @@ def sample_query(args, tokenuser: UserAccount):
         filters_source_study = {"protocol_id": filters["source_study"]}
         filters.pop("source_study")
 
-    #donor_keys = ["sex", "status", "race", "enrollment_site_id", "diagnosis",
+    # donor_keys = ["sex", "status", "race", "enrollment_site_id", "diagnosis",
     # "age_min", "age_max", "bmi_min", "bmi_max"]
     filters_donor = {}
-    for key in ["sex", "race"]: #, "enrollment_site_id"]:
+    for key in ["sex", "race"]:  # , "enrollment_site_id"]:
         fk = filters.pop(key, None)
         if fk is not None:
             filters_donor[key] = fk
@@ -848,7 +852,9 @@ def sample_query(args, tokenuser: UserAccount):
     # print("flag_donor", flag_donor, filters_donor)
     donor_filtered = None
     if flag_donor:
-        donor_filtered = donor_query_stmt(filters_donor, diag_refs, age_min, age_max, bmi_min, bmi_max)
+        donor_filtered = donor_query_stmt(
+            filters_donor, diag_refs, age_min, age_max, bmi_min, bmi_max
+        )
 
     filter_site_id = filters.pop("current_site_id", None)
 
@@ -910,7 +916,6 @@ def sample_query(args, tokenuser: UserAccount):
             .filter(*joins)
             .filter(Sample.id.in_(stmt_cart))
         )
-
 
     print("stmt cart - ", stmt_cart.count())
     if stmt_cart.count() > 0:
@@ -999,7 +1004,7 @@ def sample_query(args, tokenuser: UserAccount):
     print("db query took %0.3f ms" % (td1.microseconds / 1000))
 
     time1 = datetime.now()
-    #results = basic_samples_schema.dump(stmt.all())
+    # results = basic_samples_schema.dump(stmt.all())
     results = samples_index_schema.dump(stmt.all())
 
     # print("results", len(results), "--", results)
