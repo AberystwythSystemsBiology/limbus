@@ -29,6 +29,23 @@ function get_metric(type) {
   return metric;
 }
 
+function calc_age(date0, date1) {
+    date0 = new Date(date0 + "Z");
+    date1 = new Date(date1 + "Z");
+    var timeDiff = Math.abs(date0.getTime() - date1.getTime());
+    var age = Math.floor(timeDiff / (1000 * 3600 * 24)/ 365.25);
+    return age;
+}
+
+
+function calc_bmi(weight, height) {
+   if (weight==null||height==null) return null;
+   height_meter = height/100;
+   bmi = weight / (height_meter * height_meter);
+   return Math.floor(bmi);
+}
+
+
 // Not in use
 function render_sample_table0(samples, div_id) {
 

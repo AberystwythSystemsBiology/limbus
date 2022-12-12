@@ -137,7 +137,7 @@ def doid_validate_by_iri(tokenuser: UserAccount):
 @token_required
 def doid_query_by_label(tokenuser: UserAccount):
     values = request.get_json()
-
+    print("values", values)
     if not values:
         return no_values_response()
 

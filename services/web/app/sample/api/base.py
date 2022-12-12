@@ -40,6 +40,7 @@ from ..views import (
     new_sample_schema,
     edit_sample_schema,
     sample_types_schema,
+    samples_index_schema,
 )
 
 from ...storage.views import NewSampleRackToShelfSchema
@@ -71,7 +72,10 @@ from ...database import (
     DonorToSample,
     SampleToCustomAttributeData,
     SampleConsentAnswer,
+    ConsentFormTemplate,
     ConsentFormTemplateQuestion,
+    Donor,
+    DonorDiagnosisEvent,
 )
 
 
@@ -235,12 +239,19 @@ def sample_consent_status_query_stmt(
 def sample_consent_type_query_stmt(
     filters_consent=None, filter_sample_id=None, filters=None, joins=None
 ):
+    # - Return samples that are consent for all of the types in the filter
     if "type" not in filters_consent:
         return filter_sample_id
 
     # Filter to get samples with consent to given question types
     num_types = len(filters_consent["type"])
     filter_types = filters_consent["type"]
+
+    if filter_sample_id is None:
+        if filters:
+            filter_sample_id = db.session.query(Sample.id).filter_by(**filters)
+        if joins:
+            filter_sample_id = db.session.query(Sample.id).filter(*joins)
 
     if filter_sample_id is None:
         stmt = (
@@ -254,10 +265,6 @@ def sample_consent_type_query_stmt(
             .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
             .distinct(Sample.id, ConsentFormTemplateQuestion.type)
         )
-        if filters:
-            stmt = stmt.filter_by(**filters)
-        if joins:
-            stmt = stmt.filter(*joins)
 
     else:
         stmt = (
@@ -279,6 +286,90 @@ def sample_consent_type_query_stmt(
         .group_by(subq.c.sample_id)
         .having(func.count(subq.c.sample_id) == num_types)
     )
+
+    return stmt
+
+
+def sample_not_consent_type_query_stmt(
+    filters_not_consent=None, filter_sample_id=None, filters=None, joins=None
+):
+    # - Return samples that are not consent for any of the types in the filter
+    if "type" not in filters_not_consent:
+        return filter_sample_id
+
+    # Filter to get samples are not consent to at least one of the given question types
+    num_types = len(filters_not_consent["type"])
+    filter_types = filters_not_consent["type"]
+
+    print("NOT CONSET filter_Type", filter_types)
+
+    if filter_sample_id is None:
+        if filters:
+            filter_sample_id = db.session.query(Sample.id).filter_by(**filters)
+        if joins:
+            filter_sample_id = db.session.query(Sample.id).filter(*joins)
+
+    # get (sample, questionType) with positive answers with given question types
+    if filter_sample_id is None:
+        stmt0 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+            .join(SampleConsent)
+            .join(SampleConsentAnswer)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt00: ", stmt0)
+        # get (sample, questionType) for consent with given question types
+        stmt1 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+            .join(SampleConsent)
+            .join(ConsentFormTemplate)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt10: ", stmt1)
+
+    else:
+        stmt0 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleConsent)
+            .join(SampleConsentAnswer)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt0: ", stmt0.count())
+        # get (sample, questionType) for consent with given question types
+        stmt1 = (
+            db.session.query(
+                Sample.id.label("sample_id"),
+                ConsentFormTemplateQuestion.type.label("consent_type"),
+            )
+            .filter(Sample.id.in_(filter_sample_id))
+            .join(SampleConsent)
+            .join(ConsentFormTemplate)
+            .join(ConsentFormTemplateQuestion)
+            .filter(ConsentFormTemplateQuestion.type.in_(filter_types))
+            .distinct(Sample.id, ConsentFormTemplateQuestion.type)
+        )
+        # print("stmt1: ", stmt1.count())
+
+    # Get (sample, questionType) for consents with negative answers for given question types
+    stmt2 = stmt1.except_(stmt0)
+    subq = stmt2.subquery()
+    stmt = db.session.query(subq.c.sample_id).distinct(subq.c.sample_id)
 
     return stmt
 
@@ -384,6 +475,60 @@ def sample_reminder_query_stmt(
     # print("stmt: ", stmt.count())
     # print(stmt)
     return stmt
+
+
+def donor_query_stmt(
+    filters_donor=None,
+    diag_refs=None,
+    age_min=None,
+    age_max=None,
+    bmi_min=None,
+    bmi_max=None,
+):
+    # if filters_donor is None:
+    #     filters_donor = {}
+    stmt = db.session.query(Donor.id).filter_by(**filters_donor)
+    print("stmt0: ", stmt.count())
+
+    if diag_refs:
+        diag_refs = diag_refs.split(",")
+        # print("diag_refs", diag_refs)
+        stmt = (
+            stmt.join(DonorDiagnosisEvent)
+            .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
+            .distinct(Donor.id)
+        )
+
+    if age_min:
+        age_min = int(age_min)
+        stmt = stmt.filter(Donor.age_at_registration >= age_min)
+
+    if age_max:
+        age_max = int(age_max)
+        stmt = stmt.filter(Donor.age_at_registration < age_max)
+
+    if bmi_min:
+        bmi_min = float(bmi_min)
+        stmt = stmt.filter(Donor.bmi >= bmi_min)
+
+    if bmi_max:
+        bmi_max = float(bmi_max)
+        stmt = stmt.filter(Donor.bmi < bmi_max)
+
+    print("stmt ok 000 ", stmt.count())
+    # stmt = stmt.with_entities(Donor.id.label("donor_id"))
+
+    print("stmt ok 001 ", stmt.count())
+    donor_subq = stmt.subquery()
+    # print("subquery ok 000 ", donor_subq.count())
+    stmt0 = (
+        db.session.query(Sample.id)
+        .join(SampleConsent)
+        .join(donor_subq, SampleConsent.donor_id == donor_subq.c.id)
+    )
+    print("stmt000 ", stmt0.count())
+
+    return stmt0
 
 
 # @storage.route("/shelf/LIMBSHF-<id>/location", methods=["GET"])
@@ -623,7 +768,7 @@ def sample_query(args, tokenuser: UserAccount):
     # -- To exclude empty samples in the index list
     joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
-
+    time0 = datetime.now()
     # if not tokenuser.is_admin:
     #     sites_tokenuser = func_validate_settings(
     #         tokenuser, keys={"site_id"}, check=False
@@ -635,8 +780,10 @@ def sample_query(args, tokenuser: UserAccount):
     flag_sample_type = False
     flag_consent_status = False
     flag_consent_type = False
+    flag_not_consent_type = False
     flag_protocol = False
     flag_source_study = False
+    flag_donor = False
 
     if "reminder_type" in filters:
         # Single choice
@@ -652,6 +799,7 @@ def sample_query(args, tokenuser: UserAccount):
         filters_sampletype[tmp[0]] = tmp[1]
 
     filters_consent = {}
+    filters_not_consent = {}
     if "consent_status" in filters:
         # Single choice
         flag_consent_status = True
@@ -666,6 +814,11 @@ def sample_query(args, tokenuser: UserAccount):
         flag_consent_type = True
         filters_consent["type"] = filters.pop("consent_type").split(",")
 
+    if "not_consent_type" in filters:
+        # Multi choice
+        flag_not_consent_type = True
+        filters_not_consent["type"] = filters.pop("not_consent_type").split(",")
+
     if "protocol_id" in filters:
         # Single choice
         flag_protocol = True
@@ -678,12 +831,39 @@ def sample_query(args, tokenuser: UserAccount):
         filters_source_study = {"protocol_id": filters["source_study"]}
         filters.pop("source_study")
 
-    time0 = datetime.now()
+    # donor_keys = ["sex", "status", "race", "enrollment_site_id", "diagnosis",
+    # "age_min", "age_max", "bmi_min", "bmi_max"]
+    filters_donor = {}
+    for key in ["sex", "race"]:  # , "enrollment_site_id"]:
+        fk = filters.pop(key, None)
+        if fk is not None:
+            filters_donor[key] = fk
+            flag_donor = True
+
+    diag_refs = filters.pop("diagnosis", None)
+    age_min = filters.pop("age_min", None)
+    age_max = filters.pop("age_max", None)
+    bmi_min = filters.pop("bmi_min", None)
+    bmi_max = filters.pop("bmi_max", None)
+
+    if diag_refs or age_min or age_max or bmi_min or bmi_max:
+        flag_donor = True
+
+    # print("flag_donor", flag_donor, filters_donor)
+    donor_filtered = None
+    if flag_donor:
+        donor_filtered = donor_query_stmt(
+            filters_donor, diag_refs, age_min, age_max, bmi_min, bmi_max
+        )
 
     filter_site_id = filters.pop("current_site_id", None)
 
     stmt = db.session.query(Sample.id).filter_by(**filters).filter(*joins)
-    print("stmt1 count: ", stmt.count())
+
+    if donor_filtered:
+        stmt = stmt.filter(Sample.id.in_(donor_filtered))
+
+    print("donor filtered count: ", stmt.count())
     if filter_site_id:
         stmt = stmt.join(UserAccount, UserAccount.id == Sample.author_id).filter(
             or_(
@@ -694,12 +874,6 @@ def sample_query(args, tokenuser: UserAccount):
                 ),
             )
         )
-        # stmt1 = stmt.filter(Sample.current_site_id == filter_site_id)
-        # stmt2 = (
-        #          stmt.join(UserAccount, UserAccount.id==Sample.author_id)
-        #         .filter(Sample.current_site_id.is_(None),
-        #                 UserAccount.site_id == filter_site_id)
-        #         )
 
         print("stmt 0 - ", stmt.count())
         print("filters: ", filters)
@@ -734,6 +908,7 @@ def sample_query(args, tokenuser: UserAccount):
             .join(Sample, Sample.id == UserCart.sample_id)
             .filter_by(**filters)
             .filter(*joins)
+            .filter(Sample.id.in_(donor_filtered))
         )
         stmt_cart = (
             db.session.query(Sample.id)
@@ -744,6 +919,9 @@ def sample_query(args, tokenuser: UserAccount):
 
     print("stmt cart - ", stmt_cart.count())
     if stmt_cart.count() > 0:
+        if donor_filtered:
+            stmt_cart = stmt_cart.filter(Sample.id.in_(donor_filtered))
+
         if filter_site_id:
             stmt_cart = stmt_cart.filter(
                 or_(
@@ -776,6 +954,9 @@ def sample_query(args, tokenuser: UserAccount):
     if filter_site_id:
         stmt_zeros = stmt_zeros.filter(Sample.current_site_id == filter_site_id)
 
+    if donor_filtered:
+        stmt_zeros = stmt_zeros.filter(Sample.id.in_(donor_filtered))
+
     stmt = stmt.union(stmt_zeros)
     print("stmt zeos2", stmt.count())
     # stmt = stmt.filter_by(**filters).filter(*joins)
@@ -788,6 +969,11 @@ def sample_query(args, tokenuser: UserAccount):
     if flag_consent_type:
         stmt = sample_consent_type_query_stmt(
             filters_consent=filters_consent, filter_sample_id=stmt
+        )
+
+    if flag_not_consent_type:
+        stmt = sample_not_consent_type_query_stmt(
+            filters_not_consent=filters_not_consent, filter_sample_id=stmt
         )
 
     if flag_protocol:
@@ -816,10 +1002,10 @@ def sample_query(args, tokenuser: UserAccount):
     time1 = datetime.now()
     td1 = time1 - time0
     print("db query took %0.3f ms" % (td1.microseconds / 1000))
-    # print("stmt", stmt)
 
     time1 = datetime.now()
-    results = basic_samples_schema.dump(stmt.all())
+    # results = basic_samples_schema.dump(stmt.all())
+    results = samples_index_schema.dump(stmt.all())
 
     # print("results", len(results), "--", results)
     # -- retrieve user cart info

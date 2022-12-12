@@ -59,3 +59,15 @@ class DonorDiagnosisEventSchema(masql.SQLAlchemySchema):
 
 
 donor_diagnosis_event_schema = DonorDiagnosisEventSchema()
+donor_diagnosis_events_schema = DonorDiagnosisEventSchema(many=True)
+
+
+class DonorDiagnosisSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = DonorDiagnosisEvent
+
+    doid_ref = DoidInstance()
+
+
+donor_diagnosis_schema = DonorDiagnosisSchema()
+donor_diagnoses_schema = DonorDiagnosisSchema(many=True)

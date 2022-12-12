@@ -106,7 +106,7 @@ def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> 
 
     # sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
     stad = AttributeData.query.filter_by(id=id).first()
-
+    print("stad: ", stad)
     if not stad:
         return not_found("attribute data LIMBAD-%s " % id)
 

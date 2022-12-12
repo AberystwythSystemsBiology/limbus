@@ -336,9 +336,13 @@ def shipment_new_step_one():
         for address in addresses_response.json()["content"]:
             if address["site_id"]:
                 if address["id"] not in addr_default:
-                    addresses[address["site_id"]].append(
-                        [address["id"], address_label(address)]
-                    )
+                    try:
+                        addresses[address["site_id"]].append(
+                            [address["id"], address_label(address)]
+                        )
+                    except:
+                        # No matching site_id as it might have been locked.
+                        pass
 
         addr_all = [(0, "-- No Address --")]
         for k in addresses:

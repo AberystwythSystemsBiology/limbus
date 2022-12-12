@@ -20,6 +20,7 @@ from wtforms import (
     SubmitField,
     ValidationError,
     SelectField,
+    SelectMultipleField,
     BooleanField,
     DecimalField,
     DateField,
@@ -59,7 +60,7 @@ from flask import url_for
 from ..misc import get_internal_api_header
 
 
-def DonorFilterForm(sites: list, data: {}) -> FlaskForm:
+def DonorFilterForm(sites: list, diagnoses: list, data: {}) -> FlaskForm:
     class StaticForm(FlaskForm):
         sex = SelectField(
             "Biological Sex",
@@ -73,6 +74,13 @@ def DonorFilterForm(sites: list, data: {}) -> FlaskForm:
 
         colour = SelectField("Colour", choices=Colour.choices())
 
+        age_min = IntegerField("Age min")
+        age_max = IntegerField("Age max")
+        bmi_min = IntegerField("BMI min")
+        bmi_max = IntegerField("BMI max")
+        diagnosis = SelectMultipleField("Diagnosis (any selected)", choices=diagnoses)
+
+    sites = [(None, "None")] + sites
     setattr(
         StaticForm,
         "enrollment_site_id",

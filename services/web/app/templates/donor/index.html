@@ -30,6 +30,22 @@
             {{ form_field(form.race) }}
             {{ form_field(form.enrollment_site_id) }}
 
+{#            <div class="container">#}
+                <div class="form-group">
+                <b>{{ form.diagnosis.label }}</b>
+                {{ form.diagnosis(size="1", class="selectpicker w-100") }}
+                </div>
+
+                {{ form.age_min(size="1", class="selectpicker w-30", title='min age')}}<=Age<
+                {{ form.age_max(size="1", class="selectpicker w-45", title='max age')}}<br>
+
+                {{ form.bmi_min(size="1", class="selectpicker w-30") }}<=BMI<
+                {{ form.bmi_max(size="1", class="selectpicker w-45")}}<br>
+
+{#            </div>#}
+
+
+        
             <div class="row">
                 <div class="col-6">
                     <button id="reset" class="btn btn-outline-dark full-width">Reset Table</button>
@@ -73,11 +89,13 @@
                             <th>Age at registration</th>
                             <th>Sex</th>
                             <th>Race</th>
+                            <th>BMI</th>
                             <th>Weight(kg)</th>
                             <th>Height(cm)</th>
                             <th>Status</th>
                             <th>Diagnosis</th>
                             <th>Creation Date</th>
+                            <th>Disease Diagnosis</th>
                         </tr>
                     </thead>
                     <tbody>

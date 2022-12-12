@@ -15,6 +15,8 @@
 
 from ..database import db, Base
 from sqlalchemy import or_, and_
+from sqlalchemy.sql import extract, func
+from sqlalchemy.ext.hybrid import hybrid_property
 from .enums import *
 from ..sample.enums import Colour
 from ..sample.models import SampleConsent
@@ -44,6 +46,14 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     samples = db.relationship(
         "Sample", uselist=True, secondary="sampleconsent", viewonly=True
     )
+
+    @hybrid_property
+    def age_at_registration(self):
+        return extract("year", func.age(self.registration_date, self.dob))
+
+    @hybrid_property
+    def bmi(self):
+        return self.weight * 10000 / (self.height * self.height)
 
 
 class DonorToSample(Base, RefAuthorMixin, RefEditorMixin):

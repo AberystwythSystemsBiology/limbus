@@ -131,9 +131,9 @@ def remove_attribute_data(id, uuid=None):
         headers=get_internal_api_header(),
     )
 
-    # if remove_response.status_code == 200:
-    #     flash(remove_response.json()["message"])
-    # else:
-    #     flash("We have a problem: %s" % (remove_response.json()["message"]))
+    if remove_response.status_code == 200:
+        flash(remove_response.json()["message"])
+    else:
+        flash("We have a problem: %s" % (remove_response.json()["message"]))
 
     return remove_response.json()

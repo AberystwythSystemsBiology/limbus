@@ -42,29 +42,186 @@ function get_donors(query) {
 }
 
 
-function calc_age(date0, date1) {
-    date0 = new Date(date0 + "Z");
-    date1 = new Date(date1 + "Z");
-    var timeDiff = Math.abs(date0.getTime() - date1.getTime());
-    var age = Math.floor(timeDiff / (1000 * 3600 * 24)/ 365.25);
-    return age;
-}
+function render_table(query, hide_cols=[]) {
 
-function render_table(query) {
+    let exp_cols = Array.from({length: 19}, (v, k) => k);
+    exp_cols = exp_cols.filter(function (x) {
+        return [0, 1].indexOf(x) < 0; //exclude select/user_cart columns
+    });
+    let inv_cols = [0, 7, 11, 16, ]; //[1, 2, 5, 6, 10, -1]; ;
+    if (hide_cols.length > 0) {
+        inv_cols = inv_cols.concat(hide_cols);
+    }
+
     var d = get_donors(query);
-    console.log("donor_info", d);
+    //console.log("donor_info", d);
     $("#table_view").delay(300).fadeOut();
     $("#loading").fadeIn();
 
-    $('#donor-table').DataTable({
+    let aTable = $('#donor-table').DataTable({
         data: d,
         dom: 'Blfrtip',
-        buttons: [ 'print', 'csv', 'colvis' ],
+        pageLength: 100,
+        language: {
+            buttons: {
+                selectNone: '<i class="far fa-circle"></i> None',
+                colvis: 'Column visibility',
+    
+            },
+            searchPanes: {
+                clearMessage: 'Clear Selections',
+                collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
+                viewTotal: false,
+                columns: [3, 4, 9, 10, 15,18]
+            }
+
+        },
+        //buttons: [ 'filter','print', 'csv', 'colvis' ],
+        buttons: [
+            //'selectAll',
+            { // select all applied to filtered rows only
+                text: '<i class="far fa-check-circle"></i> All', action: function () {
+                    aTable.rows({search: 'applied'}).select();
+                }
+            },
+            'selectNone',
+ /*               searchPanes: {
+                    show: false
+                },
+                targets: [1,2,3,4,14,16],*/
+            {
+                extend: 'searchPanes',
+                config: {
+                    cascadePanes: true
+                },
+
+            },
+
+            {
+                extend: 'print',
+                
+            },
+
+            {
+                extend: 'csv',
+                footer: false,
+            
+            },
+            'colvis',
+        ],
+
         columnDefs: [
             {targets: '_all', defaultContent: '-'},
-            {targets: [0, 2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+
+            // {targets: [0, 2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
+            {targets: [0,  2 , 4, 6, 7, 13, 14, 17, 18], visible: false, "defaultContent": "-"},
+
+           
+          //  {targets: inv_cols, visible: false, "defaultContent": "-"},
+            {
+                targets: 0,
+                orderable: true,
+                //className: 'select-checkbox',
+                searchable: false,
+            },
+
             //{width: 200, targets: 6 }
+            {
+                searchPanes: {
+                    options: [
+                        {
+                            label: 'Under 20',
+                            value: function (data, type, row) {
+                                age = calc_age(data['dob'], data['registration_date'])
+                                return age < 20;
+                            }
+                        },
+                        {
+                            label: '20 to 30',
+                            value: function (data, type, row) {
+                                age = calc_age(data['dob'], data['registration_date'])
+                                return age <= 30 && age >= 20;
+                            
+                            }
+                        },
+                         {
+                            label: '30 to 40',
+                            value: function (data, type, row) {
+                                age = calc_age(data['dob'], data['registration_date'])
+                                return age <= 40 && age >= 30;
+
+                            
+                            }
+                        },
+                         {
+                            label: '40 to 50',
+                            value: function (data, type, row) {
+                                age = calc_age(data['dob'], data['registration_date'])
+                                return age <= 50 && age >= 40;
+                            
+                            }
+                        },
+                         {
+                            label: '50 to 60',
+                            value: function (data, type, row) {
+                                age = calc_age(data['dob'], data['registration_date'])
+                                return age <= 60 && age >= 50;
+
+                            }
+                        },
+                         {
+                            label: 'Over 60',
+                            value: function (data, type, row) {
+                                age = calc_age(data['dob'], data['registration_date'])
+                                return age > 60;
+    
+                            }
+                        }
+                    ]
+                },
+                targets: [9]
+
+            },
+            // Categorical search for BMI
+            {
+                searchPanes: {
+                    options: [
+                        {
+                            label: 'Underweight < 18.5',
+                            value: function (data, type, row) {
+                                bmi = calc_bmi(data['weight'], data['height'])
+                                return bmi < 18.5;
+                            }
+                        },
+                        {
+                            label: 'Normal < 25 ',
+                            value: function (data, type, row) {
+                                bmi = calc_bmi(data['weight'], data['height'])
+                                return bmi < 25 && bmi >=  18.5 ;
+                            }
+                        },
+                         {
+                            label: 'Overweight < 30',
+                            value: function (data, type, row) {
+                                bmi = calc_bmi(data['weight'], data['height'])
+                                return bmi < 30 && bmi >=  25 ;
+                            }
+                        },
+                         {
+                            label: 'Obese >= 30',
+                            value: function (data, type, row) {
+                                bmi = calc_bmi(data['weight'], data['height'])
+                                return bmi >= 30 ;
+                            }
+                        }
+                        
+                       
+                    ]
+                },
+                targets: [12]
+            }
         ],
+       
         //fixedColumns: true,
         order: [[0, 'desc']],
 
@@ -73,6 +230,7 @@ function render_table(query) {
             { // id, 1
                 "mData": {},
                 "mRender": function (data, type, row) {
+                  //  console.log("come ");
                     var col_data = '';
                     col_data += render_colour(data["colour"])
                     col_data += "<a href='" + data["_links"]["self"] + "'>";
@@ -171,15 +329,26 @@ function render_table(query) {
                 }
             },
             {data: 'race'}, //11
-            {data: 'weight'}, //12
-            {data: 'height'},   //13
-            {  // Status 14
+            { // BMI 12
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    bmi = calc_bmi(data['weight'], data['height'])
+                    if (isNaN(bmi)) {
+                        bmi = null;
+                    }
+                    return bmi;
+
+                }
+            },
+            {data: 'weight'}, //13
+            {data: 'height'},   //14
+            {  // Status 15
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["status"]
                 }
             },
-            { // Diagnoses 15
+            { // Diagnoses 16
                 "mData": {},
                 "mRender": function (data, type, row) {
                     diagnoses = data["diagnoses"];
@@ -200,12 +369,35 @@ function render_table(query) {
                     return col_data;
                 }
             },
-            { // Created_on 16
+            { // Created_on 17
                 "mData": {},
                 "mRender": function (data, type, row) {
                     return data["created_on"]
                 },
-            }
+            },
+            // Disease Diagnosis 18
+            //hidden column, Date deleted to ensure that each piece of data is not unique
+            // to allow for searches based on diagnosis
+        {
+            "mData": {},
+                "mRender": function (data, type, row) {
+                    diagnoses = data["diagnoses"];
+                    var col_data = '';
+                    $.each(diagnoses, function (index, diagnosis) {
+                        //var col_data = '';
+                        
+                        col_data += "<a href='" + diagnosis['doid_ref']["iri"] + "'>";
+                        col_data += '<i class="fa fa-stethoscope"></i> '
+                        col_data += diagnosis['doid_ref']["label"];
+                        col_data += "</a>";
+                       
+
+                        if (index < (diagnoses.length-1))
+                             col_data += ', <br>';
+                    });
+                    return col_data;
+                }
+        }
 
         ],
 
@@ -222,15 +414,30 @@ function get_filters() {
 
     }
 
-    var f = ["sex", "status", "race", "enrollment_site_id"];
 
-    $.each(f, function (_, filter) {
+    var f = ["sex", "status", "race", "enrollment_site_id", "diagnosis",
+        "age_min", "age_max", "bmi_min", "bmi_max"];
+
+/*    $.each(f, function (_, filter) {
         var value = $("#" + filter).val();
         if (value && value != "None") {
             filters[filter] = value;
         }
+    });*/
+    $.each(f, function(_, filter) {
+        var value = $("#"+filter).val();
+        if (typeof(value) == 'object') {
+            if (value.length>0) {
+                filters[filter] = value.join();
+            }
+        } else {
+            if (value && value != "None") {
+                filters[filter] = value;
+            }
+        }
     });
 
+    //console.log("filters:", filters);
     return filters;
 
 

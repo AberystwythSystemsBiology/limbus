@@ -13,13 +13,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from ...database import Sample, SampleProtocolEvent, SubSampleToSample
+from ...database import Sample, SampleProtocolEvent, SubSampleToSample, Donor
 from ...event.views import EventSchema
-from ..views import BasicSampleDisposalSchema, SampleDisposalSchema
+from ..views import BasicSampleDisposalSchema, SampleDisposalSchema, DonorIndexSchema
 from ...protocol.views import BasicProtocolTemplateSchema
 from ...auth.views import BasicUserAccountSchema, UserAccountSearchSchema
 from ...extensions import ma
-from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
 
 from . import (
@@ -43,6 +42,7 @@ from ..views import (
 import marshmallow_sqlalchemy as masql
 from marshmallow import fields
 from marshmallow_enum import EnumField
+from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
 
 class NewSampleSchema(masql.SQLAlchemySchema):
@@ -138,6 +138,57 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
 
 basic_sample_schema = BasicSampleSchema()
 basic_samples_schema = BasicSampleSchema(many=True)
+
+
+class SampleIndexSchema(masql.SQLAlchemySchema):
+    class Meta:
+        model = Sample
+
+    id = masql.auto_field()
+    is_locked = masql.auto_field()
+    uuid = masql.auto_field()
+    consent_information = ma.Nested(BasicConsentSchema, many=False)
+    base_type = EnumField(SampleBaseType, by_value=True)
+    quantity = masql.auto_field()
+    remaining_quantity = masql.auto_field()
+    status = EnumField(SampleStatus, by_value=True)
+
+    colour = EnumField(Colour, by_value=True)
+    source = EnumField(SampleSource, by_value=True)
+    created_on = ma.Date()
+    site_id = masql.auto_field()
+    current_site_id = masql.auto_field()
+    parent = ma.Nested(SampleUUIDSchema, many=False)
+
+    sample_type_information = ma.Nested(SampleTypeSchema)
+    attributes = ma.Nested(AttributeDataSchema, many=True)
+    storage = ma.Nested(BasicEntityToStorageSchema, many=False)
+
+    barcode = masql.auto_field()
+    disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
+    donor = ma.Nested(DonorIndexSchema, many=False)
+    _links = ma.Hyperlinks(
+        {
+            "add_sample_to_cart": ma.URLFor(
+                "sample.add_sample_to_cart", uuid="<uuid>", _external=True
+            ),
+            "remove_sample_from_cart": ma.URLFor(
+                "sample.remove_sample_from_cart", uuid="<uuid>", _external=True
+            ),
+            "remove_rack_from_cart": ma.URLFor(
+                "sample.remove_rack_from_cart", id="<storage.rack_id>", _external=True
+            ),
+            "self": ma.URLFor("sample.view", uuid="<uuid>", _external=True),
+            "collection": ma.URLFor("sample.index", _external=True),
+            "barcode_generation": ma.URLFor(
+                "api.misc_generate_barcode", _external=True
+            ),
+        }
+    )
+
+
+sample_index_schema = SampleIndexSchema()
+samples_index_schema = SampleIndexSchema(many=True)
 
 
 class BasicDisposalSampleSchema(masql.SQLAlchemySchema):

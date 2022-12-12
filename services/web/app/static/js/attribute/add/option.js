@@ -38,11 +38,12 @@ function query_diod(query=null, subclass=null, iri=null) {
         });
         return json;
     })();
-
+    console.log("json: ", json);
     return json;
 }
 
 function fill_content(disease_info, uri) {
+    //console.log("disease_info", disease_info);
     $("#disease-name").html(disease_info["label"]);
     $("#doid-id").html(disease_info["name"]);
 
