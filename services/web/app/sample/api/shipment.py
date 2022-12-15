@@ -689,7 +689,8 @@ def func_add_samples_to_cart(
             # -- Remove sample from other user's cart
             new_ucs = (
                 UserCart.query.filter_by(sample_id=sample_id)
-                .filter(UserCart.author_id != user_id)
+                .filter(UserCart.editor_id != user_id)
+                #.filter(UserCart.author_id != user_id)
                 .all()
             )
 

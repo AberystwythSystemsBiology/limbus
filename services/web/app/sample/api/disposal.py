@@ -84,7 +84,6 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
         sample = Sample.query.filter_by(id=sample_id).first()
     else:
         sample = Sample.query.filter_by(uuid=sample_uuid).first()
-        sample_id = sample.id
 
     if not sample:
         success = False
@@ -129,6 +128,7 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
         )
         return success, message, None, None
 
+    sample_id = sample.id
     protocolevent_values = {
         "event": values["event"],
         "protocol_id": values["protocol_id"],
