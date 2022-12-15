@@ -76,6 +76,7 @@ def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_uni
 
 def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
     success = True
+
     sample_uuid = values.pop("sample_uuid", None)
     sample_id = values.pop("sample_id", None)
 
@@ -83,6 +84,7 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
         sample = Sample.query.filter_by(id=sample_id).first()
     else:
         sample = Sample.query.filter_by(uuid=sample_uuid).first()
+        sample_id = sample.id
 
     if not sample:
         success = False

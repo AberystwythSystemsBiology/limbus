@@ -93,12 +93,10 @@ def get_greeting():
 @api.route("/misc/panel", methods=["GET"])
 @token_required
 def get_data(tokenuser: UserAccount):
-    # .strftime("%Y:%m:%d")
 
     """
     a = db.session.query(
         func.date_trunc("day", Sample.created_on)).group_by(func.date_trunc("day", Sample.created_on)).all()
-
 
     """
     sample_type_q = (
@@ -462,7 +460,6 @@ def misc_new_site(tokenuser: UserAccount):
 def get_reminder_data(tokenuser: UserAccount):
     """Get reminder data for tokenuser's affiliated site"""
     # -- Sample disposal expected within next 1 days or in the past.
-
     to_dispose = (
         db.session.query(SampleDisposal.sample_id)
         .join(Sample, Sample.disposal_id == SampleDisposal.id)
@@ -517,7 +514,6 @@ def get_reminder_data(tokenuser: UserAccount):
         # .filter_by(storage_type="STS")
     )
     # print("stored0 (%d) : " %stored0.count())
-    # print(stored0)
 
     bts = (
         db.session.query(EntityToStorage.rack_id)
@@ -527,7 +523,6 @@ def get_reminder_data(tokenuser: UserAccount):
         # .filter_by(storage_type="BTS")
     )
     # print("bts (%d) : " %bts.count())
-    # print(bts)
 
     stored1 = (
         db.session.query(EntityToStorage.sample_id)
@@ -536,8 +531,7 @@ def get_reminder_data(tokenuser: UserAccount):
         .filter(EntityToStorage.rack_id.in_(bts))
     )
 
-    print("stored1 (%d) : " % stored1.distinct(EntityToStorage.sample_id).count())
-    # print(stored1)
+    # print("stored1 (%d) : " % stored1.distinct(EntityToStorage.sample_id).count())
 
     # .filter(~Sample.id.in_(stored0.union(stored1))) \ doesn't work
     to_store = (
@@ -585,5 +579,5 @@ def get_reminder_data(tokenuser: UserAccount):
             ("in_cart", in_cart.count()),
         ]
     )
-    # print("reminder_stats: ", reminder_stats)
+
     return success_with_content_response(reminder_stats)

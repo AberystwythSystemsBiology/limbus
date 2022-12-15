@@ -914,6 +914,7 @@ $(document).ready(function () {
         else
             var api_url = window.location.origin + "/storage/rack/edit_samples_pos"
 
+        console.log("api_url: ", api_url);
         res = fill_sample_pos(api_url, sampletostore,commit=true);
         if (commit && res['success']){
             alert(res['message'])
