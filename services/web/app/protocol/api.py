@@ -258,6 +258,31 @@ def protocol_view_text(id, t_id, tokenuser: UserAccount):
         )
     )
 
+@api.route("/protocol/LIMBPRO-<id>/lock", methods=["POST"])
+@token_required
+def protocol_lock_protocol(id, tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+
+    protocol = ProtocolTemplate.query.filter_by(id=id).first()
+
+    if not protocol:
+        return not_found("Protocol LIMBPRO-%s" % id)
+
+    protocol.is_locked = not protocol.is_locked
+    protocol.update({"editor_id": tokenuser.id})
+    try:
+        db.session.add(protocol)
+        db.session.commit()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    if protocol.is_locked:
+        msg = "Successfully locked protocol!"
+    else:
+        msg = "Successfully unlocked protocol!"
+
+    return success_with_content_message_response( basic_protocol_text_schema.dump(protocol), msg)
 
 @api.route("/protocol/LIMBPRO-<id>/remove", methods=["POST"])
 @token_required

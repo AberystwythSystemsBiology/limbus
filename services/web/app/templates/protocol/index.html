@@ -1,6 +1,5 @@
 {% extends "template.html" %}
 
-{% block title %}Protocol Portal{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -27,13 +26,16 @@
         <thead>
             <tr>
                 <th>Protocol</th>
+                
                 <th>Type</th>
                 <th>Uploader</th>
                 <th>Created On</th>
+               
             </tr>
         </thead>
         <tbody>
-            {% for protocol in protocols %}
+            {% for protocol in protocols  %}
+            
             <tr>
                 <td>
                     <a href="{{ url_for('protocol.view', id=protocol.id) }}">
@@ -43,6 +45,8 @@
                 <td>{{ protocol.type }}</td>
                 <td>{{ render_author_for_table(protocol.author) }}</td>
                 <td>{{ protocol.created_on }}</td>
+                
+                
             </tr>
             {% endfor %}
         </tbody>
@@ -53,5 +57,6 @@
 {% endblock %}
 
 {% block javascript %}
+
 <script src="{{ url_for('static', filename='js/protocol/index.js') }}"></script>
 {% endblock %}
