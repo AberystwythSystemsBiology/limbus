@@ -57,8 +57,8 @@
                        <i class="fa fa-edit"></i> Basic Edit</a>
 
                         {% if current_user.is_admin == true  %}
-                    <a id="shallow-remove" class="dropdown-item" title="Remove a sample without any sub- or parent samples.">
-{#                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}">#}
+                    <a id="shallow-remove" class="dropdown-item" title="Remove a sample without any sub- or parent samples."
+                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}">
                        <i class="fa fa-trash-alt"></i> Remove</a>
 
                     <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples."

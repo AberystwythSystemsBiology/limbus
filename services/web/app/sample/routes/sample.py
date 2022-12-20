@@ -360,9 +360,10 @@ def update_sample_status(uuid: str):
     return redirect(url_for("sample.view", uuid=uuid))
 
 
-@sample.route("<uuid>/remove", methods=["GET", "POST"])
+# Not in use: TODO DELETE
+@sample.route("<uuid>/remove1", methods=["GET", "POST"])
 @login_required
-def remove_sample(uuid: str, user_id=None):
+def remove1_sample(uuid: str, user_id=None):
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -388,6 +389,50 @@ def remove_sample(uuid: str, user_id=None):
     flash(sample_response.json()["message"])
     return sample_response.json()
     # return redirect(url_for("sample.view", uuid=uuid))
+
+
+@sample.route("<uuid>/remove", methods=["GET", "POST"])
+@login_required
+def remove_sample(uuid: str, user_id=None):
+    sample_response = requests.get(
+        url_for("api.sample_view_sample", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code != 200:
+        flash(sample_response.json()["message"])
+        return sample_response.json()
+
+    form = SampleDeleteForm()
+    if form.validate_on_submit():
+        comments = form.reason.data
+        if comments:
+            comments = DeleteReason[comments].value
+        else:
+            comments = ""
+        if form.comments.data is not None and form.comments.data!="":
+            comments = ",".join([comments, form.comments.data])
+
+        remove_response = requests.post(
+            url_for(
+                "api.sample_remove_sample", uuid=uuid, user_id=user_id, _external=True
+            ),
+            headers=get_internal_api_header(),
+            json={"comments": comments},
+        )
+
+        if remove_response.status_code == 200:
+            flash(remove_response.json()["message"])
+            return redirect(url_for("sample.index"))
+        else:
+            flash(remove_response.json()["message"])
+            return redirect(url_for("sample.view", uuid=uuid))
+
+    return render_template(
+        "sample/shallow_remove.html",
+        sample=sample_response.json()["content"],
+        form=form,
+    )
 
 
 @sample.route("<uuid>/deep_remove", methods=["GET", "POST"])

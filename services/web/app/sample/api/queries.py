@@ -648,6 +648,11 @@ def sample_remove_sample(uuid: str, tokenuser: UserAccount):
     if not sample:
         return not_found("sample %s " % uuid)
 
+    values = request.get_json()
+    if values is not None:
+        comments = "Reason for removal: " + values.pop("comments", "")
+        sample.comments = comments
+
     (success, msgs) = func_remove_sample(sample, tokenuser, [])
     if not success:
         return msgs[-1]
@@ -739,14 +744,11 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
     if not tokenuser.is_admin:
         return not_allowed()
 
-    values = request.get_json()
-    #if not values:
-    #    return no_values_response()
-
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:
         return not_found("sample %s " % uuid)
 
+    values = request.get_json()
     if values is not None:
         comments = "Reason for removal: " + values.pop("comments", "")
         sample.comments = comments
