@@ -84,6 +84,7 @@ class EditSampleSchema(masql.SQLAlchemySchema):
     disposal_id = masql.auto_field()
     consent_id = masql.auto_field()
     sample_to_type_id = masql.auto_field()
+    comments = masql.auto_field()
 
 
 edit_sample_schema = EditSampleSchema()

@@ -19,14 +19,8 @@
         {{ form_field(form.comments) }}
 
     <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
-{#        <div class="btn-group mr-2" style="visibility: hidden">#}
-{#            {{ form_field(form.confirm) }}#}
-{#        </div>#}
         <div class="btn-group mr-2" role="group" aria-label="Second group">
             {{ form_field(form.remove) }}
-{#             <button type="button" class="btn btn-cancel" id="remove"><i class="fa fa-times"></i>
-                    Remove
-            </button></a>#}
         </div>
         <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
             <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
@@ -73,6 +67,5 @@
 {% endblock %}
 
 {% block javascript %}
-{#<script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}"></script>#}
 <script src="{{ url_for('static', filename='js/sample/delete.js') }}"></script>
 {% endblock %}

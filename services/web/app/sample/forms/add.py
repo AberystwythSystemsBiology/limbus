@@ -192,6 +192,7 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
             choices=collection_sites,
         )
 
+        comments = TextAreaField("Comments")
         submit = SubmitField("Save Changes")
 
         def validate(self):
@@ -225,7 +226,5 @@ class SampleDeleteForm(FlaskForm):
     )
 
     comments = TextAreaField("comments")
-    #remove = BooleanField("Remove")
     remove = SubmitField("Remove")
-    #confirm  = SubmitField("Confirmed")
 

@@ -305,6 +305,7 @@ def edit_sample_basic_info(uuid):
             # "remaining_quantity": remaining_quantity
             "consent_id": form.consent_id.data,
             "site_id": form.site_id.data,
+            "comments": form.comments.data,
         }
         response = requests.put(
             url_for("api.sample_edit_basic_info", uuid=uuid, _external=True),

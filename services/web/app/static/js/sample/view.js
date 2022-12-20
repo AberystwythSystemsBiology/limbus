@@ -265,11 +265,7 @@ function def_remove_attrdata(el) {
                             $("#delete-protocol-event-confirm").html(data["message"]);
                             $("#protocol-uuid-remove-confirmation-input").hide();
                             $("#protocol-remove-confirm-button").hide();
-/*
-                            $("#delete-protocol-confirm-modal").modal({
-                                show: false
-                            });
-*/
+
                             if (data["success"]) {
                                 $("#row-LIMBSCAD-"+id).hide();
                                 //window.location.reload()
@@ -1058,7 +1054,8 @@ $(document).ready(function () {
             })
         });
 
-        $("#deep-remove1").on("click", function () {
+/*        $("#deep-remove1").on("click", function () {
+            // Not In Use
             var uuid = sample_info["uuid"];
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
             warning_msg += "<br> <B>Deep remove will delete the sample and its sub-samples and associated data. !!</B>" ;
@@ -1101,7 +1098,7 @@ $(document).ready(function () {
 
                 }
             })
-        });
+        });*/
 
         $("#basic-info-nav").on("click", function () {
             deactivate_nav();
