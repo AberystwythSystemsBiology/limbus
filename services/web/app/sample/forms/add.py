@@ -214,3 +214,18 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
             return True
 
     return StaticForm(data=data)
+
+
+class SampleDeleteForm(FlaskForm):
+    reason = SelectField(
+        "Sample removal reasons",
+        choices=DeleteReason.choices(),
+        description="Reason for deletion.",
+        validators=[Optional()],
+    )
+
+    comments = TextAreaField("comments")
+    #remove = BooleanField("Remove")
+    remove = SubmitField("Remove")
+    #confirm  = SubmitField("Confirmed")
+

@@ -55,7 +55,7 @@ from ..views import (
     sample_protocol_event_schema,
 )
 from ...tmpstore.views import new_store_schema
-from ..enums import SampleSource
+from ..enums import SampleSource, DeleteReason
 
 
 def func_new_sample_type(values: dict, tokenuser: UserAccount):
@@ -739,9 +739,19 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
     if not tokenuser.is_admin:
         return not_allowed()
 
+    values = request.get_json()
+    #if not values:
+    #    return no_values_response()
+
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:
         return not_found("sample %s " % uuid)
+
+    if values is not None:
+        # reason = values.pop("reason", "")
+        comments = values.pop("comments", "")
+        #comments = DeleteReason[reason]
+        sample.comments = "Reason for removal: " + comments
 
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count() > 0:

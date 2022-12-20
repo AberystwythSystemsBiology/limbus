@@ -1058,7 +1058,7 @@ $(document).ready(function () {
             })
         });
 
-        $("#deep-remove").on("click", function () {
+        $("#deep-remove1").on("click", function () {
             var uuid = sample_info["uuid"];
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
             warning_msg += "<br> <B>Deep remove will delete the sample and its sub-samples and associated data. !!</B>" ;

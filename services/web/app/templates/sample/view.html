@@ -61,8 +61,8 @@
 {#                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}">#}
                        <i class="fa fa-trash-alt"></i> Remove</a>
 
-                    <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples.">
-{#                       href="{{ url_for('sample.deep_remove_sample', uuid=uuid) }}">#}
+                    <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples."
+                       href="{{ url_for('sample.deep_remove_sample', uuid=uuid) }}">
                         <i class="fa fa-trash"></i> Deep Remove</a>
                         {% endif %}
                    </div>

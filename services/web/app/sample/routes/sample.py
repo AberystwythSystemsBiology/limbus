@@ -26,9 +26,10 @@ from ..forms import (
     SampleReviewForm,
     ProtocolEventForm,
     EditBasicForm,
+    SampleDeleteForm,
 )
 
-from ..enums import BiohazardLevel, Colour
+from ..enums import BiohazardLevel, Colour, DeleteReason
 
 from datetime import datetime
 
@@ -253,13 +254,13 @@ def edit_sample_basic_info(uuid):
     )
 
     if sample_response.status_code != 200:
-        return abort(sample_response.status_code)
+        #return abort(sample_response.status_code)
+        return redirect(url_for("sample.view", uuid=uuid))
 
     if sample_response.json()["content"]["is_locked"]:
         flash("Sample is locked!")
-        return abort(sample_response.status_code)
-
-    # print("sample", sample_response.text)
+        #return abort(sample_response.status_code)
+        return redirect(url_for("sample.view", uuid=uuid))
 
     data = sample_response.json()["content"]
     consent_id = data["consent_information"]["id"]
@@ -287,7 +288,8 @@ def edit_sample_basic_info(uuid):
             collection_sites.append([site["id"], site["name"]])
     else:
         flash("Error in getting site info!")
-        return abort(sites_response.status_code)
+        #return abort(sites_response.status_code)
+        return redirect(url_for("sample.view", uuid=uuid))
 
     data.update({"consent_id": consent_id})  # data["consent_information"]["id"]})
 
@@ -395,21 +397,35 @@ def deep_remove_sample(uuid: str):
         headers=get_internal_api_header(),
     )
 
-    if sample_response.status_code == 200:
-        remove_response = requests.delete(
+    if sample_response.status_code != 200:
+        flash(sample_response.json()["message"])
+        return sample_response.json()
+
+    form = SampleDeleteForm()
+    if form.validate_on_submit():
+        comments = form.reason.data
+        if comments:
+            comments = DeleteReason[comments].value
+        else:
+            comments = ""
+        if form.comments.data is not None and form.comments.data!="":
+            comments = ",".join([comments, form.comments.data])
+
+        remove_response = requests.post(
             url_for("api.sample_deep_remove_sample", uuid=uuid, _external=True),
             headers=get_internal_api_header(),
+            json={"comments": comments},
         )
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.index"))
+            return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.view", uuid=uuid))
+            return redirect(url_for("sample.view", uuid=uuid))
 
-        return remove_response.json()
-
-    flash(sample_response.json()["message"])
-    return sample_response.json()
-    # return redirect(url_for("sample.view", uuid=uuid))
+    return render_template(
+        "sample/deep_remove.html",
+        sample=sample_response.json()["content"],
+        form=form,
+    )
