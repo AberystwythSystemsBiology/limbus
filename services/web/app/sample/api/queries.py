@@ -748,10 +748,8 @@ def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
         return not_found("sample %s " % uuid)
 
     if values is not None:
-        # reason = values.pop("reason", "")
-        comments = values.pop("comments", "")
-        #comments = DeleteReason[reason]
-        sample.comments = "Reason for removal: " + comments
+        comments = "Reason for removal: " + values.pop("comments", "")
+        sample.comments = comments
 
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count() > 0:
