@@ -1008,7 +1008,7 @@ $(document).ready(function () {
             }
         })
 
-        $("#shallow-remove").on("click", function () {
+/*        $("#shallow-remove").on("click", function () {
 
             var uuid = sample_info["uuid"];
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
@@ -1054,7 +1054,7 @@ $(document).ready(function () {
             })
         });
 
-/*        $("#deep-remove1").on("click", function () {
+        $("#deep-remove1").on("click", function () {
             // Not In Use
             var uuid = sample_info["uuid"];
             var warning_msg = "<B>Warning:</B> This action cannot be undone!";
