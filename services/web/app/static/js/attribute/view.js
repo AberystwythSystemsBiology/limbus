@@ -31,7 +31,7 @@ function lock_attribute(id) {
 
     $("#confirm-modal-button").prop("disabled", false);
     $('#confirm-modal-button').click(function () {
-        $("#confirm-modal-button").prop("disabled", true);
+    $("#confirm-modal-button").prop("disabled", true);
 
         $.ajax({
             type: "POST",

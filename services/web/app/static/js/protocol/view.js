@@ -15,6 +15,46 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+
+function lock_protocol(id) {
+    var limbpro_id = "LIMBPRO-"+id;
+    var warning_msg = "Press confirm to lock the protocol from being associated to sample/donors!";
+    $("#confirm-modal-warning").html(warning_msg);
+    $("#confirm-modal-title").html("Confirm locking protocol");
+    $("#confirm-modal-input").html("");
+    $("#confirm-modal-input").hide();
+    $("#confirm-modal-guide").html("");
+
+    $("#confirm-modal").modal({
+        show: true
+    });
+ 
+    var action_link = window.location.origin + "/protocol/"+limbpro_id +"/lock";
+
+    $("#confirm-modal-button").prop("disabled", false);
+    $('#confirm-modal-button').click(function () {
+        $("#confirm-modal-button").prop("disabled", true);
+
+        $.ajax({
+            type: "POST",
+            url: action_link,
+            dataType: "json",
+            success: function (data) {
+                $("#confirm-modal").modal({
+                    show: false
+                });
+
+                if (data["success"]) {
+                    window.location.href = window.location.origin + "/protocol/";
+                } else {
+                    window.location.reload();
+                    return false;
+                }
+            }
+        });
+    });
+};
+
 function protocol_remove_logic(protocol_info) {
 $("#protocol_remove").on("click", function () {
     msg = "Are you sure you want to delete this protocol?  ";
@@ -64,6 +104,14 @@ $(document).ready(function() {
     var protocol_info = JSON.parse(sessionStorage.getItem("protocol_info"));
     protocol_remove_logic(protocol_info);
 
+    var protocol_id = $("#protocol-id").text();
+
+    $("#lock-protocol").on("click", function () {
+       
+        lock_protocol(protocol_id);
+
+      
+    });
     /*    $('#protocol-table').DataTable( {
         });
     */

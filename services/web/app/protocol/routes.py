@@ -188,6 +188,28 @@ def new_text(id):
     else:
         return response.content
 
+@protocol.route("LIMBPRO-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock(id):
+    lock_response = requests.post(
+        url_for("api.protocol_lock_protocol", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if lock_response.status_code == 200:
+        flash(lock_response.json()["message"])
+
+    else:
+        flash("We have a problem :( %s" % lock_response.json())
+
+    return lock_response.json()
+
+
+
+
+
+
+
 
 @protocol.route("/LIMBPRO-<id>/remove", methods=["GET", "POST"])
 @login_required
