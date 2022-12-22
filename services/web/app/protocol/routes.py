@@ -40,6 +40,18 @@ def index():
         return response.content
 
 
+@protocol.route("/data")
+@login_required
+def data():
+    response = requests.get(
+        url_for("api.protocol_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        response.status_code
+
 @login_required
 @protocol.route("/new", methods=["GET", "POST"])
 def new():
