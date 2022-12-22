@@ -72,7 +72,9 @@ def index() -> str:
         diagnoses = diag_response.json()["content"]["choices"]
         # diagnosis_info = sites_response.json()["content"]["info"]
 
-    form = DonorFilterForm(sites=sites, diagnoses=diagnoses, data={"enrollment_site_id": user_site_id})
+    form = DonorFilterForm(
+        sites=sites, diagnoses=diagnoses, data={"enrollment_site_id": user_site_id}
+    )
     return render_template("donor/index.html", form=form)
 
 
@@ -121,7 +123,6 @@ def get_study_reference():
         return response.json()
     else:
         abort(response.status_code)
-
 
 
 @donor.route("/diagnoses")
@@ -593,7 +594,6 @@ def add():
                 return redirect(url_for("donor.index"))
 
             abort(response.status_code)
-
 
         return render_template("donor/add.html", form=form)
     abort(response.status_code)

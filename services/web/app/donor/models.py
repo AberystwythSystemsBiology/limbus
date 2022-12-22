@@ -49,7 +49,7 @@ class Donor(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     @hybrid_property
     def age_at_registration(self):
-        return extract('year', func.age(self.registration_date, self.dob))
+        return extract("year", func.age(self.registration_date, self.dob))
 
     @hybrid_property
     def bmi(self):

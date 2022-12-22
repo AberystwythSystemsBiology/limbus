@@ -71,6 +71,7 @@ from ...sample.views import (
 
 from datetime import date
 
+
 @api.route("/donor/get_study_reference", methods=["GET"])
 @use_args(NewDonorProtocolEventSchema(), location="json")
 @token_required
@@ -111,14 +112,13 @@ def donor_diagnosis_data(tokenuser: UserAccount):
         # diag_ref = [diag["name"]] + diag_ref
         # diag_ref = ",".join(diag_ref)
         diag_ref = diag["name"]
-        diagnosis_choices.append(
-            (diag["iri"], "||".join([diag["label"], diag_ref]))
-        )
+        diagnosis_choices.append((diag["iri"], "||".join([diag["label"], diag_ref])))
 
     # print("diagnosis_choices: ", diagnosis_choices)
     return success_with_content_response(
-        {"info": diagnosis_info,
-         "choices": diagnosis_choices,
+        {
+            "info": diagnosis_info,
+            "choices": diagnosis_choices,
         }
     )
 
@@ -134,6 +134,7 @@ def donor_query_basic(args, tokenuser: UserAccount):
         basic_donors_schema.dump(Donor.query.filter_by(**filters).filter(*joins).all())
     )
 
+
 @api.route("/donor/query", methods=["GET"])
 @use_args(DonorSearchSchema(), location="json")
 @token_required
@@ -141,7 +142,6 @@ def donor_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Donor)
     print("filters", filters)
     print("joins", joins)
-
 
     diag_refs = filters.pop("diagnosis", None)
     age_min = filters.pop("age_min", None)
@@ -155,19 +155,19 @@ def donor_query(args, tokenuser: UserAccount):
     if diag_refs:
         diag_refs = diag_refs.split(",")
         # print("diag_refs", diag_refs)
-        stmt = (stmt
-             .join(DonorDiagnosisEvent)
-             .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
-             .distinct(Donor.id)
+        stmt = (
+            stmt.join(DonorDiagnosisEvent)
+            .filter(DonorDiagnosisEvent.doid_ref.in_(diag_refs))
+            .distinct(Donor.id)
         )
 
     if age_min:
         age_min = int(age_min)
-        stmt = stmt.filter(Donor.age_at_registration>=age_min)
+        stmt = stmt.filter(Donor.age_at_registration >= age_min)
 
     if age_max:
         age_max = int(age_max)
-        stmt = stmt.filter(Donor.age_at_registration<age_max)
+        stmt = stmt.filter(Donor.age_at_registration < age_max)
 
     if bmi_min:
         bmi_min = float(bmi_min)
@@ -175,11 +175,9 @@ def donor_query(args, tokenuser: UserAccount):
 
     if bmi_max:
         bmi_max = float(bmi_max)
-        stmt = stmt.filter(Donor.bmi < bmi_max )
+        stmt = stmt.filter(Donor.bmi < bmi_max)
 
-    return success_with_content_response(
-        basic_donors_schema.dump(stmt.all())
-    )
+    return success_with_content_response(basic_donors_schema.dump(stmt.all()))
 
 
 @api.route("/donor/LIMBDON-<id>")

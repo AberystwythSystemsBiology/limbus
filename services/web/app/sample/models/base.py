@@ -116,8 +116,12 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
         uselist=False,
     )  # , cascade="all, delete")
 
-    donor1 = db.relationship("Donor", uselist=False, secondary="donortosample", viewonly=True)
-    donor = db.relationship("Donor", uselist=False, secondary="sampleconsent", viewonly=True)
+    donor1 = db.relationship(
+        "Donor", uselist=False, secondary="donortosample", viewonly=True
+    )
+    donor = db.relationship(
+        "Donor", uselist=False, secondary="sampleconsent", viewonly=True
+    )
 
 
 class SampleToEvent(Base, RefEditorMixin, RefAuthorMixin):

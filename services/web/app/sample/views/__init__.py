@@ -19,7 +19,7 @@ from ...database import (
     SampleShipmentStatus,
     SampleShipment,
     SampleShipmentToSample,
-    Donor
+    Donor,
 )
 import marshmallow_sqlalchemy as masql
 from marshmallow_enum import EnumField
@@ -30,6 +30,7 @@ from ...event.views import NewEventSchema
 from ..enums import SampleShipmentStatusStatus
 
 from ...donor.enums import BiologicalSexTypes, DonorStatusTypes, RaceTypes
+
 # from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 from ...database import DonorDiagnosisEvent
 from ...donor.enums import CancerStage
@@ -103,10 +104,12 @@ class DoidInstance(fields.Field):
 class BasicDonorDiagnosisEventSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DonorDiagnosisEvent
+
     diagnosis_date = ma.Date()
     comments = masql.auto_field()
     doid_ref = DoidInstance()
     stage = EnumField(CancerStage)
+
 
 class DonorIndexSchema(masql.SQLAlchemySchema):
     class Meta:

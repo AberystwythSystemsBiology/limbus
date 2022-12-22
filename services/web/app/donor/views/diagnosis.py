@@ -61,6 +61,7 @@ class DonorDiagnosisEventSchema(masql.SQLAlchemySchema):
 donor_diagnosis_event_schema = DonorDiagnosisEventSchema()
 donor_diagnosis_events_schema = DonorDiagnosisEventSchema(many=True)
 
+
 class DonorDiagnosisSchema(masql.SQLAlchemySchema):
     class Meta:
         model = DonorDiagnosisEvent

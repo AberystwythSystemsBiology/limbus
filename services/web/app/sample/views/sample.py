@@ -44,6 +44,7 @@ from marshmallow import fields
 from marshmallow_enum import EnumField
 from ..enums import SampleBaseType, Colour, SampleSource, SampleStatus, BiohazardLevel
 
+
 class NewSampleSchema(masql.SQLAlchemySchema):
     class Meta:
         model = Sample
@@ -189,6 +190,7 @@ class SampleIndexSchema(masql.SQLAlchemySchema):
 
 sample_index_schema = SampleIndexSchema()
 samples_index_schema = SampleIndexSchema(many=True)
+
 
 class BasicDisposalSampleSchema(masql.SQLAlchemySchema):
     class Meta:
