@@ -122,7 +122,9 @@ function fill_title(sample) {
     var edit_link = sample["consent_information"]["_links"]["remove"];
     edit_link = edit_link.replace("/donor/consent/", "/donor/sample/"+sample["uuid"]+"/consent/");
     edit_link = edit_link.replace("/remove", "/edit");
+
     $("#action-edit-consent").attr("href", edit_link);
+    $("#action-edit-consent").attr('data-role', 'data_entry');
 
     var author_html = "" + author_information["first_name"] + " " + author_information["last_name"]
     $("#created_by").html(author_html);
@@ -297,7 +299,7 @@ function render_attr_content(label, content, actions, item_id) {
 
     for (const i in actions) {
         var act = actions[i];
-        row += "<button type='button' id="+ act +'-'+ item_id + " class='btn btn-delete-icon'>";
+        row += "<button type='button' id="+ act +'-'+ item_id + " class='btn btn-delete-icon' data-role='data_entry'>";
         //row += "<a href='#' id="+ act +'-'+ item_id + ">";
         if (act == 'del') {
             row += "<i class='fa fa-trash'></i>"
@@ -485,9 +487,9 @@ function fill_sample_reviews(reviews) {
         html += "</div>"
         html += "<div class='card-footer'>"
         //html += "<a href='" + review_info["_links"]["edit"] + "'>"
-        html += "<div class='btn btn-warning float-left disabled'>Edit</div>"
+        html += "<div class='btn btn-warning float-left disabled' data-role='data_entry'>Edit</div>"
         //html += "</a>"
-        html += "<div id='remove-review-"+review_info["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='remove-review-"+review_info["id"] + "' class='btn btn-danger float-right' data-role='data_entry'>Remove</div>"
 
         html += "</div>"
         html += "</div>"
@@ -610,11 +612,11 @@ function fill_protocol_events(events) {
         // End card body
         html += "</div>"
         html += "<div class='card-footer'>"
-        html += "<a href='" + event_info["_links"]["edit"] + "'>"
+        html += "<a href='" + event_info["_links"]["edit"] + "' data-role='data_entry'>"
         html += "<div id='edit-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-warning float-left'>Edit</div>"
         html += "</a>"
         if (!["Sample Transfer", "Sample Destruction"].includes(event_info["protocol"]["type"]) ) {
-        html += "<div id='remove-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='remove-protocol-"+event_info["id"] +"-"+event_info["is_locked"] + "' class='btn btn-danger float-right' data-role='data_entry'>Remove</div>"
         html += "</div>"
         }
         html += "</div>"

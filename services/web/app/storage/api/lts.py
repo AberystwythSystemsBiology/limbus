@@ -59,6 +59,9 @@ def storage_coldstorage_view(id, tokenuser: UserAccount):
 @api.route("/storage/coldstorage/LIMBCS-<id>/edit/view", methods=["GET"])
 @token_required
 def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     return success_with_content_response(
         new_cold_storage_schema.dump(ColdStorage.query.filter_by(id=id).first_or_404())
     )
@@ -67,6 +70,9 @@ def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
 @api.route("/storage/coldstorage/LIMBCS-<id>/delete", methods=["PUT"])
 @token_required
 def storage_coldstorage_delete(id, tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     existing = ColdStorage.query.filter_by(id=id).first()
 
     if not existing:
@@ -106,6 +112,9 @@ def delete_coldstorage_func(record):
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
 @token_required
 def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     values = request.get_json()
 
     if not values:
@@ -133,6 +142,9 @@ def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
 @api.route("/storage/coldstorage/new", methods=["POST"])
 @token_required
 def storage_coldstorage_new(tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     values = request.get_json()
 
     if not values:
@@ -158,6 +170,8 @@ def storage_coldstorage_new(tokenuser: UserAccount):
 @api.route("/storage/coldstorage/LIMBCS-<id>/edit", methods=["PUT"])
 @token_required
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
 
     cs = ColdStorage.query.filter_by(id=id).first()
 
@@ -192,6 +206,8 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 @api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
 @token_required
 def storage_cold_storage_lock(id, tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
 
     cs = ColdStorage.query.filter_by(id=id).first()
 
@@ -228,6 +244,9 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
 @api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])
 @token_required
 def storage_coldstorage_document(id, tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     values = request.get_json()
 
     if not values:

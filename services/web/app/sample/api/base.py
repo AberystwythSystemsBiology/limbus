@@ -24,7 +24,7 @@ from ...api import api, generics
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 
-from ...decorators import token_required, check_if_admin
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
@@ -1072,7 +1072,8 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 
 
 @api.route("sample/new", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -1225,7 +1226,8 @@ def sample_new_sample(tokenuser: UserAccount):
 
 
 @api.route("sample/new/sample_type_instance/<base_type>", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -1261,7 +1263,8 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
 
 
 @api.route("sample/<uuid>/edit/basic_info", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_edit_basic_info(uuid, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -1733,7 +1736,8 @@ def func_update_sample_status(
 
 
 @api.route("/sample/status/<uuid>", methods=["GET"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:

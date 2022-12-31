@@ -78,6 +78,33 @@ class UserAccount(Base, UserMixin):
         return self.account_type == AccountType.ADM
 
     @property
+    def roles(self) -> str:
+        roles = [k for k in self.settings]
+        if self.account_type == AccountType.ADM:
+            roles = ["admin"] +  roles
+
+        return ','.join(roles)
+
+    @property
+    def has_role(self, role=None) -> bool:
+        if role is None or self.account_type == AccountType.ADM:
+            return True
+        if role == "admin":
+            return False
+        return role in self.settings
+
+    # @property
+    # def has_any_roles(self, roles=[]) -> bool:
+    #     # user has got any role among roles
+    #     if len(roles) == 0 or self.account_type == AccountType.ADM:
+    #         return True
+    #     role_admin = roles.pop("admin", None)
+    #     if role_admin and len(roles)==0:
+    #         return False
+    #     user_roles = set(list(self.settings.keys()))
+    #     return len(user_roles.intersection(set(roles)))>0
+
+    @property
     def is_authenticated_and_not_bot(self) -> bool:
         return [self.is_authenticated, self.is_bot]
 

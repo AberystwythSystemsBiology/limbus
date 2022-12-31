@@ -23,7 +23,7 @@
                         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                             {% if not cs.is_locked %}
                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.edit_cold_storage', id=cs.id )}}">
+                                <a data-role="data_entry" href="{{ url_for('storage.edit_cold_storage', id=cs.id )}}">
                                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                         Details
                                     </button>
@@ -37,11 +37,11 @@
                                     <i class="fa fa-lightbulb"></i> Actions
                                   </button>
                                   <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{{ url_for('storage.new_shelf',id=cs.id) }}"><i
+                                    <a data-role="data_entry" class="dropdown-item" href="{{ url_for('storage.new_shelf',id=cs.id) }}"><i
                                         class="fa fa-bars"></i> Add Shelf</a>
-                                    <a class="dropdown-item" href="{{ url_for('storage.new_cold_storage_servicing_report',id=cs.id) }}"><i
+                                    <a data-role="data_entry" class="dropdown-item" href="{{ url_for('storage.new_cold_storage_servicing_report',id=cs.id) }}"><i
                                         class="fa fa-file"></i> Add Service Report</a>
-                                    <a class="dropdown-item" href="{{ url_for('storage.associate_document',id=cs.id) }}"><i
+                                    <a data-role="data_entry" class="dropdown-item" href="{{ url_for('storage.associate_document',id=cs.id) }}"><i
                                         class="fa fa-file"></i> Associate Document</a>
                                     </div>
                                 </div>
@@ -51,8 +51,8 @@
 
                             {% endif %}
 
-                            {% if current_user.is_admin == true %}
-                            <div class="btn-group mr-2" role="group" aria-label="Second group">
+{#                            {% if current_user.is_admin == true %}#}
+                            <div data-role="admin" class="btn-group mr-2" role="group" aria-label="Second group">
                                     {% if cs.is_locked %}
                                 <a href=" {{ url_for('storage.lock_cold_storage', id = cs.id) }}">
                                 <button type="button"
@@ -65,11 +65,11 @@
 
                             </div>
 
-                            {% endif %}
+{#                            {% endif %}#}
 
                             {% if not cs.is_locked %}
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <button type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                <button data-role="data_entry" type="button" class="btn btn-delete float-right" data-toggle="modal"
                                         data-target="#delete-confirmation">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
@@ -295,5 +295,6 @@
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/lts/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

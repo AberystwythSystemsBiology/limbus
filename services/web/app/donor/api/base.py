@@ -33,7 +33,7 @@ from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...sample.api import func_validate_settings
 from ...disease.api import *
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
@@ -197,7 +197,8 @@ def donor_edit_view(id, tokenuser: UserAccount):
 
 
 @api.route("/donor/LIMBDON-<id>/edit", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_edit(id, tokenuser: UserAccount):
     values = request.get_json()
     if not values:
@@ -226,7 +227,8 @@ def donor_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/donor/new", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_new(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -251,7 +253,8 @@ def donor_new(tokenuser: UserAccount):
 
 
 @api.route("/donor/LIMBDON-<id>/associate/sample", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_associate_sample(id, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -309,7 +312,8 @@ def donor_associate_sample(id, tokenuser: UserAccount):
 
 
 @api.route("/donor/LIMBDON-<id>/associate/diagnosis", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_new_diagnosis(id, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -338,7 +342,8 @@ def donor_new_diagnosis(id, tokenuser: UserAccount):
 
 
 @api.route("/donor/LIMBDIAG-<id>/remove", methods=["DELETE", "POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_remove_diagnosis(id, tokenuser: UserAccount):
     dde = DonorDiagnosisEvent.query.filter_by(id=id).first()
     if not dde:
@@ -405,7 +410,8 @@ def func_update_donor_protocol_event(
 
 
 @api.route("/donor/new/consent", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_new_consent(tokenuser: UserAccount):
     values = request.get_json()
     if not values:
@@ -492,7 +498,8 @@ def donor_new_consent(tokenuser: UserAccount):
 
 
 @api.route("/donor/consent/LIMBDC-<id>/edit", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_edit_consent(id, tokenuser: UserAccount):
 
     new_consent = SampleConsent.query.filter_by(id=id).first()
@@ -612,57 +619,9 @@ def donor_edit_consent(id, tokenuser: UserAccount):
     return success_with_content_response(consent_info)
 
 
-@api.route("/donor/consent/LIMBDC-<id>/remove", methods=["POST"])
-@token_required
-def donor_remove_consent(id, tokenuser: UserAccount):
-    consent = SampleConsent.query.filter_by(id=id).first()
-    if consent:
-        if consent.is_locked or consent.withdrawn:
-            return locked_response("donor consent! ")
-    else:
-        return not_found("donor consent(%s)" % id)
-
-    donor_id = None
-    if consent.donor_id is not None:
-        donor = (
-            Donor.query.filter_by(id=consent.donor_id)
-            .with_entities(Donor.uuid, Donor.is_locked)
-            .first()
-        )
-        donor_id = consent.donor_id
-
-        if donor:
-            if donor.is_locked:
-                return locked_response("donor LIMBDON-(%s)" % donor.id)
-        else:
-            return not_found("related donor")
-
-    samples = Sample.query.filter_by(consent_id=id).all()
-    ns = len(samples)
-    if ns > 0:
-        return in_use_response("%d sample(s)" % ns)
-
-    msg = ""
-    answers = SampleConsentAnswer.query.filter_by(consent_id=id).all()
-    if answers:
-        try:
-            for answer in answers:
-                db.session.delete(answer)
-            db.session.commit()
-            msg = "Consent answers deleted!"
-        except Exception as err:
-            return transaction_error_response(err)
-
-    try:
-        db.session.delete(consent)
-        db.session.commit()
-        return success_with_content_response(donor_id)
-    except Exception as err:
-        return transaction_error_response(msg + " | " + err)
-
-
 @api.route("/donor/consent/withdraw", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_withdraw_consent(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -786,6 +745,56 @@ def donor_withdraw_consent(tokenuser: UserAccount):
         return success_with_content_response(donor_id)
     except Exception as err:
         return transaction_error_response(err)
+
+
+@api.route("/donor/consent/LIMBDC-<id>/remove", methods=["POST"])
+#@token_required
+@requires_roles("data_entry")
+def donor_remove_consent(id, tokenuser: UserAccount):
+    consent = SampleConsent.query.filter_by(id=id).first()
+    if consent:
+        if consent.is_locked or consent.withdrawn:
+            return locked_response("donor consent! ")
+    else:
+        return not_found("donor consent(%s)" % id)
+
+    donor_id = None
+    if consent.donor_id is not None:
+        donor = (
+            Donor.query.filter_by(id=consent.donor_id)
+            .with_entities(Donor.uuid, Donor.is_locked)
+            .first()
+        )
+        donor_id = consent.donor_id
+
+        if donor:
+            if donor.is_locked:
+                return locked_response("donor LIMBDON-(%s)" % donor.id)
+        else:
+            return not_found("related donor")
+
+    samples = Sample.query.filter_by(consent_id=id).all()
+    ns = len(samples)
+    if ns > 0:
+        return in_use_response("%d sample(s)" % ns)
+
+    msg = ""
+    answers = SampleConsentAnswer.query.filter_by(consent_id=id).all()
+    if answers:
+        try:
+            for answer in answers:
+                db.session.delete(answer)
+            db.session.commit()
+            msg = "Consent answers deleted!"
+        except Exception as err:
+            return transaction_error_response(err)
+
+    try:
+        db.session.delete(consent)
+        db.session.commit()
+        return success_with_content_response(donor_id)
+    except Exception as err:
+        return transaction_error_response(msg + " | " + err)
 
 
 @api.route("/donor/consent/LIMBDC-<id>", methods=["PUT", "GET", "POST"])

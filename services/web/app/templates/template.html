@@ -55,6 +55,7 @@
 </head>
 
 <body class="wrapper d-flex flex-column min-vh-100 text-justify">
+    <p id="user_roles" hidden>{{ current_user.roles }}</p>
 
     <nav class="navbar  navbar-dark bg-primary fixed-top navbar-expand-lg">
         <div class="container">
@@ -76,7 +77,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{{ url_for('sample.index') }}"><i class="fas fa-vial"></i>
                                 Sample Index</a>
-                            <a class="dropdown-item"
+                            <a class="dropdown-item" data-role="data_entry"
                                 href="{{ url_for('sample.add_step_one') }}"><i
                                     class="fas fa-plus"></i> New Sample</a>
                                 <a class="dropdown-item" href="{{ url_for('sample.shipment_index') }}"><i class="fa fa-shipping-fast"></i>
@@ -92,7 +93,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{{ url_for('donor.index') }}"><i
                                     class="fa fa-user-circle"></i> Donor Index</a>
-                            <a class="dropdown-item" href="{{ url_for('donor.add') }}"><i class="fas fa-plus"></i> New
+                            <a class="dropdown-item"  data-role="data_entry" href="{{ url_for('donor.add') }}"><i class="fas fa-plus"></i> New
                                 Donor</a>
 
                         </div>
@@ -106,7 +107,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                             <a class="dropdown-item" href="{{ url_for('document.index') }}"><i class="fas fa-file"></i>
                                 Document Portal</a>
-                            <a class="dropdown-item" href="{{ url_for('document.new_document') }}"><i
+                            <a class="dropdown-item"  data-role="data_entry"  href="{{ url_for('document.new_document') }}"><i
                                     class="fas fa-plus"></i> New Document</a>
 
                         </div>
@@ -124,7 +125,7 @@
                             <a class="dropdown-item" href="{{ url_for('storage.rack_index') }}"><i
                                     class="fa fa-grip-vertical"></i> Storage Racks</a>
 
-                            <a class="dropdown-item" href="{{ url_for('storage.add_rack') }}"><i
+                            <a class="dropdown-item" data-role="data_entry" href="{{ url_for('storage.add_rack') }}"><i
                                     class="fas fa-plus"></i> New Storage Rack</a>
                         </div>
                     </li>
@@ -335,7 +336,7 @@
     <script src="{{ url_for('static', filename='node_modules/chartjs-adapter-moment/dist/chartjs-adapter-moment.js') }}"></script>
 
     <script src="{{ url_for('static', filename='js/all.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
     {% block javascript %}
 
     {% endblock %}

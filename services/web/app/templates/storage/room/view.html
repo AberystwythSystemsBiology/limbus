@@ -29,7 +29,7 @@
                             {% if not room.is_locked %}
 
                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.edit_room', id=room.id) }}">
+                                <a data-role="data_entry" href="{{ url_for('storage.edit_room', id=room.id) }}">
                                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                         Details
                                     </button>
@@ -37,7 +37,7 @@
                             </div>
 
                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.new_cold_storage', id=room.id) }}">
+                                <a data-role="data_entry" href="{{ url_for('storage.new_cold_storage', id=room.id) }}">
                                     <button type="button" class="btn btn-outline-dark"><i class="fas fa-plus"></i>
                                         Add Cold Storage
                                     </button>
@@ -45,9 +45,9 @@
                             </div>
 
                             {% endif %}
-                            {% if current_user.is_admin == true %}
+{#                            {% if current_user.is_admin == true %}#}
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <a href="{{ url_for('storage.lock_room', id=room.id) }}">
+                                <a data-role="admin" href="{{ url_for('storage.lock_room', id=room.id) }}">
                                     <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                             class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if room.is_locked
                                         %}
@@ -55,11 +55,11 @@
                                     </button>
                                 </a>
                             </div>
-                            {% endif %}
+{#                            {% endif %}#}
 
                             {% if not room.is_locked %}
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <button type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                <button data-role="data_entry" type="button" class="btn btn-delete float-right" data-toggle="modal"
                                         data-target="#delete-confirmation">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
@@ -160,5 +160,6 @@
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

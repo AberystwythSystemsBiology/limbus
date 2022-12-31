@@ -32,7 +32,7 @@ from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...sample.api import func_deep_remove_sample, func_validate_settings
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 
 from flask import request, current_app, jsonify, send_file
 from marshmallow import ValidationError
@@ -289,7 +289,8 @@ def func_deep_remove_donor(donor, tokenuser: UserAccount, msgs=[]):
 
 
 @api.route("/donor/LIMBDON-<id>/remove", methods=["DELETE", "GET", "POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def donor_remove_donor(id, tokenuser: UserAccount):
 
     donor = Donor.query.filter_by(id=id).first()

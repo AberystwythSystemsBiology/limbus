@@ -364,7 +364,7 @@ function fill_diagnosis_information(diagnoses, date) {
 
         html += media_html;
         // end card body
-        html += "<div id='remove-diagnosis-" + value["id"] + "' class='btn btn-danger float-right'>Remove</div>"
+        html += "<div id='remove-diagnosis-" + value["id"] + "' class='btn btn-danger float-right' data-role='data_entry'>Remove</div>"
 
         html += "</div>"
         html += "</div>"
@@ -581,10 +581,10 @@ function fill_consents_information(consent_information) {
         html += "</div>"
         html += "<div class='card-footer'>"
         html += "<div id='view-consent-" + consent_info["id"] + "' class='btn btn-secondary float-left'>View</div>"
-        html += "<a href='" + consent_info["_links"]["edit"] + "'>";
+        html += "<a data-role='data_entry' href='" + consent_info["_links"]["edit"] + "'>";
         html += "<button class='btn btn-secondary'>Edit</button>";
         html += "</a>";
-        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-delete float-right'>Remove</div>"
+        html += "<div id='remove-consent-" + consent_info["id"] + "' class='btn btn-delete float-right' data-role='data_entry' >Remove</div>"
         html += "</div>"
         html += "</div>"
 

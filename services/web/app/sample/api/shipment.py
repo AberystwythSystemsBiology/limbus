@@ -22,7 +22,7 @@ from ...api import api, generics
 import requests
 import json
 from ...api.responses import *
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 from ..enums import CartSampleStorageType, SampleShipmentStatusStatus
 from .base import func_update_sample_status, func_validate_settings
@@ -79,8 +79,10 @@ def get_user_cart(tokenuser: UserAccount, user_id=None):
 
 
 @api.route("/shipment/update_status/<uuid>", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def shipment_update_status(uuid: str, tokenuser: UserAccount):
+
     shipment = SampleShipment.query.filter_by(uuid=uuid).first()
     shipment_event = SampleShipmentStatus.query.filter_by(
         shipment_id=shipment.id
@@ -288,9 +290,9 @@ def shipment_index_tokenuser(tokenuser: UserAccount):
 
 
 @api.route("/shipment/new", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def shipment_new_shipment(tokenuser: UserAccount):
-
     cart = UserCart.query.filter_by(author_id=tokenuser.id, selected=True).all()
 
     if len(cart) == 0:
@@ -404,7 +406,8 @@ def shipment_new_shipment(tokenuser: UserAccount):
 
 @api.route("/cart/remove/<uuid>", methods=["DELETE"])
 @api.route("/cart/LIMBUSR-<user_id>/remove/<uuid>", methods=["DELETE"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def remove_sample_from_cart(uuid: str, tokenuser: UserAccount, user_id=None):
     print("user id", tokenuser.id, user_id)
     if user_id:
@@ -441,7 +444,8 @@ def remove_sample_from_cart(uuid: str, tokenuser: UserAccount, user_id=None):
 
 
 @api.route("/cart/remove/LIMBRACK-<id>", methods=["DELETE"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def remove_rack_from_cart(id: int, tokenuser: UserAccount):
     rack_response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
@@ -775,7 +779,8 @@ def func_add_samples_to_cart(
 
 
 @api.route("/cart/add/<uuid>", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
     sample_id = db.session.query(Sample.id).filter_by(uuid=uuid).scalar()
 
@@ -808,7 +813,8 @@ def add_sample_to_cart(uuid: str, tokenuser: UserAccount):
 
 @api.route("/cart/add/samples", methods=["POST"])
 @api.route("/cart/LIMBUSR-<user_id>/add/samples", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def add_samples_to_cart(tokenuser: UserAccount, user_id=None):
     values = request.get_json()
     samples = []
@@ -841,7 +847,8 @@ def add_samples_to_cart(tokenuser: UserAccount, user_id=None):
 
 
 @api.route("/cart/add/samples_in_shipment", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
     """
     Add samples involved in the shipment to user cart and close (i.e locked) the shipment.
@@ -884,7 +891,8 @@ def add_samples_in_shipment_to_cart(tokenuser: UserAccount):
 
 
 @api.route("/cart/add/LIMBRACK-<id>", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def add_rack_to_cart(id: int, tokenuser: UserAccount):
     rackRecord = SampleRack.query.filter_by(id=id).first()
     if not rackRecord:
@@ -953,7 +961,8 @@ def add_rack_to_cart(id: int, tokenuser: UserAccount):
 
 
 @api.route("/cart/LIMBUSR-<user_id>/reassign", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_reassign_cart(user_id: int, tokenuser: UserAccount):
     values = request.get_json()
     if not values:
@@ -1170,7 +1179,8 @@ def select_record_cart_shipment(sample_id: int, tokenuser: UserAccount):
 
 
 @api.route("/cart/LIMBUSR-<user_id>/update/samples", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def user_cart_update_samples(user_id: int, tokenuser: UserAccount):
     print("user_id", user_id)
     values = request.get_json()

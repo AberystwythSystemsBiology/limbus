@@ -20,7 +20,7 @@
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     {% if not attribute.is_locked %}
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{ url_for('attribute.edit', id=attribute.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('attribute.edit', id=attribute.id) }}">
                             <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details
                             </button>
                         </a>
@@ -37,25 +37,25 @@
 
                     {% endif %}
 
-                {% if current_user.is_admin == true %}
+{#                {% if current_user.is_admin == true %}#}
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button id="lock-attribute" type="button"
+                        <button data-role="admin" id="lock-attribute" type="button"
                             class="btn btn-outline-dark">
                             <i class="fa fa-lock"></i>
                             {% if attribute.is_locked %}Unl{% else %}L{% endif %}ock
                         </button>
                     </div>
-                {% endif %}
+{#                {% endif %}#}
 
-                {% if current_user.is_admin == true %}
+{#                {% if current_user.is_admin == true %}#}
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button id="remove-attribute" type="button"
+                        <button data-role="admin" id="remove-attribute" type="button"
                             class="btn btn-delete float-right">
                             <i class="fa fa-trash"></i>
                             Delete
                         </button>
                     </div>
-                {% endif %}
+{#                {% endif %}#}
                 </div>
             </div>
 
@@ -178,5 +178,6 @@
 {% block javascript %}
 
 <script src="{{ url_for('static', filename='js/attribute/view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

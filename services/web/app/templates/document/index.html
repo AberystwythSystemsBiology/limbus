@@ -9,7 +9,7 @@
         <h1><i class="fas fa-file"></i> Document Portal</h1>
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{ url_for('document.new_document') }}">
+                <a data-role="data_entry" href="{{ url_for('document.new_document') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Add Document</button>
                 </a>
             </div>
@@ -54,4 +54,5 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/document/index.js') }}"></script>
+
 {% endblock %}

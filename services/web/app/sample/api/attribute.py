@@ -19,7 +19,7 @@ from ...api import api, generics
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
@@ -42,9 +42,9 @@ import requests
 
 
 @api.route("/sample/<uuid>/associate/attribute/<type>", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> str:
-
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(tokenuser),
@@ -101,9 +101,9 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 
 @api.route("/sample/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
 @api.route("/sample/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> str:
-
     # sta = SampleToCustomAttributeData.query.filter_by(id=id).first()
     stad = AttributeData.query.filter_by(id=id).first()
     print("stad: ", stad)

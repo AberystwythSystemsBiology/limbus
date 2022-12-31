@@ -18,7 +18,7 @@ from marshmallow import ValidationError
 from sqlalchemy.sql import func
 from ...api import api, generics
 from ...api.responses import *
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 from .queries import func_remove_aliquot_subsampletosample_children, func_remove_sample
 from ..views import (
@@ -53,7 +53,8 @@ def sample_view_protocol_event(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/new/protocol_event", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -112,7 +113,8 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
 
 
 @api.route("/sample/protocol_event/<uuid>/edit", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -179,7 +181,8 @@ def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/protocol_event/<uuid>/remove", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
     if not protocol_event:

@@ -41,6 +41,8 @@ from ...storage.enums import FixedColdStorageType, FixedColdStorageTemps
 def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     """Only add new entitytostorage record for rack to shelf,
     update/delete is done by transfer rack to cart or editing rack info"""
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
 
     values = request.get_json()
 
@@ -96,6 +98,9 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
 def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
     """Only add new entitytostorage record for rack to shelf,
     update/delete is done by transfer rack to cart or editing rack info"""
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     values = request.get_json()
 
     if not values:
@@ -233,6 +238,9 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
 @token_required
 def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
+    if not tokenuser.has_data_entry_role:
+        return not_allowed()
+
     values = request.get_json()
 
     if not values:

@@ -26,7 +26,7 @@
 
     <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2" role="group" aria-label="First group">
-            <a href="{{ url_for('consent.edit_question', id=template.id, q_id=question.id) }}">
+            <a data-role="data_entry" href="{{ url_for('consent.edit_question', id=template.id, q_id=question.id) }}">
                 <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit Details</button>
             </a>
         </div>

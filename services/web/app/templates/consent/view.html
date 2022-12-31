@@ -22,14 +22,14 @@
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     {% if not template.is_locked %}
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{ url_for('consent.edit', id=template.id) }}">
+                        <a data-role="data_entry"  href="{{ url_for('consent.edit', id=template.id) }}">
                             <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                 Details
                             </button>
                         </a>
                     </div>
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <a href="{{ url_for('consent.new_question', id=template.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('consent.new_question', id=template.id) }}">
 
                             <button type="button" data-toggle="modal" class="btn btn-outline-dark">
                                 <i class="fa fa-list"></i> New Question
@@ -40,7 +40,7 @@
                     {% endif %}
 
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                        <button data-role="admin" type="button" data-toggle="modal" data-target="#exampleModalCenter"
                             class="btn btn-outline-dark" disabled>
                             <i class="fa fa-lock"></i> {% if template.is_locked %}Unl{% else %}L{% endif %}ock
                         </button>
@@ -105,3 +105,4 @@
 </div>
 
 {% endblock %}
+

@@ -10,7 +10,7 @@
             <div class="col-7">
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{ url_for('consent.add') }}">
+                        <a data-role="data_entry" href="{{ url_for('consent.add') }}">
                             <div class="btn btn btn-outline-dark">
                                 <i class="fas fa-plus"></i> New Template
                             </div>
@@ -53,5 +53,5 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/consent/index.js') }}"></script>
-
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 {% endblock %}
