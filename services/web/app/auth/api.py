@@ -195,7 +195,7 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
             "consent_template": {"default": 8, "choices": []},
             "protocol": {"ACQ": {"default": 2}, "SAP": {"default": 1}},
             "sample_type": {
-                "base_type": "FLU",
+                "base_type": {"default": "FLU"},
                 "FLU": {
                     "default": "BLD",
                     "choices": [],
