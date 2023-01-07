@@ -27,7 +27,7 @@ from wtforms import (
     SelectField,
     SelectMultipleField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.validators import DataRequired, Email, EqualTo, Length
 from ...validators import validate_against_text
 
 from ...auth.enums import Title, AccountType
@@ -126,15 +126,23 @@ def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
             "Account Type", validators=[DataRequired()], choices=AccountType.choices()
         )
 
-        settings = FieldList(FormField(UserSettings), min_entries=1)
+        use_template = SelectField(
+            "Choose user setting from template",
+            # coerce=int,
+            choices=[],
+            default=None,
+            render_kw={"size": "1", "class": "form-control bd-light alert-info"},
+        )
 
-        submit = SubmitField("Update")
+        set_to_template = SubmitField("Set",
+                                      render_kw={"class": "btn btn-link float-right top10"})
+
+        settings = FieldList(FormField(UserSettings), min_entries=1)
+        submit = SubmitField("Update", render_kw={"class": "btn btn-success float-right top10"})
 
         def validate(self):
-            # for entry in self.settings.entries:
-            #     print("access_level", entry.access_level.data)
-            #     print("sites", entry.site_choices.data)
-            #     print("consents", entry.consent_template_choices.data)
+            if self.set_to_template.data and not self.set_to_template.data:
+                return False
 
             if (
                 UserAccount.query.filter_by(email=self.email.data)
@@ -167,6 +175,7 @@ class UserSettings(FlaskForm):
         choices=[], coerce=int,
         render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
     )
+
     site_selected = TextAreaField(
         "Current",
         render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
@@ -177,7 +186,7 @@ class UserSettings(FlaskForm):
     #     render_kw={"size": "1", "class": "form-control bd-light"},
     # )
 
-    #-- Consent
+    # -- Consent
     consent_template_choices = SelectMultipleField(
         "Consent template choices",
         choices=[], coerce=int,
@@ -189,6 +198,23 @@ class UserSettings(FlaskForm):
     )
     consent_template_default = SelectField(
         "Default working consent template",
+        choices=[], coerce=int,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    # -- Study protocols
+    study_protocol_choices = SelectMultipleField(
+        "Study choices",
+        choices=[], coerce=int,
+        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+    )
+
+    study_protocol_selected = TextAreaField(
+        "Current choice",
+        render_kw = {"readonly": True, "rows": 5, "class": "form-control bd-light"},
+    )
+    study_protocol_default = SelectField(
+        "Default study",
         choices=[], coerce=int,
         render_kw={"size": "1", "class": "form-control bd-light"},
     )
@@ -294,6 +320,13 @@ class UserSettings(FlaskForm):
     #         "Long-term Preservation container choices",
     #         choices=CellContainer.choices(),
     #         default=[])
+
+    saveto_template_name = StringField(
+        "To save setting as template, provide a  nick name here",
+        default=None,
+        validators=[Length(min=4, max=36)],
+        render_kw={"size":"1", "class": "form-control bd-light alert-info"}
+    )
 
     # data_entry = {
     #         "site": {"default":1, "choices":[1,2]},

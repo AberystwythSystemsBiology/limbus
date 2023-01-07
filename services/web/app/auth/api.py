@@ -33,8 +33,11 @@ from .views import (
     password_reset_form_schema,
 )
 
-from ..database import UserAccount, UserAccountToken, UserAccountPasswordResetToken
+from ..tmpstore.views import new_store_schema
+
+from ..database import UserAccount, UserAccountToken, UserAccountPasswordResetToken, TemporaryStore
 from .enums import AccountType
+from ..tmpstore.enums import StoreType
 from uuid import uuid4
 
 
@@ -190,28 +193,29 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
 
     user = UserAccount.query.filter_by(id=id).first_or_404()
     if not user.settings:
-        data_entry = {
-            "site": {},
-            "consent_template": {"default": 8, "choices": []},
-            "protocol": {"ACQ": {"default": 2}, "SAP": {"default": 1}},
-            "sample_type": {
-                "base_type": {"default": "FLU"},
-                "FLU": {
-                    "default": "BLD",
-                    "choices": [],
-                },
-            },
-            "container_type": {
-                "base_type": {"default": "LTS"},
-                "PRM": {
-                    "container": {"default": "SST"},
-                },
-                "LTS": {
-                    "container": {"default": "X"},
-                },
-            },
-        }
-        settings = {"data_entry": data_entry}
+        # data_entry = {
+        #     "site": {},
+        #     # "consent_template": {"default": 8, "choices": []},
+        #     # "protocol": {"ACQ": {"default": 2}, "SAP": {"default": 1}},
+        #     "sample_type": {
+        #         "base_type": {"default": "FLU"},
+        #         "FLU": {
+        #             "default": "BLD",
+        #             "choices": [],
+        #         },
+        #     },
+        #     "container_type": {
+        #         "base_type": {"default": "LTS"},
+        #         "PRM": {
+        #             "container": {"default": "SST"},
+        #         },
+        #         "LTS": {
+        #             "container": {"default": "X"},
+        #         },
+        #     },
+        # }
+        # settings = {"data_entry": data_entry}
+        settings = {"view_only": {"site": {},}}
 
     else:
         settings = user.settings
@@ -227,6 +231,35 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
         if key not in values["settings"]:
             settings.pop(key, None)
 
+    save_template = settings.pop("template_name", None)
+    if save_template:
+        new_values= {"type": "SET",
+                     "uuid": save_template,
+                     "data": settings
+                     }
+
+        new_tmpstore = TemporaryStore.query.filter_by(type= "SET", uuid=save_template).first()
+
+        if new_tmpstore:
+            new_tmpstore.data = settings
+            new_tmpstore.update({"editor_id": tokenuser.id})
+        else:
+            try:
+                result = new_store_schema.load(new_values)
+            except ValidationError as err:
+                return validation_error_response(err)
+
+            new_tmpstore = TemporaryStore(**result)
+            new_tmpstore.author_id = tokenuser.id
+
+        try:
+            db.session.add(new_tmpstore)
+            db.session.flush()
+
+        except Exception as err:
+            return transaction_error_response(err)
+
+
     user.update({"settings": settings, "editor_id": tokenuser.id})
 
     values.pop("settings")
@@ -237,7 +270,7 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
     try:
         db.session.add(user)
         db.session.commit()
-        db.session.flush()
+
         return success_with_content_response(basic_user_account_schema.dump(user))
     except Exception as err:
         return transaction_error_response(err)
