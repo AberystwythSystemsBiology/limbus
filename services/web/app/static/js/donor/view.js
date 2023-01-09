@@ -79,7 +79,7 @@ function fill_sample_table(samples) {
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
-            {targets: [2, 3, 6, 11], visible: false, "defaultContent": ""},
+            {targets: [2, 3, 6, 12], visible: false, "defaultContent": ""},
             {
                 targets:  -1,
                  orderable: false,
@@ -210,11 +210,9 @@ function fill_sample_table(samples) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    //console.log("--", data)
-                    return data["collected_on"];
+                    return data["collection_datetime"];
                 }
             },
-
             {
                 "mData": {},
                 "mRender": function (data, type, row) {

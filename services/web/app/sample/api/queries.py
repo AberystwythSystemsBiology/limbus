@@ -57,7 +57,8 @@ from ..views import (
 )
 from ...tmpstore.views import new_store_schema
 from ..enums import SampleSource, DeleteReason
-
+from ...tmpstore.enums import StoreType
+import json
 
 def func_new_sample_type(values: dict, tokenuser: UserAccount):
 
@@ -645,7 +646,8 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
                                .with_entities(Event.datetime).first()
                                )
 
-        collection_datetime=collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
+        if collection_datetime:
+            collection_datetime = collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
 
         info["collection_datetime"] = collection_datetime
         info["root_sample_uuid"] = root_sample.uuid
@@ -653,10 +655,11 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
     else:
         return validation_error_response(msg)
 
-    tmpstore = TemporaryStore.query.filter_by(uuid=uuid, type='SMPC').first()
+    tmpstore = TemporaryStore.query.filter_by(uuid=uuid).first()
     if tmpstore:
         # Update entry
         tmpstore.data = info
+        tmpstore.type = 'SMPC'
         tmpstore.update({"editor_id": tokenuser.id})
 
     else:
@@ -683,6 +686,92 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+
+@api.route("/sample/batch_update_cache", methods=["GET", "POST"])
+@token_required
+def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
+    samples = Sample.query.filter_by(is_closed=False).all()
+    print("Found samples: ", len(samples))
+    n = 0
+    n_problem = 0
+    for sample in samples:
+        uuid = sample.uuid
+        info = sample_index_schema.dump(sample)
+
+
+        root_sample, msg = func_root_sample(uuid=None, sample=sample)
+
+        if root_sample:
+            # print("Root sample: ", root_sample.uuid)
+            collection_datetime = (db.session.query(SampleProtocolEvent)
+                                   .filter(SampleProtocolEvent.sample_id==root_sample.id)
+                                   .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
+                                   .join(Event)
+                                   .with_entities(Event.datetime).first()
+                                   )
+
+            if collection_datetime:
+                collection_datetime=collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
+
+            info["collection_datetime"] = collection_datetime
+            info["root_sample_uuid"] = root_sample.uuid
+
+        else:
+            n_problem = n_problem + 1
+            continue
+
+        tmpstore = TemporaryStore.query.filter_by(uuid=uuid).first()
+        if tmpstore:
+            # Update entry
+            tmpstore.data = info
+            tmpstore.update({"editor_id": tokenuser.id})
+            tmpstore.type = "SMPC"
+
+        else:
+            # new entry
+            values = {}
+            values["uuid"] = uuid
+            values["type"] = 'SMPC'
+            values["data"] = info
+
+            try:
+                result = new_store_schema.load(values)
+            except ValidationError as err:
+                n_problem = n_problem + 1
+                return validation_error_response(err)
+
+
+            tmpstore = TemporaryStore(**result)
+            tmpstore.author_id = tokenuser.id
+
+        try:
+            db.session.add(tmpstore)
+            db.session.flush()
+
+        except Exception as err:
+            n_problem = n_problem + 1
+            continue
+
+
+        n = n + 1
+        if n % 100 == 0:
+            # print("n%d: commit" % n)
+            try:
+                db.session.commit()
+            except:
+                pass
+
+    try:
+        db.session.commit()
+    except:
+        pass
+
+    message = "Cache info update successful for %d samples!" % n
+    message = message + " ; failed for %d samples" %n_problem
+    return success_with_content_message_response("", message)
+
+
+
 @api.route("/sample/<uuid>/remove", methods=["DELETE", "GET", "POST"])
 @token_required
 def sample_remove_sample(uuid: str, tokenuser: UserAccount):
@@ -707,79 +796,6 @@ def sample_remove_sample(uuid: str, tokenuser: UserAccount):
     except Exception as err:
         db.session.rollback()
         return transaction_error_response(err)
-
-
-def success_without_content_message_response(message):
-    pass
-
-
-@api.route("/sample/batch_update_cache", methods=["GET", "POST"])
-@token_required
-def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
-    # if uuid:
-    #     sample = Sample.query.filter_by(uuid=uuid).first()
-    #
-    #     if sample is None:
-    #         return not_found("sample %s " % uuid)
-
-    samples = Sample.query.filter_by(is_closed=False).all()
-    print("Found samples: ", len(samples))
-    n=0
-    for sample in samples:
-        uuid = sample.uuid
-        info = sample_index_schema.dump(sample)
-        root_sample, msg = func_root_sample(uuid=None, sample=sample)
-
-        if root_sample:
-            # print("Root sample: ", root_sample.uuid)
-            collection_datetime = (db.session.query(SampleProtocolEvent)
-                                   .filter(SampleProtocolEvent.sample_id==root_sample.id)
-                                   .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
-                                   .join(Event)
-                                   .with_entities(Event.datetime).first()
-                                   )
-
-            collection_datetime=collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
-
-            info["collection_datetime"] = collection_datetime
-            info["root_sample_uuid"] = root_sample.uuid
-
-        else:
-            return validation_error_response(msg)
-
-        tmpstore = TemporaryStore.query.filter_by(uuid=uuid, type='SMPC').first()
-        if tmpstore:
-            # Update entry
-            tmpstore.data = info
-            tmpstore.update({"editor_id": tokenuser.id})
-
-        else:
-            # new entry
-            values = {}
-            values["uuid"] = uuid
-            values["type"] = 'SMPC'
-            values["data"] = info
-            try:
-                result = new_store_schema.load(values)
-            except ValidationError as err:
-                return validation_error_response(err)
-
-            tmpstore = TemporaryStore(**result)
-            tmpstore.author_id = tokenuser.id
-            db.session.add(tmpstore)
-            n = n+1
-            # if n==100:
-            #     break
-
-    try:
-        # db.session.add(tmpstore)
-        db.session.commit()
-        message = "Cache info updated successfully for %d samples!" %n
-        return success_with_content_message_response(n, message)
-    except Exception as err:
-        db.session.rollback()
-        return transaction_error_response(err)
-
 
 
 def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):

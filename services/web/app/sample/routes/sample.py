@@ -382,7 +382,7 @@ def batch_update_sample_tmpstore_info():
         url_for("api.sample_batch_update_sample_tmpstore_info", _external=True),
         headers=get_internal_api_header(),
     )
-
+    print("sample_response.json() ", sample_response.json())
     if sample_response.status_code == 200:
         flash(sample_response.json()["message"])
     else:
