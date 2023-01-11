@@ -116,7 +116,7 @@ def func_new_sample_type(values: dict, tokenuser: UserAccount):
     except Exception as err:
         return transaction_error_response(err)
 
-
+# Not in use, no collection_id update
 def func_new_sample_protocol_event(values, tokenuser: UserAccount):
     # values = request.get_json()
 
@@ -254,6 +254,17 @@ def func_remove_sampleshipmenttosample(sample, tokenuser: UserAccount, msgs=[]):
 def func_remove_sampleprotocolevent(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     pes = SampleProtocolEvent.query.filter_by(sample_id=sample.id).all()
+
+    sample.collection_id = None
+    try:
+        db.session.add(sample)
+        db.session.flush()
+    except Exception as err:
+        db.session.rollback()
+        success = False
+        msgs.append(transaction_error_response(err))
+        return (success, msgs)
+
     for pe in pes:
         if SampleProtocolEvent.query.filter_by(event_id=pe.event_id).count() > 1:
             pe.event_id = None
@@ -904,6 +915,7 @@ def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
     (success, msgs) = func_remove_sampleshipmenttosample(sample, tokenuser, msgs)
     if not success:
         return False, msgs
+
 
     (success, msg) = func_remove_sampleprotocolevent(sample, tokenuser, msgs)
     if not success:

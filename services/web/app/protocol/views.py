@@ -59,6 +59,7 @@ class BasicProtocolTemplateSchema(masql.SQLAlchemySchema):
     # author = ma.Nested(BasicUserAccountSchema)
     author = ma.Nested(UserAccountSearchSchema)
     created_on = ma.Date()
+    is_locked = masql.auto_field()
 
     _links = ma.Hyperlinks(
         {
