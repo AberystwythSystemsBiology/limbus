@@ -210,9 +210,17 @@ function fill_sample_table(samples) {
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
-                    return data["collection_datetime"];
+                    var collection_datetime = "";
+                    if ("collection_event" in data) {
+                        try {
+                            collection_datetime = data["collection_event"]["event"]["datetime"]
+                        } catch {
+                        }
+                    }
+                    return collection_datetime
                 }
             },
+
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -652,7 +660,7 @@ $(document).ready(function () {
     var donor_information = get_donor();
     var consents = {};
 
-    console.log("donor_info", donor_information)
+    //console.log("donor_info", donor_information)
     //render_sample_table(donor_information["samples"]);
     fill_sample_table(donor_information["samples"]);
 
@@ -732,7 +740,7 @@ $(document).ready(function () {
             $("#protocol-id-remove-confirmation-input").on("change", function() {
                 var user_entry = $(this).val();
 
-                console.log("removal_link", removal_link)
+                //console.log("removal_link", removal_link)
 
                 if (user_entry == limbdon_id) {
                     $("#protocol-remove-confirm-button").prop("disabled", false);

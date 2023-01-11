@@ -192,12 +192,17 @@ def donor_query(args, tokenuser: UserAccount):
 @token_required
 def donor_view(id, tokenuser: UserAccount):
     results = donor_schema.dump(Donor.query.filter_by(id=id).first())
-    smpls = results["samples"]
-    for i in range(len(smpls)):
-        tmp = TemporaryStore.query.filter_by(uuid=smpls[i]["uuid"], type='SMPC').first()
-        smpls[i].update({"collection_datetime": ""})
-        if tmp:
-            smpls[i].update({"collection_datetime": tmp.data["collection_datetime"]})
+    # smpls = results["samples"]
+    # for i in range(len(smpls)):
+    #     tmp = TemporaryStore.query.filter_by(uuid=smpls[i]["uuid"]).first()
+    #     smpls[i].update({"collection_datetime": ""})
+    #
+    #     if tmp:
+    #         try:
+    #             smpls[i].update({"collection_datetime": tmp.data["collection_datetime"]})
+    #         except:
+    #             pass
+
     return success_with_content_response(
         results
     )

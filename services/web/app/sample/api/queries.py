@@ -17,7 +17,7 @@ from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
 
-from ...decorators import token_required, check_if_admin
+from ...decorators import token_required, check_if_admin, requires_roles
 
 from ...database import (
     db,
@@ -604,26 +604,6 @@ def func_root_sample(uuid=None, sample=None):
         msg = "Root sample (uuid=%s) not found" % uuid
         return None, msg
 
-#
-# def func_get_root_sample(uuid=None, sample=None):
-#     # Update temporarystore
-#     if uuid:
-#         if sample is None:
-#             sample = Sample.query.filter_by(uuid=uuid).first()
-#
-#         elif sample.uuid != uuid:
-#             msg = "sample and uuid not matched!"
-#             return None,  msg
-#
-#     if sample is None:
-#         return None, "Sample object or uuid!"
-#
-#     # Update sample collection date
-#     sample_root, msg = func_root_sample(sample=sample)
-#     # print(sample_root, msg)
-#
-#     return info, msg
-
 
 @api.route("/sample/<uuid>/update_cache", methods=["GET", "POST"])
 @token_required
@@ -686,9 +666,102 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+@api.route("/sample/update_collection_id/<first>/<last>", methods=["GET", "POST"])
+@api.route("/sample/update_collection_id", methods=["GET", "POST"])
+#@token_required
+@requires_roles("admin")
+def sample_update_collection_id(tokenuser: UserAccount, first=None, last=None):
+    pes = ( db.session.query(SampleProtocolEvent)
+             .join(ProtocolTemplate, SampleProtocolEvent.protocol_id == ProtocolTemplate.id)
+             .join(Sample, Sample.id==SampleProtocolEvent.sample_id)
+             .filter(ProtocolTemplate.type == "ACQ")
+             .filter(Sample.source=='NEW', Sample.is_closed==False)
+             .with_entities(Sample.id, SampleProtocolEvent.id)
+             .all()
+        )
+
+    first = 0
+    last = len(pes)
+    if first:
+        first = int(first)
+    else:
+        first = 0
+
+    if last:
+        last = int(last)
+    else:
+        last = len(pes)
+
+
+    print("total root samples: %d" %len(pes))
+    print("first, last ", first, last)
+    i = 0
+    n_problem = 0
+    n=0
+    for pe in pes:
+        sample_id = pe[0]
+        collection_id = pe[1]
+        # print(sample_id, collection_id)
+        i=i+1
+        if i<first:
+            continue
+
+        if i>last:
+            break
+
+        k = 0
+        sample = Sample.query.filter_by(id=sample_id).first()
+
+        if sample and collection_id:
+            print(sample.id, collection_id)
+            if (sample.collection_id is None):
+                sample.collection_id = collection_id
+                try:
+                    db.session.add(sample)
+                    k = k + 1
+
+                except:
+                    n_problem = n_problem + 1
+                    pass
+
+            consent_id = sample.consent_id
+            collection_id = sample.collection_id
+            if collection_id:
+                subs = (
+                    db.session.query(Sample)
+                        .join(SampleConsent)#, SampleConsent.id==Sample.consent_id)
+                        .filter(Sample.source!='NEW')
+                        .filter(Sample.consent_id==consent_id)
+                        .distinct(Sample.id)
+                        .all()
+                    )
+                print("subs: ", len(subs))
+                for subsample in subs:
+                    subsample.collection_id = collection_id
+                    try:
+                        db.session.add(subsample)
+                        k = k+1
+                    except:
+                        n_problem = n_problem+1
+                        pass
+
+            print("k to commit: ", k)
+            if k > 0:
+                try:
+                    db.session.commit()
+                    n = n+k
+                except:
+                    n_problem = n_problem+1
+
+    message = "Successfully updated collection date for %d samples, problems in %d samples" %(n, n_problem)
+    print(message)
+    return success_with_content_message_response(n, message)
+
+
 
 @api.route("/sample/batch_update_cache", methods=["GET", "POST"])
-@token_required
+#@token_required
+@requires_roles("admin")
 def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
     samples = Sample.query.filter_by(is_closed=False).all()
     print("Found samples: ", len(samples))
@@ -736,9 +809,10 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
 
             try:
                 result = new_store_schema.load(values)
-            except ValidationError as err:
+            except: # ValidationError as err:
                 n_problem = n_problem + 1
-                return validation_error_response(err)
+                continue
+                #return validation_error_response(err)
 
 
             tmpstore = TemporaryStore(**result)
@@ -748,7 +822,7 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
             db.session.add(tmpstore)
             db.session.flush()
 
-        except Exception as err:
+        except: # Exception as err:
             n_problem = n_problem + 1
             continue
 
@@ -768,7 +842,7 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
 
     message = "Cache info update successful for %d samples!" % n
     message = message + " ; failed for %d samples" %n_problem
-    return success_with_content_message_response("", message)
+    return success_without_content_response(message)
 
 
 

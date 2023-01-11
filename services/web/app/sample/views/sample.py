@@ -61,6 +61,8 @@ class NewSampleSchema(masql.SQLAlchemySchema):
     quantity = masql.auto_field()
     disposal_id = masql.auto_field()
     consent_id = masql.auto_field()
+    collection_id = masql.auto_field()
+
     sample_to_type_id = masql.auto_field()
 
 
@@ -116,6 +118,8 @@ class BasicSampleSchema(masql.SQLAlchemySchema):
     storage = ma.Nested(BasicEntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
+    collection_event = ma.Nested(SampleProtocolEventSchema, many=False)
+
     disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
     _links = ma.Hyperlinks(
         {
@@ -166,6 +170,8 @@ class SampleIndexSchema(masql.SQLAlchemySchema):
     storage = ma.Nested(BasicEntityToStorageSchema, many=False)
 
     barcode = masql.auto_field()
+    collection_event = ma.Nested(SampleProtocolEventSchema, many=False)
+
     disposal_event = ma.Nested(BasicSampleDiposalEventSchema, many=False)
     donor = ma.Nested(DonorIndexSchema, many=False)
     _links = ma.Hyperlinks(
@@ -269,6 +275,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     disposal_information = ma.Nested(BasicSampleDisposalSchema, many=False)
     consent_information = ma.Nested(ConsentSchema, many=False)
+    collection_event = ma.Nested(SampleProtocolEventSchema, many=False)
 
     storage = ma.Nested(BasicEntityToStorageSchema, many=False)
 
@@ -277,6 +284,7 @@ class SampleSchema(masql.SQLAlchemySchema):
 
     parent = ma.Nested(BasicSampleSchema, many=False)
     subsamples = ma.Nested(BasicSampleSchema, many=True)
+    # root = ma.Nested(BasicSampleSchema, many=False)
 
     events = ma.Nested(SampleProtocolEventSchema, many=True)
     subsample_event = ma.Nested(SampleProtocolEventSchema, many=False)

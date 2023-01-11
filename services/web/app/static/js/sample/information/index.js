@@ -415,7 +415,21 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
             },
             {data: "current_site_id"},
             {data: "site_id"},
-            {data: "collection_datetime"},
+
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var collection_datetime = "";
+                    if ("collection_event" in data) {
+                        try {
+                            collection_datetime = data["collection_event"]["event"]["datetime"]
+                        } catch {
+                        }
+                    }
+                    return collection_datetime
+                }
+            },
+
             {
                 "mData": {},
                 "mRender": function (data, type, row) {

@@ -1007,11 +1007,15 @@ def sample_query(args, tokenuser: UserAccount):
     time1 = datetime.now()
     # results = basic_samples_schema.dump(stmt.all())
     results = samples_index_schema.dump(stmt.all())
-    for i in range(len(results)):
-        tmp = TemporaryStore.query.filter_by(uuid=results[i]["uuid"], type='SMPC').first()
-        results[i].update({"collection_datetime": ""})
-        if tmp:
-            results[i].update({"collection_datetime": tmp.data["collection_datetime"]})
+
+    # for i in range(len(results)):
+    #     tmp = TemporaryStore.query.filter_by(uuid=results[i]["uuid"], type='SMPC').first()
+    #     results[i].update({"collection_datetime": ""})
+    #     if tmp:
+    #         try:
+    #             results[i].update({"collection_datetime": tmp.data["collection_datetime"]})
+    #         except:
+    #             pass
 
     # print("results", len(results), "--", results)
     # -- retrieve user cart info

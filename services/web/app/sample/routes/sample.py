@@ -382,13 +382,34 @@ def batch_update_sample_tmpstore_info():
         url_for("api.sample_batch_update_sample_tmpstore_info", _external=True),
         headers=get_internal_api_header(),
     )
-    print("sample_response.json() ", sample_response.json())
+    # print("sample_response.json() ", sample_response.json())
     if sample_response.status_code == 200:
         flash(sample_response.json()["message"])
     else:
         flash(sample_response.json()["message"])
 
     return redirect(url_for("sample.index"))
+
+
+@sample.route("update_collection_id/<first>/<last>", methods=["GET", "POST"])
+@sample.route("update_collection_id", methods=["GET", "POST"])
+@login_required
+def sample_update_collection_id(first=None, last=None):
+    print("first: ", first)
+    print("last: ", last)
+    if first:
+        first = int(first)
+    if last:
+        last = int(last)
+
+    sample_response = requests.get(
+        url_for("api.sample_update_collection_id", first=first, last=last, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    flash(sample_response.json()["message"])
+    return redirect(url_for("sample.index"))
+
 
 # Not in use: TODO DELETE
 @sample.route("<uuid>/remove1", methods=["GET", "POST"])

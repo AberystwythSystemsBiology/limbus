@@ -86,6 +86,9 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     if not sample:
         return not_found("Sample (%s) ! " % sample.uuid)
 
+    # if protocol type is acquisition, update sample collection_id
+    sample_updated = False
+
     reduced_quantity = values.pop("reduced_quantity", 0)
     if reduced_quantity > 0:
         remaining_quantity = sample.remaining_quantity - reduced_quantity
@@ -95,14 +98,27 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
             )
 
         sample.remaining_quantity = remaining_quantity
-        sample.update({"editor_id": tokenuser.id})
-        try:
-            db.session.add(sample)
-        except Exception as err:
-            return transaction_error_response(err)
+        sample_updated = True
+
+        # try:
+        #     db.session.add(sample)
+        # except Exception as err:
+        #     return transaction_error_response(err)
 
     try:
         db.session.add(new_sample_protocol_event)
+        db.session.flush()
+
+        pt = ProtocolTemplate.query.filter_by(id=new_sample_protocol_event.protocol_id).first()
+        if pt:
+            if pt.type == ProtocolType.ACQ: # Sample acquisition
+                sample.collection_id = new_sample_protocol_event.id
+                sample_updated = True
+
+        if sample_updated:
+            sample.update({"editor_id": tokenuser.id})
+            db.session.add(sample)
+
         db.session.commit()
         return success_with_content_response(
             sample_protocol_event_schema.dump(new_sample_protocol_event)
