@@ -124,8 +124,10 @@ def auth_password_reset(tokenuser: UserAccount):
 
         if uaprt == None:
             uaprt = UserAccountPasswordResetToken(user_id=user.id)
-
-        uaprt.token = new_token
+            uaprt.token = new_token
+        else:
+            uaprt.token = new_token
+            uaprt.update({"editor_id": tokenuser.id})
 
         db.session.add(uaprt)
         db.session.commit()

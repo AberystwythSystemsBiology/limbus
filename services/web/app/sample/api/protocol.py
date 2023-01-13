@@ -214,14 +214,20 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         return not_found("related sample")
 
     # all protocol events for the sample
-    protocol_events_locked = SampleProtocolEvent.query.join(Sample).filter(
-        Sample.id == protocol_event.sample_id, SampleProtocolEvent.is_locked == True
+    protocol_events_locked = (
+        SampleProtocolEvent.query.join(Sample, Sample.id==SampleProtocolEvent.sample_id)
+        .filter( Sample.id == protocol_event.sample_id,
+                 SampleProtocolEvent.is_locked.is_(True)
+        )
     )
-
     msgs = []
     protocol_type = (
-        ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
+        ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first()
     )
+
+    if protocol_type:
+        protocol_type = protocol_type.type
+
     if protocol_type == ProtocolType.ALD:
         # - remove protocol event and the sub-samples it generated
         (success, msgs) = func_remove_aliquot_subsampletosample_children(
