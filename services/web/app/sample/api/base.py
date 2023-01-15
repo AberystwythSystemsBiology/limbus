@@ -1450,7 +1450,7 @@ def func_update_sample_status(
                 if len(samples) == 0:
                     msg = "No involved samples found for the shipment status! "
                     return {"sample": None, "message": msg, "success": True}
-                print("sss", shipment_status.status)
+                # print("sss", shipment_status.status)
 
                 updated = True
                 for sample in samples:

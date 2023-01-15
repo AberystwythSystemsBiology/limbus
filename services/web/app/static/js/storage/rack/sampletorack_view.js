@@ -914,7 +914,19 @@ $(document).ready(function () {
         else
             var api_url = window.location.origin + "/storage/rack/edit_samples_pos"
 
-        console.log("api_url: ", api_url);
+        // console.log("api_url: ", api_url);
+
+        // Upload only changeset information
+        const keys = ["id", "uuid", "barcode", "changeset"];
+        for (const k in sampletostore["samples"]) {
+            var sample = sampletostore["samples"][k];
+            for (const key in sample) {
+                if (!keys.includes(key))
+                    delete sample[key];
+            }
+        }
+
+        // console.log("sampletostore : ", sampletostore["samples"])
         res = fill_sample_pos(api_url, sampletostore,commit=true);
         if (commit && res['success']){
             alert(res['message'])

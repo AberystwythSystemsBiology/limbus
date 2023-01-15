@@ -47,7 +47,7 @@ from marshmallow import ValidationError
 
 from ..views.rack import *
 from ..views import new_sample_rack_to_shelf_schema
-from ...sample.views import sample_schema
+from ...sample.views import sample_schema, edit_sample_schema
 
 from itertools import product
 
@@ -409,13 +409,14 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 events={"sample_storage": None},
             )
 
-            print("sample", sample, res["message"])
+            # print("sample", sample, res["message"])
             if res["success"] is True and res["sample"]:
                 try:
                     db.session.add(res["sample"])
                 except:
                     sample_ids_not_updated.append(sample_id)
                     pass
+
     msg_status = ""
     if len(sample_ids_not_updated) > 0:
         msg_status = "%d samples not updated" % len(sample_ids_not_updated)
@@ -590,7 +591,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     rack_id = int(values["rack_id"])
 
     samples = values["samples"]
-    print("values: ", values)
+    # print("values: ", values)
     fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
     fillopt["column_first"] = values.pop("fillopt_column_first", True)
     fillopt["skip_gaps"] = values.pop("fillopt_skip_gaps", True)
@@ -867,6 +868,7 @@ def func_get_samples(barcode_type, samples):
         if smpl:
             # sample.update(sample_schema.dump(smpl))
             sample0 = sample_schema.dump(smpl)
+            # sample0 = edit_sample_schema.dump(smpl)
             sample0 = func_dict_update(sample0, sample, keys=["barcode"])
             if "barcode" in sample0["changeset"]:
                 bcode1 = sample0["changeset"]["barcode"][1]
@@ -927,9 +929,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         if rack is None:
             err = {"messages": "Rack not found!"}
             return validation_error_response(err)
-    # else:
-    #     err = {'messages': 'Rack not found!'}
-    #     return validation_error_response(err)
+
 
     commit = False
     if "commit" in values and values["commit"]:
@@ -995,7 +995,7 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
-        print("valuesoooo", values)
+        # print("valuesoooo", values)
         if "samples" in values:
             samples = values["samples"]
     else:
@@ -1023,12 +1023,12 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
     else:
 
         # -- Check changes in barcode, check duplication
-        print("ready!")
+        # print("ready!")
         print("rack_id! ", rack_id)
         samples, n_found, err = func_check_rack_samples(rack_id, samples)
 
         print("n_found", n_found)
-        print("error", err)
+        # print("error", err)
         if err is not None:
             return validation_error_response(err)
 

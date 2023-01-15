@@ -206,7 +206,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 try:
                     csv_file = csv.reader(file, dialect)
                     for row in csv_file:
-                        print("row", row)
+                        # print("row", row)
                         if header is None:
                             header = row
                         else:
@@ -303,7 +303,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
 
     indexes.update({"rows": [], "columns": []})
 
-    print("codetype", code_types, indexes)
+    # print("codetype", code_types, indexes)
 
     if "position" in indexes:
         positions = {
@@ -354,7 +354,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
 
         for position in data["positions"]:
             dpos = data["positions"][position]
-            print("dpos: ", dpos)
+            # print("dpos: ", dpos)
             try:
                 row_id = ord(dpos["row"].lower()) - 96
                 col_id = int(dpos["col"])
@@ -365,7 +365,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             except:
                 return {"success": False, "message": "Error in reading positions"}
 
-        print("positions", positions)
+        # print("positions", positions)
         data["positions"] = positions
 
     if max(indexes["rows"]) > nrow or min(indexes["rows"]) < 1:

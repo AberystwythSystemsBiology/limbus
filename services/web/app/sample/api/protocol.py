@@ -233,7 +233,7 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         (success, msgs) = func_remove_aliquot_subsampletosample_children(
             sample, protocol_event, tokenuser, msgs
         )
-        print("msgs00", msgs)
+        # print("msgs00", msgs)
         if not success:
             return msgs[-1]
 
