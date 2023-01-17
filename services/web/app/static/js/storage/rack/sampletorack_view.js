@@ -46,7 +46,7 @@ function update_rack_information(samples_new) {
         r = samples_new[k]['row'];
         c = samples_new[k]['col'];
         with_info.push([r,c].join());
-        //console.log("voew", rack_information['view'][r][c]);
+
         if (rack_information['view'][r][c]['empty'] == true) {
             rack_information['view'][r][c]['sample'] = samples_new[k];
 
@@ -60,8 +60,7 @@ function update_rack_information(samples_new) {
                 rack_information['view'][r][c]['status'] = 'empty';
             }
 
-        } else if (samples_new[k]["id"] != null) {
-
+        } else if (samples_new[k]["id"] !== null) {
             rack_information['view'][r][c]['sample_old'] = JSON.parse(JSON.stringify(rack_information['view'][r][c]['sample']));
             rack_information['view'][r][c]['sample'] = samples_new[k];
 
@@ -70,13 +69,31 @@ function update_rack_information(samples_new) {
                 rack_information['view'][r][c]['status'] = 'fill2fill';
 
             } else {
+                var sample_old = rack_information['view'][r][c]['sample_old'];
+                for (const key in sample_old) {
+                    if (key in sample_old && !(key in samples_new[k]) ) {
+                        rack_information['view'][r][c]['sample'][key] = sample_old[key];
+                    }
+                }
                 rack_information['view'][r][c]['tostore'] = false;
                 rack_information['view'][r][c]['status'] = 'fill';
             }
 
-        } else {
+        }
+        else {
             rack_information['view'][r][c]['sample_old'] = JSON.parse(JSON.stringify(rack_information['view'][r][c]['sample']));
             rack_information['view'][r][c]['sample'] = samples_new[k];
+/*            for (const key in rack_information['view'][r][c]['sample']) {
+                if (key in samples_new[k] && !["id"].includes(key))
+                    rack_information['view'][r][c]['sample'][key] = samples_new[k][key];
+            }
+
+            var sample_old = rack_information['view'][r][c]['sample_old'];
+            for (const key in sample_old) {
+                if (key in sample_old && !(key in samples_new[k]) ) {
+                    rack_information['view'][r][c]['sample'][key] = sample_old[key];
+                }
+            }*/
             rack_information['view'][r][c]['tostore'] = false;
             rack_information['view'][r][c]['status'] = 'fill2empty';
         }
@@ -302,8 +319,8 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
         var change = undefined;
     }
 
-    if (info["status"]=='fill')
-        //console.log("info", info)
+    // if (info["status"]=='fill')
+    //     console.log("info", info);
     var content = '<div class="col" id="tube_' + [row, col].join("_") + '">'
 
     if (info['status']=='empty') {
@@ -353,6 +370,7 @@ function render_full_file_noimg(info, row, col, count, assign_sample_url, dispop
             content += '</small>';
 
         } else if (dispopt=="donor") {
+            console.log("info", sample_info['consent_information']);
 
             content += '<small>';
             if (sample_info['consent_information']['donor_id']!=undefined
@@ -916,8 +934,9 @@ $(document).ready(function () {
 
         // console.log("api_url: ", api_url);
 
-        // Upload only changeset information
-        const keys = ["id", "uuid", "barcode", "changeset"];
+        // Upload only relevant information
+        const keys = ["barcode_type", "id", "sample_id", "uuid", "barcode", "changeset", "pos", "row", "col"];
+
         for (const k in sampletostore["samples"]) {
             var sample = sampletostore["samples"][k];
             for (const key in sample) {

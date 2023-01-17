@@ -1114,10 +1114,11 @@ def edit_rack(id):
                 shelf_dict[site[0]] = []
 
             for shelf in response1.json()["content"]["shelf_info"]:
-                shelf_dict[int(shelf["site_id"])].append(
-                    [int(shelf["shelf_id"]), shelf["name"]]
-                )
-                shelves.append([int(shelf["shelf_id"]), shelf["name"]])
+                if int(shelf["site_id"]) in shelf_dict:
+                    shelf_dict[int(shelf["site_id"])].append(
+                        [int(shelf["shelf_id"]), shelf["name"]]
+                    )
+                    shelves.append([int(shelf["shelf_id"]), shelf["name"]])
 
             # shelf_required = len(shelves) > 0
 

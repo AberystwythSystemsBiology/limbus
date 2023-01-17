@@ -591,7 +591,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     rack_id = int(values["rack_id"])
 
     samples = values["samples"]
-    # print("values: ", values)
+
     fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
     fillopt["column_first"] = values.pop("fillopt_column_first", True)
     fillopt["skip_gaps"] = values.pop("fillopt_skip_gaps", True)
@@ -811,31 +811,36 @@ def func_check_rack_samples(rack_id, samples):
         if smpl:
             sample0 = sample_schema.dump(smpl)
             sample0 = func_dict_update(sample0, sample, keys=["barcode"])
+
             if "barcode" in sample0["changeset"]:
                 bcode1 = sample0["changeset"]["barcode"][1]
-                if bcode1 in bcodes:
-                    err = {
-                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
-                        % (smpl.uuid, bcode1)
-                    }
-                    return samples, n_found, err
+                print("barcode1 ", bcode1)
+                if bcode1 not in [None, ""]:
+                    if (bcode1 in bcodes):
+                        err = {
+                            "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
+                            % (smpl.uuid, bcode1)
+                        }
+                        return samples, n_found, err
 
-                bcodes.append(bcode1)
-                bcode = (
-                    db.session.query(Sample.barcode)
-                    .filter(func.upper(Sample.barcode) == bcode1.upper())
-                    .first()
-                )
-                if bcode is not None:
-                    bcode = bcode[0]
-                    err = {
-                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
-                        % (smpl.uuid, bcode)
-                    }
-                    return samples, n_found, err
+
+                    bcodes.append(bcode1)
+                    bcode = (
+                        db.session.query(Sample.barcode)
+                        .filter(func.upper(Sample.barcode) == bcode1.upper())
+                        .first()
+                    )
+                    if bcode is not None:
+                        bcode = bcode[0]
+                        err = {
+                            "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
+                            % (smpl.uuid, bcode)
+                        }
+                        return samples, n_found, err
 
             sample.update(sample0)
             sample["sample_id"] = smpl.id
+            print("sample: ", sample)
             n_found = n_found + 1
 
     return samples, n_found, err
@@ -870,7 +875,7 @@ def func_get_samples(barcode_type, samples):
             sample0 = sample_schema.dump(smpl)
             # sample0 = edit_sample_schema.dump(smpl)
             sample0 = func_dict_update(sample0, sample, keys=["barcode"])
-            if "barcode" in sample0["changeset"]:
+            if "barcode" in sample0["changeset"] and sample0["changeset"]["barcode"][1] not in [None, ""]:
                 bcode1 = sample0["changeset"]["barcode"][1]
                 if bcode1 in bcodes:
                     err = {
@@ -907,11 +912,13 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
+
         if "samples" in values:
             samples = values["samples"]
     else:
         values = None
 
+    print("vvalue ", values)
     if len(samples) == 0:
         return no_values_response()
 
@@ -939,7 +946,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         # print("error", err)
         if err is not None:
             return validation_error_response(err)
-        # print("samples_ids", samples)
+        print("samples_ids", samples)
 
     if not commit:
 
@@ -985,6 +992,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     #             sample.update({"entry_datetime": entry_datetime, "entry": entry})
 
     # insert confirmed data to database
+    print("ready to store", rack_id)
     return func_transfer_samples_to_rack(samples, rack_id, tokenuser)
 
 
