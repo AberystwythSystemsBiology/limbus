@@ -274,7 +274,7 @@ def shipment_index_tokenuser(tokenuser: UserAccount):
             ~SampleShipmentToSample.sample_id.is_(None),
         )
     )
-    print(stmt.count())
+    # print(stmt.count())
     if not tokenuser.is_admin:
         sites_tokenuser = func_validate_settings(
             tokenuser, keys={"site_id"}, check=False
@@ -1182,7 +1182,7 @@ def select_record_cart_shipment(sample_id: int, tokenuser: UserAccount):
 #@token_required
 @requires_roles("data_entry")
 def user_cart_update_samples(user_id: int, tokenuser: UserAccount):
-    print("user_id", user_id)
+    # print("user_id", user_id)
     values = request.get_json()
     if not values:
         return no_values_response()

@@ -617,7 +617,7 @@ def func_root_sample(uuid=None, sample=None):
 
 
 @api.route("/sample/<uuid>/update_cache", methods=["GET", "POST"])
-@token_required
+@requires_roles("data_entry")
 def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
     if uuid:
         sample = Sample.query.filter_by(uuid=uuid).first()
@@ -858,7 +858,8 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
 
 
 @api.route("/sample/<uuid>/remove", methods=["DELETE", "GET", "POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def sample_remove_sample(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:
@@ -956,11 +957,9 @@ def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
 
 
 @api.route("/sample/<uuid>/deep_remove", methods=["DELETE", "GET", "POST"])
-@token_required
+# @token_required
+@requires_roles("admin")
 def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
-    if not tokenuser.is_admin:
-        return not_allowed()
-
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:
         return not_found("sample %s " % uuid)

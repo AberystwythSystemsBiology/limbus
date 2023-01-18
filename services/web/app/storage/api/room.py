@@ -18,7 +18,7 @@ from flask import request, current_app, jsonify, send_file, url_for, redirect
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, Room, UserAccount, ColdStorage
 import requests
@@ -48,7 +48,8 @@ def storage_room_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/room/new", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_room_new(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -73,7 +74,8 @@ def storage_room_new(tokenuser: UserAccount):
 
 
 @api.route("/storage/room/LIMBROOM-<id>/edit", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_room_edit(id, tokenuser: UserAccount):
 
     values = request.get_json()
@@ -87,7 +89,8 @@ def storage_room_edit(id, tokenuser: UserAccount):
 # Route for deleting a room
 # *
 @api.route("/storage/room/LIMBROOM-<id>/delete", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_room_delete(id, tokenuser: UserAccount):
     existing = Room.query.filter_by(id=id).first()
 
@@ -137,7 +140,8 @@ def func_room_delete(record):
 # Locking a room reduces the functionality to the user.
 # *
 @api.route("/storage/room/LIMBROOM-<id>/lock", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_room_lock(id, tokenuser: UserAccount):
 
     room = Room.query.filter_by(id=id).first()

@@ -53,7 +53,7 @@ def RackToShelfForm(racks: list) -> FlaskForm:
         letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
         compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
         compartment_col = IntegerField(
-            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+            "Compartment (>=0)", validators=[Optional(), NumberRange(min=0)]
         )
 
         date = DateField(
@@ -107,7 +107,7 @@ def RacksToShelfForm(racks: list) -> FlaskForm:
         letters = [(0, "None")] + [(i, chr(ord("A") + (i - 1))) for i in range(1, 27)]
         compartment_row = SelectField("Compartment (A-Z)", choices=letters, coerce=int)
         compartment_col = IntegerField(
-            "Compartment (>1)", validators=[Optional(), NumberRange(min=1)]
+            "Compartment (>=0)", validators=[Optional(), NumberRange(min=0)]
         )
 
         date = DateField(

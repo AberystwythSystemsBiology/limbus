@@ -18,7 +18,7 @@ from flask import request, current_app, jsonify, send_file, url_for
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, Building, UserAccount, Room
 from ..api.room import func_room_delete
@@ -64,6 +64,7 @@ def storage_building_view(id, tokenuser: UserAccount):
 
 @api.route("/storage/building/new/", methods=["POST"])
 @token_required
+@requires_roles("data_entry")
 def storage_building_new(tokenuser: UserAccount):
     if not tokenuser.has_data_entry_role:
         return not_allowed()
@@ -91,11 +92,8 @@ def storage_building_new(tokenuser: UserAccount):
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/lock", methods=["PUT"])
-@token_required
+@requires_roles("admin")
 def storage_lock_building(id: int, tokenuser: UserAccount):
-    if not tokenuser.has_data_entry_role:
-        return not_allowed()
-
     building = Building.query.filter_by(id=id).first()
 
     if not building:
@@ -111,11 +109,9 @@ def storage_lock_building(id: int, tokenuser: UserAccount):
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/delete", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_building_delete(id, tokenuser: UserAccount):
-    if not tokenuser.has_data_entry_role:
-        return not_allowed()
-
     existing = Building.query.filter_by(id=id).first()
 
     if not existing:
@@ -158,7 +154,8 @@ def delete_buildings_func(record):
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/edit", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_edit_building(id: int, tokenuser: UserAccount):
     if not tokenuser.has_data_entry_role:
         return not_allowed()

@@ -21,7 +21,7 @@ from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
 from ...sample.api.base import func_update_sample_status, func_shelf_location
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 
 from ...database import (
@@ -208,7 +208,8 @@ def storage_rack_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/new", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_new(tokenuser: UserAccount):
     values = request.get_json()
     print("values", values)
@@ -223,7 +224,8 @@ def storage_rack_new(tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/new/with_samples", methods=["POST", "GET"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_new_with_samples(tokenuser: UserAccount):
 
     values = request.get_json()
@@ -572,7 +574,8 @@ def func_update_samples(samples, tokenuser):
 
 
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_fill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
@@ -694,7 +697,8 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/edit_samples_pos", methods=["POST", "GET"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_edit_samples_pos(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
@@ -907,7 +911,8 @@ def func_get_samples(barcode_type, samples):
 
 
 @api.route("/storage/rack/refill_with_samples", methods=["POST", "GET"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
@@ -1091,13 +1096,15 @@ def storage_sample_to_entity_check(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_lock(id, tokenuser: UserAccount):
     return generic_lock(db, SampleRack, id, basic_sample_rack_schema, tokenuser)
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/edit", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_edit(id, tokenuser: UserAccount):
     # Step 1: SampleRack update
     # Step 2: If shelf_id exist, EntityToStorage update.
@@ -1171,7 +1178,8 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/editbasic", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_edit_basic(id, tokenuser: UserAccount):
     values = request.get_json()
     return generic_edit(
@@ -1180,7 +1188,8 @@ def storage_rack_edit_basic(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/RACK/LIMBRACK-<id>/delete", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_rack_delete(id, tokenuser: UserAccount):
     rackTableRecord = SampleRack.query.filter_by(id=id).first()
 

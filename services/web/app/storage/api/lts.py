@@ -18,7 +18,7 @@ from flask import request, current_app, jsonify, send_file
 from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 
 # from ..api.shelf import func_shelf_delete
@@ -65,7 +65,8 @@ def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/delete", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_coldstorage_delete(id, tokenuser: UserAccount):
     existing = ColdStorage.query.filter_by(id=id).first()
 
@@ -104,7 +105,8 @@ def delete_coldstorage_func(record):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/service/new", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
 
     values = request.get_json()
@@ -132,7 +134,8 @@ def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/new", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_coldstorage_new(tokenuser: UserAccount):
     if not tokenuser.has_data_entry_role:
         return not_allowed()
@@ -160,7 +163,8 @@ def storage_coldstorage_new(tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/edit", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
     cs = ColdStorage.query.filter_by(id=id).first()
 
@@ -193,7 +197,8 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
-@token_required
+#@token_required
+@requires_roles("admin")
 def storage_cold_storage_lock(id, tokenuser: UserAccount):
     cs = ColdStorage.query.filter_by(id=id).first()
 
@@ -228,7 +233,8 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])
-@token_required
+#@token_required
+@requires_roles("data_entry")
 def storage_coldstorage_document(id, tokenuser: UserAccount):
 
     values = request.get_json()
