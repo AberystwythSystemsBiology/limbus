@@ -72,6 +72,6 @@ urllib3==1.26.5
 WeasyPrint==52.2
 webargs==6.1.0
 webencodings==0.5.1
-Werkzeug==1.0.1
+Werkzeug==2.2.3
 WTForms==2.3.1
 zipp==3.4.0
