@@ -844,7 +844,6 @@ def func_check_rack_samples(rack_id, samples):
 
             sample.update(sample0)
             sample["sample_id"] = smpl.id
-            print("sample: ", sample)
             n_found = n_found + 1
 
     return samples, n_found, err

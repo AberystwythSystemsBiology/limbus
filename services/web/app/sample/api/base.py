@@ -112,15 +112,20 @@ def sample_protocol_query_stmt(
 def sample_source_study_query_stmt(
     filters_protocol=None, filter_sample_id=None, filters=None, joins=None
 ):
-    # -- Find samples with protocols of Collection/Study
-    # -- 1. Find samples with sample consent linked to the source study.
-
-    if filter_sample_id is None:
-        s1 = (
-            db.session.query(Sample.id)
+    # Find all samples with protocols of Collection/Study
+    # -- 1. Find sample consent id with sample consent linked to the source study.
+    subq = (
+        db.session.query(Sample.consent_id)
             .join(SampleConsent)
             .join(DonorProtocolEvent)
             .filter_by(**filters_protocol)
+    )
+
+    # -- 2. Find all filtered samples that matched with sample consent id that linked to source study
+    if filter_sample_id is None:
+        s1 = (
+            db.session.query(Sample.id)
+            .filter(Sample.consent_id.in_(subq))
         )
         if filters:
             s1 = s1.filter_by(**filters)
@@ -129,60 +134,12 @@ def sample_source_study_query_stmt(
     else:
         s1 = (
             db.session.query(Sample.id)
-            .join(SampleConsent)
-            .join(DonorProtocolEvent)
+            .filter(Sample.consent_id.in_(subq))
             .filter(Sample.id.in_(filter_sample_id))
-            .filter_by(**filters_protocol)
         )
 
-    # -- 2. Find all parent samples (id) with matching protocol events (by protocol_template_id)
-    if filter_sample_id is None:
-        subq = (
-            db.session.query(Sample.id)
-            .join(SampleProtocolEvent)
-            .filter_by(**filters_protocol)
-        )
-        if filters:
-            subq = subq.filter_by(**filters)
-        if joins:
-            subq = subq.filter(*joins)
-    else:
-        subq = (
-            db.session.query(Sample.id)
-            .filter(Sample.id.in_(filter_sample_id))
-            .join(SampleProtocolEvent)
-            .filter_by(**filters_protocol)
-        )
-
-    if subq.count() > 0:
-        subq = subq.subquery()
-        # -- 3. Find all sub-samples of the matching samples
-        # and take the union of parent and sub-sample ID
-        if filter_sample_id is None:
-            s2 = (
-                db.session.query(Sample.id)
-                .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
-                .join(subq, subq.c.id == SubSampleToSample.parent_id)
-            )
-            if filters:
-                s2 = s2.filter_by(**filters)
-            if joins:
-                s2 = s2.filter(*joins)
-        else:
-            s2 = (
-                db.session.query(Sample.id)
-                .filter(Sample.id.in_(filter_sample_id))
-                .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
-                .join(subq, subq.c.id == SubSampleToSample.parent_id)
-            )
-
-        if s2.count() > 0:
-            s1 = s1.union(s2)
-
-        stmt = db.session.query(subq).union(s1)
-    else:
-        stmt = s1
-
+    stmt = s1
+    print("Count samples for source study: ", stmt.count())
     return stmt
 
 
