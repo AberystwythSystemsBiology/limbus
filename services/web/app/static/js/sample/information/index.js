@@ -596,7 +596,7 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
-    //console.log("filter: ", filters)
+    //console.log("filters: ", filters)
     //render_table({});
     render_table(filters);
     

@@ -39,16 +39,16 @@
             {{ form_field(form.barcode) }}
             {{ form_field(form.biohazard_level) }}
             {{ form_field(form.base_type) }}
+{#            {{ form_field(form.sample_type) }}#}
             {{ form_field(form.sample_type) }}
             {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
-            {{ form_field(form.status) }}
-{#
+
             <div class="form-group">
-            <strong>{{ form.current_site_id.label }}</strong>
-            {{ form.current_site_id(size="1", class="selectpicker w-100") }}
+            <strong>{{ form.status.label }}</strong>
+            {{ form.status(size="1", class="selectpicker w-100") }}
             </div>
-#}
+
             {{ form_field(form.protocol_id) }}
             {{ form_field(form.source_study) }}
             {{ form_field(form.consent_status) }}
