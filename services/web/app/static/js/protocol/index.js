@@ -40,7 +40,60 @@ function fill_protocol_table(protocol) {
 
     $('#protocol-table').DataTable( {
         data: protocol,
-       
+
+        dom: 'Blfrtip',
+        pageLength: 100,
+        language: {
+            buttons: {
+                colvis: 'Column visibility',
+            },
+            searchPanes: {
+                clearMessage: 'Clear Selections',
+                collapse: {0: '<i class="fas fa-sliders-h"></i> Filter', _: '<i class="fas fa-sliders-h"> (%d)'},
+                viewTotal: false,
+                columns: [1, 2, 3, 4]
+            }
+
+        },
+        //buttons: [ 'filter','print', 'csv', 'colvis' ],
+        buttons: [
+
+            {
+                extend: 'searchPanes',
+                config: {
+                    cascadePanes: true
+                },
+
+            },
+
+            {
+                extend: 'print',
+
+            },
+
+            {
+                extend: 'csv',
+                footer: false,
+
+            },
+            'colvis',
+        ],
+
+        columnDefs: [
+           {
+                searchPanes: {
+                    show: true
+                },
+                targets: [1, 2]
+            },
+            {
+                searchPanes: {
+                    show: false
+                },
+                targets: [0]
+            },
+        ],
+
         columns: [
             {
                 mData: {},
@@ -81,11 +134,7 @@ function fill_protocol_table(protocol) {
                 }
             },
             { data: "created_on"},
-            
 
-            
-
-           
         ]
     });
 
@@ -97,6 +146,5 @@ $(document).ready(function() {
     var protocol = get_protocols();
   
     fill_protocol_table(protocol);
-   // fill_attributes_table(attributes);
    
 });
