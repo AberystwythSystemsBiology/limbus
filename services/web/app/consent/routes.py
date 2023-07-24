@@ -32,10 +32,14 @@ from .forms import NewConsentFormTemplateForm, NewConsentFormQuestionForm
 
 from ..misc import get_internal_api_header
 
-
 @consent.route("/")
 @login_required
 def index():
+    return render_template("consent/index.html")
+
+@consent.route("/")
+@login_required
+def index1():
     response = requests.get(
         url_for("api.consent_home", _external=True), headers=get_internal_api_header()
     )
@@ -47,6 +51,17 @@ def index():
     else:
         return response.content
 
+@consent.route("/data")
+@login_required
+def data():
+    response = requests.get(
+        url_for("api.consent_home", _external=True), headers=get_internal_api_header()
+    )
+
+    if response.status_code == 200:
+        return response.json()
+    else:
+        abort(response.status_code)
 
 @consent.route("/LIMBPCF-<id>")
 @login_required
@@ -86,6 +101,23 @@ def add():
             return response.content
 
     return render_template("consent/new_template.html", form=form)
+
+
+@consent.route("/LIMBPCF-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock(id):
+    lock_response = requests.post(
+        url_for("api.consent_lock_template", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if lock_response.status_code == 200:
+        flash(lock_response.json()["message"])
+
+    else:
+        flash("We have a problem : %s" % lock_response.json()["message"])
+
+    return lock_response.json()
 
 
 @consent.route("/LIMBPCF-<id>/edit", methods=["GET", "POST"])

@@ -143,7 +143,7 @@ def consent_new_template(tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/content/LIMBPCF-<id>/edit", methods=["PUT"])
+@api.route("/consent/LIMBPCF-<id>/edit", methods=["PUT"])
 @token_required
 def consent_edit_template(id, tokenuser: UserAccount):
     values = request.get_json()
@@ -174,24 +174,28 @@ def consent_edit_template(id, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
-@api.route("/consent/LIMBPCF-<id>/lock", methods=["PUT"])
+@api.route("/consent/LIMBPCF-<id>/lock", methods=["POST"])
 @token_required
 def consent_lock_template(id: int, tokenuser: UserAccount):
     template = ConsentFormTemplate.query.filter_by(id=id).first()
-
     if not template:
         return not_found()
 
     template.is_locked = not template.is_locked
     template.editor_id = tokenuser.id
+    if template.is_locked:
+        msg = "Template locked!"
+    else:
+        msg = "Template unlocked!"
+    try:
+        db.session.add(template)
+        db.session.commit()
 
-    db.session.add(template)
-    db.session.commit()
-    db.session.flush()
-
-    return success_with_content_response(
-        basic_consent_form_template_schema.dump(template)
-    )
+        return success_with_content_message_response(
+            basic_consent_form_template_schema.dump(template), msg
+        )
+    except Exception as err:
+        return transaction_error_response(err)
 
 
 @api.route("/consent/LIMBPCF-<id>/question/new", methods=["POST"])
