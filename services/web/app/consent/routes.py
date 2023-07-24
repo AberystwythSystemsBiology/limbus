@@ -37,20 +37,6 @@ from ..misc import get_internal_api_header
 def index():
     return render_template("consent/index.html")
 
-@consent.route("/")
-@login_required
-def index1():
-    response = requests.get(
-        url_for("api.consent_home", _external=True), headers=get_internal_api_header()
-    )
-
-    if response.status_code == 200:
-        return render_template(
-            "consent/index.html", templates=response.json()["content"]
-        )
-    else:
-        return response.content
-
 @consent.route("/data")
 @login_required
 def data():
