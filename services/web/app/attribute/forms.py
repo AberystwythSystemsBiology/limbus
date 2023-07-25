@@ -156,7 +156,7 @@ def AttributeEditForm(data={}, subclasses=[("", "None")]):
 
         element_type = SelectField(
             "Element Type",
-            choices=AttributeElementType.choices(),
+            choices=AttributeElementType.choices()[0:2],
             description="If required, you can limit what can use this attribute.",
         )
         submit = SubmitField("Submit")
@@ -190,7 +190,7 @@ def AttributeCreationForm(data={}, subclasses=[("", "None")]):
         )
         element_type = SelectField(
             "Element Type",
-            choices=AttributeElementType.choices(),
+            choices=AttributeElementType.choices()[0:2],
             description="If required, you can limit what can use this attribute.",
         )
         submit = SubmitField("Submit")
@@ -336,8 +336,7 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
             )
         elif attr["type"] == "Numeric":
             element = FloatField(attr["term"], render_kw={"_custom_val": True})
-            ontology
-
+        
         element.render_kw = {"_custom_val": True}
 
         setattr(StaticForm, str(attr["id"]), element)
