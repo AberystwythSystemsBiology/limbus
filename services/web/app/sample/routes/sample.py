@@ -264,10 +264,11 @@ def edit_sample_basic_info(uuid):
 
     data = sample_response.json()["content"]
     consent_id = data["consent_information"]["id"]
+    donor_id1 = None
+    if data["consent_information"]["donor_id"] is not None:
+        donor_id1 = "LIMBDON-" + str(data["consent_information"]["donor_id"])
 
-    consent_ids = []
-    if data["consent_information"]["donor_id"] is None:
-        consent_ids = [[consent_id, "LIMBDC-%s" % consent_id]]
+    consent_ids = [[consent_id, "LIMBDC-%s" % consent_id]]
 
     consent_response = requests.get(
         url_for("api.sample_get_consents", _external=True),
@@ -276,7 +277,13 @@ def edit_sample_basic_info(uuid):
 
     if consent_response.status_code == 200:
         for consent in consent_response.json()["content"]:
-            consent_ids.append([consent["id"], consent["label"]])
+            if consent_id == consent["id"]:
+                consent_ids[0] = [consent["id"], consent["label"]]
+            elif donor_id1 is None:
+                consent_ids.append([consent["id"], consent["label"]])
+            elif donor_id1 in consent["label"]:
+                # Only consent from the same donor will be used
+                consent_ids.append([consent["id"], consent["label"]])
 
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
@@ -409,37 +416,6 @@ def sample_update_collection_id(first=None, last=None):
 
     flash(sample_response.json()["message"])
     return redirect(url_for("sample.index"))
-
-
-# Not in use: TODO DELETE
-@sample.route("<uuid>/remove1", methods=["GET", "POST"])
-@login_required
-def remove1_sample(uuid: str, user_id=None):
-    sample_response = requests.get(
-        url_for("api.sample_view_sample", uuid=uuid, _external=True),
-        headers=get_internal_api_header(),
-    )
-
-    if sample_response.status_code == 200:
-        remove_response = requests.delete(
-            url_for(
-                "api.sample_remove_sample", uuid=uuid, user_id=user_id, _external=True
-            ),
-            headers=get_internal_api_header(),
-        )
-
-        if remove_response.status_code == 200:
-            flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.index"))
-        else:
-            flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.view", uuid=uuid))
-
-        return remove_response.json()
-
-    flash(sample_response.json()["message"])
-    return sample_response.json()
-    # return redirect(url_for("sample.view", uuid=uuid))
 
 
 @sample.route("<uuid>/remove", methods=["GET", "POST"])
