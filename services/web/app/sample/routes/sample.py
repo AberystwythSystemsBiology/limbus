@@ -197,7 +197,6 @@ def remove_rack_from_cart(id: int, user_id=None):
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required
 def associate_document(uuid):
-
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -210,13 +209,11 @@ def associate_document(uuid):
         )
 
         if document_response.status_code == 200:
-
             form = SampleToDocumentAssociatationForm(
                 document_response.json()["content"]
             )
 
             if form.validate_on_submit():
-
                 response = requests.post(
                     url_for("api.sample_to_document", _external=True),
                     headers=get_internal_api_header(),
@@ -247,19 +244,18 @@ def associate_document(uuid):
 @sample.route("<uuid>/edit/basic_info", methods=["GET", "POST"])
 @login_required
 def edit_sample_basic_info(uuid):
-
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
 
     if sample_response.status_code != 200:
-        #return abort(sample_response.status_code)
+        # return abort(sample_response.status_code)
         return redirect(url_for("sample.view", uuid=uuid))
 
     if sample_response.json()["content"]["is_locked"]:
         flash("Sample is locked!")
-        #return abort(sample_response.status_code)
+        # return abort(sample_response.status_code)
         return redirect(url_for("sample.view", uuid=uuid))
 
     data = sample_response.json()["content"]
@@ -295,7 +291,7 @@ def edit_sample_basic_info(uuid):
             collection_sites.append([site["id"], site["name"]])
     else:
         flash("Error in getting site info!")
-        #return abort(sites_response.status_code)
+        # return abort(sites_response.status_code)
         return redirect(url_for("sample.view", uuid=uuid))
 
     data.update({"consent_id": consent_id})  # data["consent_information"]["id"]})
@@ -382,6 +378,7 @@ def update_sample_tmpstore_info(uuid: str):
 
     return redirect(url_for("sample.view", uuid=uuid))
 
+
 @sample.route("batch_update_cache", methods=["GET"])
 @login_required
 def batch_update_sample_tmpstore_info():
@@ -410,7 +407,9 @@ def sample_update_collection_id(first=None, last=None):
         last = int(last)
 
     sample_response = requests.get(
-        url_for("api.sample_update_collection_id", first=first, last=last, _external=True),
+        url_for(
+            "api.sample_update_collection_id", first=first, last=last, _external=True
+        ),
         headers=get_internal_api_header(),
     )
 
@@ -437,7 +436,7 @@ def remove_sample(uuid: str, user_id=None):
             comments = DeleteReason[comments].value
         else:
             comments = ""
-        if form.comments.data is not None and form.comments.data!="":
+        if form.comments.data is not None and form.comments.data != "":
             comments = ",".join([comments, form.comments.data])
 
         remove_response = requests.post(
@@ -481,7 +480,7 @@ def deep_remove_sample(uuid: str):
             comments = DeleteReason[comments].value
         else:
             comments = ""
-        if form.comments.data is not None and form.comments.data!="":
+        if form.comments.data is not None and form.comments.data != "":
             comments = ",".join([comments, form.comments.data])
 
         remove_response = requests.post(

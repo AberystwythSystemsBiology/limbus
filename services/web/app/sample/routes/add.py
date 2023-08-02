@@ -35,7 +35,6 @@ import requests
 
 
 def prepare_form_data(data: dict):
-
     step_one = data["step_one"]
     step_two = data["step_two"]
     step_three = data["step_three"]
@@ -116,7 +115,6 @@ def prepare_form_data(data: dict):
 @sample.route("add/reroute/<hash>", methods=["GET"])
 @login_required
 def add_rerouter(hash):
-
     query_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
@@ -208,7 +206,6 @@ def add_step_one():
     )
 
     if form.validate_on_submit():
-
         route_data = {
             "colour": form.colour.data,
             "sample_status": form.sample_status.data,
@@ -236,7 +233,6 @@ def add_step_one():
         )
 
         if store_response.status_code == 200:
-
             return redirect(
                 url_for(
                     "sample.add_rerouter", hash=store_response.json()["content"]["uuid"]
@@ -256,7 +252,6 @@ def add_step_one():
 @sample.route("add/digital_consent_form/<hash>", methods=["GET", "POST"])
 @login_required
 def add_step_two(hash):
-
     tmpstore_response = requests.get(
         url_for("api.tmpstore_view_tmpstore", hash=hash, _external=True),
         headers=get_internal_api_header(),
@@ -297,7 +292,6 @@ def add_step_two(hash):
     form = ConsentQuestionnaire(study_protocols, data=consent_data)
 
     if form.validate_on_submit():
-
         consent_details = {
             # "donor_id": donor_id,
             "identifier": form.identifier.data,
@@ -373,14 +367,12 @@ def add_step_three(hash):
     )
 
     if sampletype_response.status_code == 200:
-
         sampletypes = sampletype_response.json()["content"]["sampletype_choices"]
         containertypes = sampletype_response.json()["content"]["container_choices"]
 
     form = SampleTypeSelectForm(sampletypes, containertypes)
 
     if form.validate_on_submit():
-
         sample_information_details = {
             "biohazard_level": form.biohazard_level.data,
             "sample_type": form.sample_type.data,

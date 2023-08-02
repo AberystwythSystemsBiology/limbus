@@ -20,9 +20,15 @@ from ...misc import get_internal_api_header
 from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
 from ..forms import AdminUserAccountEditForm
 from ..forms.auth import AccountLockPasswordForm
-from ...sample.enums import (SampleBaseType, FluidSampleType, CellSampleType, MolecularSampleType,
-                             ContainerBaseType, FluidContainer, CellContainer
-                            )
+from ...sample.enums import (
+    SampleBaseType,
+    FluidSampleType,
+    CellSampleType,
+    MolecularSampleType,
+    ContainerBaseType,
+    FluidContainer,
+    CellContainer,
+)
 from ...database import TemporaryStore
 
 from flask import render_template, url_for, redirect, abort, flash, current_app, request
@@ -61,7 +67,6 @@ def auth_new_account():
         form = UserAccountRegistrationForm(sites, with_type=True)
 
         if form.validate_on_submit():
-
             new_user_response = requests.post(
                 url_for("api.auth_new_user", _external=True),
                 json={
@@ -101,7 +106,6 @@ def auth_view_account(id):
         form = AccountLockPasswordForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
-
             lock_response = requests.put(
                 url_for("api.auth_lock_user", id=id, _external=True),
                 headers=get_internal_api_header(),
@@ -189,7 +193,6 @@ def admin_password_reset(id):
         form = AccountLockPasswordForm(response.json()["content"]["email"])
 
         if form.validate_on_submit():
-
             token_email = requests.post(
                 url_for("api.auth_password_reset", _external=True),
                 headers=get_internal_api_header(),
@@ -224,9 +227,16 @@ def admin_password_reset(id):
         return abort(response.status_code)
 
 
-def populate_settings(settings_data, default_sites, item_list,
-                      sites=[], consent_templates=[], study_protocols=[],
-                      collection_protocols=[], processing_protocols=[]):
+def populate_settings(
+    settings_data,
+    default_sites,
+    item_list,
+    sites=[],
+    consent_templates=[],
+    study_protocols=[],
+    collection_protocols=[],
+    processing_protocols=[],
+):
     """
     Input:
         settings_data: settings (json format) obtained from the user account in the database
@@ -235,6 +245,7 @@ def populate_settings(settings_data, default_sites, item_list,
     Return:
         settings: reformated settings (in list) to be used in form AdminUserAccountEditForm and UserSettings.
     """
+
     def flatten_settings(name, settings_val, choices=[], setting={}):
         name_choices = name + "_choices"
         name_default = name + "_default"
@@ -242,10 +253,7 @@ def populate_settings(settings_data, default_sites, item_list,
         try:
             setting[name_choices] = settings_val["choices"]
 
-            if (
-                    setting[name_choices] is None
-                    or len(setting[name_choices]) == 0
-            ):
+            if setting[name_choices] is None or len(setting[name_choices]) == 0:
                 setting[name_choices] = [s[0] for s in choices]
         except:
             setting[name_choices] = [s[0] for s in choices]
@@ -264,12 +272,21 @@ def populate_settings(settings_data, default_sites, item_list,
 
         return setting
 
-
     if item_list is None:
-        item_list = ["site", "consent_template", "study_protocol",
-                 "collection_protocol", "processing_protocol",
-                 "sample_basetype", "sample_flu_type", "sample_cel_type", "sample_mol_type",
-                 "container_basetype", "prm_container", "lts_container"]
+        item_list = [
+            "site",
+            "consent_template",
+            "study_protocol",
+            "collection_protocol",
+            "processing_protocol",
+            "sample_basetype",
+            "sample_flu_type",
+            "sample_cel_type",
+            "sample_mol_type",
+            "container_basetype",
+            "prm_container",
+            "lts_container",
+        ]
 
     settings = []
     for access_type in settings_data:
@@ -286,13 +303,8 @@ def populate_settings(settings_data, default_sites, item_list,
         # -- Working sites
         # -- Default working site is the site for the user account
         try:
-            setting["site_choices"] = settings_data[access_type][
-                "site"
-            ]["choices"]
-            if (
-                    setting["site_choices"] is None
-                    or len(setting["site_choices"]) == 0
-            ):
+            setting["site_choices"] = settings_data[access_type]["site"]["choices"]
+            if setting["site_choices"] is None or len(setting["site_choices"]) == 0:
                 setting["site_choices"] = default_sites
         except:
             setting["site_choices"] = default_sites
@@ -306,8 +318,12 @@ def populate_settings(settings_data, default_sites, item_list,
             try:
                 # settings_val = account_data["settings"][access_type]["consent_template"]
                 settings_val = settings_data[access_type]["consent_template"]
-                setting = flatten_settings(name="consent_template", settings_val=settings_val,
-                                           choices=consent_templates, setting=setting)
+                setting = flatten_settings(
+                    name="consent_template",
+                    settings_val=settings_val,
+                    choices=consent_templates,
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -315,8 +331,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "study_protocol" in item_list:
             try:
                 settings_val = settings_data[access_type]["protocol"]["STU"]
-                setting = flatten_settings(name="study_protocol", settings_val=settings_val,
-                                           choices=study_protocols, setting=setting)
+                setting = flatten_settings(
+                    name="study_protocol",
+                    settings_val=settings_val,
+                    choices=study_protocols,
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -324,8 +344,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "collection_protocol" in item_list:
             try:
                 settings_val = settings_data[access_type]["protocol"]["ACQ"]
-                setting = flatten_settings(name="collection_protocol", settings_val=settings_val,
-                                           choices=collection_protocols, setting=setting)
+                setting = flatten_settings(
+                    name="collection_protocol",
+                    settings_val=settings_val,
+                    choices=collection_protocols,
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -333,8 +357,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "processing_protocol" in item_list:
             try:
                 settings_val = settings_data[access_type]["protocol"]["SAP"]
-                setting = flatten_settings(name="processing_protocol", settings_val=settings_val,
-                                           choices=processing_protocols, setting=setting)
+                setting = flatten_settings(
+                    name="processing_protocol",
+                    settings_val=settings_val,
+                    choices=processing_protocols,
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -342,8 +370,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "sample_basetype" in item_list:
             try:
                 settings_val = settings_data[access_type]["sample_type"]["base_type"]
-                setting = flatten_settings(name="sample_basetype", settings_val=settings_val,
-                                           choices=SampleBaseType.choices(), setting=setting)
+                setting = flatten_settings(
+                    name="sample_basetype",
+                    settings_val=settings_val,
+                    choices=SampleBaseType.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -351,8 +383,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "sample_flu_type" in item_list:
             try:
                 settings_val = settings_data[access_type]["sample_type"]["FLU"]
-                setting = flatten_settings(name="sample_flu_type", settings_val=settings_val,
-                                           choices=FluidSampleType.choices(), setting=setting)
+                setting = flatten_settings(
+                    name="sample_flu_type",
+                    settings_val=settings_val,
+                    choices=FluidSampleType.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -360,8 +396,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "sample_cel_type" in item_list:
             try:
                 settings_val = settings_data[access_type]["sample_type"]["CEL"]
-                setting = flatten_settings(name="sample_cel_type", settings_val=settings_val,
-                                           choices=CellSampleType.choices(), setting=setting)
+                setting = flatten_settings(
+                    name="sample_cel_type",
+                    settings_val=settings_val,
+                    choices=CellSampleType.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -369,8 +409,12 @@ def populate_settings(settings_data, default_sites, item_list,
         if "sample_mol_type" in item_list:
             try:
                 settings_val = settings_data[access_type]["sample_type"]["MOL"]
-                setting = flatten_settings(name="sample_mol_type", settings_val=settings_val,
-                                           choices=MolecularSampleType.choices(), setting=setting)
+                setting = flatten_settings(
+                    name="sample_mol_type",
+                    settings_val=settings_val,
+                    choices=MolecularSampleType.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -378,26 +422,42 @@ def populate_settings(settings_data, default_sites, item_list,
         if "container_basetype" in item_list:
             try:
                 settings_val = settings_data[access_type]["container_type"]["base_type"]
-                setting = flatten_settings(name="container_basetype", settings_val=settings_val,
-                                           choices=ContainerBaseType.choices(), setting=setting)
+                setting = flatten_settings(
+                    name="container_basetype",
+                    settings_val=settings_val,
+                    choices=ContainerBaseType.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
         # -- Sample primary container types
         if "prm_container" in item_list:
             try:
-                settings_val = settings_data[access_type]["container_type"]["PRM"]["container"]
-                setting = flatten_settings(name="prm_container", settings_val=settings_val,
-                                           choices=FluidContainer.choices(), setting=setting)
+                settings_val = settings_data[access_type]["container_type"]["PRM"][
+                    "container"
+                ]
+                setting = flatten_settings(
+                    name="prm_container",
+                    settings_val=settings_val,
+                    choices=FluidContainer.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
         # -- Sample long term storage (lts) container types
         if "lts_container" in item_list:
             try:
-                settings_val = settings_data[access_type]["container_type"]["LTS"]["container"]
-                setting = flatten_settings(name="lts_container", settings_val=settings_val,
-                                           choices=CellContainer.choices(), setting=setting)
+                settings_val = settings_data[access_type]["container_type"]["LTS"][
+                    "container"
+                ]
+                setting = flatten_settings(
+                    name="lts_container",
+                    settings_val=settings_val,
+                    choices=CellContainer.choices(),
+                    setting=setting,
+                )
             except:
                 pass
 
@@ -425,50 +485,70 @@ def jsonise_settings(form, account_data):
         else:
             settings["data_entry"] = {"site": {"choices": site_choices}}
 
-            settings["data_entry"].update({
-                "consent_template": {"choices": setting.consent_template_choices.data,
-                                     "default": setting.consent_template_default.data},
-                "protocol": {
-                    "STU": {"choices": setting.study_protocol_choices.data,
-                            "default": setting.study_protocol_default.data},
+            settings["data_entry"].update(
+                {
+                    "consent_template": {
+                        "choices": setting.consent_template_choices.data,
+                        "default": setting.consent_template_default.data,
+                    },
+                    "protocol": {
+                        "STU": {
+                            "choices": setting.study_protocol_choices.data,
+                            "default": setting.study_protocol_default.data,
+                        },
+                        "ACQ": {
+                            "choices": setting.collection_protocol_choices.data,
+                            "default": setting.collection_protocol_default.data,
+                        },
+                        "SAP": {
+                            "choices": setting.processing_protocol_choices.data,
+                            "default": setting.processing_protocol_default.data,
+                        },
+                    },
+                }
+            )
 
-                    "ACQ": {"choices": setting.collection_protocol_choices.data,
-                                     "default": setting.collection_protocol_default.data},
-                    "SAP": {"choices": setting.processing_protocol_choices.data,
-                            "default": setting.processing_protocol_default.data}
+            settings["data_entry"].update(
+                {
+                    "sample_type": {
+                        "base_type": {"default": setting.sample_basetype_default.data},
+                        "FLU": {
+                            "default": setting.sample_flu_type_default.data,
+                            "choices": [],
+                        },
+                        "CEL": {
+                            "default": setting.sample_cel_type_default.data,
+                            "choices": [],
+                        },
+                        "MOL": {
+                            "default": setting.sample_mol_type_default.data,
+                            "choices": [],
+                        },
                     }
-            })
+                }
+            )
 
-            settings["data_entry"].update({
-                "sample_type": {
-                    "base_type": {"default": setting.sample_basetype_default.data},
-                    "FLU": {
-                        "default": setting.sample_flu_type_default.data,
-                        "choices": [],
-                    },
-                    "CEL": {
-                        "default": setting.sample_cel_type_default.data,
-                        "choices": [],
-                    },
-                    "MOL": {
-                        "default": setting.sample_mol_type_default.data,
-                        "choices": [],
-                    },
-
-                }})
-
-            settings["data_entry"].update({
-                "container_type": {
-                    "base_type": {"default": setting.container_basetype_default.data},
-                    "PRM": {
-                        "container": {"default": setting.prm_container_default.data},
-                        # "fixation_type": {}
-                    },
-                    "LTS": {
-                        "container": {"default": setting.lts_container_default.data},
-                        # "fixation_type": {}
-                    },
-                }})
+            settings["data_entry"].update(
+                {
+                    "container_type": {
+                        "base_type": {
+                            "default": setting.container_basetype_default.data
+                        },
+                        "PRM": {
+                            "container": {
+                                "default": setting.prm_container_default.data
+                            },
+                            # "fixation_type": {}
+                        },
+                        "LTS": {
+                            "container": {
+                                "default": setting.lts_container_default.data
+                            },
+                            # "fixation_type": {}
+                        },
+                    }
+                }
+            )
 
         # print("template: ", setting.saveto_template_name.data)
         if setting.saveto_template_name.data not in [None, ""]:
@@ -477,13 +557,11 @@ def jsonise_settings(form, account_data):
     return settings
 
 
-
 @admin.route("/auth/<id>/edit_settings", methods=["GET", "POST"])
 @admin.route("/auth/<id>/edit_settings/<use_template>", methods=["GET", "POST"])
 @check_if_admin
 @login_required
 def admin_edit_settings(id, use_template=None):
-
     response = requests.get(
         url_for("api.auth_view_user", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -544,8 +622,8 @@ def admin_edit_settings(id, use_template=None):
 
     setting_templates = [(None, "None")]
     templates = TemporaryStore.query.filter_by(type="SET").all()
-    if len(templates)>0:
-        setting_templates = setting_templates + [(s.uuid,s.uuid) for s in templates]
+    if len(templates) > 0:
+        setting_templates = setting_templates + [(s.uuid, s.uuid) for s in templates]
 
     if response.status_code == 200:
         account_data = response.json()["content"].copy()
@@ -557,24 +635,35 @@ def admin_edit_settings(id, use_template=None):
         # -- prepare data population to the form
         # -- currently only either "data_entry" or "view_only", not both can be stored in the DB
 
-        if use_template: # Use template
-
+        if use_template:  # Use template
             for tmpl in templates:
                 if tmpl.uuid == use_template:
-                    settings = populate_settings(tmpl.data, default_sites, None,
-                                                 sites, consent_templates, collection_protocols, processing_protocols)
+                    settings = populate_settings(
+                        tmpl.data,
+                        default_sites,
+                        None,
+                        sites,
+                        consent_templates,
+                        collection_protocols,
+                        processing_protocols,
+                    )
 
                     account_data["settings"] = settings
                     account_data["use_template"] = use_template
 
-
-        elif settings0: # Current settings
+        elif settings0:  # Current settings
             account_data["settings"] = settings0
-            settings = populate_settings(settings0, default_sites, None,
-                            sites, consent_templates, collection_protocols, processing_protocols)
+            settings = populate_settings(
+                settings0,
+                default_sites,
+                None,
+                sites,
+                consent_templates,
+                collection_protocols,
+                processing_protocols,
+            )
 
             account_data["settings"] = settings
-
 
         else:
             account_data["settings"] = [
@@ -585,13 +674,12 @@ def admin_edit_settings(id, use_template=None):
                 }
             ]
 
-
         form = AdminUserAccountEditForm(sites=sites, data=account_data)
 
         form.use_template.choices = setting_templates
         for setting in form.settings.entries:
             setting.site_choices.choices = sites
-            #setting.site_default.choices = sites
+            # setting.site_default.choices = sites
             setting.consent_template_choices.choices = consent_templates
             setting.consent_template_default.choices = consent_templates
 
@@ -604,15 +692,22 @@ def admin_edit_settings(id, use_template=None):
             setting.processing_protocol_choices.choices = processing_protocols
             setting.processing_protocol_default.choices = processing_protocols
 
-        if form.validate_on_submit() and form.use_template.data is not None and form.set_to_template.data:
-
+        if (
+            form.validate_on_submit()
+            and form.use_template.data is not None
+            and form.set_to_template.data
+        ):
             if form.use_template.data in [None, "None"]:
-                return redirect(
-                    url_for('admin.admin_edit_settings', id=id))
+                return redirect(url_for("admin.admin_edit_settings", id=id))
 
             else:
                 return redirect(
-                    url_for('admin.admin_edit_settings', id=id, use_template=form.use_template.data))
+                    url_for(
+                        "admin.admin_edit_settings",
+                        id=id,
+                        use_template=form.use_template.data,
+                    )
+                )
 
         elif form.validate_on_submit() and form.submit.data:
             json = {
@@ -627,14 +722,13 @@ def admin_edit_settings(id, use_template=None):
             }
 
             settings = jsonise_settings(form, account_data)
-            json["settings"] = settings # There is only one settings entry
+            json["settings"] = settings  # There is only one settings entry
 
             edit_response = requests.put(
                 url_for("api.admin_edit_account", id=id, _external=True),
                 headers=get_internal_api_header(),
                 json=json,
             )
-
 
             if edit_response.status_code == 200:
                 flash("User account updated successfully!")

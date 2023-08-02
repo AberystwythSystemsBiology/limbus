@@ -57,7 +57,6 @@ def view_site(id):
 @storage.route("/site/LIMBSITE-<id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_site(id):
-
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -86,7 +85,6 @@ def delete_site(id):
 @login_required
 @check_if_admin
 def lock_site(id):
-
     edit_response = requests.put(
         url_for("api.storage_site_lock", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -108,7 +106,6 @@ def lock_site(id):
 @storage.route("/site/LIMBSITE-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_site(id):
-
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -119,7 +116,6 @@ def edit_site(id):
         return redirect(url_for("storage.view_site", id=id))
 
     if response.status_code == 200:
-
         site_info = response.json()["content"]["address"]
         for k in ["name", "description", "url", "is_external"]:
             site_info[k] = response.json()["content"][k]
@@ -202,7 +198,6 @@ def site_edit_addresses(id):
     address_id = site_info["address_id"]
 
     if form.validate_on_submit():
-
         addresses = []
         new = []
         address_id = site_info["address_id"]

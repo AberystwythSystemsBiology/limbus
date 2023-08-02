@@ -109,7 +109,7 @@ def storage_lock_building(id: int, tokenuser: UserAccount):
 
 
 @api.route("/storage/building/LIMBBUILD-<id>/delete", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_building_delete(id, tokenuser: UserAccount):
     existing = Building.query.filter_by(id=id).first()
@@ -189,5 +189,4 @@ def storage_edit_building(id: int, tokenuser: UserAccount):
 
         return success_with_content_response(basic_building_schema.dump(building))
     except Exception as err:
-
         return transaction_error_response(err)

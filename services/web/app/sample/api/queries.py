@@ -60,8 +60,8 @@ from ..enums import SampleSource, DeleteReason
 from ...tmpstore.enums import StoreType
 import json
 
-def func_new_sample_type(values: dict, tokenuser: UserAccount):
 
+def func_new_sample_type(values: dict, tokenuser: UserAccount):
     base_type = values["sample_base_type"]
     if base_type == "FLU":
         sample_type_information = {
@@ -115,6 +115,7 @@ def func_new_sample_type(values: dict, tokenuser: UserAccount):
         return sampletotype
     except Exception as err:
         return transaction_error_response(err)
+
 
 # Not in use, no collection_id update
 def func_new_sample_protocol_event(values, tokenuser: UserAccount):
@@ -589,7 +590,6 @@ def func_deep_remove_subsampletosample_children(
 
 
 def func_root_sample(uuid=None, sample=None):
-
     if sample is None:
         sample = Sample.query.filter_by(uuid=uuid).first()
         if not sample:
@@ -609,7 +609,7 @@ def func_root_sample(uuid=None, sample=None):
             return None, msg
 
     if sample.source == SampleSource.NEW:
-        msg = "Root sample found: uuid=%s" %sample.uuid
+        msg = "Root sample found: uuid=%s" % sample.uuid
         return sample, msg
     else:
         msg = "Root sample (uuid=%s) not found" % uuid
@@ -630,12 +630,14 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
 
     if root_sample:
         # print("Root sample: ", root_sample.uuid)
-        collection_datetime = (db.session.query(SampleProtocolEvent)
-                               .filter(SampleProtocolEvent.sample_id==root_sample.id)
-                               .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
-                               .join(Event)
-                               .with_entities(Event.datetime).first()
-                               )
+        collection_datetime = (
+            db.session.query(SampleProtocolEvent)
+            .filter(SampleProtocolEvent.sample_id == root_sample.id)
+            .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
+            .join(Event)
+            .with_entities(Event.datetime)
+            .first()
+        )
 
         if collection_datetime:
             collection_datetime = collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
@@ -650,14 +652,14 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
     if tmpstore:
         # Update entry
         tmpstore.data = info
-        tmpstore.type = 'SMPC'
+        tmpstore.type = "SMPC"
         tmpstore.update({"editor_id": tokenuser.id})
 
     else:
         # new entry
         values = {}
         values["uuid"] = uuid
-        values["type"] = 'SMPC'
+        values["type"] = "SMPC"
         values["data"] = info
         try:
             result = new_store_schema.load(values)
@@ -679,17 +681,18 @@ def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
 
 @api.route("/sample/update_collection_id/<first>/<last>", methods=["GET", "POST"])
 @api.route("/sample/update_collection_id", methods=["GET", "POST"])
-#@token_required
+# @token_required
 @requires_roles("admin")
 def sample_update_collection_id(tokenuser: UserAccount, first=None, last=None):
-    pes = ( db.session.query(SampleProtocolEvent)
-             .join(ProtocolTemplate, SampleProtocolEvent.protocol_id == ProtocolTemplate.id)
-             .join(Sample, Sample.id==SampleProtocolEvent.sample_id)
-             .filter(ProtocolTemplate.type == "ACQ")
-             .filter(Sample.source=='NEW', Sample.is_closed==False)
-             .with_entities(Sample.id, SampleProtocolEvent.id)
-             .all()
-        )
+    pes = (
+        db.session.query(SampleProtocolEvent)
+        .join(ProtocolTemplate, SampleProtocolEvent.protocol_id == ProtocolTemplate.id)
+        .join(Sample, Sample.id == SampleProtocolEvent.sample_id)
+        .filter(ProtocolTemplate.type == "ACQ")
+        .filter(Sample.source == "NEW", Sample.is_closed == False)
+        .with_entities(Sample.id, SampleProtocolEvent.id)
+        .all()
+    )
 
     first = 0
     last = len(pes)
@@ -703,21 +706,20 @@ def sample_update_collection_id(tokenuser: UserAccount, first=None, last=None):
     else:
         last = len(pes)
 
-
-    print("total root samples: %d" %len(pes))
+    print("total root samples: %d" % len(pes))
     print("first, last ", first, last)
     i = 0
     n_problem = 0
-    n=0
+    n = 0
     for pe in pes:
         sample_id = pe[0]
         collection_id = pe[1]
         # print(sample_id, collection_id)
-        i=i+1
-        if i<first:
+        i = i + 1
+        if i < first:
             continue
 
-        if i>last:
+        if i > last:
             break
 
         k = 0
@@ -725,7 +727,7 @@ def sample_update_collection_id(tokenuser: UserAccount, first=None, last=None):
 
         if sample and collection_id:
             print(sample.id, collection_id)
-            if (sample.collection_id is None):
+            if sample.collection_id is None:
                 sample.collection_id = collection_id
                 try:
                     db.session.add(sample)
@@ -740,38 +742,40 @@ def sample_update_collection_id(tokenuser: UserAccount, first=None, last=None):
             if collection_id:
                 subs = (
                     db.session.query(Sample)
-                        .join(SampleConsent)#, SampleConsent.id==Sample.consent_id)
-                        .filter(Sample.source!='NEW')
-                        .filter(Sample.consent_id==consent_id)
-                        .distinct(Sample.id)
-                        .all()
-                    )
+                    .join(SampleConsent)  # , SampleConsent.id==Sample.consent_id)
+                    .filter(Sample.source != "NEW")
+                    .filter(Sample.consent_id == consent_id)
+                    .distinct(Sample.id)
+                    .all()
+                )
                 print("subs: ", len(subs))
                 for subsample in subs:
                     subsample.collection_id = collection_id
                     try:
                         db.session.add(subsample)
-                        k = k+1
+                        k = k + 1
                     except:
-                        n_problem = n_problem+1
+                        n_problem = n_problem + 1
                         pass
 
             print("k to commit: ", k)
             if k > 0:
                 try:
                     db.session.commit()
-                    n = n+k
+                    n = n + k
                 except:
-                    n_problem = n_problem+1
+                    n_problem = n_problem + 1
 
-    message = "Successfully updated collection date for %d samples, problems in %d samples" %(n, n_problem)
+    message = (
+        "Successfully updated collection date for %d samples, problems in %d samples"
+        % (n, n_problem)
+    )
     print(message)
     return success_with_content_message_response(n, message)
 
 
-
 @api.route("/sample/batch_update_cache", methods=["GET", "POST"])
-#@token_required
+# @token_required
 @requires_roles("admin")
 def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
     samples = Sample.query.filter_by(is_closed=False).all()
@@ -782,20 +786,23 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
         uuid = sample.uuid
         info = sample_index_schema.dump(sample)
 
-
         root_sample, msg = func_root_sample(uuid=None, sample=sample)
 
         if root_sample:
             # print("Root sample: ", root_sample.uuid)
-            collection_datetime = (db.session.query(SampleProtocolEvent)
-                                   .filter(SampleProtocolEvent.sample_id==root_sample.id)
-                                   .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
-                                   .join(Event)
-                                   .with_entities(Event.datetime).first()
-                                   )
+            collection_datetime = (
+                db.session.query(SampleProtocolEvent)
+                .filter(SampleProtocolEvent.sample_id == root_sample.id)
+                .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
+                .join(Event)
+                .with_entities(Event.datetime)
+                .first()
+            )
 
             if collection_datetime:
-                collection_datetime=collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
+                collection_datetime = collection_datetime[0].strftime(
+                    "%Y-%m-%d, %H:%M:%S"
+                )
 
             info["collection_datetime"] = collection_datetime
             info["root_sample_uuid"] = root_sample.uuid
@@ -815,16 +822,15 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
             # new entry
             values = {}
             values["uuid"] = uuid
-            values["type"] = 'SMPC'
+            values["type"] = "SMPC"
             values["data"] = info
 
             try:
                 result = new_store_schema.load(values)
-            except: # ValidationError as err:
+            except:  # ValidationError as err:
                 n_problem = n_problem + 1
                 continue
-                #return validation_error_response(err)
-
+                # return validation_error_response(err)
 
             tmpstore = TemporaryStore(**result)
             tmpstore.author_id = tokenuser.id
@@ -833,10 +839,9 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
             db.session.add(tmpstore)
             db.session.flush()
 
-        except: # Exception as err:
+        except:  # Exception as err:
             n_problem = n_problem + 1
             continue
-
 
         n = n + 1
         if n % 100 == 0:
@@ -852,13 +857,12 @@ def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
         pass
 
     message = "Cache info update successful for %d samples!" % n
-    message = message + " ; failed for %d samples" %n_problem
+    message = message + " ; failed for %d samples" % n_problem
     return success_without_content_response(message)
 
 
-
 @api.route("/sample/<uuid>/remove", methods=["DELETE", "GET", "POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_remove_sample(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
@@ -916,7 +920,6 @@ def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
     (success, msgs) = func_remove_sampleshipmenttosample(sample, tokenuser, msgs)
     if not success:
         return False, msgs
-
 
     (success, msg) = func_remove_sampleprotocolevent(sample, tokenuser, msgs)
     if not success:
@@ -1115,7 +1118,6 @@ def sample_lock_sample_creation_protocol_event(uuid, tokenuser: UserAccount):
                 msgs.append(msg)
                 ids_ok.append(sample_id)
             else:
-
                 msgs.append(msg["message"])
                 ids_bad.append(sample_id)
 

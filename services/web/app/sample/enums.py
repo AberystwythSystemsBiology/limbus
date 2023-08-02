@@ -365,6 +365,7 @@ class DeleteReason(FormEnum):
     """
     Sample/Donor Editing reasons
     """
+
     TES = "Testing"
     DUP = "Duplicates"
     UPE = "Uploaded in Error"

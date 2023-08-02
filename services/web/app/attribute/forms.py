@@ -44,7 +44,6 @@ import pronto
 import urllib
 
 try:
-
     # Loading UO into memory upon creation of flask instance.
     uo = pronto.Ontology.from_obo_library("uo.obo")
 
@@ -120,7 +119,6 @@ class DoidValidatingSelectField(SelectField):
 
 
 def AttributeEditForm(data={}, subclasses=[("", "None")]):
-
     if "accession" in data:
         onto_terms = [(data["accession"], data["accession"])]
     else:

@@ -20,7 +20,6 @@ from .enums import StoreType
 
 
 class TemporaryStore(Base, RefAuthorMixin, RefEditorMixin):
-
     uuid = db.Column(db.String(36), unique=True)
     type = db.Column(db.Enum(StoreType))
     data = db.Column(db.JSON, nullable=False)

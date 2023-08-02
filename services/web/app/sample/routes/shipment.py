@@ -60,7 +60,6 @@ def admin_user_cart(user_id: int):
         auth_info = auth_response.json()["content"]
 
         for user in auth_info:
-
             if user["site_id"]:
                 site_id = user["site_id"]
             else:
@@ -95,7 +94,6 @@ def admin_user_cart(user_id: int):
 
         users = []
         for k in users_by_site:
-
             users = users + users_by_site[k]
         # users_sorted = users.sort(key=lambda x: x[1])
 

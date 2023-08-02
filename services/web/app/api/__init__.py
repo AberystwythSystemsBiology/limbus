@@ -40,7 +40,7 @@ from .filters import *
 def prepare_for_chart_js(a):
     ye = {"labels": [], "data": []}
 
-    for (label, data) in a:
+    for label, data in a:
         ye["labels"].append(label)
         ye["data"].append(data)
 

@@ -60,7 +60,6 @@ def protocol_home(tokenuser: UserAccount):
 @use_args(ProtocolTemplateSearchSchema(), location="json")
 @token_required
 def protocol_query(args, tokenuser: UserAccount):
-
     filters, joins = get_filters_and_joins(args, ProtocolTemplate)
 
     return success_with_content_response(
@@ -74,7 +73,6 @@ def protocol_query(args, tokenuser: UserAccount):
 @use_args(ProtocolTemplateSearchSchema(), location="json")
 @token_required
 def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
-
     filters, joins = get_filters_and_joins(args, ProtocolTemplate)
 
     protocols = basic_protocol_templates_schema.dump(
@@ -123,7 +121,6 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
 @api.route("/protocol/new", methods=["POST"])
 @token_required
 def protocol_new_protocol(tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:
@@ -258,6 +255,7 @@ def protocol_view_text(id, t_id, tokenuser: UserAccount):
         )
     )
 
+
 @api.route("/protocol/LIMBPRO-<id>/lock", methods=["POST"])
 @token_required
 def protocol_lock_protocol(id, tokenuser: UserAccount):
@@ -282,7 +280,10 @@ def protocol_lock_protocol(id, tokenuser: UserAccount):
     else:
         msg = "Successfully unlocked protocol!"
 
-    return success_with_content_message_response( basic_protocol_text_schema.dump(protocol), msg)
+    return success_with_content_message_response(
+        basic_protocol_text_schema.dump(protocol), msg
+    )
+
 
 @api.route("/protocol/LIMBPRO-<id>/remove", methods=["POST"])
 @token_required

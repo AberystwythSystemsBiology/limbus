@@ -50,7 +50,7 @@ def storage_shelf_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/shelf/LIMBSHF-<id>/edit", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_shelf_edit(id, tokenuser: UserAccount):
     values = request.get_json()
@@ -67,7 +67,7 @@ def storage_shelf_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/shelf/LIMBSHF-<id>/delete", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_shelf_delete(id, tokenuser: UserAccount):
     existing = ColdStorageShelf.query.filter_by(id=id).first()
@@ -115,7 +115,7 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/shelf/new/", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_shelf_new(tokenuser: UserAccount):
     values = request.get_json()

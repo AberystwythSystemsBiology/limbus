@@ -116,17 +116,14 @@ def sample_source_study_query_stmt(
     # -- 1. Find sample consent id with sample consent linked to the source study.
     subq = (
         db.session.query(Sample.consent_id)
-            .join(SampleConsent)
-            .join(DonorProtocolEvent)
-            .filter_by(**filters_protocol)
+        .join(SampleConsent)
+        .join(DonorProtocolEvent)
+        .filter_by(**filters_protocol)
     )
 
     # -- 2. Find all filtered samples that matched with sample consent id that linked to source study
     if filter_sample_id is None:
-        s1 = (
-            db.session.query(Sample.id)
-            .filter(Sample.consent_id.in_(subq))
-        )
+        s1 = db.session.query(Sample.id).filter(Sample.consent_id.in_(subq))
         if filters:
             s1 = s1.filter_by(**filters)
         if joins:
@@ -335,7 +332,6 @@ def sample_not_consent_type_query_stmt(
 def sample_reminder_query_stmt(
     filters_reminder=None, filter_sample_id=None, filters=None, joins=None
 ):
-
     if filter_sample_id:
         stmt = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id))
     else:
@@ -617,18 +613,18 @@ def sampletype_data(tokenuser: UserAccount):
 
         if id0:
             if bt == "FLU":
-                for (k, nm) in FluidSampleType.choices():
+                for k, nm in FluidSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
 
             elif bt == "CEL":
-                for (k, nm) in CellSampleType.choices():
+                for k, nm in CellSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
             elif bt == "MOL":
-                for (k, nm) in MolecularSampleType.choices():
+                for k, nm in MolecularSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
@@ -670,12 +666,12 @@ def sampletype_data(tokenuser: UserAccount):
 
         if id0:
             if bt == "PRM":
-                for (k, nm) in FluidContainer.choices():
+                for k, nm in FluidContainer.choices():
                     if k == id0:
                         container_choices[bt]["container"].append((id0, nm))
                         break
             elif bt == "LTS":
-                for (k, nm) in CellContainer.choices():
+                for k, nm in CellContainer.choices():
                     if k == id0:
                         container_choices[bt]["container"].append((id0, nm))
                         break
@@ -722,8 +718,8 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    #print("filters", filters)
-    #print("joins", joins)
+    # print("filters", filters)
+    # print("joins", joins)
     # -- To exclude empty samples in the index list
     joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
@@ -1040,7 +1036,7 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 
 
 @api.route("sample/new", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
@@ -1194,7 +1190,7 @@ def sample_new_sample(tokenuser: UserAccount):
 
 
 @api.route("sample/new/sample_type_instance/<base_type>", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     values = request.get_json()
@@ -1231,7 +1227,7 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
 
 
 @api.route("sample/<uuid>/edit/basic_info", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_edit_basic_info(uuid, tokenuser: UserAccount):
     values = request.get_json()
@@ -1676,13 +1672,11 @@ def func_update_sample_status(
         res = {"sample": None, "message": msg, "success": True}
         if sample_review:
             if sample_review.result in ["FA", ReviewResult.FA]:
-
                 if sample_review.review_type in ["IC", ReviewType.IC]:
                     sample.status = SampleStatus.MIS
                 else:
                     sample.status = SampleStatus.UNU
             elif sample_review.result in ["PA", ReviewResult.PA]:
-
                 if sample_review.quality == SampleQuality.GOO:
                     sample.status = SampleStatus.AVA
                 elif sample_review.quality == SampleQuality.NOT:
@@ -1704,7 +1698,7 @@ def func_update_sample_status(
 
 
 @api.route("/sample/status/<uuid>", methods=["GET"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()

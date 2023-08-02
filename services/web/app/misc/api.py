@@ -42,7 +42,6 @@ from datetime import datetime, timedelta
 
 @api.route("/misc/barcode", methods=["POST"])
 def misc_generate_barcode():
-
     values = request.get_json()
 
     img = treepoem.generate_barcode(barcode_type=values["type"], data=values["data"])
@@ -56,7 +55,6 @@ def misc_generate_barcode():
 
 @api.route("/misc/greeting", methods=["GET"])
 def get_greeting():
-
     dictionary = {
         "Hello": "English",
         "Rite butt?": "the South Wales Valleys",
@@ -93,7 +91,6 @@ def get_greeting():
 @api.route("/misc/panel", methods=["GET"])
 @token_required
 def get_data(tokenuser: UserAccount):
-
     """
     a = db.session.query(
         func.date_trunc("day", Sample.created_on)).group_by(func.date_trunc("day", Sample.created_on)).all()

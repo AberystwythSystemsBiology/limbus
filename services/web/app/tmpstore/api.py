@@ -63,7 +63,6 @@ def tmpstore_view_tmpstore(hash: str, tokenuser: UserAccount):
 @use_args(StoreSearchSchema(), location="json")
 @token_required
 def tmpstore_query(args, tokenuser: UserAccount):
-
     return success_with_content_response(
         stores_schema.dump(TemporaryStore.query.filter_by(**args).all())
     )

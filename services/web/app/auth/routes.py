@@ -176,7 +176,6 @@ def generate_token():
         )
 
         if app_qr_response.status_code == 200:
-
             return render_template(
                 "auth/token.html", token=token, qr_code=app_qr_response.json()["b64"]
             )

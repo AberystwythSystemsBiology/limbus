@@ -64,7 +64,6 @@ def attribute_home(tokenuser: UserAccount):
 @use_args(AttributeSearchSchema(), location="json")
 @token_required
 def attribute_query(args, tokenuser: UserAccount):
-
     filters, joins = get_filters_and_joins(args, Attribute)
 
     return success_with_content_response(
@@ -136,7 +135,6 @@ def attribute_new_option(id, tokenuser: UserAccount):
 @api.route("/attribute/new", methods=["POST"])
 @token_required
 def attribute_new_attribute(tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:
@@ -328,7 +326,6 @@ def attribute_edit_attribute(id, tokenuser: UserAccount):
 @api.route("/attribute/new/data/<type>", methods=["POST"])
 @token_required
 def attribute_new_data(type: str, tokenuser: UserAccount):
-
     if type not in ["text", "option"]:
         return validation_error_response(
             {"Error": "type must be one of text or option."}

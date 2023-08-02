@@ -78,7 +78,6 @@ def aliquot_endpoint(uuid: str):
     values = request.get_json()
 
     if not values:
-
         return {"Err": "No values provided."}
 
     aliquot_response = requests.post(
@@ -138,7 +137,6 @@ def derive_endpoint(uuid: str):
     values = request.get_json()
 
     if not values:
-
         return {"Err": "No values provided."}
 
     derive_response = requests.post(

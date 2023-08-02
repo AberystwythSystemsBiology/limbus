@@ -52,6 +52,7 @@ def data():
     else:
         response.status_code
 
+
 @login_required
 @protocol.route("/new", methods=["GET", "POST"])
 def new():
@@ -200,6 +201,7 @@ def new_text(id):
     else:
         return response.content
 
+
 @protocol.route("LIMBPRO-<id>/lock", methods=["GET", "POST"])
 @login_required
 def lock(id):
@@ -215,12 +217,6 @@ def lock(id):
         flash("We have a problem :( %s" % lock_response.json())
 
     return lock_response.json()
-
-
-
-
-
-
 
 
 @protocol.route("/LIMBPRO-<id>/remove", methods=["GET", "POST"])

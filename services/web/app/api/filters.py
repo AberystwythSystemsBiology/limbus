@@ -14,7 +14,6 @@ def _post():
 
 
 def get_filters_and_joins(args: object, model: object) -> object:
-
     filters = {}
     joins = []
 
@@ -23,7 +22,7 @@ def get_filters_and_joins(args: object, model: object) -> object:
             joins.append(getattr(model, key).has(**value))
         elif type(value) == list:
             joins.append(getattr(model, key).in_(value))
-        elif key in ['status'] and type(value) == str: # Dealing with multiple choice
+        elif key in ["status"] and type(value) == str:  # Dealing with multiple choice
             joins.append(getattr(model, key).in_(value.split(",")))
         else:
             filters[key] = value
@@ -31,7 +30,6 @@ def get_filters_and_joins(args: object, model: object) -> object:
 
 
 def generate_base_query_filters(tokenuser: UserAccount, type: str):
-
     if tokenuser.account_type.value == "Administrator":
         return {}, True
 

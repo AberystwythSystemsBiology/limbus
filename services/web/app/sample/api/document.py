@@ -32,7 +32,7 @@ from ...database import (
 
 
 @api.route("/sample/associate/document", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_to_document(tokenuser: UserAccount):
     values = request.get_json()

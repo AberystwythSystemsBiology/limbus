@@ -198,7 +198,6 @@ def view(id):
         headers=get_internal_api_header(),
     )
     if response.status_code == 200:
-
         return render_template(
             "attribute/view.html", attribute=response.json()["content"]
         )
@@ -234,7 +233,6 @@ def remove(id):
     )
 
     if remove_response.status_code == 200:
-
         flash("Attribute LIMBATTR-%s successfully removed!" % id)
     else:
         flash(remove_response.json()["message"])
@@ -311,7 +309,6 @@ def remove_option(id, option_id):
                 if lock_response.status_code == 200:
                     return redirect(url_for("attribute.view", id=id))
                 else:
-
                     flash("We have a problem :( %s" % lock_response.json()["message"])
 
             return render_template(

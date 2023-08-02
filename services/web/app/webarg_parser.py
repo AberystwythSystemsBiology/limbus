@@ -27,7 +27,6 @@ def _structure_dict(dict_):
                 r[m.group(1)] = {}
             structure_dict_pair(r[m.group(1)], m.group(2), value)
         else:
-
             r[key] = value
 
     r = {}
@@ -44,6 +43,7 @@ class NestedQueryFlaskParser(FlaskParser):
 parser = NestedQueryFlaskParser()
 use_args = parser.use_args
 use_kwargs = parser.use_kwargs
+
 
 # This error handler is necessary for usage with Flask-RESTful
 @parser.error_handler

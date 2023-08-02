@@ -110,7 +110,11 @@ def SampleFilterForm(
             "Sample Status",
             choices=SampleStatus.choices(with_none=False),
             # default to exclude destructed/disposed samples
-            default=[cs[0] for cs in SampleStatus.choices(with_none=False) if cs[0] not in ["DES"]]
+            default=[
+                cs[0]
+                for cs in SampleStatus.choices(with_none=False)
+                if cs[0] not in ["DES"]
+            ],
         ),
     )
 

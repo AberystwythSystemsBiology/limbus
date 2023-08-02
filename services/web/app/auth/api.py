@@ -35,7 +35,12 @@ from .views import (
 
 from ..tmpstore.views import new_store_schema
 
-from ..database import UserAccount, UserAccountToken, UserAccountPasswordResetToken, TemporaryStore
+from ..database import (
+    UserAccount,
+    UserAccountToken,
+    UserAccountPasswordResetToken,
+    TemporaryStore,
+)
 from .enums import AccountType
 from ..tmpstore.enums import StoreType
 from uuid import uuid4
@@ -102,7 +107,6 @@ def auth_lock_user(id: int, tokenuser: UserAccount):
 @api.route("/auth/user/password/reset", methods=["POST"])
 @token_required
 def auth_password_reset(tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:
@@ -217,7 +221,11 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
         #     },
         # }
         # settings = {"data_entry": data_entry}
-        settings = {"view_only": {"site": {},}}
+        settings = {
+            "view_only": {
+                "site": {},
+            }
+        }
 
     else:
         settings = user.settings
@@ -235,12 +243,11 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
 
     save_template = settings.pop("template_name", None)
     if save_template:
-        new_values= {"type": "SET",
-                     "uuid": save_template,
-                     "data": settings
-                     }
+        new_values = {"type": "SET", "uuid": save_template, "data": settings}
 
-        new_tmpstore = TemporaryStore.query.filter_by(type= "SET", uuid=save_template).first()
+        new_tmpstore = TemporaryStore.query.filter_by(
+            type="SET", uuid=save_template
+        ).first()
 
         if new_tmpstore:
             new_tmpstore.data = settings
@@ -260,7 +267,6 @@ def admin_edit_account(id: int, tokenuser: UserAccount):
 
         except Exception as err:
             return transaction_error_response(err)
-
 
     user.update({"settings": settings, "editor_id": tokenuser.id})
 

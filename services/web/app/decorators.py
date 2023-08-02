@@ -69,7 +69,6 @@ def token_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-
         # Default check values.
         check, user = False, None
         # Internal Requests
@@ -134,7 +133,6 @@ def requires_roles(*roles):
     def decorated_function(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
-
             # Default check values.
             check, user = False, None
             # Internal Requests
@@ -158,10 +156,13 @@ def requires_roles(*roles):
 
                         return f(*args, **kwargs)
 
-            return ({
-                        "success": False,
-                        "message": "You are not authorised for this action.",
-                    }, 401)
+            return (
+                {
+                    "success": False,
+                    "message": "You are not authorised for this action.",
+                },
+                401,
+            )
 
         return wrapped
 

@@ -132,7 +132,6 @@ def add_rack():
 def rack_manual_entry():
     form = NewSampleRackForm()
     if form.validate_on_submit():
-
         response = requests.post(
             url_for("api.storage_rack_new", _external=True),
             headers=get_internal_api_header(),
@@ -338,7 +337,6 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 return {"success": False, "message": "Error in reading positions"}
 
     else:
-
         for x in csv_data[0:]:
             if not x[indexes["row"]].isalpha():
                 return {"success": False, "message": "Tube row value not alphabet!!"}
@@ -593,7 +591,6 @@ def assign_rack_sample(id, row, column):
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
@@ -613,7 +610,6 @@ def assign_rack_sample(id, row, column):
             form = SampleToEntityForm(samples)
 
             if form.validate_on_submit():
-
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_sample_to_rack", _external=True),
                     headers=get_internal_api_header(),
@@ -672,7 +668,6 @@ def assign_rack_samples(id):
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
@@ -940,7 +935,6 @@ def update_rack_sample_info_from_file(id):
         form = UpdateRackSampleInfoFileUploadForm()
 
         if form.validate_on_submit():
-
             err = None
 
             _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
@@ -991,7 +985,6 @@ def update_rack_sample_info_from_file(id):
                 )
 
             else:
-
                 flash(sample_update_response.json())
                 return redirect(url_for("storage.view_rack", id=id))
 
@@ -1109,7 +1102,6 @@ def edit_rack(id):
         )
 
         if response1.status_code == 200:
-
             for site in sites:
                 shelf_dict[site[0]] = []
 
@@ -1227,7 +1219,6 @@ def delete_rack(id):
 @login_required
 @check_if_admin
 def lock_rack(id):
-
     response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),

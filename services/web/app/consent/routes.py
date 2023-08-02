@@ -32,10 +32,12 @@ from .forms import NewConsentFormTemplateForm, NewConsentFormQuestionForm
 
 from ..misc import get_internal_api_header
 
+
 @consent.route("/")
 @login_required
 def index():
     return render_template("consent/index.html")
+
 
 @consent.route("/data")
 @login_required
@@ -48,6 +50,7 @@ def data():
         return response.json()
     else:
         abort(response.status_code)
+
 
 @consent.route("/LIMBPCF-<id>")
 @login_required
@@ -118,7 +121,6 @@ def edit(id):
         form = NewConsentFormTemplateForm()
 
         if form.validate_on_submit():
-
             consent_info = {
                 "name": form.name.data,
                 "description": form.description.data,
@@ -213,7 +215,6 @@ def edit_question(id, q_id):
         headers=get_internal_api_header(),
     )
     if response.status_code == 200:
-
         form = NewConsentFormQuestionForm()
         if form.validate_on_submit():
             question_information = {

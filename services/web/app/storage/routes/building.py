@@ -26,7 +26,6 @@ from ...decorators import check_if_admin
 @storage.route("site/LIMBSITE-<id>/new_building", methods=["GET", "POST"])
 @login_required
 def new_building(id):
-
     response = requests.get(
         url_for("api.site_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -82,7 +81,6 @@ def view_building(id):
 @storage.route("/building/LIMBBUILDING-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_building(id):
-
     response = requests.get(
         url_for("api.storage_building_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -91,7 +89,6 @@ def edit_building(id):
         return abort(401)
 
     if response.status_code == 200:
-
         form = BuildingRegistrationForm(data=response.json()["content"])
 
         if form.validate_on_submit():
@@ -123,7 +120,6 @@ def edit_building(id):
 @login_required
 @check_if_admin
 def lock_building(id):
-
     edit_response = requests.put(
         url_for("api.storage_lock_building", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -144,7 +140,6 @@ def lock_building(id):
 @storage.route("/buildings/LIMBBUILDING-<id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_building(id):
-
     response = requests.get(
         url_for("api.storage_building_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -153,7 +148,6 @@ def delete_building(id):
         return abort(401)
 
     if response.status_code == 200:
-
         edit_response = requests.put(
             url_for("api.storage_building_delete", id=id, _external=True),
             headers=get_internal_api_header(),

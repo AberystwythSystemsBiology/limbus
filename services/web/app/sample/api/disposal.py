@@ -47,7 +47,7 @@ import requests
 
 
 @api.route("/sample/new/disposal_instructions", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_union:
     values = request.get_json()
@@ -273,7 +273,7 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
 
 
 @api.route("/sample/new/disposal_event", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
     values: dict = request.get_json()
@@ -298,7 +298,7 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
 
 
 @api.route("/sample/batch/disposal_event", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_batch_disposal_event(tokenuser: UserAccount) -> flask_return_union:
     cart = UserCart.query.filter_by(author_id=tokenuser.id, selected=True).all()

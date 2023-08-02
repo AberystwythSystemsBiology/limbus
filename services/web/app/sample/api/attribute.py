@@ -42,7 +42,7 @@ import requests
 
 
 @api.route("/sample/<uuid>/associate/attribute/<type>", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> str:
     sample_response = requests.get(
@@ -101,7 +101,7 @@ def sample_associate_attribute(uuid: str, type: str, tokenuser: UserAccount) -> 
 
 @api.route("/sample/<uuid>/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
 @api.route("/sample/attribute/LIMBSCAD-<id>/remove", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_remove_attribute_data(id: str, tokenuser: UserAccount, uuid=None) -> str:
     # sta = SampleToCustomAttributeData.query.filter_by(id=id).first()

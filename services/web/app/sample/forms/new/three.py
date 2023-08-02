@@ -35,7 +35,6 @@ from wtforms.validators import DataRequired, Optional
 
 def SampleTypeSelectForm(sampletypes, containertypes) -> FlaskForm:
     class StaticForm(FlaskForm):
-
         biohazard_level = SelectField(
             "Biohazard Level",
             choices=BiohazardLevel.choices(),

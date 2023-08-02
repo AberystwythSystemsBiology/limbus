@@ -81,9 +81,9 @@ class UserAccount(Base, UserMixin):
     def roles(self) -> str:
         roles = [k for k in self.settings]
         if self.account_type == AccountType.ADM:
-            roles = ["admin"] +  roles
+            roles = ["admin"] + roles
 
-        return ','.join(roles)
+        return ",".join(roles)
 
     @property
     def has_role(self, role=None) -> bool:
@@ -135,7 +135,6 @@ class UserAccountPasswordResetToken(Base):
 
 
 class UserAccountToken(Base):
-
     user_id = db.Column(
         db.Integer, db.ForeignKey("useraccount.id", use_alter=True), nullable=False
     )

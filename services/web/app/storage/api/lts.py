@@ -65,7 +65,7 @@ def storage_coldstorage_edit_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/delete", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_coldstorage_delete(id, tokenuser: UserAccount):
     existing = ColdStorage.query.filter_by(id=id).first()
@@ -108,7 +108,6 @@ def delete_coldstorage_func(record):
 # @token_required
 @requires_roles("data_entry")
 def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:
@@ -163,7 +162,7 @@ def storage_coldstorage_new(tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/edit", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_coldstorage_edit(id, tokenuser: UserAccount):
     cs = ColdStorage.query.filter_by(id=id).first()
@@ -197,7 +196,7 @@ def storage_coldstorage_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/lock", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("admin")
 def storage_cold_storage_lock(id, tokenuser: UserAccount):
     cs = ColdStorage.query.filter_by(id=id).first()
@@ -233,10 +232,9 @@ def storage_cold_storage_lock(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/coldstorage/LIMBCS-<id>/associatie/document", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def storage_coldstorage_document(id, tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:

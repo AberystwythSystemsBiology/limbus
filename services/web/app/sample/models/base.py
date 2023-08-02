@@ -67,11 +67,15 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     )
 
     collection_event = db.relationship(
-        "SampleProtocolEvent", foreign_keys=(collection_id), uselist=False,
+        "SampleProtocolEvent",
+        foreign_keys=(collection_id),
+        uselist=False,
     )
 
-    events = db.relationship("SampleProtocolEvent",
-        primaryjoin="Sample.id==SampleProtocolEvent.sample_id", uselist=True
+    events = db.relationship(
+        "SampleProtocolEvent",
+        primaryjoin="Sample.id==SampleProtocolEvent.sample_id",
+        uselist=True,
     )
     subsample_event = db.relationship(
         "SampleProtocolEvent",

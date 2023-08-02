@@ -60,7 +60,6 @@ def index():
 def new_document():
     form = DocumentCreationForm()
     if form.validate_on_submit():
-
         document_information = {
             "name": form.name.data,
             "description": form.description.data,
@@ -74,7 +73,6 @@ def new_document():
         )
 
         if response.status_code == 200:
-
             file_response = requests.post(
                 url_for(
                     "api.document_upload_file",
@@ -104,7 +102,6 @@ def new_document():
 @document.route("/LIMBDOC-<id>")
 @login_required
 def view(id):
-
     response = requests.get(
         url_for("api.document_view_document", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -152,7 +149,6 @@ def new_file(id):
     if response.status_code == 200:
         form = UploadFileForm()
         if form.validate_on_submit():
-
             response = requests.post(
                 url_for("api.document_upload_file", id=id, _external=True),
                 headers=get_internal_api_header(),
@@ -235,21 +231,18 @@ def view_file(id, file_id):
 @document.route("/LIMBDOC-<id>/file/<file_id>/remove", methods=["GET", "POST"])
 @login_required
 def remove_file(id, file_id):
-
     document_response = requests.get(
         url_for("api.document_view_document", id=id, _external=True),
         headers=get_internal_api_header(),
     )
 
     if document_response.status_code == 200:
-
         response = requests.get(
             url_for("api.document_file_view", id=id, file_id=file_id, _external=True),
             headers=get_internal_api_header(),
         )
 
         if response.status_code == 200:
-
             form = DocumentFileDeletionForm(response.json()["content"]["name"])
 
             if form.validate_on_submit():

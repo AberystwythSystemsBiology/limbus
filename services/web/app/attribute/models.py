@@ -19,7 +19,6 @@ from .enums import AttributeType, AttributeElementType, AttributeTextSettingType
 
 
 class Attribute(Base, RefAuthorMixin, RefEditorMixin):
-
     description = db.Column(db.Text)
     term = db.Column(db.String(128))
     accession = db.Column(db.String(64))

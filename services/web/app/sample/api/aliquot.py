@@ -53,10 +53,9 @@ from .queries import func_new_sample_type
 
 
 @api.route("/sample/<uuid>/aliquot", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
-
     def _validate_values(values: dict) -> bool:
         valid = True
         # print(values)
@@ -306,10 +305,9 @@ def sample_new_aliquot(uuid: str, tokenuser: UserAccount):
 
 
 @api.route("/sample/<uuid>/derive", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_derivative(uuid: str, tokenuser: UserAccount):
-
     def _validate_values(values: dict) -> bool:
         valid = True
         for key in [

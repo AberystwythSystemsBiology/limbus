@@ -75,7 +75,6 @@ from sqlalchemy_continuum import version_class
 
 
 class AuditFilterSchema(Schema):
-
     start_date = fields.String()
     end_date = fields.String()
     uuid = fields.String()

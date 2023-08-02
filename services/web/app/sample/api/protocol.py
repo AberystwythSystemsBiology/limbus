@@ -53,7 +53,7 @@ def sample_view_protocol_event(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/new/protocol_event", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
@@ -109,9 +109,11 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
         db.session.add(new_sample_protocol_event)
         db.session.flush()
 
-        pt = ProtocolTemplate.query.filter_by(id=new_sample_protocol_event.protocol_id).first()
+        pt = ProtocolTemplate.query.filter_by(
+            id=new_sample_protocol_event.protocol_id
+        ).first()
         if pt:
-            if pt.type == ProtocolType.ACQ: # Sample acquisition
+            if pt.type == ProtocolType.ACQ:  # Sample acquisition
                 sample.collection_id = new_sample_protocol_event.id
                 sample_updated = True
 
@@ -129,7 +131,7 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
 
 
 @api.route("/sample/protocol_event/<uuid>/edit", methods=["PUT"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
     values = request.get_json()
@@ -197,7 +199,7 @@ def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/protocol_event/<uuid>/remove", methods=["POST"])
-#@token_required
+# @token_required
 @requires_roles("data_entry")
 def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
@@ -214,16 +216,15 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         return not_found("related sample")
 
     # all protocol events for the sample
-    protocol_events_locked = (
-        SampleProtocolEvent.query.join(Sample, Sample.id==SampleProtocolEvent.sample_id)
-        .filter( Sample.id == protocol_event.sample_id,
-                 SampleProtocolEvent.is_locked.is_(True)
-        )
+    protocol_events_locked = SampleProtocolEvent.query.join(
+        Sample, Sample.id == SampleProtocolEvent.sample_id
+    ).filter(
+        Sample.id == protocol_event.sample_id, SampleProtocolEvent.is_locked.is_(True)
     )
     msgs = []
-    protocol_type = (
-        ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first()
-    )
+    protocol_type = ProtocolTemplate.query.filter_by(
+        id=protocol_event.protocol_id
+    ).first()
 
     if protocol_type:
         protocol_type = protocol_type.type

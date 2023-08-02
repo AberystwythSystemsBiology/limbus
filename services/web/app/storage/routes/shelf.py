@@ -41,7 +41,6 @@ from datetime import datetime
 @storage.route("/coldstorage/LIMBCS-<id>/shelf/new", methods=["GET", "POST"])
 @login_required
 def new_shelf(id):
-
     response = requests.get(
         url_for("api.storage_coldstorage_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -51,7 +50,6 @@ def new_shelf(id):
         form = NewShelfForm()
 
         if form.validate_on_submit():
-
             new_response = requests.post(
                 url_for("api.storage_shelf_new", _external=True),
                 headers=get_internal_api_header(),
@@ -125,7 +123,6 @@ def edit_shelf(id):
         form = NewShelfForm(data=shelf)
 
         if form.validate_on_submit():
-
             form_information = {
                 "name": form.name.data,
                 "description": form.description.data,
@@ -202,14 +199,12 @@ def assign_rack_to_shelf(id):
         return abort(401)
 
     if response.status_code == 200:
-
         rack_response = requests.get(
             url_for("api.storage_rack_home", _external=True),
             headers=get_internal_api_header(),
         )
 
         if rack_response.status_code == 200:
-
             form = RackToShelfForm(rack_response.json()["content"])
 
             if form.validate_on_submit():
@@ -343,18 +338,15 @@ def assign_sample_to_shelf(id):
         return abort(401)
 
     if response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.sample_home", _external=True),
             headers=get_internal_api_header(),
         )
 
         if sample_response.status_code == 200:
-
             form = SampleToEntityForm(sample_response.json()["content"])
 
             if form.validate_on_submit():
-
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_sample_to_shelf", _external=True),
                     headers=get_internal_api_header(),
@@ -400,7 +392,6 @@ def assign_samples_to_shelf(id):
         return abort(401)
 
     if response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
@@ -422,7 +413,6 @@ def assign_samples_to_shelf(id):
             form = SamplesToEntityForm(samples)
 
             if form.validate_on_submit():
-
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_samples_to_shelf", _external=True),
                     headers=get_internal_api_header(),

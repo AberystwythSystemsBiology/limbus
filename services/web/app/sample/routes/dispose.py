@@ -53,10 +53,7 @@ def dispose(uuid: str) -> flask_return_union:
                         str(disposal_info["disposal_date"]), "%Y-%m-%d"
                     ).date()
                     if disposal_date > datetime.now().date():
-                        message = (
-                            "Too early! Expected disposal date %s"
-                            %disposal_date
-                        )
+                        message = "Too early! Expected disposal date %s" % disposal_date
                     else:
                         disposal_approved = True
 

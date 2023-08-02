@@ -33,7 +33,6 @@ from datetime import datetime
 
 def SampleReviewForm(data={}):
     class StaticForm(FlaskForm):
-
         review_type = SelectField("Review Type", choices=ReviewType.choices())
 
         result = SelectField("Review Result", choices=ReviewResult.choices())

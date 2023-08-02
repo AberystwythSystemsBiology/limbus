@@ -137,7 +137,7 @@ def func_transaction_summary(audit_tr):
                     )
             elif 2 in operations[object]:  # "Delete"
                 # smpls=[]
-                smpls = [d["change_set"] for d in audit_tr if d["object"] == object ]
+                smpls = [d["change_set"] for d in audit_tr if d["object"] == object]
                 updates[object].append("Remove sample %s" % smpls)
 
             else:
@@ -382,8 +382,9 @@ def func_audit_trail(
             #    continue
 
             chgset = {
-                key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset
-                    if key not in ["collection_id"]
+                key: "[%s -> %s]" % (chgset[key][0], chgset[key][1])
+                for key in chgset
+                if key not in ["collection_id"]
             }
 
             # -- Get transaction and updated object data
