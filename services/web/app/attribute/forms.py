@@ -336,7 +336,7 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
             )
         elif attr["type"] == "Numeric":
             element = FloatField(attr["term"], render_kw={"_custom_val": True})
-        
+
         element.render_kw = {"_custom_val": True}
 
         setattr(StaticForm, str(attr["id"]), element)
