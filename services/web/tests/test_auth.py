@@ -26,7 +26,6 @@ from . import testing_headers
 
 
 class AuthTests(unittest.TestCase):
-
     test_user_email_address: str = None
 
     def setUp(self) -> None:
@@ -63,7 +62,6 @@ class AuthTests(unittest.TestCase):
         self.assertEqual(response.json["content"]["first_name"], "Kry-ton")
 
     def test_04_auth_new_user(self) -> None:
-
         self.__class__.test_user_email_address = "%s@gmail.com" % (
             uuid.uuid4().hex.upper()[0:6]
         )

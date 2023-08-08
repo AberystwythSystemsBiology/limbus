@@ -382,7 +382,9 @@ def func_audit_trail(
             #    continue
 
             chgset = {
-                key: "[%s -> %s]" % (chgset[key][0], chgset[key][1]) for key in chgset
+                key: "[%s -> %s]" % (chgset[key][0], chgset[key][1])
+                for key in chgset
+                if key not in ["collection_id"]
             }
 
             # -- Get transaction and updated object data

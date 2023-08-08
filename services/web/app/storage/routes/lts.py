@@ -42,7 +42,6 @@ from ..forms import (
 @storage.route("/rooms/LIMBROOM-<id>/new_cold_storage", methods=["GET", "POST"])
 @login_required
 def new_cold_storage(id):
-
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -104,7 +103,6 @@ def new_cold_storage_servicing_report(id: int):
         form = ColdStorageServiceReportForm()
 
         if form.validate_on_submit():
-
             new_response = requests.post(
                 url_for(
                     "api.storage_coldstorage_new_service_report", id=id, _external=True
@@ -143,14 +141,12 @@ def associate_document(id):
         abort(401)
 
     if response.status_code == 200:
-
         document_response = requests.get(
             url_for("api.document_home", _external=True),
             headers=get_internal_api_header(),
         )
 
         if document_response.status_code == 200:
-
             documents = []
 
             for document in document_response.json()["content"]:
@@ -164,7 +160,6 @@ def associate_document(id):
             form = ColdStorageToDocumentAssociationForm(documents)
 
             if form.validate_on_submit():
-
                 new_document_association_response = requests.post(
                     url_for("api.storage_coldstorage_document", id=id, _external=True),
                     headers=get_internal_api_header(),
@@ -301,7 +296,6 @@ def delete_cold_storage(id):
 @login_required
 @check_if_admin
 def lock_cold_storage(id):
-
     response = requests.get(
         url_for("api.storage_coldstorage_view", id=id, _external=True),
         headers=get_internal_api_header(),

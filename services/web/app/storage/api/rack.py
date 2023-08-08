@@ -21,7 +21,7 @@ from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
 from ...sample.api.base import func_update_sample_status, func_shelf_location
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 
 from ...database import (
@@ -47,7 +47,7 @@ from marshmallow import ValidationError
 
 from ..views.rack import *
 from ..views import new_sample_rack_to_shelf_schema
-from ...sample.views import sample_schema
+from ...sample.views import sample_schema, edit_sample_schema
 
 from itertools import product
 
@@ -55,7 +55,6 @@ from itertools import product
 @api.route("/storage/rack", methods=["GET"])
 @token_required
 def storage_rack_home(tokenuser: UserAccount):
-
     return success_with_content_response(
         basic_sample_racks_schema.dump(SampleRack.query.all())
     )
@@ -208,7 +207,8 @@ def storage_rack_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/new", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_new(tokenuser: UserAccount):
     values = request.get_json()
     print("values", values)
@@ -223,9 +223,9 @@ def storage_rack_new(tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/new/with_samples", methods=["POST", "GET"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_new_with_samples(tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:
@@ -318,7 +318,6 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
 
         if len(stbs) > 0:  # is not None:
             for stb in stbs:
-
                 try:
                     stb.col = sample["col"]
                     stb.row = sample["row"]
@@ -409,13 +408,14 @@ def func_transfer_samples_to_rack(samples_pos, rack_id, tokenuser: UserAccount):
                 events={"sample_storage": None},
             )
 
-            print("sample", sample, res["message"])
+            # print("sample", sample, res["message"])
             if res["success"] is True and res["sample"]:
                 try:
                     db.session.add(res["sample"])
                 except:
                     sample_ids_not_updated.append(sample_id)
                     pass
+
     msg_status = ""
     if len(sample_ids_not_updated) > 0:
         msg_status = "%d samples not updated" % len(sample_ids_not_updated)
@@ -571,7 +571,8 @@ def func_update_samples(samples, tokenuser):
 
 
 @api.route("/storage/rack/fill_with_samples", methods=["POST", "GET"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_fill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
@@ -590,7 +591,7 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
     rack_id = int(values["rack_id"])
 
     samples = values["samples"]
-    print("values: ", values)
+
     fillopt = {"column_first": True, "num_channels": 0, "skip_gaps": True}
     fillopt["column_first"] = values.pop("fillopt_column_first", True)
     fillopt["skip_gaps"] = values.pop("fillopt_skip_gaps", True)
@@ -671,7 +672,6 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
         return success_with_content_message_response(samplestore, message)
 
     if entry_datetime:
-
         samples_pos = [
             {
                 "sample_id": sample["id"],
@@ -693,7 +693,8 @@ def storage_rack_fill_with_samples(tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/edit_samples_pos", methods=["POST", "GET"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_edit_samples_pos(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
@@ -810,28 +811,31 @@ def func_check_rack_samples(rack_id, samples):
         if smpl:
             sample0 = sample_schema.dump(smpl)
             sample0 = func_dict_update(sample0, sample, keys=["barcode"])
+
             if "barcode" in sample0["changeset"]:
                 bcode1 = sample0["changeset"]["barcode"][1]
-                if bcode1 in bcodes:
-                    err = {
-                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
-                        % (smpl.uuid, bcode1)
-                    }
-                    return samples, n_found, err
+                print("barcode1 ", bcode1)
+                if bcode1 not in [None, ""]:
+                    if bcode1 in bcodes:
+                        err = {
+                            "messages": "Sample (%s) info error: duplicate barcode (%s) in the update file"
+                            % (smpl.uuid, bcode1)
+                        }
+                        return samples, n_found, err
 
-                bcodes.append(bcode1)
-                bcode = (
-                    db.session.query(Sample.barcode)
-                    .filter(func.upper(Sample.barcode) == bcode1.upper())
-                    .first()
-                )
-                if bcode is not None:
-                    bcode = bcode[0]
-                    err = {
-                        "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
-                        % (smpl.uuid, bcode)
-                    }
-                    return samples, n_found, err
+                    bcodes.append(bcode1)
+                    bcode = (
+                        db.session.query(Sample.barcode)
+                        .filter(func.upper(Sample.barcode) == bcode1.upper())
+                        .first()
+                    )
+                    if bcode is not None:
+                        bcode = bcode[0]
+                        err = {
+                            "messages": "Sample (%s) info error: duplicate barcode (%s) in the database"
+                            % (smpl.uuid, bcode)
+                        }
+                        return samples, n_found, err
 
             sample.update(sample0)
             sample["sample_id"] = smpl.id
@@ -867,8 +871,11 @@ def func_get_samples(barcode_type, samples):
         if smpl:
             # sample.update(sample_schema.dump(smpl))
             sample0 = sample_schema.dump(smpl)
+            # sample0 = edit_sample_schema.dump(smpl)
             sample0 = func_dict_update(sample0, sample, keys=["barcode"])
-            if "barcode" in sample0["changeset"]:
+            if "barcode" in sample0["changeset"] and sample0["changeset"]["barcode"][
+                1
+            ] not in [None, ""]:
                 bcode1 = sample0["changeset"]["barcode"][1]
                 if bcode1 in bcodes:
                     err = {
@@ -900,16 +907,19 @@ def func_get_samples(barcode_type, samples):
 
 
 @api.route("/storage/rack/refill_with_samples", methods=["POST", "GET"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_refill_with_samples(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
+
         if "samples" in values:
             samples = values["samples"]
     else:
         values = None
 
+    print("vvalue ", values)
     if len(samples) == 0:
         return no_values_response()
 
@@ -927,9 +937,6 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         if rack is None:
             err = {"messages": "Rack not found!"}
             return validation_error_response(err)
-    # else:
-    #     err = {'messages': 'Rack not found!'}
-    #     return validation_error_response(err)
 
     commit = False
     if "commit" in values and values["commit"]:
@@ -939,10 +946,9 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
         # print("error", err)
         if err is not None:
             return validation_error_response(err)
-        # print("samples_ids", samples)
+        print("samples_ids", samples)
 
     if not commit:
-
         sample_ids = [sample["id"] for sample in samples]
         stbs = EntityToStorage.query.filter(
             EntityToStorage.sample_id.in_(sample_ids),
@@ -985,6 +991,7 @@ def storage_rack_refill_with_samples(tokenuser: UserAccount):
     #             sample.update({"entry_datetime": entry_datetime, "entry": entry})
 
     # insert confirmed data to database
+    print("ready to store", rack_id)
     return func_transfer_samples_to_rack(samples, rack_id, tokenuser)
 
 
@@ -995,7 +1002,7 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
     samples = []
     if request.method == "POST":
         values = request.get_json()
-        print("valuesoooo", values)
+        # print("valuesoooo", values)
         if "samples" in values:
             samples = values["samples"]
     else:
@@ -1021,14 +1028,13 @@ def storage_rack_update_sample_barcode(tokenuser: UserAccount):
     if "commit" in values and values["commit"]:
         commit = True
     else:
-
         # -- Check changes in barcode, check duplication
-        print("ready!")
+        # print("ready!")
         print("rack_id! ", rack_id)
         samples, n_found, err = func_check_rack_samples(rack_id, samples)
 
         print("n_found", n_found)
-        print("error", err)
+        # print("error", err)
         if err is not None:
             return validation_error_response(err)
 
@@ -1083,13 +1089,15 @@ def storage_sample_to_entity_check(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/lock", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_lock(id, tokenuser: UserAccount):
     return generic_lock(db, SampleRack, id, basic_sample_rack_schema, tokenuser)
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/edit", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_edit(id, tokenuser: UserAccount):
     # Step 1: SampleRack update
     # Step 2: If shelf_id exist, EntityToStorage update.
@@ -1163,7 +1171,8 @@ def storage_rack_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/LIMBRACK-<id>/editbasic", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_edit_basic(id, tokenuser: UserAccount):
     values = request.get_json()
     return generic_edit(
@@ -1172,7 +1181,8 @@ def storage_rack_edit_basic(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/RACK/LIMBRACK-<id>/delete", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_rack_delete(id, tokenuser: UserAccount):
     rackTableRecord = SampleRack.query.filter_by(id=id).first()
 

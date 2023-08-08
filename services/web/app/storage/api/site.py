@@ -18,7 +18,7 @@ from ...api.responses import *
 from ..api.building import delete_buildings_func
 
 from flask import request, send_file
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from marshmallow import ValidationError
 
 from ...database import db, SiteInformation, UserAccount, Sample, Building, Address
@@ -32,7 +32,6 @@ from ...api.generics import *
 @api.route("/storage/site/LIMBSITE-<id>", methods=["GET"])
 @token_required
 def site_view(id, tokenuser: UserAccount):
-
     return success_with_content_response(
         site_schema.dump(SiteInformation.query.filter_by(id=id).first_or_404())
     )
@@ -41,7 +40,6 @@ def site_view(id, tokenuser: UserAccount):
 @api.route("/storage/site/LIMBSITE-<id>/addresses", methods=["GET"])
 @token_required
 def site_addresses_view(id, tokenuser: UserAccount):
-
     return success_with_content_response(
         site_addresses_schema.dump(
             SiteInformation.query.filter_by(id=id).first_or_404()
@@ -50,7 +48,8 @@ def site_addresses_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/site/LIMBSITE-<id>/edit", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_site_edit(id, tokenuser: UserAccount):
     values = request.get_json()
     site = SiteInformation.query.filter_by(id=id).first()
@@ -94,7 +93,8 @@ def storage_site_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/site/LIMBSITE-<id>/edit_addresses", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def site_edit_addresses(id, tokenuser: UserAccount):
     values = request.get_json()
     # print("values", values)
@@ -177,7 +177,8 @@ def site_edit_addresses(id, tokenuser: UserAccount):
 # Includes validation for deleting.
 # *
 @api.route("/storage/site/LIMBSITE-<id>/delete", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_site_delete(id, tokenuser: UserAccount):
     # Finds the site in the site table
     siteTableRecord = SiteInformation.query.filter_by(id=id).first()
@@ -208,9 +209,9 @@ def storage_site_delete(id, tokenuser: UserAccount):
 # Locking a site reduces the functionality to the admin.
 # *
 @api.route("/storage/site/LIMBSITE-<id>/lock", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_site_lock(id, tokenuser: UserAccount):
-
     site = SiteInformation.query.filter_by(id=id).first()
 
     if not site:

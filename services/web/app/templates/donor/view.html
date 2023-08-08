@@ -20,22 +20,21 @@
                   <div class="btn-btn-group mr-2" role="group">
                     <div class="dropdown">
                       <button class="btn btn-delete float-right dropdown-toggle" type="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
+                        aria-haspopup="true" aria-expanded="false"  data-role="data_entry">
                         <i class="fas fa-edit"></i> Edit
                       </button>
                       <div class="dropdown-menu">
-                        <a id="edit-donor-btn" class="dropdown-item"><i class="fa fa-file"></i> Edit </a>
-{#                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>#}
-                        <a id="remove-donor-btn" class="dropdown-item"><i class="fa fa-trash-alt"></i> Remove </a>
-                    {% if current_user.is_admin == true  %}
-                        <a id="deep-remove-donor-btn" class="dropdown-item"><i class="fa fa-trash"></i> Deep Remove </a>
-                    {% endif %}
+                        <a id="edit-donor-btn" class="dropdown-item"  data-role="data_entry"><i class="fa fa-file"></i> Edit </a>
+                        <a id="remove-donor-btn" class="dropdown-item"  data-role="data_entry"><i class="fa fa-trash-alt"></i> Remove </a>
+{#                    {% if current_user.is_admin == true  %}#}
+                        <a id="deep-remove-donor-btn" class="dropdown-item"  data-role="admin"><i class="fa fa-trash"></i> Deep Remove </a>
+{#                    {% endif %}#}
                       </div>
                     </div>
                   </div>
 
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark"><i class="fa fa-stethoscope"></i> Diagnosis</button>
+                        <button type="button" id="assign-diagnosis-btn" class="btn btn-outline-dark" data-role="data_entry"><i class="fa fa-stethoscope"></i> Diagnosis</button>
                     </div>
 
                   <div class="btn-btn-group mr-2" role="group">
@@ -45,9 +44,8 @@
                         <i class="fas fa-question"></i> Consent
                       </button>
                       <div class="dropdown-menu">
-                        <a id="action-new-consent" class="dropdown-item"><i class="fa fa-file"></i> New </a>
-{#                        <a class="dropdown-item"><i class="fa fa-edit"></i> Edit </a>#}
-                        <a id="action-withdraw-consent" class="dropdown-item">
+                        <a id="action-new-consent" class="dropdown-item" data-role="data_entry"><i class="fa fa-file"></i> New </a>
+                        <a id="action-withdraw-consent" class="dropdown-item"  data-role="data_entry">
                           <i class="fas fa-trash-alt"></i> Withdraw </a>
 
                       </div>
@@ -61,8 +59,8 @@
                         <i class="fas fa-vial"></i> Sample Actions
                       </button>
                       <div class="dropdown-menu">
-                        <a id="new-sample-btn" class="dropdown-item"><i class="fas fa-plus"></i> New Sample for Donor</a>
-                        <a id="assign-sample-btn" class="dropdown-item"><i class="fas fa-paperclip"></i> Assign Sample to Donor</a>
+                        <a id="new-sample-btn" class="dropdown-item" data-role="data_entry"><i class="fas fa-plus"></i> New Sample for Donor</a>
+                        <a id="assign-sample-btn" class="dropdown-item" data-role="data_entry"><i class="fas fa-paperclip"></i> Assign Sample to Donor</a>
                       </div>
                     </div>
                   </div>
@@ -127,6 +125,7 @@
             <th>Container</th>
             <th>Quantity</th>
             <th>Location</th>
+
             <th>collected_on</th>
             <th>created_on</th>
             <th></th>
@@ -271,5 +270,6 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/donor/view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

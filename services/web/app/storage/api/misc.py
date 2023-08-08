@@ -19,7 +19,7 @@ from ...api import api
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 from ...sample.api.base import func_update_sample_status
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import *
 
@@ -37,7 +37,8 @@ from ...storage.enums import FixedColdStorageType, FixedColdStorageTemps
 
 
 @api.route("/storage/transfer/rack_to_shelf", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
     """Only add new entitytostorage record for rack to shelf,
     update/delete is done by transfer rack to cart or editing rack info"""
@@ -73,7 +74,6 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
                 ets.update({"editor_id": tokenuser.id})
                 db.session.add(ets)
             else:
-
                 ets.update({"editor_id": tokenuser.id})
                 db.session.delete(ets)
 
@@ -92,7 +92,8 @@ def storage_transfer_rack_to_shelf(tokenuser: UserAccount):
 
 
 @api.route("/storage/transfer/racks_to_shelf", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
     """Only add new entitytostorage record for rack to shelf,
     update/delete is done by transfer rack to cart or editing rack info"""
@@ -127,7 +128,6 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
             .all()
         )
         if len(etss) > 0:
-
             try:
                 n = 0
                 for ets in etss:
@@ -231,7 +231,8 @@ def storage_transfer_racks_to_shelf(tokenuser: UserAccount):
 
 # deprecated, use storage_transfer_sampleS_to_shelf instead
 @api.route("/storage/transfer/sample_to_shelf", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -303,7 +304,8 @@ def storage_transfer_sample_to_shelf(tokenuser: UserAccount):
 
 
 @api.route("/storage/transfer/samples_to_shelf", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -417,7 +419,6 @@ def storage_transfer_samples_to_shelf(tokenuser: UserAccount):
 @api.route("/storage/tree", methods=["GET"])
 @token_required
 def storage_view_tree(tokenuser: UserAccount):
-
     return success_with_content_response(
         tree_sites_schema.dump(SiteInformation.query.all())
     )
@@ -468,7 +469,6 @@ def storage_view_tree_tokenuser(tokenuser: UserAccount):
 @api.route("/storage", methods=["GET"])
 @token_required
 def storage_view_panel(tokenuser: UserAccount):
-
     data = {
         "basic_statistics": {
             "site_count": SiteInformation.query.filter_by(is_external=False).count(),
@@ -506,7 +506,6 @@ def storage_view_panel(tokenuser: UserAccount):
 @api.route("/storage/shelf_overview", methods=["GET"])
 @token_required
 def storage_shelf_overview(tokenuser: UserAccount):
-
     sites = [tokenuser.site_id]
     if not tokenuser.is_admin:
         try:

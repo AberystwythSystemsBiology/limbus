@@ -65,7 +65,6 @@ class UserAccountEditForm(FlaskForm):
 
 def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
     class StaticForm(FlaskForm):
-
         title = SelectField(
             "Title", validators=[DataRequired()], choices=Title.choices()
         )
@@ -112,7 +111,6 @@ def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
 
 def UserAccountRegistrationForm(sites: list = [], with_type: bool = False):
     class StaticForm(FlaskForm):
-
         title = SelectField(
             "Title", validators=[DataRequired()], choices=Title.choices()
         )

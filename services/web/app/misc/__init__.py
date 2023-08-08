@@ -35,7 +35,6 @@ def clear_session(hash: str) -> None:
 
 
 def get_internal_api_header(tokenuser=None):
-
     print("\tCalled from: ", inspect.stack()[1][3])
 
     if tokenuser == None:

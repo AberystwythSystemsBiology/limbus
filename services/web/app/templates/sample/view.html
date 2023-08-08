@@ -47,24 +47,28 @@
               <div class="btn-btn-group mr-2" role="group">
                 <div class="dropdown">
                   <button class="btn btn-delete float-right dropdown-toggle" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                    aria-haspopup="true" aria-expanded="false"
+                    data-role="data_entry">
                     <i class="fas fa-edit"></i> Edit
                   </button>
 
                   <div class="dropdown-menu">
                     <a id="basic-edit" class="dropdown-item" title="Edit basic information for sample collection."
-                       href="{{ url_for('sample.edit_sample_basic_info', uuid=uuid) }}">
+                       href="{{ url_for('sample.edit_sample_basic_info', uuid=uuid) }}"
+                        data-role="data_entry">
                        <i class="fa fa-edit"></i> Basic Edit</a>
 
-                        {% if current_user.is_admin == true  %}
-                    <a id="shallow-remove" class="dropdown-item" title="Remove a sample without any sub- or parent samples.">
-{#                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}">#}
+{#                        {% if current_user.is_admin == true  %}#}
+                    <a id="shallow-remove" class="dropdown-item" title="Remove a sample without any sub- or parent samples."
+                       href="{{ url_for('sample.remove_sample', uuid=uuid) }}"
+                        data-role="admin">
                        <i class="fa fa-trash-alt"></i> Remove</a>
 
-                    <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples.">
-{#                       href="{{ url_for('sample.deep_remove_sample', uuid=uuid) }}">#}
+                    <a id="deep-remove" class="dropdown-item" title="all data directly associated to the sample and its sub-samples."
+                       href="{{ url_for('sample.deep_remove_sample', uuid=uuid) }}"
+                       data-role="admin">
                         <i class="fa fa-trash"></i> Deep Remove</a>
-                        {% endif %}
+{#                        {% endif %}#}
                    </div>
                 </div>
                 </div>
@@ -78,7 +82,9 @@
                   <div class="dropdown-menu">
                     <button type="button" class="dropdown-item btn btn-outline-dark" data-toggle="modal" data-target="#consentModal"><i
                         class="fa fa-question"></i> View Consent</button>
-                    <a id="action-edit-consent" class="dropdown-item" href="{{ url_for('donor.edit_donor_consent', id=consent_id, sample_uuid=uuid)}}">
+                    <a id="action-edit-consent" class="dropdown-item"
+                       data-role="data_entry"
+                       href="{{ url_for('donor.edit_donor_consent', id=consent_id, sample_uuid=uuid)}}">
                       <i class="fas fa-edit"></i>Edit Consent</a>
                   </div>
                 </div>
@@ -87,31 +93,36 @@
               <div class="btn-btn-group mr-2" role="group">
                 <div class="dropdown">
                   <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
+                    aria-haspopup="true" aria-expanded="false"
+                    data-role="data_entry">
                     <i class="fas fa-vial"></i> Sample Actions
                   </button>
                   <div class="dropdown-menu">
-                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
-                    <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"><i
-                        class="fas fa-vial"></i> Aliquot Sample</a>
-                    <a id="action-protocol-event" class="dropdown-item" href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
+                    <a id="action-derive" class="dropdown-item" href="{{ url_for('sample.derive', uuid=uuid) }}"
+                        data-role="data_entry"><i class="fa fa-expand-arrows-alt"></i> Derive Sample</a>
+                    <a id="action-aliquot" class="dropdown-item" href="{{ url_for('sample.aliquot', uuid=uuid) }}"
+                        data-role="data_entry"><i class="fas fa-vial"></i> Aliquot Sample</a>
+                    <a id="action-protocol-event" class="dropdown-item"
+                        data-role="data_entry"
+                       href="{{ url_for('sample.new_protocol_event', uuid=uuid) }}"><i
                         class="fa fa-project-diagram"></i> Other Protocol Event</a>
-                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"><i
-                      class="fas fa-file"></i> New Review/Disposal Instruction</a>
-                    <a id="action-dispose" class="dropdown-item" href="{{ url_for('sample.dispose', uuid=uuid) }}">
+                    <a id="action-review" class="dropdown-item" href="{{ url_for('sample.associate_review', uuid=uuid) }}"
+                        data-role="data_entry"><i class="fas fa-file"></i> New Review/Disposal Instruction</a>
+                    <a id="action-dispose" class="dropdown-item" data-role="data_entry" href="{{ url_for('sample.dispose', uuid=uuid) }}">
                       <i class="fa fa-trash"></i> Dispose Sample</a>
                       <a class="dropdown-item" href="{{ url_for('sample.new_custom_attribute', uuid=uuid) }}"><i class="fab fa-buffer"></i> Associate Custom Attribute</a>
-                    <a class="dropdown-item" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
+                    <a class="dropdown-item" data-role="data_entry" href="{{ url_for('sample.associate_document', uuid=uuid) }}"><i
                       class="fas fa-file"></i> Associate Document</a>
 
-                    <a id="action-status" class="dropdown-item" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}"><i class="fas fa-sync-alt"></i></i> Update Status</a>
+                    <a id="action-status" class="dropdown-item" data-role="data_entry" href="{{ url_for('sample.update_sample_status', uuid=uuid) }}">
+                        <i class="fas fa-sync-alt"></i></i> Update Status</a>
                     
                   </div>
                 </div>
               </div>
 
               <div class="btn-group mr-2" role="group" aria-label="First group">
-                <button type="button" class="btn btn-outline-dark" id="add-cart-btn"><i class="fa fa-cart-plus"></i>
+                <button type="button" class="btn btn-outline-dark" id="add-cart-btn" data-role="data_entry" ><i class="fa fa-cart-plus"></i>
                   Add to Cart</button>
               </div>
               <div class="btn-group mr-2" role="group" aria-label="First group">
@@ -243,7 +254,8 @@
 
 
       <div class="btn-group mr-2 float-right" role="group" aria-label="First group">
-        <button type="button" class="btn btn-success float-right" id="subsample-to-cart-btn"><i class="fa fa-cart-plus"></i>
+        <button type="button" class="btn btn-success float-right" id="subsample-to-cart-btn"
+            data-role="data_entry"><i class="fa fa-cart-plus"></i>
           Add Subsample to Cart</button>
       </div>
 
@@ -407,5 +419,6 @@
 
 <script src="{{ url_for('static', filename='node_modules/chart.js/dist/chart.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/sample/view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

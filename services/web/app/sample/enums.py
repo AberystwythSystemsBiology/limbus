@@ -359,3 +359,17 @@ class ReminderType(FormEnum):
     DISPOSE = "To Dispose"
     STORE = "To Store"
     CART = "In Cart"
+
+
+class DeleteReason(FormEnum):
+    """
+    Sample/Donor Editing reasons
+    """
+
+    TES = "Testing"
+    DUP = "Duplicates"
+    UPE = "Uploaded in Error"
+    ALE = "Incorrect Aliquots"
+    IPE = "Inputting error"
+    MIS = "Missing Data"
+    OTH = "Others"

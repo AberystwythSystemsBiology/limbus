@@ -89,7 +89,6 @@ def admin_registration(hash: str):
     # Step Three: Ask the user to register themselves as administrator.
     form = UserAccountRegistrationForm()
     if form.validate_on_submit():
-
         site_information = session[hash]["site"]
         site_address = session[hash]["address"]
 
@@ -133,7 +132,6 @@ def admin_registration(hash: str):
         )
 
         if new_user_request.status_code == 200:
-
             logout_user()
             clear_session(hash)
             return redirect(url_for("setup.complete"))

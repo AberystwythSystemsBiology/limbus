@@ -217,7 +217,6 @@ class NewCryovialBoxFileUploadForm(FlaskForm):
 
 
 class UpdateRackFileUploadForm(FlaskForm):
-
     barcode_type = SelectField(
         "Barcode Type",
         choices=[("uuid", "LImBuS UUID"), ("barcode", "Biobank Barcode")],

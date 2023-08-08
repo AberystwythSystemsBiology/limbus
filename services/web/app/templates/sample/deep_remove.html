@@ -1,0 +1,71 @@
+{% extends "template.html" %}
+
+{% block title %} Deep remove Sample :: Sample Information Portal{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+    <div class="container">
+        <h1><span class="secondary-heading">
+            <a href="{{ sample._links.self }}">
+                <i class="fas fa-vial"></i> {{ sample.uuid }}</a></span>
+        <i class="fas fa-file"></i> Sample Deletion </h1>
+    </div>
+</div>
+<div class="container">
+
+    <form action="{{ url_for('sample.deep_remove_sample', uuid=sample.uuid) }}" method="POST">
+        {{ form.csrf_token }}
+        {{ form_field(form.reason) }}
+        {{ form_field(form.comments) }}
+
+    <div class="btn-toolbar form-group" style="float:right;" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2" role="group" aria-label="Second group">
+            {{ form_field(form.remove) }}
+        </div>
+        <div class="btn-group mr-2" style="padding-top: 10px;" role="group" aria-label="Second group">
+            <a href="{{ url_for('sample.view', uuid=sample.uuid) }}">
+                <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
+                    Cancel
+                </button></a>
+        </div>
+
+    </div>
+
+    </div>
+    </form>
+
+</div>
+
+
+<!-- Delete Protocol Modal: template for protocol event removal and sample attribute data removal-->
+<div class="modal fade" id="delete-protocol-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="delete-protocol-confirm-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="delete-protocol-confirm-modal-title">Confirm Data Removal</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="delete-protocol-warning" class="alert alert-danger" role="alert">
+          <B>Warning:</B> This action cannot be undone!
+        </div>
+        <p id="delete-protocol-event-confirm">Please enter the Protocol Event UUID to confirm that you want to remove this Event:</p>
+        <input type="text" class="form-control" id="protocol-uuid-remove-confirmation-input">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+        <button type="button" id="protocol-remove-confirm-button" class="btn btn-success" disabled>Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/sample/delete.js') }}"></script>
+{% endblock %}

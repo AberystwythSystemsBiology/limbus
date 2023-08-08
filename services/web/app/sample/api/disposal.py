@@ -18,7 +18,7 @@ from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
 from .base import func_update_sample_status
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header, flask_return_union
 from datetime import datetime
 
@@ -47,7 +47,8 @@ import requests
 
 
 @api.route("/sample/new/disposal_instructions", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_union:
     values = request.get_json()
 
@@ -76,6 +77,7 @@ def sample_new_disposal_instructions(tokenuser: UserAccount) -> flask_return_uni
 
 def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
     success = True
+
     sample_uuid = values.pop("sample_uuid", None)
     sample_id = values.pop("sample_id", None)
 
@@ -127,6 +129,7 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
         )
         return success, message, None, None
 
+    sample_id = sample.id
     protocolevent_values = {
         "event": values["event"],
         "protocol_id": values["protocol_id"],
@@ -270,7 +273,8 @@ def func_new_sample_disposal(tokenuser: UserAccount, values, new_event=None):
 
 
 @api.route("/sample/new/disposal_event", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
     values: dict = request.get_json()
 
@@ -294,9 +298,9 @@ def sample_new_disposal_event(tokenuser: UserAccount) -> flask_return_union:
 
 
 @api.route("/sample/batch/disposal_event", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_batch_disposal_event(tokenuser: UserAccount) -> flask_return_union:
-
     cart = UserCart.query.filter_by(author_id=tokenuser.id, selected=True).all()
 
     if len(cart) == 0:

@@ -12,7 +12,7 @@
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{ url_for('attribute.new') }}">
+                <a data-role="data_entry" href="{{ url_for('attribute.new') }}">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Attribute</button>
                 </a>
             </div>
@@ -65,4 +65,5 @@
 
 {% block javascript %}
 <script src="{{ url_for('static', filename='js/attribute/index.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 {% endblock %}

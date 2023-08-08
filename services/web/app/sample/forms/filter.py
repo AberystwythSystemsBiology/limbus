@@ -64,9 +64,9 @@ def SampleFilterForm(
         source = SelectField(
             "Sample Source", choices=SampleSource.choices(with_none=True)
         )
-        status = SelectField(
-            "Sample Status", choices=SampleStatus.choices(with_none=True)
-        )
+        # status = SelectField(
+        #     "Sample Status", choices=SampleStatus.choices(with_none=True)
+        # )
 
         # -- Donor filter --
         sex = SelectField(
@@ -100,6 +100,21 @@ def SampleFilterForm(
             "Site",
             choices=sites,
             # default=None,
+        ),
+    )
+
+    setattr(
+        StaticForm,
+        "status",
+        SelectMultipleField(
+            "Sample Status",
+            choices=SampleStatus.choices(with_none=False),
+            # default to exclude destructed/disposed samples
+            default=[
+                cs[0]
+                for cs in SampleStatus.choices(with_none=False)
+                if cs[0] not in ["DES"]
+            ],
         ),
     )
 

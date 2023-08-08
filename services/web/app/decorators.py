@@ -69,7 +69,6 @@ def token_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-
         # Default check values.
         check, user = False, None
         # Internal Requests
@@ -92,6 +91,80 @@ def token_required(f):
                     "success": False,
                     "message": "You are not authorised to view this page.",
                 }, 401
+
+    return decorated_function
+
+
+def requires_roles(*roles):
+    """
+    Modified token_required decorator to add user_role checking
+    :param roles: list of roles that have got permissions
+    :return:
+    """
+
+    def internal_request():
+        email = request.headers["Email"].replace('"', "")
+        secret = request.headers["FlaskApp"].replace('"', "")
+        user = UserAccount.query.filter_by(email=email).first()
+        if current_app.config.get("SECRET_KEY") == secret and user != None:
+            return True, user
+        return False, None
+
+    def external_request():
+        email = request.headers["Email"].replace('"', "")
+        token = request.headers["Token"].replace('"', "")
+
+        user = UserAccount.query.filter_by(email=email).first()
+
+        if user != None:
+            user_token = UserAccountToken.query.filter_by(user_id=user.id).first()
+            if user_token != None:
+                if user_token.verify_token(token):
+                    return True, user
+        return False, None
+
+    def has_user_role(user, roles):
+        if user.is_admin:
+            return True
+        user_roles = set(list(user.settings.keys()))
+        print("user_roles:  ", user_roles)
+        return len(user_roles.intersection(set(roles))) > 0
+
+    def decorated_function(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            # Default check values.
+            check, user = False, None
+            # Internal Requests
+            print("Roles: ", roles)
+            if "Flaskapp" in request.headers:
+                check, user = internal_request()
+                if has_user_role(user, roles):
+                    if check:
+                        if "tokenuser" in inspect.getfullargspec(f).args:
+                            kwargs["tokenuser"] = user
+
+                        return f(*args, **kwargs)
+
+            # External Requests
+            elif "Token" in request.headers:
+                check, user = external_request()
+                if has_user_role(user, roles):
+                    if check:
+                        if "tokenuser" in inspect.getfullargspec(f).args:
+                            kwargs["tokenuser"] = user
+
+                        return f(*args, **kwargs)
+
+            return (
+                {
+                    "success": False,
+                    "message": "You are not authorised for this action.",
+                },
+                401,
+            )
+
+        return wrapped
 
     return decorated_function
 

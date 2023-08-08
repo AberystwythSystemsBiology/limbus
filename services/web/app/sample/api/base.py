@@ -24,7 +24,7 @@ from ...api import api, generics
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
 
-from ...decorators import token_required, check_if_admin
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 from ...webarg_parser import use_args, use_kwargs, parser
 
@@ -76,6 +76,7 @@ from ...database import (
     ConsentFormTemplateQuestion,
     Donor,
     DonorDiagnosisEvent,
+    TemporaryStore,
 )
 
 
@@ -111,16 +112,18 @@ def sample_protocol_query_stmt(
 def sample_source_study_query_stmt(
     filters_protocol=None, filter_sample_id=None, filters=None, joins=None
 ):
-    # -- Find samples with protocols of Collection/Study
-    # -- 1. Find samples with sample consent linked to the source study.
+    # Find all samples with protocols of Collection/Study
+    # -- 1. Find sample consent id with sample consent linked to the source study.
+    subq = (
+        db.session.query(Sample.consent_id)
+        .join(SampleConsent)
+        .join(DonorProtocolEvent)
+        .filter_by(**filters_protocol)
+    )
 
+    # -- 2. Find all filtered samples that matched with sample consent id that linked to source study
     if filter_sample_id is None:
-        s1 = (
-            db.session.query(Sample.id)
-            .join(SampleConsent)
-            .join(DonorProtocolEvent)
-            .filter_by(**filters_protocol)
-        )
+        s1 = db.session.query(Sample.id).filter(Sample.consent_id.in_(subq))
         if filters:
             s1 = s1.filter_by(**filters)
         if joins:
@@ -128,60 +131,12 @@ def sample_source_study_query_stmt(
     else:
         s1 = (
             db.session.query(Sample.id)
-            .join(SampleConsent)
-            .join(DonorProtocolEvent)
+            .filter(Sample.consent_id.in_(subq))
             .filter(Sample.id.in_(filter_sample_id))
-            .filter_by(**filters_protocol)
         )
 
-    # -- 2. Find all parent samples (id) with matching protocol events (by protocol_template_id)
-    if filter_sample_id is None:
-        subq = (
-            db.session.query(Sample.id)
-            .join(SampleProtocolEvent)
-            .filter_by(**filters_protocol)
-        )
-        if filters:
-            subq = subq.filter_by(**filters)
-        if joins:
-            subq = subq.filter(*joins)
-    else:
-        subq = (
-            db.session.query(Sample.id)
-            .filter(Sample.id.in_(filter_sample_id))
-            .join(SampleProtocolEvent)
-            .filter_by(**filters_protocol)
-        )
-
-    if subq.count() > 0:
-        subq = subq.subquery()
-        # -- 3. Find all sub-samples of the matching samples
-        # and take the union of parent and sub-sample ID
-        if filter_sample_id is None:
-            s2 = (
-                db.session.query(Sample.id)
-                .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
-                .join(subq, subq.c.id == SubSampleToSample.parent_id)
-            )
-            if filters:
-                s2 = s2.filter_by(**filters)
-            if joins:
-                s2 = s2.filter(*joins)
-        else:
-            s2 = (
-                db.session.query(Sample.id)
-                .filter(Sample.id.in_(filter_sample_id))
-                .join(SubSampleToSample, SubSampleToSample.subsample_id == Sample.id)
-                .join(subq, subq.c.id == SubSampleToSample.parent_id)
-            )
-
-        if s2.count() > 0:
-            s1 = s1.union(s2)
-
-        stmt = db.session.query(subq).union(s1)
-    else:
-        stmt = s1
-
+    stmt = s1
+    print("Count samples for source study: ", stmt.count())
     return stmt
 
 
@@ -377,7 +332,6 @@ def sample_not_consent_type_query_stmt(
 def sample_reminder_query_stmt(
     filters_reminder=None, filter_sample_id=None, filters=None, joins=None
 ):
-
     if filter_sample_id:
         stmt = db.session.query(Sample.id).filter(Sample.id.in_(filter_sample_id))
     else:
@@ -659,18 +613,18 @@ def sampletype_data(tokenuser: UserAccount):
 
         if id0:
             if bt == "FLU":
-                for (k, nm) in FluidSampleType.choices():
+                for k, nm in FluidSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
 
             elif bt == "CEL":
-                for (k, nm) in CellSampleType.choices():
+                for k, nm in CellSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
             elif bt == "MOL":
-                for (k, nm) in MolecularSampleType.choices():
+                for k, nm in MolecularSampleType.choices():
                     if k == id0:
                         sampletype_choices[bt].append((id0, nm))
                         break
@@ -712,12 +666,12 @@ def sampletype_data(tokenuser: UserAccount):
 
         if id0:
             if bt == "PRM":
-                for (k, nm) in FluidContainer.choices():
+                for k, nm in FluidContainer.choices():
                     if k == id0:
                         container_choices[bt]["container"].append((id0, nm))
                         break
             elif bt == "LTS":
-                for (k, nm) in CellContainer.choices():
+                for k, nm in CellContainer.choices():
                     if k == id0:
                         container_choices[bt]["container"].append((id0, nm))
                         break
@@ -764,7 +718,8 @@ def sample_home(tokenuser: UserAccount):
 @token_required
 def sample_query(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, Sample)
-    print("filters", filters)
+    # print("filters", filters)
+    # print("joins", joins)
     # -- To exclude empty samples in the index list
     joins0 = joins.copy()
     joins.append(getattr(Sample, "remaining_quantity").__gt__(0))
@@ -1007,6 +962,15 @@ def sample_query(args, tokenuser: UserAccount):
     # results = basic_samples_schema.dump(stmt.all())
     results = samples_index_schema.dump(stmt.all())
 
+    # for i in range(len(results)):
+    #     tmp = TemporaryStore.query.filter_by(uuid=results[i]["uuid"], type='SMPC').first()
+    #     results[i].update({"collection_datetime": ""})
+    #     if tmp:
+    #         try:
+    #             results[i].update({"collection_datetime": tmp.data["collection_datetime"]})
+    #         except:
+    #             pass
+
     # print("results", len(results), "--", results)
     # -- retrieve user cart info
     if flag_reminder_type:
@@ -1072,7 +1036,8 @@ def sample_view_sample(uuid: str, tokenuser: UserAccount):
 
 
 @api.route("sample/new", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_sample(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -1225,7 +1190,8 @@ def sample_new_sample(tokenuser: UserAccount):
 
 
 @api.route("sample/new/sample_type_instance/<base_type>", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -1261,7 +1227,8 @@ def sample_new_sample_type(base_type: str, tokenuser: UserAccount):
 
 
 @api.route("sample/<uuid>/edit/basic_info", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_edit_basic_info(uuid, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -1437,7 +1404,7 @@ def func_update_sample_status(
                 if len(samples) == 0:
                     msg = "No involved samples found for the shipment status! "
                     return {"sample": None, "message": msg, "success": True}
-                print("sss", shipment_status.status)
+                # print("sss", shipment_status.status)
 
                 updated = True
                 for sample in samples:
@@ -1705,13 +1672,11 @@ def func_update_sample_status(
         res = {"sample": None, "message": msg, "success": True}
         if sample_review:
             if sample_review.result in ["FA", ReviewResult.FA]:
-
                 if sample_review.review_type in ["IC", ReviewType.IC]:
                     sample.status = SampleStatus.MIS
                 else:
                     sample.status = SampleStatus.UNU
             elif sample_review.result in ["PA", ReviewResult.PA]:
-
                 if sample_review.quality == SampleQuality.GOO:
                     sample.status = SampleStatus.AVA
                 elif sample_review.quality == SampleQuality.NOT:
@@ -1733,7 +1698,8 @@ def func_update_sample_status(
 
 
 @api.route("/sample/status/<uuid>", methods=["GET"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_update_sample_status(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:

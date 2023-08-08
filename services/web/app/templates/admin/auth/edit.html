@@ -40,13 +40,10 @@
 
 
 
-<form action="{{ url_for('admin.admin_edit_account', id=user.id) }}" method="POST">
+<form action="{{ url_for('admin.admin_edit_settings', id=user.id) }}" method="POST">
+    {{ form.csrf_token() }}
     <div class="row">
-
-        <div class="col col-sm-7">
-
-            {{ form.csrf_token() }}
-
+        <div class="col col-sm-5">
             <h2>Account Information</h2>
             <table class="table table-striped">
                 {{ form_field(form.email) }}
@@ -57,34 +54,30 @@
                 {{ form_field(form.account_type) }}
                 {{ form_field(form.site_id) }}
 
-{#                {{ show_value(user.email, "Email Address", "text") }}#}
-{#                {{ show_value(user.title, "Title", "text") }}
-                {{ show_value(user.first_name, "First Name", "text") }}
-                {{ show_value(user.middle_name, "Middle Name", "text") }}
-                {{ show_value(user.last_name, "Last Name", "text") }}#}
+                <div class="input-group mb-3">
+                    {{ form_field(form.use_template) }}
+                    {{ form.set_to_template }}
+                </div>
 
             </table>
 
+                <div class="row">
 
-    <h2>User Settings</h2>
-
-         {% for setting in form.settings -%}
-                <div class="container">
-                  <div class="card" id=li-{{ setting.id}}>
-                    <div class='card-header'>
+                    <div class="col col-sm-3">
+{#                {{ form_field(form.submit) }}#}
+                        {{ form.submit }}
                     </div>
-                    <div class="card-body" >
-                      <div class="form-group">
-                      {{ setting }}
-                     </div>
-                    </div>
+                    <div class="col col-sm-5">
+                <a href={{ url_for("admin.auth_view_account", id=user.id) }}>
+                    <button type="button" class="btn btn-cancel top10"><i class="fa fa-times"></i>
+                        Cancel
+                </button></a>
                     </div>
                 </div>
-                {% endfor %}
+
+
         </div>
-
-
-        <div class="col-sm-5">
+            <div class="col col-sm-5">
             <div class="card">
                 <div class="card-header text-center">
                     Avatar
@@ -104,7 +97,7 @@
                 {{ show_value(user.site.address.county, "County", "text") }}
                 {{ show_value(user.site.address.country, "Country", "text") }}
                 {{ show_value(user.site.address.post_code, "Post Code", "text") }}
-            </table>{##}
+            </table>
 
 {#            <h2>Account Information</h2>#}
             <table class="table table-striped">
@@ -120,16 +113,43 @@
                 {{ show_value(user.token.updated_on, "Updated On", "text") }}
 
             </table>
-            <div class="footer float-left">
-                {{ form_field(form.submit) }}
-
-                <a href={{ url_for("admin.auth_view_account", id=user.id) }}>
-                    <button type="button" class="btn btn-cancel"><i class="fa fa-times"></i>
-                        Cancel
-                </button></a>
             </div>
-</form>
     </div>
 
+    <div class="row">
+    <div class="col col-sm-10">
+    <h2>User Settings</h2>
 
+         {% for setting in form.settings -%}
+                <div class="container">
+                  <div class="card" id=li-{{ setting.id}}>
+                    <div class='card-header'>
+                    </div>
+                    <div class="card-body" >
+                      <div class="form-group">
+                      {{ setting }}
+                     </div>
+                    </div>
+                    </div>
+                </div>
+         {% endfor %}
+
+                <div class="row">
+                    <div class="col col-sm-3">
+{#                {{ form_field(form.submit) }}#}
+                        {{ form.submit }}
+                </div>
+                    <div class="col col-sm-3">
+                <a href={{ url_for("admin.auth_view_account", id=user.id) }}>
+                    <button type="button" class="btn btn-cancel top10"><i class="fa fa-times"></i>
+                        Cancel
+                </button></a>
+                    </div>
+                </div>
+
+    </div>
+
+    </div>
+</form>
+</div>
 {% endblock %}

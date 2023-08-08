@@ -114,7 +114,7 @@ function render_table(query, hide_cols=[]) {
             {targets: '_all', defaultContent: '-'},
 
             // {targets: [0, 2, 3, 4, 6, 7, 12, 13,  16], visible: false, "defaultContent": "-"},
-            {targets: [0,  2 , 4, 6, 7, 13, 14, 17, 18], visible: false, "defaultContent": "-"},
+            {targets: [2 , 4, 6, 7, 13, 14, 17, 18], visible: false, "defaultContent": "-"},
 
            
           //  {targets: inv_cols, visible: false, "defaultContent": "-"},

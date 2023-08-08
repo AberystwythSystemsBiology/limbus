@@ -199,7 +199,6 @@ def DonorCreationForm(sites: list, data={}):
 
 def ConsentTemplateSelectForm(consent_templates: list) -> FlaskForm:
     class StaticForm(FlaskForm):
-
         consent_select = SelectField(
             "Donor Consent Form Template",
             validators=[DataRequired()],
@@ -239,7 +238,6 @@ class DonorStudyRegistrationForm(FlaskForm):
 
 def ConsentQuestionnaire(study_protocols: list, data={}) -> FlaskForm:
     class StaticForm(FlaskForm):
-
         template_name = TextAreaField("template_name")
 
         template_version = StringField("version")

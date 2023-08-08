@@ -16,11 +16,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 
-function lock_protocol(id) {
-    var limbpro_id = "LIMBPRO-"+id;
-    var warning_msg = "Press confirm to lock the protocol from being associated to sample/donors!";
+function lock_consent(id) {
+    var limbpcf_id = "LIMBPCF-"+id;
+    var lock_flag = $('#lock-consent').text().trim();
+    if (lock_flag === "Lock") {
+        var warning_msg = "Press confirm to lock the consent template from being used for new consents!";
+    } else {
+        var warning_msg = "Press confirm to unlock the consent template!";
+    }
     $("#confirm-modal-warning").html(warning_msg);
-    $("#confirm-modal-title").html("Confirm locking protocol");
+    $("#confirm-modal-title").html("Confirm (un)locking consent template");
     $("#confirm-modal-input").html("");
     $("#confirm-modal-input").hide();
     $("#confirm-modal-guide").html("");
@@ -29,7 +34,8 @@ function lock_protocol(id) {
         show: true
     });
  
-    var action_link = window.location.origin + "/protocol/"+limbpro_id +"/lock";
+    var action_link = window.location.origin + "/consent/"+limbpcf_id +"/lock";
+    console.log("link:", action_link);
 
     $("#confirm-modal-button").prop("disabled", false);
     $('#confirm-modal-button').click(function () {
@@ -45,7 +51,7 @@ function lock_protocol(id) {
                 });
 
                 if (data["success"]) {
-                    window.location.href = window.location.origin + "/protocol/";
+                    window.location.href = window.location.origin + "/consent/";
                 } else {
                     window.location.reload();
                     return false;
@@ -55,7 +61,7 @@ function lock_protocol(id) {
     });
 };
 
-function protocol_remove_logic(protocol_info) {
+/*function protocol_remove_logic(protocol_info) {
 $("#protocol_remove").on("click", function () {
     msg = "Are you sure you want to delete this protocol?  ";
     msg += "Protocols with linked events can't be removed!";
@@ -98,19 +104,15 @@ $("#protocol_remove").on("click", function () {
     });
 
 });
-};
+};*/
 
 $(document).ready(function() {
-    var protocol_info = JSON.parse(sessionStorage.getItem("protocol_info"));
-    protocol_remove_logic(protocol_info);
 
-    var protocol_id = $("#protocol-id").text();
-
-    $("#lock-protocol").on("click", function () {
+    var id = $("#template-id").text();
+    $("#lock-consent").on("click", function () {
        
-        lock_protocol(protocol_id);
+        lock_consent(id);
 
-      
     });
     /*    $('#protocol-table').DataTable( {
         });

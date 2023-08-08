@@ -16,7 +16,7 @@
 
 
                     <h1><span class="secondary-heading">
-                        <a href="{{ url_for('storage.view_site',id=building.site.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('storage.view_site',id=building.site.id) }}">
                             <i class="fa fa-hospital"></i> LIMBSIT-{{ building.site.id }}:
                             {{ building.site.name }}
                     </a></span>
@@ -29,7 +29,7 @@
                             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                                 {% if not building.is_locked %}
                                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                                        <a href="{{ url_for('storage.edit_building', id=building.id) }}">
+                                        <a data-role="data_entry" href="{{ url_for('storage.edit_building', id=building.id) }}">
                                             <button type="button" class="btn btn-outline-dark"><i
                                                     class="fa fa-edit"></i>
                                                 Edit
@@ -39,7 +39,7 @@
                                     </div>
 
                                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                                        <a href="{{ url_for('storage.new_room', id=building.id) }}">
+                                        <a data-role="data_entry" href="{{ url_for('storage.new_room', id=building.id) }}">
 
                                             <button type="button" class="btn btn-outline-dark"><i
                                                     class="fa fa-plus"></i>
@@ -51,9 +51,9 @@
 
                                 {% endif %}
 
-                                {% if current_user.is_admin == true %}
+{#                                {% if current_user.is_admin == true %}#}
                                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                        <a href="{{ url_for('storage.lock_building', id=building.id) }}">
+                                        <a data-role="admin" href="{{ url_for('storage.lock_building', id=building.id) }}">
                                             <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                                     class="btn btn-outline-dark"><i class="fa fa-lock"></i>
                                                 {% if building.is_locked %}
@@ -61,11 +61,11 @@
                                             </button>
                                         </a>
                                     </div>
-                                {% endif %}
+{#                                {% endif %}#}
 
                                 {% if not building.is_locked %}
                                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                        <button type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                        <button data-role="data_entry" type="button" class="btn btn-delete float-right" data-toggle="modal"
                                                 data-target="#delete-confirmation">
                                             <i class="fa fa-trash"></i> Delete
                                         </button>
@@ -175,5 +175,6 @@
 {% block javascript %}
     <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
     <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

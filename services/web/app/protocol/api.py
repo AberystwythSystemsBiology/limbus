@@ -60,7 +60,6 @@ def protocol_home(tokenuser: UserAccount):
 @use_args(ProtocolTemplateSearchSchema(), location="json")
 @token_required
 def protocol_query(args, tokenuser: UserAccount):
-
     filters, joins = get_filters_and_joins(args, ProtocolTemplate)
 
     return success_with_content_response(
@@ -74,7 +73,6 @@ def protocol_query(args, tokenuser: UserAccount):
 @use_args(ProtocolTemplateSearchSchema(), location="json")
 @token_required
 def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
-
     filters, joins = get_filters_and_joins(args, ProtocolTemplate)
 
     protocols = basic_protocol_templates_schema.dump(
@@ -123,7 +121,6 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
 @api.route("/protocol/new", methods=["POST"])
 @token_required
 def protocol_new_protocol(tokenuser: UserAccount):
-
     values = request.get_json()
 
     if not values:
@@ -256,6 +253,35 @@ def protocol_view_text(id, t_id, tokenuser: UserAccount):
         basic_protocol_text_schema.dump(
             ProtocolText.query.filter_by(id=t_id, protocol_id=id).first()
         )
+    )
+
+
+@api.route("/protocol/LIMBPRO-<id>/lock", methods=["POST"])
+@token_required
+def protocol_lock_protocol(id, tokenuser: UserAccount):
+    if not tokenuser.is_admin:
+        return not_allowed()
+
+    protocol = ProtocolTemplate.query.filter_by(id=id).first()
+
+    if not protocol:
+        return not_found("Protocol LIMBPRO-%s" % id)
+
+    protocol.is_locked = not protocol.is_locked
+    protocol.update({"editor_id": tokenuser.id})
+    try:
+        db.session.add(protocol)
+        db.session.commit()
+    except Exception as err:
+        return transaction_error_response(err)
+
+    if protocol.is_locked:
+        msg = "Successfully locked protocol!"
+    else:
+        msg = "Successfully unlocked protocol!"
+
+    return success_with_content_message_response(
+        basic_protocol_text_schema.dump(protocol), msg
     )
 
 

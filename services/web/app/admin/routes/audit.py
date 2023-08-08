@@ -30,7 +30,6 @@ from ...sample.routes import compress_response
 @admin.route("/audit/index", methods=["GET", "POST"])
 @login_required
 def audit_index():
-
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True),
         headers=get_internal_api_header(),

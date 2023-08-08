@@ -25,16 +25,9 @@
                     <div class="col-7">
                         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                             {% if not site.is_locked %}
-                            {% if current_user.is_admin == true  %}
-{#                            <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.edit_site', id=site.id) }}">
-                                    <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
-                                        Details
-                                    </button>
-                                </a>
-                            </div>#}
+{#                            {% if current_user.is_admin == true  %}#}
 
-                          <div class="btn-btn-group mr-2" role="group">
+                          <div data-role="admin" class="btn-btn-group mr-2" role="group">
                             <div class="dropdown">
                               <button class="btn btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
@@ -49,10 +42,10 @@
                                 </a>
                               </div>
                             </div></div>
-                            {% endif %}
+{#                            {% endif %}#}
 
                             <div class="btn-group mr-2" role="group" aria-label="First group">
-                                <a href="{{ url_for('storage.new_building', id=site.id) }}">
+                                <a data-role="data_entry" href="{{ url_for('storage.new_building', id=site.id) }}">
                                     <button type="button" class="btn btn-outline-dark">
                                         <i class="fas fa-plus"></i> Add Building
                                     </button>
@@ -61,19 +54,20 @@
 
                             {% endif %}
 
-                            {% if current_user.is_admin == true %}
+{#                            {% if current_user.is_admin == true %}#}
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <a href=" {{ url_for('storage.lock_site',id=site.id) }} ">
+                                <a data-role="admin"  href=" {{ url_for('storage.lock_site',id=site.id) }} ">
                                 <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                     class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if site.is_locked %}
                                     Unl{% else %}L{% endif %}ock
                                 </button></a>
                             </div>
-                            {% endif %}
+{#                            {% endif %}#}
 
-                            {% if not site.is_locked and current_user.is_admin == true and site.buildings == []%}
+{#                            {% if not site.is_locked and current_user.is_admin == true and site.buildings == []%}#}
+                            {% if not site.is_locked and site.buildings == []%}
                             <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                <button type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                <button data-role="admin" type="button" class="btn btn-delete float-right" data-toggle="modal"
                                         data-target="#delete-confirmation">
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
@@ -180,5 +174,6 @@
 <script src="{{ url_for('static', filename='js/storage/site/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

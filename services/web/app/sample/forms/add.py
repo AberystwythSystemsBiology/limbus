@@ -139,7 +139,6 @@ def CustomAttributeSelectForm(custom_attributes: dict) -> FlaskForm:
 
 
 def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskForm:
-
     if "status" in data:
         # - Find a match either in the type or the expression value
         data["status"] = SampleStatus(data["status"]).name
@@ -152,7 +151,6 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
         data["colour"] = Colour(data["colour"]).name
 
     class StaticForm(FlaskForm):
-
         status = SelectField("Sample Status", choices=SampleStatus.choices())
 
         colour = SelectField(
@@ -192,6 +190,7 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
             choices=collection_sites,
         )
 
+        comments = TextAreaField("Comments")
         submit = SubmitField("Save Changes")
 
         def validate(self):
@@ -214,3 +213,15 @@ def EditBasicForm(consent_ids: list, collection_sites: list, data: {}) -> FlaskF
             return True
 
     return StaticForm(data=data)
+
+
+class SampleDeleteForm(FlaskForm):
+    reason = SelectField(
+        "Sample removal reasons",
+        choices=DeleteReason.choices(),
+        description="Reason for deletion.",
+        validators=[Optional()],
+    )
+
+    comments = TextAreaField("comments")
+    remove = SubmitField("Remove")

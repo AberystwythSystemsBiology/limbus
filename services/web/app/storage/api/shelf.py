@@ -18,7 +18,7 @@ from ...api import api
 from ...api.generics import generic_edit, generic_lock, generic_new
 from ...api.responses import *
 from ...api.filters import generate_base_query_filters, get_filters_and_joins
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...webarg_parser import use_args, use_kwargs, parser
 from ...database import db, UserAccount, EntityToStorage, SampleRack
 
@@ -50,7 +50,8 @@ def storage_shelf_view(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/shelf/LIMBSHF-<id>/edit", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_shelf_edit(id, tokenuser: UserAccount):
     values = request.get_json()
     print(values)
@@ -66,7 +67,8 @@ def storage_shelf_edit(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/shelf/LIMBSHF-<id>/delete", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_shelf_delete(id, tokenuser: UserAccount):
     existing = ColdStorageShelf.query.filter_by(id=id).first()
 
@@ -113,7 +115,8 @@ def storage_shelf_delete(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/shelf/new/", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def storage_shelf_new(tokenuser: UserAccount):
     values = request.get_json()
     return generic_new(

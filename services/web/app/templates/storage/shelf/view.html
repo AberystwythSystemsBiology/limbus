@@ -45,26 +45,26 @@
                             <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                                 {% if not shelf.is_locked %}
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <button id="edit-details-btn" type="button" class="btn btn-outline-dark"><i
+                                    <button data-role="data_entry" id="edit-details-btn" type="button" class="btn btn-outline-dark"><i
                                             class="fa fa-edit"></i> Edit
                                         Details
                                     </button>
                                 </div>
 
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <button id="add-sample-btn" type="button" class="btn btn-outline-dark">
+                                    <button data-role="data_entry" id="add-sample-btn" type="button" class="btn btn-outline-dark">
                                         <i class="fas fa-vial"></i> Add Sample
                                     </button>
                                 </div>
 
                                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                                    <button id="add-rack-btn" type="button" class="btn btn-outline-dark">
+                                    <button data-role="data_entry" id="add-rack-btn" type="button" class="btn btn-outline-dark">
                                         <i class="fa fa-grip-vertical"></i> Add Rack
                                     </button>
                                 </div>
 
                                 <div class="btn-group mr-2" role="group" aria-label="Second group">
-                                    <button id="delete-shelf" type="button" class="btn btn-delete float-right" data-toggle="modal"
+                                    <button data-role="data_entry" id="delete-shelf" type="button" class="btn btn-delete float-right" data-toggle="modal"
                                             data-target="#delete-confirmation">
                                         <i class="fa fa-trash"></i> Delete
                                     </button>
@@ -180,5 +180,6 @@
 <script src="{{ url_for('static', filename='js/storage/shelf/view.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/navtree.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storage/delete.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

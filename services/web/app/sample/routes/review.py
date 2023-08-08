@@ -63,7 +63,6 @@ def edit_review(uuid: str):
 @sample.route("<uuid>/associate/review", methods=["GET", "POST"])
 @login_required
 def associate_review(uuid: str) -> str:
-
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -184,7 +183,6 @@ def associate_review(uuid: str) -> str:
 @sample.route("batch/review", methods=["GET", "POST"])
 @login_required
 def batch_review():
-
     sample_response = requests.get(
         url_for("api.get_cart", _external=True),
         headers=get_internal_api_header(),

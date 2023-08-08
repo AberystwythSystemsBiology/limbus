@@ -36,7 +36,6 @@ from ..enums import (
 
 
 class ColdStorageServiceReportForm(FlaskForm):
-
     date = DateField(
         "Service Date", validators=[DataRequired()], default=datetime.today()
     )
@@ -74,7 +73,6 @@ def ColdStorageToDocumentAssociationForm(documents: list):
 
 
 class ColdStorageForm(FlaskForm):
-
     alias = StringField("Alias", validators=[DataRequired()])
 
     serial_number = StringField(

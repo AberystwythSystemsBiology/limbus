@@ -17,7 +17,7 @@ from flask import request, url_for
 from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 
 from ..views import new_document_to_sample_schema, sample_document_schema
@@ -32,7 +32,8 @@ from ...database import (
 
 
 @api.route("/sample/associate/document", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_to_document(tokenuser: UserAccount):
     values = request.get_json()
     return generics.generic_new(

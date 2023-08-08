@@ -18,3 +18,6 @@ from ..FormEnum import FormEnum
 
 class StoreType(FormEnum):
     SMP = "Sample"
+    SET = "Setting"
+    SMPC = "Sample caching"
+    USRC = "User caching"

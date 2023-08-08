@@ -132,7 +132,6 @@ def add_rack():
 def rack_manual_entry():
     form = NewSampleRackForm()
     if form.validate_on_submit():
-
         response = requests.post(
             url_for("api.storage_rack_new", _external=True),
             headers=get_internal_api_header(),
@@ -206,7 +205,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 try:
                     csv_file = csv.reader(file, dialect)
                     for row in csv_file:
-                        print("row", row)
+                        # print("row", row)
                         if header is None:
                             header = row
                         else:
@@ -303,7 +302,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
 
     indexes.update({"rows": [], "columns": []})
 
-    print("codetype", code_types, indexes)
+    # print("codetype", code_types, indexes)
 
     if "position" in indexes:
         positions = {
@@ -338,7 +337,6 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
                 return {"success": False, "message": "Error in reading positions"}
 
     else:
-
         for x in csv_data[0:]:
             if not x[indexes["row"]].isalpha():
                 return {"success": False, "message": "Tube row value not alphabet!!"}
@@ -354,7 +352,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
 
         for position in data["positions"]:
             dpos = data["positions"][position]
-            print("dpos: ", dpos)
+            # print("dpos: ", dpos)
             try:
                 row_id = ord(dpos["row"].lower()) - 96
                 col_id = int(dpos["col"])
@@ -365,7 +363,7 @@ def func_csvfile_to_json(csvfile, nrow=8, ncol=12) -> dict:
             except:
                 return {"success": False, "message": "Error in reading positions"}
 
-        print("positions", positions)
+        # print("positions", positions)
         data["positions"] = positions
 
     if max(indexes["rows"]) > nrow or min(indexes["rows"]) < 1:
@@ -593,7 +591,6 @@ def assign_rack_sample(id, row, column):
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
@@ -613,7 +610,6 @@ def assign_rack_sample(id, row, column):
             form = SampleToEntityForm(samples)
 
             if form.validate_on_submit():
-
                 sample_move_response = requests.post(
                     url_for("api.storage_transfer_sample_to_rack", _external=True),
                     headers=get_internal_api_header(),
@@ -672,7 +668,6 @@ def assign_rack_samples(id):
         return redirect(url_for("storage.edit_rack", id=id))
 
     if view_response.status_code == 200:
-
         sample_response = requests.get(
             url_for("api.get_cart", _external=True),
             headers=get_internal_api_header(),
@@ -940,7 +935,6 @@ def update_rack_sample_info_from_file(id):
         form = UpdateRackSampleInfoFileUploadForm()
 
         if form.validate_on_submit():
-
             err = None
 
             _samples = func_csvfile_to_json(form.file.data, num_rows, num_cols)
@@ -991,7 +985,6 @@ def update_rack_sample_info_from_file(id):
                 )
 
             else:
-
                 flash(sample_update_response.json())
                 return redirect(url_for("storage.view_rack", id=id))
 
@@ -1109,15 +1102,15 @@ def edit_rack(id):
         )
 
         if response1.status_code == 200:
-
             for site in sites:
                 shelf_dict[site[0]] = []
 
             for shelf in response1.json()["content"]["shelf_info"]:
-                shelf_dict[int(shelf["site_id"])].append(
-                    [int(shelf["shelf_id"]), shelf["name"]]
-                )
-                shelves.append([int(shelf["shelf_id"]), shelf["name"]])
+                if int(shelf["site_id"]) in shelf_dict:
+                    shelf_dict[int(shelf["site_id"])].append(
+                        [int(shelf["shelf_id"]), shelf["name"]]
+                    )
+                    shelves.append([int(shelf["shelf_id"]), shelf["name"]])
 
             # shelf_required = len(shelves) > 0
 
@@ -1226,7 +1219,6 @@ def delete_rack(id):
 @login_required
 @check_if_admin
 def lock_rack(id):
-
     response = requests.get(
         url_for("api.storage_rack_view", id=id, _external=True),
         headers=get_internal_api_header(),

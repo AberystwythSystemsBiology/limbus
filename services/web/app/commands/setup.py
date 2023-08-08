@@ -81,7 +81,6 @@ def create_kryten():
 
 @cmd_setup.cli.command("create-testuser")
 def create_testuser():
-
     address = Address(
         street_address_one="32 Charles Street",
         street_address_two="Abertysswg",

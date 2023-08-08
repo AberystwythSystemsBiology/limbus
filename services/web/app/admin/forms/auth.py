@@ -27,7 +27,7 @@ from wtforms import (
     SelectField,
     SelectMultipleField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.validators import DataRequired, Email, EqualTo, Length
 from ...validators import validate_against_text
 
 from ...auth.enums import Title, AccountType
@@ -38,6 +38,8 @@ from ...auth.models import UserAccount
 from ...sample.enums import (
     SampleBaseType,
     FluidSampleType,
+    CellSampleType,
+    MolecularSampleType,
     ContainerBaseType,
     FluidContainer,
     CellContainer,
@@ -47,7 +49,6 @@ from flask import flash
 
 
 class UserAccountRegistrationForm(FlaskForm):
-
     title = SelectField("Title", validators=[DataRequired()], choices=Title.choices())
 
     first_name = StringField("First Name", validators=[DataRequired()])
@@ -97,7 +98,6 @@ def AccountLockPasswordForm(email):
 
 
 def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
-    # print("data", data)
     if "account_type" in data:
         data["account_type"] = AccountType(data["account_type"]).name
 
@@ -125,18 +125,26 @@ def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
             "Account Type", validators=[DataRequired()], choices=AccountType.choices()
         )
 
-        settings = FieldList(FormField(UserSettings), min_entries=1)
+        use_template = SelectField(
+            "Choose user setting from template",
+            # coerce=int,
+            choices=[],
+            default=None,
+            render_kw={"size": "1", "class": "form-control bd-light alert-info"},
+        )
 
-        submit = SubmitField("Update")
+        set_to_template = SubmitField(
+            "Set", render_kw={"class": "btn btn-link float-right top10"}
+        )
+
+        settings = FieldList(FormField(UserSettings), min_entries=1)
+        submit = SubmitField(
+            "Update", render_kw={"class": "btn btn-success float-right top10"}
+        )
 
         def validate(self):
-            for entry in self.settings.entries:
-                print("access_level", entry.access_level.data)
-                print("sites", entry.site_choices.data)
-
-            # if not FlaskForm.validate(self):
-            #     print("ok")
-            #     return False
+            if self.set_to_template.data and not self.set_to_template.data:
+                return False
 
             if (
                 UserAccount.query.filter_by(email=self.email.data)
@@ -146,7 +154,6 @@ def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
                 self.email.errors.append("Email address already in use.")
                 flash("Email address already in use.")
                 return False
-                # raise ValidationError("Email address already in use.")
 
             return True
 
@@ -168,38 +175,99 @@ class UserSettings(FlaskForm):
     site_choices = SelectMultipleField(
         "Work Sites",
         choices=[],
-        render_kw={"size": "1", "class": "selectpicker form-control"},
+        coerce=int,
+        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
     )
+
     site_selected = TextAreaField(
         "Current",
         render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
     )
+    # site_default = SelectField(
+    #     "Default working site",
+    #     choices=[], coerce=int,
+    #     render_kw={"size": "1", "class": "form-control bd-light"},
+    # )
 
-    # site_default = StringField("Default working site")
+    # -- Consent
+    consent_template_choices = SelectMultipleField(
+        "Consent template choices",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+    )
+    consent_template_selected = TextAreaField(
+        "Current choice",
+        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+    )
+    consent_template_default = SelectField(
+        "Default working consent template",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
 
-    # consent_template_default = SelectField("Default working consent template")
-    # consent_template_choices = SelectMultipleField(
-    #         "Consent template choices", choices=[])
-    #
-    # study_protocol_default = StringField("Default project/study protocol")#, choices=stu_protocols)
-    # study_protocol_choices = SelectMultipleField(
-    #         "Study/Project Protocol choices", choices=[])#, choices=stu_protocols),
-    #
-    # acquisition_protocol_default = StringField(
-    #         "Default project/study protocol")
-    #
-    # acquisition_protocol_choices = SelectMultipleField(
-    #         "Sample Acquisition Protocol choices",
-    #         choices=[])
-    #
-    # # sample_basetype_default = StringField("Default sample base type")
-    # sample_basetype_choices = SelectMultipleField(
-    #         "Sample base type choices", choices=SampleBaseType.choices()),
+    # -- Study protocols
+    study_protocol_choices = SelectMultipleField(
+        "Study choices",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+    )
 
-    # sample_basetype_default = StringField(
-    #         "Default sample base type",
-    #         choices=SampleBaseType.choices(),
-    #         default="FLU")
+    study_protocol_selected = TextAreaField(
+        "Current choice",
+        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+    )
+    study_protocol_default = SelectField(
+        "Default study",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    # -- sample acquisition protocols
+    collection_protocol_choices = SelectMultipleField(
+        "Sample acquisition protocol choices",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+    )
+    collection_protocol_selected = TextAreaField(
+        "Current choice",
+        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+    )
+    collection_protocol_default = SelectField(
+        "Default sample acquisition protocol",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    # -- sample processing protocols
+    processing_protocol_choices = SelectMultipleField(
+        "Sample processing protocol choices",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+    )
+    processing_protocol_selected = TextAreaField(
+        "Current choice",
+        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+    )
+    processing_protocol_default = SelectField(
+        "Default sample processing protocol",
+        choices=[],
+        coerce=int,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    sample_basetype_default = SelectField(
+        "Default sample base type",
+        choices=SampleBaseType.choices(),
+        default="FLU",
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
     #
     # sample_basetype_choices = SelectMultipleField(
     #         "Sample base type choices",
@@ -207,42 +275,75 @@ class UserSettings(FlaskForm):
     #         default=[]
     #         )
     #
-    # sample_flu_type_default =  SelectField(
-    #         "Default sample fluid type",
-    #         choices=FluidSampleType.choices(),
-    #         default='BLD')
+    sample_flu_type_default = SelectField(
+        "Default sample fluid type",
+        choices=FluidSampleType.choices(),
+        default="BLD",
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
     # sample_flu_type_choices = SelectMultipleField(
     #         "Sample fluid types",
     #         choices=FluidSampleType.choices(),
     #         default=[])
-    #
-    # container_basetype_default = SelectField(
-    #         "Default Container Base Type",
-    #         choices=ContainerBaseType.choices(),
-    #         default = "LTS")
+
+    sample_cel_type_default = SelectField(
+        "Default solid sample type",
+        choices=CellSampleType.choices(),
+        default="BLD",
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    sample_mol_type_default = SelectField(
+        "Default molecular sample type",
+        choices=MolecularSampleType.choices(),
+        default=None,
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    container_basetype_default = SelectField(
+        "Default Container Base Type",
+        choices=ContainerBaseType.choices(),
+        default="LTS",
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
     # container_basetype_choices = SelectMultipleField(
     #         "Container Base Type choices",
     #         choices=ContainerBaseType.choices(),
     #         default=[])
     #
-    # prm_container_default = SelectField(
-    #         "Default primary container type",
-    #         choices=FluidContainer.choices(),
-    #         default = "CAT")
-    # prm_containerprm_choices = SelectMultipleField(
+    prm_container_default = SelectField(
+        "Default primary container type",
+        choices=FluidContainer.choices(),
+        default="CAT",
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
+    # prm_container_choices = SelectMultipleField(
     #         "Primary container type choices",
     #         choices=FluidContainer.choices(),
     #         default = [])
     #
-    # lts_container_default = SelectField(
-    #         "Default Long-term Preservation container",
-    #         choices=CellContainer.choices(),
-    #         default="D")
-    #
+
+    lts_container_default = SelectField(
+        "Default Long-term Preservation container",
+        choices=CellContainer.choices(),
+        default="D",
+        render_kw={"size": "1", "class": "form-control bd-light"},
+    )
+
     # lts_containerprm_choices = SelectMultipleField(
     #         "Long-term Preservation container choices",
     #         choices=CellContainer.choices(),
     #         default=[])
+
+    saveto_template_name = StringField(
+        "To save setting as template, provide a  nick name here",
+        default=None,
+        validators=[Length(min=4, max=36)],
+        render_kw={"size": "1", "class": "form-control bd-light alert-info"},
+    )
 
     # data_entry = {
     #         "site": {"default":1, "choices":[1,2]},

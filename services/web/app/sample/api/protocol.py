@@ -18,7 +18,7 @@ from marshmallow import ValidationError
 from sqlalchemy.sql import func
 from ...api import api, generics
 from ...api.responses import *
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 from .queries import func_remove_aliquot_subsampletosample_children, func_remove_sample
 from ..views import (
@@ -53,7 +53,8 @@ def sample_view_protocol_event(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/new/protocol_event", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_sample_protocol_event(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -85,6 +86,9 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
     if not sample:
         return not_found("Sample (%s) ! " % sample.uuid)
 
+    # if protocol type is acquisition, update sample collection_id
+    sample_updated = False
+
     reduced_quantity = values.pop("reduced_quantity", 0)
     if reduced_quantity > 0:
         remaining_quantity = sample.remaining_quantity - reduced_quantity
@@ -94,14 +98,29 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
             )
 
         sample.remaining_quantity = remaining_quantity
-        sample.update({"editor_id": tokenuser.id})
-        try:
-            db.session.add(sample)
-        except Exception as err:
-            return transaction_error_response(err)
+        sample_updated = True
+
+        # try:
+        #     db.session.add(sample)
+        # except Exception as err:
+        #     return transaction_error_response(err)
 
     try:
         db.session.add(new_sample_protocol_event)
+        db.session.flush()
+
+        pt = ProtocolTemplate.query.filter_by(
+            id=new_sample_protocol_event.protocol_id
+        ).first()
+        if pt:
+            if pt.type == ProtocolType.ACQ:  # Sample acquisition
+                sample.collection_id = new_sample_protocol_event.id
+                sample_updated = True
+
+        if sample_updated:
+            sample.update({"editor_id": tokenuser.id})
+            db.session.add(sample)
+
         db.session.commit()
         return success_with_content_response(
             sample_protocol_event_schema.dump(new_sample_protocol_event)
@@ -112,7 +131,8 @@ def sample_new_sample_protocol_event(tokenuser: UserAccount):
 
 
 @api.route("/sample/protocol_event/<uuid>/edit", methods=["PUT"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
     values = request.get_json()
 
@@ -179,7 +199,8 @@ def sample_edit_sample_protocol_event(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/protocol_event/<uuid>/remove", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
     protocol_event = SampleProtocolEvent.query.filter_by(uuid=uuid).first()
     if not protocol_event:
@@ -195,20 +216,25 @@ def sample_remove_sample_protocol_event(uuid, tokenuser: UserAccount):
         return not_found("related sample")
 
     # all protocol events for the sample
-    protocol_events_locked = SampleProtocolEvent.query.join(Sample).filter(
-        Sample.id == protocol_event.sample_id, SampleProtocolEvent.is_locked == True
+    protocol_events_locked = SampleProtocolEvent.query.join(
+        Sample, Sample.id == SampleProtocolEvent.sample_id
+    ).filter(
+        Sample.id == protocol_event.sample_id, SampleProtocolEvent.is_locked.is_(True)
     )
-
     msgs = []
-    protocol_type = (
-        ProtocolTemplate.query.filter_by(id=protocol_event.protocol_id).first().type
-    )
+    protocol_type = ProtocolTemplate.query.filter_by(
+        id=protocol_event.protocol_id
+    ).first()
+
+    if protocol_type:
+        protocol_type = protocol_type.type
+
     if protocol_type == ProtocolType.ALD:
         # - remove protocol event and the sub-samples it generated
         (success, msgs) = func_remove_aliquot_subsampletosample_children(
             sample, protocol_event, tokenuser, msgs
         )
-        print("msgs00", msgs)
+        # print("msgs00", msgs)
         if not success:
             return msgs[-1]
 

@@ -26,9 +26,10 @@ from ..forms import (
     SampleReviewForm,
     ProtocolEventForm,
     EditBasicForm,
+    SampleDeleteForm,
 )
 
-from ..enums import BiohazardLevel, Colour
+from ..enums import BiohazardLevel, Colour, DeleteReason
 
 from datetime import datetime
 
@@ -196,7 +197,6 @@ def remove_rack_from_cart(id: int, user_id=None):
 @sample.route("<uuid>/associate/document", methods=["GET", "POST"])
 @login_required
 def associate_document(uuid):
-
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
@@ -209,13 +209,11 @@ def associate_document(uuid):
         )
 
         if document_response.status_code == 200:
-
             form = SampleToDocumentAssociatationForm(
                 document_response.json()["content"]
             )
 
             if form.validate_on_submit():
-
                 response = requests.post(
                     url_for("api.sample_to_document", _external=True),
                     headers=get_internal_api_header(),
@@ -246,27 +244,27 @@ def associate_document(uuid):
 @sample.route("<uuid>/edit/basic_info", methods=["GET", "POST"])
 @login_required
 def edit_sample_basic_info(uuid):
-
     sample_response = requests.get(
         url_for("api.sample_view_sample", uuid=uuid, _external=True),
         headers=get_internal_api_header(),
     )
 
     if sample_response.status_code != 200:
-        return abort(sample_response.status_code)
+        # return abort(sample_response.status_code)
+        return redirect(url_for("sample.view", uuid=uuid))
 
     if sample_response.json()["content"]["is_locked"]:
         flash("Sample is locked!")
-        return abort(sample_response.status_code)
-
-    # print("sample", sample_response.text)
+        # return abort(sample_response.status_code)
+        return redirect(url_for("sample.view", uuid=uuid))
 
     data = sample_response.json()["content"]
     consent_id = data["consent_information"]["id"]
+    donor_id1 = None
+    if data["consent_information"]["donor_id"] is not None:
+        donor_id1 = "LIMBDON-" + str(data["consent_information"]["donor_id"])
 
-    consent_ids = []
-    if data["consent_information"]["donor_id"] is None:
-        consent_ids = [[consent_id, "LIMBDC-%s" % consent_id]]
+    consent_ids = [[consent_id, "LIMBDC-%s" % consent_id]]
 
     consent_response = requests.get(
         url_for("api.sample_get_consents", _external=True),
@@ -275,7 +273,13 @@ def edit_sample_basic_info(uuid):
 
     if consent_response.status_code == 200:
         for consent in consent_response.json()["content"]:
-            consent_ids.append([consent["id"], consent["label"]])
+            if consent_id == consent["id"]:
+                consent_ids[0] = [consent["id"], consent["label"]]
+            elif donor_id1 is None:
+                consent_ids.append([consent["id"], consent["label"]])
+            elif donor_id1 in consent["label"]:
+                # Only consent from the same donor will be used
+                consent_ids.append([consent["id"], consent["label"]])
 
     sites_response = requests.get(
         url_for("api.site_home", _external=True), headers=get_internal_api_header()
@@ -287,7 +291,8 @@ def edit_sample_basic_info(uuid):
             collection_sites.append([site["id"], site["name"]])
     else:
         flash("Error in getting site info!")
-        return abort(sites_response.status_code)
+        # return abort(sites_response.status_code)
+        return redirect(url_for("sample.view", uuid=uuid))
 
     data.update({"consent_id": consent_id})  # data["consent_information"]["id"]})
 
@@ -303,6 +308,7 @@ def edit_sample_basic_info(uuid):
             # "remaining_quantity": remaining_quantity
             "consent_id": form.consent_id.data,
             "site_id": form.site_id.data,
+            "comments": form.comments.data,
         }
         response = requests.put(
             url_for("api.sample_edit_basic_info", uuid=uuid, _external=True),
@@ -357,6 +363,60 @@ def update_sample_status(uuid: str):
     return redirect(url_for("sample.view", uuid=uuid))
 
 
+@sample.route("<uuid>/update_cache", methods=["GET"])
+@login_required
+def update_sample_tmpstore_info(uuid: str):
+    sample_response = requests.get(
+        url_for("api.sample_update_sample_tmpstore_info", uuid=uuid, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if sample_response.status_code == 200:
+        flash("Success! " + sample_response.json()["message"])
+    else:
+        flash(sample_response.json()["message"])
+
+    return redirect(url_for("sample.view", uuid=uuid))
+
+
+@sample.route("batch_update_cache", methods=["GET"])
+@login_required
+def batch_update_sample_tmpstore_info():
+    sample_response = requests.get(
+        url_for("api.sample_batch_update_sample_tmpstore_info", _external=True),
+        headers=get_internal_api_header(),
+    )
+    # print("sample_response.json() ", sample_response.json())
+    if sample_response.status_code == 200:
+        flash(sample_response.json()["message"])
+    else:
+        flash(sample_response.json()["message"])
+
+    return redirect(url_for("sample.index"))
+
+
+@sample.route("update_collection_id/<first>/<last>", methods=["GET", "POST"])
+@sample.route("update_collection_id", methods=["GET", "POST"])
+@login_required
+def sample_update_collection_id(first=None, last=None):
+    print("first: ", first)
+    print("last: ", last)
+    if first:
+        first = int(first)
+    if last:
+        last = int(last)
+
+    sample_response = requests.get(
+        url_for(
+            "api.sample_update_collection_id", first=first, last=last, _external=True
+        ),
+        headers=get_internal_api_header(),
+    )
+
+    flash(sample_response.json()["message"])
+    return redirect(url_for("sample.index"))
+
+
 @sample.route("<uuid>/remove", methods=["GET", "POST"])
 @login_required
 def remove_sample(uuid: str, user_id=None):
@@ -365,26 +425,40 @@ def remove_sample(uuid: str, user_id=None):
         headers=get_internal_api_header(),
     )
 
-    if sample_response.status_code == 200:
-        remove_response = requests.delete(
+    if sample_response.status_code != 200:
+        flash(sample_response.json()["message"])
+        return sample_response.json()
+
+    form = SampleDeleteForm()
+    if form.validate_on_submit():
+        comments = form.reason.data
+        if comments:
+            comments = DeleteReason[comments].value
+        else:
+            comments = ""
+        if form.comments.data is not None and form.comments.data != "":
+            comments = ",".join([comments, form.comments.data])
+
+        remove_response = requests.post(
             url_for(
                 "api.sample_remove_sample", uuid=uuid, user_id=user_id, _external=True
             ),
             headers=get_internal_api_header(),
+            json={"comments": comments},
         )
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.index"))
+            return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.view", uuid=uuid))
+            return redirect(url_for("sample.view", uuid=uuid))
 
-        return remove_response.json()
-
-    flash(sample_response.json()["message"])
-    return sample_response.json()
-    # return redirect(url_for("sample.view", uuid=uuid))
+    return render_template(
+        "sample/shallow_remove.html",
+        sample=sample_response.json()["content"],
+        form=form,
+    )
 
 
 @sample.route("<uuid>/deep_remove", methods=["GET", "POST"])
@@ -395,21 +469,35 @@ def deep_remove_sample(uuid: str):
         headers=get_internal_api_header(),
     )
 
-    if sample_response.status_code == 200:
-        remove_response = requests.delete(
+    if sample_response.status_code != 200:
+        flash(sample_response.json()["message"])
+        return sample_response.json()
+
+    form = SampleDeleteForm()
+    if form.validate_on_submit():
+        comments = form.reason.data
+        if comments:
+            comments = DeleteReason[comments].value
+        else:
+            comments = ""
+        if form.comments.data is not None and form.comments.data != "":
+            comments = ",".join([comments, form.comments.data])
+
+        remove_response = requests.post(
             url_for("api.sample_deep_remove_sample", uuid=uuid, _external=True),
             headers=get_internal_api_header(),
+            json={"comments": comments},
         )
 
         if remove_response.status_code == 200:
             flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.index"))
+            return redirect(url_for("sample.index"))
         else:
             flash(remove_response.json()["message"])
-            # return redirect(url_for("sample.view", uuid=uuid))
+            return redirect(url_for("sample.view", uuid=uuid))
 
-        return remove_response.json()
-
-    flash(sample_response.json()["message"])
-    return sample_response.json()
-    # return redirect(url_for("sample.view", uuid=uuid))
+    return render_template(
+        "sample/deep_remove.html",
+        sample=sample_response.json()["content"],
+        form=form,
+    )

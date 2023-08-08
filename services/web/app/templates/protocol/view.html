@@ -8,21 +8,21 @@
         <h1><span class="secondary-heading">
                 <a href="{{ url_for('protocol.index') }}">
                     <i class="fa fa-project-diagram"></i> Protocol Portal
-                </a></span> LIMBPRO-{{ protocol.id }}: {{ protocol.name }}</h1>
+                </a></span> LIMBPRO- <span id = "protocol-id"> {{ protocol.id }} </span>: {{ protocol.name }}</h1>
 
         <div class="row text-muted">
             <div class="col-7">
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     {% if not protocol.is_locked %}
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{ url_for('protocol.edit', id=protocol.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('protocol.edit', id=protocol.id) }}">
                             <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                 Details
                             </button>
                         </a>
                     </div>
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <a href="{{ url_for('protocol.new_text', id=protocol.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('protocol.new_text', id=protocol.id) }}">
 
                             <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                 class="btn btn-outline-dark">
@@ -31,7 +31,7 @@
                         </a>
                     </div>
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <a href="{{ url_for('protocol.associate_document', id=protocol.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('protocol.associate_document', id=protocol.id) }}">
 
                             <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                 class="btn btn-outline-dark">
@@ -43,19 +43,25 @@
 
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
 {#                        <a href="{{ url_for('protocol.remove', id=protocol.id) }}">#}
-                            <button id="protocol_remove" type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                            <button data-role="data_entry" id="protocol_remove" type="button" data-toggle="modal" data-target="#exampleModalCenter"
                                 class="btn btn-outline-dark">
                                <i class="fa fa-trash-alt"></i> Remove
                             </button>
 {#                        </a>#}
                     </div>
 
+{#                    {% if current_user.is_admin == true %}#}
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
-                            class="btn btn-outline-dark" disabled>
-                            <i class="fa fa-lock"></i> {% if protocol.is_locked %}Unl{% else %}L{% endif %}ock
+                        <button data-role="admin" id="lock-protocol" type="button"
+                            class="btn btn-outline-dark">
+                            <i class="fa fa-lock"></i>
+                            {% if protocol.is_locked %}Unl{% else %}L{% endif %}ock
                         </button>
                     </div>
+{#                {% endif %}#}
+
+
+                
 
 
                 </div>
@@ -155,8 +161,35 @@
       </div>
 
     </div>
-  </div>
+  </div> 
 </div>
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="confirm-modal-title">Confirm </h5>
+          <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="confirm-modal-warning" class="alert alert-danger" role="alert">
+            <B>Warning:</B> This action cannot be undone!
+          </div>
+          <p id="confirm-modal-guide">Are you sure you want to proceed?</p>
+          <input type="text" class="form-control" id="confirm-modal-input">
+  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Dismiss</button>
+          <button type="button" id="confirm-modal-button" class="btn btn-success" disabled>Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
@@ -168,5 +201,6 @@
     sessionStorage.setItem("protocol_info", JSON.stringify(protocol_info));
 </script>
 <script src="{{ url_for('static', filename='js/protocol/view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
 
 {% endblock %}

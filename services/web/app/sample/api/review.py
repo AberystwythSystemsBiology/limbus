@@ -18,7 +18,7 @@ from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
 from .base import func_update_sample_status
-from ...decorators import token_required
+from ...decorators import token_required, requires_roles
 from ...misc import get_internal_api_header
 
 from ..views import (
@@ -54,7 +54,8 @@ def sample_edit_sample_review(uuid, tokenuser: UserAccount):
 
 
 @api.route("/sample/review/<uuid>/remove", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_remove_sample_review(uuid, tokenuser: UserAccount):
     review_event = SampleReview.query.filter_by(uuid=uuid).first()
     # print("review_event: ", review_event)
@@ -258,7 +259,8 @@ def func_sample_review_disposal(tokenuser: UserAccount, values, new_event=None):
 
 
 @api.route("/sample/new/review_disposal", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_sample_review_disposal(tokenuser: UserAccount):
     values = request.get_json()
 
@@ -282,9 +284,9 @@ def sample_new_sample_review_disposal(tokenuser: UserAccount):
 
 
 @api.route("/sample/batch/review_disposal", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_batch_review_disposal(tokenuser: UserAccount):
-
     cart = UserCart.query.filter_by(author_id=tokenuser.id, selected=True).all()
 
     if len(cart) == 0:
@@ -319,7 +321,8 @@ def sample_batch_review_disposal(tokenuser: UserAccount):
 
 # No update of sample status or disposal instruction: not in use
 @api.route("/sample/new/review", methods=["POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_new_sample_review(tokenuser: UserAccount):
     values = request.get_json()
 

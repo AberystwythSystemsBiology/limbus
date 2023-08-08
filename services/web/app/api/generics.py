@@ -81,7 +81,6 @@ def generic_edit(
     values: dict,
     tokenuser: UserAccount,
 ):
-
     if not values:
         return no_values_response()
 

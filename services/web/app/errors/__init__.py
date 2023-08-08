@@ -102,7 +102,6 @@ def unauthorised(e="401: Unauthorised", json=False):
 
 @errorhandler(NotFound.code)
 def not_found(e="404: Page Not Found", json=False):
-
     return handle_error(
         NotFound.code, NotFound.description, traceback.format_exc(), json
     )

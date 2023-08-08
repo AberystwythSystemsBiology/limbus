@@ -242,7 +242,6 @@ def SampleToEntityForm(samples: list) -> FlaskForm:
     samples_choices.insert(0, [0, "--- Select a samples ---"])
 
     class StaticForm(FlaskForm):
-
         date = DateField(
             "Entry Date", validators=[DataRequired()], default=datetime.today()
         )

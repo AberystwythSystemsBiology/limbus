@@ -16,9 +16,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 function lock_attribute(id) {
     var limbattr_id = "LIMBATTR-"+id;
-    var warning_msg = "Press confirm to lock the attribute from being associated to sample/donors!";
+    var lock_flag = $('#lock-attribute').text().trim();
+    if (lock_flag === "Lock") {
+        var warning_msg = "Press confirm to lock the attribute from being associated to sample/donors!";
+    } else {
+        var warning_msg = "Press confirm to unlock the attribute!";
+    }
+
     $("#confirm-modal-warning").html(warning_msg);
-    $("#confirm-modal-title").html("Confirm locking attribute");
+    $("#confirm-modal-title").html("Confirm (un)locking attribute");
     $("#confirm-modal-input").html("");
     $("#confirm-modal-input").hide();
     $("#confirm-modal-guide").html("");
@@ -31,7 +37,7 @@ function lock_attribute(id) {
 
     $("#confirm-modal-button").prop("disabled", false);
     $('#confirm-modal-button').click(function () {
-        $("#confirm-modal-button").prop("disabled", true);
+    $("#confirm-modal-button").prop("disabled", true);
 
         $.ajax({
             type: "POST",

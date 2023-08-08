@@ -43,7 +43,6 @@ def dispose(uuid: str) -> flask_return_union:
             message = "No disposal instruction!"
             if disposal_info is not None:
                 disposal_instruction = disposal_info["instruction"]
-                # print('inst:', disposal_instruction)
 
                 if disposal_instruction not in ["DES", "TRA"]:
                     message = (
@@ -53,12 +52,8 @@ def dispose(uuid: str) -> flask_return_union:
                     disposal_date = datetime.strptime(
                         str(disposal_info["disposal_date"]), "%Y-%m-%d"
                     ).date()
-
                     if disposal_date > datetime.now().date():
-                        message = (
-                            "Too early! Expected disposal date %s",
-                            disposal_instruction["disposal_date"],
-                        )
+                        message = "Too early! Expected disposal date %s" % disposal_date
                     else:
                         disposal_approved = True
 

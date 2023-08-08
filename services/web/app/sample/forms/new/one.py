@@ -41,7 +41,6 @@ def CollectionConsentAndDisposalForm(
     ]
 
     class StaticForm(FlaskForm):
-
         sample_status = SelectField("Sample Status", choices=sample_status_choices)
 
         colour = SelectField(
@@ -127,7 +126,6 @@ def CollectionConsentAndDisposalForm(
 def CollectionDonorConsentAndDisposalForm(
     consent_ids: list, collection_protocols: list, collection_sites: list, data={}
 ) -> FlaskForm:
-
     sample_status_choices = [
         (k, nm) for (k, nm) in SampleStatus.choices() if k not in ["DES", "TRA"]
     ]

@@ -17,7 +17,7 @@ from marshmallow import ValidationError
 from ...api import api, generics
 from ...api.responses import *
 
-from ...decorators import token_required, check_if_admin
+from ...decorators import token_required, check_if_admin, requires_roles
 
 from ...database import (
     db,
@@ -53,13 +53,15 @@ from ..views import (
     new_molecular_sample_schema,
     new_sample_protocol_event_schema,
     sample_protocol_event_schema,
+    sample_index_schema,
 )
 from ...tmpstore.views import new_store_schema
-from ..enums import SampleSource
+from ..enums import SampleSource, DeleteReason
+from ...tmpstore.enums import StoreType
+import json
 
 
 def func_new_sample_type(values: dict, tokenuser: UserAccount):
-
     base_type = values["sample_base_type"]
     if base_type == "FLU":
         sample_type_information = {
@@ -115,6 +117,7 @@ def func_new_sample_type(values: dict, tokenuser: UserAccount):
         return transaction_error_response(err)
 
 
+# Not in use, no collection_id update
 def func_new_sample_protocol_event(values, tokenuser: UserAccount):
     # values = request.get_json()
 
@@ -252,6 +255,17 @@ def func_remove_sampleshipmenttosample(sample, tokenuser: UserAccount, msgs=[]):
 def func_remove_sampleprotocolevent(sample, tokenuser: UserAccount, msgs=[]):
     success = True
     pes = SampleProtocolEvent.query.filter_by(sample_id=sample.id).all()
+
+    sample.collection_id = None
+    try:
+        db.session.add(sample)
+        db.session.flush()
+    except Exception as err:
+        db.session.rollback()
+        success = False
+        msgs.append(transaction_error_response(err))
+        return (success, msgs)
+
     for pe in pes:
         if SampleProtocolEvent.query.filter_by(event_id=pe.event_id).count() > 1:
             pe.event_id = None
@@ -543,110 +557,322 @@ def func_deep_remove_subsampletosample_children(
     return (success, msgs)
 
 
-def func_root_sample_acquision_protocol_event(sample_id):
-    sample = Sample.query.filter_by(id=sample_id).first()
-    pe_acq = None
+# def func_root_sample_acquisition_protocol_event(sample_id):
+#     sample = Sample.query.filter_by(id=sample_id).first()
+#     pe_acq = None
+#     if sample is None:
+#         success = False
+#         msg = "Sample (id=%d) not found" % sample_id
+#         return pe_acq, msg
+#
+#     while sample.source != "NEW":
+#         ssts = SubSampleToSample.query.filter_by(subsample_id=sample.id).first()
+#         if ssts:
+#             sample = Sample.query.filter_by(id=ssts.sample_id).first()
+#             if sample is None:
+#                 success = False
+#                 msg = "Root sample (id=%d) not found" % sample_id
+#                 return pe_acq, msg
+#         else:
+#             success = False
+#             msg = "Root sample (id=%d) not found" % sample_id
+#             return pe_acq, msg
+#
+#     pe_acq = SampleProtocolEvent.query.filter_by(sample_id=sample.id).join(
+#         ProtocolTemplate, ProtocolTemplate.type == "ACQ"
+#     )
+#
+#     if pe_acq is None:
+#         msg = "Root sample (id=%d) acquisition event found!" % sample.id
+#     else:
+#         msg = "Root sample acquisition event found!"
+#     return pe_acq, msg
+
+
+def func_root_sample(uuid=None, sample=None):
     if sample is None:
-        success = False
-        msg = "Sample (id=%d) not found" % sample_id
-        return pe_acq, msg
+        sample = Sample.query.filter_by(uuid=uuid).first()
+        if not sample:
+            msg = "Sample (id=%d) not found" % uuid
+            return None, msg
 
-    while sample.source != "NEW":
-        sample = SubSampleToSample.query.filter_by(subsample_id=sample.id).first()
+    while sample.source != SampleSource.NEW:
+        ssts = SubSampleToSample.query.filter_by(subsample_id=sample.id).first()
+        if ssts:
+            sample = Sample.query.filter_by(id=ssts.parent_id).first()
+            if sample is None:
+                msg = "Root sample (uuid=%s) not found" % uuid
+                return None, msg
+
+        else:
+            msg = "Root sample (uuid=%s) not found" % uuid
+            return None, msg
+
+    if sample.source == SampleSource.NEW:
+        msg = "Root sample found: uuid=%s" % sample.uuid
+        return sample, msg
+    else:
+        msg = "Root sample (uuid=%s) not found" % uuid
+        return None, msg
+
+
+@api.route("/sample/<uuid>/update_cache", methods=["GET", "POST"])
+@requires_roles("data_entry")
+def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
+    if uuid:
+        sample = Sample.query.filter_by(uuid=uuid).first()
+
         if sample is None:
-            success = False
-            msg = "Root sample (id=%d) not found" % sample_id
-            return pe_acq, msg
+            return not_found("sample %s " % uuid)
 
-    pe_acq = SampleProtocolEvent.query.filter_by(sample_id=sample.id).join(
-        ProtocolTemplate, ProtocolTemplate.type == "ACQ"
+    info = sample_index_schema.dump(sample)
+    root_sample, msg = func_root_sample(uuid=None, sample=sample)
+
+    if root_sample:
+        # print("Root sample: ", root_sample.uuid)
+        collection_datetime = (
+            db.session.query(SampleProtocolEvent)
+            .filter(SampleProtocolEvent.sample_id == root_sample.id)
+            .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
+            .join(Event)
+            .with_entities(Event.datetime)
+            .first()
+        )
+
+        if collection_datetime:
+            collection_datetime = collection_datetime[0].strftime("%Y-%m-%d, %H:%M:%S")
+
+        info["collection_datetime"] = collection_datetime
+        info["root_sample_uuid"] = root_sample.uuid
+
+    else:
+        return validation_error_response(msg)
+
+    tmpstore = TemporaryStore.query.filter_by(uuid=uuid).first()
+    if tmpstore:
+        # Update entry
+        tmpstore.data = info
+        tmpstore.type = "SMPC"
+        tmpstore.update({"editor_id": tokenuser.id})
+
+    else:
+        # new entry
+        values = {}
+        values["uuid"] = uuid
+        values["type"] = "SMPC"
+        values["data"] = info
+        try:
+            result = new_store_schema.load(values)
+        except ValidationError as err:
+            return validation_error_response(err)
+
+        tmpstore = TemporaryStore(**result)
+        tmpstore.author_id = tokenuser.id
+
+    try:
+        db.session.add(tmpstore)
+        db.session.commit()
+        message = "Cache info updated successfully!"
+        return success_with_content_message_response(info, message)
+    except Exception as err:
+        db.session.rollback()
+        return transaction_error_response(err)
+
+
+@api.route("/sample/update_collection_id/<first>/<last>", methods=["GET", "POST"])
+@api.route("/sample/update_collection_id", methods=["GET", "POST"])
+# @token_required
+@requires_roles("admin")
+def sample_update_collection_id(tokenuser: UserAccount, first=None, last=None):
+    pes = (
+        db.session.query(SampleProtocolEvent)
+        .join(ProtocolTemplate, SampleProtocolEvent.protocol_id == ProtocolTemplate.id)
+        .join(Sample, Sample.id == SampleProtocolEvent.sample_id)
+        .filter(ProtocolTemplate.type == "ACQ")
+        .filter(Sample.source == "NEW", Sample.is_closed == False)
+        .with_entities(Sample.id, SampleProtocolEvent.id)
+        .all()
     )
 
-    if pe_acq is None:
-        msg = "Root sample (id=%d) acquisition event found!" % sample.id
+    first = 0
+    last = len(pes)
+    if first:
+        first = int(first)
     else:
-        msg = "Root sample acquisition event found!"
-    return pe_acq, msg
+        first = 0
+
+    if last:
+        last = int(last)
+    else:
+        last = len(pes)
+
+    print("total root samples: %d" % len(pes))
+    print("first, last ", first, last)
+    i = 0
+    n_problem = 0
+    n = 0
+    for pe in pes:
+        sample_id = pe[0]
+        collection_id = pe[1]
+        # print(sample_id, collection_id)
+        i = i + 1
+        if i < first:
+            continue
+
+        if i > last:
+            break
+
+        k = 0
+        sample = Sample.query.filter_by(id=sample_id).first()
+
+        if sample and collection_id:
+            print(sample.id, collection_id)
+            if sample.collection_id is None:
+                sample.collection_id = collection_id
+                try:
+                    db.session.add(sample)
+                    k = k + 1
+
+                except:
+                    n_problem = n_problem + 1
+                    pass
+
+            consent_id = sample.consent_id
+            collection_id = sample.collection_id
+            if collection_id:
+                subs = (
+                    db.session.query(Sample)
+                    .join(SampleConsent)  # , SampleConsent.id==Sample.consent_id)
+                    .filter(Sample.source != "NEW")
+                    .filter(Sample.consent_id == consent_id)
+                    .distinct(Sample.id)
+                    .all()
+                )
+                print("subs: ", len(subs))
+                for subsample in subs:
+                    subsample.collection_id = collection_id
+                    try:
+                        db.session.add(subsample)
+                        k = k + 1
+                    except:
+                        n_problem = n_problem + 1
+                        pass
+
+            print("k to commit: ", k)
+            if k > 0:
+                try:
+                    db.session.commit()
+                    n = n + k
+                except:
+                    n_problem = n_problem + 1
+
+    message = (
+        "Successfully updated collection date for %d samples, problems in %d samples"
+        % (n, n_problem)
+    )
+    print(message)
+    return success_with_content_message_response(n, message)
 
 
-# def func_update_sample_tmpstore_info(uuid=None, sample=None, tokenuser: UserAccount):
-#     # Update temporarystore
-#     if uuid:
-#         if sample is None:
-#             sample = Sample.query.filter_by(uuid=uuid).first()
-#         elif sample.uuid != uuid:
-#             return {"success": False, "message": "sample and uuid not matched!"}
-#     elif not sample:
-#         return not_found("Sample object or uuid!")
-#     else:
-#         uuid = sample.uuid
-#
-#     # Update sample collection date
-#     pe_acq, msg = func_root_sample_acquision_protocol_event(sample.id)
-#     if not pe_acq:
-#         return not_found("Sample acquisition event for sample %s" %uuid)
-#
-#     info = sample_protocol_event_schema.dump(pe_acq)
-#     return info
-
-# @api.route("/sample/<uuid>/extra", methods=["DELETE", "GET", "POST"])
+@api.route("/sample/batch_update_cache", methods=["GET", "POST"])
 # @token_required
-# def sample_update_sample_tmpstore_info(uuid: str, tokenuser: UserAccount):
-#     # if uuid:
-#     #     if sample is None:
-#     #         sample = Sample.query.filter_by(uuid=uuid).first()
-#     #     elif sample.uuid != uuid:
-#     #         return {"success": False, "message": "sample and uuid not matched!"}
-#     # elif not sample:
-#     #     return not_found("Sample object or uuid!")
-#     # else:
-#     #     uuid = sample.uuid
-#     if uuid:
-#         sample = Sample.query.filter_by(uuid=uuid).first()
-#         if not sample:
-#             return not_found("sample %s " % uuid)
-#
-#     tmpstore = temporarystore.query.filter_by(uuid=uuid, type='smp').first()
-#     if tmpstore:
-#         # Update entry
-#         tmpstore.data["root_sample_collection_date"] = info
-#         tmpstore.update({"editor_id": tokenuser.id})
-#     else:
-#         # new entry
-#         values = {}
-#         values["uuid"] = uuid
-#         values["type"] = 'smp'
-#
-#         try:
-#             result = new_store_schema.load(values)
-#         except ValidationError as err:
-#             return validation_error_response(err)
-#
-#         tmpstore = TemporaryStore(**result)
-#         tmpstore.author_id = tokenuser.id
-#
-#     return {"success": True, "tempstore": tmpstore}
-#
-#     (success, msgs) = func_remove_sample(sample, tokenuser, [])
-#     if not success:
-#         return msgs[-1]
-#
-#     try:
-#         db.session.commit()
-#         msgs.append("Committed successfully!")
-#         message = " | ".join(msgs)
-#         return success_with_content_message_response(uuid, message)
-#     except Exception as err:
-#         db.session.rollback()
-#         return transaction_error_response(err)
+@requires_roles("admin")
+def sample_batch_update_sample_tmpstore_info(tokenuser: UserAccount):
+    samples = Sample.query.filter_by(is_closed=False).all()
+    print("Found samples: ", len(samples))
+    n = 0
+    n_problem = 0
+    for sample in samples:
+        uuid = sample.uuid
+        info = sample_index_schema.dump(sample)
+
+        root_sample, msg = func_root_sample(uuid=None, sample=sample)
+
+        if root_sample:
+            # print("Root sample: ", root_sample.uuid)
+            collection_datetime = (
+                db.session.query(SampleProtocolEvent)
+                .filter(SampleProtocolEvent.sample_id == root_sample.id)
+                .join(ProtocolTemplate, ProtocolTemplate.type == "ACQ")
+                .join(Event)
+                .with_entities(Event.datetime)
+                .first()
+            )
+
+            if collection_datetime:
+                collection_datetime = collection_datetime[0].strftime(
+                    "%Y-%m-%d, %H:%M:%S"
+                )
+
+            info["collection_datetime"] = collection_datetime
+            info["root_sample_uuid"] = root_sample.uuid
+
+        else:
+            n_problem = n_problem + 1
+            continue
+
+        tmpstore = TemporaryStore.query.filter_by(uuid=uuid).first()
+        if tmpstore:
+            # Update entry
+            tmpstore.data = info
+            tmpstore.update({"editor_id": tokenuser.id})
+            tmpstore.type = "SMPC"
+
+        else:
+            # new entry
+            values = {}
+            values["uuid"] = uuid
+            values["type"] = "SMPC"
+            values["data"] = info
+
+            try:
+                result = new_store_schema.load(values)
+            except:  # ValidationError as err:
+                n_problem = n_problem + 1
+                continue
+                # return validation_error_response(err)
+
+            tmpstore = TemporaryStore(**result)
+            tmpstore.author_id = tokenuser.id
+
+        try:
+            db.session.add(tmpstore)
+            db.session.flush()
+
+        except:  # Exception as err:
+            n_problem = n_problem + 1
+            continue
+
+        n = n + 1
+        if n % 100 == 0:
+            # print("n%d: commit" % n)
+            try:
+                db.session.commit()
+            except:
+                pass
+
+    try:
+        db.session.commit()
+    except:
+        pass
+
+    message = "Cache info update successful for %d samples!" % n
+    message = message + " ; failed for %d samples" % n_problem
+    return success_without_content_response(message)
 
 
 @api.route("/sample/<uuid>/remove", methods=["DELETE", "GET", "POST"])
-@token_required
+# @token_required
+@requires_roles("data_entry")
 def sample_remove_sample(uuid: str, tokenuser: UserAccount):
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:
         return not_found("sample %s " % uuid)
+
+    values = request.get_json()
+    if values is not None:
+        comments = "Reason for removal: " + values.pop("comments", "")
+        sample.comments = comments
 
     (success, msgs) = func_remove_sample(sample, tokenuser, [])
     if not success:
@@ -734,14 +960,17 @@ def func_deep_remove_sample(sample, tokenuser: UserAccount, msgs=[]):
 
 
 @api.route("/sample/<uuid>/deep_remove", methods=["DELETE", "GET", "POST"])
-@token_required
+# @token_required
+@requires_roles("admin")
 def sample_deep_remove_sample(uuid: str, tokenuser: UserAccount):
-    if not tokenuser.is_admin:
-        return not_allowed()
-
     sample = Sample.query.filter_by(uuid=uuid).first()
     if not sample:
         return not_found("sample %s " % uuid)
+
+    values = request.get_json()
+    if values is not None:
+        comments = "Reason for removal: " + values.pop("comments", "")
+        sample.comments = comments
 
     subs = SubSampleToSample.query.filter_by(subsample_id=sample.id)
     if subs.count() > 0:
@@ -889,7 +1118,6 @@ def sample_lock_sample_creation_protocol_event(uuid, tokenuser: UserAccount):
                 msgs.append(msg)
                 ids_ok.append(sample_id)
             else:
-
                 msgs.append(msg["message"])
                 ids_bad.append(sample_id)
 

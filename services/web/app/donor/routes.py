@@ -52,7 +52,6 @@ strconv = lambda i: i or None
 @donor.route("/")
 @login_required
 def index() -> str:
-
     sites_response = requests.get(
         url_for("api.site_home_tokenuser", _external=True),
         headers=get_internal_api_header(),
@@ -200,11 +199,9 @@ def new_diagnosis(id):
     )
 
     if response.status_code == 200:
-
         form = DonorAssignDiagnosisForm()
 
         if form.validate_on_submit():
-
             diagnosis_response = requests.post(
                 url_for("api.donor_new_diagnosis", id=id, _external=True),
                 headers=get_internal_api_header(),
@@ -381,7 +378,6 @@ def add_consent_answers(template_id, donor_id):
 @donor.route("/LIMBDON-<donor_id>/consent/LIMBDC-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_donor_consent(id, donor_id=None, sample_uuid=None):
-
     consent_id = int(id)
     consent_response = requests.get(
         url_for("api.donor_consent_view", id=consent_id, _external=True),
@@ -502,7 +498,6 @@ def edit_donor_consent(id, donor_id=None, sample_uuid=None):
 @donor.route("/consent/LIMBDC-<id>/remove", methods=["GET", "POST"])
 @login_required
 def remove_donor_consent(id):
-
     remove_response = requests.post(
         url_for("api.donor_remove_consent", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -602,7 +597,6 @@ def add():
 @login_required
 @donor.route("/edit/LIMBDON-<id>", methods=["GET", "POST"])
 def edit(id):
-
     response = requests.get(
         url_for("api.donor_edit_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -743,7 +737,6 @@ def add_sample_step_one(id):
     )
 
     if form.validate_on_submit():
-
         route_data = {
             "colour": form.colour.data,
             "sample_status": form.sample_status.data,
@@ -772,7 +765,6 @@ def add_sample_step_one(id):
         )
 
         if store_response.status_code == 200:
-
             return redirect(
                 url_for(
                     "donor.add_sample_rerouter",
@@ -793,7 +785,6 @@ def add_sample_step_one(id):
 
 
 def prepare_new_sample_form_data(data: dict):
-
     step_one = data["step_one"]
     step_three = data["step_three"]
 
@@ -932,7 +923,6 @@ def add_sample_step_three(hash):
     form = SampleTypeSelectForm(sampletypes, containertypes)
 
     if form.validate_on_submit():
-
         sample_information_details = {
             "biohazard_level": form.biohazard_level.data,
             "sample_type": form.sample_type.data,
@@ -1106,7 +1096,6 @@ def withdraw_consent(id):
 @donor.route("/LIMBDON-<id>/remove", methods=["GET", "POST"])
 @login_required
 def remove(id):
-
     remove_response = requests.delete(
         url_for("api.donor_remove_donor", id=id, _external=True),
         headers=get_internal_api_header(),

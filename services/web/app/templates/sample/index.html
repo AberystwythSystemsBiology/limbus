@@ -9,7 +9,7 @@
 
         <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" aria-label="First group">
-                <a href="{{ url_for('sample.add_step_one') }}">
+                <a href="{{ url_for('sample.add_step_one') }}" data-role="data_entry">
                     <button type="button" class="btn btn-outline-dark"><i class="fa fa-plus"></i> New Sample</button>
                 </a>
             </div>
@@ -39,16 +39,16 @@
             {{ form_field(form.barcode) }}
             {{ form_field(form.biohazard_level) }}
             {{ form_field(form.base_type) }}
+{#            {{ form_field(form.sample_type) }}#}
             {{ form_field(form.sample_type) }}
             {{ form_field(form.colour) }}
             {{ form_field(form.source) }}
-            {{ form_field(form.status) }}
-{#
+
             <div class="form-group">
-            <strong>{{ form.current_site_id.label }}</strong>
-            {{ form.current_site_id(size="1", class="selectpicker w-100") }}
+            <strong>{{ form.status.label }}</strong>
+            {{ form.status(size="1", class="selectpicker w-100") }}
             </div>
-#}
+
             {{ form_field(form.protocol_id) }}
             {{ form_field(form.source_study) }}
             {{ form_field(form.consent_status) }}
@@ -133,6 +133,7 @@
                             <th>SourceStudy</th>
                             <th>SourceRef</th>
                             <th>Status</th>
+
                             <th>Base Type</th>
                             <th>Sample Type</th>
                             <th>Container</th>
@@ -141,6 +142,7 @@
                             <th>Location</th>
                             <th>Current Site</th>
                             <th>Collection Site</th>
+                            <th>Collection Datetime</th>
                             <th>Creation Date</th>
 
                             <th>Age at registration</th>
@@ -196,4 +198,6 @@
     sessionStorage.setItem("sampletotype", JSON.stringify(sampletotype));
 </script>
 <script src="{{ url_for('static', filename='js/sample/information/index.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth/adapt_template.js') }}"></script>
+
 {% endblock %}

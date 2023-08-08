@@ -36,16 +36,20 @@ from ..misc import get_internal_api_header
 @consent.route("/")
 @login_required
 def index():
+    return render_template("consent/index.html")
+
+
+@consent.route("/data")
+@login_required
+def data():
     response = requests.get(
         url_for("api.consent_home", _external=True), headers=get_internal_api_header()
     )
 
     if response.status_code == 200:
-        return render_template(
-            "consent/index.html", templates=response.json()["content"]
-        )
+        return response.json()
     else:
-        return response.content
+        abort(response.status_code)
 
 
 @consent.route("/LIMBPCF-<id>")
@@ -88,6 +92,23 @@ def add():
     return render_template("consent/new_template.html", form=form)
 
 
+@consent.route("/LIMBPCF-<id>/lock", methods=["GET", "POST"])
+@login_required
+def lock(id):
+    lock_response = requests.post(
+        url_for("api.consent_lock_template", id=id, _external=True),
+        headers=get_internal_api_header(),
+    )
+
+    if lock_response.status_code == 200:
+        flash(lock_response.json()["message"])
+
+    else:
+        flash("We have a problem : %s" % lock_response.json()["message"])
+
+    return lock_response.json()
+
+
 @consent.route("/LIMBPCF-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(id):
@@ -100,7 +121,6 @@ def edit(id):
         form = NewConsentFormTemplateForm()
 
         if form.validate_on_submit():
-
             consent_info = {
                 "name": form.name.data,
                 "description": form.description.data,
@@ -195,7 +215,6 @@ def edit_question(id, q_id):
         headers=get_internal_api_header(),
     )
     if response.status_code == 200:
-
         form = NewConsentFormQuestionForm()
         if form.validate_on_submit():
             question_information = {

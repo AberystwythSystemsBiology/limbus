@@ -120,12 +120,12 @@ function tocart_btn_logic(aTable) {
 
 function render_sample_table(samples, div_id, hide_cols=[]) {
     //let exp_cols = Array.from({length: 18}, (v, k) => k);
-    let exp_cols = Array.from({length: 25}, (v, k) => k);
+    let exp_cols = Array.from({length: 26}, (v, k) => k);
     exp_cols = exp_cols.filter(function (x) {
         return [0, 1].indexOf(x) < 0; //exclude select/user_cart columns
     });
 
-    let inv_cols = [3, 6, 7, 11, 15, 16, 17, 18];// , 19, 20, 21,22,23];
+    let inv_cols = [3, 6, 7, 11, 15, 16, 17, 18, 20];// , 19, 20, 21,22,23];
     if (hide_cols.length > 0) {
         inv_cols = inv_cols.concat(hide_cols);
     }
@@ -415,6 +415,21 @@ function render_sample_table(samples, div_id, hide_cols=[]) {
             },
             {data: "current_site_id"},
             {data: "site_id"},
+
+            {
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var collection_datetime = "";
+                    if ("collection_event" in data) {
+                        try {
+                            collection_datetime = data["collection_event"]["event"]["datetime"]
+                        } catch {
+                        }
+                    }
+                    return collection_datetime
+                }
+            },
+
             {
                 "mData": {},
                 "mRender": function (data, type, row) {
@@ -581,7 +596,7 @@ function get_filters() {
 
 $(document).ready(function() {
     var filters = get_filters();
-    //console.log("filter: ", filters)
+    //console.log("filters: ", filters)
     //render_table({});
     render_table(filters);
     

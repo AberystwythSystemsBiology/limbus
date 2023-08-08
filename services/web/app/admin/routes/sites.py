@@ -62,7 +62,6 @@ def sites_new_site():
     form = SiteRegistrationForm()
 
     if form.validate_on_submit():
-
         site = {
             "name": form.name.data,
             "url": form.url.data,
@@ -86,7 +85,6 @@ def sites_new_site():
         )
 
         if new_address_request.status_code == 200:
-
             site["address_id"] = json.loads(new_address_request.json()["content"])["id"]
             new_site_request = requests.post(
                 url_for("api.misc_new_site", _external=True),

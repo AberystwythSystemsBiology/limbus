@@ -16,7 +16,7 @@
                 <div class="btn-toolbar form-group" role="toolbar" aria-label="Toolbar with button groups">
                     {% if not document.is_locked %}
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{ url_for('document.edit', id=document.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('document.edit', id=document.id) }}">
                             <button type="button" class="btn btn-outline-dark"><i class="fa fa-edit"></i> Edit
                                 Details
                             </button>
@@ -24,7 +24,7 @@
                     </div>
 
                     <div class="btn-group mr-2" role="group" aria-label="First group">
-                        <a href="{{ url_for('document.new_file', id=document.id) }}">
+                        <a data-role="data_entry" href="{{ url_for('document.new_file', id=document.id) }}">
                             <button type="button" class="btn btn-outline-dark"><i class="fa fa-upload"></i> Upload
                                 File</button>
                         </a>
@@ -34,7 +34,7 @@
                     {% endif %}
 
                     <div class="btn-group mr-2" role="group" aria-label="Second group">
-                        <button type="button" data-toggle="modal" data-target="#exampleModalCenter"
+                        <button data-role="data_entry" type="button" data-toggle="modal" data-target="#exampleModalCenter"
                             class="btn btn-outline-dark"><i class="fa fa-lock"></i> {% if document.is_locked %}
                             Unl{% else %}L{% endif %}ock
                         </button>

@@ -24,7 +24,6 @@ from . import testing_headers
 
 
 class DocumentTests(unittest.TestCase):
-
     doc_id: int = 1
 
     def setUp(self) -> None:
@@ -79,7 +78,6 @@ class DocumentTests(unittest.TestCase):
         self.assertTrue(response.json["success"])
 
     def test_05_document_edit_document(self):
-
         edit_name: str = "Testing Document, Edited"
 
         response = self.app.put(
@@ -94,7 +92,6 @@ class DocumentTests(unittest.TestCase):
         self.assertEqual(response.json["content"]["name"], edit_name)
 
     def test_06_document_lock_document(self):
-
         # Lock the document
         response = self.app.put(
             "api/document/LIMBDOC-%s/lock" % (self.__class__.doc_id),

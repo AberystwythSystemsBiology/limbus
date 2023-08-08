@@ -33,7 +33,6 @@ def SampleShipmentEventForm(
     protocols=[], sites=[], sites_ext=[], addresses=[], data={}
 ) -> FlaskForm:
     class StaticForm(FlaskForm):
-
         protocol_id = SelectField(
             "Sample Transfer Protocol", choices=protocols, coerce=int
         )

@@ -44,7 +44,6 @@ import pronto
 import urllib
 
 try:
-
     # Loading UO into memory upon creation of flask instance.
     uo = pronto.Ontology.from_obo_library("uo.obo")
 
@@ -120,7 +119,6 @@ class DoidValidatingSelectField(SelectField):
 
 
 def AttributeEditForm(data={}, subclasses=[("", "None")]):
-
     if "accession" in data:
         onto_terms = [(data["accession"], data["accession"])]
     else:
@@ -156,7 +154,7 @@ def AttributeEditForm(data={}, subclasses=[("", "None")]):
 
         element_type = SelectField(
             "Element Type",
-            choices=AttributeElementType.choices(),
+            choices=AttributeElementType.choices()[0:2],
             description="If required, you can limit what can use this attribute.",
         )
         submit = SubmitField("Submit")
@@ -190,7 +188,7 @@ def AttributeCreationForm(data={}, subclasses=[("", "None")]):
         )
         element_type = SelectField(
             "Element Type",
-            choices=AttributeElementType.choices(),
+            choices=AttributeElementType.choices()[0:2],
             description="If required, you can limit what can use this attribute.",
         )
         submit = SubmitField("Submit")
@@ -336,7 +334,6 @@ def CustomAttributeGeneratedForm(attribute_ids: []) -> FlaskForm:
             )
         elif attr["type"] == "Numeric":
             element = FloatField(attr["term"], render_kw={"_custom_val": True})
-            ontology
 
         element.render_kw = {"_custom_val": True}
 

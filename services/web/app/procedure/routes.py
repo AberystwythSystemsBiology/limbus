@@ -43,7 +43,6 @@ import json
 @procedure.route("/")
 @login_required
 def index():
-
     response = requests.get(
         url_for("api.procedure_home", _external=True), headers=get_internal_api_header()
     )
@@ -59,7 +58,6 @@ def index():
 @procedure.route("/view/LIMBDIAG-<id>/tree")
 @login_required
 def view_tree(id):
-
     response = requests.get(
         url_for("api.procedure_tree", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -102,7 +100,6 @@ def new_volume(id):
         form = DiagnosticProcedureVolumeCreationForm()
 
         if form.validate_on_submit():
-
             volume_response = requests.post(
                 url_for("api.procedure_new_volume", _external=True),
                 headers=get_internal_api_header(),
@@ -138,7 +135,6 @@ def new_subvolume(id):
     )
 
     if response.status_code == 200:
-
         form = DiagnosticProcedureSubVolumeCreationForm()
 
         if form.validate_on_submit():

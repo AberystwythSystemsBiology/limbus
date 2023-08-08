@@ -61,7 +61,22 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
 
     consent_information = db.relationship("SampleConsent", uselist=False)
 
-    events = db.relationship("SampleProtocolEvent", uselist=True)
+    # Source sample collection info
+    collection_id = db.Column(
+        db.Integer, db.ForeignKey("sampleprotocolevent.id"), nullable=True
+    )
+
+    collection_event = db.relationship(
+        "SampleProtocolEvent",
+        foreign_keys=(collection_id),
+        uselist=False,
+    )
+
+    events = db.relationship(
+        "SampleProtocolEvent",
+        primaryjoin="Sample.id==SampleProtocolEvent.sample_id",
+        uselist=True,
+    )
     subsample_event = db.relationship(
         "SampleProtocolEvent",
         uselist=False,
@@ -119,6 +134,7 @@ class Sample(Base, UniqueIdentifierMixin, RefAuthorMixin, RefEditorMixin):
     donor1 = db.relationship(
         "Donor", uselist=False, secondary="donortosample", viewonly=True
     )
+
     donor = db.relationship(
         "Donor", uselist=False, secondary="sampleconsent", viewonly=True
     )

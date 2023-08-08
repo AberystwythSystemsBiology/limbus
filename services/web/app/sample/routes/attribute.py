@@ -39,7 +39,6 @@ def new_custom_attribute(uuid: str) -> str:
     selected_attributes = []
 
     if sample_response.status_code == 200:
-
         form = CustomAttributeSelectionForm(["SAMPLE", "ALL"])
 
         if form.validate_on_submit():
@@ -72,13 +71,11 @@ def new_custom_attribute_form(uuid: str, hash: str) -> str:
     )
 
     if sample_response.status_code == 200:
-
         errors = {}
 
         form = CustomAttributeGeneratedForm(attribute_ids)
 
         if form.validate_on_submit():
-
             for id in attribute_ids:
                 form_element = getattr(form, str(id))
 

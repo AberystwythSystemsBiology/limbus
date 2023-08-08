@@ -36,7 +36,6 @@ from ...decorators import check_if_admin
 @storage.route("/building/LIMBBUILDING-<id>/new_room", methods=["GET", "POST"])
 @login_required
 def new_room(id):
-
     response = requests.get(
         url_for("api.storage_building_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -49,7 +48,6 @@ def new_room(id):
         form = RoomRegistrationForm()
 
         if form.validate_on_submit():
-
             new_response = requests.post(
                 url_for("api.storage_room_new", _external=True),
                 headers=get_internal_api_header(),
@@ -91,7 +89,6 @@ def view_room(id: int):
 @storage.route("/rooms/LIMBROOM-<id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_room(id):
-
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -101,7 +98,6 @@ def edit_room(id):
         return abort(401)
 
     if response.status_code == 200:
-
         form = RoomRegistrationForm(data=response.json()["content"])
         if form.validate_on_submit():
             form_information = {
@@ -131,7 +127,6 @@ def edit_room(id):
 @login_required
 @check_if_admin
 def lock_room(id):
-
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
         headers=get_internal_api_header(),
@@ -158,7 +153,6 @@ def lock_room(id):
 @storage.route("/rooms/LIMBROOM-<id>/delete", methods=["GET", "POST"])
 @login_required
 def delete_room(id):
-
     response = requests.get(
         url_for("api.storage_room_view", id=id, _external=True),
         headers=get_internal_api_header(),
