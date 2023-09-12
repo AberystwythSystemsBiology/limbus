@@ -144,6 +144,45 @@ def auth_password_reset(tokenuser: UserAccount):
         }
 
 
+@api.route("/auth/user/password/forget", methods=["GET", "POST"])
+def auth_forget_password():
+    values = request.get_json()
+
+    if not values:
+        return no_values_response()
+
+    try:
+        result = password_reset_form_schema.load(values)
+    except ValidationError as err:
+        return validation_error_response(err)
+
+    user = UserAccount.query.filter_by(email=values["email"]).first()
+    if user is None:
+        return validation_error_response(
+            {"message": "Incorrect email or this email hasn't been registered!"}
+        )
+
+    else:
+        uaprt = UserAccountPasswordResetToken.query.filter_by(user_id=user.id).first()
+
+        new_token = str(uuid4())
+
+        if uaprt == None:
+            uaprt = UserAccountPasswordResetToken(user_id=user.id)
+            uaprt.token = new_token
+        else:
+            uaprt.token = new_token
+            uaprt.update({"editor_id": user.id})
+
+        try:
+            db.session.add(uaprt)
+            db.session.commit()
+            #return success_with_content_response(basic_user_account_schema.dump(user))
+            return success_with_content_response({"token": new_token})
+        except Exception as err:
+            return transaction_error_response(err)
+
+
 @api.route("/auth/user/new_token", methods=["GET"])
 @token_required
 def auth_new_token(tokenuser: UserAccount):

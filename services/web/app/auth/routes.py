@@ -16,12 +16,13 @@
 from ast import Pass
 from flask import redirect, render_template, url_for, flash, abort, request
 from flask_login import login_required, login_user, logout_user, current_user
+
 import requests
 from sqlalchemy import func
 
 from . import auth
 
-from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm
+from .forms import LoginForm, PasswordChangeForm, UserAccountEditForm#, ForgetPasswordForm
 from .models import UserAccount, UserAccountToken, UserAccountPasswordResetToken
 
 from ..database import db
@@ -137,10 +138,10 @@ def change_password_external(token: str):
         )
 
         if uaprt == None:
-            flash("This token is invalid. Please contact your system administrator")
+            flash("This token is invalid. ")#Please contact your system administrator")
         elif datetime.now() > (uaprt.updated_on + timedelta(hours=24)):
             flash(
-                "This token is older than 24 hours old. Please contact your system administrator"
+                "This token is older than 24 hours old. "#Please contact your system administrator"
             )
         else:
             user = (
@@ -181,3 +182,5 @@ def generate_token():
             )
 
     abort(response.status_code)
+
+

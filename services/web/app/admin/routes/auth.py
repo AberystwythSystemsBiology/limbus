@@ -18,7 +18,7 @@ from ...decorators import check_if_admin
 from ...misc import get_internal_api_header
 
 from ...auth.forms import UserAccountRegistrationForm, UserAccountEditForm
-from ..forms import AdminUserAccountEditForm
+from ..forms import AdminUserAccountEditForm, ForgetPasswordForm
 from ..forms.auth import AccountLockPasswordForm
 from ...sample.enums import (
     SampleBaseType,
@@ -29,7 +29,7 @@ from ...sample.enums import (
     FluidContainer,
     CellContainer,
 )
-from ...database import TemporaryStore
+from ...database import TemporaryStore, db, UserAccount
 
 from flask import render_template, url_for, redirect, abort, flash, current_app, request
 from flask_login import current_user, login_required
@@ -741,3 +741,42 @@ def admin_edit_settings(id, use_template=None):
         )
     else:
         return abort(response.status_code)
+
+@admin.route('auth/forget_password', methods=["GET", "POST"])
+def auth_forget_password():
+
+    form = ForgetPasswordForm()
+    if form.validate_on_submit():
+        # get password reset token
+        token_email = requests.post(
+            url_for("api.auth_forget_password", _external=True),
+            headers={"FlaskApp": current_app.config.get("SECRET_KEY"), "Email": form.email.data},
+            json={"email": form.email.data},
+        )
+
+        if token_email.status_code == 200:
+            token = token_email.json()["content"]["token"]
+            confirm_url = url_for(
+                "auth.change_password_external", token=token, _external=True
+            )
+            template = render_template(
+                "admin/auth/email/password_reset.html", reset_url=confirm_url
+            )
+            subject = "LIMBUS: Password Reset Email"
+            msg = Message(
+                subject,
+                recipients=[form.email.data],
+                html=template,
+                sender=current_app.config["MAIL_USERNAME"],
+            )
+
+            # Send password reset email
+            mail.send(msg)
+            flash("Password reset email has been sent!")
+            return redirect(url_for("auth.login"))
+
+        else:
+            flash(token_email.json()["message"])
+
+
+    return render_template("admin/auth/forget_password.html", form=form)
