@@ -87,12 +87,15 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
     except:
         id0 = None
 
-    try:
-        choices0 = settings["data_entry"]["protocol"][default_type]["choices"]
-        if len(choices0) == 0:
-            choices0 = None
-    except:
+    if tokenuser.is_admin:
         choices0 = None
+    else:
+        try:
+            choices0 = settings["data_entry"]["protocol"][default_type]["choices"]
+            if len(choices0) == 0:
+                choices0 = None
+        except:
+            choices0 = None
 
     for protocol in protocols:
         if choices0:
@@ -111,8 +114,6 @@ def protocol_query_tokenuser(args, tokenuser: UserAccount, default_type="all"):
         # -- Insert default
         choices = [(id0, nm0)] + choices
 
-    print("sett", settings, "default_type", default_type)
-    print("choices", choices)
     return success_with_content_response(
         {"info": protocols, "choices": choices, "default": id0}
     )

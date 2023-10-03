@@ -76,25 +76,30 @@ def consent_query(args, tokenuser: UserAccount):
 @token_required
 def consent_query_tokenuser(args, tokenuser: UserAccount):
     filters, joins = get_filters_and_joins(args, ConsentFormTemplate)
-
     templates = basic_consent_form_templates_schema.dump(
         ConsentFormTemplate.query.filter_by(**filters).filter(*joins).all()
     )
 
     choices = []
     settings = tokenuser.settings
+    nm0 = None
+
     try:
         id0 = settings["data_entry"]["consent_template"]["default"]
         nm0 = None
     except:
         id0 = None
 
-    try:
-        choices0 = settings["data_entry"]["consent_template"]["choices"]
-        if len(choices0) == 0:
-            choices0 = None
-    except:
+
+    if tokenuser.is_admin:
         choices0 = None
+    else:
+        try:
+            choices0 = settings["data_entry"]["consent_template"]["choices"]
+            if len(choices0) == 0:
+                choices0 = None
+        except:
+            choices0 = None
 
     for template in templates:
         if choices0:
