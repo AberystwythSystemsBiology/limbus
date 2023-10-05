@@ -42,7 +42,7 @@ from ..enums import EntityToStorageType
 
 from sqlalchemy.sql import insert, func
 from sqlalchemy import or_, and_, not_, select, text
-from sqlalchemy.orm import aliased
+# from sqlalchemy.orm import aliased
 from marshmallow import ValidationError
 
 from ..views.rack import *
@@ -1226,8 +1226,9 @@ def storage_rack_delete(id, tokenuser: UserAccount):
 
 
 @api.route("/storage/rack/location/LIMBRACK-<id>", methods=["GET"])
+@api.route("/storage/rack/location/LIMBRACK-<id>/detail-<detailed>", methods=["GET"])
 @token_required
-def storage_rack_location(id, tokenuser: UserAccount):
+def storage_rack_location(id, tokenuser: UserAccount, detailed=0):
     # Get shelf_id for the give rack id
     stmt = (
         db.session.query(SampleRack)
@@ -1288,6 +1289,12 @@ def storage_rack_location(id, tokenuser: UserAccount):
                 for (storage_id, shelf_id, row, col) in [stmt1.first()]
             ][0]
             result.update(result1)
+
+            if int(detailed)==1:
+                # Get site/building/room info for the rack
+                shelf_id = result1["shelf_id"]
+                location = func_shelf_location(shelf_id)["location"]
+                result.update(location)
 
     return success_with_content_response(result)
 

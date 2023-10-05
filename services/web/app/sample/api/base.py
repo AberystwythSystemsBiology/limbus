@@ -530,6 +530,9 @@ def func_shelf_location(id):
             "shelf_name",
         ]
         location = dict(zip(colnames, location))
+        #location["coldstorage_type"]= "(%s) %s" % (location["coldstorage_type"].name, location["coldstorage_type"].value)
+        location["coldstorage_type"] = location["coldstorage_type"].value # deal with enum
+        location["coldstorage_temp"] = location["coldstorage_temp"].value
 
     return {"location": location, "pretty": pretty}
 
