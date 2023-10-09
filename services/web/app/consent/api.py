@@ -90,7 +90,6 @@ def consent_query_tokenuser(args, tokenuser: UserAccount):
     except:
         id0 = None
 
-
     if tokenuser.is_admin:
         choices0 = None
     else:

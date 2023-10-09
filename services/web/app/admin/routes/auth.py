@@ -250,13 +250,13 @@ def populate_settings(
     def flatten_settings(name, settings_val, choices=[], setting={}):
         name_choices = name + "_choices"
         name_default = name + "_default"
-        name_selected = name + "_selected" # display text for selected choices
+        name_selected = name + "_selected"  # display text for selected choices
 
         try:
             setting[name_choices] = settings_val["choices"]
 
             if setting[name_choices] is None or len(setting[name_choices]) == 0:
-                #setting[name_choices] = [s[0] for s in choices]
+                # setting[name_choices] = [s[0] for s in choices]
                 setting[name_choices] = []
         except:
             # setting[name_choices] = [s[0] for s in choices]
@@ -301,7 +301,7 @@ def populate_settings(
         setting = {}
         for k in item_list:
             setting.update({k + "_choices": [], k + "_default": None})
-            setting.update({k + "_selected": 'None'})
+            setting.update({k + "_selected": "None"})
 
         if access_type == "data_entry":
             setting["access_level"] = 1
@@ -320,12 +320,12 @@ def populate_settings(
         setting["site_selected"] = "\n".join(
             [s[1] for s in sites if s[0] in setting["site_choices"]]
         )
-        #print("setting: ", setting)
+        # print("setting: ", setting)
         # -- Consent templates
         if "consent_template" in item_list:
             try:
                 settings_val = settings_data[access_type]["consent_template"]
-                settings_val["choices"]=None # disable setting choices
+                settings_val["choices"] = None  # disable setting choices
                 setting = flatten_settings(
                     name="consent_template",
                     settings_val=settings_val,
@@ -352,7 +352,7 @@ def populate_settings(
         if "collection_protocol" in item_list:
             try:
                 settings_val = settings_data[access_type]["protocol"]["ACQ"]
-                settings_val["choices"] = None # disable setting choices
+                settings_val["choices"] = None  # disable setting choices
                 setting = flatten_settings(
                     name="collection_protocol",
                     settings_val=settings_val,
@@ -366,7 +366,7 @@ def populate_settings(
         if "processing_protocol" in item_list:
             try:
                 settings_val = settings_data[access_type]["protocol"]["SAP"]
-                settings_val["choices"] = None # disable setting choices
+                settings_val["choices"] = None  # disable setting choices
                 setting = flatten_settings(
                     name="processing_protocol",
                     settings_val=settings_val,
@@ -498,7 +498,7 @@ def jsonise_settings(form, account_data):
             settings["data_entry"].update(
                 {
                     "consent_template": {
-                        #"choices": setting.consent_template_choices.data,
+                        # "choices": setting.consent_template_choices.data,
                         "default": setting.consent_template_default.data,
                     },
                     "protocol": {
@@ -507,11 +507,11 @@ def jsonise_settings(form, account_data):
                             "default": setting.study_protocol_default.data,
                         },
                         "ACQ": {
-                            #"choices": setting.collection_protocol_choices.data,
+                            # "choices": setting.collection_protocol_choices.data,
                             "default": setting.collection_protocol_default.data,
                         },
                         "SAP": {
-                            #"choices": setting.processing_protocol_choices.data,
+                            # "choices": setting.processing_protocol_choices.data,
                             "default": setting.processing_protocol_default.data,
                         },
                     },
@@ -694,16 +694,16 @@ def admin_edit_settings(id, use_template=None):
             setting.site_choices.choices = sites
             # setting.site_default.choices = sites
 
-            #setting.consent_template_choices.choices = consent_templates
+            # setting.consent_template_choices.choices = consent_templates
             setting.consent_template_default.choices = consent_templates
 
             setting.study_protocol_choices.choices = study_protocols
             setting.study_protocol_default.choices = study_protocols
 
-            #setting.collection_protocol_choices.choices = collection_protocols
+            # setting.collection_protocol_choices.choices = collection_protocols
             setting.collection_protocol_default.choices = collection_protocols
 
-            #setting.processing_protocol_choices.choices = processing_protocols
+            # setting.processing_protocol_choices.choices = processing_protocols
             setting.processing_protocol_default.choices = processing_protocols
 
         if (
@@ -756,15 +756,18 @@ def admin_edit_settings(id, use_template=None):
     else:
         return abort(response.status_code)
 
-@admin.route('auth/forget_password', methods=["GET", "POST"])
-def auth_forget_password():
 
+@admin.route("auth/forget_password", methods=["GET", "POST"])
+def auth_forget_password():
     form = ForgetPasswordForm()
     if form.validate_on_submit():
         # get password reset token
         token_email = requests.post(
             url_for("api.auth_forget_password", _external=True),
-            headers={"FlaskApp": current_app.config.get("SECRET_KEY"), "Email": form.email.data},
+            headers={
+                "FlaskApp": current_app.config.get("SECRET_KEY"),
+                "Email": form.email.data,
+            },
             json={"email": form.email.data},
         )
 
@@ -791,6 +794,5 @@ def auth_forget_password():
 
         else:
             flash(token_email.json()["message"])
-
 
     return render_template("admin/auth/forget_password.html", form=form)

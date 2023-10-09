@@ -96,10 +96,12 @@ def AccountLockPasswordForm(email):
 
     return StaticForm()
 
+
 class ForgetPasswordForm(FlaskForm):
     email = StringField("Email Address", validators=[DataRequired(), Email()])
     # password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
     submit = SubmitField("Reset Password")
+
 
 def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
     if "account_type" in data:

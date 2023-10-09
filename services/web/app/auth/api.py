@@ -177,7 +177,7 @@ def auth_forget_password():
         try:
             db.session.add(uaprt)
             db.session.commit()
-            #return success_with_content_response(basic_user_account_schema.dump(user))
+            # return success_with_content_response(basic_user_account_schema.dump(user))
             return success_with_content_response({"token": new_token})
         except Exception as err:
             return transaction_error_response(err)
