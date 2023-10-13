@@ -1075,7 +1075,7 @@ def edit_rack(id):
 
     if response.status_code == 200:
         response = requests.get(
-            url_for("api.storage_rack_location", id=id, _external=True),
+            url_for("api.storage_rack_location", id=id, detailed=1, _external=True),
             # url_for("api.storage_rack_view", id=id, _external=True),
             headers=get_internal_api_header(),
         )
@@ -1091,7 +1091,6 @@ def edit_rack(id):
 
         # For SampleRack with location info.
         rack = response.json()["content"]
-        # print("Rack: ", rack)
         shelves = []
         shelf_dict = {}
         shelf_required = True
@@ -1114,13 +1113,13 @@ def edit_rack(id):
 
             # shelf_required = len(shelves) > 0
 
-        print("rack: ", rack)
         form = EditSampleRackForm(
             sites=sites,
             shelves=shelves,
             data={
                 "serial": rack["serial_number"],
                 "description": rack["description"],
+                "site_id": rack["site_id"],
                 "storage_id": rack["storage_id"],
                 "shelf_id": rack["shelf_id"],
                 "compartment_row": rack["compartment_row"],

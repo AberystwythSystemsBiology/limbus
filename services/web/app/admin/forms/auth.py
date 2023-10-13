@@ -97,6 +97,12 @@ def AccountLockPasswordForm(email):
     return StaticForm()
 
 
+class ForgetPasswordForm(FlaskForm):
+    email = StringField("Email Address", validators=[DataRequired(), Email()])
+    # password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
+    submit = SubmitField("Reset Password")
+
+
 def AdminUserAccountEditForm(sites=[], data={}) -> FlaskForm:
     if "account_type" in data:
         data["account_type"] = AccountType(data["account_type"]).name
@@ -190,16 +196,17 @@ class UserSettings(FlaskForm):
     # )
 
     # -- Consent
-    consent_template_choices = SelectMultipleField(
-        "Consent template choices",
-        choices=[],
-        coerce=int,
-        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
-    )
-    consent_template_selected = TextAreaField(
-        "Current choice",
-        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
-    )
+    if False:
+        consent_template_choices = SelectMultipleField(
+            "Consent template choices",
+            choices=[],
+            coerce=int,
+            render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+        )
+        consent_template_selected = TextAreaField(
+            "Current choice",
+            render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+        )
     consent_template_default = SelectField(
         "Default working consent template",
         choices=[],
@@ -227,16 +234,17 @@ class UserSettings(FlaskForm):
     )
 
     # -- sample acquisition protocols
-    collection_protocol_choices = SelectMultipleField(
-        "Sample acquisition protocol choices",
-        choices=[],
-        coerce=int,
-        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
-    )
-    collection_protocol_selected = TextAreaField(
-        "Current choice",
-        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
-    )
+    if False:
+        collection_protocol_choices = SelectMultipleField(
+            "Sample acquisition protocol choices",
+            choices=[],
+            coerce=int,
+            render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+        )
+        collection_protocol_selected = TextAreaField(
+            "Current choice",
+            render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+        )
     collection_protocol_default = SelectField(
         "Default sample acquisition protocol",
         choices=[],
@@ -245,16 +253,17 @@ class UserSettings(FlaskForm):
     )
 
     # -- sample processing protocols
-    processing_protocol_choices = SelectMultipleField(
-        "Sample processing protocol choices",
-        choices=[],
-        coerce=int,
-        render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
-    )
-    processing_protocol_selected = TextAreaField(
-        "Current choice",
-        render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
-    )
+    if False:
+        processing_protocol_choices = SelectMultipleField(
+            "Sample processing protocol choices",
+            choices=[],
+            coerce=int,
+            render_kw={"size": "1", "class": "selectpicker form-control wd=0.6"},
+        )
+        processing_protocol_selected = TextAreaField(
+            "Current choice",
+            render_kw={"readonly": True, "rows": 5, "class": "form-control bd-light"},
+        )
     processing_protocol_default = SelectField(
         "Default sample processing protocol",
         choices=[],
