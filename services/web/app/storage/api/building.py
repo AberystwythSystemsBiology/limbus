@@ -155,8 +155,6 @@ def delete_buildings_func(record):
 # @token_required
 @requires_roles("data_entry")
 def storage_edit_building(id: int, tokenuser: UserAccount):
-    if not tokenuser.has_data_entry_role:
-        return not_allowed()
 
     building = Building.query.filter_by(id=id).first()
 
