@@ -136,8 +136,6 @@ def storage_coldstorage_new_service_report(id, tokenuser: UserAccount):
 # @token_required
 @requires_roles("data_entry")
 def storage_coldstorage_new(tokenuser: UserAccount):
-    if not tokenuser.has_data_entry_role:
-        return not_allowed()
 
     values = request.get_json()
 
