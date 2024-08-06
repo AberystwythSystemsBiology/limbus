@@ -1092,9 +1092,10 @@ def edit_rack(id):
 
         # For SampleRack with location info.
         rack = response.json()["content"]
-        print("rack", rack)
+
         if 'site_id' not in rack:
             rack['site_id'] = user_site_id
+
         shelves = []
         shelf_dict = {}
         shelf_required = True

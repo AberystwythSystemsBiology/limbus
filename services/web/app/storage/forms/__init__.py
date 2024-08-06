@@ -73,13 +73,42 @@ def func_label_container_type(type_info: dict):
         container_type = "@" + container_type
     return container_type
 
+def func_label_donor(donor_info: dict):
+    if donor_info is None or type(donor_info) is not dict:
+        return ""
+    donor_label = "DON_%s" %donor_info["donor_id"]
+    if 'study' in donor_info:
+        try:
+            donor_ref = donor_info["study"]["reference_id"]
+        except:
+            donor_ref = ""
+
+        if donor_ref is not None and donor_ref!="":
+            donor_label += "- %s@" %donor_ref
+
+        print(donor_info['study'])
+        try:
+            study_name = donor_info['study']['protocol']['name']
+        except:
+            study_name = ""
+
+        print(study_name)
+        if study_name is not None and study_name !="":
+            if len(study_name)>10:
+                study_name = study_name[0:10]+".."
+            else:
+                study_name = study_name[0:10]
+            #donor_label += "STU%s(%s)" %(donor_info['study']['protocol']['id'], study_name)
+            donor_label += study_name
+
+    return donor_label
 
 def func_get_samples_choices(samples: list):
     samples_choices = []
     for sample in samples:
         type_info = sample.pop("sample_type_information", "")
         sample_type = func_label_sample_type(type_info)
-        container_type = func_label_container_type(type_info)
+        #container_type = func_label_container_type(type_info)
         if sample["base_type"] == "Cellular":
             metric = "Cells"
         else:
@@ -89,19 +118,24 @@ def func_get_samples_choices(samples: list):
             sample["quantity"],
             metric,
         )
+        #print("Sample info: ", sample)
+        donor_label = func_label_donor(sample["consent_information"])
+
         if sample["barcode"] and sample["barcode"] != "":
             sample_label = "%s: %s %s %s [%s]" % (
+                donor_label,
                 sample["barcode"],
                 sample_type,
                 qty_info,
-                container_type,
+                #container_type,
                 sample["uuid"],
             )
         else:
             sample_label = "%s %s %s [%s]" % (
+                donor_label,
                 sample_type,
                 qty_info,
-                container_type,
+                #container_type,
                 sample["uuid"],
             )
 
