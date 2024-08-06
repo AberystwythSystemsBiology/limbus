@@ -1085,12 +1085,16 @@ def edit_rack(id):
             headers=get_internal_api_header(),
         )
 
+        user_site_id = None
         if sites_response.status_code == 200:
             sites = sites_response.json()["content"]["choices"]
             user_site_id = sites_response.json()["content"]["user_site_id"]
 
         # For SampleRack with location info.
         rack = response.json()["content"]
+        print("rack", rack)
+        if 'site_id' not in rack:
+            rack['site_id'] = user_site_id
         shelves = []
         shelf_dict = {}
         shelf_required = True
