@@ -106,7 +106,8 @@ def create_testuser():
     db.session.commit()
     db.session.flush()
 
-    generated_password = "".join(random.choice(string.printable) for i in range(15))
+    characters = string.ascii_letters + string.digits + "!@#$%^&*()"
+    generated_password = "".join(random.choice(characters) for i in range(15))
 
     me = UserAccount(
         email="me@domain.com",

@@ -79,23 +79,24 @@ def register_error_handlers(app):
 
 
 def register_blueprints(app):
-    app.register_blueprint(cmd_setup_blueprint)
-    app.register_blueprint(api_blueprint, url_prefix="/api")
-    app.register_blueprint(label_blueprint, url_prefix="/labels")
-    app.register_blueprint(setup_blueprint, url_prefix="/setup")
-    app.register_blueprint(misc_blueprint)
-    app.register_blueprint(auth_blueprint, url_prefix="/auth")
-    app.register_blueprint(attribute_blueprint, url_prefix="/attribute")
-    app.register_blueprint(document_blueprint, url_prefix="/document")
-    app.register_blueprint(procedure_blueprint, url_prefix="/procedure")
-    app.register_blueprint(event_blueprint, url_prefix="/event")
-    app.register_blueprint(donor_blueprint, url_prefix="/donor")
-    app.register_blueprint(consent_blueprint, url_prefix="/consent")
-    app.register_blueprint(protocol_blueprint, url_prefix="/protocol")
-    app.register_blueprint(sample_blueprint, url_prefix="/sample")
-    app.register_blueprint(tmpstore_blueprint, url_prefix="/tmpstore")
-    app.register_blueprint(storage_blueprint, url_prefix="/storage")
-    app.register_blueprint(admin_blueprint, url_prefix="/admin")
+    subd = ''#'/test'
+    app.register_blueprint(cmd_setup_blueprint, url_prefix=subd)
+    app.register_blueprint(api_blueprint, url_prefix=subd+"/api")
+    app.register_blueprint(label_blueprint, url_prefix=subd+"/labels")
+    app.register_blueprint(setup_blueprint, url_prefix=subd+"/setup")
+    app.register_blueprint(misc_blueprint, url_prefix=subd)
+    app.register_blueprint(auth_blueprint, url_prefix=subd+"/auth")
+    app.register_blueprint(attribute_blueprint, url_prefix=subd+"/attribute")
+    app.register_blueprint(document_blueprint, url_prefix=subd+"/document")
+    app.register_blueprint(procedure_blueprint, url_prefix=subd+"/procedure")
+    app.register_blueprint(event_blueprint, url_prefix=subd+"/event")
+    app.register_blueprint(donor_blueprint, url_prefix=subd+"/donor")
+    app.register_blueprint(consent_blueprint, url_prefix=subd+"/consent")
+    app.register_blueprint(protocol_blueprint, url_prefix=subd+"/protocol")
+    app.register_blueprint(sample_blueprint, url_prefix=subd+"/sample")
+    app.register_blueprint(tmpstore_blueprint, url_prefix=subd+"/tmpstore")
+    app.register_blueprint(storage_blueprint, url_prefix=subd+"/storage")
+    app.register_blueprint(admin_blueprint, url_prefix=subd+"/admin")
 
 
 def setup_database(app):

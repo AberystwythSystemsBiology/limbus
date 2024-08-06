@@ -32,6 +32,7 @@ def _structure_dict(dict_):
     r = {}
     for k, v in dict_.items():
         structure_dict_pair(r, k, v)
+    
     return r
 
 

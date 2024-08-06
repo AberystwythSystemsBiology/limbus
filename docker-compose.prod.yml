@@ -55,7 +55,8 @@ services:
     networks:
       - db
       - nginx
-    command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
+    #command: venv/bin/gunicorn --bind 0.0.0.0:5000 run:app
+    command: gunicorn -b 0.0.0.0:5000 run:app
     environment:
       VIRTUAL_HOST: bims.abersystemsbiology.co.uk
       VIRTUAL_PORT: 5000
