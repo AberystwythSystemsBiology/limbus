@@ -74,9 +74,13 @@ def func_label_container_type(type_info: dict):
     return container_type
 
 def func_label_donor(donor_info: dict):
+    donor_label = ""
     if donor_info is None or type(donor_info) is not dict:
-        return ""
-    donor_label = "DON_%s" %donor_info["donor_id"]
+        return donor_label
+
+    if donor_info["donor_id"] not in [None, ""]:
+        donor_label += "DON_%s" %donor_info["donor_id"]
+
     if 'study' in donor_info:
         try:
             donor_ref = donor_info["study"]["reference_id"]

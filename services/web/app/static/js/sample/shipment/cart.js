@@ -224,7 +224,7 @@ function fill_cart_table(cart) {
 
         columnDefs: [
             {targets: '_all', defaultContent: ''},
-            {targets: [3], visible: false, "defaultContent": ""},
+            {targets: [1,2, 3, 5, 7,8], visible: false, "defaultContent": ""},
             {
                 targets: -1,
                 orderable: false,
@@ -259,12 +259,64 @@ function fill_cart_table(cart) {
                     return col_data
                 }
             },
+            {data: "id"},
+            {data: "barcode"},
 
+            { // Donor ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data["sample"]['consent_information'];
+                    col_data = "";
+                    if (consent['donor_id'] != null) {
+                        var donor_link = window.location.origin + '/donor/LIMBDON-' + consent['donor_id'];
+                        col_data += '<a href="' + donor_link + '" target="_blank">';
+                        col_data += '<i class="fa fa-user-circle"></i>' + 'LIMBDON-' + consent['donor_id'];
+                        col_data += '</a>';
+                    }
+                    return col_data;
+                }
+            },
             { // Consent ID
                 "mData": {},
                 "mRender": function (data, type, row) {
                     var consent = data["sample"]['consent_information'];
                     return 'LIMBDC-' + consent['id'];
+                }
+            },
+            { // study ID
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data["sample"]['consent_information'];
+                    var col_data = "";
+
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        doi = consent['study']['protocol']['doi'];
+                        if (doi == null)
+                            doi = "";
+
+                        protocol_name = consent['study']['protocol']['name'];
+                        if (protocol_name == null)
+                            protocol_name = "";
+
+                        col_data += '<a href="' + doi2url(doi) + '" target="_blank">';
+                        // col_data += doi;
+                        col_data += '<i class="fas fa-users"></i>' + protocol_name;
+                        col_data += '</a>';
+
+                    }
+                    return col_data;
+                }
+            },
+
+            { // donor reference no
+                "mData": {},
+                "mRender": function (data, type, row) {
+                    var consent = data["sample"]['consent_information'];
+                    var reference_id = "";
+                    if (consent['study'] != undefined && consent['study'] != null) {
+                        reference_id = consent['study']['reference_id']
+                    }
+                    return reference_id;
                 }
             },
 

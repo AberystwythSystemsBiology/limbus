@@ -51,6 +51,42 @@ function reset_cart(){
     fill_cart(cart);
 }
 
+function get_donor_study_label(consent){
+    // var consent = data["sample"]['consent_information'];
+    if (consent == null) return "";
+    var col_data = "";
+
+    if (consent['donor_id'] != null) {
+        //col_data += 'LIMBDON-' + consent['donor_id'];
+        var donor_link = window.location.origin + '/donor/LIMBDON-' + consent['donor_id'];
+        col_data += '<a href="' + donor_link + '" target="_blank">';
+        col_data += '<i class="fa fa-user-circle"></i>' + 'LIMBDON-' + consent['donor_id'];
+        col_data += '</a>';
+    }
+
+    var reference_id = "";
+    if (consent['study'] != undefined && consent['study'] != null) {
+        reference_id = consent['study']['reference_id'];
+        col_data += "(" + reference_id + ")";
+    }
+
+/*    if (consent['study'] != undefined && consent['study'] != null) {
+        doi = consent['study']['protocol']['doi'];
+        if (doi == null)
+            doi = "";
+
+        protocol_name = consent['study']['protocol']['name'];
+        if (protocol_name == null)
+            protocol_name = "";
+
+        col_data += '<a href="' + doi2url(doi) + '" target="_blank">';
+        // col_data += doi;
+        col_data += '<i class="fas fa-users"></i>' + protocol_name;
+        col_data += '</a>';
+    }*/
+    return col_data;
+}
+
 function fill_cart(cart) {
     cart.sort(compare_samples);
     for (i in cart) {
@@ -66,7 +102,8 @@ function fill_cart(cart) {
             li_data += sample["sample"]["uuid"];
             li_data += "</a>"
 
-
+            var consent = sample["sample"]['consent_information'];
+            li_data += get_donor_study_label(consent)
             $("#samples-cart-list-group").append(li_data)
         } else {
             var href = sample["sample"]["_links"]["self"]
