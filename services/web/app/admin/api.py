@@ -39,6 +39,10 @@ def func_sample_type_info(info):
     ]
     return types
 
+def dropkey(d, keys):
+    for k in keys:
+        d.pop(k)
+    return d
 
 def func_transaction_summary(audit_tr):
     """
@@ -60,6 +64,7 @@ def func_transaction_summary(audit_tr):
     chgkeys = {}
     updates = {}
     print("objs: ", len(objs))
+
     # -- filling missing author/editor info
     if desc1["author"] is None:
         for d in audit_tr:
@@ -161,8 +166,18 @@ def func_transaction_summary(audit_tr):
                 for d in audit_tr
                 if d["object"] == object
             ]
+
             storage_types = list(set(storage_types))
             updates[object] = updates[object] + storage_types
+
+            ets = [
+                str(dropkey(d["changed_to"], ['storage_type']))
+                for d in audit_tr
+                if d["object"] == object
+            ]
+                            
+            ets = list(set(ets))  # Remove repeated ones
+            updates[object] = updates[object] + ets
 
         elif object in ["SampleProtocolEvent", "DonorProtocolEvent"]:
             ops = [OperationType[d] for d in operations[object]]
@@ -488,6 +503,8 @@ def audit_query(args, tokenuser: UserAccount):
             for model in objects:
                 if model == uuid_model:
                     continue
+
+                ModelVersion = version_class(eval(model))
                 try:
                     transactions = (
                         db.session.query(ModelVersion)
@@ -498,6 +515,34 @@ def audit_query(args, tokenuser: UserAccount):
                     if len(transactions) > 0:
                         transaction_ids1 = [d[0] for d in transactions]
                         transaction_ids = list(set(transaction_ids + transaction_ids1))
+
+                except:
+                    pass
+
+            # get transactions involving storage (e.g. rack_id) for given sample
+            versioned_ets = version_class(eval("EntityToStorage"))
+            rack_ids = (
+                db.session.query(versioned_ets)
+                    .filter_by(sample_id=sample_id)
+                    .filter(versioned_ets.rack_id != None)
+                    .with_entities(versioned_ets.rack_id)
+                    .all()
+            )
+            if len(rack_ids) > 0:
+                rack_ids = list(set([rs[0] for rs in rack_ids]))
+                try:
+                    transactions = (
+                        db.session.query(versioned_ets)
+                            .filter(versioned_ets.rack_id.in_(rack_ids))
+                            .filter_by(storage_type="BTS")
+                            .with_entities(versioned_ets.transaction_id, versioned_ets.id)
+                            .all()
+                    )
+                    if len(transactions) > 0:
+                        print("len(transactions) ", len(transactions))
+                        transaction_ids1 = [d[0] for d in transactions]
+                        transaction_ids = list(set(transaction_ids + transaction_ids1))
+
                 except:
                     pass
 
