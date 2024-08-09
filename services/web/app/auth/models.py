@@ -79,7 +79,9 @@ class UserAccount(Base, UserMixin):
 
     @property
     def roles(self) -> str:
-        roles = [k for k in self.settings]
+        roles = []
+        if self.settings is not None:
+            roles = [k for k in self.settings]
         if self.account_type == AccountType.ADM:
             roles = ["admin"] + roles
 

@@ -32,7 +32,7 @@ services:
       - nginx
 
   db:
-    container_name: limbus-db
+    container_name: db
     image: postgres:10
     env_file: .env
     volumes:
