@@ -536,6 +536,7 @@ def storage_shelf_overview(tokenuser: UserAccount):
             ColdStorageShelf.name,
         )
         .filter(or_(SiteInformation.id.in_(sites), tokenuser.is_admin))
+        .filter(ColdStorage.is_locked == False)
         .all()
     )
 
