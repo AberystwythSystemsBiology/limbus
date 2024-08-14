@@ -17,7 +17,7 @@ services:
       .env
     command: gunicorn -b 0.0.0.0:5000 run:app
   db:
-    image: postgres:10
+    image: postgres:15
     env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
